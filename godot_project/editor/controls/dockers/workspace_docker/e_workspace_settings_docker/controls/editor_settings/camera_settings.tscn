@@ -1,0 +1,63 @@
+[gd_scene load_steps=3 format=3 uid="uid://iofkm3htupj0"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/camera_settings.gd" id="1_vsnv4"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_lsx0g"]
+
+[node name="CameraSettings" type="VBoxContainer"]
+offset_right = 484.0
+offset_bottom = 213.0
+script = ExtResource("1_vsnv4")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Camera"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Projection"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="PerspectiveButton" type="Button" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_lsx0g")
+text = "Perspective"
+
+[node name="OrthographicButton" type="Button" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_lsx0g")
+text = "Orthographic"
+
+[node name="InvertCameraOrbitXDirectionCheckButton" type="CheckButton" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Invert camera orbit X direction"
+
+[node name="InvertCameraOrbitYDirectionCheckButton" type="CheckButton" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Invert camera orbit Y direction"

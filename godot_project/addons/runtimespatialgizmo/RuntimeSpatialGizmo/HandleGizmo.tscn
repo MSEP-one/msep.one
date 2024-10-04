@@ -1,0 +1,278 @@
+[gd_scene load_steps=29 format=3 uid="uid://cxxc5aje7xqn6"]
+
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/HandleGizmo.gd" id="1"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/TranslationAxes.gd" id="2"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/RotationArcs.gd" id="3"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/TranslationSurfaces.gd" id="4"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/GlobalScaleAxes.gd" id="4_i2kkr"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/ScaleAxes.gd" id="5"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/GlobalTranslationAxes.gd" id="5_7mkyy"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/OrthoScaleAxes.gd" id="5_veegu"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/CenterDrag.gd" id="6"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/GlobalRotationArcs.gd" id="7_rnvv7"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/DrawSingleGlobalTranslationAxis.gd" id="7_rwo20"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/AxisArrowArcInnerPart.gd" id="8_5umn2"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/GlobalTranslationSurfaces.gd" id="9_k1bey"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/OrthoTranslationAxes.gd" id="10_62sq4"]
+[ext_resource type="Shader" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/TranslationSurfaces.gdshader" id="10_sb355"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/MCBehavior.gd" id="11_cbsiy"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/DrawSingleOrthoTranslationAxis.gd" id="11_tklpq"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/DrawSingleGlobalSurface.gd" id="12_skbbe"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/OrthoRotationArcs.gd" id="14_cimno"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/OrthoTranslationSurfaces.gd" id="19_pt666"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/DrawSingleOrthoSurface.gd" id="20_hys5t"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/OrthoZHandle.gd" id="22_osn07"]
+[ext_resource type="Texture2D" uid="uid://b4sowtq2t4pvm" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/svg/UI_transformGizmo_Z_control_default.svg" id="23_hgth6"]
+[ext_resource type="Script" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/OrthoZSurface.gd" id="24_4a52q"]
+[ext_resource type="Texture2D" uid="uid://dcfdod00at5sf" path="res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/svg/UI_box_arrows_default.svg" id="25_mns4b"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yexck"]
+shader = ExtResource("10_sb355")
+shader_parameter/u_circle_size = 2.0
+shader_parameter/u_intensity_factor = 0.54
+shader_parameter/u_intensitiy_bottom_threshold = 0.95
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_l8rem"]
+shader = ExtResource("10_sb355")
+shader_parameter/u_circle_size = 2.0
+shader_parameter/u_intensity_factor = 0.54
+shader_parameter/u_intensitiy_bottom_threshold = 0.95
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p4fo4"]
+shader = ExtResource("10_sb355")
+shader_parameter/u_circle_size = 2.0
+shader_parameter/u_intensity_factor = 0.54
+shader_parameter/u_intensitiy_bottom_threshold = 0.95
+
+[node name="HandleGizmo" type="Node3D"]
+script = ExtResource("1")
+inactive_x_color = Color(0.721569, 0.0627451, 0.121569, 1)
+inactive_y_color = Color(0.0470588, 0.454902, 0.109804, 1)
+inactive_z_color = Color(0.117647, 0.168627, 0.94902, 1)
+inactive_center_color = Color(0.921569, 0.905882, 0.533333, 0.490196)
+active_x_color = Color(1, 0.807843, 0.788235, 1)
+active_y_color = Color(0.776471, 1, 0.772549, 1)
+active_z_color = Color(0.854902, 0.901961, 1, 1)
+active_center_color = Color(0.937255, 0.921569, 0.552941, 1)
+reference_arc_color = Color(0.788235, 0.796078, 0.772549, 1)
+middle_circle_color = Color(0.0862745, 0.117647, 0.670588, 1)
+gizmo_size_ratio = 0.13
+
+[node name="X" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, 0)
+
+[node name="Y" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+
+[node name="Z" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.8)
+
+[node name="CenterDrag" type="Node" parent="."]
+
+[node name="CDBehavior" type="Node2D" parent="CenterDrag"]
+unique_name_in_owner = true
+script = ExtResource("6")
+
+[node name="ScaleAxes" type="Node" parent="."]
+
+[node name="SABehavior" type="Node2D" parent="ScaleAxes"]
+unique_name_in_owner = true
+script = ExtResource("5")
+
+[node name="GlobalScaleAxes" type="Node" parent="."]
+
+[node name="GSABehavior" type="Node2D" parent="GlobalScaleAxes"]
+unique_name_in_owner = true
+script = ExtResource("4_i2kkr")
+
+[node name="OrtholScaleAxes" type="Node" parent="."]
+
+[node name="OSABehavior" type="Node2D" parent="OrtholScaleAxes"]
+unique_name_in_owner = true
+script = ExtResource("5_veegu")
+
+[node name="TranslationAxes" type="Node" parent="."]
+
+[node name="TABehavior" type="Node2D" parent="TranslationAxes"]
+unique_name_in_owner = true
+script = ExtResource("2")
+
+[node name="GlobalTranslationAxes" type="Node" parent="."]
+
+[node name="GTABehavior" type="Node2D" parent="GlobalTranslationAxes"]
+unique_name_in_owner = true
+script = ExtResource("5_7mkyy")
+
+[node name="DrawX" type="Node2D" parent="GlobalTranslationAxes/GTABehavior"]
+z_index = 201
+z_as_relative = false
+position = Vector2(2, 0)
+script = ExtResource("7_rwo20")
+
+[node name="InnerStick" type="Node2D" parent="GlobalTranslationAxes/GTABehavior/DrawX"]
+z_as_relative = false
+script = ExtResource("8_5umn2")
+
+[node name="DrawY" type="Node2D" parent="GlobalTranslationAxes/GTABehavior"]
+z_index = 201
+z_as_relative = false
+position = Vector2(2, 0)
+script = ExtResource("7_rwo20")
+
+[node name="InnerStick" type="Node2D" parent="GlobalTranslationAxes/GTABehavior/DrawY"]
+z_as_relative = false
+script = ExtResource("8_5umn2")
+
+[node name="DrawZ" type="Node2D" parent="GlobalTranslationAxes/GTABehavior"]
+z_index = 201
+z_as_relative = false
+position = Vector2(2, 0)
+script = ExtResource("7_rwo20")
+
+[node name="InnerStick" type="Node2D" parent="GlobalTranslationAxes/GTABehavior/DrawZ"]
+z_as_relative = false
+script = ExtResource("8_5umn2")
+
+[node name="OrthoTranslationAxes" type="Node" parent="."]
+
+[node name="OTABehavior" type="Node2D" parent="OrthoTranslationAxes"]
+unique_name_in_owner = true
+script = ExtResource("10_62sq4")
+
+[node name="DrawX" type="Node2D" parent="OrthoTranslationAxes/OTABehavior"]
+z_index = 201
+z_as_relative = false
+script = ExtResource("11_tklpq")
+
+[node name="InnerStick" type="Node2D" parent="OrthoTranslationAxes/OTABehavior/DrawX"]
+z_as_relative = false
+script = ExtResource("8_5umn2")
+
+[node name="DrawY" type="Node2D" parent="OrthoTranslationAxes/OTABehavior"]
+z_index = 201
+z_as_relative = false
+script = ExtResource("11_tklpq")
+
+[node name="InnerStick" type="Node2D" parent="OrthoTranslationAxes/OTABehavior/DrawY"]
+z_as_relative = false
+script = ExtResource("8_5umn2")
+
+[node name="DrawZ" type="Node2D" parent="OrthoTranslationAxes/OTABehavior"]
+z_index = 201
+z_as_relative = false
+script = ExtResource("11_tklpq")
+
+[node name="InnerStick" type="Node2D" parent="OrthoTranslationAxes/OTABehavior/DrawZ"]
+z_as_relative = false
+script = ExtResource("8_5umn2")
+
+[node name="RotationArcs" type="Node" parent="."]
+
+[node name="RABehavior" type="Node2D" parent="RotationArcs"]
+unique_name_in_owner = true
+script = ExtResource("3")
+
+[node name="GlobalRotationArcs" type="Node" parent="."]
+
+[node name="GRABehavior" type="Node2D" parent="GlobalRotationArcs"]
+unique_name_in_owner = true
+script = ExtResource("7_rnvv7")
+
+[node name="OrthoRotationArcs" type="Node" parent="."]
+
+[node name="ORABehavior" type="Node2D" parent="OrthoRotationArcs"]
+unique_name_in_owner = true
+script = ExtResource("14_cimno")
+
+[node name="TranslationSurfaces" type="Node" parent="."]
+
+[node name="TSBehavior" type="Node2D" parent="TranslationSurfaces"]
+unique_name_in_owner = true
+script = ExtResource("4")
+
+[node name="GlobalTranslationSurfaces" type="Node" parent="."]
+
+[node name="GTSBehavior" type="Node2D" parent="GlobalTranslationSurfaces"]
+unique_name_in_owner = true
+position = Vector2(0, -3)
+script = ExtResource("9_k1bey")
+
+[node name="DrawX" type="Node2D" parent="GlobalTranslationSurfaces/GTSBehavior"]
+z_as_relative = false
+material = SubResource("ShaderMaterial_yexck")
+position = Vector2(0, 3)
+script = ExtResource("12_skbbe")
+
+[node name="DrawY" type="Node2D" parent="GlobalTranslationSurfaces/GTSBehavior"]
+z_as_relative = false
+material = SubResource("ShaderMaterial_l8rem")
+position = Vector2(0, 3)
+script = ExtResource("12_skbbe")
+
+[node name="DrawZ" type="Node2D" parent="GlobalTranslationSurfaces/GTSBehavior"]
+z_as_relative = false
+material = SubResource("ShaderMaterial_p4fo4")
+position = Vector2(0, 3)
+script = ExtResource("12_skbbe")
+
+[node name="OrthoTranslationSurfaces" type="Node" parent="."]
+
+[node name="OTSBehavior" type="Node2D" parent="OrthoTranslationSurfaces"]
+unique_name_in_owner = true
+position = Vector2(0, -3)
+script = ExtResource("19_pt666")
+
+[node name="DrawX" type="Node2D" parent="OrthoTranslationSurfaces/OTSBehavior"]
+z_as_relative = false
+material = SubResource("ShaderMaterial_yexck")
+position = Vector2(0, 3)
+script = ExtResource("20_hys5t")
+
+[node name="DrawY" type="Node2D" parent="OrthoTranslationSurfaces/OTSBehavior"]
+z_as_relative = false
+material = SubResource("ShaderMaterial_l8rem")
+position = Vector2(0, 3)
+script = ExtResource("20_hys5t")
+
+[node name="DrawZ" type="Node2D" parent="OrthoTranslationSurfaces/OTSBehavior"]
+z_as_relative = false
+material = SubResource("ShaderMaterial_p4fo4")
+position = Vector2(0, 3)
+script = ExtResource("20_hys5t")
+
+[node name="CutoutCircle" type="Node" parent="."]
+
+[node name="MCBehavior" type="Node2D" parent="CutoutCircle"]
+unique_name_in_owner = true
+script = ExtResource("11_cbsiy")
+
+[node name="OrthoZHandle" type="Node" parent="."]
+
+[node name="OZHBehavior" type="Node2D" parent="OrthoZHandle"]
+unique_name_in_owner = true
+script = ExtResource("22_osn07")
+custom_size = 0.27
+custom_offset = Vector2(-0.5, 0.25)
+
+[node name="OZHTextureRect" type="TextureRect" parent="OrthoZHandle/OZHBehavior"]
+offset_right = 166.0
+offset_bottom = 138.0
+texture = ExtResource("23_hgth6")
+expand_mode = 1
+
+[node name="OrthoZSurface" type="Node" parent="."]
+
+[node name="OZSBehavior" type="Node2D" parent="OrthoZSurface"]
+unique_name_in_owner = true
+script = ExtResource("24_4a52q")
+custom_size = 0.27
+custom_offset = Vector2(0.25, -0.5)
+
+[node name="OZSTextureRect" type="TextureRect" parent="OrthoZSurface/OZSBehavior"]
+offset_right = 166.0
+offset_bottom = 138.0
+texture = ExtResource("25_mns4b")
+expand_mode = 1

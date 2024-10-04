@@ -1,0 +1,55 @@
+[gd_scene load_steps=4 format=3 uid="uid://c4lae1ua2atl7"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/creation_distance_panel.gd" id="1_0kw06"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="1_5pt0s"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_gr1fe"]
+
+[node name="CreationDistancePanel" type="MarginContainer"]
+theme_type_variation = &"SubcategoryPanel"
+script = ExtResource("1_0kw06")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="CheckBoxClosestObject" type="CheckBox" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "When nothing is visible in the screen, this option will fallback to \"Fixed distance\""
+button_pressed = true
+button_group = SubResource("ButtonGroup_gr1fe")
+text = "Closest object to pointer"
+
+[node name="CheckBoxCenterOfSelection" type="CheckBox" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "When nothing is selected this option will fallback to the center of selection of the last objects that were selected."
+button_group = SubResource("ButtonGroup_gr1fe")
+text = "Center of selection"
+
+[node name="DistancePickerBox" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="CheckBoxFixedDistance" type="CheckBox" parent="VBoxContainer/DistancePickerBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+button_group = SubResource("ButtonGroup_gr1fe")
+text = "Fixed distance"
+
+[node name="CreationDistance" parent="VBoxContainer/DistancePickerBox" instance=ExtResource("1_5pt0s")]
+unique_name_in_owner = true
+layout_mode = 2
+step = 0.01
+suffix = "nm"
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="SnapToShapeSurface" type="CheckBox" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Enable to place atoms on the surface of existing reference shapes.
+Hold Ctrl when placing atoms to invert this setting."
+button_pressed = true
+text = "Snap to Reference Shape surfaces"

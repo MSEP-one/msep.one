@@ -1,0 +1,76 @@
+[gd_scene load_steps=3 format=3 uid="uid://djdtnhc6tuvrh"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.gd" id="1_ktg6q"]
+[ext_resource type="PackedScene" uid="uid://cw8eqtylp4n8q" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_picker_button.tscn" id="2_vt21c"]
+
+[node name="ElementPicker" type="VBoxContainer"]
+offset_top = 204.0
+offset_right = 64.0
+offset_bottom = 204.0
+script = ExtResource("1_ktg6q")
+
+[node name="ButtonsContainer" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 4
+
+[node name="Control" type="Control" parent="ButtonsContainer"]
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="ButtonsContainer"]
+layout_mode = 2
+
+[node name="Control3" type="Control" parent="ButtonsContainer"]
+layout_mode = 2
+
+[node name="H" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="C" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 6
+
+[node name="N" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 7
+
+[node name="O" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 8
+
+[node name="F" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 9
+
+[node name="Si" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 14
+
+[node name="P" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 15
+
+[node name="S" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 16
+
+[node name="Cl" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 17
+
+[node name="MoreTypesButton" type="Button" parent="."]
+layout_mode = 2
+text = "More Types ..."
+
+[node name="ExtendedElementPicker" parent="MoreTypesButton" instance_placeholder="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/extended_element_picker.tscn"]
+unique_name_in_owner = true
+visible = false

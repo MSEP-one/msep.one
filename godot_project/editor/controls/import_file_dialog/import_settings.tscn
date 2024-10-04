@@ -1,0 +1,70 @@
+[gd_scene load_steps=2 format=3 uid="uid://cfdfx7iow623o"]
+
+[ext_resource type="Script" path="res://editor/controls/import_file_dialog/import_settings.gd" id="1_patfr"]
+
+[node name="ImportSettings" type="VBoxContainer"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 602.0
+offset_bottom = 119.0
+script = ExtResource("1_patfr")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Import Settings"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="GridContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+columns = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Options:"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CheckAutogenerateBonds" type="CheckBox" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Autogenerate Bonds"
+
+[node name="CheckAddMissingHydrogens" type="CheckBox" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Add Missing Hydrogens"
+
+[node name="CheckRemoveWaters" type="CheckBox" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Remove Waters"
+
+[node name="CheckCreateNewGroup" type="CheckBox" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Create a new group"
+
+[node name="Label2" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Placement:"
+
+[node name="OptionButtonPlacement" type="OptionButton" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 3
+selected = 0
+popup/item_0/text = "Keep original positions"
+popup/item_0/id = 0
+popup/item_1/text = "In front of the camera"
+popup/item_1/id = 1
+popup/item_2/text = "Around the origin"
+popup/item_2/id = 2

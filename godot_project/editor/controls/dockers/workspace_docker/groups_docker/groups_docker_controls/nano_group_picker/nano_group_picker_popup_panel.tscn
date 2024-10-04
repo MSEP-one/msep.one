@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://dyfyqssb7twmn"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_group_picker/nano_group_picker_popup_panel.gd" id="1_44aqs"]
+
+[node name="NanoGroupPickerPopupPanel" type="PopupPanel"]
+position = Vector2i(0, 28)
+size = Vector2i(326, 200)
+transparent = true
+script = ExtResource("1_44aqs")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 322.0
+offset_bottom = 196.0
+
+[node name="Tree" type="Tree" parent="MarginContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+allow_reselect = true
+hide_root = true

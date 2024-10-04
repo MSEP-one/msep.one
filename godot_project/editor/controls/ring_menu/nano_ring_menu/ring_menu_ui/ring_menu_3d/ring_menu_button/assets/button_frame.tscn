@@ -1,0 +1,70 @@
+[gd_scene load_steps=8 format=3 uid="uid://kwy5pjmh1iku"]
+
+[ext_resource type="PackedScene" uid="uid://cmyxbipm351tf" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button_frame.glb" id="1_8i6c2"]
+[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button_frame.gd" id="2_5bqts"]
+[ext_resource type="Material" uid="uid://ccuohkpvspcuq" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/frame_mat.tres" id="2_88ljp"]
+
+[sub_resource type="Animation" id="Animation_8f5rd"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("panel0Frame_002:material_override:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.345098, 0.329412, 0.690196, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_agpvi"]
+resource_name = "active"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("panel0Frame_002:material_override:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.196078, 0.180392, 0.431373, 1), Color(0.345098, 0.329412, 0.690196, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_xkvro"]
+resource_name = "inactive"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("panel0Frame_002:material_override:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.345098, 0.329412, 0.690196, 1), Color(0.196078, 0.180392, 0.431373, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qwjix"]
+_data = {
+"RESET": SubResource("Animation_8f5rd"),
+"active": SubResource("Animation_agpvi"),
+"inactive": SubResource("Animation_xkvro")
+}
+
+[node name="button_frame" instance=ExtResource("1_8i6c2")]
+script = ExtResource("2_5bqts")
+
+[node name="panel0Frame_002" parent="." index="0"]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+material_override = ExtResource("2_88ljp")
+
+[node name="ActiveAnimator" type="AnimationPlayer" parent="." index="1"]
+libraries = {
+"": SubResource("AnimationLibrary_qwjix")
+}

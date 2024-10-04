@@ -1,0 +1,30 @@
+[gd_scene load_steps=9 format=3 uid="uid://ddis4g64f3o04"]
+
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/atomic_structure_renderer.gd" id="1_pnlci"]
+[ext_resource type="PackedScene" uid="uid://ntegojtqd8oo" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/sphere_representation.tscn" id="2_ycqcw"]
+[ext_resource type="PackedScene" uid="uid://chyjcasbtnujt" path="res://editor/rendering/atomic_structure_renderer/representation/balls_and_sticks_representation/balls_and_sticks_representation.tscn" id="4_yhej4"]
+[ext_resource type="PackedScene" uid="uid://1fpx657b3g2a" path="res://editor/rendering/atomic_structure_renderer/representation/sticks_single_atom_representation/sticks_and_single_atom_representation.tscn" id="5_i2aj3"]
+[ext_resource type="PackedScene" uid="uid://ctg26amq4yx8c" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/labels_representation.tscn" id="5_lewil"]
+[ext_resource type="PackedScene" uid="uid://dl2t5e87oru8d" path="res://editor/rendering/atomic_structure_renderer/representation/sticks_single_atom_representation/enhanced_sticks_and_single_atom_representation.tscn" id="5_u2onw"]
+[ext_resource type="PackedScene" uid="uid://bbaboa580mxs3" path="res://editor/rendering/atomic_structure_renderer/representation/enhanced_sticks_and_balls_representation/enhanced_sticks_and_balls_representation.tscn" id="7_y8qdu"]
+[ext_resource type="PackedScene" uid="uid://cejbwdiw030yu" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/springs_representation.tscn" id="8_qwn80"]
+
+[node name="AtomicStructureRenderer" type="Node3D"]
+script = ExtResource("1_pnlci")
+
+[node name="BallsAndSticksRepresentation" parent="." instance=ExtResource("4_yhej4")]
+
+[node name="SphereRepresentation" parent="." instance=ExtResource("2_ycqcw")]
+
+[node name="CapsuleStickRepresentation" parent="." instance_placeholder="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/capsule_stick_representation.tscn"]
+editor_description = "Not used at current moment, therefore converted to InstancePlaceholder"
+
+[node name="SticksAndSingleAtomRepresentation" parent="." instance=ExtResource("5_i2aj3")]
+
+[node name="EnhancedSticksAndSingleAtomRepresentation" parent="." instance=ExtResource("5_u2onw")]
+
+[node name="LabelsRepresentation" parent="." instance=ExtResource("5_lewil")]
+
+[node name="EnhancedSticksAndBallsRepresentation" parent="." instance=ExtResource("7_y8qdu")]
+
+[node name="SpringsRepresentation" parent="." instance=ExtResource("8_qwn80")]

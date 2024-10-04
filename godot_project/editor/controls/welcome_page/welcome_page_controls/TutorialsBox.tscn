@@ -1,0 +1,77 @@
+[gd_scene load_steps=3 format=3 uid="uid://5tcu0t58ckin"]
+
+[ext_resource type="Texture2D" uid="uid://dxwe1l16msnkc" path="res://icon.png" id="1_imhyt"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_u785u"]
+font_size = 32
+
+[node name="TutorialsBox" type="VBoxContainer"]
+offset_top = 384.0
+offset_right = 1016.0
+offset_bottom = 544.0
+
+[node name="TutorialsLabel" type="Label" parent="."]
+offset_right = 1016.0
+offset_bottom = 48.0
+text = "Learn"
+label_settings = SubResource("LabelSettings_u785u")
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="."]
+clip_contents = false
+offset_top = 52.0
+offset_right = 1016.0
+offset_bottom = 160.0
+follow_focus = true
+vertical_scroll_mode = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer2"]
+offset_right = 430.0
+offset_bottom = 100.0
+theme_override_constants/separation = 10
+
+[node name="Button" type="Button" parent="ScrollContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+offset_right = 100.0
+offset_bottom = 100.0
+text = "
+
+
+Tutorial A"
+icon = ExtResource("1_imhyt")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button2" type="Button" parent="ScrollContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+offset_left = 110.0
+offset_right = 210.0
+offset_bottom = 100.0
+text = "
+
+
+Tutorial B"
+icon = ExtResource("1_imhyt")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button3" type="Button" parent="ScrollContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+offset_left = 220.0
+offset_right = 320.0
+offset_bottom = 100.0
+text = "
+
+
+Tutorial C"
+icon = ExtResource("1_imhyt")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button5" type="Button" parent="ScrollContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+offset_left = 330.0
+offset_right = 430.0
+offset_bottom = 100.0
+text = "See
+More
+..."

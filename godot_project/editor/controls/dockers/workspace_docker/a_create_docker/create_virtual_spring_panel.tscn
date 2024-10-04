@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7wf5fan7x7e3"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_virtual_spring_panel.gd" id="1_a5mkf"]
+[ext_resource type="PackedScene" uid="uid://hdccjj6rq37k" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/spring_properties_editor.tscn" id="2_rshf5"]
+
+[node name="CreateVirtualSpringPanel" type="MarginContainer"]
+offset_right = 442.0
+offset_bottom = 84.0
+size_flags_vertical = 3
+script = ExtResource("1_a5mkf")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SpringPropertiesEditor" parent="VBoxContainer" instance=ExtResource("2_rshf5")]
+unique_name_in_owner = true
+layout_mode = 2

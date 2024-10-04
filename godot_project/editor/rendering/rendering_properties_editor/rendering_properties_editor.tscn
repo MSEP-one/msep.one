@@ -1,0 +1,82 @@
+[gd_scene load_steps=3 format=3 uid="uid://dqmow61mohi8f"]
+
+[ext_resource type="Script" path="res://editor/rendering/rendering_properties_editor/rendering_properties_editor.gd" id="1_02htr"]
+[ext_resource type="PackedScene" uid="uid://chrkdjgi3kuke" path="res://editor/controls/color_chooser/color_chooser.tscn" id="2_nf7rh"]
+
+[node name="RenderingPropertiesEditor" type="MarginContainer"]
+offset_right = 10.0
+offset_bottom = 10.0
+script = ExtResource("1_02htr")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SelectedAtom" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Hydrogen"
+horizontal_alignment = 1
+
+[node name="BaseColor" parent="VBoxContainer" instance=ExtResource("2_nf7rh")]
+layout_mode = 2
+title = "Base Color"
+
+[node name="Noise Color" parent="VBoxContainer" instance=ExtResource("2_nf7rh")]
+layout_mode = 2
+title = "Noise Color"
+
+[node name="BondColor" parent="VBoxContainer" instance=ExtResource("2_nf7rh")]
+layout_mode = 2
+title = "Bond Color"
+
+[node name="NoiseAtlasID" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/NoiseAtlasID"]
+layout_mode = 2
+text = "Noise Atlas ID"
+
+[node name="spacer" type="Control" parent="VBoxContainer/NoiseAtlasID"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AtlasNoiseOption" type="OptionButton" parent="VBoxContainer/NoiseAtlasID"]
+layout_mode = 2
+item_count = 16
+selected = 0
+popup/item_0/text = "0"
+popup/item_0/id = 0
+popup/item_1/text = "1"
+popup/item_1/id = 1
+popup/item_2/text = "2"
+popup/item_2/id = 2
+popup/item_3/text = "3"
+popup/item_3/id = 3
+popup/item_4/text = "4"
+popup/item_4/id = 4
+popup/item_5/text = "5"
+popup/item_5/id = 5
+popup/item_6/text = "6"
+popup/item_6/id = 6
+popup/item_7/text = "7"
+popup/item_7/id = 7
+popup/item_8/text = "8"
+popup/item_8/id = 8
+popup/item_9/text = "9"
+popup/item_9/id = 9
+popup/item_10/text = "10"
+popup/item_10/id = 10
+popup/item_11/text = "11"
+popup/item_11/id = 11
+popup/item_12/text = "12"
+popup/item_12/id = 12
+popup/item_13/text = "13"
+popup/item_13/id = 13
+popup/item_14/text = "14"
+popup/item_14/id = 14
+popup/item_15/text = "15"
+popup/item_15/id = 15
+
+[connection signal="color_picked" from="VBoxContainer/BaseColor" to="." method="_on_base_color_color_picked"]
+[connection signal="color_picked" from="VBoxContainer/Noise Color" to="." method="_on_noise_color_color_picked"]
+[connection signal="color_picked" from="VBoxContainer/BondColor" to="." method="_on_bond_color_color_picked"]
+[connection signal="item_selected" from="VBoxContainer/NoiseAtlasID/AtlasNoiseOption" to="." method="_on_atlas_noise_option_item_selected"]

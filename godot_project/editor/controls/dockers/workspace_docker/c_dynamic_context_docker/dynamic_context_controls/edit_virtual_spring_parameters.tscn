@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://blyfn6m2qgbvg"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_virtual_spring_parameters.gd" id="1_ry0br"]
+[ext_resource type="PackedScene" uid="uid://hdccjj6rq37k" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/spring_properties_editor.tscn" id="2_u7r6k"]
+
+[node name="EditVirtualSpringParameters" type="MarginContainer"]
+offset_right = 442.0
+offset_bottom = 324.0
+size_flags_vertical = 3
+script = ExtResource("1_ry0br")
+
+[node name="SpringsPropertiesEditor" parent="." instance=ExtResource("2_u7r6k")]
+unique_name_in_owner = true
+layout_mode = 2

@@ -1,0 +1,117 @@
+[gd_scene load_steps=11 format=3 uid="uid://bvif8jwmnd6e7"]
+
+[ext_resource type="PackedScene" uid="uid://d2adostjms5t1" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button.glb" id="1_di3f8"]
+[ext_resource type="Material" uid="uid://dgii0n4d5qvfw" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button_mat.tres" id="2_5exxa"]
+[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/ring_menu_button_model.gd" id="2_qosqu"]
+
+[sub_resource type="Animation" id="Animation_xhvlw"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RingMenu_IconCell_Normal:material_override:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.388235, 0.376471, 0.745098, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_ppxpg"]
+resource_name = "dim"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RingMenu_IconCell_Normal:material_override:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.388235, 0.376471, 0.745098, 1), Color(0.270588, 0.254902, 0.568627, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_ons2g"]
+resource_name = "inactive"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RingMenu_IconCell_Normal:material_override:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.388235, 0.376471, 0.745098, 1), Color(0.247059, 0.231373, 0.52549, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_ks5lx"]
+resource_name = "un-dim"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RingMenu_IconCell_Normal:material_override:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.270588, 0.254902, 0.568627, 1), Color(0.388235, 0.376471, 0.745098, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_73jcn"]
+_data = {
+"RESET": SubResource("Animation_xhvlw"),
+"dim": SubResource("Animation_ppxpg"),
+"inactive": SubResource("Animation_ons2g"),
+"un-dim": SubResource("Animation_ks5lx")
+}
+
+[sub_resource type="Animation" id="Animation_sqs7d"]
+resource_name = "active"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RingMenu_IconCell_Normal:material_override:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.247059, 0.231373, 0.52549, 1), Color(0.388235, 0.376471, 0.745098, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ypmml"]
+_data = {
+"RESET": SubResource("Animation_xhvlw"),
+"active": SubResource("Animation_sqs7d"),
+"inactive": SubResource("Animation_ons2g")
+}
+
+[node name="RingMenuButtonModel" instance=ExtResource("1_di3f8")]
+script = ExtResource("2_qosqu")
+
+[node name="RingMenu_IconCell_Normal" parent="." index="0"]
+layers = 5
+material_override = ExtResource("2_5exxa")
+
+[node name="ColorAnimator" type="AnimationPlayer" parent="." index="1"]
+playback_default_blend_time = 0.1
+libraries = {
+"": SubResource("AnimationLibrary_73jcn")
+}
+
+[node name="ActiveAnimator" type="AnimationPlayer" parent="." index="2"]
+libraries = {
+"": SubResource("AnimationLibrary_ypmml")
+}

@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=3 uid="uid://cqp1rewn4tubb"]
+
+[ext_resource type="Script" path="res://autoloads/editor_sfx/editor_sfx.gd" id="1_68qsb"]
+[ext_resource type="AudioStream" uid="uid://bi7upx63x66cf" path="res://autoloads/editor_sfx/sfx/rollover_1.ogg" id="2_xq8qo"]
+[ext_resource type="AudioStream" uid="uid://b42exf5g4t4cr" path="res://autoloads/editor_sfx/sfx/menu_window_and_delete_1.ogg" id="3_c4g7h"]
+[ext_resource type="AudioStream" uid="uid://dpgub8kbur6o0" path="res://autoloads/editor_sfx/sfx/mouse_down_1.ogg" id="4_i4m8o"]
+[ext_resource type="AudioStream" uid="uid://xmf84blq7j54" path="res://autoloads/editor_sfx/sfx/mouse_up_1.ogg" id="5_5coen"]
+[ext_resource type="AudioStream" uid="uid://nb8f18rln1qp" path="res://autoloads/editor_sfx/sfx/materialize_1.ogg" id="6_0h0s1"]
+
+[node name="editor_sfx" type="Node"]
+script = ExtResource("1_68qsb")
+rollover_sounds = Array[AudioStream]([ExtResource("2_xq8qo")])
+open_menu_sounds = Array[AudioStream]([ExtResource("3_c4g7h")])
+close_menu_sounds = Array[AudioStream]([ExtResource("3_c4g7h")])
+window_open_sounds = Array[AudioStream]([ExtResource("3_c4g7h")])
+window_close_sounds = Array[AudioStream]([ExtResource("3_c4g7h")])
+mouse_down_sounds = Array[AudioStream]([ExtResource("4_i4m8o")])
+mouse_up_sounds = Array[AudioStream]([ExtResource("5_5coen")])
+materialize_object_sounds = Array[AudioStream]([ExtResource("6_0h0s1")])
+delete_object_sounds = Array[AudioStream]([ExtResource("3_c4g7h")])
+
+[node name="rollover" type="AudioStreamPlayer" parent="."]
+bus = &"Ui Sfx"
+
+[node name="open_menu" type="AudioStreamPlayer" parent="."]
+bus = &"Ui Sfx"
+
+[node name="close_menu" type="AudioStreamPlayer" parent="."]
+bus = &"Ui Sfx"
+
+[node name="window_open" type="AudioStreamPlayer" parent="."]
+bus = &"Ui Sfx"
+
+[node name="window_close" type="AudioStreamPlayer" parent="."]
+bus = &"Ui Sfx"
+
+[node name="mouse" type="AudioStreamPlayer" parent="."]
+bus = &"Ui Sfx"
+
+[node name="nano_object" type="AudioStreamPlayer" parent="."]
+bus = &"Ui Sfx"

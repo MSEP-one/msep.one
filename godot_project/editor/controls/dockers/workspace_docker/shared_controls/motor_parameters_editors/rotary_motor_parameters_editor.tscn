@@ -1,0 +1,164 @@
+[gd_scene load_steps=7 format=3 uid="uid://dm1rw27pn4ruw"]
+
+[ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_ldadn"]
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/rotary_motor_parameters_editor.gd" id="1_pdebe"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_03etg"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_uca0l"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_un2j1"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_cg2to"]
+
+[node name="RotaryMotorParametersEditor" type="GridContainer"]
+columns = 2
+script = ExtResource("1_pdebe")
+
+[node name="TypeLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Type"
+vertical_alignment = 1
+
+[node name="TypeButton" type="Button" parent="."]
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_uca0l")
+text = "Rotary"
+
+[node name="Label" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Ramp-In Time"
+vertical_alignment = 1
+
+[node name="RotaryRampInTime" parent="." instance=ExtResource("1_ldadn")]
+unique_name_in_owner = true
+layout_mode = 2
+time_span_femtoseconds = 150.0
+
+[node name="SpinBoxSlider" parent="RotaryRampInTime" index="0"]
+min_value = 0.0
+value = 150.0
+
+[node name="Label2" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Ramp-Out Time"
+vertical_alignment = 1
+
+[node name="RotaryRampOutTime" parent="." instance=ExtResource("1_ldadn")]
+unique_name_in_owner = true
+layout_mode = 2
+time_span_femtoseconds = 150.0
+
+[node name="SpinBoxSlider" parent="RotaryRampOutTime" index="0"]
+min_value = 0.0
+value = 150.0
+
+[node name="RotaryTopSpeedCheckBox" type="CheckBox" parent="."]
+unique_name_in_owner = true
+editor_description = "Unimplemented"
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+button_group = SubResource("ButtonGroup_un2j1")
+text = "Top Speed"
+
+[node name="Label3" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = " ・ Top Speed"
+vertical_alignment = 1
+
+[node name="RotaryTopSpeedSpinBox" parent="." instance=ExtResource("2_03etg")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Revolutions per Nanosecond:
+This is the number of spins a motor will do per nanosecond.
+At {0} Rev / ns a motor will make a spin every {1} femtoseconds"
+max_value = 300.0
+step = 0.001
+value = 200.0
+allow_greater = true
+suffix = "Rev/ps"
+
+[node name="RotaryMaxTorqueCheckBox" type="CheckBox" parent="."]
+unique_name_in_owner = true
+editor_description = "Unimplemented"
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Feature Implementation In Progress"
+disabled = true
+button_group = SubResource("ButtonGroup_un2j1")
+text = "Max Torque"
+
+[node name="RotaryMaxTorqueSpinBox" parent="." instance=ExtResource("2_03etg")]
+unique_name_in_owner = true
+editor_description = "Unimplemented"
+visible = false
+layout_mode = 2
+value = 50.0
+allow_greater = true
+editable = false
+suffix = "m²  kg / s² mol"
+
+[node name="RotaryJerkLimitCheckBox" type="CheckBox" parent="."]
+unique_name_in_owner = true
+editor_description = "Unimplemented"
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Feature Implementation In Progress"
+disabled = true
+text = "Jerk Limit"
+
+[node name="RotaryJerkLimitSpinBoxSlider" parent="." instance=ExtResource("2_03etg")]
+unique_name_in_owner = true
+editor_description = "Unimplemented"
+visible = false
+layout_mode = 2
+value = 50.0
+allow_greater = true
+editable = false
+suffix = "m/s³"
+
+[node name="Label5" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Polarity"
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="RotaryClockwiseButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_cg2to")
+text = "Clockwise"
+
+[node name="RotaryCounterClockwiseButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_cg2to")
+text = "Counter Clockwise"
+
+[editable path="RotaryRampInTime"]
+[editable path="RotaryRampOutTime"]

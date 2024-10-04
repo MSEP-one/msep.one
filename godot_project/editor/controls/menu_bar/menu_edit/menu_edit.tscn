@@ -1,0 +1,114 @@
+[gd_scene load_steps=27 format=3 uid="uid://bd05ubp020ue2"]
+
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_edit/menu_edit.gd" id="1_5ncmh"]
+[ext_resource type="Texture2D" uid="uid://dlf6pif035p17" path="res://editor/controls/menu_bar/menu_edit/icons/icon_undo.svg" id="1_5qgfs"]
+[ext_resource type="Texture2D" uid="uid://ddivhogdb8d0u" path="res://editor/controls/menu_bar/menu_edit/icons/icon_redo.svg" id="2_mxhmw"]
+[ext_resource type="Texture2D" uid="uid://bvgcwck0jeh6j" path="res://editor/controls/menu_bar/menu_edit/icons/icon_copy.svg" id="3_le6ma"]
+[ext_resource type="Texture2D" uid="uid://j7w8vi2xwru3" path="res://editor/controls/menu_bar/menu_edit/icons/icon_delete.svg" id="3_vcnl0"]
+[ext_resource type="Texture2D" uid="uid://bdfjiigfgxwbj" path="res://editor/controls/menu_bar/menu_edit/icons/icon_cut.svg" id="4_jwdp7"]
+[ext_resource type="Texture2D" uid="uid://bl64fmjp277ws" path="res://editor/controls/menu_bar/menu_edit/icons/icon_paste.svg" id="6_8qocn"]
+[ext_resource type="Texture2D" uid="uid://d0qy65rs3vk78" path="res://editor/controls/menu_bar/menu_edit/icons/icon_bonded_paste.svg" id="7_xu2wn"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_r2y1u"]
+command_or_control_autoremap = true
+keycode = 90
+
+[sub_resource type="Shortcut" id="Shortcut_1rgpp"]
+events = [SubResource("InputEventKey_r2y1u")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_2k8eb"]
+command_or_control_autoremap = true
+shift_pressed = true
+keycode = 90
+
+[sub_resource type="InputEventKey" id="InputEventKey_mlvpy"]
+command_or_control_autoremap = true
+keycode = 89
+
+[sub_resource type="Shortcut" id="Shortcut_pw16x"]
+events = [SubResource("InputEventKey_2k8eb"), SubResource("InputEventKey_mlvpy")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_34oh8"]
+command_or_control_autoremap = true
+keycode = 67
+
+[sub_resource type="Shortcut" id="Shortcut_6rd8x"]
+events = [SubResource("InputEventKey_34oh8")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_appfg"]
+command_or_control_autoremap = true
+keycode = 88
+
+[sub_resource type="Shortcut" id="Shortcut_nhq2s"]
+events = [SubResource("InputEventKey_appfg")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_a8l74"]
+command_or_control_autoremap = true
+keycode = 86
+
+[sub_resource type="Shortcut" id="Shortcut_o08ut"]
+events = [SubResource("InputEventKey_a8l74")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_u5op4"]
+device = -1
+command_or_control_autoremap = true
+keycode = 66
+
+[sub_resource type="Shortcut" id="Shortcut_v3gkb"]
+events = [SubResource("InputEventKey_u5op4")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_kkhsv"]
+device = -1
+keycode = 4194312
+
+[sub_resource type="Shortcut" id="Shortcut_1yhh2"]
+events = [SubResource("InputEventKey_kkhsv")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_h8s1d"]
+device = -1
+keycode = 4194312
+
+[sub_resource type="InputEventKey" id="InputEventKey_ao2p4"]
+device = -1
+keycode = 4194308
+
+[sub_resource type="Shortcut" id="Shortcut_ffryy"]
+events = [SubResource("InputEventKey_h8s1d"), SubResource("InputEventKey_ao2p4")]
+
+[node name="MenuEdit" type="PopupMenu"]
+size = Vector2i(1118, 683)
+visible = true
+item_count = 8
+item_0/text = "Undo"
+item_0/icon = ExtResource("1_5qgfs")
+item_0/id = 0
+item_1/text = "Redo"
+item_1/icon = ExtResource("2_mxhmw")
+item_1/id = 1
+item_2/text = ""
+item_2/id = 2
+item_2/separator = true
+item_3/text = "Delete"
+item_3/icon = ExtResource("3_vcnl0")
+item_3/id = 3
+item_4/text = "Copy"
+item_4/icon = ExtResource("3_le6ma")
+item_4/id = 4
+item_5/text = "Cut"
+item_5/icon = ExtResource("4_jwdp7")
+item_5/id = 5
+item_6/text = "Paste"
+item_6/icon = ExtResource("6_8qocn")
+item_6/id = 6
+item_7/text = "Bonded Paste"
+item_7/icon = ExtResource("7_xu2wn")
+item_7/id = 7
+script = ExtResource("1_5ncmh")
+shortcut_undo = SubResource("Shortcut_1rgpp")
+shortcut_redo = SubResource("Shortcut_pw16x")
+shortcut_copy = SubResource("Shortcut_6rd8x")
+shortcut_cut = SubResource("Shortcut_nhq2s")
+shortcut_paste = SubResource("Shortcut_o08ut")
+shortcut_bonded_paste = SubResource("Shortcut_v3gkb")
+shortcut_delete = SubResource("Shortcut_1yhh2")
+shortcut_delete_macos = SubResource("Shortcut_ffryy")

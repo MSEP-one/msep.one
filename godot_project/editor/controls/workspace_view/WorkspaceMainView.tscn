@@ -1,0 +1,191 @@
+[gd_scene load_steps=21 format=3 uid="uid://bg20l6fpgvscg"]
+
+[ext_resource type="Script" path="res://editor/controls/workspace_view/WorkspaceMainView.gd" id="1_q2ex0"]
+[ext_resource type="PackedScene" uid="uid://dd2x0k2b74ok" path="res://editor/controls/editor_viewport_container/EditorViewportContainer.tscn" id="2_36m7k"]
+[ext_resource type="PackedScene" uid="uid://cjdno8b8vkglk" path="res://editor/controls/dock_area/DockArea.tscn" id="2_q1x2k"]
+[ext_resource type="Script" path="res://editor/controls/workspace_view/main_split.gd" id="3_e8bx6"]
+[ext_resource type="Script" path="res://editor/controls/workspace_view/WorkspaceToolsContainer.gd" id="4_k66kd"]
+[ext_resource type="Script" path="res://editor/controls/workspace_view/secondary_split.gd" id="5_2qlxk"]
+[ext_resource type="PackedScene" uid="uid://boak3fdup2i47" path="res://editor/controls/workspace_view/controls/structure_selector/structure_selector_bar.tscn" id="6_1u4ss"]
+[ext_resource type="PackedScene" uid="uid://u4vowrdvrqqv" path="res://editor/controls/workspace_view/controls/toggle_dock_area_visibility_button.tscn" id="6_t7ym2"]
+[ext_resource type="PackedScene" uid="uid://d1xhpp3gtirdv" path="res://editor/controls/workspace_view/controls/toggle_visual_menu_button.tscn" id="6_v56bd"]
+[ext_resource type="Texture2D" uid="uid://6fgglpyhcj7r" path="res://editor/controls/dock_area/icons/arrow_right.svg" id="7_8eb42"]
+[ext_resource type="PackedScene" uid="uid://dc5gviapnl87k" path="res://editor/controls/workspace_view/controls/mode_selector/mode_selector.tscn" id="7_w4dc7"]
+[ext_resource type="PackedScene" uid="uid://7sq87rc5vdf5" path="res://editor/controls/workspace_view/controls/alerts_panel/alerts_panel.tscn" id="8_d3gmk"]
+[ext_resource type="Texture2D" uid="uid://247omr56omt3" path="res://editor/controls/dock_area/icons/arrow_left.svg" id="8_k8mv1"]
+[ext_resource type="PackedScene" uid="uid://xwpxdq78nse1" path="res://editor/controls/workspace_view/controls/toggle_ring_menu_button.tscn" id="9_e0lvo"]
+[ext_resource type="PackedScene" uid="uid://dxpjkn3lni0jn" path="res://editor/controls/quick_search_dialog/quick_search_dialog.tscn" id="9_u2qg1"]
+[ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="11_gkd3d"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_wc8in"]
+device = -1
+keycode = 78
+unicode = 110
+
+[sub_resource type="Shortcut" id="Shortcut_avay1"]
+events = [SubResource("InputEventKey_wc8in")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_yjoks"]
+device = -1
+keycode = 77
+unicode = 109
+
+[sub_resource type="Shortcut" id="Shortcut_runyk"]
+events = [SubResource("InputEventKey_yjoks")]
+
+[node name="WorkspaceMainView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_q2ex0")
+
+[node name="EditorViewportContainer" parent="." instance=ExtResource("2_36m7k")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="MainSplit" type="HSplitContainer" parent="EditorViewportContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+theme_override_constants/autohide = 0
+script = ExtResource("3_e8bx6")
+
+[node name="DockAreaLeft" parent="EditorViewportContainer/MainSplit" instance=ExtResource("2_q1x2k")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SecondarySplit" type="HSplitContainer" parent="EditorViewportContainer/MainSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+theme_override_constants/separation = 10
+theme_override_constants/autohide = 0
+script = ExtResource("5_2qlxk")
+
+[node name="WorkspaceToolsContainer" type="Control" parent="EditorViewportContainer/MainSplit/SecondarySplit"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+mouse_filter = 1
+script = ExtResource("4_k66kd")
+
+[node name="StructureSelectorBar" parent="EditorViewportContainer/MainSplit/SecondarySplit/WorkspaceToolsContainer" instance=ExtResource("6_1u4ss")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="BottomControlsSplit" type="VSplitContainer" parent="EditorViewportContainer/MainSplit/SecondarySplit/WorkspaceToolsContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 120.0
+offset_top = 138.0
+offset_right = -89.0
+offset_bottom = -79.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+theme_override_constants/autohide = 0
+
+[node name="WorkingAreaRectControl" type="Control" parent="EditorViewportContainer/MainSplit/SecondarySplit/WorkspaceToolsContainer/BottomControlsSplit"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+mouse_filter = 2
+
+[node name="AlertsPanel" parent="EditorViewportContainer/MainSplit/SecondarySplit/WorkspaceToolsContainer/BottomControlsSplit" instance=ExtResource("8_d3gmk")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ModeSelector" parent="EditorViewportContainer/MainSplit/SecondarySplit/WorkspaceToolsContainer" instance=ExtResource("7_w4dc7")]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = -228.0
+offset_top = -73.0
+offset_right = 228.0
+
+[node name="ToggleVisualMenuButton" parent="EditorViewportContainer/MainSplit/SecondarySplit/WorkspaceToolsContainer" instance=ExtResource("6_v56bd")]
+unique_name_in_owner = true
+visible = true
+layout_mode = 0
+offset_left = 37.0
+offset_top = 32.0
+offset_right = 85.0
+offset_bottom = 80.0
+
+[node name="ToggleRingMenuButton" parent="EditorViewportContainer/MainSplit/SecondarySplit/WorkspaceToolsContainer" instance=ExtResource("9_e0lvo")]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -73.0
+offset_top = -125.0
+offset_right = -17.0
+offset_bottom = -69.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="DockAreaRight" parent="EditorViewportContainer/MainSplit/SecondarySplit" instance=ExtResource("2_q1x2k")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RenderingPropertiesEditorPlaceholder" parent="." instance_placeholder="res://editor/rendering/rendering_properties_editor/rendering_properties_editor.tscn"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 192.0
+offset_top = -196.0
+offset_right = 405.0
+offset_bottom = -24.0
+grow_vertical = 0
+
+[node name="ScreenCaptureDialog" parent="." instance=ExtResource("11_gkd3d")]
+visible = false
+
+[node name="QuickSearchDialog" parent="." instance=ExtResource("9_u2qg1")]
+visible = false
+
+[node name="ToggleDockAreaVisibilityButtonLeft" parent="." instance=ExtResource("6_t7ym2")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 42.0
+offset_bottom = 42.0
+shortcut = SubResource("Shortcut_avay1")
+icon = ExtResource("8_k8mv1")
+icon_hidden = ExtResource("7_8eb42")
+icon_visible = ExtResource("8_k8mv1")
+dock_area_path = NodePath("../EditorViewportContainer/MainSplit/DockAreaLeft")
+
+[node name="ToggleDockAreaVisibilityButtonRight" parent="." instance=ExtResource("6_t7ym2")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -42.0
+offset_top = 6.0
+offset_right = 0.0
+offset_bottom = 42.0
+grow_horizontal = 0
+shortcut = SubResource("Shortcut_runyk")
+icon = ExtResource("7_8eb42")
+icon_hidden = ExtResource("8_k8mv1")
+icon_visible = ExtResource("7_8eb42")
+dock_area_path = NodePath("../EditorViewportContainer/MainSplit/SecondarySplit/DockAreaRight")

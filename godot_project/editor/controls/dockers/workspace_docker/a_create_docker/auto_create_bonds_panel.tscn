@@ -1,0 +1,69 @@
+[gd_scene load_steps=5 format=3 uid="uid://rchntfjl7ucw"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/auto_create_bonds_panel.gd" id="1_o1qpr"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_k66tf"]
+[ext_resource type="Texture2D" uid="uid://wbe2syrxllv8" path="res://editor/controls/menu_bar/menu_create/menu_atoms/icons/icon_AutoBonder_16px.svg" id="3_5f1lf"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_jgiuk"]
+
+[node name="AutoCreateBondsPanel" type="VBoxContainer"]
+offset_right = 10.0
+offset_bottom = 10.0
+script = ExtResource("1_o1qpr")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Bonds Parameters"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Maximum Bond Stretch Factor"
+
+[node name="MaxBondDistanceSlider" parent="PanelContainer/VBoxContainer/HBoxContainer" instance=ExtResource("2_k66tf")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.1
+max_value = 25.0
+step = 0.1
+value = 0.1
+allow_greater = true
+suffix = "x"
+
+[node name="OptionSelectedAtoms" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+button_group = SubResource("ButtonGroup_jgiuk")
+text = "Auto-Create Bonds for Selected Atoms"
+
+[node name="OptionAllAtoms" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_group = SubResource("ButtonGroup_jgiuk")
+text = "Auto-Create Bonds for All Atoms"
+
+[node name="NoSelectionLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "i No atoms selected."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="AutoCreateBondsButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Auto-Create Bonds"
+icon = ExtResource("3_5f1lf")

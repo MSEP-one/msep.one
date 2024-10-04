@@ -1,0 +1,79 @@
+[gd_scene load_steps=6 format=3 uid="uid://dc8ravynpfq5r"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/validate_bonds_panel.gd" id="1_aw3s3"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_7qb31"]
+[ext_resource type="Texture2D" uid="uid://0vc3s1b68mgy" path="res://editor/icons/icon_validate_bonds_16px.svg" id="2_m0edm"]
+[ext_resource type="PackedScene" uid="uid://cdgadvhha48lt" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/atomic_structure_model_validator.tscn" id="4_itsb7"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_olgfw"]
+
+[node name="ValidateBondsPanel" type="VBoxContainer"]
+offset_right = 333.0
+offset_bottom = 162.0
+script = ExtResource("1_aw3s3")
+
+[node name="ParametersLabel" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Validation Parameters"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="OnlySelectedCheckBox" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+button_group = SubResource("ButtonGroup_olgfw")
+text = "Only selected atoms"
+
+[node name="AllVisibleCheckBox" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_group = SubResource("ButtonGroup_olgfw")
+text = "All visible atoms"
+
+[node name="FixOverlappingAtomsButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Fix Overlapping Atom Errors"
+
+[node name="InvisibleSelectionLabel" parent="." instance=ExtResource("2_7qb31")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] The selected error involves hidden elements. Double click the error or [url=show_hidden]click here to show them[/url].[/center]"
+message = &"The selected error involves hidden elements. Double click the error or [url=show_hidden]click here to show them[/url]."
+
+[node name="NoSelectionLabel" parent="." instance=ExtResource("2_7qb31")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] No atoms selected[/center]"
+message = &"No atoms selected"
+
+[node name="OutdatedResultsLabel" parent="." instance=ExtResource("2_7qb31")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] Project has changed since this validation. To update data, run 'Validate.'[/center]"
+message = &"Project has changed since this validation. To update data, run \'Validate.\'"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="ValidateButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Validate"
+icon = ExtResource("2_m0edm")
+
+[node name="ButtonViewAlerts" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "View 4 Alerts..."
+
+[node name="AtomicStructureModelValidator" parent="." instance=ExtResource("4_itsb7")]

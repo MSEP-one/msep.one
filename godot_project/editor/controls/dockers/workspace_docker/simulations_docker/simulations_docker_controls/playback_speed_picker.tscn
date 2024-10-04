@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=3 uid="uid://dkfvcot2e4buu"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/playback_speed_picker.gd" id="1_10smv"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="1_sjlsl"]
+
+[node name="PlaybackSpeedPicker" type="HBoxContainer"]
+offset_right = 144.0
+offset_bottom = 31.0
+script = ExtResource("1_10smv")
+
+[node name="OptionButton" type="OptionButton" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+item_count = 6
+selected = 1
+popup/item_0/text = "x2"
+popup/item_0/id = 0
+popup/item_1/text = "x1"
+popup/item_1/id = 1
+popup/item_2/text = "x0.5"
+popup/item_2/id = 2
+popup/item_3/text = "x0.25"
+popup/item_3/id = 3
+popup/item_4/text = "x0.05"
+popup/item_4/id = 4
+popup/item_5/text = "Custom"
+popup/item_5/id = 5
+
+[node name="SpinboxSlider" parent="." instance=ExtResource("1_sjlsl")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.01
+max_value = 10.0
+step = 0.01
+value = 1.0
+allow_greater = true
+prefix = "x"

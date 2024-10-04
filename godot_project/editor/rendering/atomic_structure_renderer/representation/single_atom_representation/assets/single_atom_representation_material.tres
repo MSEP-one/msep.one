@@ -1,0 +1,24 @@
+[gd_resource type="ShaderMaterial" script_class="SphereMaterial" load_steps=3 format=3 uid="uid://cro8ti37e0o4n"]
+
+[ext_resource type="Shader" path="res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/single_atom_representation.gdshader" id="1_gt8yx"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_material.gd" id="1_l4m08"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_gt8yx")
+shader_parameter/show_hydrogens = 1.0
+shader_parameter/outline_thickness = 0.2
+shader_parameter/is_hovered = 0.0
+shader_parameter/selection_delta = Vector3(0, 0, 0)
+shader_parameter/gizmo_origin = null
+shader_parameter/gizmo_rotation = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+shader_parameter/is_selectable = 1.0
+shader_parameter/camera_up_vector = null
+shader_parameter/camera_right_vector = null
+shader_parameter/roughness = 1.0
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+script = ExtResource("1_l4m08")

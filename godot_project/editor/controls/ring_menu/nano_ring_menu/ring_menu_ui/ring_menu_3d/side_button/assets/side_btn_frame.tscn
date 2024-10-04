@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://b86p67mjwhg27"]
+
+[ext_resource type="PackedScene" uid="uid://b3yog2i1c0ked" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/back_exit_btns.glb" id="1_gbcvx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8xvw0"]
+albedo_color = Color(0.345098, 0.329412, 0.690196, 1)
+
+[node name="back_exit_btns" instance=ExtResource("1_gbcvx")]
+
+[node name="RingMenuCloseButtonPressed" parent="." index="0"]
+material_override = SubResource("StandardMaterial3D_8xvw0")

@@ -1,0 +1,24 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://d0vy2mkrq5t1s"]
+
+[ext_resource type="Shader" path="res://editor/rendering/structure_preview/assets/atoms_preview.gdshader" id="1_2ge3h"]
+[ext_resource type="Texture2D" uid="uid://cu5nnpewjlepr" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/inner_rim.png" id="2_mmrdw"]
+[ext_resource type="Texture2D" uid="uid://c5p7jdrmkycg1" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/atom_noise_atlas.png" id="3_yfoay"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_2ge3h")
+shader_parameter/point_size = 0.0
+shader_parameter/roughness = 0.75
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = 0.5
+shader_parameter/metallic = null
+shader_parameter/rim = 1.0
+shader_parameter/rim_tint = 0.0
+shader_parameter/clearcoat = 1.0
+shader_parameter/clearcoat_roughness = 1.0
+shader_parameter/uv1_scale = Vector3(1.1, 1.1, 1.1)
+shader_parameter/uv1_offset = null
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = null
+shader_parameter/texture_noise = ExtResource("3_yfoay")
+shader_parameter/texture_detail_albedo = ExtResource("2_mmrdw")

@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://df6twl5j41stt"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/advanced_color_picker_button.gd" id="1_wc1dn"]
+[ext_resource type="PackedScene" uid="uid://bp7rxpcqxxpej" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/confirmation_color_popup.tscn" id="2_kasyh"]
+
+[node name="AdvancedColorPickerButton" type="Button"]
+custom_minimum_size = Vector2(0, 26)
+script = ExtResource("1_wc1dn")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ConfirmationColorPopup" parent="." instance=ExtResource("2_kasyh")]
+unique_name_in_owner = true
+visible = false

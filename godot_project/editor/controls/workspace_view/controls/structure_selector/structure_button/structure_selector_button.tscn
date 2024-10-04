@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://bkq41fq1rss41"]
+
+[ext_resource type="Texture2D" uid="uid://bxu62wy5r2g1d" path="res://editor/controls/workspace_view/controls/structure_selector/structure_button/icon_select_child.svg" id="1_1i2af"]
+[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.gd" id="1_mb2p3"]
+
+[node name="StructureSelectorButton" type="HBoxContainer"]
+size_flags_vertical = 0
+theme_override_constants/separation = 1
+script = ExtResource("1_mb2p3")
+
+[node name="StructureButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorButton"
+text = "Structure Name"
+
+[node name="MoreChildsButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+icon = ExtResource("1_1i2af")

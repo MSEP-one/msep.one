@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 1000 1000"
+   enable-background="new 0 0 1000 1000"
+   xml:space="preserve"
+   id="svg2501"
+   sodipodi:docname="icon_ActionRing_Shape_Torus.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"><defs
+   id="defs2505" /><sodipodi:namedview
+   pagecolor="#737373"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1097"
+   inkscape:window-height="667"
+   id="namedview2503"
+   showgrid="false"
+   inkscape:zoom="0.306"
+   inkscape:cx="413.39869"
+   inkscape:cy="581.69935"
+   inkscape:window-x="185"
+   inkscape:window-y="110"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="layer9"
+   showguides="false"
+   inkscape:document-rotation="0"
+   inkscape:showpageshadow="2"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1" />
+<metadata
+   id="metadata2495"> Svg Vector Icons : http://www.onlinewebfonts.com/icon <rdf:RDF><cc:Work
+     rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+       rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata>
+
+<g
+   inkscape:groupmode="layer"
+   id="layer9"
+   inkscape:label="Icon"
+   style="display:inline"><g
+     id="g12128"
+     transform="translate(-6.2439559,13.279793)"><path
+       style="fill:none;stroke:#ffffff;stroke-width:80;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 503.81216,278.80867 C 331.48256,279.13318 225.00349,332.61385 176.08969,366.85351 -12.503296,547.57723 289.64449,670.4157 503.81216,675.01046 704.85162,667.89988 1028.7779,538.24829 851.10015,371.7449 769.09579,321.26265 676.14176,278.48416 503.81216,278.80867 Z"
+       id="path11521"
+       sodipodi:nodetypes="zcccz" /><path
+       style="fill:none;stroke:#ffffff;stroke-width:80;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 229.89487,445.00698 c 0,0 151.63278,83.15346 278.80867,78.26208 127.17588,-4.89138 269.02591,-68.47932 269.02591,-68.47932"
+       id="path11523" /><path
+       style="fill:none;stroke:#ffffff;stroke-width:73.398;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 311.18939,467.16162 c 0,0 82.02752,-92.80728 195.30362,-87.65132 113.27608,5.15597 199.20968,87.65132 199.20968,87.65132"
+       id="path11525" /></g></g></svg>

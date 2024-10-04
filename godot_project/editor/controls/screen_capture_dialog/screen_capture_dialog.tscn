@@ -1,0 +1,333 @@
+[gd_scene load_steps=13 format=3 uid="uid://blxop3sf64kc3"]
+
+[ext_resource type="Script" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.gd" id="1_607do"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="1_y3r51"]
+[ext_resource type="Shader" path="res://editor/controls/screen_capture_dialog/checkboard_texture.gdshader" id="3_o58h2"]
+[ext_resource type="PackedScene" uid="uid://dbyklroe2rigw" path="res://editor/controls/screen_capture_dialog/resolution_confirmation_dialog/resolution_confirmation_dialog.tscn" id="4_mtj6f"]
+[ext_resource type="Script" path="res://editor/controls/screen_capture_dialog/texture_rect_capture_preview.gd" id="4_q6wua"]
+[ext_resource type="Script" path="res://editor/controls/general/nano_file_dialog.gd" id="5_gts1f"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_r5oqb"]
+
+[sub_resource type="Environment" id="Environment_0h3d7"]
+background_mode = 1
+background_color = Color(0.627451, 0.627451, 0.627451, 1)
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_k3x4w"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d71vx"]
+shader = ExtResource("3_o58h2")
+shader_parameter/checkboard_size = 28
+shader_parameter/color_a = Color(0.286275, 0.356863, 0.388235, 1)
+shader_parameter/color_b = Color(0.721569, 0.721569, 0.721569, 1)
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_6t0hr"]
+viewport_path = NodePath("HBoxContainer/PreviewControls/SubViewportPreview")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_jrfyc"]
+viewport_path = NodePath("HBoxContainer/PreviewControls/SubViewportPreview")
+
+[node name="ScreenCaptureDialog" type="ConfirmationDialog"]
+title = "Capture Camera Image"
+initial_position = 2
+size = Vector2i(1278, 700)
+visible = true
+ok_button_text = "Save As..."
+dialog_hide_on_ok = false
+script = ExtResource("1_607do")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 1268.0
+offset_bottom = 653.0
+theme_override_constants/separation = 20
+
+[node name="SettingsControls" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="LabelCaptureSize" type="Label" parent="HBoxContainer/SettingsControls"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Base Size"
+
+[node name="PanelContainerCaptureSize" type="PanelContainer" parent="HBoxContainer/SettingsControls"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="GridContainer" type="GridContainer" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
+layout_mode = 2
+text = "Size Preset"
+
+[node name="OptionButtonSizePreset" type="OptionButton" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 9
+selected = 0
+popup/item_0/text = "Match editor size"
+popup/item_0/id = 0
+popup/item_1/text = "Custom"
+popup/item_1/id = 1
+popup/item_2/text = "LD (480p)"
+popup/item_2/id = 2
+popup/item_3/text = "HD (720p)"
+popup/item_3/id = 3
+popup/item_4/text = "2k"
+popup/item_4/id = 4
+popup/item_5/text = "4k"
+popup/item_5/id = 5
+popup/item_6/text = "5k"
+popup/item_6/id = 6
+popup/item_7/text = "6k"
+popup/item_7/id = 7
+popup/item_8/text = "8k"
+popup/item_8/id = 8
+
+[node name="Label2" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
+layout_mode = 2
+text = "Width"
+
+[node name="SpinBoxSliderWidth" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer" instance=ExtResource("1_y3r51")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 640.0
+max_value = 7680.0
+value = 1024.0
+
+[node name="Label3" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
+layout_mode = 2
+text = "Height"
+
+[node name="SpinBoxSliderHeight" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer" instance=ExtResource("1_y3r51")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 480.0
+max_value = 4320.0
+value = 768.0
+
+[node name="HBoxContainerCrop" type="HBoxContainer" parent="HBoxContainer/SettingsControls"]
+layout_mode = 2
+
+[node name="CheckButtonCrop" type="CheckButton" parent="HBoxContainer/SettingsControls/HBoxContainerCrop"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+
+[node name="LabelCrop" type="Label" parent="HBoxContainer/SettingsControls/HBoxContainerCrop"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Crop"
+
+[node name="PanelContainerCrop" type="PanelContainer" parent="HBoxContainer/SettingsControls"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="GridContainer" type="GridContainer" parent="HBoxContainer/SettingsControls/PanelContainerCrop"]
+layout_mode = 2
+columns = 2
+
+[node name="LabelHOffset" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer"]
+layout_mode = 2
+text = "H Offset
+"
+
+[node name="SpinBoxSliderHOffset" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 7680.0
+allow_greater = true
+
+[node name="LabelVOffset" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer"]
+layout_mode = 2
+text = "V Offset
+"
+
+[node name="SpinBoxSliderVOffset" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 4320.0
+allow_greater = true
+
+[node name="LabelWidth" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer"]
+layout_mode = 2
+text = "Width"
+
+[node name="SpinBoxSliderCropWidth" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 7680.0
+value = 1024.0
+
+[node name="Label3" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer"]
+layout_mode = 2
+text = "Height"
+
+[node name="SpinBoxSliderCropHeight" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 4320.0
+value = 768.0
+
+[node name="LabelBackground" type="Label" parent="HBoxContainer/SettingsControls"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Background"
+
+[node name="PanelContainerBackground" type="PanelContainer" parent="HBoxContainer/SettingsControls"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="HBoxContainer" type="VBoxContainer" parent="HBoxContainer/SettingsControls/PanelContainerBackground"]
+layout_mode = 2
+
+[node name="RadioBackgroundEnvironment" type="CheckBox" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+button_group = SubResource("ButtonGroup_r5oqb")
+text = "Environment"
+
+[node name="RadioBackgroundTransparent" type="CheckBox" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_group = SubResource("ButtonGroup_r5oqb")
+text = "Transparent
+"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
+layout_mode = 2
+
+[node name="RadioBackgroundColor" type="CheckBox" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_group = SubResource("ButtonGroup_r5oqb")
+text = "Color"
+
+[node name="ColorPickerButtonBackgroundColor" type="ColorPickerButton" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.627451, 0.627451, 0.627451, 1)
+
+[node name="PreviewControls" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SubViewportPreview" type="SubViewport" parent="HBoxContainer/PreviewControls"]
+unique_name_in_owner = true
+msaa_3d = 3
+size = Vector2i(1024, 768)
+render_target_update_mode = 1
+
+[node name="PreviewCamera3D" type="Camera3D" parent="HBoxContainer/PreviewControls/SubViewportPreview"]
+transform = Transform3D(1, 0, 0, 0, 0.956814, 0.290702, 0, -0.290702, 0.956814, 0, 1.18089, 2.38742)
+cull_mask = 1047553
+current = true
+
+[node name="EditorOnlySample" parent="HBoxContainer/PreviewControls/SubViewportPreview" instance_placeholder="res://editor/controls/screen_capture_dialog/editor_only_sample.tscn"]
+
+[node name="PreviewWorldEnvironment" type="WorldEnvironment" parent="HBoxContainer/PreviewControls/SubViewportPreview"]
+unique_name_in_owner = true
+environment = SubResource("Environment_0h3d7")
+
+[node name="Label" type="Label" parent="HBoxContainer/PreviewControls"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Preview"
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/PreviewControls"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/PreviewControls/PanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Scale"
+
+[node name="ButtonFit" type="Button" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_k3x4w")
+text = "Fit"
+
+[node name="Button1to1" type="Button" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_k3x4w")
+text = "1 : 1"
+
+[node name="CheckboardTexture" type="ColorRect" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer"]
+material = SubResource("ShaderMaterial_d71vx")
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SwitchPreviewScale" type="TabContainer" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+theme_type_variation = &"EmptyStyle"
+tabs_visible = false
+
+[node name="ScrollContainer2" type="MarginContainer" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TextureRectCapturePreviewFit" type="TextureRect" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale/ScrollContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = SubResource("ViewportTexture_6t0hr")
+expand_mode = 1
+stretch_mode = 5
+script = ExtResource("4_q6wua")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TextureRectCapturePreviewUnscaled" type="TextureRect" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = SubResource("ViewportTexture_jrfyc")
+script = ExtResource("4_q6wua")
+
+[node name="SaveFileDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true
+initial_position = 2
+size = Vector2i(700, 500)
+ok_button_text = "Save"
+access = 2
+filters = PackedStringArray("*.png ; Image files (PNG)")
+script = ExtResource("5_gts1f")
+
+[node name="ResolutionConfirmationDialog" parent="." instance=ExtResource("4_mtj6f")]
+unique_name_in_owner = true
+visible = false
+always_on_top = true
+dialog_text = "This demo version of the MSEP.one editor requires a modern graphics processor to generate and save images at 4K or above. 
+Click 'OK' to continue, or 'Cancel' to select a different resolution."

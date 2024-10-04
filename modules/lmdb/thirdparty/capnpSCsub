@@ -1,0 +1,54 @@
+
+import glob
+import os
+import subprocess
+import shutil
+
+Import("env")
+Import("env_lmdb")
+
+
+
+print("Building capnp")
+platform = env_lmdb["platform"]
+arch = env_lmdb["arch"]
+osxcross_version = ""
+out_lib_dir = os.path.join(os.getcwd(), "lib", platform, arch)
+autotools_command = ""
+
+libs_to_link_against = [
+  "libcapnp",
+  "libcapnpc",
+  "libcapnp-json",
+  "libcapnp-rpc",
+  "libcapnp-websocket",
+  "libkj",
+  "libkj-async",
+  "libkj-gzip",
+  "libkj-http",
+  "libkj-test",
+  "libkj-tls",
+]
+if shutil.which("cygpath"):
+  autotools_command = ["bash", "-c", "$(cygpath {}) -p {} -o $(cygpath {}) -a {}".format(os.path.join(os.getcwd(), "build_capnproto.sh"), platform, out_lib_dir, arch)]
+else:
+  autotools_command = "{} -p {} -o {} -a {}".format(os.path.join(os.getcwd(), "build_capnproto.sh"), platform, out_lib_dir, arch)
+
+if platform in [ "macos"]:
+  if env_lmdb["osxcross_sdk"]:
+    libs_to_link_against.remove("libkj-tls")
+    autotools_command += " --osxcross_sdk {}".format(env_lmdb["osxcross_sdk"])
+    
+elif platform in ["windows"]:
+  libs_to_link_against.remove("libkj-gzip")
+  libs_to_link_against.remove("libkj-tls")
+
+command = subprocess.run(autotools_command, shell=True)
+if command.returncode != 0:
+  print("Error building capnproto lib")
+  Exit(1)
+env_lmdb.Append(LIBPATH=[os.path.join(out_lib_dir, "lib")])
+env.Append(LIBPATH=[os.path.join(out_lib_dir, "lib")])
+suffix = ".a"
+env.Prepend(LIBS=[lib + suffix for lib in libs_to_link_against])
+env_lmdb.Prepend(LIBS=[lib + suffix for lib in libs_to_link_against])

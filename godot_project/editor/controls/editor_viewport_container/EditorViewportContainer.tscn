@@ -1,0 +1,72 @@
+[gd_scene load_steps=9 format=3 uid="uid://dd2x0k2b74ok"]
+
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/EditorViewportContainer.gd" id="1_e0y3u"]
+[ext_resource type="PackedScene" uid="uid://cpmer44bkrmxr" path="res://editor/controls/editor_viewport_container/editor_viewport.tscn" id="2_ax3gd"]
+[ext_resource type="PackedScene" uid="uid://c7ah6aa0h076n" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/axes_widget.tscn" id="3_1em67"]
+[ext_resource type="PackedScene" uid="uid://4srk73h7yp5i" path="res://editor/controls/ring_menu/nano_ring_menu/nano_ring_menu.tscn" id="3_5kmu5"]
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/editor_widgets_container.gd" id="3_gtrkx"]
+[ext_resource type="PackedScene" uid="uid://ctjhe1sb584il" path="res://editor/controls/editor_viewport_container/widgets/orientation_widget/orientation_widget.tscn" id="4_31kt5"]
+[ext_resource type="PackedScene" uid="uid://bwua62ckacyc6" path="res://editor/controls/message_bar/message_bar.tscn" id="4_rdlsj"]
+[ext_resource type="PackedScene" uid="uid://h16ki8tgdk2e" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/camera_widget.tscn" id="7_vqbti"]
+
+[node name="EditorViewportContainer" type="SubViewportContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+focus_next = NodePath(".")
+focus_previous = NodePath(".")
+stretch = true
+script = ExtResource("1_e0y3u")
+
+[node name="EditorViewport" parent="." instance=ExtResource("2_ax3gd")]
+handle_input_locally = false
+msaa_2d = 3
+size = Vector2i(1720, 780)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="EditorWidgetsContainer" type="Control" parent="CanvasLayer"]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_gtrkx")
+
+[node name="TopRightContainer" type="HBoxContainer" parent="CanvasLayer/EditorWidgetsContainer"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_bottom = 102.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 24
+alignment = 2
+
+[node name="CameraWidget" parent="CanvasLayer/EditorWidgetsContainer/TopRightContainer" instance=ExtResource("7_vqbti")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AxesWidget" parent="CanvasLayer/EditorWidgetsContainer/TopRightContainer" instance=ExtResource("3_1em67")]
+layout_mode = 2
+
+[node name="OrientationWidget" parent="CanvasLayer/EditorWidgetsContainer" instance=ExtResource("4_31kt5")]
+unique_name_in_owner = true
+
+[node name="MessageBar" parent="CanvasLayer" instance=ExtResource("4_rdlsj")]
+unique_name_in_owner = true
+offset_left = 0.0
+offset_top = -19.0
+offset_right = 0.0
+
+[node name="NanoRingMenu" parent="CanvasLayer" instance=ExtResource("3_5kmu5")]
+unique_name_in_owner = true

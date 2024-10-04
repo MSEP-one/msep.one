@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://bvcir1rta2mqw"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview.gd" id="1_3qux7"]
+[ext_resource type="PackedScene" uid="uid://ka1kytlpw1r4" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview_viewport.tscn" id="2_xkexr"]
+
+[node name="AspectRatioContainer" type="AspectRatioContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_3qux7")
+
+[node name="3DPreviewContainer" type="SubViewportContainer" parent="."]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+stretch = true
+
+[node name="3DPreviewViewport" parent="3DPreviewContainer" instance=ExtResource("2_xkexr")]
+unique_name_in_owner = true
+own_world_3d = true
+msaa_3d = 3
+scaling_3d_mode = 1
+scaling_3d_scale = 0.8
+size = Vector2i(200, 200)

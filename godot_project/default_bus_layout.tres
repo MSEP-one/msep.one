@@ -1,0 +1,9 @@
+[gd_resource type="AudioBusLayout" format=3 uid="uid://b6xak6u0hcnue"]
+
+[resource]
+bus/1/name = &"Ui Sfx"
+bus/1/solo = false
+bus/1/mute = false
+bus/1/bypass_fx = false
+bus/1/volume_db = -8.00903
+bus/1/send = &"Ui Sfx 2"

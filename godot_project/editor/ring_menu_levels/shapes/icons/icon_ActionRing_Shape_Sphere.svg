@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 1000 1000"
+   enable-background="new 0 0 1000 1000"
+   xml:space="preserve"
+   id="svg2501"
+   sodipodi:docname="icon_ActionRing_Shape_Sphere.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"><defs
+   id="defs2505" /><sodipodi:namedview
+   pagecolor="#5e5e5e"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1009"
+   id="namedview2503"
+   showgrid="false"
+   inkscape:zoom="0.306"
+   inkscape:cx="503.26797"
+   inkscape:cy="500"
+   inkscape:window-x="-8"
+   inkscape:window-y="92"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="layer9"
+   showguides="false"
+   inkscape:document-rotation="0"
+   inkscape:showpageshadow="2"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1" />
+<metadata
+   id="metadata2495"> Svg Vector Icons : http://www.onlinewebfonts.com/icon <rdf:RDF><cc:Work
+     rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+       rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata>
+
+<g
+   inkscape:groupmode="layer"
+   id="layer9"
+   inkscape:label="Icon"
+   style="display:inline"><path
+     style="display:inline;fill:none;fill-opacity:1;stroke:#fffffb;stroke-width:80;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:markers stroke fill"
+     id="path3741-8"
+     sodipodi:type="arc"
+     sodipodi:cx="486.92847"
+     sodipodi:cy="493.46408"
+     sodipodi:rx="403.59476"
+     sodipodi:ry="403.59476"
+     sodipodi:start="0"
+     sodipodi:end="6.251909"
+     sodipodi:open="true"
+     sodipodi:arc-type="arc"
+     d="M 890.52322,493.46408 A 403.59476,403.59476 0 0 1 490.08417,897.0465 403.59476,403.59476 0 0 1 83.383059,499.7753 403.59476,403.59476 0 0 1 477.46212,89.980356 403.59476,403.59476 0 0 1 890.32584,480.84319" /></g></svg>

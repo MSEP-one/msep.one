@@ -1,0 +1,240 @@
+[gd_scene load_steps=16 format=3 uid="uid://h16ki8tgdk2e"]
+
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/CameraWidget.gd" id="1_y36xg"]
+[ext_resource type="Texture2D" uid="uid://c10i2ecq52wtb" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Y_Default.svg" id="2_a4qov"]
+[ext_resource type="Texture2D" uid="uid://ysj4b2rm44k7" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Y_Pressed.svg" id="3_scxx8"]
+[ext_resource type="Texture2D" uid="uid://d1y0nyjm17lag" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Y_Hover.svg" id="4_is4ph"]
+[ext_resource type="Texture2D" uid="uid://exlxw03gwe0x" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_X_Default.svg" id="5_q0d3s"]
+[ext_resource type="Texture2D" uid="uid://y4wlchpaf6cb" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_X_Pressed.svg" id="6_tmy6x"]
+[ext_resource type="Texture2D" uid="uid://j8neoym6vx1u" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_X_Hover.svg" id="7_ho0or"]
+[ext_resource type="Texture2D" uid="uid://dm7yaqnt8eo5g" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Z_Default_Pos.svg" id="8_4v1bk"]
+[ext_resource type="Texture2D" uid="uid://bjqlyj3n73n5o" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Z_Pressed_Pos.svg" id="9_h71xs"]
+[ext_resource type="Texture2D" uid="uid://2apfdmjsbir" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Z_Hover_Pos.svg" id="10_mreeh"]
+[ext_resource type="Texture2D" uid="uid://c6phea142bk2o" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Z_Default_Neg.svg" id="11_tqeqb"]
+[ext_resource type="Texture2D" uid="uid://mciki3f40sia" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Z_Pressed_Neg.svg" id="12_hns6r"]
+[ext_resource type="Texture2D" uid="uid://x1wi8snfipvk" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Z_Hover_Neg.svg" id="13_smrjq"]
+
+[sub_resource type="Curve" id="Curve_ix6d6"]
+bake_resolution = 300
+_data = [Vector2(0, 0.67559), 0.0, 1.79649, 0, 0, Vector2(1, 0.253857), -2.16237, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_r4kah"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="CameraWidget" type="Control"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 98.0
+offset_bottom = 86.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("1_y36xg")
+_click_move_curve = SubResource("Curve_ix6d6")
+_hold_acceleration_curve = SubResource("Curve_r4kah")
+
+[node name="ScaleControl" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.32, 0.32)
+
+[node name="UpArrow" type="TextureRect" parent="ScaleControl"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -40.0539
+offset_top = -136.486
+offset_right = 35.9461
+offset_bottom = -60.4865
+texture = ExtResource("2_a4qov")
+expand_mode = 1
+
+[node name="UpArrowPressed" type="TextureRect" parent="ScaleControl/UpArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+texture = ExtResource("3_scxx8")
+expand_mode = 1
+
+[node name="UpArrowHover" type="TextureRect" parent="ScaleControl/UpArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+texture = ExtResource("4_is4ph")
+expand_mode = 1
+
+[node name="DownArrow" type="TextureRect" parent="ScaleControl"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 36.9461
+offset_top = 137.514
+offset_right = 112.946
+offset_bottom = 213.514
+rotation = 3.14159
+texture = ExtResource("2_a4qov")
+expand_mode = 1
+
+[node name="DownArrowPressed" type="TextureRect" parent="ScaleControl/DownArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+texture = ExtResource("3_scxx8")
+expand_mode = 1
+
+[node name="DownArrowHover" type="TextureRect" parent="ScaleControl/DownArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+texture = ExtResource("4_is4ph")
+expand_mode = 1
+
+[node name="LeftArrow" type="TextureRect" parent="ScaleControl"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -78.0539
+offset_top = 32.5135
+offset_right = -2.05386
+offset_bottom = 108.514
+rotation = 3.14159
+texture = ExtResource("5_q0d3s")
+expand_mode = 1
+
+[node name="LeftArrowPressed" type="TextureRect" parent="ScaleControl/LeftArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+texture = ExtResource("6_tmy6x")
+expand_mode = 1
+
+[node name="LeftArrowHover" type="TextureRect" parent="ScaleControl/LeftArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+texture = ExtResource("7_ho0or")
+expand_mode = 1
+
+[node name="RightArrow" type="TextureRect" parent="ScaleControl"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 78.9461
+offset_top = -42.4865
+offset_right = 154.946
+offset_bottom = 33.5135
+texture = ExtResource("5_q0d3s")
+expand_mode = 1
+
+[node name="RightArrowPressed" type="TextureRect" parent="ScaleControl/RightArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+texture = ExtResource("6_tmy6x")
+expand_mode = 1
+
+[node name="RightArrowHover" type="TextureRect" parent="ScaleControl/RightArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+texture = ExtResource("7_ho0or")
+expand_mode = 1
+
+[node name="ForwardArrow" type="TextureRect" parent="ScaleControl"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -57.0539
+offset_top = -44.4865
+offset_right = 63.9461
+offset_bottom = -14.4865
+texture = ExtResource("8_4v1bk")
+stretch_mode = 2
+
+[node name="ForwardArrowPressed" type="TextureRect" parent="ScaleControl/ForwardArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_left = 1.0
+offset_right = 120.0
+offset_bottom = 29.0
+texture = ExtResource("9_h71xs")
+stretch_mode = 2
+
+[node name="ForwardArrowHover" type="TextureRect" parent="ScaleControl/ForwardArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_left = 1.0
+offset_right = 120.0
+offset_bottom = 29.0
+texture = ExtResource("10_mreeh")
+stretch_mode = 2
+
+[node name="BackArrow" type="TextureRect" parent="ScaleControl"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -62.0539
+offset_top = -6.48648
+offset_right = 66.9461
+offset_bottom = 46.5135
+texture = ExtResource("11_tqeqb")
+stretch_mode = 2
+
+[node name="BackArrowPressed" type="TextureRect" parent="ScaleControl/BackArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 124.0
+offset_bottom = 51.0
+texture = ExtResource("12_hns6r")
+stretch_mode = 2
+
+[node name="BackArrowHover" type="TextureRect" parent="ScaleControl/BackArrow"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+offset_right = 124.0
+offset_bottom = 51.0
+texture = ExtResource("13_smrjq")
+stretch_mode = 2
+
+[connection signal="gui_input" from="ScaleControl/UpArrow" to="." method="_on_up_arrow_gui_input"]
+[connection signal="mouse_entered" from="ScaleControl/UpArrow" to="." method="_on_up_arrow_mouse_entered"]
+[connection signal="mouse_exited" from="ScaleControl/UpArrow" to="." method="_on_up_arrow_mouse_exited"]
+[connection signal="gui_input" from="ScaleControl/DownArrow" to="." method="_on_down_arrow_gui_input"]
+[connection signal="mouse_entered" from="ScaleControl/DownArrow" to="." method="_on_down_arrow_mouse_entered"]
+[connection signal="mouse_exited" from="ScaleControl/DownArrow" to="." method="_on_down_arrow_mouse_exited"]
+[connection signal="gui_input" from="ScaleControl/LeftArrow" to="." method="_on_left_arrow_gui_input"]
+[connection signal="mouse_entered" from="ScaleControl/LeftArrow" to="." method="_on_left_arrow_mouse_entered"]
+[connection signal="mouse_exited" from="ScaleControl/LeftArrow" to="." method="_on_left_arrow_mouse_exited"]
+[connection signal="gui_input" from="ScaleControl/RightArrow" to="." method="_on_right_arrow_gui_input"]
+[connection signal="mouse_entered" from="ScaleControl/RightArrow" to="." method="_on_right_arrow_mouse_entered"]
+[connection signal="mouse_exited" from="ScaleControl/RightArrow" to="." method="_on_right_arrow_mouse_exited"]
+[connection signal="gui_input" from="ScaleControl/ForwardArrow" to="." method="_on_forward_arrow_gui_input"]
+[connection signal="mouse_entered" from="ScaleControl/ForwardArrow" to="." method="_on_forward_arrow_mouse_entered"]
+[connection signal="mouse_exited" from="ScaleControl/ForwardArrow" to="." method="_on_forward_arrow_mouse_exited"]
+[connection signal="gui_input" from="ScaleControl/BackArrow" to="." method="_on_back_arrow_gui_input"]
+[connection signal="mouse_entered" from="ScaleControl/BackArrow" to="." method="_on_back_arrow_mouse_entered"]
+[connection signal="mouse_exited" from="ScaleControl/BackArrow" to="." method="_on_back_arrow_mouse_exited"]

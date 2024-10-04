@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3 uid="uid://om4o0nkeln5c"]
+
+[ext_resource type="Script" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_container.gd" id="1_20iod"]
+[ext_resource type="PackedScene" uid="uid://qjui18vhtwxw" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_bar.tscn" id="2_ambiu"]
+
+[node name="DockerTabContainer" type="VBoxContainer"]
+offset_right = 566.0
+offset_bottom = 167.0
+mouse_force_pass_scroll_events = false
+theme_override_constants/separation = -1
+script = ExtResource("1_20iod")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 0
+
+[node name="DockerTabBar" parent="MarginContainer" instance=ExtResource("2_ambiu")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TabContainer" type="TabContainer" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
+tabs_visible = false

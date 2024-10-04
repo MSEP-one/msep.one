@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://u4vowrdvrqqv"]
+
+[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/toggle_dock_area_visibility_button.gd" id="1_w3puq"]
+
+[node name="ToggleDockAreaVisibilityButton" type="Button"]
+offset_right = 8.0
+offset_bottom = 8.0
+focus_mode = 0
+flat = true
+script = ExtResource("1_w3puq")

@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cqrq0lh863f4q"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/workspace_settings_docker.gd" id="1_1lxmm"]
+[ext_resource type="PackedScene" uid="uid://bot7rbc830g06" path="res://editor/controls/dockers/workspace_docker.tscn" id="1_slevb"]
+
+[node name="WorkspaceSettingsDocker" instance=ExtResource("1_slevb")]
+script = ExtResource("1_1lxmm")
+docker_tab_title = "Workspace Settings"
+
+[node name="CategoryContainer" parent="ScrollContainer" index="0"]
+size_flags_vertical = 0

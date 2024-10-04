@@ -1,0 +1,127 @@
+[gd_scene load_steps=8 format=3 uid="uid://dxr8wwnkafu0b"]
+
+[ext_resource type="Script" path="res://autoloads/about_msep_one/about_msep_one.gd" id="1_6fjpy"]
+[ext_resource type="Theme" uid="uid://d3fnr4sbrd6ik" path="res://theme/theme.tres" id="2_jqdxq"]
+[ext_resource type="Shader" path="res://autoloads/about_msep_one/about_msep_one.gdshader" id="2_kglro"]
+[ext_resource type="Texture2D" uid="uid://bm36o6fo1evuo" path="res://logo.png" id="2_pjviv"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_g7c2g"]
+shader = ExtResource("2_kglro")
+shader_parameter/blur = 1.0
+
+[sub_resource type="InputEventKey" id="InputEventKey_40q4d"]
+device = -1
+keycode = 4194305
+
+[sub_resource type="Shortcut" id="Shortcut_hmq7l"]
+events = [SubResource("InputEventKey_40q4d")]
+
+[node name="AboutMsepOne" type="CanvasLayer"]
+layer = 128
+script = ExtResource("1_6fjpy")
+
+[node name="RelaxToolsPanel" parent="." instance_placeholder="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/relax_tools_panel.tscn"]
+offset_left = 965.0
+offset_top = 303.0
+offset_right = 1322.0
+offset_bottom = 526.0
+
+[node name="BlurBackground" type="ColorRect" parent="."]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_g7c2g")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -362.5
+offset_top = -215.0
+offset_right = 362.5
+offset_bottom = 215.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("2_jqdxq")
+theme_type_variation = &"HeaderLarge"
+theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 9
+text = "Welcome to MSEP.one"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="LabelSubtitle" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 9
+text = "The Molecular Systems Engineering Platform
+Early Prototype."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 13
+
+[node name="Logo" type="TextureRect" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_pjviv")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"CollapsableCategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "(c) 2023, Prehensile Tales B.V.
+
+"
+
+[node name="LabelDateOfBuild" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Build date: yyyy-mm-dd.git_commit_hash"
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "
+Please do not copy or distribute.
+
+This pre-alpha version of the tool will allow you to build and modify molecules.
+
+Currently, many more features are under development."
+autowrap_mode = 2
+
+[node name="ButtonClose" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CrystalButton"
+shortcut = SubResource("Shortcut_hmq7l")
+shortcut_feedback = false
+shortcut_in_tooltip = false
+text = "Continue"

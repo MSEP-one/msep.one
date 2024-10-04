@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxwwcdp4r5d05"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/selection_info.gd" id="1_yqxii"]
+
+[node name="selection_info" type="MarginContainer"]
+custom_minimum_size = Vector2(0, 300)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_yqxii")
+
+[node name="TreeInfo" type="Tree" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+column_titles_visible = true
+hide_root = true
+scroll_horizontal_enabled = false

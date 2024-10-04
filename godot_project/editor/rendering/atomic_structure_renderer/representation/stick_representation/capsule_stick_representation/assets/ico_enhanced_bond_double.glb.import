@@ -1,0 +1,47 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://ck1heo1io73ux"
+path="res://.godot/imported/ico_enhanced_bond_double.glb-7f213584ba198930497997c54d396f60.scn"
+
+[deps]
+
+source_file="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_enhanced_bond_double.glb"
+dest_files=["res://.godot/imported/ico_enhanced_bond_double.glb-7f213584ba198930497997c54d396f60.scn"]
+
+[params]
+
+nodes/root_type="Node3D"
+nodes/root_name="Scene Root"
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+import_script/path=""
+_subresources={
+"meshes": {
+"ico_enhanced_bond_double_Icosphere_008": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"lods/normal_split_angle": 25.0,
+"save_to_file/enabled": false,
+"save_to_file/make_streamable": "",
+"save_to_file/path": "res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_enhanced_bond_double_mesh.res"
+}
+}
+}
+gltf/naming_version=0
+gltf/embedded_image_handling=1

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://cb66pj0uioeda"]
+
+[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_real_time_visuals/ring_real_time_visuals.gd" id="1_ltjyu"]
+
+[node name="RingRealTimeVisuals" type="Node3D"]
+script = ExtResource("1_ltjyu")
+
+[node name="MouseFollower" type="SpotLight3D" parent="."]
+transform = Transform3D(0.908121, 0, 0.418707, 0, 1, 0, -0.418707, 0, 0.908121, -2.16067e-07, 0, 1.62563)
+light_energy = 5.0
+light_cull_mask = 4293918724

@@ -1,0 +1,29 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://dv58mh0ihcavh"]
+
+[ext_resource type="Shader" path="res://editor/rendering/ballstick_bond_preview/assets/ballstick_bond_preview.gdshader" id="1_cnh8c"]
+[ext_resource type="Script" path="res://editor/rendering/ballstick_bond_preview/assets/preview_base_bond_material.gd" id="1_oyvor"]
+
+[sub_resource type="Curve" id="Curve_jww5y"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.129032, 0), 0.0, 0.0, 0, 0, Vector2(0.863799, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_ppeeh"]
+curve = SubResource("Curve_jww5y")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_cnh8c")
+shader_parameter/emission_energy = 0.2
+shader_parameter/first_color = Color(1, 0, 0, 1)
+shader_parameter/second_color = Color(0, 1, 0, 1)
+shader_parameter/point_size = null
+shader_parameter/roughness = null
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = null
+shader_parameter/metallic = null
+shader_parameter/uv1_scale = null
+shader_parameter/uv1_offset = null
+shader_parameter/uv2_scale = null
+shader_parameter/uv2_offset = null
+shader_parameter/texture_color_curve = SubResource("CurveTexture_ppeeh")
+script = ExtResource("1_oyvor")

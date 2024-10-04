@@ -1,0 +1,109 @@
+[gd_scene load_steps=23 format=3 uid="uid://biclwwtcsdrxo"]
+
+[ext_resource type="Texture2D" uid="uid://bjxt6e48fokpp" path="res://editor/icons/icon_select_all.svg" id="1_nnfuc"]
+[ext_resource type="Texture2D" uid="uid://cycavpfra34ii" path="res://editor/icons/icon_deselect_all.svg" id="2_4nrca"]
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_select/menu_select.gd" id="3_lycke"]
+[ext_resource type="Texture2D" uid="uid://bwi3c3nbbgfew" path="res://editor/icons/icon_select_connected_x16.svg" id="3_xi2k8"]
+[ext_resource type="Texture2D" uid="uid://crqfcbmenhhse" path="res://editor/icons/icon_grow_selection_x16.svg" id="4_u25wf"]
+[ext_resource type="Texture2D" uid="uid://mwyjpkpia6kj" path="res://editor/icons/icon_shrink_selection_x16.svg" id="5_c27nw"]
+[ext_resource type="Texture2D" uid="uid://bgopntrcn4ncx" path="res://editor/icons/icon_invert_selection.svg" id="6_30lt3"]
+[ext_resource type="Texture2D" uid="uid://bue1auish0lpw" path="res://editor/icons/icon_select_by_type.svg" id="6_gx3je"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_jcme1"]
+device = -1
+command_or_control_autoremap = true
+keycode = 65
+unicode = 97
+
+[sub_resource type="Shortcut" id="Shortcut_qsvkb"]
+events = [SubResource("InputEventKey_jcme1")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_2kr4x"]
+device = -1
+command_or_control_autoremap = true
+keycode = 68
+unicode = 100
+
+[sub_resource type="Shortcut" id="Shortcut_chdlg"]
+events = [SubResource("InputEventKey_2kr4x")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_7h7lt"]
+device = -1
+keycode = 76
+physical_keycode = 76
+key_label = 76
+unicode = 108
+
+[sub_resource type="Shortcut" id="Shortcut_rsvbo"]
+events = [SubResource("InputEventKey_7h7lt")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_c5ver"]
+device = -1
+pressed = true
+keycode = 4194437
+unicode = 43
+
+[sub_resource type="InputEventKey" id="InputEventKey_34eqh"]
+device = -1
+keycode = 61
+unicode = 61
+
+[sub_resource type="Shortcut" id="Shortcut_y5wfm"]
+events = [SubResource("InputEventKey_c5ver"), SubResource("InputEventKey_34eqh")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_vtix3"]
+device = -1
+keycode = 4194435
+physical_keycode = 4194435
+key_label = 4194435
+unicode = 45
+
+[sub_resource type="InputEventKey" id="InputEventKey_x46bi"]
+device = -1
+physical_keycode = 45
+unicode = 45
+
+[sub_resource type="Shortcut" id="Shortcut_i4m8w"]
+events = [SubResource("InputEventKey_vtix3"), SubResource("InputEventKey_x46bi")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_a1p75"]
+device = -1
+command_or_control_autoremap = true
+keycode = 73
+unicode = 105
+
+[sub_resource type="Shortcut" id="Shortcut_3et1c"]
+events = [SubResource("InputEventKey_a1p75")]
+
+[node name="MenuSelect" type="PopupMenu"]
+size = Vector2i(1141, 777)
+visible = true
+item_count = 7
+item_0/text = "Select All"
+item_0/icon = ExtResource("1_nnfuc")
+item_0/id = 0
+item_1/text = "Deselect All"
+item_1/icon = ExtResource("2_4nrca")
+item_1/id = 1
+item_2/text = "Select Atoms by Type"
+item_2/icon = ExtResource("6_gx3je")
+item_2/id = 2
+item_3/text = "Select Connected"
+item_3/icon = ExtResource("3_xi2k8")
+item_3/id = 3
+item_4/text = "Grow Selection"
+item_4/icon = ExtResource("4_u25wf")
+item_4/id = 4
+item_5/text = "Shrink Selection"
+item_5/icon = ExtResource("5_c27nw")
+item_5/id = 5
+item_6/text = "Invert Selection"
+item_6/icon = ExtResource("6_30lt3")
+item_6/id = 6
+script = ExtResource("3_lycke")
+shortcut_select_all = SubResource("Shortcut_qsvkb")
+shortcut_deselect_all = SubResource("Shortcut_chdlg")
+shortcut_select_connected = SubResource("Shortcut_rsvbo")
+shortcut_grow_selection = SubResource("Shortcut_y5wfm")
+shortcut_shrink_selection = SubResource("Shortcut_i4m8w")
+shortcut_invert_selection = SubResource("Shortcut_3et1c")

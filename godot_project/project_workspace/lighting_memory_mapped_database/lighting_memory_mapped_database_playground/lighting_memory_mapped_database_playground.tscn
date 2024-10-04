@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://crjtna7wuknnx"]
+
+[ext_resource type="Script" path="res://project_workspace/lighting_memory_mapped_database/lighting_memory_mapped_database_playground/lighting_memory_mapped_database_playground.gd" id="1_f5g4h"]
+
+[node name="LightingMemoryMappedDatabasePlayground" type="Node"]
+script = ExtResource("1_f5g4h")
+
+[node name="LightningMemoryMappedDatabase" type="LightningMemoryMappedDatabase" parent="."]

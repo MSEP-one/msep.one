@@ -1,0 +1,81 @@
+[gd_scene load_steps=5 format=3 uid="uid://hdccjj6rq37k"]
+
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="1_ajkyt"]
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/spring_properties_editor.gd" id="1_k5dfq"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="3_3ga01"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_5ktbc"]
+
+[node name="SpringsPropertiesEditor" type="VBoxContainer"]
+offset_right = 308.0
+offset_bottom = 98.0
+theme_override_constants/separation = 12
+script = ExtResource("1_k5dfq")
+
+[node name="SpringPropertiesEditor" type="GridContainer" parent="."]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="SpringPropertiesEditor"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Force Constant (K)"
+
+[node name="ConstantForceSpinBox" parent="SpringPropertiesEditor" instance=ExtResource("1_ajkyt")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.001
+max_value = 1000.0
+step = 0.001
+page = 0.001
+value = 500.0
+allow_greater = true
+suffix = "nN/nm"
+custom_arrow_step = 0.1
+
+[node name="Label2" type="Label" parent="SpringPropertiesEditor"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Equilibrium Length"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SpringPropertiesEditor"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="LengthAutoButton" type="Button" parent="SpringPropertiesEditor/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_5ktbc")
+text = "Auto"
+
+[node name="LengthManualButton" type="Button" parent="SpringPropertiesEditor/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_5ktbc")
+text = "Manual
+"
+
+[node name="LengthSpinBox" parent="SpringPropertiesEditor/HBoxContainer" instance=ExtResource("1_ajkyt")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.001
+max_value = 10.0
+step = 0.001
+page = 0.01
+value = 1.0
+allow_greater = true
+editable = false
+suffix = "nm"
+custom_arrow_step = 0.1
+
+[node name="MultipleValuesInfoLabel" parent="." instance=ExtResource("3_3ga01")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] Selected Springs have multiple values[/center]"
+message = &"Selected Springs have multiple values"

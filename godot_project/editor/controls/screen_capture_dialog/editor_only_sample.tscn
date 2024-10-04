@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://befnj1cek7v00"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_jwu76"]
+
+[node name="EditorOnlySample" type="MeshInstance3D"]
+mesh = SubResource("TorusMesh_jwu76")

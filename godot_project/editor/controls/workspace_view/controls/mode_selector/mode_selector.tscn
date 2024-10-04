@@ -1,0 +1,101 @@
+[gd_scene load_steps=15 format=3 uid="uid://dc5gviapnl87k"]
+
+[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/mode_selector/mode_selector.gd" id="1_ito7r"]
+[ext_resource type="Texture2D" uid="uid://dtn5addfvf2md" path="res://editor/controls/workspace_view/controls/mode_selector/styles/mode_selector_default.svg" id="2_p1hyi"]
+[ext_resource type="Texture2D" uid="uid://bukcy5mip3kbo" path="res://editor/controls/workspace_view/controls/mode_selector/styles/mode_selector_hover.svg" id="3_lxb2m"]
+[ext_resource type="Texture2D" uid="uid://drbwgxyyviuu8" path="res://editor/controls/workspace_view/controls/mode_selector/styles/mode_selector_pressed.svg" id="4_svupq"]
+[ext_resource type="Texture2D" uid="uid://bfbtbujkq1dnr" path="res://editor/controls/workspace_view/controls/mode_selector/styles/mode_selector_default_flipped.svg" id="5_kcpeu"]
+[ext_resource type="Texture2D" uid="uid://bwdwigm5v8f6e" path="res://editor/controls/workspace_view/controls/mode_selector/styles/mode_selector_hover_flipped.svg" id="6_3qmgh"]
+[ext_resource type="Texture2D" uid="uid://dm5clontp6g4p" path="res://editor/controls/workspace_view/controls/mode_selector/styles/mode_selector_pressed_flipped.svg" id="7_51ei8"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_srtva"]
+texture = ExtResource("2_p1hyi")
+texture_margin_left = 50.0
+texture_margin_top = 4.0
+texture_margin_right = 60.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_41kly"]
+texture = ExtResource("3_lxb2m")
+texture_margin_left = 50.0
+texture_margin_top = 4.0
+texture_margin_right = 60.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_dgjov"]
+texture = ExtResource("4_svupq")
+texture_margin_left = 50.0
+texture_margin_top = 4.0
+texture_margin_right = 60.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_ss8vc"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0jckn"]
+texture = ExtResource("5_kcpeu")
+texture_margin_left = 60.0
+texture_margin_top = 4.0
+texture_margin_right = 50.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_45re0"]
+texture = ExtResource("6_3qmgh")
+texture_margin_left = 60.0
+texture_margin_top = 4.0
+texture_margin_right = 50.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_40x8n"]
+texture = ExtResource("7_51ei8")
+texture_margin_left = 60.0
+texture_margin_top = 4.0
+texture_margin_right = 50.0
+texture_margin_bottom = 4.0
+
+[node name="ModeSelector" type="MarginContainer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -161.5
+offset_top = -75.0
+offset_right = 161.5
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_bottom = 22
+script = ExtResource("1_ito7r")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="CreateModeButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxTexture_srtva")
+theme_override_styles/hover = SubResource("StyleBoxTexture_41kly")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_dgjov")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_ss8vc")
+text = "Create mode"
+
+[node name="SelectModeButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxTexture_0jckn")
+theme_override_styles/hover = SubResource("StyleBoxTexture_45re0")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_40x8n")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_ss8vc")
+text = "Select mode"

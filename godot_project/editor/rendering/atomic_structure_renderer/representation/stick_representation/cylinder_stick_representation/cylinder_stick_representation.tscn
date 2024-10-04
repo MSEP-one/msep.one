@@ -1,0 +1,41 @@
+[gd_scene load_steps=10 format=3 uid="uid://c1pl3akl77luo"]
+
+[ext_resource type="PackedScene" uid="uid://bq2gfornm12h" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/stick_representation.tscn" id="1_0o8vb"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/cylinder_stick_representation.gd" id="2_xqn7h"]
+[ext_resource type="ArrayMesh" uid="uid://dj0e2uonwaml8" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_single.mesh" id="3_pncja"]
+[ext_resource type="Material" uid="uid://nqctxdqtoge0" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/bond_cylinder_material.tres" id="4_yvyo0"]
+[ext_resource type="ArrayMesh" uid="uid://cah4tb7ho4jvm" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_double.mesh" id="5_p0s1p"]
+[ext_resource type="ArrayMesh" uid="uid://loburxhx26rg" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_tripple.mesh" id="6_oyg1g"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_b3fjb"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("3_pncja")
+
+[sub_resource type="MultiMesh" id="MultiMesh_raneo"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("5_p0s1p")
+
+[sub_resource type="MultiMesh" id="MultiMesh_jfqei"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("6_oyg1g")
+
+[node name="CylinderStickRepresentation" instance=ExtResource("1_0o8vb")]
+script = ExtResource("2_xqn7h")
+
+[node name="SingleStickSegmentedMultiMesh" parent="." index="0"]
+multimesh = SubResource("MultiMesh_b3fjb")
+_material_override = ExtResource("4_yvyo0")
+
+[node name="DoubleStickSegmentedMultiMesh" parent="." index="1"]
+multimesh = SubResource("MultiMesh_raneo")
+_material_override = ExtResource("4_yvyo0")
+
+[node name="TrippleStickSegmentedMultiMesh" parent="." index="2"]
+multimesh = SubResource("MultiMesh_jfqei")
+_material_override = ExtResource("4_yvyo0")

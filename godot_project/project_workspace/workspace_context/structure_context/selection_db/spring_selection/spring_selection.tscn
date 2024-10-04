@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bcan5f5tjhwhs"]
+
+[ext_resource type="Script" path="res://project_workspace/workspace_context/structure_context/selection_db/spring_selection/spring_selection.gd" id="1_2fwjp"]
+
+[node name="SpringSelection" type="Node"]
+script = ExtResource("1_2fwjp")

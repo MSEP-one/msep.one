@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbyklroe2rigw"]
+
+[ext_resource type="Script" path="res://editor/controls/screen_capture_dialog/resolution_confirmation_dialog/resolution_confirmation_dialog.gd" id="1_as4as"]
+
+[node name="ResolutionConfirmationDialog" type="ConfirmationDialog"]
+size = Vector2i(500, 123)
+visible = true
+dialog_text = "Alpha version of the MSEP ONE editor requires a modern graphics processor to generate and save images at 4K or above. 
+Click 'OK' to continue, or 'Cancel' to select a different resolution.
+"
+dialog_autowrap = true
+script = ExtResource("1_as4as")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 490.0
+offset_bottom = 76.0
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+
+[connection signal="canceled" from="." to="." method="_on_canceled"]
+[connection signal="confirmed" from="." to="." method="_on_confirmed"]

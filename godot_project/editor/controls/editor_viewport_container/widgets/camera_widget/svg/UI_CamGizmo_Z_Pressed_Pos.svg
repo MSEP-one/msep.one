@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32mm"
+   height="8mm"
+   viewBox="0 0 32 8"
+   version="1.1"
+   id="svg85796"
+   sodipodi:docname="UI_CamGizmo_Z_Pressed_Pos.svg"
+   inkscape:version="1.2.2 (b0a8486, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview88339"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="8.1402052"
+     inkscape:cx="59.887925"
+     inkscape:cy="14.741643"
+     inkscape:window-width="1508"
+     inkscape:window-height="632"
+     inkscape:window-x="391"
+     inkscape:window-y="38"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg85796" />
+  <defs
+     id="defs85793" />
+  <g
+     id="layer1"
+     transform="translate(-196.25615,-135.06807)">
+    <path
+       style="display:inline;fill:#000000;fill-opacity:1;stroke:#787fff;stroke-width:1.50932;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="m 197.80813,142.19731 c 0,0 3.3421,-6.15732 14.38948,-6.20099 11.0976,-0.0439 14.48595,6.12033 14.48595,6.12033 z"
+       id="path71294" />
+    <path
+       style="display:inline;fill:#83a0ff;fill-opacity:1;stroke:none;stroke-width:0.279902px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 207.12835,139.34059 5.02728,-2.85823 5.00356,2.86067 -3.08055,-0.0334 0.24352,2.25666 -4.35783,0.0274 0.28643,-2.28266 z"
+       id="path71296" />
+  </g>
+</svg>

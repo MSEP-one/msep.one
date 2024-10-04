@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="Theme3D" load_steps=18 format=3 uid="uid://bv486odiqri0f"]
+
+[ext_resource type="Material" uid="uid://de1fv07tsv5fc" path="res://theme/theme_3d/available_themes/flat_theme/flat_ball_shader_material.tres" id="1_bfah2"]
+[ext_resource type="ArrayMesh" uid="uid://df3bi5akriful" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_half_outline.mesh" id="2_yp7ry"]
+[ext_resource type="Material" uid="uid://dnb6rgo41bk0f" path="res://theme/theme_3d/available_themes/flat_theme/flat_bond_shader.tres" id="3_r37ry"]
+[ext_resource type="ArrayMesh" uid="uid://d8dach6ayrf7" path="res://theme/theme_3d/available_themes/flat_theme/ico_straight_bond_single_mesh.res" id="4_2bxbw"]
+[ext_resource type="ArrayMesh" uid="uid://dtwk1lvvd4n87" path="res://theme/theme_3d/available_themes/flat_theme/ico_straight_bond_double_mesh.res" id="5_kj5q4"]
+[ext_resource type="ArrayMesh" uid="uid://be40nqmyo6c7l" path="res://theme/theme_3d/available_themes/flat_theme/ico_straight_bond_tripple_mesh.res" id="6_tgql8"]
+[ext_resource type="ArrayMesh" uid="uid://dctfhmq8ej8ac" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_straight_bond_single_mesh.res" id="7_2ol76"]
+[ext_resource type="ArrayMesh" uid="uid://bknsm4njdvvph" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_enhanced_bond_double_mesh.res" id="8_5volk"]
+[ext_resource type="ArrayMesh" uid="uid://dsy865x6gnenq" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_enhanced_bond_triple_mesh.res" id="9_nte05"]
+[ext_resource type="Material" uid="uid://brxc3glw82v70" path="res://theme/theme_3d/available_themes/flat_theme/flat_capsule_material.tres" id="10_j46dl"]
+[ext_resource type="Environment" uid="uid://lam1yl2japkp" path="res://theme/theme_3d/available_themes/flat_theme/flat_environment.tres" id="11_vbgy7"]
+[ext_resource type="Material" uid="uid://u67yxpenxftr" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_material.tres" id="12_ausdn"]
+[ext_resource type="Material" uid="uid://bs0f4sfoqif1" path="res://theme/theme_3d/available_themes/flat_theme/flat_preview_atom_material/flat_preview_sphere_material.tres" id="13_j5oux"]
+[ext_resource type="Material" uid="uid://dv58mh0ihcavh" path="res://editor/rendering/ballstick_bond_preview/assets/bond_preview_material.tres" id="14_0kc3x"]
+[ext_resource type="Script" path="res://theme/theme_3d/theme_3d.gd" id="15_qmigq"]
+[ext_resource type="Material" uid="uid://dkxttu4vymylk" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_material.tres" id="16_y3xu0"]
+[ext_resource type="ArrayMesh" uid="uid://cvyuohtyyh420" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_chain_mesh.res" id="17_7gym7"]
+
+[resource]
+script = ExtResource("15_qmigq")
+_ball_mesh = ExtResource("2_yp7ry")
+_single_atom_ball_mesh = ExtResource("2_yp7ry")
+_bond_order_1_mesh = ExtResource("4_2bxbw")
+_bond_order_2_mesh = ExtResource("5_kj5q4")
+_bond_order_3_mesh = ExtResource("6_tgql8")
+_stick_mesh_order_1 = ExtResource("7_2ol76")
+_stick_mesh_order_2 = ExtResource("7_2ol76")
+_stick_mesh_order_3 = ExtResource("7_2ol76")
+_enhanced_stick_mesh_order_1 = ExtResource("7_2ol76")
+_enhanced_stick_mesh_order_2 = ExtResource("8_5volk")
+_enhanced_stick_mesh_order_3 = ExtResource("9_nte05")
+_spring_mesh = ExtResource("17_7gym7")
+_ball_material = ExtResource("1_bfah2")
+_single_atom_ball_material = ExtResource("1_bfah2")
+_bond_order_1_material = ExtResource("3_r37ry")
+_bond_order_2_material = ExtResource("3_r37ry")
+_bond_order_3_material = ExtResource("3_r37ry")
+_stick_order_1_material = ExtResource("10_j46dl")
+_stick_order_2_material = ExtResource("10_j46dl")
+_stick_order_3_material = ExtResource("10_j46dl")
+_enhanced_stick_order_1_material = ExtResource("10_j46dl")
+_enhanced_stick_order_2_material = ExtResource("10_j46dl")
+_enhanced_stick_order_3_material = ExtResource("10_j46dl")
+_spring_material = ExtResource("16_y3xu0")
+_label_material = ExtResource("12_ausdn")
+_preview_ball_material = ExtResource("13_j5oux")
+_preview_bond_material = ExtResource("14_0kc3x")
+_environment = ExtResource("11_vbgy7")
+_highlight_color = Color(0.141176, 0.117647, 0.270588, 1)

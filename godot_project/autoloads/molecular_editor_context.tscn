@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://bspc20ojoeaoo"]
+
+[ext_resource type="Script" path="res://autoloads/MolecularEditorContext.gd" id="1_pkylb"]
+[ext_resource type="PackedScene" uid="uid://kevrnlse35yk" path="res://utils/NodeHolder/node_holder.tscn" id="2_j4xf8"]
+
+[node name="MolecularEditorContext" type="Node"]
+script = ExtResource("1_pkylb")
+
+[node name="WorkspaceContextsHolder" parent="." instance=ExtResource("2_j4xf8")]
+
+[node name="Concrete_WorkspaceContext (Placeholder Sample)" parent="WorkspaceContextsHolder" instance_placeholder="res://project_workspace/workspace_context/workspace_context.tscn"]

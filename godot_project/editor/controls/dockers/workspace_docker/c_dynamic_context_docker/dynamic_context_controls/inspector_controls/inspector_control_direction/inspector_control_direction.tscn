@@ -1,0 +1,53 @@
+[gd_scene load_steps=3 format=3 uid="uid://dexerp0mkuhpy"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_direction/inspector_control_direction.gd" id="1_gojr5"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_iwygt"]
+
+[node name="InspectorControlDirection" type="MarginContainer"]
+offset_right = 367.0
+offset_bottom = 110.0
+script = ExtResource("1_gojr5")
+mode = null
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+columns = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Altitude"
+
+[node name="AltitudeSpinBox" parent="HBoxContainer/GridContainer" instance=ExtResource("2_iwygt")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -90.0
+max_value = 91.0
+step = 0.001
+page = 1.0
+value = 45.0
+suffix = "º"
+
+[node name="Label2" type="Label" parent="HBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Azimuth
+"
+
+[node name="AzimuthSpinBox" parent="HBoxContainer/GridContainer" instance=ExtResource("2_iwygt")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -180.0
+max_value = 181.0
+step = 0.001
+page = 1.0
+value = 120.0
+suffix = "º"
+
+[node name="Preview" type="Control" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2

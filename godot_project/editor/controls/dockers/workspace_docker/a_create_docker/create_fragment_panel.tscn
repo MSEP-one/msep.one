@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3 uid="uid://r8okqydiyaj8"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_fragment_panel.gd" id="1_0xfy8"]
+
+[node name="LoadFragmentPanel" type="MarginContainer"]
+offset_right = 259.0
+offset_bottom = 324.0
+size_flags_vertical = 3
+script = ExtResource("1_0xfy8")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Search" type="LineEdit" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Search"
+
+[node name="NoSearchResultFound" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "No fragments found. Try to search for another term."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="GroupCheckBox" type="CheckBox" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Create molecule in its own group"
+
+[node name="FragmentsContainer" type="VBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3

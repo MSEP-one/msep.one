@@ -1,0 +1,42 @@
+[gd_scene load_steps=10 format=3 uid="uid://dgfsobv3p2xoq"]
+
+[ext_resource type="PackedScene" uid="uid://bq2gfornm12h" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/stick_representation.tscn" id="1_1tic8"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/enhanced_capsule_stick_representation.gd" id="2_5cipu"]
+[ext_resource type="ArrayMesh" uid="uid://dctfhmq8ej8ac" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_straight_bond_single_mesh.res" id="3_4b3cc"]
+[ext_resource type="ArrayMesh" uid="uid://bknsm4njdvvph" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_enhanced_bond_double_mesh.res" id="4_6gnqb"]
+[ext_resource type="Material" uid="uid://djjmqhw4kbs2b" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/capsule_stick_material.tres" id="4_o3s5i"]
+[ext_resource type="ArrayMesh" uid="uid://dsy865x6gnenq" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_enhanced_bond_triple_mesh.res" id="5_qu7do"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_p2cj1"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("3_4b3cc")
+
+[sub_resource type="MultiMesh" id="MultiMesh_xmb1g"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("4_6gnqb")
+
+[sub_resource type="MultiMesh" id="MultiMesh_p2c5m"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("5_qu7do")
+
+[node name="EnhancedCapsuleStickRepresentation" instance=ExtResource("1_1tic8")]
+script = ExtResource("2_5cipu")
+
+[node name="SingleStickSegmentedMultiMesh" parent="." index="0"]
+multimesh = SubResource("MultiMesh_p2cj1")
+_lod_bias = 1.5
+_material_override = ExtResource("4_o3s5i")
+
+[node name="DoubleStickSegmentedMultiMesh" parent="." index="1"]
+multimesh = SubResource("MultiMesh_xmb1g")
+_material_override = ExtResource("4_o3s5i")
+
+[node name="TrippleStickSegmentedMultiMesh" parent="." index="2"]
+multimesh = SubResource("MultiMesh_p2c5m")
+_material_override = ExtResource("4_o3s5i")

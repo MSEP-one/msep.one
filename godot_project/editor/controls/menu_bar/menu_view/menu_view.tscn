@@ -1,0 +1,140 @@
+[gd_scene load_steps=29 format=3 uid="uid://jd3h4vq4vyea"]
+
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_view/menu_view.gd" id="1_2o615"]
+[ext_resource type="Texture2D" uid="uid://bmubyere46xyj" path="res://editor/controls/dockers/workspace_docker/icons/icon_focus.svg" id="1_jslvw"]
+[ext_resource type="Texture2D" uid="uid://rdnyaknp7tg5" path="res://editor/controls/dockers/workspace_docker/icons/icon_focus_selection.svg" id="2_6t3n3"]
+[ext_resource type="Texture2D" uid="uid://cjb8fhvhlxy0e" path="res://editor/controls/dockers/workspace_docker/icons/icon_hidden.svg" id="3_svvq5"]
+[ext_resource type="Texture2D" uid="uid://clnq8yanefmng" path="res://editor/controls/menu_bar/menu_view/icons/icon_override_default_colors_16px.svg" id="6_0hyur"]
+[ext_resource type="Texture2D" uid="uid://cooqrmoajhmow" path="res://editor/controls/menu_bar/menu_view/icons/icon_hide_selected_16px.svg" id="6_mk0a1"]
+[ext_resource type="Texture2D" uid="uid://d00v766c4rjxk" path="res://editor/controls/menu_bar/menu_view/icons/icon_representation_balls_16px.svg" id="6_pedve"]
+[ext_resource type="Texture2D" uid="uid://ceoro4h7iu6pj" path="res://editor/controls/menu_bar/menu_view/icons/icon_representation_mechanical_simulation_16px.svg" id="6_pwvjy"]
+[ext_resource type="Texture2D" uid="uid://c82326v46ebia" path="res://editor/controls/menu_bar/menu_view/icons/icon_show_hidden_objects_16px.svg" id="7_08k6f"]
+[ext_resource type="Texture2D" uid="uid://berg5rw7t3hkv" path="res://editor/controls/menu_bar/menu_view/icons/icon_representation_sticks_16px.svg" id="7_j60xq"]
+[ext_resource type="Texture2D" uid="uid://l0y4e0lj4paj" path="res://editor/controls/menu_bar/menu_view/icons/icon_representation_balls_and_sticks_16px.svg" id="9_rsnfd"]
+[ext_resource type="Texture2D" uid="uid://ck8um03sr3lvd" path="res://editor/controls/menu_bar/menu_view/icons/icon_atom_size_16px.svg" id="10_j2n7a"]
+[ext_resource type="Texture2D" uid="uid://vgkrtw2fv7ej" path="res://editor/controls/menu_bar/menu_view/icons/icon_show_bonds_16px.svg" id="10_uwo21"]
+[ext_resource type="Texture2D" uid="uid://b4q7kkoumjh8b" path="res://editor/controls/menu_bar/menu_view/icons/icon_representation_enhanced_sticks_and_balls_16px.svg" id="11_3wh88"]
+[ext_resource type="Texture2D" uid="uid://djat8ll4w0mnr" path="res://editor/controls/menu_bar/menu_view/icons/icon_atom_labels_16px.svg" id="11_orjqc"]
+[ext_resource type="Texture2D" uid="uid://endpnrg38txn" path="res://editor/controls/menu_bar/menu_view/icons/icon_show_hydrogens_16px.svg" id="12_3iftq"]
+[ext_resource type="Texture2D" uid="uid://ntg2llf45ky2" path="res://editor/controls/menu_bar/menu_edit/icons/icon_theme.svg" id="15_jjf8c"]
+[ext_resource type="Texture2D" uid="uid://cbc43vi425q4b" path="res://editor/controls/dockers/workspace_docker/icons/icon_deactivated.svg" id="15_uj6uj"]
+[ext_resource type="Texture2D" uid="uid://bdtmhsuvkbll3" path="res://editor/icons/icon_camera_x16.svg" id="16_epqix"]
+[ext_resource type="Texture2D" uid="uid://f6ceimdovp8j" path="res://editor/controls/dockers/workspace_docker/icons/icon_visible.svg" id="16_wh84c"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_dap46"]
+device = -1
+command_or_control_autoremap = true
+shift_pressed = true
+keycode = 32
+
+[sub_resource type="Shortcut" id="Shortcut_2fwj8"]
+events = [SubResource("InputEventKey_dap46")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_trvs4"]
+device = -1
+command_or_control_autoremap = true
+keycode = 32
+unicode = 32
+
+[sub_resource type="Shortcut" id="Shortcut_5xqur"]
+events = [SubResource("InputEventKey_trvs4")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_we5y5"]
+device = -1
+keycode = 72
+unicode = 104
+
+[sub_resource type="Shortcut" id="Shortcut_suqnu"]
+events = [SubResource("InputEventKey_we5y5")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_hkl84"]
+device = -1
+alt_pressed = true
+keycode = 72
+unicode = 104
+
+[sub_resource type="Shortcut" id="Shortcut_hp7en"]
+events = [SubResource("InputEventKey_hkl84")]
+
+[node name="View" type="PopupMenu"]
+size = Vector2i(492, 636)
+visible = true
+item_count = 22
+item_0/text = "Focus on Visible Objects"
+item_0/icon = ExtResource("1_jslvw")
+item_0/id = 0
+item_1/text = "Focus on Selected Objects"
+item_1/icon = ExtResource("2_6t3n3")
+item_1/id = 1
+item_2/text = "Show Bonds"
+item_2/icon = ExtResource("10_uwo21")
+item_2/id = 15
+item_3/text = "Show Elements Labels"
+item_3/icon = ExtResource("11_orjqc")
+item_3/id = 16
+item_4/text = "Show Hydrogens"
+item_4/icon = ExtResource("12_3iftq")
+item_4/id = 17
+item_5/text = "Override Default Colors"
+item_5/icon = ExtResource("6_0hyur")
+item_5/id = 20
+item_6/text = "Hide Selected Objects"
+item_6/icon = ExtResource("6_mk0a1")
+item_6/id = 18
+item_7/text = "Show Hidden Objects"
+item_7/icon = ExtResource("7_08k6f")
+item_7/id = 19
+item_8/text = "Representation"
+item_8/id = 3
+item_8/separator = true
+item_9/text = "Van Der Waals"
+item_9/icon = ExtResource("6_pedve")
+item_9/checkable = 2
+item_9/id = 4
+item_10/text = "Mechanical Simulation"
+item_10/icon = ExtResource("6_pwvjy")
+item_10/checkable = 2
+item_10/id = 5
+item_11/text = "Sticks"
+item_11/icon = ExtResource("7_j60xq")
+item_11/checkable = 2
+item_11/id = 6
+item_12/text = "Enhanced Sticks"
+item_12/icon = ExtResource("7_j60xq")
+item_12/checkable = 2
+item_12/id = 7
+item_13/text = "Balls and Sticks"
+item_13/icon = ExtResource("9_rsnfd")
+item_13/checkable = 2
+item_13/id = 8
+item_14/text = "Balls and Enhanced Sticks"
+item_14/icon = ExtResource("11_3wh88")
+item_14/checkable = 2
+item_14/id = 9
+item_15/text = "Balls and Sticks Size Settings"
+item_15/icon = ExtResource("10_j2n7a")
+item_15/id = 10
+item_16/text = "Theme"
+item_16/icon = ExtResource("15_jjf8c")
+item_16/id = 21
+item_17/text = "Camera Projection"
+item_17/icon = ExtResource("16_epqix")
+item_17/id = 22
+item_18/text = "Debug Separator"
+item_18/id = 11
+item_18/separator = true
+item_19/text = "Show Object Model Tree"
+item_19/icon = ExtResource("3_svvq5")
+item_19/checkable = 1
+item_19/id = 12
+item_20/text = "Feature Flags"
+item_20/icon = ExtResource("15_uj6uj")
+item_20/id = 13
+item_21/text = "Tweak Algorithm Parameters"
+item_21/icon = ExtResource("16_wh84c")
+item_21/id = 14
+script = ExtResource("1_2o615")
+shortcut_focus_on_visible_objects = SubResource("Shortcut_2fwj8")
+shortcut_focus_on_selected_objects = SubResource("Shortcut_5xqur")
+shortcut_hide_selected_objects = SubResource("Shortcut_suqnu")
+shortcut_show_hidden_objects = SubResource("Shortcut_hp7en")

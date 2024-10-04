@@ -1,0 +1,80 @@
+[gd_scene load_steps=7 format=3 uid="uid://cw8eqtylp4n8q"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_picker_button.gd" id="1_0cxmc"]
+[ext_resource type="PackedScene" uid="uid://dx1gn0krp0avh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.tscn" id="1_tws4x"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_opr7h"]
+resource_local_to_scene = true
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.643137, 0.552941, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_3a1ib"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_size = 8
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_gtrcj"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_size = 24
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u0nm4"]
+draw_center = false
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 0, 1)
+expand_margin_left = 3.0
+expand_margin_top = 3.0
+expand_margin_right = 3.0
+expand_margin_bottom = 3.0
+
+[node name="ElementPickerButton" type="Button"]
+custom_minimum_size = Vector2(64, 64)
+offset_right = 64.0
+offset_bottom = 64.0
+focus_mode = 0
+script = ExtResource("1_0cxmc")
+
+[node name="ElementPreview" parent="." instance=ExtResource("1_tws4x")]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+background_stylebox = SubResource("StyleBoxFlat_opr7h")
+general_label_settings = SubResource("LabelSettings_3a1ib")
+symbol_label_settings = SubResource("LabelSettings_gtrcj")
+visible_element_name = false
+visible_mass = false
+visible_unknown_vdw_radii_notice = true
+
+[node name="Highlight" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_u0nm4")

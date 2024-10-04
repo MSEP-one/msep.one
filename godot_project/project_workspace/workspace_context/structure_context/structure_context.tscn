@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://qhq45c8py51e"]
+
+[ext_resource type="Script" path="res://project_workspace/workspace_context/structure_context/structure_context.gd" id="1_n2iru"]
+[ext_resource type="PackedScene" uid="uid://tlvrua11wwf1" path="res://project_workspace/workspace_context/structure_context/collision_engine/collision_engine.tscn" id="2_sy165"]
+[ext_resource type="PackedScene" uid="uid://cpn4p48johkpp" path="res://project_workspace/workspace_context/structure_context/selection_db/selection_db.tscn" id="3_1f5sk"]
+
+[node name="StructureContext" type="Node"]
+script = ExtResource("1_n2iru")
+
+[node name="CollisionEngine" parent="." instance=ExtResource("2_sy165")]
+
+[node name="SelectionDB" parent="." instance=ExtResource("3_1f5sk")]
+
+[node name="LightningMemoryMappedDatabase" type="LightningMemoryMappedDatabase" parent="."]

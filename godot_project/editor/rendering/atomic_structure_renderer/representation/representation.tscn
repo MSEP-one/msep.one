@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ur0yulwnvafm"]
+
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/representation.gd" id="1_4rx5g"]
+
+[node name="Representation" type="Node3D"]
+script = ExtResource("1_4rx5g")

@@ -1,0 +1,66 @@
+[gd_scene load_steps=4 format=3 uid="uid://dg7wgefiwe42n"]
+
+[ext_resource type="Script" path="res://editor/controls/camera_position_dialog/camera_position_dialog.gd" id="1_ci8e0"]
+[ext_resource type="PackedScene" uid="uid://7oyj4up6dm2c" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_vector3/inspector_control_vector3.tscn" id="2_32bag"]
+[ext_resource type="PackedScene" uid="uid://dexerp0mkuhpy" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_direction/inspector_control_direction.tscn" id="3_r88a8"]
+
+[node name="CameraPositionDialog" type="AcceptDialog"]
+title = "Camera Position"
+initial_position = 4
+size = Vector2i(527, 304)
+visible = true
+ok_button_text = "Close"
+script = ExtResource("1_ci8e0")
+
+[node name="GridContainer" type="VBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 517.0
+offset_bottom = 257.0
+
+[node name="Label" type="Label" parent="GridContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Position:"
+
+[node name="PanelContainer" type="PanelContainer" parent="GridContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="CameraPosition" parent="GridContainer/PanelContainer" instance=ExtResource("2_32bag")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="X" parent="GridContainer/PanelContainer/CameraPosition/Components" index="1"]
+min_value = -5000.0
+max_value = 5000.0
+allow_greater = false
+allow_lesser = false
+
+[node name="Y" parent="GridContainer/PanelContainer/CameraPosition/Components" index="3"]
+min_value = -5000.0
+max_value = 5000.0
+allow_greater = false
+allow_lesser = false
+
+[node name="Z" parent="GridContainer/PanelContainer/CameraPosition/Components" index="5"]
+min_value = -5000.0
+max_value = 5000.0
+allow_greater = false
+allow_lesser = false
+
+[node name="Label2" type="Label" parent="GridContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Look Direction:"
+
+[node name="PanelContainer2" type="PanelContainer" parent="GridContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="CameraDirection" parent="GridContainer/PanelContainer2" instance=ExtResource("3_r88a8")]
+unique_name_in_owner = true
+layout_mode = 2
+mode = 0
+
+[editable path="GridContainer/PanelContainer/CameraPosition"]

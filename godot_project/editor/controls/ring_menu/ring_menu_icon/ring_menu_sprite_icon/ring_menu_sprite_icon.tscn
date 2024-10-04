@@ -1,0 +1,168 @@
+[gd_scene load_steps=14 format=3 uid="uid://cc1vxs7srlfjh"]
+
+[ext_resource type="PackedScene" uid="uid://c6gt8vvh1iisr" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_icon.tscn" id="1_56nc5"]
+[ext_resource type="Script" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_sprite_icon/ring_menu_sprite_icon.gd" id="2_djgmf"]
+[ext_resource type="Texture2D" uid="uid://b4uxqucqyx2eb" path="res://editor/icons/icon_Atom.svg" id="3_finoo"]
+
+[sub_resource type="Animation" id="Animation_t3p2j"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0, 0, 0, 0.843137)]
+}
+
+[sub_resource type="Animation" id="Animation_3ysir"]
+resource_name = "active"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.196078, 0.196078, 0.196078, 0.843137), Color(0, 0, 0, 0.843137)]
+}
+
+[sub_resource type="Animation" id="Animation_ej4i7"]
+resource_name = "in"
+length = 0.35
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 0.843137), Color(1, 1, 1, 0.898039)]
+}
+
+[sub_resource type="Animation" id="Animation_4pqmy"]
+resource_name = "inactive"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 0.843137), Color(0.196078, 0.196078, 0.196078, 0.843137)]
+}
+
+[sub_resource type="Animation" id="Animation_a2nqr"]
+resource_name = "out"
+length = 0.35
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.898039), Color(0, 0, 0, 0.843137)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_jl2ac"]
+_data = {
+"RESET": SubResource("Animation_t3p2j"),
+"active": SubResource("Animation_3ysir"),
+"in": SubResource("Animation_ej4i7"),
+"inactive": SubResource("Animation_4pqmy"),
+"out": SubResource("Animation_a2nqr")
+}
+
+[sub_resource type="Animation" id="Animation_bt5u6"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:transparency")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_jm83d"]
+resource_name = "in"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:transparency")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(-2.92817, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+
+[sub_resource type="Animation" id="Animation_38q71"]
+resource_name = "out"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:transparency")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, -2.92817),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_xl3st"]
+_data = {
+"RESET": SubResource("Animation_bt5u6"),
+"in": SubResource("Animation_jm83d"),
+"out": SubResource("Animation_38q71")
+}
+
+[node name="RingMenuSpriteIcon" instance=ExtResource("1_56nc5")]
+script = ExtResource("2_djgmf")
+
+[node name="Sprite3D" type="Sprite3D" parent="." index="0"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+modulate = Color(0, 0, 0, 0.843137)
+pixel_size = 0.006
+texture = ExtResource("3_finoo")
+
+[node name="ColorAnimator" type="AnimationPlayer" parent="." index="1"]
+libraries = {
+"": SubResource("AnimationLibrary_jl2ac")
+}
+
+[node name="FadeAnimator" type="AnimationPlayer" parent="." index="2"]
+libraries = {
+"": SubResource("AnimationLibrary_xl3st")
+}

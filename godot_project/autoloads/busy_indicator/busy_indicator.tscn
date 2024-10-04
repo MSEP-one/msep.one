@@ -1,0 +1,201 @@
+[gd_scene load_steps=16 format=3 uid="uid://c3r83nk3pffmx"]
+
+[ext_resource type="Script" path="res://autoloads/busy_indicator/busy_indicator.gd" id="1_8tfib"]
+[ext_resource type="Shader" path="res://autoloads/busy_indicator/busy_indicator_blur_background.gdshader" id="2_1rnwe"]
+[ext_resource type="Texture2D" uid="uid://cf68ir5wd8sau" path="res://autoloads/busy_indicator/sprites/sprite_BusyAnimationGear10T.svg" id="3_30q5q"]
+[ext_resource type="Script" path="res://autoloads/busy_indicator/busy_indicator_gear.gd" id="4_n0vwl"]
+[ext_resource type="Texture2D" uid="uid://chqaoewg4nfpi" path="res://autoloads/busy_indicator/sprites/sprite_BusyAnimationGear20T.svg" id="5_r58wt"]
+[ext_resource type="Shader" path="res://autoloads/busy_indicator/busy_indicator_chain.gdshader" id="6_ee6em"]
+[ext_resource type="Texture2D" uid="uid://bksfdiemg1kia" path="res://autoloads/busy_indicator/sprites/spriteChain.svg" id="7_oe0lq"]
+[ext_resource type="Script" path="res://autoloads/busy_indicator/busy_indicator_chain.gd" id="8_3ekte"]
+[ext_resource type="Theme" uid="uid://d3fnr4sbrd6ik" path="res://theme/theme.tres" id="9_b0qj8"]
+[ext_resource type="Texture2D" uid="uid://dxjcw26uksmee" path="res://autoloads/busy_indicator/sprites/icon_step_complete.svg" id="10_fhtij"]
+[ext_resource type="Texture2D" uid="uid://cy61d7u2q7urq" path="res://autoloads/busy_indicator/sprites/icon_step_incomplete.svg" id="11_fjtp3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_blg52"]
+shader = ExtResource("2_1rnwe")
+shader_parameter/blur = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_k3ppk"]
+resource_local_to_scene = true
+shader = ExtResource("6_ee6em")
+shader_parameter/time = 0.0
+shader_parameter/spin_factor = 0.0
+shader_parameter/spin_speed = -1.589
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vv065"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.184314, 0.101961, 0.34902, 0.623529)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rcmdb"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[node name="BusyIndicator" type="CanvasLayer"]
+layer = 128
+script = ExtResource("1_8tfib")
+
+[node name="BlurBackground" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_blg52")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+offset_right = 983.0
+offset_bottom = 723.0
+
+[node name="InfoContainer" type="VBoxContainer" parent="CenterContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+alignment = 1
+metadata/_edit_group_ = true
+
+[node name="GearsAnim" type="Control" parent="CenterContainer/InfoContainer"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.47451)
+custom_minimum_size = Vector2(0, 400)
+layout_mode = 2
+focus_mode = 1
+
+[node name="SpriteBusyAnimationGear10t3" type="Sprite2D" parent="CenterContainer/InfoContainer/GearsAnim"]
+position = Vector2(194.001, 306)
+rotation = 1.68383
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_30q5q")
+script = ExtResource("4_n0vwl")
+
+[node name="SpriteBusyAnimationGear10t4" type="Sprite2D" parent="CenterContainer/InfoContainer/GearsAnim"]
+position = Vector2(433.612, 188.612)
+rotation = 1.41647
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_30q5q")
+script = ExtResource("4_n0vwl")
+
+[node name="SpriteBusyAnimationGear10t" type="Sprite2D" parent="CenterContainer/InfoContainer/GearsAnim"]
+position = Vector2(193.188, 303.612)
+rotation = 1.60107
+texture = ExtResource("3_30q5q")
+script = ExtResource("4_n0vwl")
+
+[node name="SpriteBusyAnimationGear10t2" type="Sprite2D" parent="CenterContainer/InfoContainer/GearsAnim"]
+position = Vector2(65.2146, 234.706)
+rotation = 1.28129
+texture = ExtResource("3_30q5q")
+script = ExtResource("4_n0vwl")
+speed = -1.0
+
+[node name="SpriteBusyAnimationGear20t" type="Sprite2D" parent="CenterContainer/InfoContainer/GearsAnim"]
+position = Vector2(252.612, 72.6114)
+rotation = 0.053085
+texture = ExtResource("5_r58wt")
+script = ExtResource("4_n0vwl")
+speed = -1.0
+
+[node name="SpriteBusyAnimationGear20t2" type="Sprite2D" parent="CenterContainer/InfoContainer/GearsAnim"]
+position = Vector2(433.612, 188.612)
+rotation = 0.110295
+texture = ExtResource("5_r58wt")
+script = ExtResource("4_n0vwl")
+
+[node name="BusyIndicatorChain" type="Line2D" parent="CenterContainer/InfoContainer/GearsAnim"]
+texture_filter = 2
+texture_repeat = 2
+material = SubResource("ShaderMaterial_k3ppk")
+position = Vector2(189.001, 309)
+points = PackedVector2Array(-8, -46, 217, -155, 224, -159, 231, -162, 241, -164, 250, -164, 258, -162, 267, -159, 275, -154, 280, -148, 286, -138, 288, -130, 289, -123, 289, -111, 285, -104, 282, -97, 277, -89, 269, -84, 261, -80, 43, 26, 26, 35, 10, 40, -4, 41, -16, 38, -27, 28, -35, 19, -40, 6, -39, -9, -34, -22, -23, -36, -8, -46)
+width = 28.0
+texture = ExtResource("7_oe0lq")
+texture_mode = 1
+script = ExtResource("8_3ekte")
+
+[node name="Message" type="Label" parent="CenterContainer/InfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("9_b0qj8")
+theme_type_variation = &"HeaderLarge"
+theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 9
+text = "Working on Something awesome"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="StepsContainer" type="HBoxContainer" parent="CenterContainer/InfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="CenterContainer/InfoContainer/StepsContainer"]
+layout_mode = 2
+texture = ExtResource("10_fhtij")
+
+[node name="TextureRect2" type="TextureRect" parent="CenterContainer/InfoContainer/StepsContainer"]
+layout_mode = 2
+texture = ExtResource("11_fjtp3")
+
+[node name="TextureRect3" type="TextureRect" parent="CenterContainer/InfoContainer/StepsContainer"]
+layout_mode = 2
+texture = ExtResource("11_fjtp3")
+
+[node name="ProgressBar" type="ProgressBar" parent="CenterContainer/InfoContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_vv065")
+theme_override_styles/fill = SubResource("StyleBoxFlat_rcmdb")
+value = 22.0
+show_percentage = false
+
+[node name="ElapsedTimeLabel" type="Label" parent="CenterContainer/InfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("9_b0qj8")
+theme_type_variation = &"HeaderLarge"
+theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 9
+text = "Elapsed: 00:00.000"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="CenterContainer/InfoContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ButtonCancel" type="Button" parent="CenterContainer/InfoContainer/ButtonsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Cancel"
+
+[node name="ButtonStop" type="Button" parent="CenterContainer/InfoContainer/ButtonsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Stop"
+
+[node name="ButtonWorkInBackground" type="Button" parent="CenterContainer/InfoContainer/ButtonsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Work on Background"

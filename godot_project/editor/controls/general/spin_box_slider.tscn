@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3 uid="uid://b15453vqjum8"]
+
+[ext_resource type="Script" path="res://editor/controls/general/spin_box_slider.gd" id="1_2c5cp"]
+
+[node name="SpinBoxSlider" type="SpinBox"]
+custom_minimum_size = Vector2(0, 31)
+size_flags_horizontal = 3
+script = ExtResource("1_2c5cp")
+
+[node name="Slider" type="HSlider" parent="."]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = -7.0
+offset_right = -19.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"SpinboxSlider"
+scrollable = false

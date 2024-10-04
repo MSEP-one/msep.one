@@ -1,0 +1,47 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://usrqk2iamkys"
+path="res://.godot/imported/ico_straight_bond_tripple.glb-7a6fab219d2ce926bed23c218f0777fe.scn"
+
+[deps]
+
+source_file="res://theme/theme_3d/available_themes/flat_theme/ico_straight_bond_tripple.glb"
+dest_files=["res://.godot/imported/ico_straight_bond_tripple.glb-7a6fab219d2ce926bed23c218f0777fe.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+import_script/path=""
+_subresources={
+"meshes": {
+"ico_straight_bond_tripple_Icosphere_015": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"lods/normal_split_angle": 25.0,
+"save_to_file/enabled": false,
+"save_to_file/make_streamable": "",
+"save_to_file/path": "res://theme/theme_3d/available_themes/flat_theme/ico_straight_bond_tripple_mesh.res"
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

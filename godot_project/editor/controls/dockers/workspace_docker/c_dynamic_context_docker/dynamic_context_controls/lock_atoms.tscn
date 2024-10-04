@@ -1,0 +1,56 @@
+[gd_scene load_steps=4 format=3 uid="uid://ch1ejqq2lsmvk"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/lock_atoms.gd" id="1_ujlot"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_karx6"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_vmrvd"]
+
+[node name="LockAtoms" type="VBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 47.0
+grow_horizontal = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+script = ExtResource("1_ujlot")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="SelectedLabel" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2 atoms selected"
+horizontal_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="UnlockButton" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_vmrvd")
+text = "Unlocked"
+
+[node name="LockButton" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_vmrvd")
+text = "Locked"
+
+[node name="MultipleStatesInfoLabel" parent="." instance=ExtResource("2_karx6")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] Selected Atoms have multiple states[/center]"
+message = &"Selected Atoms have multiple states"

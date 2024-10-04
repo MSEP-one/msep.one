@@ -1,0 +1,233 @@
+* Motivation
+- The SpatialGizmo is not compiled in the Godot game. This provides gizmo that can be used to debug
+  your game, while it's running or be used in your game for gameplay purposes.
+* Description
+- The idea to use the gizmo is, just drop the gizmo directory in your project, register GizmoRoot
+  singleton in autoloads.
+- Then use the API, to set the Spatial node you want to have gizmo displayed for, add or remove the
+  gizmo from your scene tree and make it use the desired viewport and viewport transformer
+  (TextureRect). Viewport transformer can be omitted by setting it to null (it is used the calculate the
+  offset and scale).
+  - The API also let's you to query state and toggle between translation and scale axes for example.
+
+- We have GizmoRoot singleton that must be registered in editor.
+- GizmoRoot manages HandleGizmo and calculates data for gizmo behavior.
+- HandleGizmo is there for convenience so that parameters can be set through exported variables. It
+  also provides API for modifying gizmo behavior.
+
+- The information below describes high level data you can query and methods that you can
+  call. There's more of course if you have specific requirements, so just dig into the code.
+
+- The implementation was done quick so the architecture could be improved.
+- Convention for variables is that the smaller the scope the less descriptive are variable
+  names. The variable names are also less descriptive for the state that's used very often. Function
+  names should provide idea on what the code is doing. You usually want to query state through
+  variables and set through methods.
+
+- This gizmo implementation isn't a complete clone of the Godot C++ spatial gizmo. This version
+  doesn't yet have snapping to grid or global transformations, yet the things it does, it strives to
+  do better than Godot's C++ spatial gizmo, there are various settings to modify the gizmo behavior,
+  but generally it tries to behave more intuitively reliably.
+  - There are also some peculiarities in the behavior of the tool, as it uses in game viewports and
+    cameras. A decision was made to map the 3D state into a 2D projection, this introduces more
+    flexibility, but the features consequently have to be chosen by the developer.
+  - Another caveat is that gizmo will draw outside the viewport bounds as the gizmo lives in 2D,
+    there isn't yet implemented any guarding functionality against this.
+* Properties
+** GizmoRoot
+*** selected_node
+- This is the node on which transformations are applied.
+- Assign it to the node that you want to be transformed.
+- If you desire multi node selection, just modify your nodes relative to this node.
+  - For example use this node as a parent or just read information from this node and apply the
+    information on the desired set of nodes in a way that suits your requirements.
+*** transform_mode
+- Useful to determine what is the current transformation space.
+  - enum TransformMode {LOCAL, GLOBAL}
+*** gizmo_state
+- Is gizmo in the scene tree? Can be used to toggle the gizmo on and off.
+  - enum GizmoState {DISABLED, ENABLED}
+*** axes_mode
+- To determine whether translation or scale axes are currently being displayed, useful to toggle
+  between translation and scale.
+  - enum AxesMode {TRANSLATION, SCALE}
+*** input_is_being_consumed
+- Useful for other runtime functionalities to determine if any of gizmo transformations is active.
+*** grab_mode
+- To know what gizmo element is being dragged.
+*** collision_mode
+- To know what gizmo element is being highlighted.
+*** gizmo_state
+- Useful to toggle gizmo on and off.
+* Methods
+** GizmoRoot
+*** enable_gizmo
+**** Description
+- Adds gizmo object to the scene tree and sets state.
+*** disable_gizmo
+**** Description
+- Removes gizmo object from the scene tree and sets state.
+*** setup_gizmo
+**** Arguments
+***** new_node
+- Show gizmo for this Spatial node.
+- A node object must be passed instead of a path, due to internal Godot's peculiarities.
+***** new_viewport_path
+- Use viewport at this path.
+***** new_viewport_transformer_path
+- If you want to display results of multiple viewports simultaneously you'll use TextureRect.
+**** Description
+- Call this before enable_gizmo or whenever you want to change the gizmo behavior.
+- You should provide only the arguments that you want to modify the behavior.
+  - You have to set all values except viewport_transformer the first time.
+*** set_axes_to_scale
+**** Description
+- Make gizmo display scale axes instead of translation.
+*** set_axes_to_translation
+**** Description
+- Make gizmo display translation axes instead of scale.
+*** toggle_scale_or_translation
+**** Description
+- Toggle between scale axes or translation axes.
+*** remove_scale_axes
+**** Description
+- Remove scale axes.
+*** add_scale_axes
+**** Description
+- Add scale axes.
+*** remove_translation_axes
+**** Description
+- Remove translation axes.
+*** add_translation_axes
+**** Description
+- Add translation axes.
+*** remove_rotation_arcs
+**** Description
+- Remove rotation arcs.
+*** add_rotation_arcs
+**** Description
+- Add rotation arcs.
+*** remove_translation_surfaces
+**** Description
+- Remove translation surfaces.
+*** add_translation_surfaces
+**** Description
+- Add translation surfaces.
+*** remove_center_drag
+**** Description
+- Remove center drag.
+- There is no need for distinction between local and global space, so only one version of function
+  is exposed.
+*** add_center_drag
+**** Description
+- Add center drag.
+- There is no need for distinction between local and global space, so only one version of function
+  is exposed.
+*** enable_input
+**** Description
+- Enable input back, useful if the input was disabled.
+*** disable_input
+**** Description
+- Gizmo elements will still be highlighted, but input won't be registered.
+*** toggle_local_global
+**** Description
+- Toggle between local and global transformation space.
+*** remove_global_scale_axes
+**** Description
+- The same as local, just for global space.
+*** add_global_scale_axes
+**** Description
+- The same as local, just for global space.
+*** remove_global_translation_axes
+**** Description
+- The same as local, just for global space.
+*** add_global_translation_axes
+**** Description
+- The same as local, just for global space.
+*** remove_global_rotation_arcs
+**** Description
+- The same as local, just for global space.
+*** add_global_rotation_arcs
+**** Description
+- The same as local, just for global space.
+*** remove_global_translation_surfaces
+**** Description
+- The same as local, just for global space.
+*** add_global_translation_surfaces
+**** Description
+- The same as local, just for global space.
+*** remove_center_drag
+**** Description
+- The same as local, just for global space.
+*** add_center_drag
+**** Description
+- The same as local, just for global space.
+* Exported parameters in the HandleGizmo scene
+- Navigate into HandleGizmo directory, open the HandleGizmo.tscn and set this parameters in the
+  Godot inspector.
+** z_index_root
+- How high must gizmo be up in the 2D render queue.
+  - The various elements of the gizmo will be set relative to this value.
+** flip_on_negative_scale
+- Godot uses Basis data type which combines rotation and scale, this introduces peculiarities in how
+  developer should use Godot's API. Changing sign of at least one of the axes will make Basis to
+  adjust the whole transform (rotation and scale of all axes). This setting makes Gizmo behave the
+  same way Godot C++ spatial gizmo behaves meaning that only the axis indicator you manually dragged
+  will flip the direction.
+  - If you'll disable this setting actual Basis transformation state will be displayed.
+** rotate_back_on_negative_scale
+- Godot's C++ spatial gizmo will rotate backwards if one of the axes scale has been
+  inverted. Gdscript gizmo by default won't do it, but if you wish this gizmo to behave the same way
+  Godot's version does, then enable this setting.
+** limit_axis_range
+- Disable this if you want gizmo to behave the same way as Godot's C++ spatial gizmo. This behavior
+  prevents sudden huge jumps if the translation axis is facing camera.
+** limit_center_radius
+- Enable this if you want it be possible to center drag the gizmo only if the center circle is
+  clicked, otherwise center drag will behave like in Godot editor gizmo.
+** enable_global_squash
+- This makes global scaling to behave like in Godot editor (without the bugs that occur in the
+  editor), this is mathematically sound solution, but it's ambiguous and unclear what'll happen
+  after the node is stretched, therefore this functionality is disabled by default and instead
+  correct global scaling is enabled.
+** inactive_x_color
+- What color to use for inactive X elements.
+** inactive_y_color
+- What color to use for inactive Y elements.
+** inactive_z_color
+- What color to use for inactive Z elements.
+** inactive_center_color
+- What color to use for the center, when it's not active.
+** reference_arc_color
+- For rotation arcs, the always visible reference circle color.
+** active_x_color
+- What color to use for inactive X elements.
+** active_y_color
+- What color to use for inactive Y elements.
+** active_z_color
+- What color to use for inactive Z elements.
+** active_center_color
+- What color to use for the center, when it is active.
+** viewport_path
+- The initial path to viewport, can be overridden with setup_gizmo.
+** viewport_transformer_path
+- The initial path to viewport transformer, can be overridden with setup_gizmo.
+** gizmo_size_ratio
+- How large should the gizmo be.
+* Tips
+** To add a new transformation element to gizmo
+*** Create the new element script
+- A good idea might be to take an existing element and just modify its code.
+*** Modify GizmoRoot.gd
+- Add the API to add/remove the new element.
+- If needed add the collision_is_detected variable version.
+*** Modify the HandleGizmo.tscn
+- Look at the existing element nodes, copy one of them and add rename the new one.
+- Assign the unique name setting to the matching nodes.
+- Then assign the correct script to the child behavior node.
+*** Modify the HandleGizmo.gd
+- Add the vars that point to the new behavior wrapper and behavior child node.
+- Add code that turns the undesired on startup elements off.
+*** Update the API documentation
+*** If you have any interface in your app, where you use the gizmo
+- Add the code that uses the new functionality.

@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://dv0g8poa54p7n"]
+
+[ext_resource type="PackedScene" uid="uid://rsi10ce4bt10" path="res://editor/controls/dockers/workspace_docker_scrollable.tscn" id="1_1hhg6"]
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_docker.gd" id="1_rfewq"]
+
+[node name="CreateDocker" instance=ExtResource("1_1hhg6")]
+script = ExtResource("1_rfewq")
+docker_tab_title = "Create"

@@ -1,0 +1,9 @@
+[gd_resource type="MultiMesh" load_steps=2 format=3 uid="uid://bjo6i7vnnj1xx"]
+
+[ext_resource type="ArrayMesh" uid="uid://loburxhx26rg" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_tripple.mesh" id="1_8a3uh"]
+
+[resource]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("1_8a3uh")

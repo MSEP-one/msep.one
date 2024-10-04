@@ -1,0 +1,59 @@
+[gd_scene load_steps=4 format=3 uid="uid://dyasomjmc2u21"]
+
+[ext_resource type="Script" path="res://editor/controls/workspace_view/tab_bar_active_workspaces.gd" id="1_rfmfx"]
+[ext_resource type="Texture2D" uid="uid://m4vremymr7x2" path="res://editor/controls/dock_area/icons/tab_arrow_left.svg" id="2_vwjyv"]
+[ext_resource type="Texture2D" uid="uid://dpy64yay6n15f" path="res://editor/controls/dock_area/icons/tab_arrow_right.svg" id="4_vjg1o"]
+
+[node name="DockerTabBar" type="HBoxContainer"]
+unique_name_in_owner = true
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 36.0
+grow_horizontal = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+script = ExtResource("1_rfmfx")
+
+[node name="PreviousButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+size_flags_vertical = 0
+focus_mode = 0
+theme_type_variation = &"StructureSelectorButton"
+icon = ExtResource("2_vwjyv")
+expand_icon = true
+
+[node name="TabBarMask" type="Control" parent="."]
+unique_name_in_owner = true
+clip_children = 1
+clip_contents = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TabBarActiveWorkspaces" type="TabBar" parent="TabBarMask"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+offset_right = 284.0
+offset_bottom = 40.0
+theme_type_variation = &"WorkspaceTabBar"
+tab_count = 3
+tab_alignment = 1
+clip_tabs = false
+tab_0/title = "Welcome"
+tab_1/title = "Workspace 1"
+tab_2/title = "Workspace 2"
+
+[node name="NextButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+size_flags_vertical = 0
+focus_mode = 0
+theme_type_variation = &"StructureSelectorMoreButton"
+icon = ExtResource("4_vjg1o")
+expand_icon = true

@@ -1,0 +1,90 @@
+[gd_scene load_steps=7 format=3 uid="uid://cn1chj7ww8g7m"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/relax_tools_panel.gd" id="1_afauy"]
+[ext_resource type="PackedScene" uid="uid://cvtq2ps52eix3" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.tscn" id="2_k633u"]
+[ext_resource type="Texture2D" uid="uid://boq5wsbyh1je0" path="res://editor/controls/menu_bar/menu_simulation/icons/icon_ActionRing_RelaxBonds_16px.svg" id="3_885b2"]
+[ext_resource type="PackedScene" uid="uid://43m5k0qxrqiu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/openmm_failure_tracker.tscn" id="4_5qhdq"]
+[ext_resource type="PackedScene" uid="uid://cdgadvhha48lt" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/atomic_structure_model_validator.tscn" id="5_uq4fh"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_cya10"]
+
+[node name="RelaxToolsPanel" type="VBoxContainer"]
+offset_right = 357.0
+offset_bottom = 114.0
+script = ExtResource("1_afauy")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Relaxation Parameters"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="OptionSelectionOnly" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+button_group = SubResource("ButtonGroup_cya10")
+text = "Only selected molecules"
+
+[node name="OptionAllVisible" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_group = SubResource("ButtonGroup_cya10")
+text = "All visible molecules"
+
+[node name="TemperaturePicker" parent="PanelContainer/VBoxContainer" instance=ExtResource("2_k633u")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="CheckBoxMantainLocks" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Mantain Locked atoms in position"
+
+[node name="CheckBoxIncludeSprings" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Consider Springs in relaxation"
+
+[node name="CheckBoxPassivateMolecules" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Treat incomplete valences as if they have been filled by hydrogens"
+
+[node name="LabelSelectOnlyNotice" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ℹ When relaxing selected molecules, all atoms in the molecule should be selected"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="ButtonRunRelaxation" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Run Relaxation"
+icon = ExtResource("3_885b2")
+
+[node name="ButtonViewAlerts" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "View 4 Alerts..."
+
+[node name="OpenMMFailureTracker" parent="." instance=ExtResource("4_5qhdq")]
+unique_name_in_owner = true
+
+[node name="AtomicStructureModelValidator" parent="." instance=ExtResource("5_uq4fh")]
+unique_name_in_owner = true

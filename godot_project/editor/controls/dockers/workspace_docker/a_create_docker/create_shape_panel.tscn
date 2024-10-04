@@ -1,0 +1,52 @@
+[gd_scene load_steps=4 format=3 uid="uid://i6pc12ehdie6"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_shape_panel.gd" id="1_hkcax"]
+[ext_resource type="PackedScene" uid="uid://qxeql30brxko" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/shape_preview.tscn" id="2_6gxsr"]
+[ext_resource type="PackedScene" uid="uid://bxj5mknc52ncf" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/rotation_editor.tscn" id="3_634yk"]
+
+[node name="CreateShapePanel" type="MarginContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+script = ExtResource("1_hkcax")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShapePreview" parent="VBoxContainer" instance=ExtResource("2_6gxsr")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PropertiesContainer" type="GridContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 15
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/PropertiesContainer"]
+layout_mode = 2
+text = "Shape Type"
+
+[node name="MenuSelectedShape" type="MenuButton" parent="VBoxContainer/PropertiesContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cylinder"
+flat = false
+
+[node name="Label3" type="Label" parent="VBoxContainer/PropertiesContainer"]
+visible = false
+layout_mode = 2
+text = "Euler Rotation"
+
+[node name="RotationEditor" parent="VBoxContainer/PropertiesContainer" instance=ExtResource("3_634yk")]
+visible = false
+layout_mode = 2

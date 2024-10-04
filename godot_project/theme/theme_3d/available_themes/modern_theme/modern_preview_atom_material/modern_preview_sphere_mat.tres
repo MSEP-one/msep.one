@@ -1,0 +1,29 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://e874b10fy1e6"]
+
+[ext_resource type="Shader" path="res://theme/theme_3d/available_themes/modern_theme/modern_preview_atom_material/modern_preview_sphere.gdshader" id="1_bygpj"]
+[ext_resource type="Script" path="res://theme/theme_3d/available_themes/modern_theme/modern_preview_atom_material/modern_preview_sphere_material.gd" id="1_wn75v"]
+[ext_resource type="Texture2D" uid="uid://cu5nnpewjlepr" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/inner_rim.png" id="2_k434i"]
+[ext_resource type="Texture2D" uid="uid://c5p7jdrmkycg1" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/atom_noise_atlas.png" id="3_x1r0u"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_bygpj")
+shader_parameter/atlas_id = 0.0
+shader_parameter/noise_albedo = Color(1, 1, 1, 1)
+shader_parameter/albedo = Color(0.462745, 0.462745, 0.462745, 1)
+shader_parameter/point_size = null
+shader_parameter/roughness = 0.75
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = 0.5
+shader_parameter/metallic = null
+shader_parameter/rim = 1.0
+shader_parameter/rim_tint = 0.0
+shader_parameter/clearcoat = 1.0
+shader_parameter/clearcoat_roughness = 1.0
+shader_parameter/uv1_scale = Vector3(1.1, 1.1, 1.1)
+shader_parameter/uv1_offset = null
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = null
+shader_parameter/texture_noise = ExtResource("3_x1r0u")
+shader_parameter/texture_detail_albedo = ExtResource("2_k434i")
+script = ExtResource("1_wn75v")

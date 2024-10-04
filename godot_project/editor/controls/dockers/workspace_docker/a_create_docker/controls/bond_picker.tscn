@@ -1,0 +1,96 @@
+[gd_scene load_steps=12 format=3 uid="uid://7drqqrsqeol0"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/bond_picker.gd" id="1_dmedv"]
+[ext_resource type="Texture2D" uid="uid://qn5bgnygn1jt" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/icon_BondSingle.svg" id="2_sq8uq"]
+[ext_resource type="Texture2D" uid="uid://bsqgf1craj03i" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/icon_BondDouble.svg" id="3_usypf"]
+[ext_resource type="Texture2D" uid="uid://bmw5i4fv44r1s" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/icon_BondTriple.svg" id="4_chyqq"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_jjt2c"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_ltq7p"]
+device = -1
+alt_pressed = true
+keycode = 49
+
+[sub_resource type="Shortcut" id="Shortcut_xu71m"]
+events = [SubResource("InputEventKey_ltq7p")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_idwpt"]
+device = -1
+alt_pressed = true
+keycode = 50
+
+[sub_resource type="Shortcut" id="Shortcut_oa27d"]
+events = [SubResource("InputEventKey_idwpt")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_m0ek2"]
+device = -1
+alt_pressed = true
+keycode = 51
+
+[sub_resource type="Shortcut" id="Shortcut_q2bb3"]
+events = [SubResource("InputEventKey_m0ek2")]
+
+[node name="BondPicker" type="VBoxContainer"]
+offset_top = 211.0
+offset_right = 1142.0
+offset_bottom = 242.0
+alignment = 1
+script = ExtResource("1_dmedv")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"HeaderSmall"
+text = "Select Bond Type"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ButtonSingle" type="Button" parent="PanelContainer/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+tooltip_text = "Single Bond"
+focus_mode = 0
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_jjt2c")
+shortcut = SubResource("Shortcut_xu71m")
+icon = ExtResource("2_sq8uq")
+flat = true
+expand_icon = true
+
+[node name="ButtonDouble" type="Button" parent="PanelContainer/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+tooltip_text = "Double Bond"
+focus_mode = 0
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_jjt2c")
+shortcut = SubResource("Shortcut_oa27d")
+icon = ExtResource("3_usypf")
+flat = true
+expand_icon = true
+
+[node name="ButtonTriple" type="Button" parent="PanelContainer/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+tooltip_text = "Triple Bond"
+focus_mode = 0
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_jjt2c")
+shortcut = SubResource("Shortcut_q2bb3")
+icon = ExtResource("4_chyqq")
+flat = true
+expand_icon = true

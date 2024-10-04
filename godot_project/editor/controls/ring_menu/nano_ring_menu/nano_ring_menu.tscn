@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://4srk73h7yp5i"]
+
+[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/nano_ring_menu.gd" id="1_d8283"]
+[ext_resource type="PackedScene" uid="uid://s1kifiq0kp1j" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_ui.tscn" id="2_s3rdr"]
+
+[node name="NanoRingMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_d8283")
+
+[node name="RingMenuUI" parent="." instance=ExtResource("2_s3rdr")]
+layout_mode = 2
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 780.0
+offset_bottom = 780.0
+
+[connection signal="back_clicked" from="RingMenuUI" to="." method="_on_ring_menu_ui_back_clicked"]
+[connection signal="button_clicked" from="RingMenuUI" to="." method="_on_ring_menu_ui_button_clicked"]
+[connection signal="deactivated" from="RingMenuUI" to="." method="_on_ring_menu_ui_deactivated"]

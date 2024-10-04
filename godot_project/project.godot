@@ -1,0 +1,383 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="MSEP"
+run/main_scene="res://editor/MolecularEditor.tscn"
+config/auto_accept_quit=false
+config/features=PackedStringArray("4.2", "Forward Plus")
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/image="res://splash.png"
+config/icon="res://icon.png"
+config/windows_native_icon="res://icon.ico"
+boot_splash/minimum_display_time=2000
+
+[autoload]
+
+ClassUtils="*res://autoloads/class_utils/class_utils.tscn"
+FeatureFlagManager="*res://autoloads/feature_flag_manager/FeatureFlagManager.tscn"
+AlgorithmTweaks="*res://autoloads/algorithm_tweaks/algorithm_tweaks.tscn"
+PeriodicTable="*res://autoloads/PeriodicTable.gd"
+MolecularEditorContext="*res://autoloads/molecular_editor_context.tscn"
+GizmoRoot="*res://addons/runtimespatialgizmo/RuntimeSpatialGizmo/GizmoRoot.gd"
+DebugCursor="res://autoloads/debug_cursor/debug_cursor.tscn"
+VisualMainMenu="*res://editor/controls/menu_bar/visual_main_menu.tscn"
+HeuristicBondAssignmentUtility="*res://utils/heuristic_bond_assignment_utility.gd"
+EditorSfx="*res://autoloads/editor_sfx/editor_sfx.tscn"
+AboutMsepOne="*res://autoloads/about_msep_one/about_msep_one.tscn"
+ShaderPrecompiler="res://autoloads/shader_precompiler/shader_precompiler.tscn"
+OpenMM="*res://autoloads/openmm/openmm.tscn"
+Settings="*res://autoloads/settings/settings.tscn"
+BusyIndicator="*res://autoloads/busy_indicator/busy_indicator.tscn"
+UserInterfaceBehavior="*res://autoloads/ui_behavior/ui_behavior.gd"
+
+[debug]
+
+gdscript/warnings/standalone_expression=0
+gdscript/warnings/static_called_on_instance=0
+gdscript/warnings/assert_always_true=0
+gdscript/warnings/assert_always_false=0
+gdscript/warnings/confusable_local_declaration=0
+shader_language/warnings/unused_function=false
+gdscript/warnings/untyped_declaration.editor=2
+
+[display]
+
+window/size/viewport_width=1720
+window/size/viewport_height=780
+window/size/mode=2
+window/size/initial_position_type=3
+window/dpi/allow_hidpi=false
+window/per_pixel_transparency/allowed=true
+
+[editor]
+
+script/search_in_file_extensions=PackedStringArray("gd", "gdshader", "tscn", "gdshaderinc")
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/runtimespatialgizmo/plugin.cfg", "res://addons/editor_tools/plugin.cfg", "res://addons/export_date_tracker/plugin.cfg")
+
+[feature_flags]
+
+new_workspace_on_startup=true
+show_input_overlay=false
+use_dark_background_environment=true
+use_minimum_atom_render_radius=true
+show_rendering_atom_properties_view=false
+display_gizmo=true
+autobonder_action_enabled=true
+enable_visual_menu_on_all_platforms=false
+show_async_process_elapsed_time=false
+relax_editable_temperature=false
+temperature_in_fahrenheit=false
+virtual_motors=true
+virtual_motors_simulation_warning=false
+virtual_springs=true
+apply_workspace_version_fixes=false
+use_lmdb_structure=false
+allow_scale_widgets=false
+allow_create_small_molecules_in_new_group=false
+
+[file_customization]
+
+folder_colors={
+"res://addons/": "pink",
+"res://autoloads/": "pink",
+"res://chemical_structures/": "gray",
+"res://editor/": "green",
+"res://editor_tool_scripts/": "pink",
+"res://project_workspace/": "yellow",
+"res://python/": "orange",
+"res://template_library_files/": "gray",
+"res://theme/": "green",
+"res://utils/": "pink"
+}
+
+[filesystem]
+
+import/blender/enabled=false
+
+[gui]
+
+theme/custom="res://theme/theme.tres"
+
+[input]
+
+ui_focus_next={
+"deadzone": 0.5,
+"events": []
+}
+ui_focus_prev={
+"deadzone": 0.5,
+"events": []
+}
+ui_left={
+"deadzone": 0.5,
+"events": [Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":13,"pressure":0.0,"pressed":false,"script":null)
+, Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":0,"axis":0,"axis_value":-1.0,"script":null)
+]
+}
+ui_right={
+"deadzone": 0.5,
+"events": [Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":14,"pressure":0.0,"pressed":false,"script":null)
+, Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":0,"axis":0,"axis_value":1.0,"script":null)
+]
+}
+ui_up={
+"deadzone": 0.5,
+"events": [Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":11,"pressure":0.0,"pressed":false,"script":null)
+, Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":0,"axis":1,"axis_value":-1.0,"script":null)
+]
+}
+ui_down={
+"deadzone": 0.5,
+"events": [Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":12,"pressure":0.0,"pressed":false,"script":null)
+, Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":0,"axis":1,"axis_value":1.0,"script":null)
+]
+}
+ui_page_up={
+"deadzone": 0.5,
+"events": []
+}
+ui_page_down={
+"deadzone": 0.5,
+"events": []
+}
+ui_home={
+"deadzone": 0.5,
+"events": []
+}
+ui_end={
+"deadzone": 0.5,
+"events": []
+}
+camera_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":65,"key_label":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194319,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+camera_forward={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194320,"key_label":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":4,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+camera_back={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":83,"key_label":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194322,"key_label":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":5,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+camera_right={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":68,"key_label":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194321,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+select={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+multiselect={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":true,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+delete_atoms={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194312,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194308,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+unselect={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+toggle_ring_menu={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":2,"canceled":false,"pressed":false,"double_click":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194306,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+close_ring_menu={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194305,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+faster_camera={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194325,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+camera_orbit_modifier={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194328,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+camera_up={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":81,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+camera_down={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":69,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+clear_selection={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194305,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+cancel={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194305,"key_label":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":2,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+unselect_mac={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"button_mask":2,"position":Vector2(498, 35),"global_position":Vector2(1186, 494),"factor":1.0,"button_index":2,"canceled":false,"pressed":true,"double_click":false,"script":null)
+]
+}
+select_mac={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"button_mask":2,"position":Vector2(612, 32),"global_position":Vector2(1300, 491),"factor":1.0,"button_index":2,"canceled":false,"pressed":true,"double_click":false,"script":null)
+]
+}
+open_quick_search={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"key_label":0,"unicode":32,"echo":false,"script":null)
+]
+}
+quick_search_select_prev={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194320,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+quick_search_select_next={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194322,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+close_view={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":81,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+close_view.macos={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+quit={
+"deadzone": 0.5,
+"events": []
+}
+quit.windows={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":true,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":81,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+quit.linux={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":true,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":81,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+quit.macos={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":true,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":true,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+
+[layer_names]
+
+3d_render/layer_1="Representations"
+3d_render/layer_2="Previews"
+
+[msep]
+
+heuristic_bond_assignment/max_length_factor=3.0
+heuristic_bond_assignment/tiny_length_factor=0.3
+heuristic_bond_assignment/length_cost_factor=1.0
+heuristic_bond_assignment/short_dist_pref=0.1
+heuristic_bond_assignment/angle_cost_factor=0.001
+heuristic_bond_assignment/min_angle=40.0
+heuristic_bond_assignment/common_angle=109.5
+h_atoms_empty_valence_directions/hydrogen_bond_lenghts_multiplier=1.0
+rendering/balls_and_sticks/radius_source=&"contact_radius"
+rendering/balls_and_sticks/radius_factor=0.3
+rendering/mechanical_simulation/radius_source=&"contact_radius"
+rendering/mechanical_simulation/radius_factor=0.9
+rendering/van_der_waals/radius_source=&"contact_radius"
+rendering/van_der_waals/radius_factor=1.0
+rendering/fallbacks/van_der_waals_radius_factor=1.5
+simulation/relaxation_animation_time=0.5
+clipboard/paste_offset_direction/x=0.0
+clipboard/paste_offset_direction/y=0.0
+clipboard/paste_offset_direction/z=0.0
+
+[network]
+
+limits/debugger/max_chars_per_second.editor=3000000
+
+[physics]
+
+3d/physics_engine="GodotPhysics3D"
+
+[rendering]
+
+textures/vram_compression/import_s3tc_bptc.macos=true
+
+[shader_globals]
+
+reference_shape_wireframe_color={
+"type": "color",
+"value": Color(0, 0.337255, 0, 0.635294)
+}
+active_object_outline_color={
+"type": "color",
+"value": Color(1, 0.435294, 0.0392157, 1)
+}
+active_hover_object_outline_color={
+"type": "color",
+"value": Color(1, 0.65098, 0.219608, 1)
+}
+unactive_hover_object_outline_color={
+"type": "color",
+"value": Color(1, 0.93, 0.88, 1)
+}
+reference_shape_selected_wireframe_color={
+"type": "color",
+"value": Color(0.901961, 0.901961, 0.901961, 1)
+}
+selected_atom_outline_color={
+"type": "color",
+"value": Color(1, 1, 1, 1)
+}
+hovered_atom_outline_color={
+"type": "color",
+"value": Color(0, 1, 0, 1)
+}
+reference_shape_hovered_wireframe_color={
+"type": "color",
+"value": Color(0, 1, 0, 0.635294)
+}
+is_bond_influence_highlight_enabled={
+"type": "float",
+"value": 0.0
+}

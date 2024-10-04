@@ -1,0 +1,63 @@
+[gd_scene load_steps=3 format=3 uid="uid://dbf80aqque7n0"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/atom_size_settings/atom_size_settings.gd" id="1_vawmt"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_k1wlr"]
+
+[node name="AtomSizeSettings" type="VBoxContainer"]
+offset_right = 332.0
+offset_bottom = 91.0
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+script = ExtResource("1_vawmt")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Balls and Sticks"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Visualized
+Radius"
+horizontal_alignment = 1
+
+[node name="Label3" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "="
+horizontal_alignment = 1
+
+[node name="UserFactorRadiusSource" type="OptionButton" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+item_count = 2
+selected = 1
+popup/item_0/text = "physRadii"
+popup/item_0/id = 0
+popup/item_1/text = "vdwRadii"
+popup/item_1/id = 1
+
+[node name="Label2" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "x"
+
+[node name="UserFactorSpinBoxSlider" parent="PanelContainer/VBoxContainer/HBoxContainer" instance=ExtResource("2_k1wlr")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 2
+size_flags_vertical = 4
+min_value = 0.1
+max_value = 1.5
+step = 0.01
+value = 1.0

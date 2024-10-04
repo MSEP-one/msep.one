@@ -1,0 +1,19 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://bs0f4sfoqif1"]
+
+[ext_resource type="Script" path="res://theme/theme_3d/available_themes/flat_theme/flat_preview_atom_material/flat_preview_sphere_material.gd" id="1_ogi0c"]
+[ext_resource type="Shader" path="res://theme/theme_3d/available_themes/flat_theme/flat_preview_atom_material/flat_preview_sphere.gdshader" id="2_0bpfr"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("2_0bpfr")
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 0.0
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = 0.1
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+script = ExtResource("1_ogi0c")

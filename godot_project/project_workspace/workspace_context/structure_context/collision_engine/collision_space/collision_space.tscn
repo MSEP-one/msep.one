@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8ahf120j3w87"]
+
+[ext_resource type="Script" path="res://project_workspace/workspace_context/structure_context/collision_engine/collision_space/collision_space.gd" id="1_mwmpv"]
+
+[node name="CollisionSpace" type="Node"]
+script = ExtResource("1_mwmpv")

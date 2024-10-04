@@ -1,0 +1,253 @@
+[gd_scene load_steps=13 format=3 uid="uid://b3gggkyj2olxa"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_tools_panel.gd" id="1_8vt2h"]
+[ext_resource type="PackedScene" uid="uid://cvtq2ps52eix3" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.tscn" id="2_kk1ae"]
+[ext_resource type="Texture2D" uid="uid://bvw6bs8u3dl5k" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_play_rec.svg" id="2_t66qa"]
+[ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="3_v247p"]
+[ext_resource type="Texture2D" uid="uid://b7wxqthabdoy4" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_pause.svg" id="3_x0281"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_oqut5"]
+[ext_resource type="Texture2D" uid="uid://bggmkhivgos3r" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_revert.svg" id="4_xo5op"]
+[ext_resource type="PackedScene" uid="uid://dkfvcot2e4buu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/playback_speed_picker.tscn" id="5_7pvhb"]
+[ext_resource type="PackedScene" uid="uid://43m5k0qxrqiu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/openmm_failure_tracker.tscn" id="9_6sv07"]
+[ext_resource type="Script" path="res://editor/controls/general/nano_accept_dialog.gd" id="10_84as7"]
+
+[sub_resource type="Animation" id="Animation_k5o5r"]
+resource_name = "idle"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4, 0.6, 1),
+"transitions": PackedFloat32Array(0.707107, 1.7411, 1.7411, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0.278431), Color(1, 1, 1, 0.278431), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_mo30t"]
+_data = {
+"idle": SubResource("Animation_k5o5r")
+}
+
+[node name="simulation_tools_panel" type="VBoxContainer"]
+offset_right = 519.0
+offset_bottom = 47.0
+theme_override_constants/separation = 10
+script = ExtResource("1_8vt2h")
+
+[node name="LabelParameters" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Simulation Parameters"
+vertical_alignment = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="RelaxBeforeSimButton" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Relax model before running simulation"
+
+[node name="GridContainer" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label2" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 0.5
+text = "Temperature"
+vertical_alignment = 1
+
+[node name="TemperaturePicker" parent="PanelContainer/VBoxContainer/GridContainer" instance=ExtResource("2_kk1ae")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 0.5
+text = "Step Time"
+vertical_alignment = 1
+
+[node name="TimeSpanPicker" parent="PanelContainer/VBoxContainer/GridContainer" instance=ExtResource("3_v247p")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 0.5
+text = "Steps per Frame"
+vertical_alignment = 1
+
+[node name="SpinBoxStepsPerReport" parent="PanelContainer/VBoxContainer/GridContainer" instance=ExtResource("4_oqut5")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 1000.0
+value = 20.0
+allow_greater = true
+suffix = "steps"
+custom_arrow_step = 100.0
+select_all_on_focus = true
+
+[node name="Label5" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 0.5
+text = "Frame Count
+"
+vertical_alignment = 1
+
+[node name="SpinBoxReportCount" parent="PanelContainer/VBoxContainer/GridContainer" instance=ExtResource("4_oqut5")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 1000.0
+value = 200.0
+allow_greater = true
+suffix = "frames"
+custom_arrow_step = 100.0
+select_all_on_focus = true
+
+[node name="Label6" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 0.5
+text = "Playback speed"
+
+[node name="PlaybackSpeedPicker" parent="PanelContainer/VBoxContainer/GridContainer" instance=ExtResource("5_7pvhb")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+alignment = 2
+
+[node name="ButtonStartPause" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+text = "Start"
+icon = ExtResource("2_t66qa")
+
+[node name="SpinBoxTimeline" type="SpinBox" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 0.001
+alignment = 2
+suffix = "/ 0.0 ps"
+select_all_on_focus = true
+
+[node name="OptionButtonTimelineUnit" type="OptionButton" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 5
+selected = 1
+popup/item_0/text = "Femtoseconds"
+popup/item_0/id = 0
+popup/item_1/text = "Picoseconds"
+popup/item_1/id = 1
+popup/item_2/text = "Nanoseconds"
+popup/item_2/id = 2
+popup/item_3/text = "Steps"
+popup/item_3/id = 3
+popup/item_4/text = "Frames"
+popup/item_4/id = 4
+
+[node name="StatusIcon" type="TextureRect" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("3_x0281")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/StatusIcon"]
+libraries = {
+"": SubResource("AnimationLibrary_mo30t")
+}
+autoplay = "idle"
+speed_scale = 0.3
+
+[node name="StatusLabel" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Stoped"
+vertical_alignment = 1
+
+[node name="SliderTimeline" type="HSlider" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 0.001
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_right = 30
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="LabelEditNotice" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ℹ Edits made to the project will conclude this simulation."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="LabelErrorNotice" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "❌ Simulation canceled due to an invalid state. Try again with a smaller Step Time value, or Relax the project before running this simulation."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="LabelEmptyNotice" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "❌ Project is empty. Create atoms before running a simulation."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="ButtonRevert" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+disabled = true
+text = "Abort Simulation
+"
+icon = ExtResource("4_xo5op")
+
+[node name="ButtonViewAlerts" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "View 4 Alerts..."
+
+[node name="OpenMMFailureTracker" parent="." instance=ExtResource("9_6sv07")]
+unique_name_in_owner = true
+
+[node name="MotorsWarningDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Warning"
+size = Vector2i(300, 142)
+min_size = Vector2i(300, 0)
+dialog_text = "Motor physics is a work in progress and may produce inaccurate results.
+Motors are included for demonstration purposes only."
+dialog_autowrap = true
+script = ExtResource("10_84as7")

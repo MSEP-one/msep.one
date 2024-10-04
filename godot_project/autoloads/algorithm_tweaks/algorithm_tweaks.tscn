@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3 uid="uid://iryundcga074"]
+
+[ext_resource type="Script" path="res://autoloads/algorithm_tweaks/algorithm_tweaks.gd" id="1_qpn2k"]
+
+[node name="AlgorithmTweaks" type="Window"]
+disable_3d = true
+title = "Algorithm Constants"
+initial_position = 2
+size = Vector2i(400, 300)
+visible = false
+wrap_controls = true
+min_size = Vector2i(200, 300)
+script = ExtResource("1_qpn2k")
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="TweaksTree" type="Tree" parent="Panel/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2

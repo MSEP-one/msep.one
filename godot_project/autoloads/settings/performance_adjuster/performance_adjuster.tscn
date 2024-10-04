@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b1ljg4wf4xe1g"]
+
+[ext_resource type="Script" path="res://autoloads/settings/performance_adjuster/performance_adjuster.gd" id="1_uxhcc"]
+
+[node name="PerformanceAdjuster" type="Node"]
+script = ExtResource("1_uxhcc")

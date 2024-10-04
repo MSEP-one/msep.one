@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://dxgg3ppvxk0pt"]
+
+[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/side_button.gd" id="1_6q8vb"]
+[ext_resource type="PackedScene" uid="uid://cq4i6btensu0c" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_button_model.tscn" id="2_nfxob"]
+[ext_resource type="PackedScene" uid="uid://biw8ofxcm7vd7" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/CaptureInputArea/capture_input_area.tscn" id="3_rx2nb"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_4061k"]
+radius = 0.267034
+
+[node name="SideButton" type="Node3D"]
+script = ExtResource("1_6q8vb")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(0.999174, 0, -0.0406375, 0, 1, 0, 0.0406375, 0, 0.999174, 0, 0, 0.766539)
+visible = false
+light_energy = 0.0
+spot_range = 1.1474
+
+[node name="SideButtonModel" parent="." instance=ExtResource("2_nfxob")]
+
+[node name="MouseDetector" parent="." instance=ExtResource("3_rx2nb")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MouseDetector"]
+shape = SubResource("SphereShape3D_4061k")
+
+[connection signal="clicked" from="MouseDetector" to="." method="_on_mouse_detector_clicked"]
+[connection signal="mouse_entered" from="MouseDetector" to="." method="_on_mouse_detector_mouse_entered"]
+[connection signal="mouse_exited" from="MouseDetector" to="." method="_on_mouse_detector_mouse_exited"]
+[connection signal="press_in" from="MouseDetector" to="." method="_on_mouse_detector_press_in"]
+[connection signal="press_out" from="MouseDetector" to="." method="_on_mouse_detector_press_out"]

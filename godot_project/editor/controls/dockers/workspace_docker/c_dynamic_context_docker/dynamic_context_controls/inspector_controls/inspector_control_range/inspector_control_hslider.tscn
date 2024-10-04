@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://cmbfwp2q8li4j"]
+
+[ext_resource type="PackedScene" uid="uid://c1rmw14fm6jco" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control.tscn" id="1_q8ioe"]
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_range/inspector_control_range.gd" id="2_d4d6p"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_fu3pr"]
+
+[node name="InspectorControlHSlider" instance=ExtResource("1_q8ioe")]
+script = ExtResource("2_d4d6p")
+
+[node name="Range" parent="." index="0" instance=ExtResource("3_fu3pr")]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 1
+mouse_filter = 2
+spinbox_visible = false
+
+[node name="Slider" parent="Range" index="2"]
+anchors_preset = 15
+anchor_top = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_vertical = 2
+theme_type_variation = &""
+
+[editable path="Range"]

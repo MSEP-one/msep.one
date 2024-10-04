@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://bbcfic1vg0t6y"]
+
+[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/structure_selector/structure_child_list/structure_child_list.gd" id="1_6hr6f"]
+
+[node name="StructureChildList" type="VBoxContainer"]
+offset_left = 178.0
+offset_top = 75.0
+offset_right = 332.0
+offset_bottom = 157.0
+script = ExtResource("1_6hr6f")
+
+[node name="StructureSelectorButton" parent="." instance_placeholder="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.tscn"]
+layout_mode = 2
+
+[node name="StructureSelectorButton2" parent="." instance_placeholder="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.tscn"]
+layout_mode = 2

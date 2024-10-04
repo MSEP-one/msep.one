@@ -1,0 +1,924 @@
+[gd_scene load_steps=4 format=3 uid="uid://cjqhv1ucctc0p"]
+
+[ext_resource type="PackedScene" uid="uid://cw8eqtylp4n8q" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_picker_button.tscn" id="1_lmx8q"]
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/extended_element_picker.gd" id="1_rmh0f"]
+[ext_resource type="Texture2D" path="res://editor/icons/icon_search.svg" id="3_5b588"]
+
+[node name="ExtendedElementPicker" type="PopupPanel"]
+size = Vector2i(960, 579)
+visible = true
+script = ExtResource("1_rmh0f")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 956.0
+offset_bottom = 575.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_type_variation = &"VBoxContainerLarge"
+
+[node name="ButtonsContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 18
+
+[node name="1_Hydrogen" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control3" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control4" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control5" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control6" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control7" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control8" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control9" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control10" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control11" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control12" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control13" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control14" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control15" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control16" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="2_Helium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 2
+
+[node name="3_Lithium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 3
+
+[node name="4_Beryllium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 4
+
+[node name="Control17" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control18" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control19" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control20" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control21" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control22" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control23" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control24" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control25" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control26" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="5_Boron" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 5
+
+[node name="6_Carbon" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 6
+
+[node name="7_Nitrogen" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 7
+
+[node name="8_Oxygen" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 8
+
+[node name="9_Fluorine" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 9
+
+[node name="10_Neon" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 10
+
+[node name="11_Sodium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 11
+
+[node name="12_Magnesium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 12
+
+[node name="Control27" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control28" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control29" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control30" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control31" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control32" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control33" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control34" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control35" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control36" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="13_Aluminium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 13
+
+[node name="14_Silicon" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 14
+
+[node name="15_Phosphorus" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 15
+
+[node name="16_Sulfur" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 16
+
+[node name="17_Chlorine" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 17
+
+[node name="18_Argon" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 18
+
+[node name="19_Potassium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 19
+
+[node name="20_Calcium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 20
+
+[node name="21_Scandium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 21
+
+[node name="22_Titanium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 22
+
+[node name="23_Vanadium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 23
+
+[node name="24_Chromium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 24
+
+[node name="25_Manganese" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 25
+
+[node name="26_Iron" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 26
+
+[node name="27_Cobalt" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 27
+
+[node name="28_Nickel" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 28
+
+[node name="29_Copper" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 29
+
+[node name="30_Zinc" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 30
+
+[node name="31_Gallium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 31
+
+[node name="32_Germanium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 32
+
+[node name="33_Arsenic" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 33
+
+[node name="34_Selenium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 34
+
+[node name="35_Bromine" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 35
+
+[node name="36_Krypton" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 36
+
+[node name="37_Rubidium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 37
+
+[node name="38_Strontium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 38
+
+[node name="39_Yttrium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 39
+
+[node name="40_Zirconium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 40
+
+[node name="41_Niob" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 41
+
+[node name="42_Molybdenum" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 42
+
+[node name="43_Technetium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 43
+
+[node name="44_Ruthenium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 44
+
+[node name="45_Rhodium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 45
+
+[node name="46_Palladium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 46
+
+[node name="47_Silver" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 47
+
+[node name="48_Cadmium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 48
+
+[node name="49_Indium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 49
+
+[node name="50_Tin" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 50
+
+[node name="51_Antimony" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 51
+
+[node name="52_Tellurium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 52
+
+[node name="53_Iodine" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 53
+
+[node name="54_Xenon" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 54
+
+[node name="55_Caesium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 55
+
+[node name="56_Barium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 56
+
+[node name="71_Lutetium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 71
+
+[node name="72_Hafnium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 72
+
+[node name="73_Tantalum" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 73
+
+[node name="74_Tungsten" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 74
+
+[node name="75_Rhenium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 75
+
+[node name="76_Osmium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 76
+
+[node name="77_Iridium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 77
+
+[node name="78_Platinum" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 78
+
+[node name="79_Gold" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 79
+
+[node name="80_Mercury" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 80
+
+[node name="81_Thallium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 81
+
+[node name="82_Lead" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 82
+
+[node name="83_Bismuth" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 83
+
+[node name="84_Polonium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 84
+
+[node name="85_Astatine" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 85
+
+[node name="86_Radon" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 86
+
+[node name="87_Francium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 87
+
+[node name="88_Radium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 88
+
+[node name="103_Lawrencium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 103
+
+[node name="104_Rutherfordium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 104
+
+[node name="105_Dubnium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 105
+
+[node name="106_Seaborgium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 106
+
+[node name="107_Bohrium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 107
+
+[node name="108_Hassium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 108
+
+[node name="109_Meitnerium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 109
+
+[node name="110_Darmstadtium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 110
+
+[node name="111_Roentgenium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 111
+
+[node name="112_Copernicium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 112
+
+[node name="113_Nihonium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 113
+
+[node name="114_Flerovium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 114
+
+[node name="115_Moscovium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 115
+
+[node name="116_Livermorium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 116
+
+[node name="117_Tenessine" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 117
+
+[node name="118_Oganesson" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 118
+
+[node name="Control45" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control46" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control47" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control48" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control49" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control50" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control51" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control52" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control53" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control54" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control55" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control56" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control57" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control58" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control59" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control60" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control61" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control62" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+
+[node name="Control37" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control38" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="57_Lanthanum" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 57
+
+[node name="58_Cerium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 58
+
+[node name="59_Praseodym" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 59
+
+[node name="60_Neodym" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 60
+
+[node name="61_Promethium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 61
+
+[node name="62_Samarium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 62
+
+[node name="63_Europium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 63
+
+[node name="64_Gadolinium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 64
+
+[node name="65_Terbium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 65
+
+[node name="66_Dysprosium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 66
+
+[node name="67_Holmium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 67
+
+[node name="68_Erbium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 68
+
+[node name="69_Thulium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 69
+
+[node name="70_Ytterbium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 70
+
+[node name="Control39" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control40" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control41" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control42" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="89_Actinium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 89
+
+[node name="90_Thorium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 90
+
+[node name="91_Protactinium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 91
+
+[node name="92_Uranium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 92
+
+[node name="93_Neptunium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 93
+
+[node name="94_Plutonium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 94
+
+[node name="95_Americium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+element = 95
+
+[node name="96_Curium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 96
+
+[node name="97_Berkelium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 97
+
+[node name="98_Californium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 98
+
+[node name="99_Einsteinium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 99
+
+[node name="100_Fermium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 100
+
+[node name="101_Mendelevium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 101
+
+[node name="102_Nobelium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
+modulate = Color(0.4, 0.4, 0.4, 1)
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+disabled = true
+element = 102
+
+[node name="Control43" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Control44" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="SearchBar" type="LineEdit" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+placeholder_text = "Search element"
+right_icon = ExtResource("3_5b588")

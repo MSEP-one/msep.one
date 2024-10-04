@@ -1,0 +1,51 @@
+[gd_scene load_steps=3 format=3 uid="uid://df1wehgky7mt5"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/change_atom_type.gd" id="1_538ej"]
+[ext_resource type="PackedScene" uid="uid://djdtnhc6tuvrh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.tscn" id="2_rc0wb"]
+
+[node name="ChangeAtomType" type="VBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 47.0
+grow_horizontal = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+script = ExtResource("1_538ej")
+
+[node name="Tree" type="Tree" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+hide_folding = true
+select_mode = 1
+scroll_horizontal_enabled = false
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="SelectionDescription" type="Label" parent="MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "No Atoms selected"
+
+[node name="ButtonChangeTo" type="Button" parent="MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Change To ..."
+
+[node name="ElementPickerPopup" type="PopupPanel" parent="."]
+unique_name_in_owner = true
+size = Vector2i(212, 191)
+
+[node name="ElementPicker" parent="ElementPickerPopup" instance=ExtResource("2_rc0wb")]
+unique_name_in_owner = true
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 208.0
+offset_bottom = 187.0

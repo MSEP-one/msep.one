@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://ctjhe1sb584il"]
+
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/orientation_widget/orientation_widget.gd" id="1_0b6yg"]
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/orientation_widget/DrawOrientationWidget.gd" id="2_s8lfg"]
+
+[node name="OrientationWidget" type="Node3D"]
+script = ExtResource("1_0b6yg")
+
+[node name="DrawOrientationWidget" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_s8lfg")
+manual_offset = Vector2(70, -95)
+x_axis_color = Color(0.996078, 0, 0, 1)
+y_axis_color = Color(0, 1, 0, 1)
+z_axis_color = Color(0.419608, 0.439216, 1, 1)

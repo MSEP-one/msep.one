@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3 uid="uid://cgmcb3in42kol"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/visibility_settings/visibility_settings.gd" id="1_u6kr4"]
+
+[node name="VisibilitySettings" type="MarginContainer"]
+offset_right = 10.0
+offset_bottom = 10.0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+script = ExtResource("1_u6kr4")
+
+[node name="Settings" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Settings"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Visibility"
+
+[node name="PanelContainer" type="PanelContainer" parent="Settings"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Settings/PanelContainer"]
+layout_mode = 2
+
+[node name="ShowBondsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer"]
+layout_mode = 2
+button_pressed = true
+text = "Show Bonds"
+
+[node name="ShowLabelsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer"]
+layout_mode = 2
+button_pressed = true
+text = "Show Elements Labels"
+
+[node name="ShowHydrogensToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer"]
+layout_mode = 2
+button_pressed = true
+text = "Show Hydrogens"
+
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowBondsToggle" to="." method="_on_show_bonds_toggle_toggled"]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowLabelsToggle" to="." method="_on_show_labels_toggle_toggled"]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowHydrogensToggle" to="." method="_on_show_hydrogens_toggle_toggled"]

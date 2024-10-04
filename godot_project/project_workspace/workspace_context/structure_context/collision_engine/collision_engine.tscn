@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://tlvrua11wwf1"]
+
+[ext_resource type="Script" path="res://project_workspace/workspace_context/structure_context/collision_engine/collision_engine.gd" id="1_w4neu"]
+[ext_resource type="PackedScene" uid="uid://b8ahf120j3w87" path="res://project_workspace/workspace_context/structure_context/collision_engine/collision_space/collision_space.tscn" id="2_u5fly"]
+
+[node name="CollisionEngine" type="Node"]
+script = ExtResource("1_w4neu")
+
+[node name="AtomCollisionSpace" parent="." instance=ExtResource("2_u5fly")]
+
+[node name="BondCollisionSpace" parent="." instance=ExtResource("2_u5fly")]
+
+[node name="SpringCollisionSpace" parent="." instance=ExtResource("2_u5fly")]

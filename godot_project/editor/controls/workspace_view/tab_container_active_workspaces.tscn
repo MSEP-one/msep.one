@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://d27bh6k3cluw1"]
+
+[ext_resource type="Script" path="res://editor/controls/workspace_view/tab_container_active_workspaces.gd" id="1_fx300"]
+[ext_resource type="PackedScene" uid="uid://dnppynbygr3na" path="res://editor/controls/welcome_page/WelcomePage.tscn" id="2_jqw1i"]
+
+[node name="TabContainerActiveWorkspaces" type="TabContainer"]
+offset_right = 1142.0
+offset_bottom = 537.0
+size_flags_horizontal = 3
+tabs_visible = false
+script = ExtResource("1_fx300")
+
+[node name="Welcome" parent="." instance=ExtResource("2_jqw1i")]
+layout_mode = 2

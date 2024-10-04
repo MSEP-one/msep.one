@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://0lc3q3ja57oe"]
+
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/workspace_camera/workspace_camera.gd" id="1_ss06r"]
+
+[node name="WorkspaceCamera" type="Node3D" groups=["WorkspaceCamera"]]
+script = ExtResource("1_ss06r")
+
+[node name="Camera3D" type="Camera3D" parent="." groups=["Camera3D"]]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
+current = true
+fov = 15.0
+far = 999999.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
+transform = Transform3D(0.0871558, 0.704416, -0.704416, 0, 0.707107, 0.707107, 0.996195, -0.0616285, 0.0616285, 11.2996, 0, 0)
+light_energy = 1.5
+directional_shadow_mode = 0
+directional_shadow_split_1 = 0.2
+directional_shadow_split_2 = 0.5
+directional_shadow_split_3 = 0.75
+directional_shadow_max_distance = 400.0
+sky_mode = 1

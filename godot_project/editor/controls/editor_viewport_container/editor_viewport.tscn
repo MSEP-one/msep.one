@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://cpmer44bkrmxr"]
+
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/editor_viewport.gd" id="1_0yoa1"]
+[ext_resource type="PackedScene" uid="uid://0lc3q3ja57oe" path="res://editor/controls/editor_viewport_container/workspace_camera/workspace_camera.tscn" id="2_a2xcg"]
+[ext_resource type="PackedScene" uid="uid://cd8ybm2fs1ox" path="res://editor/rendering/rendering.tscn" id="3_slk28"]
+[ext_resource type="PackedScene" uid="uid://b2ye7lfprflsv" path="res://editor/controls/workspace_view/box_selection/box_selection.tscn" id="4_gfs4m"]
+[ext_resource type="PackedScene" uid="uid://cg86t1pg55kxs" path="res://editor/controls/editor_viewport_container/viewport_input/viewport_input.tscn" id="7_dhln0"]
+
+[node name="EditorViewport" type="SubViewport"]
+own_world_3d = true
+msaa_3d = 1
+screen_space_aa = 1
+scaling_3d_mode = 1
+size_2d_override_stretch = true
+render_target_update_mode = 4
+script = ExtResource("1_0yoa1")
+
+[node name="ViewportOverlays" type="CanvasLayer" parent="."]
+
+[node name="BoxSelection" parent="ViewportOverlays" instance=ExtResource("4_gfs4m")]
+
+[node name="WorkspaceCamera" parent="." instance=ExtResource("2_a2xcg")]
+
+[node name="Rendering" parent="." instance=ExtResource("3_slk28")]
+
+[node name="ViewportInput" parent="." instance=ExtResource("7_dhln0")]
+
+[node name="PauseInputTimer" type="Timer" parent="."]
+one_shot = true
