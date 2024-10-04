@@ -1,0 +1,13 @@
+[gd_scene load_steps=5 format=3 uid="uid://1fpx657b3g2a"]
+
+[ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_m05oa"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/sticks_single_atom_representation/sticks_and_single_atom_representation.gd" id="2_aghj8"]
+[ext_resource type="PackedScene" uid="uid://1s2d7rpq77pw" path="res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/single_atom_representation.tscn" id="4_7buyo"]
+[ext_resource type="PackedScene" uid="uid://cv03jxekchhn1" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/capsule_stick_representation.tscn" id="4_nqp8u"]
+
+[node name="SticksAndSingleAtomRepresentation" instance=ExtResource("1_m05oa")]
+script = ExtResource("2_aghj8")
+
+[node name="SingleAtomRepresentation" parent="." index="0" instance=ExtResource("4_7buyo")]
+
+[node name="CapsuleStickRepresentation" parent="." index="1" instance=ExtResource("4_nqp8u")]

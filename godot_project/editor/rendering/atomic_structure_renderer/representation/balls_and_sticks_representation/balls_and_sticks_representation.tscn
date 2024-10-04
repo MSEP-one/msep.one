@@ -1,0 +1,13 @@
+[gd_scene load_steps=5 format=3 uid="uid://chyjcasbtnujt"]
+
+[ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_6xh5v"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/balls_and_sticks_representation/balls_and_sticks_representation.gd" id="2_5trxq"]
+[ext_resource type="PackedScene" uid="uid://ntegojtqd8oo" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/sphere_representation.tscn" id="3_s8fwq"]
+[ext_resource type="PackedScene" uid="uid://c1pl3akl77luo" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/cylinder_stick_representation.tscn" id="4_inpff"]
+
+[node name="BallsAndSticksRepresentation" instance=ExtResource("1_6xh5v")]
+script = ExtResource("2_5trxq")
+
+[node name="SphereRepresentation" parent="." index="0" instance=ExtResource("3_s8fwq")]
+
+[node name="CylinderStickRepresentation" parent="." index="1" instance=ExtResource("4_inpff")]

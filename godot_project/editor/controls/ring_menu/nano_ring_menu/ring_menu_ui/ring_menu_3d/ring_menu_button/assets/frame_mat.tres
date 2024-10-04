@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://ccuohkpvspcuq"]
+
+[resource]
+resource_local_to_scene = true
+specular_mode = 1
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.196078, 0.180392, 0.431373, 1)
+metallic = 0.5
+roughness = 0.45
+rim_tint = 0.0

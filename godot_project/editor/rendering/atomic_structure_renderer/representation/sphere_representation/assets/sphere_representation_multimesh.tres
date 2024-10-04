@@ -1,0 +1,9 @@
+[gd_resource type="MultiMesh" load_steps=2 format=3 uid="uid://bamrev3ipjwpg"]
+
+[ext_resource type="ArrayMesh" uid="uid://df3bi5akriful" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_half_outline.mesh" id="1_nkkjg"]
+
+[resource]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("1_nkkjg")

@@ -1,0 +1,105 @@
+[gd_scene load_steps=9 format=3 uid="uid://s1kifiq0kp1j"]
+
+[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_ui.gd" id="1_to78h"]
+[ext_resource type="PackedScene" uid="uid://bjafgyuy0crti" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_3d.tscn" id="2_s17pm"]
+[ext_resource type="Environment" uid="uid://53vsrmime8ox" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_world_environment.tres" id="3_1v3j8"]
+
+[sub_resource type="World3D" id="World3D_868mj"]
+
+[sub_resource type="Animation" id="Animation_3iosm"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_o2dlf"]
+resource_name = "fade_in"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_m1pne"]
+resource_name = "fade_out"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_wd55v"]
+_data = {
+"RESET": SubResource("Animation_3iosm"),
+"fade_in": SubResource("Animation_o2dlf"),
+"fade_out": SubResource("Animation_m1pne")
+}
+
+[node name="RingMenuUI" type="SubViewportContainer"]
+z_index = 4096
+custom_minimum_size = Vector2(780, 780)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -134.0
+offset_top = -134.0
+offset_right = -1074.0
+offset_bottom = -134.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+script = ExtResource("1_to78h")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+own_world_3d = true
+world_3d = SubResource("World3D_868mj")
+transparent_bg = true
+handle_input_locally = false
+msaa_3d = 3
+screen_space_aa = 1
+physics_object_picking = true
+size = Vector2i(780, 780)
+render_target_update_mode = 4
+
+[node name="RingMenu3D" parent="SubViewport" instance=ExtResource("2_s17pm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0615845, 6.28649)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewport"]
+environment = ExtResource("3_1v3j8")
+
+[node name="FadeAnimator" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_wd55v")
+}
+
+[connection signal="back_requested" from="SubViewport/RingMenu3D" to="." method="_on_ring_menu_3d_back_requested"]
+[connection signal="btn_clicked" from="SubViewport/RingMenu3D" to="." method="_on_ring_menu_3d_btn_clicked"]
+[connection signal="close_requested" from="SubViewport/RingMenu3D" to="." method="_on_ring_menu_3d_close_requested"]

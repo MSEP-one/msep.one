@@ -1,0 +1,139 @@
+#!/usr/bin/env python
+
+import os
+Import("env")
+Import("env_lmdb")
+
+def append_dir(item):
+    path = os.path.join("capnproto", "c++", "src", "kj", item)
+    return path
+
+kj_sources = [
+"array.c++",
+ "cidr.c++",
+ "list.c++",
+ "common.c++",
+ "debug.c++",
+ "exception.c++",
+ "io.c++",
+ "memory.c++",
+ "mutex.c++",
+ "string.c++",
+ "source-location.c++",
+ "hash.c++",
+ "table.c++",
+ "thread.c++",
+ "main.c++",
+ "arena.c++",
+ "test-helpers.c++",
+ "units.c++",
+ "encoding.c++",
+ "refcount.c++",
+ "string-tree.c++",
+ "time.c++",
+ "filesystem.c++",
+ "filesystem-disk-unix.c++",
+ "parse/char.c++",
+]
+kj_headers = [
+"cidr.h",
+"common.h",
+"units.h",
+"memory.h",
+"refcount.h",
+"array.h",
+"list.h",
+"vector.h",
+"string.h",
+"string-tree.h",
+"source-location.h",
+"hash.h",
+"table.h",
+"map.h",
+"encoding.h",
+"exception.h",
+"debug.h",
+"arena.h",
+"io.h",
+"tuple.h",
+"one-of.h",
+"function.h",
+"mutex.h",
+"thread.h",
+"threadlocal.h",
+"filesystem.h",
+"time.h",
+"main.h",
+"win32-api-version.h",
+"windows-sanity.h",
+]
+
+kj_async_headers = [
+  "async-prelude.h",
+  "async.h",
+  "async-inl.h",
+  "async-unix.h",
+  "async-win32.h",
+  "async-io.h",
+  "async-queue.h",
+  "cidr.h",
+  "timer.h",
+]
+
+kj_async_sources = [
+  "async.c++",
+  "async-unix.c++",
+  "async-io.c++",
+  "async-io-unix.c++",
+  "timer.c++",
+]
+
+kj_windows_specific = [
+  "async-win32.c++",
+  "async-io-win32.c++",
+  "filesystem-disk-win32.c++",
+]
+
+kj_http_sources = [
+  "compat/url.c++",
+  "compat/http.c++",
+]
+c_kj_headers = []
+for item in kj_headers:
+    c_kj_headers.append(append_dir(item))
+kj_headers = c_kj_headers
+
+
+c_kj_sources = []
+
+for item in kj_async_sources:
+    c_kj_sources.append(append_dir(item))
+
+for item in kj_http_sources:
+    c_kj_sources.append(append_dir(item))
+
+for item in kj_sources:
+    c_kj_sources.append(append_dir(item))
+
+if env_lmdb["platform"] == "windows":
+  print("Adding specific sources for windows")
+  for item in kj_windows_specific:
+    c_kj_sources.append(append_dir(item))
+
+kj_sources = c_kj_sources
+
+
+print("Building kj")
+
+
+env_lmdb.Prepend(CPPPATH=[os.path.join(os.getcwd(), "capnproto", "c++", "src")])
+
+
+kj_env = env_lmdb.Clone()
+kj_env.disable_warnings()
+
+kj_objects = []
+
+# kj_env.add_source_files(kj_objects, kj_sources)
+# env.modules_sources += kj_objects
+Export("kj_objects")

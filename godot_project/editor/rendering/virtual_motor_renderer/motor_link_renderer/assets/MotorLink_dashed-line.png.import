@@ -1,0 +1,38 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://b6orqvlvykjnq"
+path.s3tc="res://.godot/imported/MotorLink_dashed-line.png-01e1b7ee265af0e5452eadce894d0c11.s3tc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "36ed8b8cb56145155de983821d1c7b6f"
+}
+
+[deps]
+
+source_file="res://editor/rendering/virtual_motor_renderer/motor_link_renderer/assets/MotorLink_dashed-line.png"
+dest_files=["res://.godot/imported/MotorLink_dashed-line.png-01e1b7ee265af0e5452eadce894d0c11.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0

@@ -1,0 +1,109 @@
+[gd_scene load_steps=6 format=3 uid="uid://dgp1lik5qg0mv"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/linear_motor_parameters_editor.gd" id="1_8n0fw"]
+[ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_pb8n6"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_crlk1"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_qcbmf"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_nsg6m"]
+
+[node name="LinearMotorParametersEditor" type="GridContainer"]
+columns = 2
+script = ExtResource("1_8n0fw")
+
+[node name="TypeLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Type"
+vertical_alignment = 1
+
+[node name="TypeButton" type="Button" parent="."]
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_qcbmf")
+text = "Linear"
+
+[node name="Label" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Ramp-In Time"
+vertical_alignment = 1
+
+[node name="LinearRampInTime" parent="." instance=ExtResource("1_pb8n6")]
+unique_name_in_owner = true
+layout_mode = 2
+time_span_femtoseconds = 150.0
+
+[node name="SpinBoxSlider" parent="LinearRampInTime" index="0"]
+min_value = 0.0
+value = 150.0
+
+[node name="Label2" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Ramp-Out Time"
+vertical_alignment = 1
+
+[node name="LinearRampOutTime" parent="." instance=ExtResource("1_pb8n6")]
+unique_name_in_owner = true
+layout_mode = 2
+time_span_femtoseconds = 150.0
+
+[node name="SpinBoxSlider" parent="LinearRampOutTime" index="0"]
+min_value = 0.0
+value = 150.0
+
+[node name="Label3" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Top Speed"
+vertical_alignment = 1
+
+[node name="LinearTopSpeedSpinBox" parent="." instance=ExtResource("2_crlk1")]
+unique_name_in_owner = true
+layout_mode = 2
+step = 0.0
+value = 0.4
+allow_greater = true
+suffix = "nm / fs"
+custom_arrow_step = 0.001
+
+[node name="Label5" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Polarity"
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="LinearForwardPolarityButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_nsg6m")
+text = "Forward"
+
+[node name="LinearBackwardPolarityButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_nsg6m")
+text = "Backwards"
+
+[editable path="LinearRampInTime"]
+[editable path="LinearRampOutTime"]

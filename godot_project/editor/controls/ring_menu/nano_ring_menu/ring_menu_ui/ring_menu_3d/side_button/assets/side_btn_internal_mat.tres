@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://csmgcvg4044cg"]
+
+[resource]
+resource_local_to_scene = true
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.584314, 0.592157, 0.890196, 1)

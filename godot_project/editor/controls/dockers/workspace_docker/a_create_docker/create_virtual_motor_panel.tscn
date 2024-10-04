@@ -1,0 +1,70 @@
+[gd_scene load_steps=6 format=3 uid="uid://83kdmdxlkofu"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_virtual_motor_panel.gd" id="1_eipyd"]
+[ext_resource type="PackedScene" uid="uid://dm1rw27pn4ruw" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/rotary_motor_parameters_editor.tscn" id="2_okc76"]
+[ext_resource type="PackedScene" uid="uid://dgp1lik5qg0mv" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/linear_motor_parameters_editor.tscn" id="3_w23p5"]
+[ext_resource type="PackedScene" uid="uid://ctmxf28yulsqb" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/motor_cycle_parameters_editor.tscn" id="4_67g6y"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_ebg0u"]
+
+[node name="CreateVirtualMotorPanel" type="MarginContainer"]
+offset_right = 442.0
+offset_bottom = 324.0
+size_flags_vertical = 3
+script = ExtResource("1_eipyd")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Type: "
+
+[node name="RotaryMotorButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_ebg0u")
+text = "Rotary Motor"
+
+[node name="LinearMotorButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_ebg0u")
+text = "Linear Motor
+"
+
+[node name="Label2" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Parameters
+"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="RotaryMotorParametersEditor" parent="VBoxContainer/PanelContainer/VBoxContainer" instance=ExtResource("2_okc76")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LinearMotorParametersEditor" parent="VBoxContainer/PanelContainer/VBoxContainer" instance=ExtResource("3_w23p5")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="MotorCycleParametersEditor" parent="VBoxContainer/PanelContainer/VBoxContainer" instance=ExtResource("4_67g6y")]
+unique_name_in_owner = true
+layout_mode = 2

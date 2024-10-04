@@ -1,0 +1,46 @@
+[gd_scene load_steps=10 format=3 uid="uid://b711oqbglehtg"]
+
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_bar.gd" id="1_6tam7"]
+[ext_resource type="PackedScene" uid="uid://c3s1rv4dhbs3w" path="res://editor/controls/menu_bar/menu_file/menu_file.tscn" id="1_ihotm"]
+[ext_resource type="PackedScene" uid="uid://bd05ubp020ue2" path="res://editor/controls/menu_bar/menu_edit/menu_edit.tscn" id="2_q0g1r"]
+[ext_resource type="PackedScene" uid="uid://jd3h4vq4vyea" path="res://editor/controls/menu_bar/menu_view/menu_view.tscn" id="3_f1dy0"]
+[ext_resource type="PackedScene" uid="uid://biclwwtcsdrxo" path="res://editor/controls/menu_bar/menu_select/menu_select.tscn" id="3_ud0g4"]
+[ext_resource type="PackedScene" uid="uid://dmmofla5u8hjl" path="res://editor/controls/menu_bar/menu_create/menu_create.tscn" id="4_6sp8a"]
+[ext_resource type="PackedScene" uid="uid://d3khovvyi6gkr" path="res://editor/controls/menu_bar/menu_simulation/menu_simulation.tscn" id="6_w4q0l"]
+[ext_resource type="PackedScene" uid="uid://bh8iwsy4ji3k0" path="res://editor/controls/menu_bar/menu_camera/menu_camera.tscn" id="8_6vjee"]
+[ext_resource type="PackedScene" uid="uid://bk8h3hla8tqrp" path="res://editor/controls/menu_bar/menu_virtual_objects/menu_virtual_objects.tscn" id="9_sh1ey"]
+
+[node name="MenuBar" type="MenuBar"]
+offset_right = 1152.0
+offset_bottom = 31.0
+flat = true
+switch_on_hover = false
+script = ExtResource("1_6tam7")
+
+[node name="File" parent="." instance=ExtResource("1_ihotm")]
+visible = false
+
+[node name="Select" parent="." instance=ExtResource("3_ud0g4")]
+visible = false
+
+[node name="Edit" parent="." instance=ExtResource("2_q0g1r")]
+visible = false
+
+[node name="Create" parent="." instance=ExtResource("4_6sp8a")]
+visible = false
+
+[node name="View" parent="." instance=ExtResource("3_f1dy0")]
+visible = false
+
+[node name="Simulation" parent="." instance=ExtResource("6_w4q0l")]
+visible = false
+
+[node name="Camera" parent="." instance=ExtResource("8_6vjee")]
+visible = false
+
+[node name="VirtualObjects" parent="." instance=ExtResource("9_sh1ey")]
+visible = false
+
+[node name="Help" type="PopupMenu" parent="."]
+
+[connection signal="file_popup_requested" from="File" to="." method="_on_file_file_popup_requested"]

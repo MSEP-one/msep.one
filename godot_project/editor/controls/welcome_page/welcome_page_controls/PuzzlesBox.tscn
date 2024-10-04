@@ -1,0 +1,77 @@
+[gd_scene load_steps=3 format=3 uid="uid://bhdkbft5fofh1"]
+
+[ext_resource type="Texture2D" uid="uid://dxwe1l16msnkc" path="res://icon.png" id="1_871kk"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_u785u"]
+font_size = 32
+
+[node name="PuzzlesBox" type="VBoxContainer"]
+offset_top = 554.0
+offset_right = 1016.0
+offset_bottom = 714.0
+
+[node name="PuzzlesLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Latest Puzzles"
+label_settings = SubResource("LabelSettings_u785u")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+clip_contents = false
+layout_mode = 2
+follow_focus = true
+vertical_scroll_mode = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Button" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+text = "
+
+
+A"
+icon = ExtResource("1_871kk")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button2" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+text = "
+
+
+B"
+icon = ExtResource("1_871kk")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button3" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+text = "
+
+
+C"
+icon = ExtResource("1_871kk")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button4" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+text = "
+
+
+D"
+icon = ExtResource("1_871kk")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button5" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+text = "See
+More
+..."

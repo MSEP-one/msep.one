@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bxccwp5bqi14a"]
+
+[ext_resource type="Shader" path="res://editor/rendering/virtual_motor_renderer/asset/axle.gdshader" id="1_6puch"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_6puch")
+shader_parameter/axle_color = Color(1, 1, 1, 1)
+shader_parameter/axle_thickness = 3.0
+shader_parameter/axle_length = 1.0

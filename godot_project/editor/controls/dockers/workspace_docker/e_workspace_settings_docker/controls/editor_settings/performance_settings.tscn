@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://cjvjuaxjbr4vn"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/performance_settings.gd" id="1_ljkt2"]
+
+[node name="PerformanceSettings" type="VBoxContainer"]
+offset_right = 484.0
+offset_bottom = 213.0
+script = ExtResource("1_ljkt2")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Performance"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Maximum Undo Steps"
+
+[node name="MaxUndoCountSpinbox" type="SpinBox" parent="PanelContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 512.0
+value = 128.0
+allow_greater = true

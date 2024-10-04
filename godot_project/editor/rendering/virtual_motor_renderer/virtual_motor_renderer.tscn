@@ -1,0 +1,131 @@
+[gd_scene load_steps=10 format=3 uid="uid://c1cjktftkuj1d"]
+
+[ext_resource type="Script" path="res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.gd" id="1_fa7eh"]
+[ext_resource type="PackedScene" uid="uid://bbhhg161kyu0h" path="res://editor/rendering/virtual_motor_renderer/asset/motor3D_Gears00.glb" id="2_qtbmu"]
+[ext_resource type="Texture2D" uid="uid://6ej6w86sx6f1" path="res://editor/rendering/virtual_motor_renderer/asset/rotary_sprite.svg" id="3_n0doo"]
+[ext_resource type="Texture2D" uid="uid://vgwaelryj6lw" path="res://editor/rendering/virtual_motor_renderer/asset/linear_sprite.svg" id="4_tndce"]
+[ext_resource type="Material" uid="uid://bxccwp5bqi14a" path="res://editor/rendering/virtual_motor_renderer/asset/axle.tres" id="4_w7p2y"]
+[ext_resource type="ArrayMesh" uid="uid://woqc06ewmm0t" path="res://editor/rendering/virtual_motor_renderer/asset/axle.obj" id="5_p7xy2"]
+
+[sub_resource type="Animation" id="Animation_ha65t"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../RotaryPolarity:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(6.28319, 1.5708, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:material_override:uv1_offset")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../motor3D_Gears00/Gear:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(3.14159, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_ef75a"]
+resource_name = "idle"
+length = 5.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../RotaryPolarity:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1.5708, 0), Vector3(0, 1.5708, -6.28319)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:material_override:uv1_offset")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(-1, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../motor3D_Gears00/Gear:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(6.28319, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_xerup"]
+_data = {
+"RESET": SubResource("Animation_ha65t"),
+"idle": SubResource("Animation_ef75a")
+}
+
+[node name="VirtualMotorRenderer" type="Node3D"]
+script = ExtResource("1_fa7eh")
+
+[node name="motor3D_Gears00" parent="." instance=ExtResource("2_qtbmu")]
+transform = Transform3D(-0.1, 0, -8.74228e-09, 0, 0.1, 0, 8.74228e-09, 0, -0.1, -0.126662, 0.0246354, 0)
+
+[node name="Gear" parent="motor3D_Gears00" index="0"]
+transform = Transform3D(-0.626286, 0, 0, 0, 1.72182, 4.36513e-06, 0, -4.36513e-06, 1.72182, -1.39188, -0.2391, -0.0228405)
+
+[node name="RotaryPolarity" type="Sprite3D" parent="."]
+transform = Transform3D(-3.61999e-06, 4.46638e-06, 1, 0, 1, -4.46638e-06, -1, -1.61683e-11, -3.61999e-06, 0, 0, 0)
+transparency = 0.25
+flip_v = true
+pixel_size = 0.0008
+texture = ExtResource("3_n0doo")
+
+[node name="Axle" type="MeshInstance3D" parent="RotaryPolarity"]
+transform = Transform3D(1, 0, 0, 0, 1, -5.85289e-17, 0, 5.85289e-17, 1, -2.2969e-07, 2.83394e-07, 0.0634504)
+material_override = ExtResource("4_w7p2y")
+extra_cull_margin = 2.0
+mesh = ExtResource("5_p7xy2")
+skeleton = NodePath("../../motor3D_Gears00/Gear")
+
+[node name="LinearPolarity" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.425858, 0, 0)
+transparency = 0.25
+pixel_size = 0.0008
+texture = ExtResource("4_tndce")
+
+[node name="AnimatePolarity" type="AnimationPlayer" parent="."]
+root_node = NodePath("../LinearPolarity")
+libraries = {
+"": SubResource("AnimationLibrary_xerup")
+}
+
+[editable path="motor3D_Gears00"]

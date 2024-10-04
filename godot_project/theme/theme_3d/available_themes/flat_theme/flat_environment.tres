@@ -1,0 +1,20 @@
+[gd_resource type="Environment" load_steps=4 format=3 uid="uid://lam1yl2japkp"]
+
+[ext_resource type="Texture2D" uid="uid://bgborgp5aeeml" path="res://editor/rendering/resources/white.png" id="1_rnwiy"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_u41f5"]
+panorama = ExtResource("1_rnwiy")
+
+[sub_resource type="Sky" id="Sky_1u7jr"]
+sky_material = SubResource("PanoramaSkyMaterial_u41f5")
+
+[resource]
+background_mode = 1
+background_color = Color(0.920995, 0.920995, 0.920995, 1)
+background_energy_multiplier = 0.9
+sky = SubResource("Sky_1u7jr")
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.5
+reflected_light_source = 1
+tonemap_mode = 1

@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://r0llxnjtskca"]
+
+[ext_resource type="FontFile" uid="uid://b3jkav4yxw06w" path="res://theme/Gidole-Regular.ttf" id="1_k7feu"]
+[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/AutoSizedLabel/auto_sized_label.gd" id="1_n0ct1"]
+[ext_resource type="PackedScene" uid="uid://c4t0eh2cnhyvw" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/AutoSizedLabel/label_size_processor/label_size_processor.tscn" id="3_i5g7n"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_hf43g"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font = ExtResource("1_k7feu")
+font_size = 41
+font_color = Color(0.945098, 0.945098, 0.882353, 1)
+outline_size = 1
+
+[node name="AutoSizedLabel" type="Label"]
+offset_top = 24.0
+offset_right = 200.0
+offset_bottom = 72.0
+text = "Auto Size"
+label_settings = SubResource("LabelSettings_hf43g")
+horizontal_alignment = 1
+autowrap_mode = 2
+script = ExtResource("1_n0ct1")
+
+[node name="LabelSizeProcessor" parent="." node_paths=PackedStringArray("target_label") instance=ExtResource("3_i5g7n")]
+target_label = NodePath("..")
+max_width = 175

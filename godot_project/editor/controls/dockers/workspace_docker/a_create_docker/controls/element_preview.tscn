@@ -1,0 +1,91 @@
+[gd_scene load_steps=5 format=3 uid="uid://dx1gn0krp0avh"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.gd" id="1_gyh6c"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p8b72"]
+resource_local_to_scene = true
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_f1c5q"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_unrfp"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_size = 48
+font_color = Color(0, 0, 0, 1)
+
+[node name="ElementPreview" type="AspectRatioContainer"]
+offset_top = 30.0
+offset_right = 400.0
+offset_bottom = 201.0
+script = ExtResource("1_gyh6c")
+background_stylebox = SubResource("StyleBoxFlat_p8b72")
+general_label_settings = SubResource("LabelSettings_f1c5q")
+symbol_label_settings = SubResource("LabelSettings_unrfp")
+
+[node name="Background" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_p8b72")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Background"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Number" type="Label" parent="Background/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "1
+"
+label_settings = SubResource("LabelSettings_f1c5q")
+
+[node name="Symbol" type="Label" parent="Background/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "H"
+label_settings = SubResource("LabelSettings_unrfp")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ElementName" type="Label" parent="Background/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hydrogen"
+label_settings = SubResource("LabelSettings_f1c5q")
+horizontal_alignment = 1
+
+[node name="Mass" type="Label" parent="Background/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1.008"
+label_settings = SubResource("LabelSettings_f1c5q")
+horizontal_alignment = 1
+
+[node name="LabelRenderWarning" type="Label" parent="Background"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+tooltip_text = "The Van Der Waals Radius of this element is unknown.
+The visual representation of this atom in 3D space will be innacurate."
+mouse_filter = 1
+text = "⚠️"
+label_settings = SubResource("LabelSettings_f1c5q")

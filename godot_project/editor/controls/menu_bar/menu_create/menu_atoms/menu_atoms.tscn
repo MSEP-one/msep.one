@@ -1,0 +1,36 @@
+[gd_scene load_steps=8 format=3 uid="uid://cjfhdmk36w0te"]
+
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_create/menu_atoms/menu_atoms.gd" id="1_nq8v5"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_oxgh7"]
+device = -1
+command_or_control_autoremap = true
+shift_pressed = true
+keycode = 72
+unicode = 104
+
+[sub_resource type="Shortcut" id="Shortcut_83vch"]
+events = [SubResource("InputEventKey_oxgh7")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_53j5t"]
+device = -1
+command_or_control_autoremap = true
+keycode = 76
+
+[sub_resource type="Shortcut" id="Shortcut_c2ll0"]
+events = [SubResource("InputEventKey_53j5t")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_gci22"]
+device = -1
+alt_pressed = true
+keycode = 76
+
+[sub_resource type="Shortcut" id="Shortcut_c35pp"]
+events = [SubResource("InputEventKey_gci22")]
+
+[node name="Atoms" type="PopupMenu"]
+visible = true
+script = ExtResource("1_nq8v5")
+shortcut_add_hydrogens = SubResource("Shortcut_83vch")
+shortcut_lock_atoms = SubResource("Shortcut_c2ll0")
+shortcut_unlock_atoms = SubResource("Shortcut_c35pp")

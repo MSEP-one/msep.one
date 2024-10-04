@@ -1,0 +1,53 @@
+[gd_scene load_steps=4 format=3 uid="uid://g15jeb654eru"]
+
+[ext_resource type="Script" path="res://editor/controls/category_container/CategoryContainer.gd" id="1_iey54"]
+[ext_resource type="Texture2D" uid="uid://gl1hqwiod5y0" path="res://editor/controls/category_container/icons/expanded.svg" id="2_5hq2c"]
+[ext_resource type="Texture2D" uid="uid://b2w2wxk2bb4wg" path="res://editor/controls/category_container/icons/collapsed.svg" id="3_62flh"]
+
+[node name="CategoryContainer" type="VBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 47.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+script = ExtResource("1_iey54")
+expanded_icon = ExtResource("2_5hq2c")
+collapsed_icon = ExtResource("3_62flh")
+
+[node name="ExpandCollapseButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CategoryContainerHeaderButton"
+icon = ExtResource("3_62flh")
+alignment = 0
+
+[node name="ToolButtonsContainer" type="HBoxContainer" parent="ExpandCollapseButton"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 76.0
+offset_right = -15.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"CollapsableCategoryPanel"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 3
+
+[node name="MainContainer" type="VBoxContainer" parent="PanelContainer/ScrollContainer"]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3

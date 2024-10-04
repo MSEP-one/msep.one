@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3 uid="uid://bonww8imkbnn5"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/general_settings/general_settings.gd" id="1_pbl7g"]
+
+[node name="general_settings" type="VBoxContainer"]
+offset_right = 484.0
+offset_bottom = 213.0
+script = ExtResource("1_pbl7g")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Description:"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="TextEditDescription" type="TextEdit" parent="PanelContainer"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+placeholder_text = "Project description here..."
+
+[node name="Label2" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Authors:"
+
+[node name="PanelContainer2" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="LineEditAuthors" type="LineEdit" parent="PanelContainer2"]
+layout_mode = 2
+placeholder_text = "Authors list here..."
+caret_blink = true
+caret_blink_interval = 0.5

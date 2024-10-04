@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://c24sasgp25l6c"]
+
+[ext_resource type="Texture2D" uid="uid://dsnljh3opu7ae" path="res://editor/icons/MolecularStructure_x64.svg" id="1_bpnh5"]
+[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/structure_preview.gd" id="1_jq2et"]
+
+[node name="StructurePreview" type="VBoxContainer"]
+offset_right = 100.0
+offset_bottom = 154.0
+script = ExtResource("1_jq2et")
+
+[node name="ActivateStructureButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 100)
+offset_right = 100.0
+offset_bottom = 100.0
+icon = ExtResource("1_bpnh5")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="StructureName" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+offset_top = 104.0
+offset_right = 100.0
+offset_bottom = 154.0
+text = "Structure 1"
+horizontal_alignment = 1
+autowrap_mode = 3
+text_overrun_behavior = 3

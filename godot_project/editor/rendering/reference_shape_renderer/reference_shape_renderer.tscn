@@ -1,0 +1,39 @@
+[gd_scene load_steps=7 format=3 uid="uid://b6snixhbqq57y"]
+
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="1_i0rg7"]
+[ext_resource type="Script" path="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.gd" id="2_ani6v"]
+[ext_resource type="Material" uid="uid://wvju7e8kntu2" path="res://editor/rendering/reference_shape_renderer/assets/reference_shape_renderer_material.tres" id="3_4jnju"]
+[ext_resource type="Material" uid="uid://cefsc4ia284yo" path="res://editor/rendering/reference_shape_renderer/assets/pivot_material.tres" id="4_brcex"]
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_dsw2h"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("1_i0rg7")
+sides = 4
+base_size = 1.0
+height = 2.0
+cap_bottom = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_ce7to"]
+
+[node name="ReferenceShapeRenderer" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0248137, 0, -0.0516158)
+script = ExtResource("2_ani6v")
+
+[node name="Shape" type="MeshInstance3D" parent="."]
+instance_shader_parameters/hovered = 0.0
+instance_shader_parameters/selected = 0.0
+mesh = SubResource("PrimitiveMesh_dsw2h")
+surface_material_override/0 = ExtResource("3_4jnju")
+
+[node name="Pivot" type="MeshInstance3D" parent="Shape"]
+transform = Transform3D(0.004, 0, 0, 0, 0.004, 0, 0, 0, 0.004, 0, 0, 0)
+layers = 2
+material_override = ExtResource("4_brcex")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_ce7to")

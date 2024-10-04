@@ -1,0 +1,53 @@
+[gd_scene load_steps=6 format=3 uid="uid://ka1kytlpw1r4"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview_viewport.gd" id="1_f4nnp"]
+[ext_resource type="PackedScene" uid="uid://cd8ybm2fs1ox" path="res://editor/rendering/rendering.tscn" id="2_118c4"]
+[ext_resource type="PackedScene" uid="uid://digks72jm6rqi" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/spring_selection_preview/spring_selection_preview.tscn" id="3_oov5d"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xviqk"]
+albedo_color = Color(1, 0.121569, 0.121569, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_yx1nx"]
+material = SubResource("StandardMaterial3D_xviqk")
+radius = 0.1
+height = 0.2
+radial_segments = 32
+rings = 16
+
+[node name="3DPreviewViewport" type="SubViewport"]
+handle_input_locally = false
+size_2d_override_stretch = true
+render_target_update_mode = 0
+script = ExtResource("1_f4nnp")
+
+[node name="PreviewCameraPivot" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="PreviewCameraPivot"]
+visible = false
+mesh = SubResource("SphereMesh_yx1nx")
+
+[node name="Camera3D" type="Camera3D" parent="PreviewCameraPivot"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 250)
+current = true
+fov = 30.0
+far = 1500.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="PreviewCameraPivot/Camera3D"]
+transform = Transform3D(0.693226, -0.450095, 0.562897, 0, 0.781019, 0.624507, -0.720721, -0.432924, 0.541423, 11.2996, 0, 0)
+light_energy = 0.8
+light_bake_mode = 0
+shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_split_1 = 0.2
+directional_shadow_split_2 = 0.5
+directional_shadow_split_3 = 0.75
+directional_shadow_max_distance = 400.0
+sky_mode = 1
+
+[node name="Rendering" parent="." instance=ExtResource("2_118c4")]
+unique_name_in_owner = true
+process_priority = -1
+
+[node name="SpringSelectionPreview" parent="." instance=ExtResource("3_oov5d")]

@@ -1,0 +1,117 @@
+import os
+capnproto_compiler_env = Environment()
+
+def append_dir(item, libname):
+    path = os.path.join("capnproto", "c++", "src", libname, item)
+    return path
+
+sources = [
+#capnp
+"c++.capnp.c++",
+"blob.c++",
+"arena.c++",
+"layout.c++",
+"list.c++",
+"any.c++",
+"message.c++",
+"schema.capnp.c++",
+"stream.capnp.c++",
+"serialize.c++",
+"serialize-packed.c++",
+"schema.c++",
+"schema-loader.c++",
+"dynamic.c++",
+"stringify.c++",
+# capnp_rpc
+"serialize-async.c++",
+"capability.c++",
+"membrane.c++",
+"dynamic-capability.c++",
+"rpc.c++",
+"rpc.capnp.c++",
+"rpc-twoparty.c++",
+"rpc-twoparty.capnp.c++",
+"persistent.capnp.c++",
+"ez-rpc.c++",
+#capnp_json
+"compat/json.c++",
+"compat/json.capnp.c++",
+#capnp_websocket-rpc
+"compat/websocket-rpc.c++",
+#tools
+"compiler/type-id.c++",
+"compiler/error-reporter.c++",
+"compiler/lexer.capnp.c++",
+"compiler/lexer.c++",
+"compiler/grammar.capnp.c++",
+"compiler/parser.c++",
+"compiler/generics.c++",
+"compiler/module-loader.c++",
+
+"compiler/node-translator.c++",
+"compiler/compiler.c++",
+"schema-parser.c++",
+"serialize-text.c++",
+]
+
+kj_sources = [
+	# kj_sources
+"array.c++",
+ "cidr.c++",
+ "list.c++",
+ "common.c++",
+ "debug.c++",
+ "exception.c++",
+ "io.c++",
+ "memory.c++",
+ "mutex.c++",
+ "string.c++",
+ "source-location.c++",
+ "hash.c++",
+ "table.c++",
+ "thread.c++",
+ "main.c++",
+ "arena.c++",
+ "test-helpers.c++",
+ "units.c++",
+ "encoding.c++",
+ "refcount.c++",
+ "string-tree.c++",
+ "time.c++",
+ "filesystem.c++",
+ "filesystem-disk-unix.c++",
+ "filesystem-disk-win32.c++",
+ "parse/char.c++",
+ # kj_async
+ "async.c++",
+  "async-unix.c++",
+  "async-win32.c++",
+  "async-io-win32.c++",
+  "async-io.c++",
+  "async-io-unix.c++",
+  "timer.c++",
+  # kj_http
+  "compat/url.c++",
+  "compat/http.c++",
+]
+
+capnproto_compiler_env.Append(CPPPATH=[os.path.join(os.getcwd(), "capnproto", "c++", "src", "compiler")])
+capnproto_compiler_env.Append(CPPPATH=[os.path.join(os.getcwd(), "capnproto", "c++", "src")])
+
+t_sources = []
+for item in sources:
+    t_sources.append(append_dir(item, "capnp"))
+
+for item in kj_sources:
+    t_sources.append(append_dir(item, "kj"))
+sources = t_sources
+capnp_cpp_sources = sources.copy()
+capnp_cpp_sources.append(append_dir( "compiler/capnpc-c++.c++", "capnp"))
+
+capnp_exec_sources = sources.copy()
+capnp_exec_sources.append(append_dir("compiler/capnp.c++", "capnp"))
+schema_program = capnproto_compiler_env.Program("#../bin/capnpc-c++", source=capnp_cpp_sources)
+capnp_exec = capnproto_compiler_env.Program("#../bin/capnp", source=capnp_exec_sources)
+
+# Export("schema_program")
+capnproto_compiler_env.Default(schema_program, capnp_exec, )

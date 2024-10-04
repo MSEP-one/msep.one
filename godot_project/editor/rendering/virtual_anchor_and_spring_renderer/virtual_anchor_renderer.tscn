@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://btt2fm6ii0xka"]
+
+[ext_resource type="Script" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_renderer.gd" id="1_0itix"]
+[ext_resource type="PackedScene" uid="uid://br7s8piqcp1j" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_model.tscn" id="1_v763n"]
+
+[node name="VirtualAnchorRenderer" instance=ExtResource("1_v763n")]
+script = ExtResource("1_0itix")
+
+[node name="Model" parent="." index="0"]
+transform = Transform3D(0.013, 0, 0, 0, -5.68248e-10, 0.008, 0, -0.013, -3.49691e-10, 0, 0, 0)

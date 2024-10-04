@@ -1,0 +1,18 @@
+[gd_resource type="Environment" load_steps=2 format=3 uid="uid://53vsrmime8ox"]
+
+[ext_resource type="Sky" uid="uid://tj6loeh10qph" path="res://editor/rendering/resources/background_sky.tres" id="1_n2kyg"]
+
+[resource]
+background_energy_multiplier = 2.0
+sky = ExtResource("1_n2kyg")
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.7
+reflected_light_source = 1
+glow_enabled = true
+glow_levels/1 = 1.0
+glow_levels/3 = 2.0
+glow_levels/5 = 2.0
+glow_normalized = true
+glow_strength = 1.5
+glow_bloom = 0.5
+glow_blend_mode = 4

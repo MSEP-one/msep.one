@@ -1,0 +1,37 @@
+[gd_resource type="ShaderMaterial" script_class="CylinderStickMaterial" load_steps=5 format=3 uid="uid://dnb6rgo41bk0f"]
+
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_stick_material.gd" id="1_42m1l"]
+[ext_resource type="Shader" path="res://theme/theme_3d/available_themes/flat_theme/flat_bond.gdshader" id="2_s77at"]
+
+[sub_resource type="Curve" id="Curve_o44sy"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.0943025, 0), 0.0, 0.0, 0, 0, Vector2(0.876228, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_qqi6t"]
+curve = SubResource("Curve_o44sy")
+
+[resource]
+render_priority = 0
+shader = ExtResource("2_s77at")
+shader_parameter/show_hydrogens = 1.0
+shader_parameter/is_selectable = 1.0
+shader_parameter/selection_delta = Vector3(0, 0, 0)
+shader_parameter/gizmo_origin = null
+shader_parameter/gizmo_rotation = null
+shader_parameter/outline_thickness = 0.2
+shader_parameter/is_hovered = 0.0
+shader_parameter/point_size = null
+shader_parameter/roughness = 0.0
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = 0.0
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(0, 0, 0)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = null
+shader_parameter/uv2_offset = null
+shader_parameter/flat_saturation = 0.55
+shader_parameter/flat_outline_selection_thickness = 0.5
+shader_parameter/flat_outline_default_thickness = 0.2
+shader_parameter/atom_scale = 1.0
+shader_parameter/texture_color_curve = SubResource("CurveTexture_qqi6t")
+script = ExtResource("1_42m1l")

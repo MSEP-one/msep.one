@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://6eglmqrn166r"]
+
+[ext_resource type="Script" path="res://editor/controls/category_container/CategoryContainerUnexpandable.gd" id="1_h16wj"]
+
+[node name="CategoryContainerUnexpandable" type="VBoxContainer"]
+offset_right = 858.0
+offset_bottom = 647.0
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+script = ExtResource("1_h16wj")
+
+[node name="TitleButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 2
+theme_type_variation = &"CategoryContainerHeaderButton"
+button_mask = 0
+text = "Title"
+alignment = 0
+
+[node name="ToolButtonsContainer" type="HBoxContainer" parent="TitleButton"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 76.0
+offset_right = -15.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"CollapsableCategoryPanel"
+
+[node name="MainContainer" type="VBoxContainer" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3

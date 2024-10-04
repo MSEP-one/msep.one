@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" script_class="CapsuleStickMaterial" load_steps=3 format=3 uid="uid://djjmqhw4kbs2b"]
+
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/capsule_stick_material.gd" id="1_v1iwr"]
+[ext_resource type="Shader" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/bond_capsule.gdshader" id="1_wmfud"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_wmfud")
+shader_parameter/show_hydrogens = 1.0
+shader_parameter/outline_thickness = 0.2
+shader_parameter/is_hovered = 0.0
+shader_parameter/is_selectable = 1.0
+shader_parameter/caps_starts_at_local_z_position = 0.44
+shader_parameter/roughness = null
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = null
+shader_parameter/metallic = null
+shader_parameter/uv1_scale = null
+shader_parameter/uv1_offset = null
+script = ExtResource("1_v1iwr")

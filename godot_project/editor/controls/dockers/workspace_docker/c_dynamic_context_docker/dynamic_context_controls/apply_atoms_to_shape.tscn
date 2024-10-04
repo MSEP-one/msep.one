@@ -1,0 +1,91 @@
+[gd_scene load_steps=4 format=3 uid="uid://ct60a47xpcr5q"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/apply_atoms_to_shape.gd" id="1_1hka1"]
+[ext_resource type="PackedScene" uid="uid://djdtnhc6tuvrh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.tscn" id="2_wxv1h"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_wm30c"]
+
+[node name="ApplyAtomsToShape" type="VBoxContainer"]
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 219.0
+offset_bottom = 375.0
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+script = ExtResource("1_1hka1")
+
+[node name="LabelChooseAtom" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Choose Atom Type"
+
+[node name="PanelContainerElement" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="ElementPicker" parent="PanelContainerElement" instance=ExtResource("2_wxv1h")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Tree" type="Tree" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 2
+hide_root = true
+scroll_horizontal_enabled = false
+scroll_vertical_enabled = false
+
+[node name="LabelDistance" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Minimum Distance"
+
+[node name="PanelContainerDistance" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainerDistance"]
+layout_mode = 2
+
+[node name="ButtonAtomicRadius" type="Button" parent="PanelContainerDistance/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Atomic Diameter"
+
+[node name="ButtonContactRadius" type="Button" parent="PanelContainerDistance/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Equilibrium Distance"
+
+[node name="SpinBoxSlider" parent="PanelContainerDistance/VBoxContainer" instance=ExtResource("3_wm30c")]
+layout_mode = 2
+max_value = 10.0
+step = 0.005
+allow_greater = true
+suffix = "nm"
+
+[node name="CheckButtonWholeShape" type="CheckButton" parent="PanelContainerDistance/VBoxContainer"]
+layout_mode = 2
+text = "Cover/Fill whole shape"
+
+[node name="Label" type="Label" parent="PanelContainerDistance/VBoxContainer"]
+custom_minimum_size = Vector2(128, 2.08165e-12)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Distance is too short! Atoms will overlap"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ButtonCover" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cover Surface with Atoms"
+
+[node name="ButtonFill" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Fill Shape Volume with Atoms"

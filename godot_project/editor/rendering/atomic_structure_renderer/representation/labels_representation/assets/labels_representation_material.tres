@@ -1,0 +1,22 @@
+[gd_resource type="ShaderMaterial" script_class="LabelMaterial" load_steps=4 format=3 uid="uid://u67yxpenxftr"]
+
+[ext_resource type="Shader" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation.gdshader" id="1_df74k"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/label_material.gd" id="1_ellx8"]
+[ext_resource type="Texture2D" uid="uid://bop2i8h1ut1xd" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_atlas.png" id="2_evuah"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_df74k")
+shader_parameter/show_hydrogens = 1.0
+shader_parameter/selection_delta = Vector3(0, 0, 0)
+shader_parameter/gizmo_origin = null
+shader_parameter/gizmo_rotation = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/distance_fade_min = 9.0
+shader_parameter/distance_fade_max = 8.0
+shader_parameter/camera_forward_vector = null
+shader_parameter/camera_up_vector = null
+shader_parameter/camera_right_vector = null
+shader_parameter/scale = 1.0
+shader_parameter/texture_albedo = ExtResource("2_evuah")
+script = ExtResource("1_ellx8")

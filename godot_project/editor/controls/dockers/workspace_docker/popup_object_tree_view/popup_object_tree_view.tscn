@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1ieb50lpntfu"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/popup_object_tree_view/popup_object_tree_view.gd" id="1_6uhjh"]
+
+[node name="PopupObjectTreeActions" type="PopupMenu"]
+size = Vector2i(100, 120)
+visible = true
+item_count = 5
+item_0/text = "copy"
+item_0/id = 0
+item_1/text = "cut"
+item_1/id = 1
+item_2/text = "paste"
+item_2/id = 2
+item_3/text = ""
+item_3/id = 3
+item_3/separator = true
+item_4/text = "delete"
+item_4/id = 4
+script = ExtResource("1_6uhjh")

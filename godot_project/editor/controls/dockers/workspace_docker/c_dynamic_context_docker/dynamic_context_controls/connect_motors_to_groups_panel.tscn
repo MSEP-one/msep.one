@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://byxyhcdtss55c"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/connect_motors_to_groups_panel.gd" id="1_hka67"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_dif76"]
+
+[node name="ConnectMotorsToGroupsPanel" type="MarginContainer"]
+offset_right = 442.0
+offset_bottom = 324.0
+size_flags_vertical = 3
+script = ExtResource("1_hka67")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SelectOneInfoLabel" parent="VBoxContainer" instance=ExtResource("2_dif76")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center][wave start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/wave] Select only one motor at a time to edit it[/center]"
+message = &"Select only one motor at a time to edit it"
+effect = "wave"
+
+[node name="StructuresTree" type="Tree" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+scroll_vertical_enabled = false

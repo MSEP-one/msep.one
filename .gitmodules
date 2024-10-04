@@ -1,0 +1,22 @@
+[submodule "assets"]
+	path = assets
+	url = git@github.com:MSEP-one/assets.git
+
+[submodule "godot"]
+	path = godot
+	url = git@github.com:MSEP-one/godot.git
+	branch = stable
+
+[submodule "templates"]
+	path = templates
+	url = git@github.com:MSEP-one/export_templates.git
+
+[submodule "godot_project/python/conda"]
+	path = godot_project/python/conda
+	url = git@github.com:MSEP-one/conda-environments.git
+	branch = main
+
+[submodule "modules/lmdb/thirdparty/capnproto"]
+	path = modules/lmdb/thirdparty/capnproto
+	url = git@github.com:MSEP-one/capnproto.git
+	branch = master

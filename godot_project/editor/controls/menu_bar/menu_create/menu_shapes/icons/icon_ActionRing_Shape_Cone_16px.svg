@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 1000 1000"
+   enable-background="new 0 0 1000 1000"
+   xml:space="preserve"
+   id="svg2501"
+   sodipodi:docname="Icon_ActionRing_Shape_Cone.svg"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)"><defs
+   id="defs2505" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1097"
+   inkscape:window-height="667"
+   id="namedview2503"
+   showgrid="false"
+   inkscape:zoom="0.306"
+   inkscape:cx="500"
+   inkscape:cy="500"
+   inkscape:window-x="177"
+   inkscape:window-y="107"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="layer9"
+   showguides="false"
+   inkscape:document-rotation="0" />
+<metadata
+   id="metadata2495"> Svg Vector Icons : http://www.onlinewebfonts.com/icon <rdf:RDF><cc:Work
+     rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+       rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata>
+
+<g
+   inkscape:groupmode="layer"
+   id="layer9"
+   inkscape:label="Icon"
+   style="display:inline"><path
+     id="path3772"
+     style="display:inline;fill:none;stroke:#ffffff;stroke-width:80;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 899.10582,199.96719 Z M 134.36509,753.81031 458.98382,165.57503 763.99471,753.81031 m -2.17864,5.44666 a 313.72549,81.699348 0 0 1 -311.27248,81.69685 313.72549,81.699348 0 0 1 -316.14014,-80.41928 313.72549,81.699348 0 0 1 306.32867,-82.95445 313.72549,81.699348 0 0 1 320.93052,79.12204" /></g></svg>

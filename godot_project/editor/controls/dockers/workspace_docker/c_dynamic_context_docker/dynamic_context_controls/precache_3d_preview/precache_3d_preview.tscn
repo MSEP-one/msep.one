@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cw8577vj678q2"]
+
+[ext_resource type="PackedScene" uid="uid://bvcir1rta2mqw" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview.tscn" id="1_cmt3n"]
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/precache_3d_preview/precache_3d_preview.gd" id="2_owgi6"]
+
+[node name="Precache3DPreview" instance=ExtResource("1_cmt3n")]
+script = ExtResource("2_owgi6")
+
+[node name="3DPreviewViewport" parent="3DPreviewContainer" index="0"]
+render_target_update_mode = 4
+
+[node name="SwitchRenderingDelayer" type="Timer" parent="." index="1"]
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="SwitchRenderingDelayer" to="." method="_on_switch_rendering_delayer_timeout"]

@@ -1,0 +1,35 @@
+[gd_resource type="ShaderMaterial" script_class="SphereMaterial" load_steps=5 format=3 uid="uid://31pg52iiavht"]
+
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_material.gd" id="1_olce1"]
+[ext_resource type="Shader" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/multimesh_atom.gdshader" id="2_epeec"]
+[ext_resource type="Texture2D" uid="uid://cu5nnpewjlepr" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/inner_rim.png" id="3_frygv"]
+[ext_resource type="Texture2D" uid="uid://c5p7jdrmkycg1" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/atom_noise_atlas.png" id="4_hcfkd"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("2_epeec")
+shader_parameter/selection_delta = Vector3(0, 0, 0)
+shader_parameter/gizmo_origin = Vector3(0, 0, 0)
+shader_parameter/gizmo_rotation = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+shader_parameter/show_hydrogens = 1.0
+shader_parameter/outline_thickness = 0.2
+shader_parameter/is_hovered = 0.0
+shader_parameter/is_selectable = 1.0
+shader_parameter/camera_up_vector = null
+shader_parameter/camera_right_vector = null
+shader_parameter/scale = 0.01
+shader_parameter/roughness = 0.75
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = 0.5
+shader_parameter/metallic = null
+shader_parameter/rim = 1.0
+shader_parameter/rim_tint = 1.0
+shader_parameter/clearcoat = 1.0
+shader_parameter/clearcoat_roughness = 1.0
+shader_parameter/uv1_scale = Vector3(1.1, 1.1, 1.1)
+shader_parameter/uv1_offset = null
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = null
+shader_parameter/texture_noise = ExtResource("4_hcfkd")
+shader_parameter/texture_detail_albedo = ExtResource("3_frygv")
+script = ExtResource("1_olce1")

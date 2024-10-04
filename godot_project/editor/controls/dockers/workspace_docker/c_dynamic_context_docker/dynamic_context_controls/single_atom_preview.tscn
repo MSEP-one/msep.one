@@ -1,0 +1,51 @@
+[gd_scene load_steps=6 format=3 uid="uid://c0ecvg80nxbjl"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/single_atom_preview.gd" id="1_juqjd"]
+[ext_resource type="PackedScene" uid="uid://dx1gn0krp0avh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.tscn" id="2_ogymv"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qwjja"]
+resource_local_to_scene = true
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_tl8i1"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_cnioe"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_size = 48
+font_color = Color(0, 0, 0, 1)
+
+[node name="single_atom_preview" type="Control"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 3
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+script = ExtResource("1_juqjd")
+
+[node name="ElementPreview" parent="." instance=ExtResource("2_ogymv")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+background_stylebox = SubResource("StyleBoxFlat_qwjja")
+general_label_settings = SubResource("LabelSettings_tl8i1")
+symbol_label_settings = SubResource("LabelSettings_cnioe")
+visible_unknown_vdw_radii_notice = true

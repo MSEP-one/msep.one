@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dtf1gkl710hh8"]
+
+[ext_resource type="Script" path="res://editor/rendering/structure_preview/structure_preview.gd" id="1_m4cpc"]
+
+[node name="StructurePreview" type="Node3D"]
+script = ExtResource("1_m4cpc")
+
+[node name="AtomicStructureRenderer" parent="." instance_placeholder="res://editor/rendering/atomic_structure_renderer/atomic_structure_renderer.tscn"]

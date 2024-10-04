@@ -1,0 +1,60 @@
+[gd_scene load_steps=6 format=3 uid="uid://c7ah6aa0h076n"]
+
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/axes_widget.gd" id="1_issv1"]
+[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/DrawAxesWidget.gd" id="2_3ag08"]
+[ext_resource type="Texture2D" uid="uid://cn248qbofp1wv" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Default.svg" id="3_lv0lt"]
+[ext_resource type="Texture2D" uid="uid://duw21ccv8bsy8" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Hover.svg" id="4_b5lwk"]
+[ext_resource type="Texture2D" uid="uid://cf7es81gfbfcr" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Pressed.svg" id="5_2tbtw"]
+
+[node name="AxesWidget" type="MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 100)
+offset_right = 100.0
+offset_bottom = 100.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+script = ExtResource("2_3ag08")
+
+[node name="OrbitHandle" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("3_lv0lt")
+expand_mode = 3
+stretch_mode = 5
+
+[node name="Highlighted" type="TextureRect" parent="OrbitHandle"]
+unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_b5lwk")
+expand_mode = 3
+stretch_mode = 5
+metadata/_edit_lock_ = true
+
+[node name="Pressed" type="TextureRect" parent="OrbitHandle"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_2tbtw")
+expand_mode = 3
+stretch_mode = 5
+metadata/_edit_lock_ = true
+
+[node name="AxesWidget3D" type="Node3D" parent="."]
+script = ExtResource("1_issv1")

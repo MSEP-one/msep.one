@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://43m5k0qxrqiu"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/openmm_failure_tracker.gd" id="1_1s8wu"]
+
+[node name="OpenMMFailureTracker" type="Node"]
+script = ExtResource("1_1s8wu")

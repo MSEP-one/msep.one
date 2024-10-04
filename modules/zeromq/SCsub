@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+import os
+import sys
+import glob
+Import("env")
+Import("env_modules")
+
+
+libname = os.path.basename(Dir('.').srcnode().abspath)
+print("Building lib{}".format(libname))
+
+env_zmq = env_modules.Clone()
+
+# Build dependency
+Export("env_zmq")
+SConscript("thirdparty/SCsub")
+
+
+# For reference:
+# - CCFLAGS are compilation flags shared between C and C++
+# - CFLAGS are for C-specific compilation flags
+# - CXXFLAGS are for C++-specific compilation flags
+# - CPPFLAGS are for pre-processor flags
+# - CPPDEFINES are for pre-processor defines
+# - LINKFLAGS are for linking flags
+
+sources = glob.glob("*.cpp", recursive=True)
+
+print("Sources:")
+for s in sources:
+    print("	{}".format(s))
+
+
+# Module files
+module_obj = []
+
+
+env_zmq.add_source_files(module_obj, "*.cpp")
+env.modules_sources += module_obj

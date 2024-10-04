@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cb10dxc1kgkf3"]
+
+[ext_resource type="Script" path="res://project_workspace/workspace_context/structure_context/selection_db/atom_selection/atom_selection.gd" id="1_jffb8"]
+
+[node name="AtomSelection" type="Node"]
+script = ExtResource("1_jffb8")

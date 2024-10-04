@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://d1xhpp3gtirdv"]
+
+[ext_resource type="Texture2D" uid="uid://cotufr7dod2qc" path="res://editor/icons/icon_hamburguer_b.svg" id="1_3kdb4"]
+[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/toggle_visual_menu_button.gd" id="2_1kujs"]
+
+[node name="ToggleVisualMenuButton" type="Button"]
+visible = false
+offset_left = 26.0
+offset_top = 33.0
+offset_right = 74.0
+offset_bottom = 81.0
+focus_mode = 0
+icon = ExtResource("1_3kdb4")
+flat = true
+icon_alignment = 1
+expand_icon = true
+script = ExtResource("2_1kujs")

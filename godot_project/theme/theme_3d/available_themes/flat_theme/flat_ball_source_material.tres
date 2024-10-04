@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://pgtvpllulpjg"]
+
+[resource]
+shading_mode = 2
+diffuse_mode = 1
+vertex_color_use_as_albedo = true
+roughness = 0.45
+rim = 0.55
+rim_tint = 0.0
+billboard_mode = 1
+billboard_keep_scale = true
+grow_amount = -0.775

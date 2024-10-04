@@ -1,0 +1,44 @@
+[gd_scene load_steps=2 format=3 uid="uid://bp7rxpcqxxpej"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/confirmation_color_popup.gd" id="1_7tw21"]
+
+[node name="ConfirmationColorPopup" type="PopupPanel"]
+size = Vector2i(316, 535)
+visible = true
+script = ExtResource("1_7tw21")
+
+[node name="CenterContainer" type="MarginContainer" parent="."]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 312.0
+offset_bottom = 531.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="ColorPicker" type="ColorPicker" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+can_add_swatches = false
+presets_visible = false
+
+[node name="PresetColors" type="HFlowContainer" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="DefaultBtn" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reset"
+
+[node name="ApplyBtn" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Apply"

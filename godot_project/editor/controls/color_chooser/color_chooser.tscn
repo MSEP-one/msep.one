@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://chrkdjgi3kuke"]
+
+[ext_resource type="Script" path="res://editor/controls/color_chooser/color_chooser.gd" id="1_3d3rl"]
+
+[node name="ColorChooser" type="MarginContainer"]
+offset_right = 160.0
+offset_bottom = 35.0
+theme_override_constants/margin_left = 0
+script = ExtResource("1_3d3rl")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="HBoxContainer"]
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+
+[connection signal="color_changed" from="HBoxContainer/ColorPickerButton" to="." method="_on_color_picker_button_color_changed"]

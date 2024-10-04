@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://byloqr8d5n6x0"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/override_default_colors.gd" id="1_r058a"]
+[ext_resource type="PackedScene" uid="uid://bp7rxpcqxxpej" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/confirmation_color_popup.tscn" id="2_e554l"]
+
+[node name="OverrideDefaultColors" type="VBoxContainer"]
+offset_right = 149.0
+offset_bottom = 74.0
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+script = ExtResource("1_r058a")
+
+[node name="ButtonSelectColor" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Select override color"
+
+[node name="ButtonRestoreColors" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Restore default colors"
+
+[node name="ConfirmationColorPopup" parent="." instance=ExtResource("2_e554l")]
+unique_name_in_owner = true
+visible = false

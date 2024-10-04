@@ -1,0 +1,23 @@
+[gd_scene load_steps=7 format=3 uid="uid://ctg26amq4yx8c"]
+
+[ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_lkwvt"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/labels_representation.gd" id="2_ff8xq"]
+[ext_resource type="PackedScene" uid="uid://xfjybjko82so" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/proximity_segmented_multimesh/proximity_segmented_multimesh.tscn" id="3_20jm3"]
+[ext_resource type="Material" uid="uid://u67yxpenxftr" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_material.tres" id="4_dpmev"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_3778a"]
+size = Vector2(0.5, 0.5)
+
+[sub_resource type="MultiMesh" id="MultiMesh_8s0lk"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = SubResource("QuadMesh_3778a")
+
+[node name="LabelsRepresentation" instance=ExtResource("1_lkwvt")]
+script = ExtResource("2_ff8xq")
+
+[node name="ProximitySegmentedMultimesh" parent="." index="0" instance=ExtResource("3_20jm3")]
+multimesh = SubResource("MultiMesh_8s0lk")
+material_override = ExtResource("4_dpmev")
+update_segments_on_movement = true

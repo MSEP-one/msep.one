@@ -1,0 +1,32 @@
+[gd_resource type="ShaderMaterial" script_class="SpringMaterial" load_steps=6 format=3 uid="uid://dkxttu4vymylk"]
+
+[ext_resource type="Shader" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/spring.gdshader" id="1_f8d8r"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_material.gd" id="1_h6stu"]
+[ext_resource type="Texture2D" uid="uid://x4hnllteixvr" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/chain-alpha.png" id="2_qjw3i"]
+[ext_resource type="Texture2D" uid="uid://wepi6a758afu" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/chain_Material_OcclusionRoughnessMetallic.png" id="3_t1fw6"]
+[ext_resource type="Texture2D" uid="uid://0tpjcm38osex" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/chain_Material_Normal.png" id="4_idi3f"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_f8d8r")
+shader_parameter/show_hydrogens = 1.0
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/alpha_scissor_threshold = 0.5
+shader_parameter/point_size = null
+shader_parameter/roughness = 1.0
+shader_parameter/metallic_texture_channel = Vector4(0, 0, 1, 0)
+shader_parameter/specular = 0.0
+shader_parameter/metallic = 0.7
+shader_parameter/normal_scale = 1.0
+shader_parameter/ao_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/ao_light_affect = 0.0
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = null
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = null
+shader_parameter/texture_albedo = ExtResource("2_qjw3i")
+shader_parameter/texture_metallic = ExtResource("3_t1fw6")
+shader_parameter/texture_roughness = ExtResource("3_t1fw6")
+shader_parameter/texture_normal = ExtResource("4_idi3f")
+shader_parameter/texture_ambient_occlusion = ExtResource("3_t1fw6")
+script = ExtResource("1_h6stu")

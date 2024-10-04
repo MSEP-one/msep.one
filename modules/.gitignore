@@ -1,0 +1,7 @@
+bin
+*.dylib
+*.so
+*.dll
+build/
+lib/
+config/

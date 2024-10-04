@@ -1,0 +1,7 @@
+[gd_resource type="Sky" load_steps=2 format=3 uid="uid://tj6loeh10qph"]
+
+[ext_resource type="Material" uid="uid://b6x7qu8tl0en5" path="res://editor/rendering/resources/background_sky_material.tres" id="1_byevc"]
+
+[resource]
+sky_material = ExtResource("1_byevc")
+process_mode = 2

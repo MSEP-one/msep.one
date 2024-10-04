@@ -1,0 +1,302 @@
+[gd_scene load_steps=37 format=3 uid="uid://41v3r3iejmay"]
+
+[ext_resource type="Script" path="res://autoloads/shader_precompiler/shader_precompiler.gd" id="1_syley"]
+[ext_resource type="PackedScene" uid="uid://bvif8jwmnd6e7" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/ring_menu_button_model.tscn" id="2_kbvs8"]
+[ext_resource type="PackedScene" uid="uid://cc1vxs7srlfjh" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_sprite_icon/ring_menu_sprite_icon.tscn" id="3_37dvm"]
+[ext_resource type="PackedScene" uid="uid://bpahm004wig30" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/assets/center_circle_model.tscn" id="4_oqwjp"]
+[ext_resource type="PackedScene" uid="uid://cq4i6btensu0c" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_button_model.tscn" id="5_58tg4"]
+[ext_resource type="PackedScene" uid="uid://bjafgyuy0crti" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_3d.tscn" id="6_f2coj"]
+[ext_resource type="MultiMesh" uid="uid://bamrev3ipjwpg" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_representation_multimesh.tres" id="6_pcsen"]
+[ext_resource type="Environment" uid="uid://53vsrmime8ox" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_world_environment.tres" id="7_20a0b"]
+[ext_resource type="PackedScene" uid="uid://jq1733orco5o" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_atom_icon/ring_menu_atom_icon.tscn" id="8_ea6of"]
+[ext_resource type="FontFile" uid="uid://mw18m2voq6sc" path="res://theme/noto_sans/NotoSansNagMundari-Bold.ttf" id="9_omcyc"]
+[ext_resource type="Environment" uid="uid://cnqh32t8lfkbg" path="res://editor/rendering/resources/world_environment.tres" id="10_rlvia"]
+[ext_resource type="Material" uid="uid://31pg52iiavht" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/multimesh_atom_material.tres" id="10_u6ul3"]
+[ext_resource type="Material" uid="uid://nqctxdqtoge0" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/bond_cylinder_material.tres" id="11_6ev7d"]
+[ext_resource type="MultiMesh" uid="uid://c18q1sfcfwmr5" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_single_multimesh.tres" id="12_3ki8e"]
+[ext_resource type="ArrayMesh" uid="uid://dctfhmq8ej8ac" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_straight_bond_single_mesh.res" id="13_ujp0d"]
+[ext_resource type="Material" uid="uid://cro8ti37e0o4n" path="res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/single_atom_representation_material.tres" id="14_a7vlp"]
+[ext_resource type="ArrayMesh" uid="uid://bknsm4njdvvph" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_enhanced_bond_double_mesh.res" id="14_ada7u"]
+[ext_resource type="ArrayMesh" uid="uid://c2furyjodt7vy" path="res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/single_atom_bond.mesh" id="15_sgwky"]
+[ext_resource type="Material" uid="uid://u67yxpenxftr" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_material.tres" id="17_6v1g4"]
+[ext_resource type="Material" uid="uid://e874b10fy1e6" path="res://theme/theme_3d/available_themes/modern_theme/modern_preview_atom_material/modern_preview_sphere_mat.tres" id="18_45m7k"]
+[ext_resource type="ArrayMesh" uid="uid://bmjxk4oieq5pr" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_half.mesh" id="19_8clqa"]
+[ext_resource type="Material" uid="uid://dv58mh0ihcavh" path="res://editor/rendering/ballstick_bond_preview/assets/bond_preview_material.tres" id="20_546qm"]
+[ext_resource type="ArrayMesh" uid="uid://dj0e2uonwaml8" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_single.mesh" id="21_qxssn"]
+[ext_resource type="Material" uid="uid://wvju7e8kntu2" path="res://editor/rendering/reference_shape_renderer/assets/reference_shape_renderer_material.tres" id="22_1julo"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="23_wyggu"]
+[ext_resource type="Material" uid="uid://cefsc4ia284yo" path="res://editor/rendering/reference_shape_renderer/assets/pivot_material.tres" id="24_d3l2x"]
+[ext_resource type="PackedScene" uid="uid://cw8577vj678q2" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/precache_3d_preview/precache_3d_preview.tscn" id="28_mjox5"]
+
+[sub_resource type="World3D" id="World3D_868mj"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_llvg3"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font = ExtResource("9_omcyc")
+font_size = 35
+font_color = Color(0.756863, 0.768627, 0.945098, 1)
+outline_size = 7
+outline_color = Color(0.160784, 0.14902, 0.360784, 1)
+
+[sub_resource type="MultiMesh" id="MultiMesh_qjvsf"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+instance_count = 2
+visible_instance_count = 1
+mesh = ExtResource("13_ujp0d")
+buffer = PackedFloat32Array(2.8026e-45, 1.68156e-44, 4.2039e-45, 2.8026e-45, 1.82169e-44, 1.68156e-44, 4.2039e-45, 1.54143e-44, 5.60519e-45, 4.2039e-45, 1.68156e-44, 1.54143e-44, 5.60519e-45, 1.4013e-44, 7.00649e-45, 5.60519e-45, 1.54143e-44, 1.4013e-44, 7.00649e-45, 1.26117e-44, 8.40779e-45, 7.00649e-45, 1.4013e-44, 1.26117e-44, 8.40779e-45, 1.12104e-44, 9.80909e-45, 8.40779e-45, 1.26117e-44, 1.12104e-44, 0.21, 0.24, 0.29, 1, 1, 1, 0, 28, 0.21, 0.24)
+
+[sub_resource type="MultiMesh" id="MultiMesh_orqlv"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+instance_count = 1
+visible_instance_count = 1
+mesh = ExtResource("15_sgwky")
+buffer = PackedFloat32Array(0, 61, 0.13125, 0.15, 0.18125, 1, 0, 0.953125, 2.8026e-45, 5.60519e-45, 4.2039e-45, 2.8026e-45, 7.00649e-45, 5.60519e-45, 4.2039e-45, 2.8026e-45, 7.00649e-45, 5.60519e-45, 0.084, 0.096)
+
+[sub_resource type="MultiMesh" id="MultiMesh_fo7x7"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+instance_count = 2
+visible_instance_count = 2
+mesh = ExtResource("14_ada7u")
+buffer = PackedFloat32Array(2.8026e-45, 1.68156e-44, 4.2039e-45, 2.8026e-45, 1.82169e-44, 1.68156e-44, 4.2039e-45, 1.54143e-44, 5.60519e-45, 4.2039e-45, 1.68156e-44, 1.54143e-44, 5.60519e-45, 1.4013e-44, 7.00649e-45, 5.60519e-45, 1.54143e-44, 1.4013e-44, 7.00649e-45, 1.26117e-44, 8.40779e-45, 7.00649e-45, 1.4013e-44, 1.26117e-44, 8.40779e-45, 1.12104e-44, 9.80909e-45, 8.40779e-45, 1.26117e-44, 1.12104e-44, 7.00649e-45, 1.26117e-44, 8.40779e-45, 7.00649e-45, 1.4013e-44, 1.26117e-44, 8.40779e-45, 1.12104e-44, 9.80909e-45, 8.40779e-45)
+
+[sub_resource type="QuadMesh" id="QuadMesh_2od0u"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_arc54"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+instance_count = 1
+visible_instance_count = 1
+mesh = SubResource("QuadMesh_2od0u")
+buffer = PackedFloat32Array(2.8026e-45, 1.68156e-44, 4.2039e-45, 2.8026e-45, 1.82169e-44, 1.68156e-44, 4.2039e-45, 1.54143e-44, 5.60519e-45, 4.2039e-45, 1.68156e-44, 1.54143e-44, 5.60519e-45, 1.4013e-44, 7.00649e-45, 5.60519e-45, 1.54143e-44, 1.4013e-44, 7.00649e-45, 1.26117e-44)
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_f637o"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("23_wyggu")
+sides = 4
+base_size = 10.0
+height = 20.0
+cap_bottom = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_pjkps"]
+
+[node name="ShaderPrecompiler" type="Node"]
+script = ExtResource("1_syley")
+
+[node name="ForceCompilationContainer" type="SubViewportContainer" parent="."]
+z_index = 5
+offset_top = -64.0
+offset_right = 512.0
+offset_bottom = 448.0
+scale = Vector2(0.1, 0.1)
+size_flags_horizontal = 4
+
+[node name="ForceCompilationSubviewport" type="SubViewport" parent="ForceCompilationContainer"]
+own_world_3d = true
+handle_input_locally = false
+msaa_3d = 1
+screen_space_aa = 1
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="RingMenuSubviewportContainer" type="SubViewportContainer" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -134.0
+offset_top = -134.0
+offset_right = 134.0
+offset_bottom = 134.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer"]
+world_3d = SubResource("World3D_868mj")
+transparent_bg = true
+handle_input_locally = false
+msaa_3d = 3
+screen_space_aa = 1
+physics_object_picking = true
+size = Vector2i(780, 780)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.39192)
+
+[node name="ring_menu_models" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport"]
+
+[node name="RingMenuButtonModel" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/ring_menu_models" instance=ExtResource("2_kbvs8")]
+transform = Transform3D(9.97299, 0, 0.734473, 0, 10, 0, -0.734473, 0, 9.97299, 0, 0, 0.453611)
+
+[node name="RingMenuSpriteIcon" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/ring_menu_models" instance=ExtResource("3_37dvm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.149161)
+
+[node name="CenterCircleModel" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/ring_menu_models" instance=ExtResource("4_oqwjp")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.666869, 0, 0)
+
+[node name="SideButtonModel" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/ring_menu_models" instance=ExtResource("5_58tg4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.02504, 0, 0.222248)
+
+[node name="RingMenu3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport" instance=ExtResource("6_f2coj")]
+script = null
+
+[node name="RingInnerCircle" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D" index="0"]
+script = null
+
+[node name="Button1" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="0"]
+script = null
+
+[node name="Button2" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="1"]
+script = null
+
+[node name="Button3" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="2"]
+script = null
+
+[node name="Button4" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="3"]
+script = null
+
+[node name="Button5" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="4"]
+script = null
+
+[node name="Button6" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="5"]
+script = null
+
+[node name="Button7" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="6"]
+script = null
+
+[node name="Button8" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="7"]
+script = null
+
+[node name="Button9" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons" index="8"]
+script = null
+
+[node name="RingMenuAtomIcon" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons/Button9" index="12" instance=ExtResource("8_ea6of")]
+transform = Transform3D(-0.847255, -0.52992, -0.036666, 0.529424, -0.848048, 0.0229116, -0.0432358, 7.63685e-08, 0.999065, 0.168665, -0.105393, 0.0144376)
+
+[node name="Label" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons/Button9/RingMenuAtomIcon/PreviewInstance/2DNodeIn3DWorld" index="1"]
+label_settings = SubResource("LabelSettings_llvg3")
+
+[node name="BackButton" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D" index="5"]
+script = null
+
+[node name="CloseButton" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D" index="6"]
+script = null
+
+[node name="SideButtonModel" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/CloseButton" index="1"]
+script = null
+
+[node name="RingRealTimeVisuals" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D" index="7"]
+script = null
+
+[node name="Environment" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport"]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.08919)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.40508)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport"]
+environment = ExtResource("7_20a0b")
+
+[node name="RingMenuIcons" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.199324, 0, 0.00582512)
+
+[node name="RingMenuSpriteIcon" parent="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuIcons" instance=ExtResource("3_37dvm")]
+
+[node name="Atom" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+
+[node name="SphereRepresentationMultiMesh" type="MultiMeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/Atom"]
+material_override = ExtResource("10_u6ul3")
+lod_bias = 0.1
+multimesh = ExtResource("6_pcsen")
+
+[node name="gizmo" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/Atom"]
+transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, 0.1, 0.1, 0)
+
+[node name="Bond" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+
+[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/Bond"]
+material_override = ExtResource("11_6ev7d")
+multimesh = ExtResource("12_3ki8e")
+
+[node name="Sticks" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+
+[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/Sticks"]
+multimesh = SubResource("MultiMesh_qjvsf")
+
+[node name="SingleAtomBond" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+
+[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/SingleAtomBond"]
+material_override = ExtResource("14_a7vlp")
+multimesh = SubResource("MultiMesh_orqlv")
+
+[node name="EnhancedSticks" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+
+[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/EnhancedSticks"]
+multimesh = SubResource("MultiMesh_fo7x7")
+
+[node name="AtomLabels" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+
+[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/AtomLabels"]
+material_override = ExtResource("17_6v1g4")
+multimesh = SubResource("MultiMesh_arc54")
+
+[node name="Previews" type="Node3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+
+[node name="Atom" type="MeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/Previews"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+material_override = ExtResource("18_45m7k")
+transparency = 0.35
+mesh = ExtResource("19_8clqa")
+
+[node name="BondSingle" type="MeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/Previews"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
+material_override = ExtResource("20_546qm")
+mesh = ExtResource("21_qxssn")
+
+[node name="ShapePyramid" type="MeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/Previews"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+material_override = ExtResource("22_1julo")
+mesh = SubResource("PrimitiveMesh_f637o")
+
+[node name="PyramidPivot" type="MeshInstance3D" parent="ForceCompilationContainer/ForceCompilationSubviewport/Previews"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+material_override = ExtResource("24_d3l2x")
+mesh = SubResource("QuadMesh_pjkps")
+
+[node name="Camera3D" type="Camera3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+transform = Transform3D(0.997127, 0, 0.0757443, 0, 1, 0, -0.0757443, 0, 0.997127, 0, 0, 1.2)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+transform = Transform3D(0.795283, 0, 0.606238, 0, 1, 0, -0.606238, 0, 0.795283, 0, 0, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
+environment = ExtResource("10_rlvia")
+
+[node name="Precache3DPreview" parent="ForceCompilationContainer" instance=ExtResource("28_mjox5")]
+layout_mode = 2
+
+[node name="HideDelayer" type="Timer" parent="."]
+wait_time = 5.0
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="HideDelayer" to="." method="_on_hide_delayer_timeout"]
+
+[editable path="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D"]
+[editable path="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/buttons/Button9/RingMenuAtomIcon"]
+[editable path="ForceCompilationContainer/ForceCompilationSubviewport/RingMenuSubviewportContainer/SubViewport/RingMenu3D/CloseButton"]

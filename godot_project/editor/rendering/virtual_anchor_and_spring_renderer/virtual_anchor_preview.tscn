@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://4hk2achugjb2"]
+
+[ext_resource type="PackedScene" uid="uid://br7s8piqcp1j" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_model.tscn" id="1_2qmfx"]
+[ext_resource type="Script" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_preview.gd" id="2_15h8q"]
+
+[node name="VirtualAnchorPreview" instance=ExtResource("1_2qmfx")]
+script = ExtResource("2_15h8q")
+
+[node name="Model" parent="." index="0"]
+transform = Transform3D(0.013, 0, 0, 0, -5.68248e-10, 0.008, 0, -0.013, -3.49691e-10, 0, 0, 0)
+
+[node name="Circle" parent="Model" index="0"]
+transparency = 0.35
+
+[editable path="Model"]

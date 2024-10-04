@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3 uid="uid://dq6o18vwybnpj"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/theme_settings/theme_settings.gd" id="1_kmu3a"]
+
+[node name="ThemeSettings" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_kmu3a")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Theme"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="ThemeChooser" type="OptionButton" parent="PanelContainer"]
+layout_mode = 2
+item_count = 2
+popup/item_0/text = "Modern"
+popup/item_0/id = 0
+popup/item_1/text = "Academic view"
+popup/item_1/id = 1
+
+[connection signal="item_selected" from="PanelContainer/ThemeChooser" to="." method="_on_theme_chooser_item_selected"]

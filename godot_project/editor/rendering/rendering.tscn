@@ -1,0 +1,77 @@
+[gd_scene load_steps=12 format=3 uid="uid://cd8ybm2fs1ox"]
+
+[ext_resource type="Script" path="res://editor/rendering/rendering.gd" id="1_vymcv"]
+[ext_resource type="PackedScene" uid="uid://cyy5lagn5jes7" path="res://editor/rendering/world_environment.tscn" id="2_vyad3"]
+[ext_resource type="PackedScene" uid="uid://dtpr0fry1c4if" path="res://editor/rendering/atom_preview/atom_preview.tscn" id="3_1ppds"]
+[ext_resource type="PackedScene" uid="uid://bi1vulexoa6mv" path="res://editor/rendering/ballstick_bond_preview/ballstick_bond_preview.tscn" id="4_gbq2t"]
+[ext_resource type="PackedScene" uid="uid://b6snixhbqq57y" path="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.tscn" id="5_0gao3"]
+[ext_resource type="PackedScene" uid="uid://dtf1gkl710hh8" path="res://editor/rendering/structure_preview/structure_preview.tscn" id="5_b5mjk"]
+[ext_resource type="PackedScene" uid="uid://c1cjktftkuj1d" path="res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.tscn" id="8_mgnal"]
+[ext_resource type="Texture2D" uid="uid://vgwaelryj6lw" path="res://editor/rendering/virtual_motor_renderer/asset/linear_sprite.svg" id="9_ey5dj"]
+[ext_resource type="PackedScene" uid="uid://4hk2achugjb2" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_preview.tscn" id="9_hs37s"]
+[ext_resource type="PackedScene" uid="uid://dmf7a8rad2ixj" path="res://editor/rendering/spring_preview/spring_preview.tscn" id="10_cxht2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_17w4n"]
+resource_local_to_scene = true
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+shading_mode = 0
+albedo_color = Color(0.168627, 0.172549, 0.580392, 1)
+albedo_texture = ExtResource("9_ey5dj")
+uv1_offset = Vector3(1, 0, 0)
+
+[node name="Rendering" type="Node" groups=["Rendering"]]
+script = ExtResource("1_vymcv")
+
+[node name="AtomicStructureRenderers" type="Node" parent="."]
+
+[node name="SmallBearingRenderer(Placeholder Sample)" parent="AtomicStructureRenderers" instance_placeholder="res://editor/rendering/atomic_structure_renderer/atomic_structure_renderer.tscn"]
+
+[node name="OtherStructureRenderer(Placeholder Sample)" parent="AtomicStructureRenderers" instance_placeholder="res://editor/rendering/atomic_structure_renderer/atomic_structure_renderer.tscn"]
+
+[node name="NanoShapeRenderers" type="Node" parent="."]
+
+[node name="ReferenceShapeRenderer(Placeholder Sample)" parent="NanoShapeRenderers" instance_placeholder="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.tscn"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.94926, 0, -9.02086)
+
+[node name="VirtualMotorRenderers" type="Node" parent="."]
+
+[node name="VirtualMotorRenderer(Placeholder Sample)" parent="VirtualMotorRenderers" instance_placeholder="res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.tscn"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.28763, 0.536961, 2.38419e-07)
+
+[node name="VirtualAnchorRenderers" type="Node" parent="."]
+
+[node name="WorldEnvironment" parent="." instance=ExtResource("2_vyad3")]
+
+[node name="AtomPreview" parent="." instance=ExtResource("3_1ppds")]
+
+[node name="BallStickBondPreview" parent="." instance=ExtResource("4_gbq2t")]
+
+[node name="StructurePreview" parent="." instance=ExtResource("5_b5mjk")]
+visible = false
+
+[node name="ReferenceShapePreview" parent="." instance=ExtResource("5_0gao3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.94926, 0, -1.95274)
+visible = false
+
+[node name="VirtualMotorPreview" parent="." instance=ExtResource("8_mgnal")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.63608, 1.35704, 0)
+
+[node name="Gear" parent="VirtualMotorPreview/motor3D_Gears00" index="0"]
+transform = Transform3D(-0.626286, 0, 0, 0, 1.72182, 4.36513e-06, 0, -4.36513e-06, 1.72182, -1.39188, -0.2391, -0.0228405)
+
+[node name="RotaryPolarity" parent="VirtualMotorPreview" index="1"]
+transform = Transform3D(-3.61999e-06, 4.46638e-06, 1, 0, 1, -4.46638e-06, -1, -1.61683e-11, -3.61999e-06, 0, 0, 0)
+modulate = Color(0.168627, 0.172549, 0.580392, 1)
+
+[node name="LinearPolarity" parent="VirtualMotorPreview" index="2"]
+material_override = SubResource("StandardMaterial3D_17w4n")
+modulate = Color(0.168627, 0.172549, 0.580392, 1)
+
+[node name="VirtualAnchorPreview" parent="." instance=ExtResource("9_hs37s")]
+
+[node name="SpringPreview" parent="." instance=ExtResource("10_cxht2")]
+
+[editable path="VirtualMotorPreview"]
+[editable path="VirtualMotorPreview/motor3D_Gears00"]

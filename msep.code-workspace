@@ -1,0 +1,203 @@
+{
+	"folders": [
+		{
+			"path": "godot_project"
+		},
+		{
+			"path": "godot"
+		},
+		{
+			"path": "modules/zeromq",
+			"name": "zeromq"
+		},
+		{
+			"path": ".",
+			"name": "rootFolder"
+		}
+	],
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools",
+			"foam.foam-vscode",
+			"geequlim.godot-tools",
+			"eamodio.gitlens",
+			"vadimcn.vscode-lldb",
+			"amiralizadeh9480.cpp-helper",
+			"mechatroner.rainbow-csv",
+			"damiankoper.gdb-debug"
+		]
+	},
+
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Linux: Build All",
+				"command": "${workspaceFolder:rootFolder}/scripts/build_editor_debug.sh",
+				"type": "shell",
+				"args": [],
+				"problemMatcher": [
+					"$msCompile"
+				],
+				"presentation": {
+					"reveal": "always"
+				},
+				"group": "build"
+			},
+			{
+				"label": "Windows: Build Godot Editor Debug",
+				"command": "${workspaceFolder:rootFolder}/scripts/build_editor_debug.bat",
+				"type": "shell",
+				"args": [],
+				"problemMatcher": [
+					"$msCompile"
+				],
+				"presentation": {
+					"reveal": "always"
+				},
+				"group": "build"
+			}
+		]
+	},
+
+
+	"launch": {
+		"version": "0.2.0",
+		"configurations": 
+		[
+			{
+				"name": "Linux: Edit Msep (lldb)",
+				"type": "lldb",
+				"preLaunchTask": "Linux: Build Godot Editor Debug",
+				"request": "launch",
+				"program": "${workspaceFolder:godot}/bin/godot.linuxbsd.editor.x86_64",
+				"args": ["-e"],
+				"cwd": "${workspaceFolder:godot_project}",
+			},
+			{
+				"name": "Linux: Edit Msep (gdb)",
+				"type": "cppdbg",
+				"preLaunchTask": "Linux: Build Godot Editor Debug",
+				"request": "launch",
+				"program": "${workspaceFolder:godot}/bin/godot.linuxbsd.editor.x86_64",
+				"args": ["-e"],
+				"stopAtEntry": false,
+				"cwd": "${workspaceFolder:godot_project}",
+				"environment": [],
+				"externalConsole": false,
+				"MIMode": "gdb",
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for gdb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": true
+					},
+					{
+						"description":  "Set Disassembly Flavor to Intel",
+						"text": "-gdb-set disassembly-flavor intel",
+						"ignoreFailures": true
+					}
+				]
+			},
+			{
+				"name": "Linux: Compile & Play Msep (lldb)",
+				"type": "lldb",
+				"preLaunchTask": "Linux: Build All",
+				"request": "launch",
+				"program": "${workspaceFolder:godot}/bin/godot.linuxbsd.editor.dev.x86_64",
+				"args": [],
+				"cwd": "${workspaceFolder:godot_project}",
+			},
+			{
+				"name": "Linux: Compile & Play Msep (gdb)",
+				"type": "cppdbg",
+				"preLaunchTask": "Linux: Build All",
+				"request": "launch",
+				"program": "${workspaceFolder:godot}/bin/godot.linuxbsd.editor.dev.x86_64",
+				"args": [],
+				"stopAtEntry": false,
+				"cwd": "${workspaceFolder:godot_project}",
+				"environment": [],
+				"externalConsole": false,
+				"MIMode": "gdb",
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for gdb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": true
+					},
+					{
+						"description":  "Set Disassembly Flavor to Intel",
+						"text": "-gdb-set disassembly-flavor intel",
+						"ignoreFailures": true
+					}
+				]
+			},
+			{
+				"name": "Linux: Play Msep (gdb)",
+				"type": "cppdbg",
+				"request": "launch",
+				"program": "${workspaceFolder:godot}/bin/godot.linuxbsd.editor.dev.x86_64",
+				"args": [],
+				"stopAtEntry": false,
+				"cwd": "${workspaceFolder:godot_project}",
+				"environment": [],
+				"externalConsole": false,
+				"MIMode": "gdb",
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for gdb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": true
+					},
+					{
+						"description":  "Set Disassembly Flavor to Intel",
+						"text": "-gdb-set disassembly-flavor intel",
+						"ignoreFailures": true
+					}
+				]
+			},
+			{
+				"name": "Windows: Edit Msep (Windows)",
+				"type": "cppvsdbg",
+				"request": "launch",
+				"preLaunchTask": "Windows: Build Godot Editor Debug",
+				"program": "${workspaceFolder:godot}/bin/godot.windows.editor.x86_64.exe",
+				"args": ["-e"],
+				"cwd": "${workspaceFolder:godot_project}",
+			},
+			{
+				"name": "Windows: Play Msep (Windows)",
+				"type": "cppvsdbg",
+				"preLaunchTask": "Windows: Build Godot Editor Debug",
+				"program": "${workspaceFolder:godot}/bin/godot.windows.editor.x86_64.exe",
+				"args": [],
+				"request": "launch",
+				"cwd": "${workspaceFolder:godot_project}",
+			}
+		],
+		"compounds": []
+	},
+	"settings": {
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
+		"files.associations": {
+			"locale": "cpp",
+			"thread": "cpp",
+			"xlocale": "cpp",
+			"xlocmes": "cpp",
+			"xlocmon": "cpp",
+			"xlocnum": "cpp",
+			"xloctime": "cpp",
+			"deque": "cpp",
+			"forward_list": "cpp",
+			"list": "cpp",
+			"vector": "cpp",
+			"xhash": "cpp",
+			"xstring": "cpp",
+			"xtree": "cpp"
+		},
+		""
+	}
+	
+}

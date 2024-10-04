@@ -1,0 +1,55 @@
+[gd_scene load_steps=5 format=3 uid="uid://bn2msesm1panu"]
+
+[ext_resource type="Script" path="res://editor/controls/menu_bar/visual_main_menu.gd" id="1_3tn00"]
+[ext_resource type="PackedScene" uid="uid://72l6yycury6e" path="res://editor/controls/menu_bar/visual_menu_content.tscn" id="1_7tjgu"]
+[ext_resource type="Texture2D" uid="uid://dvsps2pugmypt" path="res://editor/icons/icon_resize_handle.svg" id="2_uofws"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1oi6j"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.184314, 0.101961, 0.34902, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 20
+corner_detail = 5
+
+[node name="VisualMainMenu" type="PopupPanel"]
+own_world_3d = true
+transparent_bg = true
+size = Vector2i(300, 500)
+visible = true
+unresizable = false
+transparent = true
+min_size = Vector2i(250, 300)
+theme_override_styles/panel = SubResource("StyleBoxFlat_1oi6j")
+script = ExtResource("1_3tn00")
+
+[node name="VisualMenuContent" parent="." instance=ExtResource("1_7tjgu")]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ResizeHandle" type="TextureRect" parent="Control"]
+unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0.498039)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -12.0
+offset_top = -12.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_default_cursor_shape = 12
+texture = ExtResource("2_uofws")

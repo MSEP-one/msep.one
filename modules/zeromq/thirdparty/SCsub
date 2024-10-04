@@ -1,0 +1,166 @@
+import os
+import multiprocessing
+import subprocess
+from SCons.Script import *
+
+Import('env_zmq')
+Import('env')
+
+# Build the libzmq static library using CMake
+
+VERBOSE_LIBZMQ_BUILD = False
+MACOS_VERSION_MIN = "10.13"
+
+zmq_source_dir = ""
+out_build_dir = ""
+pwd = os.getcwd()
+jobs = multiprocessing.cpu_count()
+
+cmake_opts = ""
+cmake_generation_type = ""
+
+zmq_build_type = "Debug" if env_zmq["target"] == "template_debug" else "Release"
+
+defines = []
+defines += ["BUILD_SHARED=OFF"]
+defines += ["BUILD_STATIC=ON"]
+defines += ["BUILD_TESTS=OFF"]
+defines += ["ENABLE_ANALYSIS=OFF"]
+defines += ["ENABLE_ASAN=OFF"]
+defines += ["ENABLE_CPACK=OFF"]
+defines += ["ENABLE_CURVE=OFF"]
+defines += ["ENABLE_DRAFTS=OFF"]
+defines += ["ENABLE_EVENTFD=OFF"]
+defines += ["ENABLE_INTRINSICS=OFF"]
+defines += ["ENABLE_PRECOMPILED=OFF"]
+defines += ["ENABLE_RADIX_TREE=OFF"]
+defines += ["ENABLE_TSAN=OFF"]
+defines += ["ENABLE_UBSAN=OFF"]
+defines += ["ENABLE_WS=OFF"]
+defines += ["LIBZMQ_PEDANTIC=ON"]
+defines += ["LIBZMQ_WERROR=OFF"]
+defines += ["WITH_DOCS=OFF"]
+defines += ["WITH_LIBSODIUM=OFF"]
+defines += ["WITH_LIBSODIUM_STATIC=OFF"]
+defines += ["WITH_MILITANT=OFF"]
+defines += ["WITH_NORM=OFF"]
+defines += ["WITH_OPENPGM=OFF"]
+defines += ["WITH_PERF_TOOL=OFF"]
+defines += ["WITH_VMCI=OFF"]
+defines += ["CMAKE_BUILD_TYPE={}".format(zmq_build_type)]
+
+cmake_opts += " -DZEROMQ_CMAKECONFIG_INSTALL_DIR=CMake "
+cmake_opts += " -DZEROMQ_LIBRARY=libzmq "
+cmake_opts += " -DZMQ_BUILD_TESTS=OFF "
+cmake_opts += " -DZMQ_CV_IMPL=stl11 "
+cmake_opts += f" -DCMAKE_C_COMPILER={env['CC']}"
+cmake_opts += " -DZMQ_OUTPUT_BASENAME=zmq "
+cmake_opts += " -DZMQ_OUTPUT_BASENAME=zmq "
+
+cmake_opts += f" -DCMAKE_OSX_DEPLOYMENT_TARGET={MACOS_VERSION_MIN}"
+#cmake_opts += " -Wno-dev "
+lib_source_path = "zeromq"
+
+zmq_source_dir = os.path.join(pwd, lib_source_path)
+out_build_dir = os.path.join(pwd, "build", env_zmq["platform"], env_zmq["arch"])
+out_lib_dir = os.path.join(pwd, "lib", env_zmq["platform"], env_zmq["arch"])
+if env_zmq["platform"] in ["linuxbsd", "macos"]:
+    if env_zmq["platform"] in ["macos"]:
+        cmake_opts += " -DCMAKE_OSX_ARCHITECTURES=arm64;x86_64 "
+        cmake_opts += " -DENABLE_CLANG=ON"
+    cmake_generation_type = "\"Unix Makefiles\""
+elif env_zmq["platform"] in ["windows"]:
+    cmake_opts += " -DZMQ_STATIC=ON"
+    defines += ["ZMQ_HAVE_WINDOWS=ON"]
+    defines += ["ZMQ_STATIC=ON"]
+    env.Prepend(
+        CPPDEFINES=[
+            "ZMQ_STATIC=1"
+        ])
+    if env_zmq["use_mingw"]:
+        cmake_opts += " -DCMAKE_SYSTEM_NAME=Windows"
+        cmake_opts += " -DTOOLCHAIN_PREFIX=x86_64-w64-mingw32"
+        cmake_opts += " -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"
+        cmake_opts += " -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"
+        cmake_opts += " -DCMAKE_FIND_ROOT_PATH=/root/llvm-mingw"
+        cmake_opts += " -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc"
+        cmake_opts += " -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++"
+        cmake_opts += " -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"
+        cmake_opts += " -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"
+        cmake_opts += " -DZMQ_WIN32_WINNT_DEFAULT=0X601" # TODO: Set
+        cmake_opts += " -DZMQ_HAVE_IPC=1"
+        cmake_opts += " -DPOLLER=epoll"
+        env_zmq.AppendUnique(
+        CPPDEFINES=[
+            "WINDOWS_ENABLED",
+            "WASAPI_ENABLED",
+            "WINMIDI_ENABLED",
+            "TYPED_METHOD_BIND",
+            "WIN32",
+        ])
+    cmake_generation_type = "\"Visual Studio 17 2022\""
+    for key in os.environ:
+        # CMake need OS environment variables, not provided inside constructor Environment() by default
+        if key == "PATH":
+            env_zmq["ENV"]["PATH"] += ";" + os.environ[key]
+        elif not key in env_zmq["ENV"]:
+            env_zmq["ENV"][key] = os.environ[key]
+        else:
+            if env_zmq["ENV"][key] != os.environ[key]:
+                print("Did not override environment variable '{}'\nSCons: {}\nOS:    {}".format(
+                    key, env_zmq["ENV"][key], os.environ[key]
+                ))
+else:
+    exit("Error, platform p'" + env_zmq["platform"] + "' not supported?")
+
+for deff in defines:
+    cmake_opts += (" -D" + deff)
+
+
+cmake_opts += " -DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(out_lib_dir)
+if env_zmq["rebuild_zmq_lib"]:
+    Execute(Action(Delete(out_build_dir)))
+Execute(Action(Mkdir(out_build_dir)))
+Execute(Action(Mkdir(out_lib_dir)))
+
+
+if VERBOSE_LIBZMQ_BUILD:
+    cmake_opts += " --trace-expand "
+cmake_command = "cmake {} -S {} -B {}  --fresh".format(cmake_opts, zmq_source_dir, out_build_dir)
+cmake_command = cmake_command.split(" ")
+make_command = "make -C {} -j {}".format(out_build_dir, jobs)
+make_command = make_command.split(" ")
+
+
+# Generate zmq build
+
+if subprocess.run(cmake_command).returncode != 0:
+    print("Failed to build libzmq dependency")
+    Exit(1)
+build_cmake_command = "cmake --build {} --clean-first -j {}".format(out_build_dir, jobs)
+build_cmake_command = build_cmake_command.split(" ")
+if subprocess.run(build_cmake_command).returncode != 0:
+    print("Failed to build libzmq dependency using cmake")
+    Exit(1)
+
+# Define the same MACROS defined on the physics sync module.
+for deff in defines:
+    if deff.endswith("=OFF"):
+        continue
+    env_zmq.Append(CPPDEFINES=[deff.replace("=ON", "")])
+
+
+if zmq_build_type == "Debug":
+    # Define some additional macros, automatically defined by zmq, to make sure the ABI is correct.
+    # env_zmq.Append(CPPDEFINES=[('DEBUG_DEFINE', 1)])
+    pass
+else:
+    env_zmq.Append(CPPDEFINES=[('NDEBUG', 1)])
+
+
+env_zmq.Prepend(CPPPATH=[os.path.join(zmq_source_dir, "src")])
+env_zmq.Prepend(CPPPATH=[os.path.join(zmq_source_dir, "include")])
+env_zmq.Prepend(CPPPATH=[os.path.join(zmq_source_dir, "external", )])
+env_zmq.Prepend(LIBPATH=[os.path.join(out_build_dir, "lib")])
+env.Prepend(LIBPATH=[os.path.join(out_build_dir, "lib")])
+env.Prepend(LIBS=["libzmq.a"])

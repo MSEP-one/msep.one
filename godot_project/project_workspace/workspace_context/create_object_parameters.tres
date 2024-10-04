@@ -1,0 +1,112 @@
+[gd_resource type="Resource" script_class="CreateObjectParameters" load_steps=24 format=3 uid="uid://bfjxhptyon02v"]
+
+[ext_resource type="Script" path="res://project_workspace/structs/nano_linear_motor_parameters.gd" id="1_aa1i5"]
+[ext_resource type="Script" path="res://project_workspace/workspace_context/create_object_parameters.gd" id="1_ycqpx"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/cone_mesh.gd" id="2_auc84"]
+[ext_resource type="Script" path="res://project_workspace/structs/nano_rotary_motor_parameters.gd" id="2_plga1"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="3_2atp2"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_cylinder_mesh.gd" id="4_gcr6y"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_box_mesh.gd" id="4_ti0d7"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/plane_mesh.gd" id="4_tty5x"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_capsule_mesh.gd" id="8_4enk7"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_sphere_mesh.gd" id="9_io35m"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_prism_mesh.gd" id="10_5n4lm"]
+[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_torus_mesh.gd" id="11_ubvjt"]
+
+[sub_resource type="Resource" id="Resource_hrp7i"]
+script = ExtResource("1_aa1i5")
+top_speed_in_nanometers_by_nanoseconds = 100000.0
+polarity = 0
+cycle_type = 0
+cycle_time_limit_in_femtoseconds = 500.0
+cycle_distance_limit = 10.0
+cycle_pause_time_in_femtoseconds = 200.0
+cycle_swap_polarity = false
+cycle_eventually_stops = false
+cycle_stop_after_n_cycles = 0
+
+[sub_resource type="Resource" id="Resource_6rxql"]
+script = ExtResource("2_plga1")
+max_speed_type = 0
+top_revolutions_per_nanosecond = 200.0
+max_torque = 50.0
+is_jerk_limited = false
+jerk_limit = 50.0
+polarity = 0
+cycle_type = 0
+cycle_time_limit_in_femtoseconds = 500.0
+cycle_distance_limit = 1.0
+cycle_pause_time_in_femtoseconds = 200.0
+cycle_swap_polarity = false
+cycle_eventually_stops = false
+cycle_stop_after_n_cycles = 0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ou6fn"]
+height = 1.0
+radial_segments = 12
+rings = 1
+script = ExtResource("4_gcr6y")
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_hvh83"]
+top_radius = 0.0
+height = 1.0
+radial_segments = 12
+rings = 1
+cap_top = false
+script = ExtResource("2_auc84")
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_i1ftw"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("3_2atp2")
+sides = 4
+base_size = 1.0
+height = 1.0
+cap_bottom = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_ujf7j"]
+subdivide_width = 1
+subdivide_height = 1
+subdivide_depth = 1
+script = ExtResource("4_ti0d7")
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6cbnr"]
+radius = 0.2
+height = 1.0
+radial_segments = 12
+rings = 3
+script = ExtResource("8_4enk7")
+
+[sub_resource type="BoxMesh" id="BoxMesh_5eold"]
+size = Vector3(2, 2, 0.0001)
+subdivide_width = 1
+subdivide_height = 1
+script = ExtResource("4_tty5x")
+
+[sub_resource type="PrismMesh" id="PrismMesh_388kk"]
+script = ExtResource("10_5n4lm")
+
+[sub_resource type="SphereMesh" id="SphereMesh_tloqs"]
+radial_segments = 12
+rings = 6
+script = ExtResource("9_io35m")
+
+[sub_resource type="TorusMesh" id="TorusMesh_wpx0c"]
+inner_radius = 0.8
+rings = 16
+ring_segments = 8
+script = ExtResource("11_ubvjt")
+
+[resource]
+script = ExtResource("1_ycqpx")
+supported_shapes = Array[PrimitiveMesh]([SubResource("CylinderMesh_ou6fn"), SubResource("CylinderMesh_hvh83"), SubResource("PrimitiveMesh_i1ftw"), SubResource("BoxMesh_ujf7j"), SubResource("CapsuleMesh_6cbnr"), SubResource("BoxMesh_5eold"), SubResource("PrismMesh_388kk"), SubResource("SphereMesh_tloqs"), SubResource("TorusMesh_wpx0c")])
+min_drop_distance = 2.0
+max_drop_distance = 20.0
+new_rotary_motor_parameters = SubResource("Resource_6rxql")
+new_linear_motor_parameters = SubResource("Resource_hrp7i")
+default_shape = 0

@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://d3khovvyi6gkr"]
+
+[ext_resource type="Texture2D" uid="uid://boq5wsbyh1je0" path="res://editor/controls/menu_bar/menu_simulation/icons/icon_ActionRing_RelaxBonds_16px.svg" id="1_fabq4"]
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_simulation/menu_simulation.gd" id="1_oqxm4"]
+[ext_resource type="Texture2D" uid="uid://ceoro4h7iu6pj" path="res://editor/controls/menu_bar/menu_view/icons/icon_representation_mechanical_simulation_16px.svg" id="2_uuuq8"]
+[ext_resource type="Texture2D" uid="uid://0vc3s1b68mgy" path="res://editor/icons/icon_validate_bonds_16px.svg" id="3_dg5qi"]
+
+[node name="Simulation" type="PopupMenu"]
+size = Vector2i(364, 163)
+visible = true
+item_count = 3
+item_0/text = "Relax"
+item_0/icon = ExtResource("1_fabq4")
+item_0/id = 0
+item_1/text = "Molecular Dynamics Simulation"
+item_1/icon = ExtResource("2_uuuq8")
+item_1/id = 1
+item_2/text = "Validate Model"
+item_2/icon = ExtResource("3_dg5qi")
+item_2/id = 2
+script = ExtResource("1_oqxm4")

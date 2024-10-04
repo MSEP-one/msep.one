@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://d20hh105vhm6r"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_groups_list.gd" id="1_twecs"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_x17cd"]
+
+[node name="NanoGroupsList" type="VBoxContainer"]
+custom_minimum_size = Vector2(0, 400)
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+script = ExtResource("1_twecs")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Groups"
+
+[node name="GroupsTree" type="Tree" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_icons/select_arrow = SubResource("ImageTexture_x17cd")
+theme_override_icons/arrow = SubResource("ImageTexture_x17cd")
+theme_override_icons/arrow_collapsed = SubResource("ImageTexture_x17cd")
+theme_override_icons/arrow_collapsed_mirrored = SubResource("ImageTexture_x17cd")
+allow_search = false
+hide_root = true
+drop_mode_flags = 1
+select_mode = 2

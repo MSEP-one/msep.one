@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://xbv58dgmimih"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_bond_order/inspector_control_bond_order.gd" id="1_1yxol"]
+
+[node name="InspectorControlBondOrder" type="MarginContainer"]
+offset_right = 99.0
+offset_bottom = 31.0
+size_flags_horizontal = 3
+script = ExtResource("1_1yxol")
+
+[node name="OptionButton" type="OptionButton" parent="."]
+layout_mode = 2
+item_count = 3
+selected = 0
+popup/item_0/text = "Single"
+popup/item_0/id = 0
+popup/item_1/text = "Double"
+popup/item_1/id = 1
+popup/item_2/text = "Triple"
+popup/item_2/id = 2
+
+[connection signal="item_selected" from="OptionButton" to="." method="_on_option_button_item_selected"]

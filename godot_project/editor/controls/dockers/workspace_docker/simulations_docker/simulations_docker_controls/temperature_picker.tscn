@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://cvtq2ps52eix3"]
+
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="1_g7lms"]
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.gd" id="1_x0w03"]
+
+[node name="TemperaturePicker" type="HBoxContainer"]
+size_flags_horizontal = 3
+script = ExtResource("1_x0w03")
+temperature_kelvins = 300.0
+
+[node name="SpinBoxSlider" parent="." instance=ExtResource("1_g7lms")]
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 2
+max_value = 500.0
+step = 0.1
+value = 300.0
+allow_greater = true
+suffix = "K"
+custom_arrow_step = 1.0
+select_all_on_focus = true
+
+[node name="OptionButtonTemperatureUnit" type="OptionButton" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 3
+selected = 0
+popup/item_0/text = "Kelvin (K)"
+popup/item_0/id = 0
+popup/item_1/text = "Fahrenheit (ºF)"
+popup/item_1/id = 1
+popup/item_2/text = "Celsius (ºC)"
+popup/item_2/id = 2

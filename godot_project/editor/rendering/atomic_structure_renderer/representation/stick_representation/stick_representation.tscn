@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://bq2gfornm12h"]
+
+[ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_ennnk"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/stick_representation.gd" id="1_y41b7"]
+[ext_resource type="PackedScene" uid="uid://dgdewlc5wq5ri" path="res://utils/segmented_multimesh/segmented_multi_mesh.tscn" id="3_jjunp"]
+
+[node name="StickRepresentation" instance=ExtResource("1_ennnk")]
+script = ExtResource("1_y41b7")
+
+[node name="SingleStickSegmentedMultiMesh" parent="." index="0" instance=ExtResource("3_jjunp")]
+use_custom_data = true
+update_segments_on_movement = true
+
+[node name="DoubleStickSegmentedMultiMesh" parent="." index="1" instance=ExtResource("3_jjunp")]
+use_custom_data = true
+update_segments_on_movement = true
+
+[node name="TrippleStickSegmentedMultiMesh" parent="." index="2" instance=ExtResource("3_jjunp")]
+use_custom_data = true
+update_segments_on_movement = true

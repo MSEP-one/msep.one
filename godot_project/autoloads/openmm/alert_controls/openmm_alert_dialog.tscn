@@ -1,0 +1,67 @@
+[gd_scene load_steps=2 format=3 uid="uid://bpbwiy6aole7v"]
+
+[ext_resource type="Script" path="res://autoloads/openmm/alert_controls/openmm_alert_dialog.gd" id="1_v4mil"]
+
+[node name="AcceptDialog" type="AcceptDialog"]
+transparent_bg = true
+initial_position = 2
+size = Vector2i(751, 174)
+visible = true
+borderless = true
+transparent = true
+theme_type_variation = &"RoundedWindow"
+script = ExtResource("1_v4mil")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -57.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Alert!"
+horizontal_alignment = 1
+
+[node name="MessageLabel" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Cannot complete the requested action because the molecular structure is unsupported."
+horizontal_alignment = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"CollapsableCategoryPanel"
+
+[node name="ExpandedTextLabel" type="RichTextLabel" parent="VBoxContainer/PanelContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 2
+theme_override_font_sizes/bold_font_size = 20
+bbcode_enabled = true
+text = "Lorem Ipsum whatever
+
+fjdklsfj"
+autowrap_mode = 2
+tab_size = 2
+selection_enabled = true
+
+[node name="LinkButton" type="LinkButton" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Show more..."
+
+[connection signal="pressed" from="VBoxContainer/LinkButton" to="." method="_on_link_button_pressed"]

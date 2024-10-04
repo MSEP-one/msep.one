@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://pui30rij7ce7"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/audio_settings.gd" id="1_rfsqk"]
+
+[node name="AudioSettings" type="VBoxContainer"]
+offset_right = 484.0
+offset_bottom = 213.0
+script = ExtResource("1_rfsqk")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Audio"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="EditorSfxCheckButton" type="CheckButton" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+text = "Sound Effects"
+
+[node name="EditorSfxVolumeSlider" type="HSlider" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -80.0
+max_value = 6.0
+step = 0.1

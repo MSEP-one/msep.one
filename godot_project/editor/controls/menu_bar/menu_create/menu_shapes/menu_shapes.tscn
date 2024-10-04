@@ -1,0 +1,45 @@
+[gd_scene load_steps=11 format=3 uid="uid://bb0hihcpok2qx"]
+
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_create/menu_shapes/menu_shapes.gd" id="1_ilqnt"]
+[ext_resource type="Texture2D" uid="uid://8urlg8lpiia2" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Cylinder_16px.svg" id="1_tsipw"]
+[ext_resource type="Texture2D" uid="uid://bikgri0ohcmmr" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Cone_16px.svg" id="2_xhb12"]
+[ext_resource type="Texture2D" uid="uid://bu3hv2dxrwecn" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Pyramid_16px.svg" id="3_flok1"]
+[ext_resource type="Texture2D" uid="uid://foe2j8gxawkh" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Box_16px.svg" id="4_clf75"]
+[ext_resource type="Texture2D" uid="uid://btxgpqlfqpacj" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Capsule_16px.svg" id="5_l8ee3"]
+[ext_resource type="Texture2D" uid="uid://dns0p4qef0nuc" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Plane_16px.svg" id="6_aa4a0"]
+[ext_resource type="Texture2D" uid="uid://ifo84vwxxbpf" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Prism_16px.svg" id="7_wq2q7"]
+[ext_resource type="Texture2D" uid="uid://snnluy6wey1k" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Sphere_16px.svg" id="8_rx58h"]
+[ext_resource type="Texture2D" uid="uid://n0ps0g33kgdj" path="res://editor/controls/menu_bar/menu_create/menu_shapes/icons/icon_ActionRing_Shape_Torus_16px.svg" id="9_6mbmj"]
+
+[node name="Shapes" type="PopupMenu"]
+size = Vector2i(100, 215)
+visible = true
+item_count = 9
+item_0/text = "Cylinder"
+item_0/icon = ExtResource("1_tsipw")
+item_0/id = 0
+item_1/text = "Cone"
+item_1/icon = ExtResource("2_xhb12")
+item_1/id = 1
+item_2/text = "Pyramid"
+item_2/icon = ExtResource("3_flok1")
+item_2/id = 2
+item_3/text = "Box"
+item_3/icon = ExtResource("4_clf75")
+item_3/id = 3
+item_4/text = "Capsule"
+item_4/icon = ExtResource("5_l8ee3")
+item_4/id = 4
+item_5/text = "Plane"
+item_5/icon = ExtResource("6_aa4a0")
+item_5/id = 5
+item_6/text = "Prism"
+item_6/icon = ExtResource("7_wq2q7")
+item_6/id = 6
+item_7/text = "Sphere"
+item_7/icon = ExtResource("8_rx58h")
+item_7/id = 7
+item_8/text = "Torus"
+item_8/icon = ExtResource("9_6mbmj")
+item_8/id = 8
+script = ExtResource("1_ilqnt")

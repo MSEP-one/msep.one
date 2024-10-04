@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Svg Vector Icons : http://www.onlinewebfonts.com/icon -->
+
+<svg
+   version="1.1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 192 128"
+   enable-background="new 0 0 1000 1000"
+   xml:space="preserve"
+   id="svg4"
+   sodipodi:docname="icon_on.svg"
+   width="192"
+   height="128"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs4" /><sodipodi:namedview
+   id="namedview4"
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1.0"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1"
+   inkscape:zoom="1.748"
+   inkscape:cx="217.96339"
+   inkscape:cy="135.01144"
+   inkscape:window-width="2524"
+   inkscape:window-height="1052"
+   inkscape:window-x="36"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg4" />
+<metadata
+   id="metadata1"> Svg Vector Icons : http://www.onlinewebfonts.com/icon </metadata>
+<g
+   id="g5"
+   transform="matrix(0.19385777,0,0,0.19385777,-0.93857789,-32.948271)"><g
+     id="g4"><path
+       fill="#adff2f"
+       stroke="#000000"
+       stroke-width="10"
+       d="M 928.8,224.4 H 71.3 C 37.5,224.4 10,251.8 10,285.7 v 428.8 c 0,33.8 27.4,61.3 61.3,61.3 h 857.5 c 33.8,0 61.3,-27.4 61.3,-61.3 V 285.6 C 990,251.8 962.6,224.4 928.8,224.4 Z m 15.3,459.4 c 0,33.8 -12.1,45.9 -45.9,45.9 H 101.9 C 68.1,729.7 56,717.6 56,683.8 V 316.3 c 0,-33.8 12.1,-45.9 45.9,-45.9 h 796.3 c 33.8,0 45.9,12.1 45.9,45.9 z"
+       id="path1"
+       style="stroke:none" /><path
+       fill="#adff2f"
+       stroke="#000000"
+       stroke-width="20"
+       d="M 423.4,300.9 H 147.8 c -33.8,0 -61.3,27.4 -61.3,61.3 v 275.6 c 0,33.8 27.4,61.3 61.3,61.3 h 275.6 c 33.8,0 61.3,-27.4 61.3,-61.3 V 362.2 c 0,-33.8 -27.4,-61.3 -61.3,-61.3 z"
+       id="path2"
+       style="stroke:none" /><path
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="10"
+       d="m 697.3,441.5 c -6.4,-7 -14.3,-12.4 -23.5,-16.2 -9.2,-3.8 -19.6,-5.7 -31.2,-5.7 -11.2,0 -21.5,1.9 -30.9,5.6 -9.4,3.8 -17.4,9.2 -23.7,16.3 -6.7,7.5 -11.7,16.4 -15.2,26.9 -3.5,10.5 -5.2,22.3 -5.2,35.4 0,13.4 1.7,25.3 5.3,35.7 3.5,10.4 8.5,19.2 15,26.4 6.5,7.2 14.4,12.6 23.7,16.4 9.3,3.8 19.6,5.6 31,5.6 11.7,0 22,-1.8 31.1,-5.5 9.1,-3.7 17,-9.2 23.6,-16.5 6.4,-7 11.5,-15.8 15,-26.3 3.6,-10.5 5.4,-22.5 5.4,-35.8 0,-13.3 -1.8,-25.2 -5.3,-35.7 -3.5,-10.5 -8.5,-19.4 -15.1,-26.6 z m -16.3,111 c -9.5,11.3 -22.3,16.9 -38.4,16.9 -16.1,0 -28.9,-5.6 -38.5,-16.9 -9.6,-11.2 -14.3,-27.5 -14.3,-48.7 0,-21 4.7,-37.2 14.1,-48.6 9.4,-11.4 22.3,-17.1 38.7,-17.1 16.3,0 29.1,5.7 38.6,17.1 9.4,11.4 14.1,27.6 14.1,48.6 0,21.2 -4.8,37.5 -14.3,48.7 z"
+       id="path3"
+       style="fill:#adff2f;fill-opacity:1;stroke:#adff2f" /><path
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="10"
+       d="M 841.2,555 771.3,423 H 738 v 161.7 h 20 V 440 l 76.7,144.6 h 26.6 V 422.9 h -20.1 z"
+       id="path4"
+       style="fill:#adff2f;fill-opacity:1;stroke:#adff2f" /></g></g>
+</svg>

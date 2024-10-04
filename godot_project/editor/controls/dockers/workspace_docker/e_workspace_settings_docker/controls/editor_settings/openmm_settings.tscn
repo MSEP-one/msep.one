@@ -1,0 +1,107 @@
+[gd_scene load_steps=6 format=3 uid="uid://bv2kmjwm1fqi8"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/openmm_settings.gd" id="1_yo12d"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_8bpmt"]
+[ext_resource type="Texture2D" uid="uid://bpkq2vixf0nhe" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/icons/icon_rename.svg" id="3_2w73w"]
+[ext_resource type="Texture2D" uid="uid://c3ao6qg41qyee" path="res://editor/controls/menu_bar/menu_file/icons/icon_load_workspace_16px.svg" id="4_wdlvy"]
+[ext_resource type="Script" path="res://editor/controls/general/nano_file_dialog.gd" id="5_xx54g"]
+
+[node name="OpenMMSettings" type="VBoxContainer"]
+offset_right = 411.0
+offset_bottom = 213.0
+script = ExtResource("1_yo12d")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "OpenMM Settings"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="InfoLabel" parent="PanelContainer/VBoxContainer" instance=ExtResource("2_8bpmt")]
+layout_mode = 2
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] Warning! Advanced Users Only:[/center]"
+message = &"Warning! Advanced Users Only:"
+
+[node name="EnableLoggingButton" type="CheckButton" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Enable logging of simulations"
+
+[node name="LoggingReportersTree" type="Tree" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+scroll_horizontal_enabled = false
+scroll_vertical_enabled = false
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Location:"
+
+[node name="LogsFolderPathLineEdit" type="LineEdit" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "C:/asd"
+editable = false
+
+[node name="LogsFolderOpenButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Select Folder"
+icon = ExtResource("4_wdlvy")
+flat = true
+
+[node name="LogsFolderSelectButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Open Folder"
+icon = ExtResource("3_2w73w")
+flat = true
+
+[node name="LogsFolderDialog" type="FileDialog" parent="PanelContainer/VBoxContainer/HBoxContainer/LogsFolderSelectButton"]
+unique_name_in_owner = true
+title = "Open a Directory"
+ok_button_text = "Select Current Folder"
+file_mode = 2
+access = 2
+script = ExtResource("5_xx54g")
+
+[node name="AllowEditButton" type="CheckButton" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Allow OpenMM script editing"
+
+[node name="ContainerScriptActions" type="HFlowContainer" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+
+[node name="ButtonEditScript" type="Button" parent="PanelContainer/VBoxContainer/ContainerScriptActions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "Edit OpenMM server script"
+
+[node name="ButtonOpenLocation" type="Button" parent="PanelContainer/VBoxContainer/ContainerScriptActions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "Open script location"
+
+[node name="ButtonRelaunchServer" type="Button" parent="PanelContainer/VBoxContainer/ContainerScriptActions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "Relaunch OpenMM server"

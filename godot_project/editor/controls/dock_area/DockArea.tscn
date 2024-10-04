@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3 uid="uid://cjdno8b8vkglk"]
+
+[ext_resource type="Script" path="res://editor/controls/dock_area/DockArea.gd" id="1_hexvt"]
+[ext_resource type="PackedScene" uid="uid://om4o0nkeln5c" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_container.tscn" id="2_nuv1x"]
+
+[node name="DockArea" type="MarginContainer"]
+offset_right = 351.0
+offset_bottom = 578.0
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_bottom = 70
+script = ExtResource("1_hexvt")
+
+[node name="SplitMain" type="HSplitContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SplitLeft" type="VSplitContainer" parent="SplitMain"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TabContainerTopLeft" parent="SplitMain/SplitLeft" instance=ExtResource("2_nuv1x")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TabContainerBottomLeft" parent="SplitMain/SplitLeft" instance=ExtResource("2_nuv1x")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SplitRight" type="VSplitContainer" parent="SplitMain"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TabContainerTopRight" parent="SplitMain/SplitRight" instance=ExtResource("2_nuv1x")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TabContainerBottomRight" parent="SplitMain/SplitRight" instance=ExtResource("2_nuv1x")]
+unique_name_in_owner = true
+layout_mode = 2

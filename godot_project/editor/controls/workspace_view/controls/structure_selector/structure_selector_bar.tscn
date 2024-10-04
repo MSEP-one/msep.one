@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://boak3fdup2i47"]
+
+[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/structure_selector/structure_selector_bar.gd" id="1_g7ibi"]
+[ext_resource type="PackedScene" uid="uid://bbcfic1vg0t6y" path="res://editor/controls/workspace_view/controls/structure_selector/structure_child_list/structure_child_list.tscn" id="1_vq07a"]
+
+[node name="StructureSelectorBar" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_g7ibi")
+
+[node name="TopBarContainer" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_left = 80.0
+offset_top = 40.0
+offset_right = -20.0
+offset_bottom = 71.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 1
+
+[node name="StructureChildList" parent="TopBarContainer" instance=ExtResource("1_vq07a")]
+layout_mode = 2
+
+[node name="StructureChildList2" parent="TopBarContainer" instance=ExtResource("1_vq07a")]
+layout_mode = 2

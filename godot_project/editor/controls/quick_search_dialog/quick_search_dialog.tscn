@@ -1,0 +1,62 @@
+[gd_scene load_steps=4 format=3 uid="uid://dxpjkn3lni0jn"]
+
+[ext_resource type="Script" path="res://editor/controls/quick_search_dialog/quick_search_dialog.gd" id="1_ox6k4"]
+[ext_resource type="Script" path="res://editor/controls/quick_search_dialog/quick_search_bar.gd" id="2_hy03f"]
+[ext_resource type="Script" path="res://editor/controls/quick_search_dialog/tree_navigation.gd" id="3_amcpv"]
+
+[node name="QuickSearchDialog" type="PopupPanel"]
+disable_3d = true
+title = " Quick search"
+initial_position = 2
+size = Vector2i(278, 258)
+visible = true
+unresizable = false
+borderless = false
+always_on_top = true
+script = ExtResource("1_ox6k4")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="SearchBar" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer" node_paths=PackedStringArray("tree")]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Search"
+context_menu_enabled = false
+select_all_on_focus = true
+caret_blink = true
+script = ExtResource("2_hy03f")
+tree = NodePath("../Tree")
+
+[node name="Tree" type="Tree" parent="PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+script = ExtResource("3_amcpv")
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="DescriptionLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_vertical = 1
+text = "Action description"
+vertical_alignment = 1
+autowrap_mode = 3

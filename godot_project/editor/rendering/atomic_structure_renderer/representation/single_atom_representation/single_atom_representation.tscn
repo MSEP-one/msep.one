@@ -1,0 +1,22 @@
+[gd_scene load_steps=7 format=3 uid="uid://1s2d7rpq77pw"]
+
+[ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_88fwq"]
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/single_atom_representation.gd" id="2_0fyfn"]
+[ext_resource type="PackedScene" uid="uid://dgdewlc5wq5ri" path="res://utils/segmented_multimesh/segmented_multi_mesh.tscn" id="3_yh5yh"]
+[ext_resource type="ArrayMesh" uid="uid://cwhl4ccke7kce" path="res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/sphere_half_outline.mesh" id="4_c43ek"]
+[ext_resource type="Material" uid="uid://cro8ti37e0o4n" path="res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/single_atom_representation_material.tres" id="5_ks85r"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_sb3wt"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = ExtResource("4_c43ek")
+
+[node name="SingleAtomRepresentation" instance=ExtResource("1_88fwq")]
+script = ExtResource("2_0fyfn")
+
+[node name="SegmentedMultiMesh" parent="." index="0" instance=ExtResource("3_yh5yh")]
+multimesh = SubResource("MultiMesh_sb3wt")
+lod_bias = 0.1
+material_override = ExtResource("5_ks85r")
+update_segments_on_movement = true

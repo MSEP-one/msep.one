@@ -1,0 +1,74 @@
+[gd_scene load_steps=8 format=3 uid="uid://pc27dq3y4goe"]
+
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_atoms_and_bonds_panel.gd" id="1_lawel"]
+[ext_resource type="PackedScene" uid="uid://dx1gn0krp0avh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.tscn" id="2_n4exp"]
+[ext_resource type="PackedScene" uid="uid://djdtnhc6tuvrh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.tscn" id="3_ut705"]
+[ext_resource type="PackedScene" uid="uid://7drqqrsqeol0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/bond_picker.tscn" id="4_xb63e"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ocsuv"]
+resource_local_to_scene = true
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_xbbtj"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_k76ln"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_size = 48
+font_color = Color(0, 0, 0, 1)
+
+[node name="CreateAtomsAndBondsPanel" type="MarginContainer"]
+offset_right = 254.0
+offset_bottom = 490.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+script = ExtResource("1_lawel")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ElementPreview" parent="VBoxContainer" instance=ExtResource("2_n4exp")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(145, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+background_stylebox = SubResource("StyleBoxFlat_ocsuv")
+general_label_settings = SubResource("LabelSettings_xbbtj")
+symbol_label_settings = SubResource("LabelSettings_k76ln")
+visible_unknown_vdw_radii_notice = true
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Select Atom Type"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="ElementPicker" parent="VBoxContainer/PanelContainer" instance=ExtResource("3_ut705")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+
+[node name="BondPicker" parent="VBoxContainer" instance=ExtResource("4_xb63e")]
+unique_name_in_owner = true
+layout_mode = 2

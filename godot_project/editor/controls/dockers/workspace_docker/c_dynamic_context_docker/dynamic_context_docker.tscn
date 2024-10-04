@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://bua0ebr345x6e"]
+
+[ext_resource type="PackedScene" uid="uid://bot7rbc830g06" path="res://editor/controls/dockers/workspace_docker.tscn" id="1_ls6if"]
+[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_docker.gd" id="1_oujuk"]
+
+[node name="DynamicContextDocker" instance=ExtResource("1_ls6if")]
+script = ExtResource("1_oujuk")
+docker_tab_title = "Selection"

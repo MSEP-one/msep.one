@@ -1,0 +1,17 @@
+[gd_scene load_steps=6 format=3 uid="uid://ntegojtqd8oo"]
+
+[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/sphere_representation.gd" id="1_6fuxv"]
+[ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_532kg"]
+[ext_resource type="PackedScene" uid="uid://dgdewlc5wq5ri" path="res://utils/segmented_multimesh/segmented_multi_mesh.tscn" id="2_0h4xh"]
+[ext_resource type="MultiMesh" uid="uid://bamrev3ipjwpg" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_representation_multimesh.tres" id="4_46hji"]
+[ext_resource type="Material" uid="uid://31pg52iiavht" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/multimesh_atom_material.tres" id="5_py1c0"]
+
+[node name="SphereRepresentation" instance=ExtResource("1_532kg")]
+script = ExtResource("1_6fuxv")
+
+[node name="SegmentedMultiMesh" parent="." index="0" instance=ExtResource("2_0h4xh")]
+multimesh = ExtResource("4_46hji")
+use_custom_data = true
+_lod_bias = 0.1
+_material_override = ExtResource("5_py1c0")
+update_segments_on_movement = true
