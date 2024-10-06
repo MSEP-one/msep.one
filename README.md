@@ -19,6 +19,10 @@ MSEP.one users will quickly and seamlessly share their inventions with an ever-g
 
 The opportunities are limitless. The MSEP.one team looks forward to seeing what you invent!
 
+### Thanks
+
+MSEP.one's phase one was made possible by a generous donation from the [Astera Institute](https://astera.org)
+
 ### Free, Open Source, Community Driven 
 MSEP.one is completely free and open source under the MIT license.
 
