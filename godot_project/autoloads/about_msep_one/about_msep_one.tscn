@@ -68,8 +68,7 @@ theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1
 theme_override_constants/shadow_offset_x = 0
 theme_override_constants/shadow_offset_y = 0
 theme_override_constants/shadow_outline_size = 9
-text = "The Molecular Systems Engineering Platform
-Early Prototype."
+text = "The Molecular Systems Engineering Platform"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
@@ -109,9 +108,7 @@ text = "Build date: yyyy-mm-dd.git_commit_hash"
 [node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 text = "
-Please do not copy or distribute.
-
-This pre-alpha version of the tool will allow you to build and modify molecules.
+MSEP.one was made possible by a generous grant from the Astera Institute.
 
 Currently, many more features are under development."
 autowrap_mode = 2
