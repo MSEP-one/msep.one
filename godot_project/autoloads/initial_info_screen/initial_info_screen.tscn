@@ -1,0 +1,120 @@
+[gd_scene load_steps=8 format=3 uid="uid://dxr8wwnkafu0b"]
+
+[ext_resource type="Script" path="res://autoloads/initial_info_screen/initial_info_screen.gd" id="1_1nwna"]
+[ext_resource type="Shader" path="res://autoloads/initial_info_screen/initial_info_screen.gdshader" id="2_k0y41"]
+[ext_resource type="Theme" uid="uid://d3fnr4sbrd6ik" path="res://theme/theme.tres" id="3_lpwn0"]
+[ext_resource type="Texture2D" uid="uid://bm36o6fo1evuo" path="res://logo.png" id="4_4ravn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_g7c2g"]
+shader = ExtResource("2_k0y41")
+shader_parameter/blur = 1.0
+
+[sub_resource type="InputEventKey" id="InputEventKey_40q4d"]
+device = -1
+keycode = 4194305
+
+[sub_resource type="Shortcut" id="Shortcut_hmq7l"]
+events = [SubResource("InputEventKey_40q4d")]
+
+[node name="InitialInfoScreen" type="CanvasLayer"]
+layer = 128
+script = ExtResource("1_1nwna")
+
+[node name="BlurBackground" type="ColorRect" parent="."]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_g7c2g")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -362.5
+offset_top = -215.0
+offset_right = 362.5
+offset_bottom = 215.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("3_lpwn0")
+theme_type_variation = &"HeaderLarge"
+theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 9
+text = "Welcome to MSEP.one"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="LabelSubtitle" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 9
+text = "The Molecular Systems Engineering Platform"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 13
+
+[node name="Logo" type="TextureRect" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("4_4ravn")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"CollapsableCategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "(c) 2022-Present, MSEP.one Contributors
+
+Ongoing contributions provided by Prehensile Tales, BV
+
+"
+
+[node name="LabelDateOfBuild" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Build date: yyyy-mm-dd.git_commit_hash"
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "
+MSEP.one was made possible by a generous grant from the Astera Institute.
+
+Currently, many more features are under development."
+autowrap_mode = 2
+
+[node name="ButtonClose" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CrystalButton"
+shortcut = SubResource("Shortcut_hmq7l")
+shortcut_feedback = false
+shortcut_in_tooltip = false
+text = "Continue"

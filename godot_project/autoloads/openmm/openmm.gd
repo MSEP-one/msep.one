@@ -77,7 +77,7 @@ func _ready() -> void:
 	var display_backed_up_files: Dictionary = { value = false }
 	if !missing_required_files.is_empty() or custom_server_script_in_use:
 		# wait until user presses OK in the About dialog
-		await AboutMsepOne.confirmed
+		await InitialInfoScreen.confirmed
 	
 	if !missing_required_files.is_empty():
 		var dlg := NanoAcceptDialog.new()
@@ -139,10 +139,10 @@ func _ready() -> void:
 	if utils.needs_install_or_update():
 		extract_thread = Thread.new()
 		extract_thread.start(utils.install_environment)
-		AboutMsepOne.confirmed.connect(BusyIndicator.activate.bind(tr("Running First Time Setup")))
+		InitialInfoScreen.confirmed.connect(BusyIndicator.activate.bind(tr("Running First Time Setup")))
 		await utils.environment_installed
 		MolecularEditorContext.show_first_run_message()
-		AboutMsepOne.confirmed.disconnect(BusyIndicator.activate)
+		InitialInfoScreen.confirmed.disconnect(BusyIndicator.activate)
 		BusyIndicator.deactivate()
 	if utils.needs_install_scripts():
 		var backed_up_files: PackedStringArray = []

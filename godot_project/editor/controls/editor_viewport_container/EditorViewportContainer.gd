@@ -275,7 +275,7 @@ func _on_visibility_changed() -> void:
 
 
 func _gui_input(event: InputEvent) -> void:
-	if AboutMsepOne.was_closed:
+	if InitialInfoScreen.was_closed:
 		editor_viewport.forward_viewport_input(event)
 
 
@@ -286,7 +286,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if !is_visible_in_tree():
 		return
-	if AboutMsepOne.was_closed:
+	if InitialInfoScreen.was_closed:
 		editor_viewport.forward_viewport_input(event)
 
 

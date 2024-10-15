@@ -7,7 +7,7 @@ func _init() -> void:
 	about_to_popup.connect(_on_about_to_popup)
 	popup_hide.connect(_on_popup_hide)
 	id_pressed.connect(_on_forward_id_pressed)
-	AboutMsepOne.visibility_changed.connect(_on_full_screen_popupup_visibility_changed)
+	InitialInfoScreen.visibility_changed.connect(_on_full_screen_popupup_visibility_changed)
 	BusyIndicator.visibility_changed.connect(_on_full_screen_popupup_visibility_changed)
 
 
@@ -42,7 +42,7 @@ func _on_workspace_history_changed() -> void:
 
 
 func _queue_update_menu() -> void:
-	if AboutMsepOne.visible or BusyIndicator.visible:
+	if InitialInfoScreen.visible or BusyIndicator.visible:
 		_set_all_is_disabled(self, true)
 	else:
 		_set_all_is_disabled(self, false)

@@ -32,12 +32,13 @@ DebugCursor="res://autoloads/debug_cursor/debug_cursor.tscn"
 VisualMainMenu="*res://editor/controls/menu_bar/visual_main_menu.tscn"
 HeuristicBondAssignmentUtility="*res://utils/heuristic_bond_assignment_utility.gd"
 EditorSfx="*res://autoloads/editor_sfx/editor_sfx.tscn"
-AboutMsepOne="*res://autoloads/about_msep_one/about_msep_one.tscn"
+InitialInfoScreen="*res://autoloads/initial_info_screen/initial_info_screen.tscn"
 ShaderPrecompiler="res://autoloads/shader_precompiler/shader_precompiler.tscn"
 OpenMM="*res://autoloads/openmm/openmm.tscn"
 Settings="*res://autoloads/settings/settings.tscn"
 BusyIndicator="*res://autoloads/busy_indicator/busy_indicator.tscn"
 UserInterfaceBehavior="*res://autoloads/ui_behavior/ui_behavior.gd"
+AboutMsepOne="*res://autoloads/about_msep_one/about_msep_one.tscn"
 
 [debug]
 
