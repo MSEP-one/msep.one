@@ -108,7 +108,7 @@ text = "Build date: yyyy-mm-dd.git_commit_hash"
 [node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 text = "
-MSEP.one was made possible by a generous grant from the Astera Institute.
+The initial phase of MSEP.one's development was made possible by support from the Astera Institute, with contributions by the Survival and Flourishing Fund and Protocol Labs.
 
 Currently, many more features are under development."
 autowrap_mode = 2
