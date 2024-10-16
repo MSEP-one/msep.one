@@ -212,6 +212,17 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	_update_window_title()
 
 
+func export_workspace(in_workspace: Workspace, in_path: String = "") -> void:
+	var path: String = in_path
+	var workspace_context: WorkspaceContext = get_workspace_context(in_workspace)
+	if path.is_empty():
+		Editor_Utils.get_editor().show_export_workspace_dialog(in_workspace)
+		return
+	var err: Error = await ResourceSaver.save(in_workspace, path)
+	if err != OK:
+		Editor_Utils.get_editor().prompt_error_msg(tr(&"Failed to export to file {0} with error '{1}'").format([path, error_string(err)]))
+
+
 func _find_workspace_with_resource_path(in_resource_path: String) -> Workspace:
 	for open_workspace: Workspace in _open_workspaces:
 		if open_workspace.resource_path == in_resource_path:
@@ -351,12 +362,28 @@ func _ready() -> void:
 	workspace_activated.connect(_on_workspace_activated)
 	_ready_deferred.call_deferred()
 	_update_window_title()
-	var workspace_format_loader: ResourceFormatLoader = load("res://project_workspace/file_format/workspace_format_loader.gd").new()
-	var workspace_format_saver: ResourceFormatSaver = load("res://project_workspace/file_format/workspace_format_saver.gd").new()
-	assert(workspace_format_loader)
-	assert(workspace_format_saver)
-	ResourceLoader.add_resource_format_loader(workspace_format_loader)
-	ResourceSaver.add_resource_format_saver(workspace_format_saver)
+	
+	# Manually register the resources format savers and loaders.
+	# This should happen automatically when giving the loader/saver a class_name but an engine bug
+	# causes the parser to fail because these classes indirectly references one or more autoloads.
+	const FORMAT_LOADERS: PackedStringArray = [
+		"res://project_workspace/file_format/workspace_format_loader.gd",
+	]
+	const FORMAT_SAVERS: PackedStringArray = [
+		"res://project_workspace/file_format/workspace_format_saver.gd",
+		"res://project_workspace/file_format/external/xyz_format_saver.gd",
+		"res://project_workspace/file_format/external/pdb_format_saver.gd",
+	]
+	
+	for loader_path in FORMAT_LOADERS:
+		var loader: ResourceFormatLoader = load(loader_path).new()
+		assert(loader)
+		ResourceLoader.add_resource_format_loader(loader)
+	
+	for saver_path in FORMAT_SAVERS:
+		var saver: ResourceFormatSaver = load(saver_path).new()
+		assert(saver)
+		ResourceSaver.add_resource_format_saver(saver)
 
 
 func _ready_deferred() -> void:
@@ -373,6 +400,7 @@ func _ready_deferred() -> void:
 	assert(molecular_editor)
 	molecular_editor.save_workspace_confirmed.connect(_on_molecular_editor_save_workspace_confirmed)
 	molecular_editor.load_workspace_confirmed.connect(_on_molecular_editor_load_workspace_confirmed)
+	molecular_editor.export_workspace_confirmed.connect(_on_molecular_editor_export_workspace_confirmed)
 	if _current_workspace == null:
 		homepage_activated.emit()
 	if msep_editor_settings.show_first_run_message:

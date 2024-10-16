@@ -76,6 +76,15 @@ access = 2
 filters = PackedStringArray("*.msep1 ; MSEP.one Workspace")
 script = ExtResource("6_2adso")
 
+[node name="ExportFileDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Export a File"
+size = Vector2i(392, 162)
+ok_button_text = "Export"
+access = 2
+filters = PackedStringArray("*.xyz ; XYZ format", "*.pdb ; Protein Data Bank format")
+script = ExtResource("6_2adso")
+
 [node name="TemplateLibraryDialog" parent="." instance=ExtResource("7_uupny")]
 unique_name_in_owner = true
 visible = false

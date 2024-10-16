@@ -22,10 +22,10 @@ DETAILED_LOGS = False
 log_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "logs", "msep.log" )
 
 logging.basicConfig(
-    filename=log_path,   # The log file to write to
-    level=logging.INFO,   # The logging level
-    format='%(asctime)s - %(message)s',  # Add a timestamp to each log entry
-    datefmt='%Y-%m-%d %H:%M:%S'  # Format of the timestamp
+	filename=log_path,   # The log file to write to
+	level=logging.INFO,   # The logging level
+	format='%(asctime)s - %(message)s',  # Add a timestamp to each log entry
+	datefmt='%Y-%m-%d %H:%M:%S'  # Format of the timestamp
 
 )
 
@@ -1301,6 +1301,27 @@ if __name__ == '__main__':
 					socket.send(atomic_numbers_buffer, zmq.SNDMORE)
 					socket.send(positions_buffer, zmq.SNDMORE)
 					socket.send(bonds_buffer)
+				case b'Export File':
+					path = socket.recv_string()
+					logging.info(f"Exporting file: {path}")
+					forcefield_list: str = socket.recv_string()
+					header_bytes: bytes = socket.recv()
+					header = PayloadHeaderReader(header_bytes)
+					topology_bytes: bytes = socket.recv()
+					topology_payload = PayloadTopologyReader(topology_bytes, header.molecules_count, header.atoms_count, header.bonds_count, forcefield_list)
+					molecules: list[Molecule] = topology_payload.to_openff_molecules()
+					topology = Topology.from_molecules(molecules)
+					state_bytes: bytes = socket.recv()
+					state = PayloadStateReader(state_bytes, header.atoms_count, header.passivated_atoms_count)
+					openff_positions: list[Vec3] = []
+					for i in range(len(state.positions)):
+						payload_atom_id = topology_payload.openff_atom_to_payload[i]
+						position = state.positions[payload_atom_id] * nanometer
+						openff_positions.append(position.value_in_unit(angstrom))
+					output_file = open(path, 'w')
+					PDBFile.writeFile(topology.to_openmm(), openff_positions, output_file)
+					output_file.close()
+					socket.send_string("SUCCESS")
 				case b"Quit":
 					for simulation_id in running_simulations.keys():
 						stop_trigger: threading.Event = running_simulations.get(simulation_id, None)

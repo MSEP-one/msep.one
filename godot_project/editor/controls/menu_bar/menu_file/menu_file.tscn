@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://c3s1rv4dhbs3w"]
+[gd_scene load_steps=24 format=3 uid="uid://c3s1rv4dhbs3w"]
 
 [ext_resource type="Texture2D" uid="uid://b0u2u4oqkalh6" path="res://editor/controls/menu_bar/menu_file/icons/icon_new_workspace_16px.svg" id="1_8iynl"]
 [ext_resource type="Texture2D" uid="uid://c1gkfabphk2cm" path="res://editor/icons/import_x28.svg" id="1_1325o"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://dv5irs4j2ujlg" path="res://editor/controls/menu_bar/menu_file/icons/icon_save_workspace_16px.svg" id="3_7vpg8"]
 [ext_resource type="Texture2D" uid="uid://67h2ve4topwx" path="res://editor/controls/menu_bar/menu_file/icons/icon_save_workspace_as_16px.svg" id="4_1p5tx"]
 [ext_resource type="Texture2D" uid="uid://rjttvpirxl7" path="res://editor/controls/menu_bar/menu_file/icons/import_library_16px.svg" id="6_kulc7"]
+[ext_resource type="Texture2D" uid="uid://belaqyj0of62f" path="res://editor/icons/export_x28.svg" id="6_tuv0m"]
 [ext_resource type="Texture2D" uid="uid://jam6o276yr51" path="res://editor/controls/menu_bar/menu_file/icons/icon_close_workspace_16px.svg" id="7_in2el"]
 [ext_resource type="Texture2D" uid="uid://78ihcr4jpk3u" path="res://editor/controls/menu_bar/menu_file/icons/load_fragment_16px.svg" id="7_ntm2u"]
 [ext_resource type="Texture2D" uid="uid://bae35qsi6c2f3" path="res://editor/icons/icon_documentation_x24.svg" id="9_dgmne"]
@@ -61,9 +62,9 @@ keycode = 87
 events = [SubResource("InputEventKey_rse6r")]
 
 [node name="MenuFile" type="PopupMenu"]
-size = Vector2i(567, 268)
+size = Vector2i(1190, 888)
 visible = true
-item_count = 9
+item_count = 10
 item_0/text = "New Workspace"
 item_0/icon = ExtResource("1_8iynl")
 item_0/id = 0
@@ -79,18 +80,21 @@ item_3/id = 3
 item_4/text = "Import File"
 item_4/icon = ExtResource("1_1325o")
 item_4/id = 4
-item_5/text = "Import from Library"
-item_5/icon = ExtResource("6_kulc7")
-item_5/id = 5
-item_6/text = "Small Molecules"
-item_6/icon = ExtResource("7_ntm2u")
-item_6/id = 6
-item_7/text = "Close Current Workspace"
-item_7/icon = ExtResource("7_in2el")
-item_7/id = 7
-item_8/text = "Feature Documentation"
-item_8/icon = ExtResource("9_dgmne")
-item_8/id = 8
+item_5/text = "Export File"
+item_5/icon = ExtResource("6_tuv0m")
+item_5/id = 9
+item_6/text = "Import from Library"
+item_6/icon = ExtResource("6_kulc7")
+item_6/id = 5
+item_7/text = "Small Molecules"
+item_7/icon = ExtResource("7_ntm2u")
+item_7/id = 6
+item_8/text = "Close Current Workspace"
+item_8/icon = ExtResource("7_in2el")
+item_8/id = 7
+item_9/text = "Feature Documentation"
+item_9/icon = ExtResource("9_dgmne")
+item_9/id = 8
 script = ExtResource("2_8babr")
 shortcut_new = SubResource("Shortcut_lncuv")
 shortcut_open = SubResource("Shortcut_osav5")

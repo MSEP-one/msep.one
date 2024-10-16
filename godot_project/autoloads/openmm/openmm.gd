@@ -10,6 +10,7 @@ const ServerCommands: Dictionary = {
 	RELAX    = "Relax",
 	SIMULATE = "Simulate",
 	ABORT_SIMULATION = "AbortSimulation",
+	EXPORT = "Export File",
 	QUIT     = "Quit",
 }
 
@@ -256,6 +257,12 @@ func request_import(file_path: String, in_generate_bonds: bool, in_add_hydrogens
 	return promise
 
 
+func request_export(file_path: String, in_workspace_context: WorkspaceContext) -> Promise:
+	var promise := Promise.new()
+	_request_export(file_path, in_workspace_context, promise)
+	return promise
+
+
 func request_quit_server() -> void:
 	const mutex_context: String = "OpenMM::request_quit_server"
 	if _bus != null and _bus.is_connected_to_server():
@@ -334,6 +341,7 @@ func _request_start_simulation(
 	thread.start(_start_simulation_on_thread.bind(out_simulation_data))
 	_dispose_thread_when_done.call_deferred(out_simulation_data.start_promise, thread)
 
+
 func _request_abort_simulation(in_simulation: SimulationData) -> void:
 	if !_CONNECT_TO_DEBUG_SOCKET and _bus_thread == null:
 		# bus not running there should not be any simulation to abort
@@ -345,6 +353,7 @@ func _request_abort_simulation(in_simulation: SimulationData) -> void:
 	var abort_promise := Promise.new()
 	thread.start(_abort_simulation_on_thread.bind(in_simulation.id, abort_promise))
 	_dispose_thread_when_done.call_deferred(abort_promise, thread)
+
 
 func _request_import(
 	in_file_path: String,
@@ -364,6 +373,27 @@ func _request_import(
 	var thread := Thread.new()
 	_threads.push_back(thread)
 	thread.start(_process_import_file_request_on_thread.bind(payload, out_promise))
+	_dispose_thread_when_done.call_deferred(out_promise, thread)
+
+
+func _request_export(
+	in_file_path: String,
+	in_workspace_context: WorkspaceContext,
+	out_promise: Promise) -> void:
+	
+	const SELECTION_ONLY: bool = false
+	const INCLUDE_VIRTUAL_OBJECTS: bool = false
+	const INCLUDE_SPRINGS: bool = false
+	const LOCK_ATOMS: bool = false
+	const PASSIVATE_MOLECULES: bool = false
+	const NUDGE_ATOMS_FIX: bool = false
+	var payload: OpenMMPayload = _create_payload(in_workspace_context,
+			SELECTION_ONLY, INCLUDE_VIRTUAL_OBJECTS, INCLUDE_SPRINGS,
+			LOCK_ATOMS, PASSIVATE_MOLECULES, NUDGE_ATOMS_FIX)
+	
+	var thread := Thread.new()
+	_threads.push_back(thread)
+	thread.start(_process_export_file_request_on_thread.bind(in_file_path, payload, out_promise))
 	_dispose_thread_when_done.call_deferred(out_promise, thread)
 
 
@@ -627,6 +657,25 @@ func _process_import_file_request_on_thread(out_payload: ImportFilePayload, out_
 		print_rich("[color=green] Imported file containing %d Atoms and %d bonds[/color]" % [result.atoms_count, result.bonds_count])
 	
 	out_promise.fulfill.call_deferred(result)
+
+
+func _process_export_file_request_on_thread(in_file_path: String, out_payload: OpenMMPayload, out_promise: Promise) -> void:
+	const mutex_context: String = "OpenMM::_process_export_file_request_on_thread"
+	_bus_lock.lock(mutex_context)
+	_bus.send_string(ServerCommands.EXPORT, ZMQSocket.SEND_FLAG_SNDMORE)
+	_bus.send_string(in_file_path, ZMQSocket.SEND_FLAG_SNDMORE)
+	var forcefield_list: String = ";".join(out_payload.forcefield_files)
+	_bus.send_string(forcefield_list, ZMQSocket.SEND_FLAG_SNDMORE)
+	_bus.send_buffer(out_payload.header, ZMQSocket.SEND_FLAG_SNDMORE)
+	_bus.send_buffer(out_payload.topology, ZMQSocket.SEND_FLAG_SNDMORE)
+	_bus.send_buffer(out_payload.state, ZMQSocket.SEND_FLAG_NONE)
+	var response: PackedByteArray = _bus.receive_buffer()
+	_bus_lock.unlock(mutex_context)
+	if response == "err".to_utf8_buffer():
+		var positions: PackedVector3Array = []
+		_handle_request_error(out_promise, null) # TMP
+		return
+	out_promise.fulfill.call_deferred(OK)
 
 
 func _handle_request_error(out_promise: Promise, out_fallback_result: Variant = null) -> void:

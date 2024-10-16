@@ -17,6 +17,7 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	add_action(RingActionLoadWorkspace.new(_workspace_context, in_menu))
 	add_action(RingActionSaveWorkspace.new(_workspace_context, in_menu))
 	add_action(RingActionSaveWorkspaceAs.new(_workspace_context, in_menu))
+	add_action(RingActionExportWorkspaceAs.new(_workspace_context, in_menu))
 	add_action(_workspace_context.action_import_file)
 	add_action(_workspace_context.action_import_from_library)
 	add_action(_workspace_context.action_load_fragment)

@@ -4,6 +4,7 @@ class_name MolecularEditor
 
 signal load_workspace_confirmed(in_path: String)
 signal save_workspace_confirmed(in_workspace: Workspace, in_path: String)
+signal export_workspace_confirmed(in_workspace: Workspace, in_path: String)
 
 
 const WINDOW_MINIMUM_SIZE := Vector2i(930, 560)
@@ -16,6 +17,7 @@ var menu_bar: MenuBar
 var import_file_dialog: ImportFileDialog
 var load_file_dialog: NanoFileDialog
 var save_file_dialog: NanoFileDialog
+var export_file_dialog: NanoFileDialog
 var template_library_dialog: TemplateLibraryDialog
 var camera_position_dialog: AcceptDialog
 
@@ -36,6 +38,7 @@ func _notification(what: int) -> void:
 		import_file_dialog = %ImportFileDialog as ImportFileDialog
 		load_file_dialog = %LoadFileDialog as NanoFileDialog
 		save_file_dialog = %SaveFileDialog as NanoFileDialog
+		export_file_dialog = %ExportFileDialog as NanoFileDialog
 		template_library_dialog = $TemplateLibraryDialog
 		camera_position_dialog = %CameraPositionDialog
 		DisplayServer.window_set_min_size(WINDOW_MINIMUM_SIZE)
@@ -45,10 +48,12 @@ func _notification(what: int) -> void:
 		EditorSfx.register_window(save_file_dialog)
 		load_file_dialog.file_selected.connect(_on_load_file_dialog_file_selected)
 		save_file_dialog.file_selected.connect(_on_save_file_dialog_file_selected)
+		export_file_dialog.file_selected.connect(_on_export_file_dialog_file_selected)
 		import_file_dialog.ok_button_text = tr(&"Import")
 		var documents_path: String = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
 		load_file_dialog.current_dir = documents_path
 		save_file_dialog.current_dir = documents_path
+		export_file_dialog.current_dir = documents_path
 		import_file_dialog.current_dir = documents_path
 	elif what == NOTIFICATION_WM_CLOSE_REQUEST:
 		if BusyIndicator.visible:
@@ -118,6 +123,14 @@ func _on_save_file_dialog_file_selected(in_path: String) -> void:
 		save_workspace_confirmed.emit(workspace.get_ref(), in_path)
 
 
+func _on_export_file_dialog_file_selected(in_path: String) -> void:
+	if !in_path.is_empty():
+		var workspace: WeakRef = export_file_dialog.get_meta(&"__workspace__", null)
+		assert(workspace.get_ref() != null and workspace.get_ref() is Workspace,
+			"Workspace is invalid, cannot save")
+		export_workspace_confirmed.emit(workspace.get_ref(), in_path)
+
+
 func show_open_workspace_dialog() -> void:
 	load_file_dialog.popup_centered_ratio(0.5)
 
@@ -127,6 +140,15 @@ func show_save_workspace_dialog(in_workspace: Workspace) -> void:
 	if not in_workspace.suggested_path.is_empty():
 		save_file_dialog.current_path = in_workspace.suggested_path
 	save_file_dialog.popup_centered_ratio(0.5)
+
+
+func show_export_workspace_dialog(in_workspace: Workspace) -> void:
+	export_file_dialog.set_meta(&"__workspace__", weakref(in_workspace))
+	if not in_workspace.suggested_path.is_empty():
+		var suggested_path: String = in_workspace.suggested_path.get_basename()
+		suggested_path += ".pdb"
+		export_file_dialog.current_path = suggested_path
+	export_file_dialog.popup_centered_ratio(0.5)
 
 
 func show_close_workspace_confirmation_dialog(

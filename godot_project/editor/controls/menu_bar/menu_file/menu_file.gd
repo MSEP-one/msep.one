@@ -12,7 +12,7 @@ enum {
 	POPUP_ID_LOAD_FRAGMENT = 6,
 	POPUP_ID_CLOSE_WORKSPACE = 7,
 	POPUP_ID_DOCUMENTATION = 8,
-
+	POPUP_ID_EXPORT_FILE = 9,
 }
 
 
@@ -21,6 +21,7 @@ enum {
 @export var shortcut_save: Shortcut = null
 @export var shortcut_save_as: Shortcut = null
 @export var shortcut_import_pdb: Shortcut = null
+@export var shortcut_export_file: Shortcut = null
 @export var shortcut_close_workspace: Shortcut = null
 @export var shortcut_close_workspace_macos: Shortcut = null
 
@@ -53,6 +54,10 @@ func _ready() -> void:
 		shortcut_import_pdb
 	)
 	set_item_shortcut(
+		get_item_index(POPUP_ID_EXPORT_FILE),
+		shortcut_export_file
+	)
+	set_item_shortcut(
 		get_item_index(POPUP_ID_CLOSE_WORKSPACE),
 		shortcut_close_workspace_macos if OS.get_name().to_lower() == "macos" else shortcut_close_workspace
 	)
@@ -66,6 +71,7 @@ func _update_menu() -> void:
 	set_item_disabled(get_item_index(POPUP_ID_SAVE_WORKSPACE), !can_save)
 	set_item_disabled(get_item_index(POPUP_ID_SAVE_WORKSPACE_AS), !can_save)
 	set_item_disabled(get_item_index(POPUP_ID_CLOSE_WORKSPACE), !can_save)
+	set_item_disabled(get_item_index(POPUP_ID_EXPORT_FILE), !can_save)
 
 
 func _on_id_pressed(id: int) -> void:
@@ -90,6 +96,10 @@ func _on_id_pressed(id: int) -> void:
 			Editor_Utils.get_editor().show_save_workspace_dialog(workspace)
 		POPUP_ID_IMPORT_PDB:
 			file_popup_requested.emit()
+		POPUP_ID_EXPORT_FILE:
+			var workspace: Workspace = MolecularEditorContext.get_current_workspace()
+			assert(workspace)
+			MolecularEditorContext.export_workspace(workspace)
 		POPUP_ID_IMPORT_FROM_LIBRARY:
 			var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 			if workspace_context != null:
