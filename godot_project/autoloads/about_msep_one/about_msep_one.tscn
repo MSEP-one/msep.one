@@ -37,10 +37,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -362.5
-offset_top = -215.0
-offset_right = 362.5
-offset_bottom = 215.0
+offset_left = -492.0
+offset_top = -308.0
+offset_right = 492.0
+offset_bottom = 308.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -68,6 +68,10 @@ text = "The Molecular Systems Engineering Platform"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="Separator" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
 
 [node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -122,6 +126,10 @@ layout_mode = 2
 
 [node name="Other Attributions" parent="VBoxContainer/TabContainer" instance=ExtResource("6_qip5g")]
 visible = false
+layout_mode = 2
+
+[node name="Separator2" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
 [node name="ButtonClose" type="Button" parent="VBoxContainer"]

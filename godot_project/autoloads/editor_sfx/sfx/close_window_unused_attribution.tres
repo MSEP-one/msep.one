@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ResourceAttribution" load_steps=3 format=3 uid="uid://q6o3vg0v2dvr"]
+[gd_resource type="Resource" script_class="ResourceAttribution" load_steps=3 format=3 uid="uid://kqjwtkbmnl7a"]
 
 [ext_resource type="AudioStream" uid="uid://brvo4juqxel26" path="res://autoloads/editor_sfx/sfx/close_window_unused.ogg" id="1_6sdxo"]
 [ext_resource type="Script" path="res://autoloads/attributions/resource_attribution/resource_attribution.gd" id="2_so06n"]

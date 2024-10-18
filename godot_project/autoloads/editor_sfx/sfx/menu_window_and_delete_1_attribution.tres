@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ResourceAttribution" load_steps=3 format=3 uid="uid://buc7qr14rq5fs"]
+
+[ext_resource type="Script" path="res://autoloads/attributions/resource_attribution/resource_attribution.gd" id="1_3opwq"]
+[ext_resource type="AudioStream" uid="uid://b42exf5g4t4cr" path="res://autoloads/editor_sfx/sfx/menu_window_and_delete_1.ogg" id="1_7jjh0"]
+
+[resource]
+script = ExtResource("1_3opwq")
+resource = ExtResource("1_7jjh0")
+original_name = "Whoosh_1"
+authors = {
+"lzmraul": "https://freesound.org/people/lzmraul/"
+}
+license_name = "CC0 - Creative Commons 0"
+license_link = "http://creativecommons.org/publicdomain/zero/1.0/"
+original_source_link = "https://freesound.org/people/lzmraul/sounds/389458/"

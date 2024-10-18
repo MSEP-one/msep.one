@@ -28,6 +28,15 @@ func _create_software_tree_item(in_info: LicenseInfo) -> TreeItem:
 	return tree_item
 
 
+func _create_custom_control_tree_item(in_name: String, in_custom_control_scene: PackedScene) -> TreeItem:
+	var tree_item: TreeItem = _tree.create_item(_tree.get_root())
+	const COLUMN_0: int = 0
+	tree_item.set_text(COLUMN_0, in_name)
+	tree_item.set_tooltip_text(COLUMN_0, in_name)
+	tree_item.set_metadata(COLUMN_0, in_custom_control_scene)
+	return tree_item
+
+
 func _format_lisence(in_text: String, in_year: String, in_copyright_holders: String) -> String:
 	var text: String = in_text
 	text = text.replace("<year>", in_year)
@@ -54,10 +63,11 @@ func _on_tree_item_selected() -> void:
 	elif meta is PackedScene:
 		# Custom scene with a control
 		_custom_control = meta.instantiate() as Control
-		_custom_control.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_rich_text_label.get_parent_control().add_child(_custom_control)
+		_custom_control.size_flags_horizontal = _rich_text_label.size_flags_horizontal
+		_custom_control.size_flags_vertical = _rich_text_label.size_flags_vertical
 		_custom_control.size_flags_stretch_ratio = _rich_text_label.size_flags_stretch_ratio
 		_rich_text_label.hide()
-		_rich_text_label.get_parent_control().add_child(_custom_control)
 
 
 func _fill_license_info(in_info: LicenseInfo) -> void:
