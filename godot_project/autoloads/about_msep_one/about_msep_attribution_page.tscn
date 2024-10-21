@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3 uid="uid://x6gk8had4k33"]
+
+[ext_resource type="Script" path="res://autoloads/about_msep_one/about_msep_attribution_page.gd" id="1_5fc3a"]
+
+[node name="AttributionPage" type="MarginContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"CollapsableCategoryPanel"
+script = ExtResource("1_5fc3a")
+
+[node name="VBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Tree" type="Tree" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_horizontal = 3
+hide_root = true
+
+[node name="RichTextLabel" type="RichTextLabel" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.5
+focus_mode = 2
+autowrap_mode = 0
+selection_enabled = true

@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://ceqlu15mn5g3q"]
+
+[ext_resource type="PackedScene" uid="uid://x6gk8had4k33" path="res://autoloads/about_msep_one/about_msep_attribution_page.tscn" id="1_f1pfw"]
+[ext_resource type="Script" path="res://autoloads/about_msep_one/third_party_software/third_party_software.gd" id="1_xjwa1"]
+
+[node name="Third Party Software" instance=ExtResource("1_f1pfw")]
+script = ExtResource("1_xjwa1")
