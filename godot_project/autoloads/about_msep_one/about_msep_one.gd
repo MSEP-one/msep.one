@@ -15,7 +15,7 @@ var was_closed: bool = false
 var _blur_background: ColorRect
 var _label_date_of_build: Label
 var _button_close: Button
-var _button_view_copyright_info: Button
+var _button_view_copyright_info: LinkButton
 var _blur_tween: Tween = null
 var _popup_copyright_info: PopupPanel
 

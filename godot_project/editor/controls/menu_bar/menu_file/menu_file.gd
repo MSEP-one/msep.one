@@ -11,7 +11,6 @@ enum {
 	POPUP_ID_IMPORT_FROM_LIBRARY = 5,
 	POPUP_ID_LOAD_FRAGMENT = 6,
 	POPUP_ID_CLOSE_WORKSPACE = 7,
-	POPUP_ID_DOCUMENTATION = 8,
 	POPUP_ID_EXPORT_FILE = 9,
 }
 
@@ -115,7 +114,3 @@ func _on_id_pressed(id: int) -> void:
 			var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 			if workspace_context != null:
 				workspace_context.action_load_fragment.execute()
-		POPUP_ID_DOCUMENTATION:
-			var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-			if workspace_context != null:
-				workspace_context.action_documentation.execute()

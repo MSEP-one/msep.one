@@ -32,6 +32,8 @@ var _center_container_remote_control_rect: Control = null
 var _cancel_callback: Callable
 var _stop_callback: Callable
 
+var _active: bool = false
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_blur_background = $BlurBackground
@@ -60,12 +62,17 @@ func _notification(what: int) -> void:
 		set_process(false)
 
 
+func is_active() -> bool:
+	return _active
+
+
 func activate(in_with_message: String = "",
 			in_cancel_callback: Callable = Callable(),
 			in_stop_callback: Callable = Callable(),
 			in_with_run_in_background_button: bool = false,
 			in_center_in_control: Control = null,
 			in_progress_handler: Object = null) -> void:
+	_active = true
 	if is_instance_valid(_tween_gears):
 		_tween_gears.kill()
 	if is_instance_valid(_tween_self):
@@ -138,6 +145,7 @@ func deactivate() -> void:
 		.set_trans(Tween.TRANS_EXPO)
 	_tween_self.tween_property(self, "_blur_factor", 0.0, TWEEN_TIME)
 	await _tween_self.finished
+	_active = false
 	hide()
 
 

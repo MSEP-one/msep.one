@@ -13,7 +13,7 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	_workspace_context = in_workspace_context
 	_ring_menu = in_menu
 	super._init(
-		tr("Feature Documentation"),
+		tr("Tutorials and Instructions"),
 		_execute_action,
 		tr("Open the documentation using an external viewer."),
 	)

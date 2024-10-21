@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://b711oqbglehtg"]
+[gd_scene load_steps=11 format=3 uid="uid://b711oqbglehtg"]
 
 [ext_resource type="Script" path="res://editor/controls/menu_bar/menu_bar.gd" id="1_6tam7"]
 [ext_resource type="PackedScene" uid="uid://c3s1rv4dhbs3w" path="res://editor/controls/menu_bar/menu_file/menu_file.tscn" id="1_ihotm"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://d3khovvyi6gkr" path="res://editor/controls/menu_bar/menu_simulation/menu_simulation.tscn" id="6_w4q0l"]
 [ext_resource type="PackedScene" uid="uid://bh8iwsy4ji3k0" path="res://editor/controls/menu_bar/menu_camera/menu_camera.tscn" id="8_6vjee"]
 [ext_resource type="PackedScene" uid="uid://bk8h3hla8tqrp" path="res://editor/controls/menu_bar/menu_virtual_objects/menu_virtual_objects.tscn" id="9_sh1ey"]
+[ext_resource type="PackedScene" uid="uid://ppxc7kfobo2x" path="res://editor/controls/menu_bar/menu_help/menu_help.tscn" id="10_e4f34"]
 
 [node name="MenuBar" type="MenuBar"]
 offset_right = 1152.0
@@ -41,6 +42,6 @@ visible = false
 [node name="VirtualObjects" parent="." instance=ExtResource("9_sh1ey")]
 visible = false
 
-[node name="Help" type="PopupMenu" parent="."]
+[node name="Help" parent="." instance=ExtResource("10_e4f34")]
 
 [connection signal="file_popup_requested" from="File" to="." method="_on_file_file_popup_requested"]

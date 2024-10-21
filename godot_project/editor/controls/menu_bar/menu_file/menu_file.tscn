@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://c3s1rv4dhbs3w"]
+[gd_scene load_steps=23 format=3 uid="uid://c3s1rv4dhbs3w"]
 
 [ext_resource type="Texture2D" uid="uid://b0u2u4oqkalh6" path="res://editor/controls/menu_bar/menu_file/icons/icon_new_workspace_16px.svg" id="1_8iynl"]
 [ext_resource type="Texture2D" uid="uid://c1gkfabphk2cm" path="res://editor/icons/import_x28.svg" id="1_1325o"]
@@ -10,7 +10,6 @@
 [ext_resource type="Texture2D" uid="uid://belaqyj0of62f" path="res://editor/icons/export_x28.svg" id="6_tuv0m"]
 [ext_resource type="Texture2D" uid="uid://jam6o276yr51" path="res://editor/controls/menu_bar/menu_file/icons/icon_close_workspace_16px.svg" id="7_in2el"]
 [ext_resource type="Texture2D" uid="uid://78ihcr4jpk3u" path="res://editor/controls/menu_bar/menu_file/icons/load_fragment_16px.svg" id="7_ntm2u"]
-[ext_resource type="Texture2D" uid="uid://bae35qsi6c2f3" path="res://editor/icons/icon_documentation_x24.svg" id="9_dgmne"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_cisi5"]
 device = -1
@@ -64,7 +63,7 @@ events = [SubResource("InputEventKey_rse6r")]
 [node name="MenuFile" type="PopupMenu"]
 size = Vector2i(1190, 888)
 visible = true
-item_count = 10
+item_count = 9
 item_0/text = "New Workspace"
 item_0/icon = ExtResource("1_8iynl")
 item_0/id = 0
@@ -92,9 +91,6 @@ item_7/id = 6
 item_8/text = "Close Current Workspace"
 item_8/icon = ExtResource("7_in2el")
 item_8/id = 7
-item_9/text = "Feature Documentation"
-item_9/icon = ExtResource("9_dgmne")
-item_9/id = 8
 script = ExtResource("2_8babr")
 shortcut_new = SubResource("Shortcut_lncuv")
 shortcut_open = SubResource("Shortcut_osav5")

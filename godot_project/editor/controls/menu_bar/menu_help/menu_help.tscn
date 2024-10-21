@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://ppxc7kfobo2x"]
+
+[ext_resource type="Texture2D" uid="uid://2c5nknjesiv6" path="res://editor/controls/menu_bar/menu_help/icons/icon_about_16px.png" id="1_tflsd"]
+[ext_resource type="Texture2D" uid="uid://bae35qsi6c2f3" path="res://editor/icons/icon_documentation_x24.svg" id="2_ejfnr"]
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_help/menu_help.gd" id="3_slcf1"]
+
+[node name="MenuHelp" type="PopupMenu"]
+size = Vector2i(215, 100)
+visible = true
+item_count = 2
+item_0/text = "About MSEP.one"
+item_0/icon = ExtResource("1_tflsd")
+item_0/id = 0
+item_1/text = "Tutorials and Instructions"
+item_1/icon = ExtResource("2_ejfnr")
+item_1/id = 1
+script = ExtResource("3_slcf1")
+item_1/text = "Tutorials and Instructions"

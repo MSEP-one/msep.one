@@ -21,5 +21,4 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	add_action(_workspace_context.action_import_file)
 	add_action(_workspace_context.action_import_from_library)
 	add_action(_workspace_context.action_load_fragment)
-	add_action(_workspace_context.action_documentation)
 	
