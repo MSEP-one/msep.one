@@ -134,6 +134,7 @@ func detect_collision(in_mouse_position: Vector2) -> void:
 
 func move_on_camera_local_z_axis() -> void:
 	if GizmoRoot.grab_mode == GizmoRoot.GrabMode.ORTHO_Z_HANDLE:
+		UIBlocker.block_input()
 		var mouse_delta: Vector2 = _mouse_position - _mouse_old_position
 		var camera_relative_movement_speed: float = _movement_speed * \
 		selected_node.global_position.distance_to(camera.global_position)

@@ -357,6 +357,11 @@ func manage_ortho_arc_rotation() -> void:
 		_reset_state_on_release()
 
 
+func _process(in_delta: float) -> void:
+	if is_rotating:
+		UIBlocker.block_input()
+
+
 func rotate_on_axis(in_dir_vec: Vector3) -> void:
 	var current_mouse_position: Vector2 = get_viewport().get_mouse_position()
 	var node_position: Vector2 = camera.unproject_position(selected_node.global_position)

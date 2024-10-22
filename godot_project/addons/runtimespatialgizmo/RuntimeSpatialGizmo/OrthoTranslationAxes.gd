@@ -347,6 +347,7 @@ func _process(_delta: float) -> void:
 		calculate_grab_offset()
 	if GizmoRoot.grab_mode == GizmoRoot.GrabMode.AXIS && GizmoRoot.mouse_hover_detected.translation_axis:
 		place_ortho()
+		UIBlocker.block_input()
 	
 	mouse_movement = Vector2.ZERO
 

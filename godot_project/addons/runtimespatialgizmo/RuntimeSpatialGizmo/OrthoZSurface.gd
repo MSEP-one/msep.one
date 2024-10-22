@@ -122,6 +122,7 @@ func detect_collision() -> void:
 
 func move_on_camera_local_xy_axis() -> void:
 	if GizmoRoot.grab_mode == GizmoRoot.GrabMode.ORTHO_Z_SURFACE:
+		UIBlocker.block_input()
 		var distance_from_screen: float = -(camera.global_transform.affine_inverse() * \
 				selected_node.global_position).z
 		var mouse_clamped_position: Vector2 = _mouse_position
