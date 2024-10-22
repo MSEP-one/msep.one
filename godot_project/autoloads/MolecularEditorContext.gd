@@ -415,6 +415,10 @@ func _on_molecular_editor_load_workspace_confirmed(in_path: String) -> void:
 	load_and_activate_workspace(in_path)
 
 
+func _on_molecular_editor_export_workspace_confirmed(in_workspace: Workspace, in_path: String) -> void:
+	export_workspace(in_workspace, in_path)
+
+
 func _on_about_msep_one_confirmed() -> void:
 	AboutMsepOne.confirmed.disconnect(_on_about_msep_one_confirmed)
 	var first_run_dialog := NanoAcceptDialog.new()
