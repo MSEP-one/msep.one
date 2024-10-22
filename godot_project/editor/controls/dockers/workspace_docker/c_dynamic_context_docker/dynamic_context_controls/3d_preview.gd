@@ -251,7 +251,8 @@ func _on_workspace_context_history_snapshot_applied() -> void:
 			_structures_to_update[structure_id] = true
 	
 	var current_theme: Theme3D = _workspace_context.workspace.representation_settings.get_theme()
-	_3d_preview_viewport.get_rendering().apply_theme(current_theme)
+	if _3d_preview_viewport.get_rendering().is_initialized():
+		_3d_preview_viewport.get_rendering().apply_theme(current_theme)
 	
 	if _structures_to_update.size() > 0:
 		ScriptUtils.call_deferred_once(_internal_update)

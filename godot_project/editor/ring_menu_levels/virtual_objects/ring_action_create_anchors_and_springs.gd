@@ -14,7 +14,7 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	super._init(
 		tr("Anchors and Springs"),
 		_execute_action,
-		tr("Create docking points and add Springs that mantain the distance of linked particles during simulations.")
+		tr("Create docking points and add Springs that maintain the distance of linked particles during simulations.")
 	)
 
 

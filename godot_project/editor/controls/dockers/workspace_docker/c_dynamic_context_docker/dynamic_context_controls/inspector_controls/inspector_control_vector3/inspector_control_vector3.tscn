@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://7oyj4up6dm2c"]
+[gd_scene load_steps=4 format=3 uid="uid://7oyj4up6dm2c"]
 
 [ext_resource type="PackedScene" uid="uid://c1rmw14fm6jco" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control.tscn" id="1_2yyc2"]
 [ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_vector3/inspector_control_vector3.gd" id="2_yqb7w"]
+[ext_resource type="Script" path="res://editor/controls/general/spin_box_slider.gd" id="3_awwg8"]
 
 [node name="TypeVector3" instance=ExtResource("1_2yyc2")]
 mouse_filter = 2
@@ -25,6 +26,7 @@ allow_greater = true
 allow_lesser = true
 custom_arrow_step = 0.01
 select_all_on_focus = true
+script = ExtResource("3_awwg8")
 
 [node name="LabelX2" type="Label" parent="Components" index="2"]
 self_modulate = Color(0.392157, 1, 0.392157, 1)
@@ -41,6 +43,7 @@ allow_greater = true
 allow_lesser = true
 custom_arrow_step = 0.01
 select_all_on_focus = true
+script = ExtResource("3_awwg8")
 
 [node name="LabelX3" type="Label" parent="Components" index="4"]
 self_modulate = Color(0.392157, 0.392157, 1, 1)
@@ -57,3 +60,9 @@ allow_greater = true
 allow_lesser = true
 custom_arrow_step = 0.01
 select_all_on_focus = true
+script = ExtResource("3_awwg8")
+
+[node name="Slider" type="HSlider" parent="Components" index="6"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2

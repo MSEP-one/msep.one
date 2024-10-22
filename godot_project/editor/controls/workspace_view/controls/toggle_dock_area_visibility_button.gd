@@ -18,11 +18,11 @@ func _ready() -> void:
 
 func _on_dock_area_visibility_changed() -> void:
 	visible = dock_area.has_visible_content
+	_update_toggle_button_icon()
 
 
 func _on_toggle_visible_button_pressed() -> void:
 	dock_area.user_hidden = !dock_area.user_hidden
-	_update_toggle_button_icon()
 
 
 func _update_toggle_button_icon() -> void:

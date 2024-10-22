@@ -136,6 +136,11 @@ var _id: int
 
 
 func _init() -> void:
+	# prevent changed and representation_settings_changed signals from being emmited
+	# when executing _set_representation_settings
+	set_block_signals(true)
+	_set_representation_settings(representation_settings)
+	set_block_signals(false)
 	_id = instance_counter
 	instance_counter += 1
 

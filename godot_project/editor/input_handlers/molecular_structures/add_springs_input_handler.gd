@@ -1,13 +1,12 @@
 extends InputHandlerCreateObjectBase
 
 
-const MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED = 20 * 20
-
 var _render_candidates: bool = false
 var _candidate_spring_ends: PackedVector3Array = []
 var _springs_end_candidates_outdated: bool = false
-# region virtual
+var _press_down_position: Vector2 = Vector2(-100, -100)
 
+# region virtual
 ## VIRTUAL: Returns true when the the input handler expects to process inputs
 ## when nothing is selected in the Object tree view
 func handles_empty_selection() -> bool:
@@ -28,6 +27,27 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 
 func handle_inputs_end() -> void:
 	_hide_preview()
+
+
+func handle_inputs_resume() -> void:
+	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
+	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS \
+			or not parameters.get_create_mode_enabled():
+		return
+	update_preview_position()
+	_get_rendering().virtual_anchor_preview_show()
+	var can_bind: bool = (
+		Input.is_key_pressed(KEY_SHIFT) and
+		(not Input.is_key_pressed(KEY_ALT)) and
+		(not Input.is_key_pressed(KEY_CTRL)) and
+		(not Input.is_key_pressed(KEY_META))
+	)
+	if can_bind:
+		_get_rendering().virtual_anchor_preview_set_spring_ends(_candidate_spring_ends)
+	else:
+		const HIDEN_SPRINGS: PackedVector3Array = []
+		_get_rendering().virtual_anchor_preview_set_spring_ends(HIDEN_SPRINGS)
+		
 
 
 func handle_input_omission() -> void:
@@ -86,6 +106,8 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 		# wants to add them or for example do a drag gesture
 		var mouse_up: bool = not in_input_event.pressed
 		if in_input_event.button_index == MOUSE_BUTTON_LEFT and mouse_up:
+			if _press_down_position.distance_squared_to(in_input_event.global_position) > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
+				return false
 			# Create an anchor and _candidate_spring_ends springs
 			var has_modifiers: bool = input_has_modifiers(in_input_event)
 			var anchor_pos: Vector3 = rendering.virtual_anchor_preview_get_position()
@@ -125,6 +147,8 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 				_hide_preview()
 				_workspace_context.snapshot_moment("Create Anchor and Spring(s)")
 				return true
+		elif in_input_event.button_index == MOUSE_BUTTON_LEFT and not mouse_up:
+			_press_down_position = in_input_event.global_position
 	return false
 
 

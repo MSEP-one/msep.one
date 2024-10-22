@@ -22,7 +22,6 @@ func get_icon() -> RingMenuIcon:
 
 
 func _execute_action() -> void:
-	_ring_menu.close()
 	_workspace_context.create_object_parameters.set_simulation_type(
 		CreateObjectParameters.SimulationType.VALIDATION)
 	MolecularEditorContext.request_workspace_docker_focus(SimulationsDocker.UNIQUE_DOCKER_NAME, &"Validate Model")

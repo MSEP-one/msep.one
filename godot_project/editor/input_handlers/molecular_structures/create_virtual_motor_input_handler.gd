@@ -2,6 +2,7 @@ extends InputHandlerCreateObjectBase
 
 var _new_motor_parameters: NanoVirtualMotorParameters = null
 var _rendering: Rendering
+var _press_down_position: Vector2 = Vector2(-100, -100)
 
 # region virtual
 
@@ -87,6 +88,8 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_context:
 		return false
 	if in_input_event is InputEventMouseButton:
 		if in_input_event.button_index == MOUSE_BUTTON_LEFT and !in_input_event.pressed:
+			if _press_down_position.distance_squared_to(in_input_event.global_position) > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
+				return false
 			var has_modifiers: bool = input_has_modifiers(in_input_event)
 			if has_modifiers:
 				return false
@@ -116,6 +119,8 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_context:
 			in_context.workspace_context.start_creating_object(structure)
 			in_context.workspace_context.snapshot_moment("Create %s" % str(new_structure_context.nano_structure.get_readable_type()))
 			return true
+		elif in_input_event.button_index == MOUSE_BUTTON_LEFT and in_input_event.pressed:
+			_press_down_position = in_input_event.global_position
 	return false
 
 
@@ -133,6 +138,17 @@ func is_exclusive_input_consumer() -> bool:
 ## Usually used to clean up internal state and prepare for fresh input sequence
 func handle_inputs_end() -> void:
 	_rendering.virtual_motor_preview_hide()
+
+
+## This method is used to inform an exclusive input consumer ended consuming inputs
+## This gives a chance to react to this fact and do some special initialization
+func handle_inputs_resume() -> void:
+	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
+	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_VIRTUAL_MOTORS \
+			or not parameters.get_create_mode_enabled():
+		return
+	update_preview_position()
+	_rendering.virtual_motor_preview_show()
 
 
 ## Can be overwritten to react to the fact that there was an input event which never has been

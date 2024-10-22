@@ -28,6 +28,10 @@ float is_second_atom_selected(float value) {
 	return _unpack_flag(int(value), 32);
 }
 
+float is_hydrogen(float value) {
+	return _unpack_flag(int(value), 64);
+}
+
 // Utility
 
 float is_atom_or_bond_hidden(float value) {

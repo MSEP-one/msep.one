@@ -41,6 +41,7 @@ var restore_to_widget_mouse_position: Vector2 = Vector2.ZERO
 var current_up: Vector3 = Vector3.UP
 var old_selection_position: Vector3 = Vector3.ZERO
 var orbiting_allowed: bool = false
+var _mouse_has_entered: bool = false
 
 @onready var orbit_handle: TextureRect = %OrbitHandle
 @onready var orbit_handle_highlight: TextureRect = %Highlighted
@@ -89,10 +90,10 @@ func manage_look(in_mouse_distance_from_center_offset: float, in_delta: float) -
 		orbit_handle_pressed.visible = false
 		orbit_handle_highlight.visible = true
 		if !mouse_drag_in_widget_is_active:
-			if !mouse_is_in_drag_radius:
+			if !mouse_is_in_drag_radius || !_mouse_has_entered:
 				dim_non_active_elements(-1, in_delta * HIGHLIGHT_SPEED)
 			else:
-				if in_mouse_distance_from_center_offset < (size.x * 0.5):
+				if in_mouse_distance_from_center_offset < (size.x * 0.5) && _mouse_has_entered:
 					orbit_handle.self_modulate.a = lerp(orbit_handle.self_modulate.a, .0, \
 							in_delta * HIGHLIGHT_SPEED)
 					orbit_handle_highlight.self_modulate.a = \
@@ -162,6 +163,7 @@ func restore_mouse_position() -> void:
 
 func _has_point(_point: Vector2) -> bool:
 	return mouse_is_in_drag_radius
+
 
 func _gui_input(event: InputEvent) -> void:
 	# HACK: This widget has to capture mouse to prevent events reaching the gizmo
@@ -292,3 +294,11 @@ func get_orbit_pivot_position() -> Vector3:
 			return workspace_context.get_selection_aabb().get_center()
 		else:
 			return old_selection_position
+
+
+func _on_mouse_entered() -> void:
+	_mouse_has_entered = true
+
+
+func _on_mouse_exited() -> void:
+	_mouse_has_entered = false

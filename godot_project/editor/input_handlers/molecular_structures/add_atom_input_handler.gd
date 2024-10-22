@@ -1,9 +1,6 @@
 extends InputHandlerCreateObjectBase
 
 
-const MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED = 20 * 20
-
-
 var _press_down_position: Vector2 = Vector2(-100, -100)
 
 
@@ -29,6 +26,24 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 
 func handle_inputs_end() -> void:
 	_hide_preview()
+
+
+func handle_inputs_resume() -> void:
+	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
+	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS \
+			or not parameters.get_create_mode_enabled():
+		return
+	update_preview_position()
+	var can_bind: bool = (
+		Input.is_key_pressed(KEY_SHIFT) and
+		(not Input.is_key_pressed(KEY_ALT)) and
+		(not Input.is_key_pressed(KEY_CTRL)) and
+		(not Input.is_key_pressed(KEY_META))
+	)
+	var rendering: Rendering = _get_rendering()
+	rendering.atom_preview_show()
+	if can_bind:
+		rendering.bond_preview_show()
 
 
 func handle_input_omission() -> void:

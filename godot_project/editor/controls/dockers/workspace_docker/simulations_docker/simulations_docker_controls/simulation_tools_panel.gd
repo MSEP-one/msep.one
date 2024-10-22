@@ -178,9 +178,11 @@ func _update_spin_box_timeline_sufix() -> void:
 	
 	# Update spinbox minimum size to fit the largest possible string for the current unit and simulation length.
 	var font: Font = _spin_box_timeline.get_theme_font("default_font")
+	var font_size: int = _spin_box_timeline.get_theme_font_size("font_size")
 	var max_string: String = str(length_in_playback_unit).pad_decimals(decimals) + " " + _spin_box_timeline.suffix
-	var min_size: Vector2 = font.get_string_size(max_string, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
-	_spin_box_timeline.custom_minimum_size.x = min_size.x
+	var min_size: Vector2 = font.get_string_size(max_string, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+	const SPINBOX_BUTONS_WIDTH: float = 18
+	_spin_box_timeline.custom_minimum_size.x = min_size.x + SPINBOX_BUTONS_WIDTH
 
 
 func _update_controls() -> void:

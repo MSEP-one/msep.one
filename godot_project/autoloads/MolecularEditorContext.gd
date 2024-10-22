@@ -261,8 +261,9 @@ func request_workspace_docker_focus(in_docker_unique_name: StringName, in_catego
 	if not in_docker_unique_name in view.editor_dockers.keys():
 		push_error("Cannot focus on unexisting docker unique name %s!" % in_docker_unique_name)
 		return
-	var docker: WorkspaceDocker = view.editor_dockers.get(in_docker_unique_name, null)
+	var docker: WorkspaceDocker = view.editor_dockers.get(in_docker_unique_name, null) as WorkspaceDocker
 	assert(docker, "Registered workspace docker does not inherit class WorkspaceDocker")
+	docker.ensure_docker_area_visible()
 	if !docker.visible:
 		var tab_container: DockerTabContainer = docker.get_container() as DockerTabContainer
 		if tab_container == null:
@@ -403,8 +404,6 @@ func _ready_deferred() -> void:
 	molecular_editor.export_workspace_confirmed.connect(_on_molecular_editor_export_workspace_confirmed)
 	if _current_workspace == null:
 		homepage_activated.emit()
-	if msep_editor_settings.show_first_run_message:
-		AboutMsepOne.confirmed.connect(_on_about_msep_one_confirmed)
 
 
 func _on_molecular_editor_save_workspace_confirmed(in_workspace: Workspace, in_path: String) -> void:
@@ -415,8 +414,15 @@ func _on_molecular_editor_load_workspace_confirmed(in_path: String) -> void:
 	load_and_activate_workspace(in_path)
 
 
+func _on_molecular_editor_export_workspace_confirmed(in_workspace: Workspace, in_path: String) -> void:
+	export_workspace(in_workspace, in_path)
+
+
 func _on_about_msep_one_confirmed() -> void:
 	AboutMsepOne.confirmed.disconnect(_on_about_msep_one_confirmed)
+
+
+func show_first_run_message() -> void:
 	var first_run_dialog := NanoAcceptDialog.new()
 	first_run_dialog.dialog_text = tr("Raise the 'Action Ring' by pressing TAB or right-clicking the mouse.")
 	first_run_dialog.ok_button_text = tr("OK")
@@ -424,7 +430,6 @@ func _on_about_msep_one_confirmed() -> void:
 	add_child(first_run_dialog)
 	first_run_dialog.popup_centered()
 	first_run_dialog.closed.connect(_on_first_run_dialog_closed.bind(first_run_dialog))
-	msep_editor_settings.show_first_run_message = false
 	msep_editor_settings.save_settings()
 
 

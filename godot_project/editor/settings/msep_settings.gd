@@ -50,8 +50,6 @@ var _ui_sfx_bus_index: int =  AudioServer.get_bus_index(&"Ui Sfx")
 	set = set_openmm_server_logs_path
 @export var openmm_server_logs_reporters: int = ALL_REPORTS:
 	set = set_openmm_server_logs_reporters
-@export var show_first_run_message: bool = true:
-	set = set_show_first_run_message
 
 var _simulation_logging_flag_file: String = String():
 	get:
@@ -174,10 +172,6 @@ func set_openmm_server_logs_reporters(in_reporters: int) -> void:
 		_create_or_update_simulation_logging_flag_file()
 	changed.emit()
 
-
-func set_show_first_run_message(in_show: bool) -> void:
-	show_first_run_message = in_show
-	changed.emit()
 
 func save_settings() -> void:
 	ResourceSaver.save(self, SETTINGS_RESOURCE_PATH, ResourceSaver.FLAG_CHANGE_PATH)

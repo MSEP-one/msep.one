@@ -15,6 +15,7 @@ script = ExtResource("1_yqxii")
 
 [node name="TreeInfo" type="Tree" parent="."]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(400, 0)
 layout_mode = 2
 columns = 2
 column_titles_visible = true

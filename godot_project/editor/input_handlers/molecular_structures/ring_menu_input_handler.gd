@@ -31,7 +31,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, _in_context
 		if ring_menu.is_active() and in_input_event.pressed:
 			ring_menu.close()
 			return true
-	if in_input_event.is_action_pressed(&"toggle_ring_menu", false, true):
+	if in_input_event.is_action_pressed(&"toggle_ring_menu", false, true) && !BusyIndicator.visible:
 		if in_input_event.pressed:
 			# Right click detected, show
 			if ring_menu.is_active():

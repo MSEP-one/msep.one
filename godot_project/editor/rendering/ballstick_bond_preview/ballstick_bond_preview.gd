@@ -54,6 +54,11 @@ func update_all(in_first_pos: Vector3, in_sec_pos: Vector3, in_first_atomic_numb
 	_update_preview()
 
 
+func update_second_atom_pos(in_sec_pos: Vector3) -> void:
+	_second_pos = in_sec_pos
+	_update_preview()
+
+
 func set_order(in_bond_order: int) -> void:
 	var mesh_2_use: Mesh = _bond_order_to_mesh[in_bond_order]
 	if _preview.mesh != mesh_2_use:

@@ -95,7 +95,7 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 					element_info["Mass" + mass_unit] = data.mass * Units.get_mass_conversion_factor()
 					element_info["Position"] = {"": _create_position_property(in_info_type, structure_context, instances[0])}
 				else:
-					element_info["Mass (Total)" + mass_unit] = ("%.3f %.3f" % 
+					element_info["Mass (Total)" + mass_unit] = ("%.3f %.3f" %
 						[data.mass * Units.get_mass_conversion_factor(),
 						data.mass * instances.size() * Units.get_mass_conversion_factor()])
 					if selection.size() > MAX_VISIBLE_ATOM_POSITIONS:
@@ -241,6 +241,8 @@ class SetNanostructureAtomPositionHelper:
 		nano_structure.start_edit()
 		nano_structure.atom_set_position(_atom_id, in_new_position)
 		nano_structure.end_edit()
-		
+	
+	
+	func store_undo_snapshot() -> void:
 		var snapshot_name: String = "Set Atom %d Pos" % (_atom_id)
 		_structure_context.workspace_context.snapshot_moment(snapshot_name)

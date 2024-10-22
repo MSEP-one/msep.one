@@ -35,6 +35,7 @@ func _update_workspaces_list() -> void:
 		if not d.file_exists(workspace):
 			continue
 		var link := LinkButton.new()
+		link.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		link.text = tr("Open '%s'" % [workspace])
 		link.tooltip_text = tr("Open and activate %s" % [workspace])
 		link.pressed.connect(_on_open_workspace_by_path.bind(workspace))

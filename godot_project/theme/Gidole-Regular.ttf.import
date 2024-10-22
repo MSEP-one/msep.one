@@ -24,7 +24,8 @@ hinting=1
 subpixel_positioning=1
 oversampling=0.0
 Fallbacks=null
-fallbacks=[Resource("res://theme/NotoColorEmoji-Regular.ttf")]
+fallbacks=[Object(SystemFont,"resource_local_to_scene":false,"resource_name":"","fallbacks":Array[Font]([]),"font_names":PackedStringArray("Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji"),"font_italic":false,"font_weight":400,"font_stretch":100,"antialiasing":1,"generate_mipmaps":false,"allow_system_fallback":true,"force_autohinter":false,"hinting":1,"subpixel_positioning":1,"multichannel_signed_distance_field":false,"msdf_pixel_range":16,"msdf_size":48,"oversampling":0.0,"script":null)
+]
 Compress=null
 compress=true
 preload=[{

@@ -13,6 +13,13 @@ var _hover_enabled: bool = true
 @onready var pivot: MeshInstance3D = shape.get_node("Pivot")
 
 
+const _CAMERA_PROJECTION_TO_PIVOT_SCALE: Dictionary = {
+	Camera3D.ProjectionType.PROJECTION_PERSPECTIVE: 0.004,
+	Camera3D.ProjectionType.PROJECTION_ORTHOGONAL: 0.04,
+	Camera3D.ProjectionType.PROJECTION_FRUSTUM: 0.04,
+}
+
+
 func build(in_workspace_context: WorkspaceContext, in_shape: NanoShape) -> void:
 	shape.mesh = _get_flat_shaded_mesh(in_shape.get_shape())
 	global_transform = in_shape.get_transform()
@@ -53,6 +60,18 @@ func disable_hover() -> void:
 		workspace_context.hovered_structure_context_changed.disconnect(_on_hovered_structure_context_changed)
 		const NOT_HOVERED = 0
 		shape.set_instance_shader_parameter(&"hovered", NOT_HOVERED)
+
+
+func _ready() -> void:
+	MolecularEditorContext.msep_editor_settings.changed.connect(_on_editor_settings_changed)
+	_on_editor_settings_changed.call_deferred()
+
+
+func _on_editor_settings_changed() -> void:
+	if not is_inside_tree():
+		return
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	pivot.scale = Vector3.ONE * _CAMERA_PROJECTION_TO_PIVOT_SCALE[camera.projection]
 
 
 func _exit_tree() -> void:
@@ -154,6 +173,8 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_nano_shape_primitive_mesh"] = _nano_shape_primitive_mesh.duplicate(true)
 	snapshot["_shape_id"] = _shape_id
 	snapshot["_hover_enabled"] = _hover_enabled
+	snapshot["visible"] = visible
+	snapshot["material_selected"] = shape.get_instance_shader_parameter(&"selected")
 	
 	snapshot["nano_shape.transform_changed"] = History.pack_signal(nano_shape.transform_changed, self)
 	snapshot["nano_shape.shape_changed"] = History.pack_signal(nano_shape.shape_changed, self)
@@ -170,6 +191,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	color_unselected = in_state_snapshot["color_unselected"]
 	_shape_id = in_state_snapshot["_shape_id"]
 	_hover_enabled = in_state_snapshot["_hover_enabled"]
+	visible = in_state_snapshot["visible"]
+	shape.set_instance_shader_parameter(&"selected", in_state_snapshot["material_selected"])
 	
 	var shape_context: StructureContext = _workspace_context.get_structure_context(_shape_id)
 	var nano_shape: NanoShape = shape_context.nano_structure

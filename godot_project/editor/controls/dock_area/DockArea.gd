@@ -1,4 +1,4 @@
-extends MarginContainer
+class_name DockArea extends MarginContainer
 
 signal docker_added(docker_name: StringName, docker_area: int)
 

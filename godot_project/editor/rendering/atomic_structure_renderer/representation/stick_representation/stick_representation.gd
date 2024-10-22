@@ -74,6 +74,7 @@ func build(in_structure_context: StructureContext) -> void:
 			var bond_data: Vector3i = related_nanostructure.get_bond(bond_id)
 			bond_state.is_first_atom_selected = bond_data.x in selected_atoms
 			bond_state.is_second_atom_selected = bond_data.y in selected_atoms
+			bond_state.is_hydrogen = related_nanostructure.atom_is_any_hydrogen([bond_data.x, bond_data.y])
 			_create_bond(bond_id, bond_state)
 	
 	_single_stick_multimesh.bake()
@@ -165,6 +166,7 @@ func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: Pack
 		bond_state.is_selected = _highlighted_bonds.get(bond_id, false)
 		bond_state.is_hovered = bond_id == _hovered_bond_id
 		bond_state.is_visible = not related_structure.is_bond_hidden_by_user(bond_id)
+		bond_state.is_hydrogen = related_structure.atom_is_any_hydrogen([bond.x, bond.y])
 		var bond_order: int = bond.z
 		var first_atom_id: int = bond.x
 		var second_atom_id: int = bond.y
@@ -223,6 +225,7 @@ func highlight_bonds(in_bonds_to_highlight: PackedInt32Array) -> void:
 		bond_state.is_selected = true
 		bond_state.is_first_atom_selected = structure_context.is_atom_selected(first_atom_id)
 		bond_state.is_second_atom_selected = structure_context.is_atom_selected(second_atom_id)
+		bond_state.is_hydrogen = related_structure.atom_is_any_hydrogen([first_atom_id, second_atom_id])
 		first_highlight_color.a = bond_state.to_float()
 		var first_atom_radius: float = get_atom_radius(first_atom_periodic_table_data, related_structure.get_representation_settings())
 		var second_atom_radius: float = get_atom_radius(second_atom_periodic_table_data, related_structure.get_representation_settings())
@@ -263,6 +266,7 @@ func lowlight_bonds(in_bonds_to_lowlight: PackedInt32Array) -> void:
 		bond_state.is_selected = false
 		bond_state.is_first_atom_selected = structure_context.is_atom_selected(first_atom_id)
 		bond_state.is_second_atom_selected = structure_context.is_atom_selected(second_atom_id)
+		bond_state.is_hydrogen = related_structure.atom_is_any_hydrogen([first_atom_id, second_atom_id])
 		first_color.a = bond_state.to_float()
 		var first_atom_radius: float = get_atom_radius(first_atom_periodic_table_data, related_structure.get_representation_settings())
 		var second_atom_radius: float = get_atom_radius(second_atom_periodic_table_data, related_structure.get_representation_settings())
@@ -345,6 +349,7 @@ func refresh_atoms_sizes() -> void:
 	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
 	_shader_scale_factor = Representation.get_atom_scale_factor(related_structure.get_representation_settings())
 	_apply_scale_factor(_shader_scale_factor)
+	refresh_all()
 
 
 func refresh_atoms_color(in_atoms: PackedInt32Array) -> void:
@@ -437,6 +442,7 @@ func add_bonds(new_bonds: PackedInt32Array) -> void:
 		var bond_data: Vector3i = atomic_structure.get_bond(bond_id)
 		bond_state.is_first_atom_selected = bond_data.x in selected_atoms
 		bond_state.is_second_atom_selected = bond_data.y in selected_atoms
+		bond_state.is_hydrogen = atomic_structure.atom_is_any_hydrogen([bond_data.x, bond_data.y])
 		_create_bond(bond_id, bond_state)
 	_single_stick_multimesh.rebuild_if_needed()
 	_double_stick_multimesh.rebuild_if_needed()
@@ -481,6 +487,7 @@ func bonds_changed(changed_bonds: PackedInt32Array) -> void:
 			bond_state.is_selected = bond_id in selected_bonds
 			bond_state.is_first_atom_selected = bond.x in selected_atoms
 			bond_state.is_second_atom_selected = bond.y in selected_atoms
+			bond_state.is_hydrogen = atomic_structure.atom_is_any_hydrogen([bond.x, bond.y])
 			
 			#
 			_create_bond(bond_id, bond_state)
@@ -533,6 +540,7 @@ func refresh_atomic_numbers_of_bond_atoms(changed_bonds: PackedInt32Array) -> vo
 		bond_state.is_selected = _highlighted_bonds.get(bond_id, false)
 		bond_state.is_first_atom_selected = structure_context.is_atom_selected(bond.x)
 		bond_state.is_second_atom_selected = structure_context.is_atom_selected(bond.y)
+		bond_state.is_hydrogen = related_structure.atom_is_any_hydrogen([bond.x, bond.y])
 		first_color.a = bond_state.to_float()
 		second_color.a = smaller_atom_radius
 		var particle_transform: Transform3D = _calculate_bond_transform(bond)

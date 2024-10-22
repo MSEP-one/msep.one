@@ -61,13 +61,17 @@ static func move_camera_outside_of_aabb(out_workspace_context: WorkspaceContext,
 
 static func import_file(out_workspace_context: WorkspaceContext, path: String,
 						generate_bonds: bool, add_hydrogens: bool, remove_waters: bool,
-						placement: ImportFileDialog.Placement, create_new_group: bool = true) -> void:
+						placement: ImportFileDialog.Placement, create_new_group: bool = true,
+						snapshot_name: String = "Import File") -> void:
 	var import_file_result: OpenMMClass.ImportFileResult
 	import_file_result = await _import_file(out_workspace_context, path, generate_bonds, add_hydrogens, remove_waters)
+	if import_file_result == null:
+		# Failed to import file. Error is handled internally
+		return
 	if create_new_group:
-		_load_import_file_result_to_new_group(out_workspace_context, import_file_result, placement)
+		_load_import_file_result_to_new_group(out_workspace_context, import_file_result, placement, snapshot_name)
 	else:
-		_load_import_file_result(out_workspace_context, import_file_result, placement)
+		_load_import_file_result(out_workspace_context, import_file_result, placement, snapshot_name)
 
 
 static func get_nano_structure_from_file(workspace_context: WorkspaceContext, path: String,
@@ -447,7 +451,7 @@ static func _move_selection_to_new_structure(out_workspace_context: WorkspaceCon
 	var structure_context: StructureContext = out_workspace_context.get_nano_structure_context(structure)
 	_start_editing_if_needed(out_did_create_undo_action, structure_context)
 	const DONT_COMMIT_WHEN_DONE = false
-	# In order to mantain the right order of execusion, we need to remove the structure from workspace after
+	# In order to maintain the right order of execusion, we need to remove the structure from workspace after
 	# The selection snapshot is applied, in order to do this we pass `commit_when_done=false`
 	# so we can add remove_structure as undo_method before commiting
 	_move_selection_to_existing_structure(out_workspace_context, structure.int_guid, out_did_create_undo_action, DONT_COMMIT_WHEN_DONE)
@@ -464,7 +468,7 @@ static func _move_selection_to_existing_structure(
 	assert(_can_move_selection_to_another_group(out_workspace_context), "Moving atoms and bonds from one group to another requires molecules to be entirely seected")
 	var workspace: Workspace = out_workspace_context.workspace
 	assert(out_workspace_context.workspace.has_structure_with_int_guid(in_target_structure_id), "Invalid structure ID")
-	var target_structure: NanoStructure = out_workspace_context.workspace.get_structure_by_int_guid(in_target_structure_id) as NanoStructure
+	var target_structure: AtomicStructure = out_workspace_context.workspace.get_structure_by_int_guid(in_target_structure_id) as AtomicStructure
 	assert(is_instance_valid(target_structure), "Workspace has id, but structure instance is invalid")
 	var target_structure_context: StructureContext = out_workspace_context.get_nano_structure_context(target_structure)
 	var new_atoms_to_select_when_done: PackedInt32Array = []
@@ -485,11 +489,17 @@ static func _move_selection_to_existing_structure(
 			workspace.reparent_structure(structure_context.nano_structure, target_structure)
 		else:
 			_start_editing_if_needed(out_did_create_undo_action, target_structure_context)
+			var old_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
 			var source_structure_atoms_ids: PackedInt32Array = structure_context.get_selected_atoms()
 			var source_structure_bonds_ids: PackedInt32Array = structure_context.get_selected_bonds()
 			var source_structure_springs_ids: PackedInt32Array = PackedInt32Array()
+			var old_color_overrides: Dictionary = old_structure.get_color_override_snapshot()
+			var new_color_overrides: Dictionary = {
+			#	color<Color> = atoms_to_apply<PackedInt32Array>
+			}
+			
 			for atom_id: int in source_structure_atoms_ids:
-				source_structure_springs_ids.append_array(structure_context.nano_structure.atom_get_springs(atom_id))
+				source_structure_springs_ids.append_array(old_structure.atom_get_springs(atom_id))
 			
 			var destination_structure_atoms_ids: PackedInt32Array = []
 			var destination_structure_bonds_ids: PackedInt32Array = []
@@ -498,18 +508,27 @@ static func _move_selection_to_existing_structure(
 #				src_atom_id<int> = dst_atom_id<int>
 			}
 			structure_context.clear_selection()
-			structure_context.nano_structure.start_edit()
+			old_structure.start_edit()
 			# 1. Copy atoms from src to dst
 			for old_atom_id: int in source_structure_atoms_ids:
-				var atomic_number: int = structure_context.nano_structure.atom_get_atomic_number(old_atom_id)
-				var position: Vector3 = structure_context.nano_structure.atom_get_position(old_atom_id)
+				var atomic_number: int = old_structure.atom_get_atomic_number(old_atom_id)
+				var position: Vector3 = old_structure.atom_get_position(old_atom_id)
 				var new_atom_args := AtomicStructure.AddAtomParameters.new(atomic_number, position)
 				var new_atom_id: int = target_structure.add_atom(new_atom_args)
+				if old_color_overrides.has(old_atom_id):
+					var color: Color = old_color_overrides[old_atom_id]
+					if not new_color_overrides.has(color):
+						new_color_overrides[color] = PackedInt32Array()
+					new_color_overrides[color].append(new_atom_id)
 				destination_structure_atoms_ids.push_back(new_atom_id)
 				source_to_dest_atoms_ids[old_atom_id] = new_atom_id
+			# 1.1 Apply collected color overrides
+			for color: Color in new_color_overrides.keys():
+				var atoms_for_color: PackedInt32Array = new_color_overrides[color]
+				target_structure.set_color_override(atoms_for_color, color)
 			# 2. Copy bonds from src to dst
 			for old_bond_id: int in source_structure_bonds_ids:
-				var old_bond_data: Vector3i = structure_context.nano_structure.get_bond(old_bond_id)
+				var old_bond_data: Vector3i = old_structure.get_bond(old_bond_id)
 				var new_bond_id: int = target_structure.add_bond(
 					source_to_dest_atoms_ids[old_bond_data.x], # atom_id_1
 					source_to_dest_atoms_ids[old_bond_data.y], # atom_id_2
@@ -518,7 +537,6 @@ static func _move_selection_to_existing_structure(
 				destination_structure_bonds_ids.push_back(new_bond_id)
 			
 			# 3. Copy springs from src to dst
-			var old_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
 			for old_spring_id: int in source_structure_springs_ids:
 				var anchor_id: int = old_structure.spring_get_anchor_id(old_spring_id)
 				var old_atom_id: int = old_structure.spring_get_atom_id(old_spring_id)
@@ -532,17 +550,17 @@ static func _move_selection_to_existing_structure(
 			
 			# 4. invalidate bonds in src
 			for old_bond_id: int in source_structure_bonds_ids:
-				structure_context.nano_structure.remove_bond(old_bond_id)
+				old_structure.remove_bond(old_bond_id)
 			# 5. invalidate atoms in src
 			for old_atom_id: int in source_structure_atoms_ids:
-				structure_context.nano_structure.remove_atom(old_atom_id)
+				old_structure.remove_atom(old_atom_id)
 			# 6. invalidate springs in src
 			#    Make all selected springs visible before invalidating them
 			old_structure.set_springs_visibility(source_structure_springs_ids, true)
 			for old_spring_id: int in source_structure_springs_ids:
-				structure_context.nano_structure.spring_invalidate(old_spring_id)
+				old_structure.spring_invalidate(old_spring_id)
 			new_atoms_to_select_when_done.append_array(destination_structure_atoms_ids)
-			structure_context.nano_structure.end_edit()
+			old_structure.end_edit()
 	
 	if out_did_create_undo_action.value:
 		# Ready to commit changes
@@ -702,7 +720,8 @@ static func _import_file(out_workspace_context: WorkspaceContext, path: String,
 
 static func _load_import_file_result_to_new_group(out_workspace_context: WorkspaceContext,
 							in_import_file_result: OpenMMClass.ImportFileResult,
-							placement: ImportFileDialog.Placement) -> void:
+							placement: ImportFileDialog.Placement,
+							snapshot_name: String) -> void:
 	var new_structure: NanoStructure = AtomicStructure.create()
 	var placement_xform: Transform3D = _get_placement_transform(out_workspace_context, in_import_file_result.aabb, placement)
 	var file_path: String = in_import_file_result.original_payload.file_path
@@ -736,12 +755,13 @@ static func _load_import_file_result_to_new_group(out_workspace_context: Workspa
 	var selection_aabb: AABB = out_workspace_context.get_selection_aabb()
 	if placement != ImportFileDialog.Placement.IN_FRONT_OF_CAMERA:
 		WorkspaceUtils.focus_camera_on_aabb(out_workspace_context, selection_aabb)
-	out_workspace_context.snapshot_moment("Import File")
+	out_workspace_context.snapshot_moment(snapshot_name)
 
 
 static func _load_import_file_result(out_workspace_context: WorkspaceContext,
 							in_import_file_result: OpenMMClass.ImportFileResult,
-							placement: ImportFileDialog.Placement) -> void:
+							placement: ImportFileDialog.Placement,
+							snapshot_name: String) -> void:
 	var structure_context: StructureContext = out_workspace_context.get_current_structure_context()
 	var structure: NanoStructure = out_workspace_context.get_current_structure_context().nano_structure
 	
@@ -788,7 +808,7 @@ static func _load_import_file_result(out_workspace_context: WorkspaceContext,
 			continue
 		context.clear_selection()
 	
-	out_workspace_context.snapshot_moment("Import File")
+	out_workspace_context.snapshot_moment(snapshot_name)
 
 
 static func _import_file_result_to_structure(in_import_file_result: OpenMMClass.ImportFileResult) -> NanoStructure:

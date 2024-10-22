@@ -141,6 +141,7 @@ func _ready() -> void:
 		extract_thread.start(utils.install_environment)
 		AboutMsepOne.confirmed.connect(BusyIndicator.activate.bind(tr("Running First Time Setup")))
 		await utils.environment_installed
+		MolecularEditorContext.show_first_run_message()
 		AboutMsepOne.confirmed.disconnect(BusyIndicator.activate)
 		BusyIndicator.deactivate()
 	if utils.needs_install_scripts():
@@ -323,9 +324,10 @@ func _request_start_simulation(
 	const INCLUDE_VIRTUAL_OBJECTS = true
 	const LOCK_ATOMS = true
 	const INCLUDE_SPRINGS = true
+	const PASSIVATE_MOLECULES = false
 	const NUDGE_ATOMS_FIX = false
 	out_simulation_data.original_payload = _create_payload(in_workspace_context, false,
-			INCLUDE_VIRTUAL_OBJECTS, INCLUDE_SPRINGS, LOCK_ATOMS, NUDGE_ATOMS_FIX)
+			INCLUDE_VIRTUAL_OBJECTS, INCLUDE_SPRINGS, LOCK_ATOMS, PASSIVATE_MOLECULES, NUDGE_ATOMS_FIX)
 	out_simulation_data.push_frame(0, out_simulation_data.original_payload.initial_positions)
 	if _PRINT_REQUEST_AND_RESPONSE:
 		print_rich("[color=orange] Header: %s[/color]" % str(out_simulation_data.original_payload.header))

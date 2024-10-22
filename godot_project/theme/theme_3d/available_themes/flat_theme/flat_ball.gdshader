@@ -10,7 +10,6 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_lambert,specular_schli
 
 uniform vec4 albedo : source_color;
 uniform sampler2D texture_albedo : source_color,filter_linear_mipmap,repeat_enable;
-uniform float point_size : hint_range(0,128);
 uniform float roughness : hint_range(0,1);
 uniform sampler2D texture_metallic : hint_default_white,filter_linear_mipmap,repeat_enable;
 uniform vec4 metallic_texture_channel;
@@ -19,8 +18,6 @@ uniform float specular;
 uniform float metallic;
 uniform vec3 uv1_scale;
 uniform vec3 uv1_offset;
-uniform vec3 uv2_scale;
-uniform vec3 uv2_offset;
 
 uniform vec3 camera_up_vector;
 uniform vec3 camera_right_vector;
@@ -78,12 +75,10 @@ void vertex() {
 	VERTEX += displace_outline(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR);
 	
 	// Calculate rotation matrix to align model with camera
-	vec3 model_origin_pos_in_world_space = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-	vec3 model_to_camera = normalize(CAMERA_POSITION_WORLD - model_origin_pos_in_world_space);
 	mat4 billboard_rot = mat4(
 		vec4(normalize(camera_right_vector), 0.0),
 		vec4(normalize(camera_up_vector), 0.0),
-		vec4(model_to_camera, 0.0), // Already normalized
+		vec4(cross(normalize(camera_right_vector), normalize(camera_up_vector)), 0.0),
 		vec4(0.0, 0.0, 0.0, 1.0)
 	);
 	vec3 final_vertex = (billboard_rot * vec4(VERTEX, 1.0)).xyz;
@@ -97,7 +92,7 @@ void vertex() {
 	//apply translation delta
 	final_vertex += get_translation_delta(COLOR, MODEL_MATRIX);
 	
-	VERTEX = hide_hydrogen_atoms(final_vertex, COLOR.rgb);
+	VERTEX = hide_hydrogen_atoms(final_vertex, COLOR.a);
 }
 
 

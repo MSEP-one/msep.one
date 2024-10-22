@@ -17,10 +17,11 @@ const UNIT_SYMBOL: Dictionary = {
 	Unit.NANOSECOND: "ns"
 }
 
-@export var time_span_femtoseconds: float: set = _set_time_span_in_femtoseconds, get = _get_time_span_in_femtoseconds
+@export var time_span_femtoseconds: float:
+	set = _set_time_span_in_femtoseconds
+@export var min_value_in_femtoseconds: float = 0.05
 @export var current_unit: Unit = Unit.FEMTOSECOND: set = _set_current_unit
 @export var editable: bool = true: set = _set_editable
-
 
 var _spin_box_slider: SpinBoxSlider = null
 var _option_button_time_span_unit: OptionButton = null
@@ -53,12 +54,6 @@ func _set_time_span_in_femtoseconds(in_time: float) -> void:
 	_spin_box_slider.set_value_no_signal(femtoseconds_to_unit(in_time, current_unit))
 
 
-func _get_time_span_in_femtoseconds() -> float:
-	if _spin_box_slider == null:
-		return time_span_femtoseconds
-	return unit_to_femtoseconds(_spin_box_slider.value, current_unit)
-
-
 func _on_spin_box_slider_value_confirmed(in_new_value: float) -> void:
 	time_span_changed.emit(in_new_value, current_unit)
 
@@ -67,10 +62,15 @@ func _set_current_unit(in_new_unit: Unit) -> void:
 	if in_new_unit == current_unit:
 		return
 	var old_in_femtoseconds: float = time_span_femtoseconds
+	var new_min_value: float = femtoseconds_to_unit(min_value_in_femtoseconds, in_new_unit)
+	_spin_box_slider.set_block_signals(true)
+	_spin_box_slider.min_value = new_min_value
+	_spin_box_slider.step = new_min_value
 	var new_magnitude: float = femtoseconds_to_unit(old_in_femtoseconds, in_new_unit)
 	current_unit = in_new_unit
 	_spin_box_slider.suffix = UNIT_SYMBOL[in_new_unit]
-	_spin_box_slider.set_value_no_signal(new_magnitude)
+	_spin_box_slider.value = new_magnitude
+	_spin_box_slider.set_block_signals(false)
 	if _option_button_time_span_unit.selected != in_new_unit:
 		_option_button_time_span_unit.select(in_new_unit)
 	time_span_changed.emit(new_magnitude, in_new_unit)

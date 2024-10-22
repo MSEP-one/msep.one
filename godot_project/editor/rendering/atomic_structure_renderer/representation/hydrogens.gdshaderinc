@@ -1,6 +1,7 @@
 // Holds the logic to detect and hide hydrogen atoms
 #include "constants.gdshaderinc"
 #include "float_operations.gdshaderinc"
+#include "instance_state.gdshaderinc"
 
 
 const float HYDROGEN_LABEL_ID = 0.0;
@@ -16,27 +17,13 @@ float _is_in_range(vec3 point, vec3 target) {
 	return float(all(lessThanEqual(minRange, point)) && all(lessThanEqual(point, maxRange)));
 }
 
-float _is_hydrogen_atom(vec3 color){
-	float is_dimmed_hydrogen = _is_in_range(color, HYDROGEN_ATOM_COLOR);
-	float is_hydrogen = _is_in_range(color, HYDROGEN_ATOM_COLOR);
-	return float_or(is_dimmed_hydrogen, is_hydrogen);
+float _should_hide_hydrogen_atom(float alpha) {
+	return float_and(is_hydrogen(alpha), float_not(show_hydrogens));
 }
 
 
-float _is_hydrogen_bond_end(vec3 color){
-	float is_dimmed_hydrogen = _is_in_range(color,HYDROGEN_BOND_COLOR * DIMM_FACTOR);
-	float is_unselected_hydrogen = _is_in_range(color, HYDROGEN_BOND_COLOR);
-	float is_selected_hydrogen = _is_in_range(color, HYDROGEN_BOND_COLOR * BOND_HIGHLIGHT_FACTOR);
-	return float_or_3(is_dimmed_hydrogen, is_unselected_hydrogen, is_selected_hydrogen);
-}
-
-float _should_hide_hydrogen_atom(vec3 color) {
-	return float_and(_is_hydrogen_atom(color), float_not(show_hydrogens));
-}
-
-
-float _should_hide_hydrogen_bond(vec3 color_1, vec3 color_2) {
-	float is_hydrogen_bond = float_or(_is_hydrogen_bond_end(color_1), _is_hydrogen_bond_end(color_2));
+float _should_hide_hydrogen_bond(float alpha_1, float alpha_2) {
+	float is_hydrogen_bond = float_or(is_hydrogen(alpha_1), is_hydrogen(alpha_2));
 	return float_and(is_hydrogen_bond, float_not(show_hydrogens));
 }
 
@@ -52,16 +39,16 @@ float _should_hide_hydrogen_spring(float color_alpha) {
 
 
 // Usage:
-// VERTEX = hide_hydrogen_atoms(VERTEX, COLOR.rgb);
-vec3 hide_hydrogen_atoms(vec3 vertex, vec3 color) {
-	return vertex - vertex * _should_hide_hydrogen_atom(color);
+// VERTEX = hide_hydrogen_atoms(VERTEX, COLOR.a);
+vec3 hide_hydrogen_atoms(vec3 vertex, float color_alpha) {
+	return vertex - vertex * _should_hide_hydrogen_atom(color_alpha);
 }
 
 
 // Usage:
-// VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.rgb, INSTANCE_CUSTOM.rgb);
-vec3 hide_hydrogen_bonds(vec3 vertex, vec3 color_1, vec3 color_2) {
-	return vertex - vertex * _should_hide_hydrogen_bond(color_1, color_2);
+// VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.a, INSTANCE_CUSTOM.a);
+vec3 hide_hydrogen_bonds(vec3 vertex, float alpha_1, float alpha_2) {
+	return vertex - vertex * _should_hide_hydrogen_bond(alpha_1, alpha_2);
 }
 
 

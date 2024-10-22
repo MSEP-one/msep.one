@@ -1,8 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://dnppynbygr3na"]
+[gd_scene load_steps=3 format=3 uid="uid://dnppynbygr3na"]
 
 [ext_resource type="Script" path="res://editor/controls/welcome_page/WelcomePage.gd" id="1_h6th3"]
-[ext_resource type="PackedScene" uid="uid://5tcu0t58ckin" path="res://editor/controls/welcome_page/welcome_page_controls/TutorialsBox.tscn" id="2_dcphp"]
-[ext_resource type="PackedScene" uid="uid://bhdkbft5fofh1" path="res://editor/controls/welcome_page/welcome_page_controls/PuzzlesBox.tscn" id="3_ummml"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i26yn"]
 bg_color = Color(0.333333, 0.203922, 0.596078, 1)
@@ -57,6 +55,7 @@ layout_mode = 2
 [node name="NewWorkspace" type="LinkButton" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 0
 tooltip_text = "Create New Workspace"
 text = "Create New Workspace"
 
@@ -67,28 +66,22 @@ theme_override_constants/separation = 10
 
 [node name="LoadWorkspace1" type="LinkButton" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox"]
 layout_mode = 2
+size_flags_horizontal = 0
 text = "Go to 'Workspace1'"
 
 [node name="LoadWorkspace2" type="LinkButton" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox"]
 layout_mode = 2
+size_flags_horizontal = 0
 text = "Go to 'Workspace2'"
 
 [node name="LoadWorkspace3" type="LinkButton" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox"]
 layout_mode = 2
+size_flags_horizontal = 0
 text = "Open '/home/msep/Documents/Workspace3.msep1'"
 
 [node name="LoadWorkspaceFromDisk" type="LinkButton" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 0
 tooltip_text = "Search the filesystem and load a workspace"
 text = "Load from disk ..."
-
-[node name="EmptySpacer2" type="Control" parent="ScrollContainer/HBoxContainer/MainContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="TutorialsBox" parent="ScrollContainer/HBoxContainer/MainContainer" instance=ExtResource("2_dcphp")]
-layout_mode = 2
-
-[node name="PuzzlesBox" parent="ScrollContainer/HBoxContainer/MainContainer" instance=ExtResource("3_ummml")]
-layout_mode = 2

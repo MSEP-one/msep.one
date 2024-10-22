@@ -1,7 +1,6 @@
 extends InputHandlerCreateObjectBase
 
 
-const MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED = 20 * 20
 enum {
 	_NO_DRAG,
 	_MOUSE_DOWN_NO_DRAG_YET,

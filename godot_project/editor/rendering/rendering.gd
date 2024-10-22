@@ -547,6 +547,7 @@ func atom_preview_hide() -> Rendering:
 func atom_preview_set_position(in_position: Vector3) -> Rendering:
 	if not enabled: return
 	_atom_preview.set_position(in_position)
+	_ballstick_bond_preview.update_second_atom_pos(in_position)
 	return self
 
 

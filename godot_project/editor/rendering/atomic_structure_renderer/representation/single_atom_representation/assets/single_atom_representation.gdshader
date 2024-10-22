@@ -27,7 +27,7 @@ void vertex() {
 	// Hide hydrogens if necesary
 	// SingleAtomRepresentation uses bond color for atoms instead of atom color
 	// Because of that we use hide_hydrogen_bonds() instead
-	VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.rgb, INSTANCE_CUSTOM.rgb);
+	VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.a, INSTANCE_CUSTOM.a);
 	COLOR.rgb = apply_selectable_dimming(COLOR).rgb;
 	
 	
@@ -36,8 +36,6 @@ void vertex() {
 	}
 	
 	// COLOR.a > 2.0 always means the atom is selected	
-	vec3 model_origin_pos_in_world_space = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-	vec3 model_to_camera = normalize(CAMERA_POSITION_WORLD - model_origin_pos_in_world_space);
 
 	// Make the outline mesh visible if the atom is selected
 	is_outline = uv_is_outline(UV);
@@ -48,7 +46,7 @@ void vertex() {
 	mat4 billboard_rot = mat4(
 		vec4(normalize(camera_right_vector), 0.0),
 		vec4(normalize(camera_up_vector), 0.0),
-		vec4(model_to_camera, 0.0), // Already normalized
+		vec4(cross(normalize(camera_right_vector), normalize(camera_up_vector)), 0.0),
 		vec4(0.0, 0.0, 0.0, 1.0)
 	);
 	

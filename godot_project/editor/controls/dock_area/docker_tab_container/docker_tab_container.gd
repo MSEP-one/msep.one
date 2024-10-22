@@ -83,9 +83,11 @@ func update_visibility() -> void:
 			# controls with tab hidden are also hidden
 			tab_container.get_tab_control(i).hide()
 	var current_control: Control = get_current_control()
-	if current_control != null and not current_control.visible:
+	if current_control == null:
 		if first_visible_tab != -1:
 			focus_tab(first_visible_tab)
+	elif not current_control.visible:
+		focus_tab(tab_container.current_tab)
 	visible = container_visible
 	docker_tab_bar.update()
 

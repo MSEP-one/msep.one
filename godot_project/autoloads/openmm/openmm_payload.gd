@@ -133,9 +133,6 @@ func add_structure(structure: NanoStructure, atom_ids: PackedInt32Array, bond_id
 		for atom_id in atom_ids:
 			var hydrogen_candidates: PackedVector3Array = _passivate_atom(structure, atom_id)
 			var request_id: int = original_to_request_atom_id_map[atom_id]
-			for i in hydrogen_candidates.size():
-				# candidates are only directions to place the atoms, place them relative to atom
-				hydrogen_candidates[i] += initial_positions[request_id]
 			structure_passivation_atoms_count += hydrogen_candidates.size()
 			passivation_state.resize(passivation_state.size() + POSITION_CHUNK_SIZE * hydrogen_candidates.size())
 			topology_passivated_atoms.resize(topology_passivated_atoms.size() + ATOM_ID_SIZE * hydrogen_candidates.size())
@@ -328,7 +325,28 @@ func _passivate_atom(in_structure: AtomicStructure, in_atom_id: int) -> PackedVe
 				var other_atom_pos_3: Vector3 = in_structure.atom_get_position(other_atom_id_3)
 				var known_3 := HAtomsEmptyValenceDirections.Atom.new(other_atom_pos_3, "dummy")
 				directions = HAtomsEmptyValenceDirections.fill_valence_from_3(current_atom, known_1, known_2, known_3)
+		for i in directions.size():
+			# Correct the position of each atom
+			directions[i] = _place_passivation_hydrogen(in_structure, in_atom_id, directions[i])
 	return directions
+
+
+func _place_passivation_hydrogen(in_nano_structure: NanoStructure, in_atom_id: int, in_direction: Vector3) -> Vector3:
+	var offset: Vector3 = in_direction
+	var atom_element: int = in_nano_structure.atom_get_atomic_number(in_atom_id)
+	var atom_position: Vector3 = in_nano_structure.atom_get_position(in_atom_id)
+	var atom_element_data: ElementData = PeriodicTable.get_by_atomic_number(atom_element)
+	var hydrogen_element_data: ElementData = PeriodicTable.get_by_atomic_number(PeriodicTable.ATOMIC_NUMBER_HYDROGEN)
+	const HYDROGEN_BOND_ORDER: int = 1
+	offset *= (
+		atom_element_data.covalent_radius[HYDROGEN_BOND_ORDER] +
+		hydrogen_element_data.covalent_radius[HYDROGEN_BOND_ORDER]
+	)
+	var debug_multiplier: float = ProjectSettings.get_setting(
+		&"msep/h_atoms_empty_valence_directions/hydrogen_bond_lengths_multiplier", 1.0)
+	offset *= debug_multiplier
+	return (atom_position + offset)
+
 
 func _find_torsion_candidate(in_structure: NanoStructure, in_atom_id: int, other_atom_ids: PackedInt32Array) -> HAtomsEmptyValenceDirections.Atom:
 	for other_atom_id in other_atom_ids:

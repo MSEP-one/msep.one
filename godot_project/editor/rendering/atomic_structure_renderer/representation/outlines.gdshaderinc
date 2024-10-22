@@ -30,8 +30,7 @@ float uv_is_outline(vec2 uv) {
 // Usage:
 // VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale);
 vec3 calculate_outline_displacement(vec3 vertex, vec2 uv, mat4 model_matrix, vec3 camera_position_world, vec4 color, float scale) {
-	// COLOR.a > 2.0 always means the atom is selected	
-	float object_is_selected = clamp(step(2.0, color.a), 0.0, 1.0);
+	float object_is_selected = is_atom_or_bond_selected(color.a);
 	vec3 model_origin_pos_in_world_space = (model_matrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 	float inverse_scale = 1.0 / length(vec3(model_matrix[0][0], model_matrix[0][1], model_matrix[0][2]));
 	vec3 dir = normalize(vec3(vertex.x, vertex.y, 0.0));

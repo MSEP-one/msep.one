@@ -60,6 +60,8 @@ func _set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
 				_on_history_previous_snapshot_applied)
 		workspace_context.history_next_snapshot_applied.disconnect(
 				_on_history_next_snapshot_applied)
+		workspace_context.history_changed.disconnect(
+				_on_history_changed)
 	
 	workspace_context = in_workspace_context
 	editor_viewport._workspace_context = in_workspace_context
@@ -79,6 +81,8 @@ func _set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
 			_on_history_previous_snapshot_applied)
 	workspace_context.history_next_snapshot_applied.connect(
 			_on_history_next_snapshot_applied)
+	workspace_context.history_changed.connect(
+			_on_history_changed)
 
 
 func get_rendering() -> Rendering:
@@ -314,3 +318,8 @@ func _on_history_previous_snapshot_applied(in_snapshot_name: String) -> void:
 
 func _on_history_next_snapshot_applied(in_snapshot_name: String) -> void:
 	_message_bar.show_message("Redo: " + in_snapshot_name)
+
+
+func _on_history_changed() -> void:
+	if is_instance_valid(_ring_menu) and _ring_menu.is_active():
+		_ring_menu.refresh_button_availability()

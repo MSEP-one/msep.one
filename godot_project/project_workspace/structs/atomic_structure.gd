@@ -285,7 +285,7 @@ func atoms_set_positions(_in_atoms: PackedInt32Array, _in_positions: PackedVecto
 
 
 ## Setting an atom as locked creates a force during simulation (and relaxation if enabled)
-## that attempts to mantain it in it's initial position
+## that attempts to maintain it in it's initial position
 func atoms_set_locked(in_atoms: PackedInt32Array, in_is_locked: bool) -> void:
 	assert(_is_being_edited, "Color override can only be changed while structure is being edited")
 	for atom_id: int in in_atoms:
@@ -302,6 +302,18 @@ func atoms_set_locked(in_atoms: PackedInt32Array, in_is_locked: bool) -> void:
 ## Returns true if the atom is locked
 func atom_is_locked(in_atom_id: int) -> bool:
 	return locked_atoms.get(in_atom_id, false)
+
+
+func atom_is_hydrogen(in_atom_id: int) -> bool:
+	var atomic_number: int = atom_get_atomic_number(in_atom_id)
+	return atomic_number == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
+
+
+func atom_is_any_hydrogen(in_atom_ids: PackedInt32Array) -> bool:
+	for atom_id in in_atom_ids:
+		if atom_is_hydrogen(atom_id):
+			return true
+	return false
 
 
 ## Returns an array with the IDs of all locked atoms
@@ -663,7 +675,10 @@ func merge_structure(in_structure: AtomicStructure, in_placement_xform: Transfor
 	var new_atoms := PackedInt32Array()
 	var new_bonds := PackedInt32Array()
 	var new_springs := PackedInt32Array()
-	
+	var old_color_overrides: Dictionary = in_structure.get_color_override_snapshot()
+	var new_color_overrides: Dictionary = {
+	#	color<Color> = atoms_to_apply<PackedInt32Array>
+	}
 	# Add atoms
 	for atom_id: int in in_structure.get_valid_atoms():
 		var atomic_number: int = in_structure.atom_get_atomic_number(atom_id)
@@ -671,9 +686,17 @@ func merge_structure(in_structure: AtomicStructure, in_placement_xform: Transfor
 		var pos: Vector3 = in_placement_xform * in_structure.atom_get_position(atom_id)
 		var add_params := AtomicStructure.AddAtomParameters.new(atomic_number, pos)
 		var new_atom_id: int = add_atom(add_params)
+		if old_color_overrides.has(atom_id):
+			var color: Color = old_color_overrides[atom_id]
+			if not new_color_overrides.has(color):
+				new_color_overrides[color] = PackedInt32Array()
+			new_color_overrides[color].append(new_atom_id)
 		original_to_structure_atom_map[atom_id] = new_atom_id
 		new_atoms.push_back(new_atom_id)
-	
+	# Apply collected color overrides
+	for color: Color in new_color_overrides.keys():
+		var atoms_for_color: PackedInt32Array = new_color_overrides[color]
+		set_color_override(atoms_for_color, color)
 	# Add bonds
 	for bond_id: int in in_structure.get_valid_bonds():
 		if not in_structure.is_bond_valid(bond_id):
@@ -785,7 +808,7 @@ func set_bonds_visibility(in_bonds: PackedInt32Array, in_visible: bool) -> void:
 	
 	for bond_id: int in in_bonds:
 		if in_visible:
-			hidden_bonds.erase(bond_id) 
+			hidden_bonds.erase(bond_id)
 		else:
 			hidden_bonds[bond_id] = true
 	bonds_visibility_changed.emit(in_bonds)
@@ -812,7 +835,7 @@ func set_motor_link_visibility(in_atoms: PackedInt32Array, in_visible: bool) -> 
 		return
 	for atom_id: int in in_atoms:
 		if in_visible:
-			hidden_motor_links.erase(atom_id) 
+			hidden_motor_links.erase(atom_id)
 		else:
 			hidden_motor_links[atom_id] = true
 	motor_links_visibility_changed.emit(in_atoms)

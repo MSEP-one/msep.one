@@ -103,7 +103,7 @@ func set_spinbox_visible(in_visible: bool) -> void:
 		get_child(0, true).show()
 		mouse_filter = Control.MOUSE_FILTER_STOP
 	else:
-		# To mantain slider visible and spinbox invisible we play with some properties
+		# To maintain slider visible and spinbox invisible we play with some properties
 		self_modulate.a = 0.0
 		get_child(0, true).hide()
 		mouse_filter = Control.MOUSE_FILTER_IGNORE

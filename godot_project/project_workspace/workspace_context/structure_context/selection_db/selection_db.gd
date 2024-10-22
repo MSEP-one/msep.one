@@ -453,7 +453,7 @@ func get_selection_snapshot() -> Dictionary:
 
 
 func apply_selection_snapshot(in_snapshot: Dictionary) -> void:
-	set_virtual_object_selected(in_snapshot.is_virtual_object_selected)
+	_is_virtual_object_selected = in_snapshot.is_virtual_object_selected
 	
 	var nano_structure: NanoStructure = _structure_context.nano_structure
 	var atom_snapshot: Array = in_snapshot.atom_snapshot

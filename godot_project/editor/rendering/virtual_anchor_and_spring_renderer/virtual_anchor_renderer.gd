@@ -111,6 +111,9 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["_anchor_id"] = _anchor_id
 	snapshot["_is_built"] = _is_built
+	snapshot["visible"] = visible
+	snapshot["material_selected"] = _get_shader_uniform(&"is_selected")
+	snapshot["material_selectable"] = _get_shader_uniform(&"is_selectable")
 	snapshot["global_transform"] = global_transform
 	return snapshot
 
@@ -119,4 +122,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_workspace_context = in_snapshot["_workspace_context"]
 	_anchor_id = in_snapshot["_anchor_id"]
 	_is_built = in_snapshot["_is_built"]
+	visible = in_snapshot["visible"]
+	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
+	_set_shader_uniform(&"is_selectable", in_snapshot["material_selectable"])
 	global_transform = in_snapshot["global_transform"]

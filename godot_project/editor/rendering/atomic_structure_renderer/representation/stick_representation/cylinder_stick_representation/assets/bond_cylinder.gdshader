@@ -82,7 +82,7 @@ void vertex() {
 	vertex_position += get_bond_translation_delta(VERTEX, COLOR, MODEL_MATRIX);
 	//
 	VERTEX = vertex_position;
-	VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.rgb, INSTANCE_CUSTOM.rgb);
+	VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.a, INSTANCE_CUSTOM.a);
 	VERTEX *= is_atom_or_bond_visible(COLOR.a);
 }
 

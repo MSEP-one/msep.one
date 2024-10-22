@@ -208,7 +208,8 @@ func _on_representation_settings_hydrogen_visibility_changed(in_hydrogens_visibl
 
 func _on_nano_structure_visibility_changed(in_visible: bool) -> void:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
-	if nano_structure.is_virtual_object():
+	# Nano shapes collision detection is detected differently
+	if nano_structure.is_virtual_object() and not nano_structure is NanoShape:
 		_atom_collision_space.set_collider_enabled(VIRTUAL_OBJECT_ID, in_visible)
 
 

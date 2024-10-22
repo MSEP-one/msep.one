@@ -27,7 +27,8 @@ const UNIT_SYMBOL: Dictionary = {
 	Unit.CELSIUS: "ºC"
 }
 
-@export var temperature_kelvins: float: set = _set_temperature_in_kelvins, get = _get_temperature_in_kelvins
+@export var temperature_kelvins: float:
+	set = _set_temperature_in_kelvins
 @export var current_unit: Unit = Unit.KELVIN: set = _set_current_unit
 @export var editable: bool = true: set = _set_editable
 
@@ -84,12 +85,6 @@ func _set_temperature_in_kelvins(in_temp: float) -> void:
 	if _spin_box_slider == null:
 		return
 	_spin_box_slider.set_value_no_signal(kelvin_to_unit(in_temp, current_unit))
-
-
-func _get_temperature_in_kelvins() -> float:
-	if _spin_box_slider == null:
-		return temperature_kelvins
-	return unit_to_kelvin(_spin_box_slider.value, current_unit)
 
 
 func _on_spin_box_slider_value_confirmed(in_new_value: float) -> void:

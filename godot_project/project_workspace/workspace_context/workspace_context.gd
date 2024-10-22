@@ -130,7 +130,6 @@ func _notification(what: int) -> void:
 		_history.snapshot_applied.connect(_on_history_snapshot_applied)
 		_history.previous_snapshot_applied.connect(_on_history_previous_snapshot_applied)
 		_history.next_snapshot_applied.connect(_on_history_next_snapshot_applied)
-		_last_saved_version = _history.get_version()
 	
 	if what == NOTIFICATION_PREDELETE:
 		create_object_parameters = null
@@ -199,8 +198,13 @@ func _on_workspace_main_view_ready() -> void:
 	workspace.representation_settings.hydrogen_visibility_changed.connect(_on_hydrogen_visibility_changed)
 	workspace_main_view.get_alerts_panel().visibility_changed.connect(_on_alerts_panel_visibility_changed)
 	
+	_initialize_history.call_deferred()
+
+
+func _initialize_history() -> void:
 	if dump_state_on_startup:
-		_history.create_snapshot.bind("").call_deferred()
+		_history.create_snapshot("")
+	_last_saved_version = _history.get_version()
 
 
 func _on_hydrogen_visibility_changed(_in_is_visible: bool = false) -> void:
@@ -541,7 +545,7 @@ func show_warning_dialog(in_message: String, in_accept_label: String, in_cancel_
 	if in_accept_label.is_empty():
 		dialog.get_ok_button().hide()
 	var right: bool = not OS.get_name().to_lower() == "macos"
-	if in_cancel_label != null:
+	if not in_cancel_label.is_empty():
 		dialog.add_cancel_button(in_cancel_label)
 	if in_warning_code != StringName():
 		dialog.add_button(tr("Don't Remind Me Again"), right, in_warning_code)

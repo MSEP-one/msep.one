@@ -10,7 +10,6 @@ const INPUT_EVENT_ACTIONS_WHITELIST: Array[StringName] = [
 	&"camera_forward",
 	&"camera_back",
 	&"camera_right",
-	&"faster_camera",
 	&"camera_orbit_modifier",
 	&"camera_up",
 	&"camera_down",

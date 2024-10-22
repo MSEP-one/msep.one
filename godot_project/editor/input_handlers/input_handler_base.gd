@@ -52,6 +52,12 @@ func handle_inputs_end() -> void:
 	pass
 
 
+## This method is used to inform an exclusive input consumer ended consuming inputs
+## This gives a chance to react to this fact and do some special initialization
+func handle_inputs_resume() -> void:
+	pass
+
+
 ## Can be overwritten to react to the fact that there was an input event which never has been
 ## delivered to this input handler.
 ## Similar to handle_inputs_end() but will happen even if handler serving the event is not an

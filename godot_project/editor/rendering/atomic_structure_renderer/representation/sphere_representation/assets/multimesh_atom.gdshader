@@ -67,15 +67,12 @@ vec3 srgb(vec3 in_color) {
 
 void vertex() {
 	// Hide hydrogens if necesary
-	VERTEX = hide_hydrogen_atoms(VERTEX, COLOR.rgb);
+	VERTEX = hide_hydrogen_atoms(VERTEX, COLOR.a);
 	COLOR.rgb = apply_selectable_dimming(COLOR).rgb;
 	
 	if (!OUTPUT_IS_SRGB) {
 		COLOR.rgb = srgb(COLOR.rgb);
 	}
-	
-	vec3 model_origin_pos_in_world_space = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-	vec3 model_to_camera = normalize(CAMERA_POSITION_WORLD - model_origin_pos_in_world_space);
 
 	// Make the outline mesh visible if the atom is selected
 	is_outline = uv_is_outline(UV);
@@ -86,7 +83,7 @@ void vertex() {
 	mat4 billboard_rot = mat4(
 		vec4(normalize(camera_right_vector), 0.0),
 		vec4(normalize(camera_up_vector), 0.0),
-		vec4(model_to_camera, 0.0), // Already normalized
+		vec4(cross(normalize(camera_right_vector), normalize(camera_up_vector)), 0.0),
 		vec4(0.0, 0.0, 0.0, 1.0)
 	);
 

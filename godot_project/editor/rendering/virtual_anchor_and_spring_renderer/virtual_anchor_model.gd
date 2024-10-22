@@ -32,3 +32,5 @@ func _set_shader_uniform(in_uniform: StringName, in_value: Variant) -> void:
 	for mat: ShaderMaterial in _materials:
 		mat.set_shader_parameter(in_uniform, in_value)
 
+func _get_shader_uniform(in_uniform: StringName) -> Variant:
+	return _materials[0].get_shader_parameter(in_uniform)

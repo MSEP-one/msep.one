@@ -78,6 +78,19 @@ func get_default_docker_area() -> int:
 	return DOCK_AREA_DEFAULT
 
 
+func ensure_docker_area_visible() -> void:
+	var parent: Node = get_parent()
+	while parent != null:
+		if parent is DockArea or parent is Window:
+			break
+		parent = parent.get_parent()
+	if parent is DockArea:
+		parent.user_hidden = false
+	elif parent is Window:
+		parent.visible = true
+
+
+
 ## VIRTUAL: Returns the text being displayed on the Tab of the Docker
 ## Subclasses of WorkspaceDocker can return a custom value or simply setup the default value
 ## of docker_tab_title property

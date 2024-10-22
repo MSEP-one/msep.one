@@ -580,10 +580,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 time_span_femtoseconds = 500.0
-
-[node name="SpinBoxSlider" parent="PanelContainer/VBoxContainer/GridContainer/TimeSpanPickerPauseTime" index="0"]
-min_value = 0.0
-value = 500.0
+min_value_in_femtoseconds = 0.0
 
 [node name="StopAfterCheckBox" type="CheckBox" parent="PanelContainer/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
@@ -614,5 +611,3 @@ text = "・ Swap polarity between cycles"
 libraries = {
 "": SubResource("AnimationLibrary_1v0wx")
 }
-
-[editable path="PanelContainer/VBoxContainer/GridContainer/TimeSpanPickerPauseTime"]

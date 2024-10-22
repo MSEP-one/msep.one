@@ -72,6 +72,7 @@ func build(in_structure_context: StructureContext) -> void:
 		atom_state.is_selected = in_structure_context.is_atom_selected(atom_id)
 		if atom_state.is_selected:
 			_highlighted_atoms[atom_id] = true
+		atom_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(atom_id)
 		var atom_transform: Transform3D = Transform3D()
 		atom_transform.origin = atom_position
 		var color: Color = data.color
@@ -112,6 +113,7 @@ func _add_atom(in_atom_id: int) -> void:
 	atom_state.is_selected = structure_context.is_atom_selected(in_atom_id)
 	if atom_state.is_selected:
 		_highlighted_atoms[in_atom_id] = true
+	atom_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(in_atom_id)
 	color.g = _atom_number_to_atlas_id_map[data.number]
 	color.b = data.render_radius
 	color.a = atom_state.to_float()
@@ -242,6 +244,7 @@ func _refresh_atom(in_atom_id: int, _in_scale_factor: float = BASE_SCALE) -> voi
 	atom_state.is_selected = _highlighted_atoms.get(in_atom_id, false)
 	atom_state.is_visible = not related_nanostructure.is_atom_hidden_by_user(in_atom_id)
 	atom_state.is_locked = related_nanostructure.atom_is_locked(in_atom_id)
+	atom_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(in_atom_id)
 	var atom_color: Color = data.color
 	atom_color.g = _atom_number_to_atlas_id_map[data.number]
 	atom_color.b = data.render_radius

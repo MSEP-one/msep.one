@@ -50,7 +50,7 @@ func _on_workspace_loaded(in_workspace: Workspace) -> void:
 		workspace_context.history_changed.connect(_on_workspace_context_history_changed.bind(weakref(workspace_context)))
 	var view: WorkspaceMainView = workspace_context.workspace_main_view
 	add_child(view)
-	_update_workspace_name(in_workspace)
+	_update_workspace_name.call_deferred(in_workspace)
 
 
 func _on_workspace_context_history_changed(in_workspace_context: WeakRef) -> void:
@@ -108,7 +108,7 @@ func _update_workspace_name(in_workspace: Workspace) -> void:
 	var wp_name: String = in_workspace.get_user_friendly_name().get_file().get_basename().capitalize()
 	if wp_name.is_empty():
 		wp_name = "Unsaved Workspace"
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(in_workspace)
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(in_workspace) as WorkspaceContext
 	if workspace_context != null and \
 		(workspace_context.has_unsaved_changes() or not in_workspace.suggested_path.is_empty()):
 		wp_name += "*"

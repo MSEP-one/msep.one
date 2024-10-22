@@ -41,6 +41,7 @@ func _on_library_dialog_file_selected(path: String,
 	var is_part_of_active_workspace: bool = _workspace_context == active_workspace
 	if not is_part_of_active_workspace:
 		return
+	var snapshot_name: String = "Import from Library"
 	# Forward the event to the import file action
 	WorkspaceUtils.import_file(_workspace_context, path, autogenerate_bonds,
-					add_missing_hydrogens, remove_waters, desired_placement, create_new_group)
+					add_missing_hydrogens, remove_waters, desired_placement, create_new_group, snapshot_name)

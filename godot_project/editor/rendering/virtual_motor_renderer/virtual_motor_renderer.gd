@@ -182,11 +182,16 @@ func _set_shader_uniform(in_uniform: StringName, in_value: Variant) -> void:
 		mat.set_shader_parameter(in_uniform, in_value)
 
 
+func _get_shader_uniform(in_uniform: StringName) -> Variant:
+	return _materials[0].get_shader_parameter(in_uniform)
+
 
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["global_transform"] = global_transform
+	snapshot["material_selected"] = _get_shader_uniform(&"is_selected")
+	snapshot["material_selectable"] = _get_shader_uniform(&"is_selectable")
 	snapshot["_motor_id"] = _motor_id
 	return snapshot
 
@@ -198,5 +203,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	var motor: NanoVirtualMotor = _workspace_context.workspace.get_structure_by_int_guid(_motor_id) as NanoVirtualMotor
 	self.visible = motor.get_visible()
 	parameters = motor.get_parameters()
+	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
+	_set_shader_uniform(&"is_selectable", in_snapshot["material_selectable"])
 	_update_type_and_polarity()
 

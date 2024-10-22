@@ -5,6 +5,7 @@ extends InputHandlerBase
 ## Handles the common logic for preview positioning
 
 const INVALID_CENTER_OF_SELECTION = Vector3.INF
+const MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED = 20 * 20
 var _last_center_of_selection: Vector3 = INVALID_CENTER_OF_SELECTION
 
 # region: Virtual
@@ -53,6 +54,10 @@ func is_snap_to_shape_surface_enabled() -> bool:
 
 
 func update_preview_position() -> void:
+	if BusyIndicator.visible:
+		_set_preview_position_to_distance(10000.0)
+		return
+	
 	if is_snap_to_shape_surface_enabled():
 		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse()
 		if not is_nan(distance_to_shape_surface):
@@ -125,7 +130,7 @@ func _try_set_preview_position_to_center_of_selection() -> bool:
 		var selection_center_plane: Plane = Plane(camera.basis.z, _last_center_of_selection)
 		var distance_to_camera: float = selection_center_plane.distance_to(camera.global_position)
 		if distance_to_camera >= 0.0:
-			# Preview position will keep using center of selection even if it is outside 
+			# Preview position will keep using center of selection even if it is outside
 			# of the camera, *except* when the center of selection is behind the camera.
 			# In that case it will fall back to "fixed distance".
 			_set_preview_position_to_distance(distance_to_camera)

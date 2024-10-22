@@ -8,7 +8,7 @@ var _option_selection_only: CheckBox = null
 var _option_all_visible: CheckBox = null
 var _option_group: ButtonGroup = null
 var _temperature_picker: TemperaturePicker = null
-var _check_box_mantain_locks: CheckBox = null
+var _check_box_maintain_locks: CheckBox = null
 var _check_box_include_springs: CheckBox = null
 var _check_box_passivate_molecules: CheckBox = null
 var _label_select_only_notice: Label = null
@@ -27,7 +27,7 @@ func _notification(in_what: int) -> void:
 		_option_all_visible = %OptionAllVisible as CheckBox
 		_option_group = _option_all_visible.button_group
 		_temperature_picker = %TemperaturePicker as TemperaturePicker
-		_check_box_mantain_locks = %CheckBoxMantainLocks as CheckBox
+		_check_box_maintain_locks = %CheckBoxMaintainLocks as CheckBox
 		_check_box_include_springs = %CheckBoxIncludeSprings as CheckBox
 		_check_box_passivate_molecules = %CheckBoxPassivateMolecules as CheckBox
 		FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
@@ -120,7 +120,7 @@ func _on_button_run_relaxation_pressed() -> void:
 					_workspace_context.create_object_parameters.validate_bonds_requested.emit(selection_only)
 					return
 		var include_springs: bool = _check_box_include_springs.button_pressed
-		var lock_atoms: bool = _check_box_mantain_locks.button_pressed
+		var lock_atoms: bool = _check_box_maintain_locks.button_pressed
 		var passivate_molecules: bool = _check_box_passivate_molecules.button_pressed
 		request = WorkspaceUtils.relax(_workspace_context, temperature_in_kelvins, selection_only, include_springs, lock_atoms, passivate_molecules)
 	if is_instance_valid(request) and is_instance_valid(request.promise):

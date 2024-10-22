@@ -57,7 +57,6 @@ var _last_snapshot_name: String = ""
 
 func initialize(in_workspace_context: WorkspaceContext) -> void:
 	_workspace_context = in_workspace_context
-	changed.connect(_on_history_changed)
 
 
 func register_snapshotable(in_system: Object) -> void:
@@ -101,6 +100,7 @@ func _add_snapshot_to_stack(in_snapshot: Dictionary, in_snapshot_name: String) -
 		_snapshot_stack.pop_front()
 		_stack_pointer -= 1
 	
+	_version += 1
 	changed.emit()
 	snapshot_created.emit(in_snapshot_name)
 
@@ -113,6 +113,7 @@ func apply_previous_snapshot() -> void:
 	var undone_snapshot_name: String = _name_stack[_stack_pointer]
 	_stack_pointer -= 1
 	_apply_snapshot(_stack_pointer)
+	_version -= 1
 	changed.emit()
 	snapshot_applied.emit()
 	previous_snapshot_applied.emit(undone_snapshot_name)
@@ -125,6 +126,7 @@ func apply_next_snapshot() -> void:
 	_stack_pointer += 1
 	_apply_snapshot(_stack_pointer)
 	var snapshot_name: String = _name_stack[_stack_pointer]
+	_version += 1
 	changed.emit()
 	snapshot_applied.emit()
 	next_snapshot_applied.emit(snapshot_name)
@@ -167,10 +169,6 @@ func get_redo_name() -> String:
 
 func get_version() -> int:
 	return _version
-
-
-func _on_history_changed() -> void:
-	_version += 1
 
 
 func _validate_extern_snapshot(in_snapshot: Dictionary) -> bool:

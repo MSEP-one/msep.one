@@ -24,3 +24,14 @@ static func copy_file_from_to(in_source_path: String, in_destination_path: Strin
 	file = FileAccess.open(in_destination_path, FileAccess.WRITE)
 	file.store_buffer(data)
 	file.close()
+
+
+static func file_has_valid_extension(in_path: String, in_file_dialog_filters: PackedStringArray) -> bool:
+	var extension: String = in_path.get_extension()
+	var is_valid_extension: bool = false
+	for filter: String in in_file_dialog_filters:
+		var filter_extension: String = filter.replace(" ","").split(";")[0].get_extension()
+		if extension.to_lower() == filter_extension.to_lower():
+			is_valid_extension = true
+			break
+	return is_valid_extension

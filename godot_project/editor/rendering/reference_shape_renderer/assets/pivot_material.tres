@@ -1,9 +1,8 @@
 [gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://cefsc4ia284yo"]
 
 [sub_resource type="Gradient" id="Gradient_ps846"]
-interpolation_mode = 2
-offsets = PackedFloat32Array(0, 0.701031, 0.987113, 1)
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0)
+offsets = PackedFloat32Array(0, 0.735471, 0.761523, 0.973948, 0.987976)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_re0i1"]
 gradient = SubResource("Gradient_ps846")
@@ -19,6 +18,8 @@ alpha_antialiasing_mode = 0
 no_depth_test = true
 shading_mode = 0
 albedo_texture = SubResource("GradientTexture2D_re0i1")
+texture_filter = 0
+disable_receive_shadows = true
 billboard_mode = 1
 billboard_keep_scale = true
 fixed_size = true

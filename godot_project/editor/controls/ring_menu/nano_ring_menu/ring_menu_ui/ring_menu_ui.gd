@@ -23,7 +23,7 @@ func _notification(what: int) -> void:
 		_camera = $SubViewport/Camera3D
 		_ring_menu = $SubViewport/RingMenu3D
 		_subviewport = $SubViewport
-		_fadeAnimator = $FadeAnimator
+		_fadeAnimator = $FadeAnimator as AnimationPlayer
 		_ring_menu.tooltip_changed.connect(_on_ring_menu_tooltip_changed)
 
 
@@ -32,7 +32,7 @@ func _on_ring_menu_tooltip_changed(in_tooltip: String) -> void:
 
 
 func is_active() -> bool:
-	return _ring_menu.is_visible_in_tree() and modulate.a > 0.0
+	return _ring_menu.is_visible_in_tree() and (_fadeAnimator.current_animation == &"fade_in" or modulate.a >= 0.95)
 
 
 func is_point_inside_ring(in_point: Vector2) -> bool:

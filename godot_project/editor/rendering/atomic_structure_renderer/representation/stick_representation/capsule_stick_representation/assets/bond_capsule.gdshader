@@ -88,7 +88,7 @@ void vertex() {
 	position /= scale;
 	position = (modelview * vec4(position, 1.0)).xyz;
 	VERTEX = position;
-	VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.rgb, INSTANCE_CUSTOM.rgb);
+	VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.a, INSTANCE_CUSTOM.a);
 	VERTEX *= is_atom_or_bond_visible(COLOR.a);
 }
 

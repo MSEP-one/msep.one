@@ -1,9 +1,9 @@
 class_name InspectorControlVector3 extends InspectorControl
 
 
-var _x: SpinBox
-var _y: SpinBox
-var _z: SpinBox
+var _x: SpinBoxSlider
+var _y: SpinBoxSlider
+var _z: SpinBoxSlider
 
 
 var _property_changed_signal := Signal()
@@ -16,12 +16,20 @@ func _notification(in_what: int) -> void:
 		_x = $Components/X
 		_y = $Components/Y
 		_z = $Components/Z
+		_x.value_confirmed.connect(_on_value_confirmed)
+		_y.value_confirmed.connect(_on_value_confirmed)
+		_z.value_confirmed.connect(_on_value_confirmed)
 		_x.value_changed.connect(_on_value_changed)
 		_y.value_changed.connect(_on_value_changed)
 		_z.value_changed.connect(_on_value_changed)
 	elif in_what == NOTIFICATION_READY:
 		assert(_getter != Callable(), "Needs to be initalized with setup() before adding to a tree")
 		pass
+
+
+func _on_value_confirmed(_ignored_arg: float) -> void:
+	if _setter.is_valid():
+		_setter.get_object().store_undo_snapshot()
 
 
 func _on_value_changed(_ignored_arg: float) -> void:

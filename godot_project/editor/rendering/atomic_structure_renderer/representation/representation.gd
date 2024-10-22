@@ -258,6 +258,7 @@ class InstanceState:
 	var is_locked: bool = false
 	var is_first_atom_selected: bool = false
 	var is_second_atom_selected: bool = false
+	var is_hydrogen: bool = false
 	
 	func _init(from_float: float = -1.0) -> void:
 		if from_float < 0.0:
@@ -269,6 +270,7 @@ class InstanceState:
 		is_locked = _is_bit_set(packed_state, 3)
 		is_first_atom_selected = _is_bit_set(packed_state, 4)
 		is_first_atom_selected = _is_bit_set(packed_state, 5)
+		is_hydrogen = _is_bit_set(packed_state, 6)
 	
 	func to_float() -> float:
 		# The values to pack in a float. Declaration order is important and
@@ -280,6 +282,7 @@ class InstanceState:
 			is_locked,
 			is_first_atom_selected,
 			is_second_atom_selected,
+			is_hydrogen,
 		]
 		var bits: int = 0
 		for i: int in flags.size():

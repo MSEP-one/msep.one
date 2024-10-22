@@ -38,10 +38,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 time_span_femtoseconds = 150.0
-
-[node name="SpinBoxSlider" parent="LinearRampInTime" index="0"]
-min_value = 0.0
-value = 150.0
+min_value_in_femtoseconds = 0.0
 
 [node name="Label2" type="Label" parent="."]
 custom_minimum_size = Vector2(0, 38)
@@ -54,10 +51,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 time_span_femtoseconds = 150.0
-
-[node name="SpinBoxSlider" parent="LinearRampOutTime" index="0"]
-min_value = 0.0
-value = 150.0
+min_value_in_femtoseconds = 0.0
 
 [node name="Label3" type="Label" parent="."]
 custom_minimum_size = Vector2(0, 38)
@@ -104,6 +98,3 @@ theme_type_variation = &"StructureSelectorMoreButton"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_nsg6m")
 text = "Backwards"
-
-[editable path="LinearRampInTime"]
-[editable path="LinearRampOutTime"]

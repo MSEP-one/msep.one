@@ -120,7 +120,7 @@ func _ready() -> void:
 	about_to_popup.connect(_on_about_to_popup)
 	confirmed.connect(_on_confirmed)
 	visibility_changed.connect(_on_visibility_changed)
-	# Watch editor size change to mantain resolution up to date when using SizePresets.RES_MATCH_EDITOR
+	# Watch editor size change to maintain resolution up to date when using SizePresets.RES_MATCH_EDITOR
 	get_tree().root.size_changed.connect(_on_main_window_size_changed)
 	_option_button_size_preset.item_selected.connect(_on_option_button_size_preset_item_selected)
 	_spin_box_slider_width.value_changed.connect(_on_spin_box_slider_width_value_changed)

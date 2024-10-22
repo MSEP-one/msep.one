@@ -50,6 +50,7 @@ func build(in_structure_context: StructureContext) -> void:
 		var atom_position: Vector3 = related_nanostructure.atom_get_position(atom_id)
 		atom_state.is_selected = _highlighted_atoms.get(atom_id, false)
 		atom_state.is_visible = not related_nanostructure.is_atom_hidden_by_user(atom_id)
+		atom_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(atom_id)
 		var color: Color = StickRepresentation.get_bond_color(atom_id, related_nanostructure)
 		color.a = atom_state.to_float()
 		var atom_scale: Vector3 = Vector3.ONE * BASE_SCALE
@@ -285,6 +286,7 @@ func _refresh_atom(in_atom_id: int) -> void:
 	atom_state.is_hovered = _hovered_atom_id == in_atom_id
 	atom_state.is_selected = _highlighted_atoms.get(in_atom_id, false)
 	atom_state.is_visible = not related_nanostructure.is_atom_hidden_by_user(in_atom_id)
+	atom_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(in_atom_id)
 	atom_color.a = atom_state.to_float()
 	var atom_transform: Transform3D = Transform3D()
 	atom_transform = atom_transform.scaled_local(atom_scale)

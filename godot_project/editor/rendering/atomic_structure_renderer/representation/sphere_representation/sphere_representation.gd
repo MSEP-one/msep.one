@@ -65,6 +65,7 @@ func build(in_structure_context: StructureContext) -> void:
 		atom_state.is_visible = not related_nanostructure.is_atom_hidden_by_user(atom_id)
 		atom_state.is_selected = atom_id in selected_atoms
 		atom_state.is_locked = atom_id in locked_atoms
+		atom_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(atom_id)
 		atom_color.a = atom_state.to_float()
 		atom_transform = atom_transform.scaled_local(atom_scale)
 		atom_transform.origin = atom_position
@@ -327,6 +328,7 @@ func _refresh_atom(in_atom_id: int, scale_factor: float = BASE_SCALE) -> void:
 	atom_state.is_visible = not related_nanostructure.is_atom_hidden_by_user(in_atom_id)
 	atom_state.is_hovered = in_atom_id == _hovered_atom_id
 	atom_state.is_selected = _highlighted_atoms.get(in_atom_id, false)
+	atom_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(in_atom_id)
 	atom_color.a = atom_state.to_float()
 	var highlight_factor: float = 1.0 + float(atom_state.is_selected) + float(atom_state.is_hovered)
 	var additional_color: Color = data.noise_color * max(1.0, highlight_factor * 0.5)

@@ -96,7 +96,9 @@ theme_override_constants/separation = 0
 
 [node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
-text = "(c) 2023, Prehensile Tales B.V.
+text = "(c) 2022-Present, MSEP.one Contributors
+
+Ongoing contributions provided by Prehensile Tales, BV
 
 "
 
