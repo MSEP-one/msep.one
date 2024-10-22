@@ -29,6 +29,7 @@ func _ready() -> void:
 		remove_item(feature_flag_index)
 		var algorithm_tweaks_index: int = get_item_index(ID_SHOW_ALGORITHM_TWEAKS)
 		remove_item(algorithm_tweaks_index)
+	add_submenu_item("Camera", "Camera")
 
 
 func _update_menu() -> void:
@@ -136,9 +137,6 @@ func _on_id_pressed(in_id: int) -> void:
 		ID_THEME_3D:
 			request_hide.emit()
 			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
-		ID_CAMERA_PROJECTION:
-			request_hide.emit()
-			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"MSEP Settings")
 		ID_REPRESENTATION_SHOW_BONDS:
 			request_hide.emit()
 			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
@@ -172,5 +170,4 @@ enum {
 	ID_SHOW_HIDDEN_OBJECTS             = 19,
 	ID_OVERRIDE_DEFAULT_COLORS         = 20,
 	ID_THEME_3D                        = 21,
-	ID_CAMERA_PROJECTION               = 22,
 }

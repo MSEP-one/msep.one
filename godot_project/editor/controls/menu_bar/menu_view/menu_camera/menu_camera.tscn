@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://bh8iwsy4ji3k0"]
+[gd_scene load_steps=6 format=3 uid="uid://bh8iwsy4ji3k0"]
 
-[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_camera/menu_camera.gd" id="2_qiyix"]
+[ext_resource type="Texture2D" uid="uid://bdtmhsuvkbll3" path="res://editor/icons/icon_camera_x16.svg" id="2_67edx"]
+[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_view/menu_camera/menu_camera.gd" id="2_qiyix"]
 [ext_resource type="Texture2D" uid="uid://bgwo87rpq5iys" path="res://editor/icons/icon_add_x16.svg" id="3_u0t3u"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_3k5pr"]
@@ -12,11 +13,14 @@ keycode = 80
 events = [SubResource("InputEventKey_3k5pr")]
 
 [node name="Camera" type="PopupMenu"]
-size = Vector2i(192, 100)
+size = Vector2i(206, 100)
 visible = true
-item_count = 1
+item_count = 2
 item_0/text = "Capture Camera Image"
 item_0/icon = ExtResource("3_u0t3u")
 item_0/id = 0
+item_1/text = "Camera Projection"
+item_1/icon = ExtResource("2_67edx")
+item_1/id = 1
 script = ExtResource("2_qiyix")
 shortcut_capture_camera_image = SubResource("Shortcut_3lanh")

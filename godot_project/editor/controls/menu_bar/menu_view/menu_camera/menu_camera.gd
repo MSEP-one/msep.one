@@ -5,6 +5,7 @@ signal request_hide
 
 enum {
 	ID_CAPTURE_CAMERA_IMAGE            = 0,
+	ID_CAMERA_PROJECTION               = 1,
 }
 
 
@@ -36,4 +37,7 @@ func _on_id_pressed(in_id: int) -> void:
 		ID_CAPTURE_CAMERA_IMAGE:
 			request_hide.emit()
 			WorkspaceUtils.open_screen_capture_dialog(workspace_context)
+		ID_CAMERA_PROJECTION:
+			request_hide.emit()
+			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"MSEP Settings")
 
