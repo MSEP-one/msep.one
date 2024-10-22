@@ -1,6 +1,12 @@
 class_name InspectorControlVector3 extends InspectorControl
 
 
+# After user confirms the entered value they won't see more than 3 decimal places after 0. This
+# means that we can use this epsilon to check whether to update the spinbox value by signal. This
+# prevents the unexpected ugly values in most spinboxes upon just single value being changed.
+const EPSILON: float = .0005
+
+
 var _x: SpinBoxSlider
 var _y: SpinBoxSlider
 var _z: SpinBoxSlider
@@ -53,12 +59,15 @@ func setup(in_getter: Callable, in_setter: Callable = Callable(), in_property_ch
 
 func _on_changed_signal_emitted(_ignored_1: Variant = null, _ignored_2: Variant = null, _ignored_3: Variant = null) -> void:
 	var value: Vector3 = _getter.call()
-	_x.set_value_no_signal(value.x)
-	_x.get_line_edit().text = str(value.x)
-	_y.set_value_no_signal(value.y)
-	_y.get_line_edit().text = str(value.y)
-	_z.set_value_no_signal(value.z)
-	_z.get_line_edit().text = str(value.z)
+	if abs(_x.value - value.x) > EPSILON:
+		_x.set_value_no_signal(value.x)
+		_x.get_line_edit().text = str(value.x)
+	if abs(_y.value - value.y) > EPSILON:
+		_y.set_value_no_signal(value.y)
+		_y.get_line_edit().text = str(value.y)
+	if abs(_z.value - value.z) > EPSILON:
+		_z.set_value_no_signal(value.z)
+		_z.get_line_edit().text = str(value.z)
 
 
 func set_editable(in_is_editable: bool) -> void:
