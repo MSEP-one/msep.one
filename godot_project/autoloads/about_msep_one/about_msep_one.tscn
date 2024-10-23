@@ -1,9 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://gxawguce88cy"]
+[gd_scene load_steps=10 format=3 uid="uid://gxawguce88cy"]
 
 [ext_resource type="Script" path="res://autoloads/about_msep_one/about_msep_one.gd" id="1_6fjpy"]
 [ext_resource type="Shader" path="res://autoloads/initial_info_screen/initial_info_screen.gdshader" id="2_8o7yo"]
 [ext_resource type="Theme" uid="uid://d3fnr4sbrd6ik" path="res://theme/theme.tres" id="3_beojv"]
 [ext_resource type="Texture2D" uid="uid://bm36o6fo1evuo" path="res://logo.png" id="4_38ii1"]
+[ext_resource type="PackedScene" uid="uid://ceqlu15mn5g3q" path="res://autoloads/about_msep_one/third_party_software/third_party_software.tscn" id="5_p4fbb"]
+[ext_resource type="PackedScene" uid="uid://v30lo2ux3ujo" path="res://autoloads/about_msep_one/other_attributions/other_attributions.tscn" id="6_qip5g"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_g7c2g"]
 shader = ExtResource("2_8o7yo")
@@ -67,28 +69,31 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 13
+theme_type_variation = &"TabContainerCrystal"
 
-[node name="Logo" type="TextureRect" parent="VBoxContainer/HBoxContainer"]
-layout_mode = 2
-texture = ExtResource("4_38ii1")
-expand_mode = 3
-stretch_mode = 6
-
-[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer"]
+[node name="About Us" type="MarginContainer" parent="VBoxContainer/TabContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"CollapsableCategoryPanel"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/PanelContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/TabContainer/About Us"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Logo" type="TextureRect" parent="VBoxContainer/TabContainer/About Us/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("4_38ii1")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TabContainer/About Us/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/About Us/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "(c) 2022-Present, MSEP.one Contributors
 
@@ -96,12 +101,12 @@ Ongoing contributions provided by Prehensile Tales, BV
 
 "
 
-[node name="LabelDateOfBuild" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+[node name="LabelDateOfBuild" type="Label" parent="VBoxContainer/TabContainer/About Us/HBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Build date: yyyy-mm-dd.git_commit_hash"
 
-[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+[node name="Label2" type="Label" parent="VBoxContainer/TabContainer/About Us/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "
 The initial phase of MSEP.one's development was made possible by support from the Astera Institute, with contributions by the Survival and Flourishing Fund and Protocol Labs.
@@ -111,15 +116,13 @@ Currently, many more features are under development.
 "
 autowrap_mode = 2
 
-[node name="ButtonViewCopyrightInfo" type="LinkButton" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
-unique_name_in_owner = true
+[node name="Third Party Software" parent="VBoxContainer/TabContainer" instance=ExtResource("5_p4fbb")]
+visible = false
 layout_mode = 2
-size_flags_horizontal = 8
-theme_type_variation = &"FlatButton"
-shortcut = SubResource("Shortcut_hmq7l")
-shortcut_feedback = false
-shortcut_in_tooltip = false
-text = "View Copyright Information"
+
+[node name="Other Attributions" parent="VBoxContainer/TabContainer" instance=ExtResource("6_qip5g")]
+visible = false
+layout_mode = 2
 
 [node name="ButtonClose" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
@@ -130,63 +133,3 @@ shortcut = SubResource("Shortcut_hmq7l")
 shortcut_feedback = false
 shortcut_in_tooltip = false
 text = "Continue"
-
-[node name="PopupCopyrightInfo" type="PopupPanel" parent="."]
-unique_name_in_owner = true
-title = "Copyright Info"
-initial_position = 2
-size = Vector2i(658, 608)
-borderless = false
-min_size = Vector2i(600, 600)
-keep_title_visible = true
-
-[node name="Control" type="Control" parent="PopupCopyrightInfo"]
-custom_minimum_size = Vector2(650, 600)
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = -4.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PopupCopyrightInfo/Control"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PopupCopyrightInfo/Control/MarginContainer"]
-layout_mode = 2
-
-[node name="TextEdit" type="TextEdit" parent="PopupCopyrightInfo/Control/MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-text = "Copyright 2006-2009 The Chemical Structures Project. All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE CHEMICAL STRUCTURES PROJECT ``AS IS'' AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE CHEMICAL STRUCTURES PROJECT OR CONTRIBUTORS
-BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-editable = false
-scroll_smooth = true

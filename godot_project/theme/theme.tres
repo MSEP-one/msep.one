@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=85 format=3 uid="uid://d3fnr4sbrd6ik"]
+[gd_resource type="Theme" load_steps=89 format=3 uid="uid://d3fnr4sbrd6ik"]
 
 [ext_resource type="FontFile" uid="uid://b3jkav4yxw06w" path="res://theme/Gidole-Regular.ttf" id="1_8indu"]
 [ext_resource type="Texture2D" uid="uid://bh1ju2ymvv1co" path="res://theme/icons/icon_on.svg" id="1_n28s0"]
@@ -709,6 +709,48 @@ content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5po8w"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 0.101961)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4dj6a"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 0.101961)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1yd73"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 0.101961)
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qh4gh"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 0.0431373)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b7kn0"]
 content_margin_left = 4.0
 content_margin_top = 4.0
@@ -1004,6 +1046,13 @@ TabContainer/styles/tab_hovered = SubResource("StyleBoxFlat_2llre")
 TabContainer/styles/tab_selected = SubResource("StyleBoxFlat_mmv7o")
 TabContainer/styles/tab_unselected = SubResource("StyleBoxFlat_f1kck")
 TabContainer/styles/tabbar_background = SubResource("StyleBoxEmpty_kjuvf")
+TabContainerCrystal/base_type = &"TabContainer"
+TabContainerCrystal/styles/panel = SubResource("StyleBoxFlat_5po8w")
+TabContainerCrystal/styles/tab_disabled = SubResource("StyleBoxFlat_4dj6a")
+TabContainerCrystal/styles/tab_focus = SubResource("StyleBoxFlat_1yd73")
+TabContainerCrystal/styles/tab_hovered = SubResource("StyleBoxFlat_4dj6a")
+TabContainerCrystal/styles/tab_selected = SubResource("StyleBoxFlat_4dj6a")
+TabContainerCrystal/styles/tab_unselected = SubResource("StyleBoxFlat_qh4gh")
 TextEdit/colors/selection_color = Color(0.396078, 0.168627, 0.85098, 0.941176)
 TextEdit/styles/focus = SubResource("StyleBoxFlat_b7kn0")
 TextEdit/styles/normal = SubResource("StyleBoxFlat_t06f6")
