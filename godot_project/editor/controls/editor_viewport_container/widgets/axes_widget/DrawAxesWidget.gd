@@ -123,7 +123,7 @@ func dim_non_active_elements(in_active_index: int, in_step: float) -> void:
 
 
 func manage_continuous_input(in_delta: float) -> void:
-	if AboutMsepOne.visible:
+	if InitialInfoScreen.visible:
 		mouse_is_in_drag_radius = false
 		return
 	

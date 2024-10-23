@@ -38,6 +38,7 @@ OpenMM="*res://autoloads/openmm/openmm.tscn"
 Settings="*res://autoloads/settings/settings.tscn"
 BusyIndicator="*res://autoloads/busy_indicator/busy_indicator.tscn"
 UserInterfaceBehavior="*res://autoloads/ui_behavior/ui_behavior.gd"
+InitialInfoScreen="*res://autoloads/initial_info_screen/initial_info_screen.tscn"
 
 [debug]
 

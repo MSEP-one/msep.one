@@ -15,9 +15,7 @@ var was_closed: bool = false
 var _blur_background: ColorRect
 var _label_date_of_build: Label
 var _button_close: Button
-var _button_view_copyright_info: LinkButton
 var _blur_tween: Tween = null
-var _popup_copyright_info: PopupPanel
 
 var _blur: float = 0.0:
 	set = _set_blur
@@ -27,16 +25,10 @@ func _init() -> void:
 
 
 func _notification(in_what: int) -> void:
-	if in_what == NOTIFICATION_WM_ABOUT:
-		if not get_window().has_focus():
-			get_window().grab_focus()
-		appear()
-	elif in_what == NOTIFICATION_SCENE_INSTANTIATED:
+	if in_what == NOTIFICATION_SCENE_INSTANTIATED:
 		_blur_background = %BlurBackground
 		_label_date_of_build = %LabelDateOfBuild
 		_button_close = %ButtonClose
-		_button_view_copyright_info = %ButtonViewCopyrightInfo
-		_popup_copyright_info = %PopupCopyrightInfo
 		
 		var build_date: String = ProjectSettings.get_setting(
 			_EXPORT_DATE_SETTING_NAME,
@@ -52,7 +44,8 @@ func _notification(in_what: int) -> void:
 			_label_date_of_build.text += "." + short_hash
 		
 		_button_close.pressed.connect(_on_button_close_pressed)
-		_button_view_copyright_info.pressed.connect(_on_button_view_copyright_info_pressed)
+	elif in_what == NOTIFICATION_READY:
+		appear()
 
 
 func _on_button_close_pressed() -> void:
@@ -62,8 +55,6 @@ func _on_button_close_pressed() -> void:
 	disappear()
 	confirmed.emit()
 
-func _on_button_view_copyright_info_pressed() -> void:
-	_popup_copyright_info.show()
 
 func appear(in_fade_time: float = 0.3) -> void:
 	show()
