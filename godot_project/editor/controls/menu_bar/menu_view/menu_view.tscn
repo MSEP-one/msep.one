@@ -18,8 +18,8 @@
 [ext_resource type="Texture2D" uid="uid://endpnrg38txn" path="res://editor/controls/menu_bar/menu_view/icons/icon_show_hydrogens_16px.svg" id="12_3iftq"]
 [ext_resource type="Texture2D" uid="uid://ntg2llf45ky2" path="res://editor/controls/menu_bar/menu_edit/icons/icon_theme.svg" id="15_jjf8c"]
 [ext_resource type="Texture2D" uid="uid://cbc43vi425q4b" path="res://editor/controls/dockers/workspace_docker/icons/icon_deactivated.svg" id="15_uj6uj"]
-[ext_resource type="Texture2D" uid="uid://bdtmhsuvkbll3" path="res://editor/icons/icon_camera_x16.svg" id="16_epqix"]
 [ext_resource type="Texture2D" uid="uid://f6ceimdovp8j" path="res://editor/controls/dockers/workspace_docker/icons/icon_visible.svg" id="16_wh84c"]
+[ext_resource type="PackedScene" uid="uid://bh8iwsy4ji3k0" path="res://editor/controls/menu_bar/menu_view/menu_camera/menu_camera.tscn" id="21_qnyh1"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_dap46"]
 device = -1
@@ -58,8 +58,7 @@ events = [SubResource("InputEventKey_hkl84")]
 
 [node name="View" type="PopupMenu"]
 size = Vector2i(492, 636)
-visible = true
-item_count = 22
+item_count = 21
 item_0/text = "Focus on Visible Objects"
 item_0/icon = ExtResource("1_jslvw")
 item_0/id = 0
@@ -117,24 +116,23 @@ item_15/id = 10
 item_16/text = "Theme"
 item_16/icon = ExtResource("15_jjf8c")
 item_16/id = 21
-item_17/text = "Camera Projection"
-item_17/icon = ExtResource("16_epqix")
-item_17/id = 22
-item_18/text = "Debug Separator"
-item_18/id = 11
-item_18/separator = true
-item_19/text = "Show Object Model Tree"
-item_19/icon = ExtResource("3_svvq5")
-item_19/checkable = 1
-item_19/id = 12
-item_20/text = "Feature Flags"
-item_20/icon = ExtResource("15_uj6uj")
-item_20/id = 13
-item_21/text = "Tweak Algorithm Parameters"
-item_21/icon = ExtResource("16_wh84c")
-item_21/id = 14
+item_17/text = "Debug Separator"
+item_17/id = 11
+item_17/separator = true
+item_18/text = "Show Object Model Tree"
+item_18/icon = ExtResource("3_svvq5")
+item_18/checkable = 1
+item_18/id = 12
+item_19/text = "Feature Flags"
+item_19/icon = ExtResource("15_uj6uj")
+item_19/id = 13
+item_20/text = "Tweak Algorithm Parameters"
+item_20/icon = ExtResource("16_wh84c")
+item_20/id = 14
 script = ExtResource("1_2o615")
 shortcut_focus_on_visible_objects = SubResource("Shortcut_2fwj8")
 shortcut_focus_on_selected_objects = SubResource("Shortcut_5xqur")
 shortcut_hide_selected_objects = SubResource("Shortcut_suqnu")
 shortcut_show_hidden_objects = SubResource("Shortcut_hp7en")
+
+[node name="Camera" parent="." instance=ExtResource("21_qnyh1")]

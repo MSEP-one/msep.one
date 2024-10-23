@@ -22,6 +22,7 @@ boot_splash/minimum_display_time=2000
 
 [autoload]
 
+Attributions="*res://autoloads/attributions/attributions.tscn"
 ClassUtils="*res://autoloads/class_utils/class_utils.tscn"
 FeatureFlagManager="*res://autoloads/feature_flag_manager/FeatureFlagManager.tscn"
 AlgorithmTweaks="*res://autoloads/algorithm_tweaks/algorithm_tweaks.tscn"

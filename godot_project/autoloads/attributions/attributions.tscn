@@ -1,0 +1,12 @@
+[gd_scene load_steps=7 format=3 uid="uid://buobygg4f6q08"]
+
+[ext_resource type="Script" path="res://autoloads/attributions/attributions.gd" id="1_gywea"]
+[ext_resource type="Resource" uid="uid://kqjwtkbmnl7a" path="res://autoloads/editor_sfx/sfx/close_window_unused_attribution.tres" id="2_vgxs5"]
+[ext_resource type="Resource" uid="uid://bk4e7s88is3rn" path="res://autoloads/editor_sfx/sfx/materialize_1_attribution.tres" id="3_4h3hc"]
+[ext_resource type="Resource" uid="uid://buc7qr14rq5fs" path="res://autoloads/editor_sfx/sfx/menu_window_and_delete_1_attribution.tres" id="4_x1068"]
+[ext_resource type="Resource" uid="uid://cshymrcaxuc3u" path="res://autoloads/editor_sfx/sfx/mouse_up_1_attribution.tres" id="5_dwn66"]
+[ext_resource type="Resource" uid="uid://g6tnxfo6r5ew" path="res://autoloads/editor_sfx/sfx/rollover_1_attribution.tres" id="6_j275r"]
+
+[node name="Attributions" type="Node"]
+script = ExtResource("1_gywea")
+audio_streams = Array[Resource("res://autoloads/attributions/resource_attribution/resource_attribution.gd")]([ExtResource("2_vgxs5"), ExtResource("3_4h3hc"), ExtResource("4_x1068"), ExtResource("5_dwn66"), ExtResource("6_j275r")])

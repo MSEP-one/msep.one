@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ResourceAttribution" load_steps=3 format=3 uid="uid://cshymrcaxuc3u"]
+
+[ext_resource type="AudioStream" uid="uid://xmf84blq7j54" path="res://autoloads/editor_sfx/sfx/mouse_up_1.ogg" id="1_nqy5c"]
+[ext_resource type="Script" path="res://autoloads/attributions/resource_attribution/resource_attribution.gd" id="2_7vdo6"]
+
+[resource]
+script = ExtResource("2_7vdo6")
+resource = ExtResource("1_nqy5c")
+original_name = "Spring loaded release"
+authors = {
+"KieranKeegan": "https://freesound.org/people/KieranKeegan/"
+}
+license_name = "CC0 - Creative Commons 0"
+license_link = "http://creativecommons.org/publicdomain/zero/1.0/"
+original_source_link = "https://freesound.org/people/KieranKeegan/sounds/418229/"

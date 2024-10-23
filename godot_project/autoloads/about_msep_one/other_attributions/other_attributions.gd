@@ -34,3 +34,4 @@ func _ready() -> void:
 			"BSD", "Berkeley Software Distribution",
 			LICENSES["SMALL_MOLECULES"])
 	_create_software_tree_item(small_molecules_info)
+	_create_custom_control_tree_item(tr("Audio Files"), preload("res://autoloads/about_msep_one/other_attributions/sfx_attribution_list.tscn"))
