@@ -135,7 +135,7 @@ func _on_size_changed() -> void:
 
 
 func _process(_in_delta: float, in_force: bool = false, in_finish: bool = false) -> void:
-	if !in_force && (InitialInfoScreen.visible || BusyIndicator.visible):
+	if !in_force && (InitialInfoScreen.visible || BusyIndicator.visible || UIBlocker.is_blocking()):
 		return
 	
 	_resolution_factor = _calculate_resolution_factor()
