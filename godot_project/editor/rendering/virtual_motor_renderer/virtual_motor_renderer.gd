@@ -8,14 +8,17 @@ var _motor_id: int
 var _workspace_context: WorkspaceContext
 
 var _rotary_polarity: Sprite3D
+var _rotary_axle: MeshInstance3D
 var _linear_polarity: Sprite3D
 var _materials: Array[ShaderMaterial]
 var _animate_polarity: AnimationPlayer
+var _camera: Camera3D
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_rotary_polarity = $RotaryPolarity as Sprite3D
+		_rotary_axle = $RotaryPolarity/Axle as MeshInstance3D
 		_linear_polarity = $LinearPolarity as Sprite3D
 		_animate_polarity = $AnimatePolarity as AnimationPlayer
 		# Initialize Materials
@@ -51,6 +54,16 @@ func build(in_workspace_context: WorkspaceContext, in_motor: NanoVirtualMotor) -
 	in_motor.transform_changed.connect(_on_virtual_motor_transform_changed)
 	in_motor.visibility_changed.connect(_on_virtual_motor_visibility_changed)
 	self.visible = in_motor.get_visible()
+
+
+func update(_in_delta: float) -> void:
+	if not is_instance_valid(_camera) or not _camera.current:
+		_camera = get_viewport().get_camera_3d()
+		if _camera == null: return
+	if _camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
+		_rotary_axle.set_instance_shader_parameter(&"distance_to_camera", _camera.size * 5.0)
+	else:
+		_rotary_axle.set_instance_shader_parameter(&"distance_to_camera", _rotary_axle.global_position.distance_to(_camera.global_position))
 
 
 func snapshot_rebuild(in_motor: NanoVirtualMotor) -> void:

@@ -113,11 +113,13 @@ texture = ExtResource("3_n0doo")
 transform = Transform3D(1, 0, 0, 0, 1, -5.85289e-17, 0, 5.85289e-17, 1, -2.2969e-07, 2.83394e-07, 0.0634504)
 material_override = ExtResource("4_w7p2y")
 extra_cull_margin = 2.0
+instance_shader_parameters/distance_to_camera = 1.0
 mesh = ExtResource("5_p7xy2")
 skeleton = NodePath("../../motor3D_Gears00/Gear")
 
 [node name="LinearPolarity" type="Sprite3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.425858, 0, 0)
+visible = false
 transparency = 0.25
 pixel_size = 0.0008
 texture = ExtResource("4_tndce")
