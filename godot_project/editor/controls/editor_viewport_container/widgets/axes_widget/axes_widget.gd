@@ -29,6 +29,7 @@ const KEYBOARD_ROTATION_SPEED = .1
 # more intuitive.
 const FOLLOW_ROTATION_SPEED = .6
 const FASTER_TRANSFORM_COEFFICIENT = 5.0
+const ADDITIONAL_FASTER_WHEEL_COEFFICIENT = 5.0
 const CAMERA_EASE_COEFFICIENT = 3.0
 const CAMERA_FOLLOW_EASE_COEFFICIENT = .1
 const SPEED_UP_COEFFICIENT = 1.0
@@ -95,6 +96,7 @@ func calculate_smooth_mouse_delta(in_mouse_delta : Vector2) -> Vector2:
 
 
 func initiate_camera_orbit_on_mouse() -> void:
+	movement_z_coefficient = STOP
 	var adjusted_speed : float = MOUSE_ORBIT_ROTATION_SPEED_FACTOR * \
 	(FASTER_TRANSFORM_COEFFICIENT if transform_faster else 1.0)
 	gizmo.rotate_to_orbit(mouse_delta * clamped_delta_time * adjusted_speed)
@@ -162,7 +164,9 @@ func interrupt_mouse_wheel_movement() -> void:
 
 
 func manage_mouse_wheel_movement_state(in_delta_time: float) -> void:
-	mouse_wheel_move_time_left -= in_delta_time
+	# If we still want to re enable inertia, then check out this file how it worked here:
+	# 6cb34309400c2fa4b47ad8956a78207480f562fb
+	mouse_wheel_move_time_left -= mouse_wheel_move_time_left
 	if mouse_wheel_movement && mouse_wheel_move_time_left < .0:
 		interrupt_mouse_wheel_movement()
 
@@ -178,8 +182,12 @@ func move_camera(in_delta_time: float) -> void:
 			movement_z_coefficient != STOP:
 		var adjusted_speed := KEYBOARD_MOVEMENT_SPEED * (FASTER_TRANSFORM_COEFFICIENT \
 				if transform_faster else 1.0)
-		camera_move_direction = camera_move_direction.slerp(camera_move_ease, \
-				CAMERA_EASE_COEFFICIENT * clamped_delta_time)
+		if mouse_wheel_movement:
+			camera_move_direction = camera_move_ease
+			adjusted_speed *= (ADDITIONAL_FASTER_WHEEL_COEFFICIENT if transform_faster else 1.0)
+		else:
+			camera_move_direction = camera_move_direction.slerp(camera_move_ease, \
+					CAMERA_EASE_COEFFICIENT * clamped_delta_time)
 		var final_camera_motion: Vector3 = camera_move_direction * adjusted_speed * clamped_delta_time
 		if _camera.projection == Camera3D.PROJECTION_PERSPECTIVE:
 			_camera.translate(final_camera_motion)
@@ -205,7 +213,7 @@ func change_orbit_radius() -> void:
 
 
 ## Moves the orthographic camera backward until it's outside of the project
-## structures' volume, otherwise atoms behind the camera will be clipped. 
+## structures' volume, otherwise atoms behind the camera will be clipped.
 func ensure_orthographic_camera_outside_structure() -> void:
 	if not _camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
 		return
