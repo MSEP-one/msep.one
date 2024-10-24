@@ -45,6 +45,10 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Reset Color Override" : true,
 }
 
+const REDUNDANT_ACTION_WHITELIST := {
+	"Apply Simulation State": true,
+}
+
 var _workspace_context: WorkspaceContext
 var _snapshotable_systems: Array[Object]
 var _snapshot_stack: Array[Dictionary]
@@ -66,7 +70,8 @@ func register_snapshotable(in_system: Object) -> void:
 	_snapshotable_systems.append(in_system)
 
 
-func create_snapshot(in_snapshot_name: String) -> void:
+func create_snapshot(in_snapshot_name: String) -> Dictionary:
+	_monitor_redundant_snapshots(in_snapshot_name)
 	var snapshot: Dictionary = {
 		#"name" : _next_snapshot_name
 	}
@@ -75,14 +80,14 @@ func create_snapshot(in_snapshot_name: String) -> void:
 		snapshot[snapshotable] = snapshotable.create_state_snapshot()
 	
 	_add_snapshot_to_stack(snapshot, in_snapshot_name)
-	if _last_snapshot_taken_at_frame == Engine.get_frames_drawn():
-		# (can be removed if we have an use case)
-		# notice external snapshots pushed by `push_snapshot(in_snapshot, in_snapshot_name)`
-		# are not considered by this check
-		push_error("Possibly redundant snapshot detected. previous: ", _last_snapshot_name,
-					" , current: ", in_snapshot_name)
-	_last_snapshot_taken_at_frame = Engine.get_frames_drawn()
-	_last_snapshot_name = in_snapshot_name
+	return snapshot
+
+
+func push_and_apply_snapshot(in_snapshot: Dictionary, in_snapshot_name: String) -> void:
+	assert(_validate_extern_snapshot(in_snapshot), "Invalid snapshot data provided")
+	_add_snapshot_to_stack(in_snapshot, in_snapshot_name)
+	_stack_pointer -= 1
+	apply_next_snapshot()
 
 
 func _add_snapshot_to_stack(in_snapshot: Dictionary, in_snapshot_name: String) -> void:
@@ -101,6 +106,8 @@ func _add_snapshot_to_stack(in_snapshot: Dictionary, in_snapshot_name: String) -
 		_stack_pointer -= 1
 	
 	_version += 1
+	_last_snapshot_taken_at_frame = Engine.get_frames_drawn()
+	_last_snapshot_name = in_snapshot_name
 	changed.emit()
 	snapshot_created.emit(in_snapshot_name)
 
@@ -178,6 +185,21 @@ func _validate_extern_snapshot(in_snapshot: Dictionary) -> bool:
 		if not typeof(in_snapshot[key]) == TYPE_DICTIONARY:
 			return false
 	return true
+
+
+## Detects if create_snapshot is called multiple times in a single frame
+## External snapshots pushed by `push_and_apply_snapshot(in_snapshot, in_snapshot_name)`
+## are not considered by this check
+func _monitor_redundant_snapshots(in_snapshot_name: String) -> void:
+	if _last_snapshot_taken_at_frame != Engine.get_frames_drawn():
+		return
+	var is_redundant_action_whitelisted: bool = \
+			REDUNDANT_ACTION_WHITELIST.has(in_snapshot_name) or \
+			REDUNDANT_ACTION_WHITELIST.has(_last_snapshot_name)
+	if is_redundant_action_whitelisted and in_snapshot_name != _last_snapshot_name:
+		return
+	push_error("Possibly redundant snapshot detected. previous: ", _last_snapshot_name,
+				" , current: ", in_snapshot_name)
 
 
 static func create_signal_snapshot_for_object(in_object: Object) -> Dictionary:
@@ -271,5 +293,5 @@ static func apply_signal_pack(in_pack: Dictionary, in_signal: Signal, in_target_
 			in_signal.connect(target_callable.bindv(args))
 
 
-static func is_operation_whitelisted(in_operation_name: String) -> bool:
+static func is_operation_whitelisted_during_simulation(in_operation_name: String) -> bool:
 	return ACTION_WHITELIST_DURING_SIMULATION.has(in_operation_name)
