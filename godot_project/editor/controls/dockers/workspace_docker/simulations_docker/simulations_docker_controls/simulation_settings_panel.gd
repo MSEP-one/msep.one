@@ -8,6 +8,8 @@ var _extension_option_button: OptionButton
 var _extension_advanced_menu_button: MenuButton
 var _extensions_info_label: InfoLabel
 var _user_forcefield_info_label: InfoLabel
+var _molecular_simulation_toolkit_option_button: OptionButton
+var _molecular_simulation_toolkit_advanced_menu_button: MenuButton
 
 
 var _workspace_context: WorkspaceContext
@@ -24,6 +26,8 @@ func _notification(what: int) -> void:
 		_advanced_menu_button = %AdvancedMenuButton as MenuButton
 		_extension_option_button = %ExtensionOptionButton as OptionButton
 		_extension_advanced_menu_button = %ExtensionAdvancedMenuButton as MenuButton
+		_molecular_simulation_toolkit_option_button = %MolecularSimulationToolkitOptionButton as OptionButton
+		_molecular_simulation_toolkit_advanced_menu_button = %MolecularSimulationToolkitAdvancedMenuButton as MenuButton
 		_extensions_info_label = %ExtensionsInfoLabel as InfoLabel
 		_user_forcefield_info_label = %UserForcefieldInfoLabel as InfoLabel
 		_advanced_menu_button.get_popup().id_pressed.connect(_on_advanced_menu_button_id_pressed)
@@ -95,6 +99,8 @@ func _on_workspace_context_simulation_started() -> void:
 	_advanced_menu_button.disabled = true
 	_extension_option_button.disabled = true
 	_extension_advanced_menu_button.disabled = true
+	_molecular_simulation_toolkit_option_button.disabled = true
+	_molecular_simulation_toolkit_advanced_menu_button.disabled = true
 
 
 func _on_workspace_context_simulation_finished() -> void:
@@ -102,6 +108,8 @@ func _on_workspace_context_simulation_finished() -> void:
 	_advanced_menu_button.disabled = false
 	_extension_option_button.disabled = false
 	_extension_advanced_menu_button.disabled = false
+	_molecular_simulation_toolkit_option_button.disabled = false
+	_molecular_simulation_toolkit_advanced_menu_button.disabled = false
 
 
 func _update_forcefields_list() -> void:
