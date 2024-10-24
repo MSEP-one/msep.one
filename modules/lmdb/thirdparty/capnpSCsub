@@ -20,14 +20,8 @@ libs_to_link_against = [
   "libcapnp",
   "libcapnpc",
   "libcapnp-json",
-  "libcapnp-rpc",
-  "libcapnp-websocket",
   "libkj",
   "libkj-async",
-  "libkj-gzip",
-  "libkj-http",
-  "libkj-test",
-  "libkj-tls",
 ]
 if shutil.which("cygpath"):
   autotools_command = ["bash", "-c", "$(cygpath {}) -p {} -o $(cygpath {}) -a {}".format(os.path.join(os.getcwd(), "build_capnproto.sh"), platform, out_lib_dir, arch)]
