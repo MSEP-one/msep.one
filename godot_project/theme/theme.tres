@@ -981,6 +981,7 @@ OptionButton/styles/pressed = SubResource("StyleBoxFlat_cvnwt")
 OptionButton/styles/pressed_mirrored = SubResource("StyleBoxFlat_4y3vi")
 Panel/styles/panel = SubResource("StyleBoxFlat_b5xkc")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_udr83")
+PopupMenu/colors/font_disabled_color = Color(0.733333, 0.729412, 0.729412, 0.8)
 RoundedWindow/base_type = &"AcceptDialog"
 RoundedWindow/styles/panel = SubResource("StyleBoxFlat_r6qfk")
 SpinboxSlider/base_type = &"HSlider"

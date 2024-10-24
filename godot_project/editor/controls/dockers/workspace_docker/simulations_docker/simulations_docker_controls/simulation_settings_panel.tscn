@@ -76,6 +76,37 @@ popup/item_0/text = "Show user defined files"
 popup/item_0/checkable = 1
 popup/item_0/id = 0
 
+[node name="Label3" type="Label" parent="VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Molecular Simulation Toolkit "
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="MolecularSimulationToolkitOptionButton" type="OptionButton" parent="VBoxContainer/GridContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 2
+selected = 0
+popup/item_0/text = "OpenMM"
+popup/item_0/id = 0
+popup/item_1/text = "LAMMPS (under development)"
+popup/item_1/id = 1
+popup/item_1/disabled = true
+
+[node name="MolecularSimulationToolkitAdvancedMenuButton" type="MenuButton" parent="VBoxContainer/GridContainer/HBoxContainer3"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(27.31, 0)
+layout_mode = 2
+icon = ExtResource("3_r271m")
+expand_icon = true
+item_count = 1
+popup/item_0/text = "Show user defined files"
+popup/item_0/checkable = 1
+popup/item_0/id = 0
+
 [node name="ExtensionsInfoLabel" parent="VBoxContainer" instance=ExtResource("2_i1oqk")]
 unique_name_in_owner = true
 layout_mode = 2
