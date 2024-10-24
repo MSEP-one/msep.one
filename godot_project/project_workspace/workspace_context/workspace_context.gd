@@ -1202,13 +1202,32 @@ func snapshot_moment(in_operation_name: String) -> void:
 	# workaround for part of the state for this workspace_context being inside ScriptUtils (this will apply that state)
 	get_editable_structure_contexts()
 	
-	# Apply simulation if the operation modified the structure of the project
-	if not History.is_operation_whitelisted(in_operation_name):
-		apply_simulation_if_running()
-	
 	# apply overdue signals, ensure snapshots contain up to date state
 	_emit_selection_in_structures_changed()
 	_emit_structure_content_changed()
+	
+	# Apply simulation if the operation modified the structure of the project
+	if is_simulating() and not History.is_operation_whitelisted_during_simulation(in_operation_name):
+		# We need to split the next snapshot in two separate steps:
+		# + Applying the simulation
+		# + Applying the user operation
+		# If we don't, hitting undo will revert the user action and the simulation at the same time.
+		
+		# Store the final snapshot containing both the applied state and the last action
+		var final_snapshot: Dictionary = _history.create_snapshot(in_operation_name)
+		var current_simulation_time: float = _simulation.get_last_seeked_time()
+		
+		# Go back just before starting the simulation
+		_history.apply_previous_snapshot()
+		
+		# Rewind simulation to the latest point and create a snapshot.
+		# This will drop the user operation (final_snapshot) from history. 
+		seek_simulation(current_simulation_time)
+		apply_simulation_if_running()
+		
+		# Add the user operation back to the history stack
+		_history.push_and_apply_snapshot(final_snapshot, in_operation_name)
+		return
 	
 	if not is_simulating():
 		_history.create_snapshot(in_operation_name)
@@ -1235,7 +1254,7 @@ func register_snapshotable(in_system: Object) -> void:
 ## snapshot will override the atoms positions from the simulation.
 ## To avoid that, we restore the simulation state after restoring the snapshot.
 func apply_previous_snapshot() -> void:
-	if not History.is_operation_whitelisted(_history.get_undo_name()):
+	if not History.is_operation_whitelisted_during_simulation(_history.get_undo_name()):
 		abort_simulation_if_running()
 	_history.apply_previous_snapshot()
 	if is_simulating():
@@ -1245,7 +1264,7 @@ func apply_previous_snapshot() -> void:
 
 ## Apply the next state snapshot. See `apply_previous_snapshot()` for more info.
 func apply_next_snapshot() -> void:
-	if not History.is_operation_whitelisted(_history.get_redo_name()):
+	if not History.is_operation_whitelisted_during_simulation(_history.get_redo_name()):
 		abort_simulation_if_running()
 	_history.apply_next_snapshot()
 	if is_simulating():
