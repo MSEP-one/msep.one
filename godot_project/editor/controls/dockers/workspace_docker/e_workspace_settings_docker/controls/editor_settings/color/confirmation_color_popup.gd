@@ -2,6 +2,7 @@ class_name ConfirmationColorPopup
 extends PopupPanel
 
 const SINGLE_COLOR_BUTTON := preload("./single_color_button.tscn")
+const DEFAULT_COLOR: Color = Color.BLACK
 
 @onready var _apply_btn: Button = %ApplyBtn
 @onready var _default_btn: Button = %DefaultBtn
@@ -16,6 +17,8 @@ signal default_pressed()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	_color_picker.color = DEFAULT_COLOR
+	
 	_apply_btn.pressed.connect(_on_apply_button_pressed)
 	_default_btn.pressed.connect(_on_default_button_pressed)
 
@@ -29,6 +32,10 @@ func _on_apply_button_pressed() -> void:
 
 
 func _on_default_button_pressed() -> void:
+	_color_picker.color = DEFAULT_COLOR
+	_selected_color = _color_picker.color
+	color_selected.emit(_selected_color)
+	
 	default_pressed.emit()
 	hide()
 
