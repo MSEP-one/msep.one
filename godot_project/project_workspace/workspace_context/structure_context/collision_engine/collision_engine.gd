@@ -581,10 +581,11 @@ func get_closest_atom_to_screen_point(in_camera: Camera3D, in_screen_point: Vect
 	var scan_step: int = max(_last_scan_size * 0.99, 10)
 	var candidates: PackedInt32Array = PackedInt32Array()
 	var final_scan_size: int = 0
-	while candidates.is_empty():
+	while candidates.is_empty() and scan_rect.size != viewport_rect.size:
 		final_scan_size += scan_step
 		scan_rect = scan_rect.grow(scan_step).intersection(viewport_rect)
 		candidates = _atom_collision_space.frustrum_intersection(in_camera, scan_rect, CollisionSpace.DEFAULT_COLLISION_LAYER, 1000)
+
 	_last_scan_size = final_scan_size
 	var current_min_distance_sqr: float = 1000.0 * 1000.0
 	for atom_id in candidates:
