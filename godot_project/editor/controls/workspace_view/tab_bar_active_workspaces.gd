@@ -40,6 +40,22 @@ func _ready() -> void:
 	MolecularEditorContext.homepage_activated.connect(_on_homepage_activated)
 
 
+func _process(delta: float) -> void:
+	var tab_bar_rect: Rect2 = tab_bar_active_workspaces.get_global_rect()
+	var mouse_pos: Vector2 = get_global_mouse_position()
+	if not tab_bar_rect.has_point(mouse_pos):
+		return
+	for tab_idx: int in tab_bar_active_workspaces.tab_count:
+		var tab_rect: Rect2 = tab_bar_active_workspaces.get_tab_rect(tab_idx)
+		tab_rect.position += tab_bar_rect.position
+		if tab_rect.has_point(mouse_pos):
+			# Mouse is hovering a Tab. Capture Inputs
+			tab_bar_active_workspaces.mouse_filter = Control.MOUSE_FILTER_STOP
+			return
+	# Mouse is hovering the TabBar, but not hovering any Tab. Ignore mouse inputs
+	tab_bar_active_workspaces.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
 ## Scrolls the tab bar horizontally on mouse scroll.
 ## This is the same as clicking the left and right arrows.
 func _gui_input(event: InputEvent) -> void:
