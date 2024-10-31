@@ -45,7 +45,12 @@ func _on_theme_chooser_item_selected(_index: int) -> void:
 func _update_settings(out_settings: RepresentationSettings) -> void:
 	var selected_id: int = _theme_chooser.get_selected_id()
 	var theme_filepath: String = _THEME_FILEPATH_TO_OPTION_ID.find_key(selected_id)
-	out_settings.set_theme(load(theme_filepath))
+	var theme_3d: Theme3D = load(theme_filepath) as Theme3D
+	assert(theme_3d != null, "Could not load theme from path '%s'" % theme_filepath)
+	if out_settings.get_theme() == theme_3d:
+		return
+	out_settings.set_theme(theme_3d)
+	_workspace_context.snapshot_moment("Theme Changed")
 
 
 func _on_workspace_history_snapshot_applied() -> void:
