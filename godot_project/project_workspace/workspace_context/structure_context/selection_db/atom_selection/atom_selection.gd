@@ -233,7 +233,12 @@ func can_grow_selection() -> bool:
 
 
 func grow_selection() -> AtomSelectionResult:
-	var atoms_to_select: PackedInt32Array = PackedInt32Array()
+	var atoms_to_select_dict: Dictionary = {}
+	# In the list of atoms to select we include already selected atoms,
+	# this helps to automatically expand selections of bonds in some corner cases
+	for atom_id: int in get_atoms_selection():
+		atoms_to_select_dict[atom_id] = true
+	
 	var related_structure: AtomicStructure = _structure_context.nano_structure as AtomicStructure
 	var bonds_to_test: Dictionary = _bonds_partially_influenced_by_atoms.duplicate()
 	bonds_to_test.merge(_bonds_selection)
@@ -243,8 +248,9 @@ func grow_selection() -> AtomSelectionResult:
 			if not related_structure.is_atom_visible(atom_id):
 				continue
 			if not _atoms_selection.has(atom_id):
-				atoms_to_select.push_back(atom_id)
+				atoms_to_select_dict[atom_id] = true
 	
+	var atoms_to_select: PackedInt32Array = PackedInt32Array(atoms_to_select_dict.keys())
 	if atoms_to_select.is_empty():
 		return AtomSelectionResult.new(false, PackedInt32Array(), PackedInt32Array(), PackedInt32Array())
 	
