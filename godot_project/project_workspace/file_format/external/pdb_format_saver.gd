@@ -24,7 +24,7 @@ func _save(in_resource: Resource, in_path: String, _flags: int) -> Error:
 	await promise.wait_for_fulfill()
 	
 	if promise.has_error():
-		var error_string: String = "Failed to export %s:\n%s" % [in_path, promise.get_error()]
-		Editor_Utils.get_editor().prompt_error_msg(error_string)
+		var error_text: String = "Failed to export %s:\n%s" % [in_path, promise.get_error()]
+		Editor_Utils.get_editor().prompt_error_msg(error_text)
 		return ERR_BUG
 	return OK

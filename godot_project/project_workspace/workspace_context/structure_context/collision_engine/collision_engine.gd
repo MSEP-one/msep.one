@@ -651,25 +651,25 @@ func remove_atom(in_atom_id: int) -> void:
 
 
 func create_state_snapshot() -> Dictionary:
+	# for now collision engine should be build in from scratch, just ensure it's being cleared
 	return {}
-	assert(false, "for now collision engine should be build in from scratch, just ensure it's being cleared")
 	#TODO, profile and check if it's better to snapshot state somehow
-	var snapshot: Dictionary = {
-		"_disabled" = _disabled,
-		"_last_scan_size" = _last_scan_size,
-		"_need_to_recreate_on_tree_enter" = _need_to_recreate_on_tree_enter,
-		"_atomic_nmb_to_collision_shape" = _atomic_nmb_to_collision_shape.duplicate(true), #IS IT?
-		"_atomic_nmb_to_radius" = _atomic_nmb_to_radius.duplicate(),
-		"_bond_order_and_atom_radius_to_bond_radius" = _bond_order_and_atom_radius_to_bond_radius.duplicate(),
-		"_motor_shape_rid" = _motor_shape_rid,
-		"_anchor_shape_rid" = _anchor_shape_rid,
-		"_spring_shape_rid" = _spring_shape_rid,
-		"_hydrogens_enabled" = _hydrogens_enabled,
-		"_atom_collision_space" = _atom_collision_space._create_snapshot(),
-		"_bond_collision_space" = _bond_collision_space._create_snapshot(),
-		"_spring_collision_space" = _spring_collision_space._create_snapshot(),
-	}
-	return snapshot
+	#var snapshot: Dictionary = {
+		#"_disabled" = _disabled,
+		#"_last_scan_size" = _last_scan_size,
+		#"_need_to_recreate_on_tree_enter" = _need_to_recreate_on_tree_enter,
+		#"_atomic_nmb_to_collision_shape" = _atomic_nmb_to_collision_shape.duplicate(true), #IS IT?
+		#"_atomic_nmb_to_radius" = _atomic_nmb_to_radius.duplicate(),
+		#"_bond_order_and_atom_radius_to_bond_radius" = _bond_order_and_atom_radius_to_bond_radius.duplicate(),
+		#"_motor_shape_rid" = _motor_shape_rid,
+		#"_anchor_shape_rid" = _anchor_shape_rid,
+		#"_spring_shape_rid" = _spring_shape_rid,
+		#"_hydrogens_enabled" = _hydrogens_enabled,
+		#"_atom_collision_space" = _atom_collision_space._create_snapshot(),
+		#"_bond_collision_space" = _bond_collision_space._create_snapshot(),
+		#"_spring_collision_space" = _spring_collision_space._create_snapshot(),
+	#}
+	#return snapshot
 
 
 func rebuild(in_structure_context: StructureContext) -> void:

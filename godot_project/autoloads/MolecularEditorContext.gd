@@ -214,11 +214,10 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 
 func export_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	var path: String = in_path
-	var workspace_context: WorkspaceContext = get_workspace_context(in_workspace)
 	if path.is_empty():
 		Editor_Utils.get_editor().show_export_workspace_dialog(in_workspace)
 		return
-	var err: Error = await ResourceSaver.save(in_workspace, path)
+	var err: Error = ResourceSaver.save(in_workspace, path)
 	if err != OK:
 		Editor_Utils.get_editor().prompt_error_msg(tr(&"Failed to export to file {0} with error '{1}'").format([path, error_string(err)]))
 
