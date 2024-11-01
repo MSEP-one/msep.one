@@ -7,6 +7,8 @@ const NanoShapeRendererScn: PackedScene = preload("res://editor/rendering/refere
 const NanoVirtualMotorRendererScn: PackedScene = preload("res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.tscn")
 const NanoVirtualAnchorRendererScn: PackedScene = preload("res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_renderer.tscn")
 
+const SELECTION_PREVIEW_LAYER_BIT = 3
+
 enum Representation {
 	VAN_DER_WAALS_SPHERES     = 0,
 	MECHANICAL_SIMULATION     = 1,
@@ -33,6 +35,7 @@ signal representation_changed(new_representation: Representation)
 @onready var _virtual_anchor_preview: VirtualAnchorPreview = $VirtualAnchorPreview
 @onready var _world_environment: WorldEnvironment = $WorldEnvironment
 @onready var _spring_preview: SpringPreview = $SpringPreview
+@onready var _selection_preview: SelectionPreview = $SelectionPreview
 var _default_representation: Rendering.Representation = Representation.BALLS_AND_STICKS
 var _environment: Environment = null
 var _hover_disabled: bool = false
@@ -61,12 +64,16 @@ func snapshot_rebuild(in_structure_context: StructureContext) -> void:
 
 func initialize(in_workspace_context: WorkspaceContext) -> void:
 	if not enabled: return
+	var selection_layer_bit_enumerated_from_0: int = SELECTION_PREVIEW_LAYER_BIT - 1
+	assert(pow(2,selection_layer_bit_enumerated_from_0) == RenderingUtils.get_selection_preview_visual_layer(),
+			"SELECTION_PREVIEW_LAYER_BIT must correspond with constants.gdshaderinc.SELECTION_PREVIEW_VISUAL_LAYER")
 	_workspace_context = in_workspace_context
 	var workspace: Workspace = in_workspace_context.workspace
 	_theme_in_use = workspace.representation_settings.get_theme()
 	workspace.representation_settings.changed.connect(_on_workspace_settings_changed)
 	workspace.representation_settings.theme_changed.connect(_on_representation_settings_theme_changed.bind(weakref(workspace)))
 	apply_theme(workspace.representation_settings.get_theme())
+	_selection_preview.init(_workspace_context)
 
 
 ## Returns whether it is initialized or not
@@ -121,6 +128,11 @@ func build_virtual_anchor_rendering(in_anchor: NanoVirtualAnchor) -> void:
 	anchor_renderer.build(_workspace_context, in_anchor)
 	if _hover_disabled:
 		anchor_renderer.disable_hover()
+
+
+func get_selection_preview_texture() -> Texture:
+	_selection_preview.refresh()
+	return _selection_preview.get_texture()
 
 
 func get_reference_shape_renderer(in_shape_renderer_name: String) -> NanoShapeRenderer:
@@ -883,3 +895,4 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 		renderer.apply_state_snapshot(shape_renderer_snapshot)
 	
 	apply_theme(_workspace_context.workspace.representation_settings.get_theme())
+	_selection_preview.refresh()

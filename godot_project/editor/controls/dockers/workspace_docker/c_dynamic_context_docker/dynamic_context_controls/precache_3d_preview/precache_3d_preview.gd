@@ -4,6 +4,7 @@ extends "res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker
 
 
 var _representation_settings: RepresentationSettings = RepresentationSettings.new()
+var _preview_structure: NanoMolecularStructure = NanoMolecularStructure.new()
 
 
 func _notification(in_what: int) -> void:
@@ -32,28 +33,11 @@ func _init_for_shader_precompiler() -> void:
 	_preview_structure.add_bond(atom3_id, atom4_id, 3)
 	_preview_structure.end_edit()
 	_preview_structure.set_representation_settings(_representation_settings)
-	var dummy_workspace_context: WorkspaceContext = WorkspaceContextScn.instantiate()
-	_dummy_workspace = Workspace.new()
-	_dummy_workspace.add_structure(_preview_structure)
-	dummy_workspace_context.initialize(_dummy_workspace)
-	add_child(dummy_workspace_context)
 	if _preview_structure.get_structure_name().is_empty():
 		var structure_name: String = str(_preview_structure.get_int_guid())
 		_preview_structure.set_structure_name(structure_name)
-	_dummy_structure_context = dummy_workspace_context.get_nano_structure_context(_preview_structure)
-	_dummy_structure_context.initialize(dummy_workspace_context, _preview_structure.int_guid, _preview_structure)
-	assert(_dummy_workspace.has_structure_with_int_guid(_dummy_structure_context.get_int_guid()))
-	_dummy_structure_context.get_collision_engine().disable_pernamently()
-	_3d_preview_viewport.get_rendering().initialize(dummy_workspace_context)
-	_3d_preview_viewport.get_rendering().build_atomic_structure_rendering(_dummy_structure_context,
-			_representation_settings.get_rendering_representation())
-	_3d_preview_viewport.get_rendering().disable_labels()
-	_3d_preview_viewport.get_rendering().refresh_atom_sizes()
-	_3d_preview_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+
 
 func _on_switch_rendering_delayer_timeout() -> void:
 	assert(is_visible_in_tree(), "needs to be rendered for the precompilation to happen")
-	var rendering: Rendering = _3d_preview_viewport.get_rendering()
-	rendering.change_default_representation(Rendering.Representation.ENHANCED_STICKS_AND_BALLS)
-	_3d_preview_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	hide()

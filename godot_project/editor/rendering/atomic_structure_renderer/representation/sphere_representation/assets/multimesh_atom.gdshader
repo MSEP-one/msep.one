@@ -45,7 +45,6 @@ uniform vec3 uv1_offset;
 uniform vec3 uv2_scale;
 uniform vec3 uv2_offset;
 
-
 varying vec4 custom_data;
 varying vec2 instance_variation;
 
@@ -73,11 +72,13 @@ void vertex() {
 	if (!OUTPUT_IS_SRGB) {
 		COLOR.rgb = srgb(COLOR.rgb);
 	}
-
+	
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	
 	// Make the outline mesh visible if the atom is selected
 	is_outline = uv_is_outline(UV);
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale);
+	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale) * float_not(is_preview);
 	
 	// Calculate rotation matrix to align model with camera
 	mat4 billboard_rot = mat4(
@@ -100,6 +101,9 @@ void vertex() {
 	final_vertex += get_translation_delta(COLOR, MODEL_MATRIX);
 	
 	final_vertex *= is_atom_or_bond_visible(COLOR.a);
+	
+	//preview visibility
+	final_vertex *= float_or(float_not(is_preview), is_atom_or_bond_selected(COLOR.a));
 	
 	VERTEX = final_vertex;
 	

@@ -15,3 +15,4 @@ use_custom_data = true
 _lod_bias = 0.1
 _material_override = ExtResource("5_py1c0")
 update_segments_on_movement = true
+visual_layers = 5

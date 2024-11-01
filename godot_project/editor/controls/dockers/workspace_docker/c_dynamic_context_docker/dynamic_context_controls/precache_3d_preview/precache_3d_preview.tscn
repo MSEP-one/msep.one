@@ -6,9 +6,6 @@
 [node name="Precache3DPreview" instance=ExtResource("1_cmt3n")]
 script = ExtResource("2_owgi6")
 
-[node name="3DPreviewViewport" parent="3DPreviewContainer" index="0"]
-render_target_update_mode = 4
-
 [node name="SwitchRenderingDelayer" type="Timer" parent="." index="1"]
 one_shot = true
 autostart = true

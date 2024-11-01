@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cd8ybm2fs1ox"]
+[gd_scene load_steps=13 format=3 uid="uid://cd8ybm2fs1ox"]
 
 [ext_resource type="Script" path="res://editor/rendering/rendering.gd" id="1_vymcv"]
 [ext_resource type="PackedScene" uid="uid://cyy5lagn5jes7" path="res://editor/rendering/world_environment.tscn" id="2_vyad3"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://vgwaelryj6lw" path="res://editor/rendering/virtual_motor_renderer/asset/linear_sprite.svg" id="9_ey5dj"]
 [ext_resource type="PackedScene" uid="uid://4hk2achugjb2" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_preview.tscn" id="9_hs37s"]
 [ext_resource type="PackedScene" uid="uid://dmf7a8rad2ixj" path="res://editor/rendering/spring_preview/spring_preview.tscn" id="10_cxht2"]
+[ext_resource type="PackedScene" uid="uid://d38yfchnnwvt" path="res://editor/rendering/selection_preview/selection_preview.tscn" id="12_n4gg0"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_17w4n"]
 resource_local_to_scene = true
@@ -72,6 +73,8 @@ modulate = Color(0.168627, 0.172549, 0.580392, 1)
 [node name="VirtualAnchorPreview" parent="." instance=ExtResource("9_hs37s")]
 
 [node name="SpringPreview" parent="." instance=ExtResource("10_cxht2")]
+
+[node name="SelectionPreview" parent="." instance=ExtResource("12_n4gg0")]
 
 [editable path="VirtualMotorPreview"]
 [editable path="VirtualMotorPreview/motor3D_Gears00"]

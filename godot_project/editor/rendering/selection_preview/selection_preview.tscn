@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3 uid="uid://d38yfchnnwvt"]
+
+[ext_resource type="Script" path="res://editor/rendering/selection_preview/selection_preview.gd" id="1_82o16"]
+
+[node name="SelectionPreview" type="SubViewport"]
+msaa_3d = 3
+size = Vector2i(400, 400)
+script = ExtResource("1_82o16")
+
+[node name="PreviewCameraPivot" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="PreviewCameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 250)
+cull_mask = 0
+current = true
+fov = 30.0
+far = 1500.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="PreviewCameraPivot/Camera3D"]
+transform = Transform3D(0.693226, -0.450095, 0.562897, 0, 0.781019, 0.624507, -0.720721, -0.432924, 0.541423, 11.2996, 0, 0)
+light_energy = 0.8
+light_bake_mode = 0
+shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_split_1 = 0.2
+directional_shadow_split_2 = 0.5
+directional_shadow_split_3 = 0.75
+directional_shadow_max_distance = 400.0
+sky_mode = 1
