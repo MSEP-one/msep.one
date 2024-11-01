@@ -136,6 +136,8 @@ func has_overlapping_atoms() -> bool:
 func fix_overlapping_atoms() -> void:
 	
 	for overlap: OverlapData in _overlaps:
+		if overlap.is_fixed:
+			continue
 		var nano_structure: NanoStructure = overlap.structure_context.nano_structure
 		if not nano_structure.is_being_edited():
 			nano_structure.start_edit()
@@ -196,9 +198,11 @@ func fix_overlapping_atoms() -> void:
 		
 		# Gray out the tree item for this overlap
 		var item: TreeItem = _overlaps[overlap]
-		item.set_text(0, "(Fixed) " + item.get_text(0))
+		var prefix: String = item.get_text(0).substr(0, 2) # This is the warning or error unicode character
+		item.set_text(0, prefix + "(Fixed) " + item.get_text(0))
 		item.set_custom_color(0, COLOR_DELETED)
 		item.set_icon_modulate(0, COLOR_DELETED)
+		overlap.is_fixed = true
 
 	for overlap: OverlapData in _overlaps:
 		var nano_structure: NanoStructure = overlap.structure_context.nano_structure
@@ -307,23 +311,24 @@ func _update_state_of_tree_items() -> void:
 		if not is_instance_valid(v_item):
 			continue
 		var item := v_item as TreeItem
+		var prefix: String = item.get_text(0).substr(0, 2) # This is the warning or error unicode character
 		var metadata: Metadata = item.get_metadata(0)
 		if metadata.has_invalid_atoms():
 			is_outdated = true
 			item.set_icon(0, DELETED_ICON)
-			item.set_text(0, "(Deleted) " + metadata.text)
+			item.set_text(0, prefix + "(Deleted) " + metadata.text)
 			item.set_custom_color(0, COLOR_DELETED)
 			item.set_icon_modulate(0, COLOR_DELETED)
 			item.set_selectable(0, false)
 			item.deselect(0)
-		elif metadata is OverlapData and _overlaps_are_fixed:
+		elif metadata is OverlapData and metadata.is_fixed:
 			# Gray out the tree item for this overlap
-			item.set_text(0, "(Fixed) " + metadata.text)
+			item.set_text(0, prefix + "(Fixed) " + metadata.text)
 			item.set_custom_color(0, COLOR_DELETED)
 			item.set_icon_modulate(0, COLOR_DELETED)
 		else:
 			item.set_icon(0, null)
-			item.set_text(0, "" + metadata.text)
+			item.set_text(0, prefix + metadata.text)
 			item.clear_custom_color(0)
 			item.set_selectable(0, true)
 	if is_outdated:
@@ -408,6 +413,7 @@ class AtomData extends Metadata:
 class OverlapData extends Metadata:
 	var atoms_id: PackedInt32Array
 	var structure_context: StructureContext
+	var is_fixed: bool = false
 	
 	func _init(in_atoms: Array[AtomData], in_structure_context: StructureContext) -> void:
 		structure_context = in_structure_context
