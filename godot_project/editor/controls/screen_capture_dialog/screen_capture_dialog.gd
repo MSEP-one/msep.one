@@ -70,7 +70,7 @@ var _is_about_to_popup: bool = false
 
 var prev_size_preset: SizePresets = SizePresets.RES_MATCH_EDITOR
 var high_resolution_rendering_confirmed: bool = false
-var selection_snapshots: Dictionary # key: StructureContext, value: SelectionSnapshot}
+var workspace_snapshot: Dictionary
 
 
 func _init() -> void:
@@ -149,9 +149,7 @@ func _on_about_to_popup() -> void:
 	_set_remote_camera(workspace_camera_3d)
 	_on_option_button_size_preset_item_selected(_option_button_size_preset.get_selected_id())
 	# Store existing selection and deselect everything
-	selection_snapshots.clear()
-	for context in workspace_context.get_structure_contexts_with_selection():
-		selection_snapshots[context] = context.get_selection_snapshot()
+	workspace_snapshot = workspace_context.create_state_snapshot()
 	workspace_context.clear_all_selection()
 	_is_about_to_popup = false
 
@@ -180,9 +178,10 @@ func _on_confirmed() -> void:
 func _on_visibility_changed() -> void:
 	if visible:
 		return # Popup was opened, ignore
-	for context: StructureContext in selection_snapshots:
-		context.apply_selection_snapshot(selection_snapshots[context])
-	selection_snapshots.clear()
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+	assert(workspace_context != null)
+	workspace_context.apply_state_snapshot(workspace_snapshot)
+	workspace_snapshot.clear()
 
 
 func _on_main_window_size_changed() -> void:
