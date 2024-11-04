@@ -833,7 +833,9 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for renderer_name: String in renderers:
 		var renderer: AtomicStructureRenderer
 		var renderer_snapshot: Dictionary = renderers_snapshots[renderer_name]
-		if is_instance_valid(renderers[renderer_name]):
+		var is_alive: bool = is_instance_valid(renderers[renderer_name]) and \
+				not renderers[renderer_name].is_queued_for_deletion()
+		if is_alive:
 			renderer = renderers[renderer_name]
 		else:
 			# create new one
