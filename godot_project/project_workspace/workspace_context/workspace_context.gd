@@ -576,11 +576,9 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 	var guid: int = in_nano_structure.int_guid
 	assert(workspace.has_structure(in_nano_structure))
 	if !_structure_contexts.has(guid):
-		var structure_context: StructureContext = null
-		if structure_context == null:
-			structure_context = StructureContextScn.instantiate()
-			structure_context.initialize(self, guid, in_nano_structure)
-			_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
+		var structure_context: StructureContext = StructureContextScn.instantiate()
+		structure_context.initialize(self, guid, in_nano_structure)
+		_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
 		structure_context.selection_changed.connect(_on_structure_context_selection_changed.bind(structure_context.get_int_guid()))
 		structure_context.virtual_object_selection_changed.connect(_on_structure_context_virtual_object_selection_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is AtomicStructure:
