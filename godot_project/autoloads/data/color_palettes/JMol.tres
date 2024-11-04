@@ -14,7 +14,7 @@ _data = {
 1: {
 "bond_color": Color(1, 1, 1, 1),
 "color": Color(1, 1, 1, 1),
-"font_color": null,
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.7, 0.7, 0.7, 1),
 "set": true
 },
@@ -811,7 +811,7 @@ page = 1
 1/color = Color(1, 1, 1, 1)
 1/noise_color = Color(0.7, 0.7, 0.7, 1)
 1/bond_color = Color(1, 1, 1, 1)
-1/font_color = null
+1/font_color = Color(0, 0, 0, 1)
 2/set = true
 2/color = Color(0.85098, 1, 1, 1)
 2/noise_color = Color(0.595686, 0.7, 0.7, 1)
