@@ -814,25 +814,3 @@ _data = {
 "set": false
 }
 }
-page = 12
-110/set = true
-110/color = Color(0, 0.8, 0.835294, 1)
-110/noise_color = Color(0, 0.56, 0.584706, 1)
-110/bond_color = Color(0, 0.8, 0.835294, 1)
-110/font_color = Color(0, 0, 0, 1)
-111/set = true
-111/color = Color(0, 0.8, 0.835294, 1)
-111/noise_color = Color(0, 0.56, 0.584706, 1)
-111/bond_color = Color(0, 0.8, 0.835294, 1)
-111/font_color = Color(0, 0, 0, 1)
-112/set = true
-112/color = Color(0, 0.8, 0.835294, 1)
-112/noise_color = Color(0, 0.56, 0.584706, 1)
-112/bond_color = Color(0, 0.8, 0.835294, 1)
-112/font_color = Color(0, 0, 0, 1)
-113/set = false
-114/set = false
-115/set = false
-116/set = false
-117/set = false
-118/set = false
