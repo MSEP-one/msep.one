@@ -25,7 +25,9 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 	if nano_structure is NanoShape and nano_structure.get_shape() != null and structure_context.is_shape_selected():
 		var shape_dimensions: Dictionary = {}
 		info["Type"] = nano_structure.get_type()
-		info["Position" + distance_unit] = nano_structure.get_transform().origin * Units.get_distance_conversion_factor()
+		var position_prop := NanoShapeUtils.ShapeProperty.new("Position", nano_structure.get_position, nano_structure.set_position)
+		position_prop.with_min_value(0.05).with_step(0.001).with_unit(Units.get_distance_unit_string())
+		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
 		info["Rotation (degrees)"] = nano_structure.get_transform().basis.get_euler()
 		info["Dimensions"] = shape_dimensions
 		var shape_properties: Dictionary = NanoShapeUtils.get_reference_shape_properties(nano_structure.get_shape())
@@ -47,6 +49,11 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 				Type.READ_WRITE_PROPERTIES:
 					var editor: Control = NanoShapeUtils.create_shape_property_editor(property, true)
 					shape_dimensions[prop_name.capitalize() + suffix] = editor
+	elif nano_structure is NanoVirtualMotor and structure_context.is_motor_selected():
+		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
+		info["Rotation (degrees)"] = nano_structure.get_transform().basis.get_euler()
+	elif nano_structure is NanoVirtualAnchor and structure_context.is_anchor_selected():
+		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
 	# Atom Info by atom type
 	var selection: Array = structure_context.get_selected_atoms()
 	var atomic_numbers: PackedInt32Array = []
@@ -181,6 +188,29 @@ static func _create_position_property(in_info_type: Type, in_structure_context: 
 			return vector3_ui
 
 
+static func _create_virtual_object_position_property(in_info_type: Type, in_structure_context: StructureContext) -> Variant:
+	match in_info_type:
+		Type.RAW:
+			if in_structure_context.nano_structure is NanoVirtualMotor:
+				return in_structure_context.nano_structure.get_transform().origin
+			else:
+				return in_structure_context.nano_structure.get_position()
+		Type.READ_ONLY_PROPERTIES, Type.READ_WRITE_PROPERTIES, _:
+			var vector3_ui: InspectorControlVector3 = InspectorControlVector3Scene.instantiate()
+			var setter_helper := SetVirtualObjectPositionHelper.new(in_structure_context)
+			vector3_ui.set_meta(&"setter_helper", setter_helper) # keep setter_helper reference alive
+			vector3_ui.setup(
+				# getter
+				setter_helper.get_position,
+				# setter
+				setter_helper.set_position,
+				# property_changed_signal
+				setter_helper.changed_signal
+			)
+			vector3_ui.set_editable(in_info_type == Type.READ_WRITE_PROPERTIES)
+			return vector3_ui
+
+
 static func _find_connected_bonds(in_selected_bonds: PackedInt32Array,
 			in_nano_structure: NanoStructure) -> Array[Vector2i]:
 	var out_pairs: Array[Vector2i] = []
@@ -245,4 +275,65 @@ class SetNanostructureAtomPositionHelper:
 	
 	func store_undo_snapshot() -> void:
 		var snapshot_name: String = "Set Atom %d Pos" % (_atom_id)
+		_structure_context.workspace_context.snapshot_moment(snapshot_name)
+
+
+class SetVirtualObjectPositionHelper:
+	enum Type {
+		SHAPE,
+		MOTOR,
+		ANCHOR,
+	}
+	
+	var changed_signal: Signal
+	
+	var _type: Type
+	var _structure_context: StructureContext
+	
+	func _init(out_structure_context: StructureContext) -> void:
+		if out_structure_context.nano_structure is NanoShape:
+			_type = Type.SHAPE
+			changed_signal = out_structure_context.nano_structure.transform_changed
+		elif out_structure_context.nano_structure is NanoVirtualMotor:
+			_type = Type.MOTOR
+			changed_signal = out_structure_context.nano_structure.transform_changed
+		elif out_structure_context.nano_structure is NanoVirtualAnchor:
+			_type = Type.ANCHOR
+			changed_signal = out_structure_context.nano_structure.position_changed
+		else:
+			assert(false, "Unknown type of Virtual Object")
+		_structure_context = out_structure_context
+	
+	
+	func get_position() -> Vector3:
+		match _type:
+			Type.MOTOR:
+				var motor: NanoVirtualMotor = _structure_context.nano_structure as NanoVirtualMotor
+				return motor.get_transform().origin
+			Type.ANCHOR, Type.SHAPE:
+				return _structure_context.nano_structure.get_position()
+			_:
+				return Vector3()
+	
+	func set_position(in_new_position: Vector3) -> void:
+		match _type:
+			Type.SHAPE:
+				var shape: NanoShape = _structure_context.nano_structure as NanoShape
+				shape.set_position(in_new_position)
+			Type.MOTOR:
+				var motor: NanoVirtualMotor = _structure_context.nano_structure as NanoVirtualMotor
+				var transform: Transform3D = motor.get_transform()
+				transform.origin = in_new_position
+				motor.set_transform(transform)
+			Type.ANCHOR:
+				var anchor: NanoVirtualAnchor = _structure_context.nano_structure as NanoVirtualAnchor
+				anchor.set_position(in_new_position)
+	
+	func store_undo_snapshot() -> void:
+		const MESSAGE_PER_TYPE: Dictionary = {
+			Type.SHAPE: "Set Shape Position",
+			Type.MOTOR: "Set Motor Position",
+			Type.ANCHOR: "Set Anchor Position",
+		}
+		var snapshot_name: String = MESSAGE_PER_TYPE[_type]
 		_structure_context.workspace_context.snapshot_moment(snapshot_name)
