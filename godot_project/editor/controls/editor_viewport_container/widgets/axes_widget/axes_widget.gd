@@ -32,11 +32,10 @@ const FASTER_TRANSFORM_COEFFICIENT = 5.0
 const ADDITIONAL_FASTER_WHEEL_COEFFICIENT = 5.0
 const CAMERA_EASE_COEFFICIENT = 3.0
 const CAMERA_FOLLOW_EASE_COEFFICIENT = .1
-const SPEED_UP_COEFFICIENT = 1.0
 const ORTHOGRAPHIC_ZOOM_SENSITIVITY = 0.4
 const ORTHOGRAPHIC_ZOOM_MAX = 0.01 # Smaller number means larger zoom. Strictly greater than 0.
+const CAMERA_ROTATION_FACTOR: float = .0001
 
-var speed_up_rotation : float = .0
 var camera_move_direction : Vector3 = Vector3.ZERO
 var camera_move_ease := Vector3.ZERO
 var clamped_delta_time : float = FPS_LIMITS.x
@@ -97,9 +96,8 @@ func calculate_smooth_mouse_delta(in_mouse_delta : Vector2) -> Vector2:
 
 func initiate_camera_orbit_on_mouse() -> void:
 	movement_z_coefficient = STOP
-	var adjusted_speed : float = MOUSE_ORBIT_ROTATION_SPEED_FACTOR * \
-	(FASTER_TRANSFORM_COEFFICIENT if transform_faster else 1.0)
-	gizmo.rotate_to_orbit(mouse_delta * clamped_delta_time * adjusted_speed)
+	# To restore orbiting intertia check: 8c59342316b0407e60043b6a31772e39265e7275
+	gizmo.rotate_to_orbit(mouse_delta)
 
 
 func update(in_delta_time : float) -> void:
@@ -131,6 +129,10 @@ func update(in_delta_time : float) -> void:
 	camera_rotation = (_camera.global_transform.basis.get_rotation_quaternion()).normalized()
 
 
+func set_mouse_delta(in_delta: Vector2) -> void:
+	mouse_delta = in_delta * clamped_delta_time
+
+
 func position_axes_wrapper() -> void:
 	_camera = _find_editor_viewport_camera_3d()
 	var camera_direction := _camera.global_transform.basis.get_rotation_quaternion() \
@@ -140,13 +142,10 @@ func position_axes_wrapper() -> void:
 
 func initiate_camera_orbit_on_keyboard() -> void:
 	if rotation_x_coefficient != STOP || rotation_y_coefficient != STOP:
-		speed_up_rotation = min(speed_up_rotation + clamped_delta_time * SPEED_UP_COEFFICIENT, 1.0)
-		var adjusted_speed := KEYBOARD_ROTATION_SPEED * (FASTER_TRANSFORM_COEFFICIENT if transform_faster \
-				else 1.0) * speed_up_rotation
-		var lerped_x_rotation_step : float = lerp(.0, adjusted_speed * \
-				float(rotation_x_coefficient), CAMERA_EASE_COEFFICIENT * clamped_delta_time)
-		var lerped_y_rotation_step : float = lerp(.0, -adjusted_speed * \
-				float(rotation_y_coefficient), CAMERA_EASE_COEFFICIENT * clamped_delta_time)
+		var lerped_x_rotation_step : float = lerp(.0, \
+				float(rotation_x_coefficient), CAMERA_ROTATION_FACTOR)
+		var lerped_y_rotation_step : float = lerp(.0, \
+				-float(rotation_y_coefficient), CAMERA_ROTATION_FACTOR)
 		var orbit_delta := Vector2(lerped_x_rotation_step, lerped_y_rotation_step) * \
 				KEYBOARD_ORBIT_ROTATION_SPEED_FACTOR
 		gizmo.rotate_to_orbit(orbit_delta)
