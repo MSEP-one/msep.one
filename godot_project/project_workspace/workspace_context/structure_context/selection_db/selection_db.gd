@@ -459,55 +459,5 @@ func apply_selection_snapshot(in_snapshot: Dictionary) -> void:
 	var atom_snapshot: Array = in_snapshot.atom_snapshot
 	var spring_snapshot: Array = in_snapshot.spring_snapshot
 	
-	var atoms_to_selection_status: Dictionary = {
-		# atom_id<int> : is_atom_currently_selected<bool>
-	}
-	
-	var bond_to_selection_status: Dictionary = {
-		# bond_id<int> : is_bond_currently_selected<bool>
-	}
-	var spring_to_selection_status: Dictionary = {
-		# spring_id<int> : is_spring_selected<bool>
-	}
-	
 	var _apply_result: AtomSelection.ApplySnapshotResult = _atom_selection.apply_snapshot(atom_snapshot)
-	var atoms_to_highlight: PackedInt32Array = PackedInt32Array()
-	var atoms_to_lowlight: PackedInt32Array = PackedInt32Array()
-	var new_atom_selection: PackedInt32Array = _atom_selection.get_atoms_selection()
-	for atom_id in new_atom_selection:
-		assert(nano_structure.is_atom_valid(atom_id))
-		atoms_to_selection_status[atom_id] = true
-	
-	for atom_id: int in atoms_to_selection_status:
-		if atoms_to_selection_status[atom_id]:
-			atoms_to_highlight.append(atom_id)
-		else:
-			atoms_to_lowlight.append(atom_id)
-	
-	var bonds_to_highlight: PackedInt32Array = PackedInt32Array()
-	var bonds_to_lowlight: PackedInt32Array = PackedInt32Array()
-	var new_bond_selection: PackedInt32Array = _atom_selection.get_bonds_selection()
-	for bond_id in new_bond_selection:
-		assert(nano_structure.is_bond_valid(bond_id))
-		bond_to_selection_status[bond_id] = true
-	
-	for bond_id: int in bond_to_selection_status:
-		if bond_to_selection_status[bond_id]:
-			bonds_to_highlight.append(bond_id)
-		else:
-			bonds_to_lowlight.append(bond_id)
-	
 	_spring_selection.apply_snapshot(spring_snapshot)
-	var springs_to_highlight: PackedInt32Array = PackedInt32Array()
-	var springs_to_lowlight: PackedInt32Array = PackedInt32Array()
-	var new_spring_selection: PackedInt32Array = _spring_selection.get_selection()
-	for spring_id in new_spring_selection:
-		assert(nano_structure.spring_has(spring_id))
-		spring_to_selection_status[spring_id] = true
-	
-	for spring_id: int in spring_to_selection_status:
-		var spring_selected: bool = spring_to_selection_status[spring_id]
-		if spring_selected:
-			springs_to_highlight.append(spring_id)
-		else:
-			springs_to_lowlight.append(spring_id)
