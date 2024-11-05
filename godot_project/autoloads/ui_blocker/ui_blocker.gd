@@ -8,7 +8,7 @@ func _ready() -> void:
 	_blocker.set_mouse_filter(_blocker.MOUSE_FILTER_STOP)
 
 
-func _process(in_delta: float) -> void:
+func _process(_in_delta: float) -> void:
 	_unblock_last_frame_input_events()
 
 

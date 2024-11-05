@@ -23,7 +23,7 @@ func _get_recognized_extensions(_resource: Resource) -> PackedStringArray:
 	return extensions
 
 
-func _save(resource: Resource, path: String, flags: int) -> Error:
+func _save(resource: Resource, path: String, _flags: int) -> Error:
 	var workspace: Workspace = resource as Workspace
 	if not workspace:
 		return ERR_INVALID_DATA
@@ -41,7 +41,6 @@ func _save(resource: Resource, path: String, flags: int) -> Error:
 	
 	# Second line - Comment (File description, authors and Msep version)
 	var msep_version: String = Editor_Utils.get_msep_version(false)
-	var timestamp: String = Time.get_datetime_string_from_system()
 	var author: String = workspace.authors
 	if author.is_empty():
 		author = "Unknown"
