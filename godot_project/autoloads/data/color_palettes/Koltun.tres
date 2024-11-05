@@ -12,10 +12,10 @@ _data = {
 "noise_color": Color(0.745098, 0.745098, 0.745098, 1)
 },
 1: {
-"bond_color": Color(1, 1, 1, 1),
+"bond_color": Color(0.830335, 0.830335, 0.830335, 1),
 "color": Color(1, 1, 1, 1),
 "font_color": Color(0, 0, 0, 1),
-"noise_color": Color(0.7, 0.7, 0.7, 1),
+"noise_color": Color(0.581235, 0.581235, 0.581235, 1),
 "set": true
 },
 2: {
@@ -422,13 +422,37 @@ _data = {
 "set": false
 }
 }
-page = 12
-110/set = false
-111/set = false
-112/set = false
-113/set = false
-114/set = false
-115/set = false
-116/set = false
-117/set = false
-118/set = false
+page = 1
+0/color = Color(1, 0.752941, 0.796078, 1)
+0/noise_color = Color(0.745098, 0.745098, 0.745098, 1)
+0/bond_color = Color(1, 0.752941, 0.796078, 1)
+0/font_color = Color(0, 0, 0, 1)
+1/set = true
+1/color = Color(1, 1, 1, 1)
+1/noise_color = Color(0.581235, 0.581235, 0.581235, 1)
+1/bond_color = Color(0.830335, 0.830335, 0.830335, 1)
+1/font_color = Color(0, 0, 0, 1)
+2/set = false
+3/set = false
+4/set = false
+5/set = false
+6/set = true
+6/color = Color(0.12549, 0.12549, 0.12549, 1)
+6/noise_color = Color(0.745098, 0.745098, 0.745098, 1)
+6/bond_color = Color(0.12549, 0.12549, 0.12549, 1)
+6/font_color = Color(1, 1, 1, 1)
+7/set = true
+7/color = Color(0.12549, 0.376471, 1, 1)
+7/noise_color = Color(0.0878431, 0.263529, 0.7, 1)
+7/bond_color = Color(0.12549, 0.376471, 1, 1)
+7/font_color = Color(0, 0, 0, 1)
+8/set = true
+8/color = Color(0.933333, 0.12549, 0.0627451, 1)
+8/noise_color = Color(1, 0.188235, 0.0941177, 1)
+8/bond_color = Color(0.933333, 0.12549, 0.0627451, 1)
+8/font_color = Color(1, 1, 1, 1)
+9/set = true
+9/color = Color(0, 1, 0, 1)
+9/noise_color = Color(0, 1, 0, 1)
+9/bond_color = Color(0, 1, 0, 1)
+9/font_color = Color(1, 1, 1, 1)

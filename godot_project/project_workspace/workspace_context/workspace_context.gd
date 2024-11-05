@@ -154,6 +154,7 @@ func initialize(in_workspace: Workspace) -> void:
 
 func notify_activated() -> void:
 	# Executed from MolecularEditorContext when the tab of this workspace becomes active
+	PeriodicTable.load_palette(workspace.representation_settings.get_color_palette())
 	var rendering: Rendering = get_rendering()
 	if is_instance_valid(rendering):
 		rendering.apply_theme(workspace.representation_settings.get_theme())
