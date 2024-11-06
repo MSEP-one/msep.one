@@ -14,7 +14,6 @@ render_mode cull_back, unshaded;
 
 instance uniform float selected : hint_range(0.0, 1.0) = 0.0;
 instance uniform float hovered : hint_range(0.0, 1.0) = 0.0;
-instance uniform float preview: hint_range(0,1) = 1.0;
 
 uniform float default_wire_width : hint_range(0.0, 10.0) = 0.8;
 uniform float hovered_wire_width : hint_range(0.0, 10.0) = 2.4;

@@ -3,9 +3,7 @@ extends DynamicContextControl
 @onready var three_d_preview_container: TextureRect = $"3DPreviewContainer"
 
 var _workspace_context: WorkspaceContext = null
-var _structures_to_update: Dictionary = {
-#	context<int> = true<bool>
-}
+
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	if _workspace_context == null:
@@ -29,29 +27,22 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	return selected_atoms_count > 1
 
 
-func _on_workspace_context_structure_contents_changed(in_structure_context: StructureContext) -> void:
-	_structures_to_update[in_structure_context.get_int_guid()] = true
+func _on_workspace_context_structure_contents_changed(_in_structure_context: StructureContext) -> void:
 	ScriptUtils.call_deferred_once(_internal_update)
 
 
-func _on_workspace_context_selection_in_structures_changed(in_structure_contexts: Array[StructureContext]) -> void:
-	for context: StructureContext in in_structure_contexts:
-		_structures_to_update[context.get_int_guid()] = true
+func _on_workspace_context_selection_in_structures_changed(_in_structure_contexts: Array[StructureContext]) -> void:
 	ScriptUtils.call_deferred_once(_internal_update)
 
 
-func _on_workspace_context_structure_about_to_remove(in_nano_structure: NanoStructure) -> void:
-	if in_nano_structure is AtomicStructure:
-		_structures_to_update[_workspace_context.get_current_structure_context().get_int_guid()] = true
-		ScriptUtils.call_deferred_once(_internal_update)
+func _on_workspace_context_structure_about_to_remove(_in_nano_structure: NanoStructure) -> void:
+	ScriptUtils.call_deferred_once(_internal_update)
 
 
-func _on_workspace_context_atoms_position_in_structure_changed(in_structure_context: StructureContext,
+func _on_workspace_context_atoms_position_in_structure_changed(_in_structure_context: StructureContext,
 			_in_atoms: PackedInt32Array) -> void:
-	_structures_to_update[in_structure_context.get_int_guid()] = true
 	ScriptUtils.call_deferred_once(_internal_update)
 
 
 func _internal_update() -> void:
-	assert(not _structures_to_update.is_empty())
 	three_d_preview_container.texture = _workspace_context.get_rendering().get_selection_preview_texture()

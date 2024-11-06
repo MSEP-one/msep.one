@@ -64,8 +64,8 @@ func snapshot_rebuild(in_structure_context: StructureContext) -> void:
 
 func initialize(in_workspace_context: WorkspaceContext) -> void:
 	if not enabled: return
-	var selection_layer_bit_enumerated_from_0: int = SELECTION_PREVIEW_LAYER_BIT - 1
-	assert(pow(2,selection_layer_bit_enumerated_from_0) == RenderingUtils.get_selection_preview_visual_layer(),
+	var _selection_layer_bit_enumerated_from_0: int = SELECTION_PREVIEW_LAYER_BIT - 1
+	assert(pow(2, _selection_layer_bit_enumerated_from_0) == RenderingUtils.get_selection_preview_visual_layer(),
 			"SELECTION_PREVIEW_LAYER_BIT must correspond with constants.gdshaderinc.SELECTION_PREVIEW_VISUAL_LAYER")
 	_workspace_context = in_workspace_context
 	var workspace: Workspace = in_workspace_context.workspace

@@ -208,15 +208,13 @@ func highlight_springs(in_springs_to_highlight: PackedInt32Array) -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	var nano_struct: NanoStructure = structure_context.nano_structure
 	for spring_id: int in in_springs_to_highlight:
-		var is_selected: bool = structure_context.is_spring_selected(spring_id)
-		_spring_renderer.change_spring_color(spring_id, COLOR_HIGHLIGHT, is_selected)
+		_spring_renderer.change_spring_color(spring_id, COLOR_HIGHLIGHT, true)
 
 
 func lowlight_springs(in_springs_to_lowlight: PackedInt32Array) -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	for spring_id: int in in_springs_to_lowlight:
-		var is_selected: bool = structure_context.is_spring_selected(spring_id)
-		_spring_renderer.change_spring_color(spring_id, COLOR_LOWLIGHT, is_selected)
+		_spring_renderer.change_spring_color(spring_id, COLOR_LOWLIGHT, false)
 
 
 func hide_bond_rendering() -> void:
