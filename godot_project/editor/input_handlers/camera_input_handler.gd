@@ -92,8 +92,6 @@ func _reset_mouse() -> void:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 			Input.warp_mouse(_last_visible_mouse_position)
 		_is_in_use = false
-		axes_widget_gizmo.mouse_delta = Vector2.ZERO
-		axes_widget_gizmo.mouse_delta_goal = Vector2.ZERO
 		disable_orbiting()
 
 
@@ -229,9 +227,6 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 			if in_input_event.is_pressed():
 				if in_input_event.button_index == MOUSE_BUTTON_LEFT:
 					if axes_widget_gizmo.mouse_is_in_drag_radius:
-						axes_widget_gizmo.mouse_delta = Vector2.ZERO
-						axes_widget_gizmo.mouse_delta_goal = Vector2.ZERO
-						
 						axes_widget_gizmo.mouse_drag_in_widget_is_active = true
 						# Captured is nicer than confined, because as mouse must be invisible in
 						# both cases it moves, but with captured we won't stop transformation
@@ -259,8 +254,8 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 				if axes_widget_gizmo.workspace_has_transformable_selection:
 					GizmoRoot.enable_gizmo()
 		elif in_input_event is InputEventMouseMotion:
-			axes_widget_gizmo.mouse_delta_goal = in_input_event.relative
-			axes_widget.mouse_delta = in_input_event.relative
+			# To restore orbiting intertia check: 8c59342316b0407e60043b6a31772e39265e7275
+			axes_widget.set_mouse_delta(in_input_event.relative)
 		return _is_in_use or _is_hovering
 	
 	elif in_input_event is InputEventKey:
@@ -375,10 +370,6 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 				axes_widget.rotation_x_coefficient = axes_widget.LEFT
 			elif axes_widget.rotation_x_coefficient == axes_widget.LEFT:
 				axes_widget.rotation_x_coefficient = axes_widget.STOP
-		
-		if axes_widget.rotation_x_coefficient == axes_widget.STOP && \
-		axes_widget.rotation_y_coefficient == axes_widget.STOP:
-			axes_widget.speed_up_rotation = float(axes_widget.STOP)
 	else:
 		stop_key_rotation()
 		
@@ -487,7 +478,6 @@ func allow_only_up_down_key_movement() -> void:
 func stop_key_rotation() -> void:
 	axes_widget.rotation_x_coefficient = axes_widget.STOP
 	axes_widget.rotation_y_coefficient = axes_widget.STOP
-	axes_widget.speed_up_rotation = float(axes_widget.STOP)
 
 
 ## Input handlers will execute _forward_input_* in an order dictated by this parameter

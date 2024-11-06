@@ -9,25 +9,18 @@ const WIDGET_SIZE: float = 8.0
 const ORBIT_SMOOTHING_FACTOR: float = .1
 # Adjust camera rotation and movement handles here.
 const ORBIT_TO_CENTER_SPEED: float = .015
-const ORBIT_ROTATION_START_SENSITIVITY: float = .001
-const ORBIT_ROTATION_SENSITIVITY_SPEEDUP_TIME: float = 4.0
-const ORBIT_ROTATION_SENSITIVITY: float = .01
-const CAMERA_SLOW_DOWN_COEFFICIENT: float = 1.0
-const CAMERA_SPEED_UP_COEFFICIENT: float = 1.0
 # End Adjust Camera rotation and movement handles here.
 const EPSILON: float = .001
 const RIGHT_PANEL_ADJUSTMENT: float = 15.0
 # This isn't adjusted automatically with widget size, you can choose the size.
 const HIGHLIGHT_SPEED: float = 10.0
 const DEFAULT_WIDGET_SIZE: Vector2 = Vector2(90, 90)
+const FIXED_ORBIT_ROTATION_SPEED_FACTOR: float = .2
 
-var orbit_rotation_current_sensitivity: float = ORBIT_ROTATION_START_SENSITIVITY
 var mouse_position := Vector2.ZERO
 var mouse_drag_in_widget_is_active := false
-var mouse_delta := Vector2.ZERO
 var mouse_is_in_drag_radius := false
 var working_area_rect_control : Control = null
-var mouse_delta_goal := Vector2.ZERO
 var orbit_screen_vector := Vector3.ZERO
 var is_orbiting := false
 var orbit_old_camera_position := Vector3.ZERO
@@ -149,11 +142,6 @@ func manage_continuous_input(in_delta: float) -> void:
 		mouse_is_in_drag_radius = false
 	
 	drag_rotate_camera()
-	
-	mouse_delta = mouse_delta.lerp(mouse_delta_goal, axes_widget_3d.clamped_delta_time * \
-			CAMERA_SPEED_UP_COEFFICIENT)
-	mouse_delta_goal = mouse_delta_goal.slerp(Vector2.ZERO, axes_widget_3d.clamped_delta_time * \
-			CAMERA_SLOW_DOWN_COEFFICIENT)
 
 
 func restore_mouse_position() -> void:
@@ -194,26 +182,19 @@ func rotate_to_orbit(in_orbit_delta : Vector2) -> void:
 	var camera_quat : Quaternion = \
 	_camera.global_transform.basis.get_rotation_quaternion()
 	
+	var adjusted_speed : float = \
+		axes_widget_3d.FASTER_TRANSFORM_COEFFICIENT if axes_widget_3d.transform_faster else 1.0
+	var adjusted_delta: Vector2 = in_orbit_delta * adjusted_speed * FIXED_ORBIT_ROTATION_SPEED_FACTOR
+	
 	if !is_orbiting:
-		in_orbit_delta = Vector2.ZERO
-		
-		orbit_rotation_current_sensitivity = ORBIT_ROTATION_START_SENSITIVITY
-	else:
-		orbit_rotation_current_sensitivity = lerp(orbit_rotation_current_sensitivity, \
-				ORBIT_ROTATION_SENSITIVITY, axes_widget_3d.clamped_delta_time / \
-				ORBIT_ROTATION_SENSITIVITY_SPEEDUP_TIME)
+		adjusted_delta = Vector2.ZERO
 	
 	# On a very large camera/orbit distance, there might not be enough information from the mouse
 	# movement to produce smooth stepping, this makes orbiting smooth regardless even if the steps
 	# are too far apart from each other (It's obviously only needed for mouse input).
-	if axes_widget_3d.rotation_must_follow_mouse && is_orbiting:
-		x_lerped_step = lerp(x_lerped_step, -in_orbit_delta.x * orbit_rotation_current_sensitivity, \
-				ORBIT_SMOOTHING_FACTOR)
-		y_lerped_step = lerp(y_lerped_step, in_orbit_delta.y * orbit_rotation_current_sensitivity, \
-				ORBIT_SMOOTHING_FACTOR)
-	else:
-		x_lerped_step = -in_orbit_delta.x * orbit_rotation_current_sensitivity
-		y_lerped_step = in_orbit_delta.y * orbit_rotation_current_sensitivity
+	# To restore orbiting intertia check: 8c59342316b0407e60043b6a31772e39265e7275
+	x_lerped_step = -adjusted_delta.x
+	y_lerped_step = adjusted_delta.y
 	
 	var msep_editor_settings: MSEPSettings = MolecularEditorContext.msep_editor_settings
 	var rotation_direction: float = -1.0 if \
@@ -259,14 +240,10 @@ func drag_rotate_camera() -> void:
 	if mouse_drag_in_widget_is_active:
 		if !workspace_has_transformable_selection:
 			no_selection_orbit_active = true
-			var adjusted_speed : float = \
-			axes_widget_3d.FASTER_TRANSFORM_COEFFICIENT if axes_widget_3d.transform_faster else 1.0
-			rotate_to_orbit(mouse_delta * adjusted_speed)
+			rotate_to_orbit(axes_widget_3d.mouse_delta)
 		else:
 			no_selection_orbit_active = false
-			var adjusted_speed : float = \
-			axes_widget_3d.FASTER_TRANSFORM_COEFFICIENT if axes_widget_3d.transform_faster else 1.0
-			rotate_to_orbit(mouse_delta * adjusted_speed)
+			rotate_to_orbit(axes_widget_3d.mouse_delta)
 
 
 func update(in_delta_time : float) -> void:
