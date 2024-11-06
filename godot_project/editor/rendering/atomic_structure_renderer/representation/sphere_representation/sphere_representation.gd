@@ -356,11 +356,7 @@ func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply:
 
 
 func update(_delta: float) -> void:
-	var camera3d: Camera3D = get_viewport().get_camera_3d()
-	var to_local: Quaternion = Quaternion(self.global_basis.inverse())
-	var camera_up: Vector3 = to_local * camera3d.global_transform.basis.y
-	var camera_right: Vector3 = to_local * camera3d.global_transform.basis.x
-	_material.update_camera(camera_up, camera_right)
+	pass
 
 
 func set_transparency(in_transparency: float) -> void:

@@ -18,9 +18,6 @@ const float COLOR_ADDITIONAL_POWER = 0.05;
 const float ATLAS_SIZE_XY = 4.0;
 const float UV_ATLAS_SIZE = 1.0 / ATLAS_SIZE_XY;
 
-uniform vec3 camera_up_vector;
-uniform vec3 camera_right_vector;
-
 // atom sizing
 uniform float scale = 0.01;
 
@@ -81,10 +78,12 @@ void vertex() {
 	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale) * float_not(is_preview);
 	
 	// Calculate rotation matrix to align model with camera
+	vec3 camera_right = normalize(INV_VIEW_MATRIX[0].xyz);
+	vec3 camera_up = normalize(INV_VIEW_MATRIX[1].xyz);
 	mat4 billboard_rot = mat4(
-		vec4(normalize(camera_right_vector), 0.0),
-		vec4(normalize(camera_up_vector), 0.0),
-		vec4(cross(normalize(camera_right_vector), normalize(camera_up_vector)), 0.0),
+		vec4(normalize(camera_right), 0.0),
+		vec4(normalize(camera_up), 0.0),
+		vec4(cross(normalize(camera_right), normalize(camera_up)), 0.0),
 		vec4(0.0, 0.0, 0.0, 1.0)
 	);
 

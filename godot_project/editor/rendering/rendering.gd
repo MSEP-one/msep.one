@@ -135,6 +135,10 @@ func get_selection_preview_texture() -> Texture:
 	return _selection_preview.get_texture()
 
 
+func rotate_selection_preview(in_rotation_strength: float) -> void:
+	_selection_preview.rotate_camera(in_rotation_strength)
+
+
 func get_reference_shape_renderer(in_shape_renderer_name: String) -> NanoShapeRenderer:
 	return _reference_shape_renderers.get_node(in_shape_renderer_name)
 

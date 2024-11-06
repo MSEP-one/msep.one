@@ -26,6 +26,11 @@ func init(in_workspace_context: WorkspaceContext) -> void:
 	_workspace_context = in_workspace_context
 
 
+func rotate_camera(in_rotation_strength: float) -> void:
+	_preview_camera_pivot.rotation.y += in_rotation_strength
+	refresh()
+
+
 func set_preview_camera_pivot_position(in_global_position: Vector3) -> void:
 	if _preview_camera_pivot == null:
 		# Too early, let's wait for ready

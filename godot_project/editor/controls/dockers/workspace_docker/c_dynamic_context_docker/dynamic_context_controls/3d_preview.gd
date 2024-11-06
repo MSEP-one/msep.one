@@ -5,6 +5,10 @@ extends DynamicContextControl
 var _workspace_context: WorkspaceContext = null
 
 
+func _ready() -> void:
+	three_d_preview_container.gui_input.connect(_on_d_preview_container_gui_input)
+
+
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	if _workspace_context == null:
 		_workspace_context = in_workspace_context
@@ -25,6 +29,12 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		if selected_atoms_count > 1:
 			return true
 	return selected_atoms_count > 1
+
+
+func _on_d_preview_container_gui_input(in_event: InputEvent) -> void:
+	if in_event is InputEventMouseMotion and in_event.button_mask & MOUSE_BUTTON_MASK_LEFT:
+		var rotation_strength: float = deg_to_rad(-in_event.relative.x)
+		_workspace_context.get_rendering().rotate_selection_preview(rotation_strength)
 
 
 func _on_workspace_context_structure_contents_changed(_in_structure_context: StructureContext) -> void:
