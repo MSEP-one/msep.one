@@ -35,6 +35,9 @@ fit_content = true
 scroll_active = false
 autowrap_mode = 0
 
+[node name="Distance" type="Label" parent="HBoxContainerMessages"]
+layout_mode = 2
+
 [node name="LabelFPS" type="Label" parent="HBoxContainerMessages"]
 custom_minimum_size = Vector2(100, 2.08165e-12)
 layout_mode = 2

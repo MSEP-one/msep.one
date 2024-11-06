@@ -348,6 +348,11 @@ func is_clipboard_empty() -> bool:
 	return not _clipboard.has_content()
 
 
+func bottom_bar_update_distance(in_workspace_context: WorkspaceContext, in_distance_description: String, in_distance: float) -> void:
+	var view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	view.bottom_bar_update_distance(in_distance_description, in_distance)
+
+
 func _init() -> void:
 	if FileAccess.file_exists(MSEPSettings.SETTINGS_RESOURCE_PATH):
 		msep_editor_settings = ResourceLoader.load(MSEPSettings.SETTINGS_RESOURCE_PATH)

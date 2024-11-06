@@ -115,31 +115,60 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		var hovering_atom_id: int = -1
 		var hovering_bond_id: int = -1
 		var hovering_spring_id: int = -1
+		var hover_position: Vector3 = Vector3(INF, INF, INF)
 		if not editable_structures.is_empty():
 			var multi_structure_hit_result := MultiStructureHitResult.new(in_camera, in_input_event.position, editable_structures)
 			match multi_structure_hit_result.hit_type:
 				MultiStructureHitResult.HitType.HIT_ATOM:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hovering_atom_id = multi_structure_hit_result.closest_hit_atom_id
+					hover_position = hovering_object.nano_structure.atom_get_position(hovering_atom_id)
 				MultiStructureHitResult.HitType.HIT_BOND:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hovering_bond_id = multi_structure_hit_result.closest_hit_bond_id
+					var bond_data: Vector3i = hovering_object.nano_structure.get_bond(hovering_bond_id)
+					hover_position = (hovering_object.nano_structure.atom_get_position(bond_data.x) + \
+							hovering_object.nano_structure.atom_get_position(bond_data.y)) / 2.0
 				MultiStructureHitResult.HitType.HIT_SPRING:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hovering_spring_id = multi_structure_hit_result.closest_hit_spring_id
-				MultiStructureHitResult.HitType.HIT_MOTOR, MultiStructureHitResult.HitType.HIT_ANCHOR:
+					hover_position = (hovering_object.nano_structure.spring_get_atom_position(hovering_spring_id) + \
+							hovering_object.nano_structure.spring_get_anchor_position(hovering_spring_id, hovering_object)) / 2.0
+				MultiStructureHitResult.HitType.HIT_MOTOR:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
+					hover_position = hovering_object.nano_structure.get_transform().origin
+				MultiStructureHitResult.HitType.HIT_ANCHOR:
+					hovering_object = multi_structure_hit_result.closest_hit_structure_context
+					hover_position = hovering_object.nano_structure.get_position()
 				MultiStructureHitResult.HitType.HIT_SHAPE:
 					if _is_shape_selectable():
 						hovering_object = multi_structure_hit_result.closest_hit_structure_context
+					hover_position = hovering_object.nano_structure.get_position()
 				_:
 					# do nothing
 					pass
 		get_workspace_context().set_hovered_structure_context(hovering_object, hovering_atom_id, hovering_bond_id, hovering_spring_id)
+		var selection_center: Vector3 = workspace_context.get_selection_aabb().get_center() if \
+				workspace_context.has_selection() else Vector3(INF, INF,INF)
+		_update_distance_message(workspace_context, hover_position, selection_center)
+		
 		var consume_input: bool = hovering_object != null
 		return consume_input
 	
 	return false
+
+
+func _update_distance_message(in_workspace_context: WorkspaceContext, in_position_one: Vector3,
+			in_position_two: Vector3) -> void:
+	var are_positions_valid: bool = not in_position_one.is_equal_approx(Vector3(INF, INF, INF)) and \
+			not in_position_two.is_equal_approx(Vector3(INF, INF, INF))
+	var distance: float = in_position_one.distance_to(in_position_two)
+	var is_anything_selected: bool = in_workspace_context.has_selection()
+	var should_show_distance: bool = are_positions_valid and is_anything_selected and not is_equal_approx(distance, 0.0)
+	if should_show_distance:
+		MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "Distance to selection center: ", distance)
+	else:
+		MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "", 0.0)
 
 
 func _is_near_press_down_pos(in_input_event: InputEventMouseButton) -> bool:

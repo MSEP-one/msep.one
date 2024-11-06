@@ -16,6 +16,7 @@ const Priority: Dictionary = {
 
 @onready var _label_messages: RichTextLabel = $HBoxContainerMessages/LabelMessages
 @onready var _label_fps: Label = $HBoxContainerMessages/LabelFPS
+@onready var _label_distance: Label = $HBoxContainerMessages/Distance
 
 var _meta_callbacks: Dictionary = {
 #	meta_identifier<String> = callback<Callable>
@@ -53,6 +54,14 @@ func show_warning(in_warning: String, in_meta_callbacks: Dictionary = {}) -> voi
 func clear() -> void:
 	_meta_callbacks.clear()
 	_label_messages.text = ""
+
+
+func update_distance(in_message_text: String, in_distance: float) -> void:
+	if in_message_text.is_empty():
+		_label_distance.text = ""
+	else:
+		var distance: String = "%.2f" % in_distance
+		_label_distance.text = in_message_text + " " + distance + " nm"
 
 
 func _can_show(in_text: String, in_priority: int) -> bool:
