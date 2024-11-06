@@ -1,6 +1,7 @@
 class_name SelectionInfo extends Object
 
 const InspectorControlVector3Scene = preload("res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_vector3/inspector_control_vector3.tscn")
+const InspectorControlRotationScene = preload("res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_rotation/inspector_control_rotation.tscn")
 const InspectorControlBondOrderScene = preload("res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_bond_order/inspector_control_bond_order.tscn")
 
 const MAX_VISIBLE_ATOM_POSITIONS = 20
@@ -28,7 +29,7 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 		var position_prop := NanoShapeUtils.ShapeProperty.new("Position", nano_structure.get_position, nano_structure.set_position)
 		position_prop.with_min_value(0.05).with_step(0.001).with_unit(Units.get_distance_unit_string())
 		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
-		info["Rotation (degrees)"] = nano_structure.get_transform().basis.get_euler()
+		info["Rotation (degrees)"] = {"": _create_virtual_object_rotation_property(in_info_type, structure_context)}
 		info["Dimensions"] = shape_dimensions
 		var shape_properties: Dictionary = NanoShapeUtils.get_reference_shape_properties(nano_structure.get_shape())
 		assert(shape_properties.size() > 0, "Failed to obtain reference shape's size properties")
@@ -51,7 +52,7 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 					shape_dimensions[prop_name.capitalize() + suffix] = editor
 	elif nano_structure is NanoVirtualMotor and structure_context.is_motor_selected():
 		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
-		info["Rotation (degrees)"] = nano_structure.get_transform().basis.get_euler()
+		info["Rotation (degrees)"] = {"": _create_virtual_object_rotation_property(in_info_type, structure_context)}
 	elif nano_structure is NanoVirtualAnchor and structure_context.is_anchor_selected():
 		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
 	# Atom Info by atom type
@@ -211,6 +212,26 @@ static func _create_virtual_object_position_property(in_info_type: Type, in_stru
 			return vector3_ui
 
 
+static func _create_virtual_object_rotation_property(in_info_type: Type, in_structure_context: StructureContext) -> Variant:
+	match in_info_type:
+		Type.RAW:
+			return in_structure_context.nano_structure.get_transform().basis.get_euler()
+		Type.READ_ONLY_PROPERTIES, Type.READ_WRITE_PROPERTIES, _:
+			var vector3_ui: InspectorControlVector3 = InspectorControlRotationScene.instantiate()
+			var setter_helper := SetVirtualObjectRotationHelper.new(in_structure_context)
+			vector3_ui.set_meta(&"setter_helper", setter_helper) # keep setter_helper reference alive
+			vector3_ui.setup(
+				# getter
+				setter_helper.get_rotation_euler,
+				# setter
+				setter_helper.set_rotation_euler,
+				# property_changed_signal
+				setter_helper.changed_signal
+			)
+			vector3_ui.set_editable(in_info_type == Type.READ_WRITE_PROPERTIES)
+			return vector3_ui
+
+
 static func _find_connected_bonds(in_selected_bonds: PackedInt32Array,
 			in_nano_structure: NanoStructure) -> Array[Vector2i]:
 	var out_pairs: Array[Vector2i] = []
@@ -334,6 +355,77 @@ class SetVirtualObjectPositionHelper:
 			Type.SHAPE: "Set Shape Position",
 			Type.MOTOR: "Set Motor Position",
 			Type.ANCHOR: "Set Anchor Position",
+		}
+		var snapshot_name: String = MESSAGE_PER_TYPE[_type]
+		_structure_context.workspace_context.snapshot_moment(snapshot_name)
+
+
+class SetVirtualObjectRotationHelper:
+	enum Type {
+		SHAPE,
+		MOTOR,
+	}
+	
+	var changed_signal: Signal
+	
+	var _type: Type
+	var _structure_context: StructureContext
+	
+	func _init(out_structure_context: StructureContext) -> void:
+		if out_structure_context.nano_structure is NanoShape:
+			_type = Type.SHAPE
+		elif out_structure_context.nano_structure is NanoVirtualMotor:
+			_type = Type.MOTOR
+		else:
+			assert(false, "Unknown type of Virtual Object")
+		changed_signal = out_structure_context.nano_structure.transform_changed
+		_structure_context = out_structure_context
+	
+	
+	func get_rotation_euler() -> Vector3:
+		var basis: Basis = _structure_context.nano_structure.get_transform().basis
+		var euler: Vector3 = basis.get_euler()
+		if _type == Type.MOTOR:
+			# Virtual Motors faces RIGHT instead of FORWARD
+			# because of this we need a special conversion:
+			
+			# Calculate Yaw (rotation around the Y-axis) based on the right axis (forward)
+			var yaw: float = atan2(basis.z.y, basis.z.z)
+			# Calculate Pitch (rotation around the X-axis) based on the right axis
+			var pitch: float = asin(-basis.z.x)
+			# Calculate Roll (rotation around the Z-axis) based on the up axis
+			var roll: float = atan2(basis.y.x, basis.x.x)
+			
+			euler = Vector3(yaw, pitch, roll)
+		return Vector3(rad_to_deg(euler.x), rad_to_deg(euler.y), rad_to_deg(euler.z))
+	
+	
+	func set_rotation_euler(in_new_rotation: Vector3) -> void:
+		var euler_rad := Vector3(
+			deg_to_rad(in_new_rotation.x),
+			deg_to_rad(in_new_rotation.y),
+			deg_to_rad(in_new_rotation.z)
+		)
+		var quaternion := Quaternion.from_euler(euler_rad)
+		if _type == Type.MOTOR:
+			# Virtual Motors faces RIGHT instead of FORWARD
+			# because of this we need a special quaternion:
+			# Create quaternions for each rotation axis
+			var yaw_quat := Quaternion(Vector3.FORWARD, euler_rad.x)    # Yaw around the Z-axis
+			var pitch_quat := Quaternion(Vector3.UP, euler_rad.y)       # Pitch around the Y-axis
+			var roll_quat := Quaternion(Vector3.RIGHT, euler_rad.z)     # Roll around the X-axis
+
+			# Combine rotations: yaw -> pitch -> roll
+			quaternion = pitch_quat * yaw_quat * roll_quat
+		var transform: Transform3D = _structure_context.nano_structure.get_transform()
+		transform.basis = Basis(quaternion)
+		_structure_context.nano_structure.set_transform(transform)
+	
+	
+	func store_undo_snapshot() -> void:
+		const MESSAGE_PER_TYPE: Dictionary = {
+			Type.SHAPE: "Set Shape Rotation",
+			Type.MOTOR: "Set Motor Rotation",
 		}
 		var snapshot_name: String = MESSAGE_PER_TYPE[_type]
 		_structure_context.workspace_context.snapshot_moment(snapshot_name)
