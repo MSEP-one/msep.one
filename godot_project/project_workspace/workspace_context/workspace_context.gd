@@ -8,6 +8,7 @@ signal selection_in_structures_changed(structure_contexts: Array[StructureContex
 signal atoms_position_in_structure_changed(structure_context: StructureContext)
 signal atoms_locking_in_structure_changed(structure_context: StructureContext, atoms_changed: PackedInt32Array)
 signal structure_contents_changed(structure_context: StructureContext)
+signal virtual_object_transform_changed(structure_context: StructureContext)
 signal atoms_added_to_structure(structure_context: StructureContext, atom_ids: PackedInt32Array)
 signal current_structure_context_changed(structure_context: StructureContext)
 signal hovered_structure_context_changed(toplevel_hovered_structure_context: StructureContext,
@@ -561,7 +562,7 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 	var guid: int = in_nano_structure.int_guid
 	assert(workspace.has_structure(in_nano_structure))
 	if !_structure_contexts.has(guid):
-		var structure_context: StructureContext = StructureContextScn.instantiate()
+		var structure_context: StructureContext = StructureContextScn.instantiate() as StructureContext
 		structure_context.initialize(self, guid, in_nano_structure)
 		_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
 		structure_context.selection_changed.connect(_on_structure_context_selection_changed.bind(structure_context.get_int_guid()))
@@ -581,6 +582,13 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.visibility_changed.connect(_on_nano_structure_visibility_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is NanoShape:
 			structure_context.nano_structure.shape_properties_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
+		if structure_context.nano_structure.is_virtual_object():
+			if structure_context.nano_structure is NanoVirtualAnchor:
+				# Anchors only have position
+				structure_context.nano_structure.position_changed.connect(_on_virtual_object_transform_changed.bind(structure_context.get_int_guid()))
+			else:
+				# Shapes and Motors have transforms
+				structure_context.nano_structure.transform_changed.connect(_on_virtual_object_transform_changed.bind(structure_context.get_int_guid()))
 		_structure_contexts[guid] = structure_context
 		if structure_context.has_selection():
 			set_meta(_META_CACHED_SELECTION_AABB, null)
@@ -630,6 +638,14 @@ func _on_structure_contents_modified_arg1(_ignore_arg1: Variant, in_structure_co
 	if structure_context != null:
 		_modified_structure_contexts[in_structure_context_id] = true
 	_check_for_empty_workspace()
+
+
+func _on_virtual_object_transform_changed(_ignore_arg1: Variant, in_structure_context_id: int) -> void:
+	if not workspace.has_structure_with_int_guid(in_structure_context_id):
+		return
+	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
+	if structure_context != null:
+		virtual_object_transform_changed.emit(structure_context)
 
 
 func _on_nano_structure_visibility_changed(_in_visible: bool, in_structure_context_id: int) -> void:
