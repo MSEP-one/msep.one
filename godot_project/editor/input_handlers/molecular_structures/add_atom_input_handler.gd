@@ -245,6 +245,8 @@ func _check_context_can_bind(in_context: StructureContext, in_atom_pos: Vector3)
 
 
 func _check_input_event_can_bind(in_event: InputEvent) -> bool:
+	if not _workspace_context.create_object_parameters.get_create_mode_enabled():
+		return false
 	if not in_event is InputEventWithModifiers:
 		return false
 	var alt_pressed: bool = in_event.alt_pressed
