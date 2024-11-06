@@ -61,7 +61,7 @@ func update_distance(in_message_text: String, in_distance: float) -> void:
 		_label_distance.text = ""
 	else:
 		var distance: String = "%.2f" % in_distance
-		_label_distance.text = in_message_text + " " + distance
+		_label_distance.text = in_message_text + " " + distance + " nm"
 
 
 func _can_show(in_text: String, in_priority: int) -> bool:

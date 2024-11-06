@@ -166,7 +166,7 @@ func _update_distance_message(in_workspace_context: WorkspaceContext, in_positio
 	var is_anything_selected: bool = in_workspace_context.has_selection()
 	var should_show_distance: bool = are_positions_valid and is_anything_selected and not is_equal_approx(distance, 0.0)
 	if should_show_distance:
-		MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "Distance to selection", distance)
+		MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "Distance to selection center: ", distance)
 	else:
 		MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "", 0.0)
 
