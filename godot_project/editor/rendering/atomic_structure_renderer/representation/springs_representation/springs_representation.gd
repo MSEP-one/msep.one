@@ -35,13 +35,15 @@ func add_springs(in_springs: PackedInt32Array) -> void:
 	var nano_struct: NanoStructure = structure_context.nano_structure
 	for spring_id: int in in_springs:
 		var atom_id: int = nano_struct.spring_get_atom_id(spring_id)
-		var is_atom_hydrogen: bool = nano_struct.atom_get_atomic_number(atom_id) == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
 		var atom_position: Vector3 = nano_struct.atom_get_position(atom_id)
 		var position_anchor: Vector3 = nano_struct.spring_get_anchor_position(spring_id, structure_context)
 		var direction_to_atom: Vector3 = position_anchor.direction_to(atom_position)
 		var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
+		var state := Representation.InstanceState.new()
+		state.is_selected = structure_context.is_spring_selected(spring_id)
+		state.is_hydrogen = nano_struct.atom_get_atomic_number(atom_id) == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
 		position_anchor += direction_to_atom * anchor_radius
-		_spring_renderer.add_spring(spring_id, atom_position, position_anchor, is_atom_hydrogen)
+		_spring_renderer.add_spring(spring_id, atom_position, position_anchor, state.to_float())
 		var anchor_id: int = nano_struct.spring_get_anchor_id(spring_id)
 		if not _anchors_to_related_springs.has(anchor_id):
 			_anchors_to_related_springs[anchor_id] = PackedInt32Array()
@@ -203,13 +205,16 @@ func lowlight_bonds(_in_bonds_ids: PackedInt32Array) -> void:
 
 
 func highlight_springs(in_springs_to_highlight: PackedInt32Array) -> void:
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
+	var nano_struct: NanoStructure = structure_context.nano_structure
 	for spring_id: int in in_springs_to_highlight:
-		_spring_renderer.change_spring_color(spring_id, COLOR_HIGHLIGHT)
+		_spring_renderer.change_spring_color(spring_id, COLOR_HIGHLIGHT, true)
 
 
 func lowlight_springs(in_springs_to_lowlight: PackedInt32Array) -> void:
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	for spring_id: int in in_springs_to_lowlight:
-		_spring_renderer.change_spring_color(spring_id, COLOR_LOWLIGHT)
+		_spring_renderer.change_spring_color(spring_id, COLOR_LOWLIGHT, false)
 
 
 func hide_bond_rendering() -> void:
@@ -274,10 +279,12 @@ func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: Stru
 		return
 	
 	if _hovered_spring != AtomicStructure.INVALID_SPRING_ID:
-		var color := COLOR_HIGHLIGHT if structure_context.is_spring_selected(_hovered_spring) else COLOR_LOWLIGHT
-		_spring_renderer.change_spring_color(_hovered_spring, color)
+		var is_hovered_selected: bool = structure_context.is_spring_selected(_hovered_spring)
+		var color := COLOR_HIGHLIGHT if is_hovered_selected else COLOR_LOWLIGHT
+		_spring_renderer.change_spring_color(_hovered_spring, color, is_hovered_selected)
 	if in_spring_id != AtomicStructure.INVALID_SPRING_ID:
-		_spring_renderer.change_spring_color(in_spring_id, COLOR_HOVER)
+		var is_spring_selected: bool = structure_context.is_spring_selected(in_spring_id)
+		_spring_renderer.change_spring_color(in_spring_id, COLOR_HOVER, is_spring_selected)
 	_hovered_spring = in_spring_id
 
 

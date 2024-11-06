@@ -1,6 +1,10 @@
 shader_type spatial;
 render_mode cull_back, unshaded;
 
+#include "res://editor/rendering/atomic_structure_renderer/representation/float_operations.gdshaderinc"
+#include "res://editor/rendering/atomic_structure_renderer/representation/constants.gdshaderinc"
+#include "res://editor/rendering/atomic_structure_renderer/representation/instance_state.gdshaderinc"
+
 // Wireframe shader with line thickness support.
 //
 // This shader only works on flat shaded meshes. The VERTEX_ID from the vertex()
@@ -25,6 +29,10 @@ void vertex() {
 	int index = VERTEX_ID % 3;
 	barys = vec3(0.0);
 	barys[index] = 1.0;
+	
+	//selection preview
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	VERTEX *= float_or(float_not(is_preview), selected);
 }
 
 

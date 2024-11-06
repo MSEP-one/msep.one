@@ -1,7 +1,5 @@
 class_name SphereMaterial extends StructureRepresentationMaterial
 
-const UNIFORM_CAMERA_UP_VECTOR := &"camera_up_vector"
-const UNIFORM_CAMERA_RIGHT_VECTOR := &"camera_right_vector"
 const UNIFORM_SCALE := &"scale"
 const UNIFORM_IS_HOVERED := &"is_hovered"
 const UNIFORM_OUTLINE_THICKNESS = &"outline_thickness"
@@ -11,10 +9,8 @@ const UNIFORM_SELECTION_DELTA = &"selection_delta"
 
 
 func _init() -> void:
-	RenderingUtils.has_uniforms(self, [UNIFORM_CAMERA_UP_VECTOR, UNIFORM_CAMERA_RIGHT_VECTOR,
-			UNIFORM_SCALE, UNIFORM_IS_SELECTABLE, UNIFORM_IS_HOVERED, UNIFORM_SHOW_HYDROGENS,
-			UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA,
-			UNIFORM_OUTLINE_THICKNESS])
+	RenderingUtils.has_uniforms(self, [UNIFORM_SCALE, UNIFORM_IS_SELECTABLE, UNIFORM_IS_HOVERED, UNIFORM_SHOW_HYDROGENS,
+			UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA, UNIFORM_OUTLINE_THICKNESS])
 
 
 func set_selectable(in_is_selectable: bool) -> SphereMaterial:
@@ -38,19 +34,6 @@ func set_scale_factor(new_scale_factor: float) -> SphereMaterial:
 	return self
 
 
-func update_camera(in_camera_up_vector: Vector3, in_camera_right_vector: Vector3) -> void:
-	set_shader_parameter(UNIFORM_CAMERA_UP_VECTOR, in_camera_up_vector)
-	set_shader_parameter(UNIFORM_CAMERA_RIGHT_VECTOR, in_camera_right_vector)
-
-
-func get_camera_up() -> Vector3:
-	return get_shader_parameter(UNIFORM_CAMERA_UP_VECTOR)
-
-
-func get_camera_right() -> Vector3:
-	return get_shader_parameter(UNIFORM_CAMERA_RIGHT_VECTOR)
-
-
 func update_gizmo(in_gizmo_origin: Vector3, in_gizmo_rotation: Basis) -> void:
 	set_shader_parameter(UNIFORM_GIZMO_ORIGIN, in_gizmo_origin)
 	set_shader_parameter(UNIFORM_GIZMO_ROTATION, in_gizmo_rotation)
@@ -66,6 +49,5 @@ func reset() -> void:
 
 
 func copy_state_from(in_from_material: ShaderMaterial) -> void:
-	RenderingUtils.copy_selected_uniforms_from(in_from_material, self, [UNIFORM_CAMERA_UP_VECTOR,
-			UNIFORM_CAMERA_RIGHT_VECTOR, UNIFORM_SCALE, UNIFORM_IS_HOVERED, UNIFORM_GIZMO_ORIGIN,
-			UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA])
+	RenderingUtils.copy_selected_uniforms_from(in_from_material, self, [UNIFORM_SCALE, UNIFORM_IS_HOVERED,
+			 UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA])

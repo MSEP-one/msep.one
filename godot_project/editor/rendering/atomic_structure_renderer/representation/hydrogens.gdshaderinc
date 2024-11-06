@@ -33,10 +33,9 @@ float _should_hide_hydrogen_label(float element_id) {
 }
 
 float _should_hide_hydrogen_spring(float color_alpha) {
-	float is_hydrogen_spring = float_eq(color_alpha, HYDROGEN_SPRING_ALPHA);
+	float is_hydrogen_spring = is_hydrogen(color_alpha);
 	return float_and(is_hydrogen_spring, float_not(show_hydrogens));
 }
-
 
 // Usage:
 // VERTEX = hide_hydrogen_atoms(VERTEX, COLOR.a);

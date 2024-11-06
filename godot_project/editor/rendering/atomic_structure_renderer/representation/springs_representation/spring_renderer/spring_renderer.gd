@@ -3,7 +3,6 @@ class_name SpringRenderer extends Node3D
 
 const MODEL_THICKNESS: float = 0.07
 const REPEAT_OFFSET := MODEL_THICKNESS
-const ALPHA_HYDROGEN := 0.1
 const ALPHA_DEFAULT := 0.0
 
 var _structure_id: int = Workspace.INVALID_STRUCTURE_ID
@@ -11,6 +10,7 @@ var _workspace_context: WorkspaceContext
 var _multimesh: SegmentedMultimesh
 var _transform_handler: TransformHandler
 var _material: SpringMaterial
+
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -25,6 +25,7 @@ func initialize(in_structure_context: StructureContext) -> void:
 	_multimesh.prepare()
 	var nano_struct: NanoStructure = in_structure_context.nano_structure
 	var springs: PackedInt32Array = nano_struct.springs_get_all()
+	var state := Representation.InstanceState.new()
 	for spring_id in springs:
 		var anchor_pos: Vector3 = nano_struct.spring_get_anchor_position(spring_id, in_structure_context)
 		var atom_id: int = nano_struct.spring_get_atom_id(spring_id)
@@ -32,18 +33,20 @@ func initialize(in_structure_context: StructureContext) -> void:
 		var direction_to_atom: Vector3 = anchor_pos.direction_to(atom_pos)
 		var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
 		anchor_pos += direction_to_atom * anchor_radius
-		var is_atom_hydrogen: bool = nano_struct.atom_get_atomic_number(atom_id) == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
-		add_spring(spring_id, atom_pos, anchor_pos, is_atom_hydrogen)
+		state.is_selected = in_structure_context.is_spring_selected(spring_id)
+		state.is_hydrogen = nano_struct.atom_get_atomic_number(atom_id) == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
+		add_spring(spring_id, atom_pos, anchor_pos, state.to_float())
 	_multimesh.bake()
 
 
-func add_spring(in_spring_id: int, in_position_begin: Vector3, in_position_end: Vector3, in_is_hydrogen: bool) -> void:
+func add_spring(in_spring_id: int, in_position_begin: Vector3, in_position_end: Vector3,
+			in_instance_state_as_alpha: float) -> void:
 	var distance: float = in_position_begin.distance_to(in_position_end)
 	var start_position := in_position_begin
 	var spring_transform := Transform3D(Basis(), start_position)
 	spring_transform = spring_transform.looking_at(in_position_end).scaled_local(Vector3(MODEL_THICKNESS, 
 			MODEL_THICKNESS, distance))
-	var color: Color = Color(Color.WHITE, ALPHA_HYDROGEN) if in_is_hydrogen else Color(Color.WHITE, ALPHA_DEFAULT)
+	var color: Color = Color(Color.WHITE, in_instance_state_as_alpha)
 	_multimesh.add_particle(in_spring_id, spring_transform, color, Color())
 
 
@@ -109,8 +112,10 @@ func show_hydrogen_springs() -> void:
 	_material.enable_hydrogen_rendering()
 
 
-func change_spring_color(in_spring_id: int, in_color: Color) -> void:
-	in_color.a = _multimesh.get_particle_color(in_spring_id).a
+func change_spring_color(in_spring_id: int, in_color: Color, is_selected: bool) -> void:
+	var state := Representation.InstanceState.new(_multimesh.get_particle_color(in_spring_id).a)
+	state.is_selected = is_selected
+	in_color.a = state.to_float()
 	_multimesh.update_particle_color(in_spring_id, in_color, Color())
 
 

@@ -10,6 +10,7 @@ const _SEGMENT_REBUILD_ABOVE_UNUSED_PARTICLES_COUNT = 250
 @export var _mesh_override: Mesh = null
 @export var _visible: bool = true
 @export var update_segments_on_movement: bool = false
+@export_flags_3d_render var visual_layers: int = 1
 
 var _id_to_segment_map := {
 	#Vector3i : Segment
@@ -203,6 +204,7 @@ func _create_segment_from_id(in_segment_id: Vector3i) -> Segment:
 	var new_segment := Segment.new()
 	new_segment.id = in_segment_id
 	new_segment.multimesh_instance = MultiMeshInstance3D.new()
+	new_segment.multimesh_instance.layers = visual_layers
 	new_segment.multimesh_instance.multimesh = multimesh.duplicate(true)
 	new_segment.multimesh_instance.lod_bias = _lod_bias
 	new_segment.multimesh_instance.visible = _visible

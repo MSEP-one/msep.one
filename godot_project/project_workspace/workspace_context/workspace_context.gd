@@ -269,22 +269,6 @@ func _on_weak_workspace_structure_about_to_remove(in_structure: NanoStructure) -
 	rendering.remove(in_structure)
 	if in_structure is NanoVirtualAnchor:
 		in_structure.deinitialize()
-	# not needed since structure_context will be deleted immediatelly
-	#structure_context.selection_changed.disconnect(_on_structure_context_selection_changed)
-	#structure_context.virtual_object_selection_changed.disconnect(_on_structure_context_virtual_object_selection_changed)
-	#if structure_context.nano_structure is AtomicStructure:
-		#structure_context.nano_structure.atoms_moved.disconnect(_on_structure_context_atoms_moved)
-		#structure_context.nano_structure.atoms_added.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_added.disconnect(_on_structure_context_atoms_added)
-		#structure_context.nano_structure.atoms_removed.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_moved.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_atomic_number_changed.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_cleared.disconnect(_on_structure_contents_modified_arg0)
-		#structure_context.nano_structure.bonds_created.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.bonds_changed.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_locking_changed.disconnect(_on_nano_structure_atoms_locking_changed)
-	#structure_context.nano_structure.visibility_changed.disconnect(_on_nano_structure_visibility_changed)
-	#_removed_structure_contexts[in_structure] = structure_context
 	structure_about_to_remove.emit(in_structure)
 	_structure_contexts.erase(in_structure.int_guid)
 	_emit_new_editable_structures()
@@ -619,6 +603,7 @@ func _on_structure_context_atoms_moved(in_atoms: PackedInt32Array, in_structure_
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
 	if is_structure_context_valid(structure_context):
 		atoms_position_in_structure_changed.emit(structure_context, in_atoms)
+		set_meta(_META_CACHED_SELECTION_AABB, null)
 
 
 func _on_structure_context_atoms_added(in_atoms: PackedInt32Array, in_structure_context_id: int) -> void:
@@ -1293,6 +1278,7 @@ func _on_history_changed() -> void:
 
 func _on_history_snapshot_applied() -> void:
 	history_snapshot_applied.emit()
+	set_meta(_META_CACHED_SELECTION_AABB, null)
 
 
 func _on_history_snapshot_created(in_snapshot_name: String) -> void:

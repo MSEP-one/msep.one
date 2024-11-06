@@ -18,9 +18,6 @@ const float COLOR_ADDITIONAL_POWER = 0.05;
 const float ATLAS_SIZE_XY = 4.0;
 const float UV_ATLAS_SIZE = 1.0 / ATLAS_SIZE_XY;
 
-uniform vec3 camera_up_vector;
-uniform vec3 camera_right_vector;
-
 // atom sizing
 uniform float scale = 0.01;
 
@@ -44,7 +41,6 @@ uniform vec3 uv1_scale;
 uniform vec3 uv1_offset;
 uniform vec3 uv2_scale;
 uniform vec3 uv2_offset;
-
 
 varying vec4 custom_data;
 varying vec2 instance_variation;
@@ -73,17 +69,21 @@ void vertex() {
 	if (!OUTPUT_IS_SRGB) {
 		COLOR.rgb = srgb(COLOR.rgb);
 	}
-
+	
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	
 	// Make the outline mesh visible if the atom is selected
 	is_outline = uv_is_outline(UV);
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale);
+	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale) * float_not(is_preview);
 	
 	// Calculate rotation matrix to align model with camera
+	vec3 camera_right = normalize(INV_VIEW_MATRIX[0].xyz);
+	vec3 camera_up = normalize(INV_VIEW_MATRIX[1].xyz);
 	mat4 billboard_rot = mat4(
-		vec4(normalize(camera_right_vector), 0.0),
-		vec4(normalize(camera_up_vector), 0.0),
-		vec4(cross(normalize(camera_right_vector), normalize(camera_up_vector)), 0.0),
+		vec4(normalize(camera_right), 0.0),
+		vec4(normalize(camera_up), 0.0),
+		vec4(cross(normalize(camera_right), normalize(camera_up)), 0.0),
 		vec4(0.0, 0.0, 0.0, 1.0)
 	);
 
@@ -100,6 +100,9 @@ void vertex() {
 	final_vertex += get_translation_delta(COLOR, MODEL_MATRIX);
 	
 	final_vertex *= is_atom_or_bond_visible(COLOR.a);
+	
+	//preview visibility
+	final_vertex *= float_or(float_not(is_preview), is_atom_or_bond_selected(COLOR.a));
 	
 	VERTEX = final_vertex;
 	

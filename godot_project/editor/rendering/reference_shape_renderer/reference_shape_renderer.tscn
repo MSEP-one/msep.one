@@ -26,6 +26,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0248137, 0, -0.0516158)
 script = ExtResource("2_ani6v")
 
 [node name="Shape" type="MeshInstance3D" parent="."]
+layers = 6
 instance_shader_parameters/hovered = 0.0
 instance_shader_parameters/selected = 0.0
 mesh = SubResource("PrimitiveMesh_dsw2h")
@@ -33,7 +34,6 @@ surface_material_override/0 = ExtResource("3_4jnju")
 
 [node name="Pivot" type="MeshInstance3D" parent="Shape"]
 transform = Transform3D(0.04, 0, 0, 0, 0.04, 0, 0, 0, 0.04, 0, 0, 0)
-layers = 2
 material_override = ExtResource("4_brcex")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_ce7to")

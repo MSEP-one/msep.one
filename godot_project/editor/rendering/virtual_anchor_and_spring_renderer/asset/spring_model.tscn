@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://cstm1x1ql4bmu"]
+
+[ext_resource type="PackedScene" uid="uid://ciblqegoswem2" path="res://editor/rendering/virtual_anchor_and_spring_renderer/asset/UI_virtualSpring01.glb" id="1_swj6w"]
+[ext_resource type="Script" path="res://editor/rendering/virtual_anchor_and_spring_renderer/asset/spring_model.gd" id="2_gcp8b"]
+
+[node name="SpringModel" instance=ExtResource("1_swj6w")]
+script = ExtResource("2_gcp8b")
+
+[node name="Circle" parent="." index="0"]
+transform = Transform3D(0.013, 0, 0, 0, -5.68248e-10, 0.008, 0, -0.013, -3.49691e-10, 0, 0, 0)

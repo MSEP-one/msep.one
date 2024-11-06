@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://41v3r3iejmay"]
+[gd_scene load_steps=36 format=3 uid="uid://41v3r3iejmay"]
 
 [ext_resource type="Script" path="res://autoloads/shader_precompiler/shader_precompiler.gd" id="1_syley"]
 [ext_resource type="PackedScene" uid="uid://bvif8jwmnd6e7" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/ring_menu_button_model.tscn" id="2_kbvs8"]
@@ -26,7 +26,6 @@
 [ext_resource type="Material" uid="uid://wvju7e8kntu2" path="res://editor/rendering/reference_shape_renderer/assets/reference_shape_renderer_material.tres" id="22_1julo"]
 [ext_resource type="Script" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="23_wyggu"]
 [ext_resource type="Material" uid="uid://cefsc4ia284yo" path="res://editor/rendering/reference_shape_renderer/assets/pivot_material.tres" id="24_d3l2x"]
-[ext_resource type="PackedScene" uid="uid://cw8577vj678q2" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/precache_3d_preview/precache_3d_preview.tscn" id="28_mjox5"]
 
 [sub_resource type="World3D" id="World3D_868mj"]
 
@@ -286,9 +285,6 @@ transform = Transform3D(0.795283, 0, 0.606238, 0, 1, 0, -0.606238, 0, 0.795283, 
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="ForceCompilationContainer/ForceCompilationSubviewport"]
 environment = ExtResource("10_rlvia")
-
-[node name="Precache3DPreview" parent="ForceCompilationContainer" instance=ExtResource("28_mjox5")]
-layout_mode = 2
 
 [node name="HideDelayer" type="Timer" parent="."]
 wait_time = 5.0

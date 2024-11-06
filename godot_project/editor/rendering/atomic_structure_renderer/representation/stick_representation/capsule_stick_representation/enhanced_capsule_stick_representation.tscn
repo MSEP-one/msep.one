@@ -32,11 +32,14 @@ script = ExtResource("2_5cipu")
 multimesh = SubResource("MultiMesh_p2cj1")
 _lod_bias = 1.5
 _material_override = ExtResource("4_o3s5i")
+visual_layers = 5
 
 [node name="DoubleStickSegmentedMultiMesh" parent="." index="1"]
 multimesh = SubResource("MultiMesh_xmb1g")
 _material_override = ExtResource("4_o3s5i")
+visual_layers = 5
 
 [node name="TrippleStickSegmentedMultiMesh" parent="." index="2"]
 multimesh = SubResource("MultiMesh_p2c5m")
 _material_override = ExtResource("4_o3s5i")
+visual_layers = 5

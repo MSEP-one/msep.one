@@ -4,3 +4,4 @@
 
 const float BOND_HIGHLIGHT_FACTOR = 2.0;
 const float DIMM_FACTOR = 0.3;
+const int SELECTION_PREVIEW_VISUAL_LAYER = 4;

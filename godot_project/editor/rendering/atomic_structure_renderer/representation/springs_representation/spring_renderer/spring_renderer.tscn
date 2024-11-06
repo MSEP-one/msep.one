@@ -17,3 +17,4 @@ script = ExtResource("1_k8r4r")
 [node name="SegmentedMultiMesh" parent="." instance=ExtResource("2_lxuhi")]
 multimesh = SubResource("MultiMesh_xk1hg")
 _material_override = ExtResource("4_e5huk")
+visual_layers = 5
