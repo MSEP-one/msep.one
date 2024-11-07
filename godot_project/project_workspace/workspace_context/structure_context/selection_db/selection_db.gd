@@ -303,19 +303,24 @@ func set_atom_selection(in_atoms_to_select: PackedInt32Array) -> void:
 	assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 	_validate_atom_selection(in_atoms_to_select)
 	
+	var partial_influence_bonds_before: Dictionary = _atom_selection.get_bonds_partially_influenced_by_selection_as_dict()
+	var full_influence_bonds_before: Dictionary = _atom_selection.get_non_selected_bonds_fully_influenced_by_selection_as_dict()
 	var previous_selection: PackedInt32Array = _atom_selection.get_atoms_selection()
 	_atom_selection.clear_atom_selection()
 	_atom_selection.select_atoms(in_atoms_to_select)
-
+	
 	var deselected_atoms: PackedInt32Array = PackedInt32Array()
 	for previously_selected_atom_id in previous_selection:
 		var is_valid_deselection: bool = not _atom_selection.is_atom_selected(previously_selected_atom_id) and \
 			nano_structure.is_atom_valid(previously_selected_atom_id)
 		if is_valid_deselection:
 			deselected_atoms.append(previously_selected_atom_id)
-
+	
 	var rendering: Rendering = _structure_context.get_rendering()
-	rendering.set_partially_selected_bonds(_atom_selection.get_bonds_partially_influenced_by_selection(), nano_structure)
+	var bonds_influenced_by_selection_change: Dictionary = _atom_selection.get_bonds_partially_influenced_by_selection_as_dict()
+	bonds_influenced_by_selection_change.merge(partial_influence_bonds_before)
+	bonds_influenced_by_selection_change.merge(full_influence_bonds_before)
+	rendering.refresh_bond_influence(bonds_influenced_by_selection_change.keys(), nano_structure)
 	rendering.highlight_atoms(_atom_selection.get_atoms_selection(), nano_structure, PackedInt32Array(), PackedInt32Array())
 	if not deselected_atoms.is_empty():
 		rendering.lowlight_atoms(deselected_atoms, nano_structure, PackedInt32Array(), PackedInt32Array())
@@ -375,7 +380,7 @@ func clear_selection() -> void:
 		rendering.lowlight_atoms(deselected_atoms, nano_structure, bonds_released_from_partial_influence,
 				PackedInt32Array())
 		rendering.lowlight_bonds(bonds_selection_to_lowlight, nano_structure)
-		rendering.lowlight_bonds(bonds_released_from_full_influence, nano_structure)
+		rendering.refresh_bond_influence(bonds_released_from_full_influence, nano_structure)
 		rendering.lowlight_springs(spring_selection_to_lowlight, nano_structure)
 		
 		atoms_deselected.emit(deselected_atoms)

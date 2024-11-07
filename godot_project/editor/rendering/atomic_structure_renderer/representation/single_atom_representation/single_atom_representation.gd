@@ -319,7 +319,7 @@ func update(_delta: float) -> void:
 	pass
 
 
-func set_partially_selected_bonds(_in_partially_selected_bonds: PackedInt32Array) -> void:
+func refresh_bond_influence(_in_partially_selected_bonds: PackedInt32Array) -> void:
 	return
 
 

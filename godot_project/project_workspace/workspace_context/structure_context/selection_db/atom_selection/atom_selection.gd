@@ -70,6 +70,13 @@ func get_non_selected_bonds_fully_influenced_by_selection() -> PackedInt32Array:
 	return PackedInt32Array(_non_selected_bonds_fully_influenced_by_atoms.keys())
 
 
+func get_bonds_partially_influenced_by_selection_as_dict() -> Dictionary:
+	return _bonds_partially_influenced_by_atoms.duplicate()
+
+
+func get_non_selected_bonds_fully_influenced_by_selection_as_dict() -> Dictionary:
+	return _non_selected_bonds_fully_influenced_by_atoms.duplicate()
+
 func get_newest_selected_atom_id() -> int:
 	if _atoms_selection.is_empty():
 		assert(false, "Can't return newest selected atom id, there is no selection")
