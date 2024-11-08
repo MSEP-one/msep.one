@@ -95,9 +95,10 @@ void vertex() {
 	COLOR.rgb = _apply_bond_highlight_factor(COLOR.rgb, right_active);
 	custom_color.rgb = _apply_bond_highlight_factor(custom_color.rgb, left_active);
 	
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
 	is_outline = uv_is_outline(UV);
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += flat_calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR);
+	VERTEX += flat_calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR) * float_not(is_preview);
 	
 	//helper to prevent numerical errors
 	float cap_vertexes_above_local_pos = caps_starts_at_local_z_position - NUMERICAL_PRECISION;
@@ -130,6 +131,10 @@ void vertex() {
 	rotation[2] /= scale.z;
 	position /= scale;
 	position = (modelview * vec4(position, 1.0)).xyz;
+	
+	//preview visibility
+	position *= float_or(float_not(is_preview), is_atom_or_bond_selected(COLOR.a));
+	
 	VERTEX = position;
 	VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.a, INSTANCE_CUSTOM.a);
 	VERTEX *= is_atom_or_bond_visible(COLOR.a);

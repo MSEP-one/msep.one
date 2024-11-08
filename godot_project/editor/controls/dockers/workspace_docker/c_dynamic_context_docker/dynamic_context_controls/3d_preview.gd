@@ -16,8 +16,7 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		in_workspace_context.structure_contents_changed.connect(_on_workspace_context_structure_contents_changed)
 		in_workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
 		in_workspace_context.atoms_position_in_structure_changed.connect(_on_workspace_context_atoms_position_in_structure_changed)
-		in_workspace_context.shape_transformed.connect(_on_workspace_context_shape_transformed)
-		in_workspace_context.motor_transformed.connect(_on_workspace_context_motor_transformed)
+		in_workspace_context.virtual_object_transform_changed.connect(_on_workspace_virtual_object_transform_changed)
 	
 	var selected_atoms_count: int = 0
 	var contexts_with_selection: Array[StructureContext] = in_workspace_context.get_structure_contexts_with_selection()
@@ -56,11 +55,7 @@ func _on_workspace_context_atoms_position_in_structure_changed(_in_structure_con
 	ScriptUtils.call_deferred_once(_internal_update)
 
 
-func _on_workspace_context_shape_transformed(_in_transform: Transform3D, _in_shape_structure_id: int) -> void:
-	ScriptUtils.call_deferred_once(_internal_update)
-
-
-func _on_workspace_context_motor_transformed(_in_transform: Transform3D, _in_motor_structure_id: int) -> void:
+func _on_workspace_virtual_object_transform_changed(_structure_context: StructureContext) -> void:
 	ScriptUtils.call_deferred_once(_internal_update)
 
 

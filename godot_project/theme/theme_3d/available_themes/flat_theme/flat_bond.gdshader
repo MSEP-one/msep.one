@@ -115,9 +115,10 @@ void vertex() {
 	COLOR.rgb = _apply_bond_highlight_factor(COLOR.rgb, right_active * is_bond_influence_highlight_enabled);
 	custom_color.rgb = _apply_bond_highlight_factor(custom_color.rgb, left_active * is_bond_influence_highlight_enabled);
 	
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
 	is_outline = uv_is_outline(UV);
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += flat_calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR);
+	VERTEX += flat_calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR) * float_not(is_preview);
 	
 	vec3 vertex_position = VERTEX;
 	ROUGHNESS=roughness;
@@ -129,6 +130,9 @@ void vertex() {
 	
 	// translation
 	vertex_position += get_bond_translation_delta(VERTEX, COLOR, MODEL_MATRIX);
+	
+	//preview visibility
+	vertex_position *= float_or(float_not(is_preview), is_atom_or_bond_selected(COLOR.a));
 	
 	//
 	VERTEX = vertex_position;

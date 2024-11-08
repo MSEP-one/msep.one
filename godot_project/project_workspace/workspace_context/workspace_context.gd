@@ -7,8 +7,6 @@ signal structure_renamed(struct: NanoStructure, new_name: String)
 signal selection_in_structures_changed(structure_contexts: Array[StructureContext])
 signal atoms_position_in_structure_changed(structure_context: StructureContext)
 signal atoms_locking_in_structure_changed(structure_context: StructureContext, atoms_changed: PackedInt32Array)
-signal shape_transformed(transform: Transform3D, structure_context_id: int)
-signal motor_transformed(transform: Transform3D, structure_context_id: int)
 signal structure_contents_changed(structure_context: StructureContext)
 signal virtual_object_transform_changed(structure_context: StructureContext)
 signal atoms_added_to_structure(structure_context: StructureContext, atom_ids: PackedInt32Array)
@@ -645,6 +643,7 @@ func _on_structure_contents_modified_arg1(_ignore_arg1: Variant, in_structure_co
 func _on_virtual_object_transform_changed(_ignore_arg1: Variant, in_structure_context_id: int) -> void:
 	if not workspace.has_structure_with_int_guid(in_structure_context_id):
 		return
+	set_meta(_META_CACHED_SELECTION_AABB, null)
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
 	if structure_context != null:
 		virtual_object_transform_changed.emit(structure_context)
@@ -666,20 +665,6 @@ func _on_nano_structure_atoms_locking_changed(in_atoms_changed: PackedInt32Array
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
 	if structure_context != null:
 		atoms_locking_in_structure_changed.emit(structure_context, in_atoms_changed)
-
-
-func _on_shape_structure_transform_changed(in_transform: Transform3D, in_structure_context_id: int) -> void:
-	if not workspace.has_structure_with_int_guid(in_structure_context_id):
-		return
-	set_meta(_META_CACHED_SELECTION_AABB, null)
-	shape_transformed.emit(in_transform, in_structure_context_id)
-
-
-func _on_motor_structure_transform_changed(in_transform: Transform3D, in_structure_context_id: int) -> void:
-	if not workspace.has_structure_with_int_guid(in_structure_context_id):
-		return
-	set_meta(_META_CACHED_SELECTION_AABB, null)
-	motor_transformed.emit(in_transform, in_structure_context_id)
 
 
 func _on_structure_context_virtual_object_selection_changed(_in_selected: bool, in_structure_context_id: int) -> void:
