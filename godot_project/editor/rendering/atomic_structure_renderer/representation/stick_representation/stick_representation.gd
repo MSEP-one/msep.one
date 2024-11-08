@@ -156,7 +156,7 @@ func highlight_atoms(_in_atoms_ids: PackedInt32Array, \
 func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: PackedInt32Array) -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
 	var related_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
-	for bond_id in new_partially_influenced_bonds:
+	for bond_id: int in new_partially_influenced_bonds:
 		if not bond_id in _bond_id_to_particle_id:
 			continue
 		var bond: Vector3i = related_structure.get_bond(bond_id)
@@ -181,11 +181,13 @@ func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: Pack
 		var second_atom_radius: float = get_atom_radius(second_atom_periodic_table_data, related_structure.get_representation_settings())
 		var smaller_atom_radius: float = min(first_atom_radius, second_atom_radius)
 		second_highlight_color.a = smaller_atom_radius
-		if bond_state.is_first_atom_selected and bond_state.is_second_atom_selected:
+		var is_under_full_influence := bond_state.is_first_atom_selected and bond_state.is_second_atom_selected
+		var is_under_no_influence := not bond_state.is_first_atom_selected and not bond_state.is_second_atom_selected
+		var is_under_partial_influence := bond_state.is_first_atom_selected != bond_state.is_second_atom_selected
+		if is_under_full_influence or is_under_no_influence:
 			_current_bond_partial_selection.erase(bond_id)
-		elif bond_state.is_first_atom_selected != bond_state.is_second_atom_selected:
+		elif is_under_partial_influence:
 			_current_bond_partial_selection[bond_id] = true
-		
 		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
 		var segmented_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[bond_order]
 		segmented_multimesh.update_particle_color(particle_id.bond_id, first_highlight_color,
@@ -196,9 +198,6 @@ func lowlight_atoms(_in_atoms_ids: PackedInt32Array, in_bonds_released_from_part
 			new_partially_influenced_bonds: PackedInt32Array = PackedInt32Array()) -> void:
 	_refresh_bond_partial_influence_status(in_bonds_released_from_partial_influence)
 	_refresh_bond_partial_influence_status(new_partially_influenced_bonds)
-	if _current_bond_partial_selection.size() == in_bonds_released_from_partial_influence.size():
-		_current_bond_partial_selection.clear()
-		return
 
 
 func highlight_bonds(in_bonds_to_highlight: PackedInt32Array) -> void:
@@ -584,10 +583,13 @@ static func _calc_up_vector_for_higher_bond(in_first_atom_id: int, in_second_ato
 	return plane.normal
 
 
-func set_partially_selected_bonds(in_partially_selected_bonds: PackedInt32Array) -> void:
-	_refresh_bond_partial_influence_status(_current_bond_partial_selection.keys())
-	_current_bond_partial_selection.clear()
-	_refresh_bond_partial_influence_status(in_partially_selected_bonds)
+func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> void:
+	var bonds_to_refresh: Dictionary = {}
+	for bond_id: int in in_partially_selected_bonds:
+		bonds_to_refresh[bond_id] = true
+	for bond_id: int in _current_bond_partial_selection:
+		bonds_to_refresh[bond_id] = true
+	_refresh_bond_partial_influence_status(bonds_to_refresh.keys())
 
 
 func rotate_atom_selection_around_point(_in_point: Vector3, _in_rotation_to_apply: Basis) -> void:

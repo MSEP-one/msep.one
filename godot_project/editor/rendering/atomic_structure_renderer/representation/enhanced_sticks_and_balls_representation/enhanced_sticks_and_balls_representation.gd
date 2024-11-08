@@ -125,7 +125,7 @@ func set_material_overlay(_in_material: Material) -> void:
 	_stick_representation.set_material_overlay(_in_material)
 
 
-func set_partially_selected_bonds(in_partially_selected_bonds: PackedInt32Array) -> void:
+func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> void:
 	_stick_representation.set_partially_selected_bonds(in_partially_selected_bonds)
 
 

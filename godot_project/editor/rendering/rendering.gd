@@ -489,10 +489,10 @@ func disable_hydrogens() -> void:
 		structure_renderer.ensure_hydrogens_rendering_off()
 
 
-func set_partially_selected_bonds(in_partially_selected_bonds: PackedInt32Array, in_structure: AtomicStructure) -> void:
+func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array, in_structure: AtomicStructure) -> void:
 	if not enabled: return
 	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
-	atomic_structure_renderer.set_partially_selected_bonds(in_partially_selected_bonds)
+	atomic_structure_renderer.refresh_bond_influence(in_partially_selected_bonds)
 
 
 func set_atom_selection_position_delta(in_selection_delta: Vector3, in_structure: AtomicStructure) -> void:

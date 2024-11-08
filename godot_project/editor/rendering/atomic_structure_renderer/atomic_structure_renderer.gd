@@ -445,10 +445,10 @@ func update(delta: float) -> void:
 	_springs_representation.update(delta)
 
 
-func set_partially_selected_bonds(in_partially_selected_bonds: PackedInt32Array) -> void:
-	_current_representation.set_partially_selected_bonds(in_partially_selected_bonds)
+func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> void:
+	_current_representation.refresh_bond_influence(in_partially_selected_bonds)
 	if _are_labels_active():
-		_labels_representation.set_partially_selected_bonds(in_partially_selected_bonds)
+		_labels_representation.refresh_bond_influence(in_partially_selected_bonds)
 	_outdate_non_active_representations()
 
 
