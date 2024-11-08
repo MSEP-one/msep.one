@@ -89,25 +89,25 @@ layout_mode = 2
 theme_override_constants/separation = 0
 
 [node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
-text = "(c) 2022-Present, MSEP.one Contributors
+text = "
+MSEP.one is a powerful, freely available, open-source platform to help with today's scientific tasks and foster designs for the future of generative nanotechnology.
 
-Ongoing contributions provided by Prehensile Tales, BV
+With it you can design, visualize, and simulate nanodevices.
+
+New users should begin by reviewing the included tutorials.
+Tutorials can be found by navigating to the 'Help' menu and selecting 'Tutorials and Instructions'.
 
 "
+horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="LabelDateOfBuild" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Build date: yyyy-mm-dd.git_commit_hash"
-
-[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-text = "
-MSEP.one was made possible by a generous grant from the Astera Institute.
-
-Currently, many more features are under development."
-autowrap_mode = 2
+horizontal_alignment = 1
 
 [node name="ButtonClose" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
