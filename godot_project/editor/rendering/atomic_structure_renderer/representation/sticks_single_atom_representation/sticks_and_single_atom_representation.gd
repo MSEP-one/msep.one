@@ -144,8 +144,8 @@ func set_material_overlay(_in_material: Material) -> void:
 
 
 func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> void:
-	_single_atom_representation.set_partially_selected_bonds(in_partially_selected_bonds)
-	_stick_representation.set_partially_selected_bonds(in_partially_selected_bonds)
+	_single_atom_representation.refresh_bond_influence(in_partially_selected_bonds)
+	_stick_representation.refresh_bond_influence(in_partially_selected_bonds)
 
 
 func set_atom_selection_position_delta(in_movement_delta: Vector3) -> void:
