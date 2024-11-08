@@ -6,7 +6,7 @@ var _workspace_context: WorkspaceContext = null
 
 
 func _ready() -> void:
-	three_d_preview_container.gui_input.connect(_on_d_preview_container_gui_input)
+	three_d_preview_container.gui_input.connect(_on_3d_preview_container_gui_input)
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
@@ -16,6 +16,8 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		in_workspace_context.structure_contents_changed.connect(_on_workspace_context_structure_contents_changed)
 		in_workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
 		in_workspace_context.atoms_position_in_structure_changed.connect(_on_workspace_context_atoms_position_in_structure_changed)
+		in_workspace_context.shape_transformed.connect(_on_workspace_context_shape_transformed)
+		in_workspace_context.motor_transformed.connect(_on_workspace_context_motor_transformed)
 	
 	var selected_atoms_count: int = 0
 	var contexts_with_selection: Array[StructureContext] = in_workspace_context.get_structure_contexts_with_selection()
@@ -31,7 +33,7 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	return selected_atoms_count > 1
 
 
-func _on_d_preview_container_gui_input(in_event: InputEvent) -> void:
+func _on_3d_preview_container_gui_input(in_event: InputEvent) -> void:
 	if in_event is InputEventMouseMotion and in_event.button_mask & MOUSE_BUTTON_MASK_LEFT:
 		var rotation_strength: float = deg_to_rad(-in_event.relative.x)
 		_workspace_context.get_rendering().rotate_selection_preview(rotation_strength)
@@ -51,6 +53,14 @@ func _on_workspace_context_structure_about_to_remove(_in_nano_structure: NanoStr
 
 func _on_workspace_context_atoms_position_in_structure_changed(_in_structure_context: StructureContext,
 			_in_atoms: PackedInt32Array) -> void:
+	ScriptUtils.call_deferred_once(_internal_update)
+
+
+func _on_workspace_context_shape_transformed(_in_transform: Transform3D, _in_shape_structure_id: int) -> void:
+	ScriptUtils.call_deferred_once(_internal_update)
+
+
+func _on_workspace_context_motor_transformed(_in_transform: Transform3D, _in_motor_structure_id: int) -> void:
 	ScriptUtils.call_deferred_once(_internal_update)
 
 
