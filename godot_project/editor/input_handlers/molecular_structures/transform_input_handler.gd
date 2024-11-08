@@ -38,6 +38,7 @@ func _init(in_context: WorkspaceContext) -> void:
 		_helper.transform_changed.connect(_on_helper_transform_changed)
 	in_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 	in_context.atoms_position_in_structure_changed.connect(_on_atoms_position_in_structure_changed)
+	in_context.virtual_object_transform_changed.connect(_on_virtual_object_transform_changed)
 	in_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
 	
 	
@@ -345,6 +346,12 @@ func _on_helper_transform_changed(in_translation_changed: bool, in_rotation_chan
 ## the gizmo, or because of an external modification (ex: the selection panel)
 ## Ensures the transform helper is at the right position
 func _on_atoms_position_in_structure_changed(_structure_context: StructureContext, _in_atoms: PackedInt32Array) -> void:
+	if _capturing_inputs or !get_workspace_context().has_transformable_selection():
+		return
+	_helper.position = _get_gizmo_center_position()
+
+
+func _on_virtual_object_transform_changed(_structure_context: StructureContext) -> void:
 	if _capturing_inputs or !get_workspace_context().has_transformable_selection():
 		return
 	_helper.position = _get_gizmo_center_position()
