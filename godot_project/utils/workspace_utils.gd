@@ -64,6 +64,12 @@ static func import_file(out_workspace_context: WorkspaceContext, path: String,
 						placement: ImportFileDialog.Placement, create_new_group: bool = true,
 						snapshot_name: String = "Import File") -> void:
 	var import_file_result: OpenMMClass.ImportFileResult
+	if _is_invalid_mol_file(path):
+		Editor_Utils.get_editor().prompt_error_msg(
+			("Cannot load file '%s'\n" % path) +
+			"mol file was saved with V3000 specification, which is unsupported."
+		)
+		return
 	import_file_result = await _import_file(out_workspace_context, path, generate_bonds, add_hydrogens, remove_waters)
 	if import_file_result == null:
 		# Failed to import file. Error is handled internally
@@ -689,6 +695,21 @@ static func _focus_camera_on_aabb(out_workspace_context: WorkspaceContext, in_fo
 	focus_tween.tween_property(camera, NodePath(&"global_transform"), new_camera_transform, 0.3)
 	focus_tween.tween_property(camera, NodePath(&"size"), new_camera_size, 0.3)
 	focus_tween.play()
+
+
+static func _is_invalid_mol_file(in_path: String) -> bool:
+	if in_path.begins_with("res://") or in_path.get_extension().to_lower() != "mol":
+		# If builtin or not a mol file assume valid
+		return false
+	var path: String = ProjectSettings.globalize_path(in_path)
+	var file := FileAccess.open(path, FileAccess.READ)
+	var line: String = file.get_line()
+	while not line.begins_with("M  "):
+		if line.findn("v3000") != -1:
+			# invalid V3000 mol file
+			return true
+		line = file.get_line()
+	return false
 
 
 static var _import_thread: Thread = null
