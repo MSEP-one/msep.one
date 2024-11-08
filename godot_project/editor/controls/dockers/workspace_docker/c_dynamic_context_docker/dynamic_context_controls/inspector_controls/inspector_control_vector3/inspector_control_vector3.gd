@@ -12,6 +12,7 @@ var _y: SpinBoxSlider
 var _z: SpinBoxSlider
 
 
+var _ignore_signal_during_setter: bool = false
 var _property_changed_signal := Signal()
 var _getter := Callable()
 var _setter := Callable()
@@ -22,12 +23,15 @@ func _notification(in_what: int) -> void:
 		_x = $Components/X
 		_y = $Components/Y
 		_z = $Components/Z
-		_x.value_confirmed.connect(_on_value_confirmed)
-		_y.value_confirmed.connect(_on_value_confirmed)
-		_z.value_confirmed.connect(_on_value_confirmed)
-		_x.value_changed.connect(_on_value_changed)
-		_y.value_changed.connect(_on_value_changed)
-		_z.value_changed.connect(_on_value_changed)
+		# This check is needed because when an scene is inherited,
+		# NOTIFICATION_SCENE_INSTANTIATED is received more than once
+		if not _x.value_confirmed.is_connected(_on_value_confirmed):
+			_x.value_confirmed.connect(_on_value_confirmed)
+			_y.value_confirmed.connect(_on_value_confirmed)
+			_z.value_confirmed.connect(_on_value_confirmed)
+			_x.value_changed.connect(_on_value_changed)
+			_y.value_changed.connect(_on_value_changed)
+			_z.value_changed.connect(_on_value_changed)
 	elif in_what == NOTIFICATION_READY:
 		assert(_getter != Callable(), "Needs to be initalized with setup() before adding to a tree")
 		pass
@@ -41,7 +45,9 @@ func _on_value_confirmed(_ignored_arg: float) -> void:
 func _on_value_changed(_ignored_arg: float) -> void:
 	var new_value: Vector3 = Vector3(_x.value, _y.value, _z.value)
 	if _setter.is_valid():
+		_ignore_signal_during_setter = true
 		_setter.call(new_value)
+		_ignore_signal_during_setter = false
 
 
 func setup(in_getter: Callable, in_setter: Callable = Callable(), in_property_changed_signal: Signal = Signal()) -> void:
@@ -58,6 +64,8 @@ func setup(in_getter: Callable, in_setter: Callable = Callable(), in_property_ch
 
 
 func _on_changed_signal_emitted(_ignored_1: Variant = null, _ignored_2: Variant = null, _ignored_3: Variant = null) -> void:
+	if _ignore_signal_during_setter:
+		return
 	var value: Vector3 = _getter.call()
 	if abs(_x.value - value.x) > EPSILON:
 		_x.set_value_no_signal(value.x)

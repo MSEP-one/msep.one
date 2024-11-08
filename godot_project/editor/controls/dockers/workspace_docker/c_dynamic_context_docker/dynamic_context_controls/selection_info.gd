@@ -216,6 +216,11 @@ func _fit_editor_in_cell(in_item: TreeItem, in_rect: Rect2) -> void:
 	if min_size.x > in_rect.size.x:
 		editor.position.x = in_rect.end.x - min_size.x
 	editor.size = in_rect.size
+	if in_item.get_text(0).is_empty():
+		# Expand the editor to fit both colums:
+		const PADDING: int = 60
+		editor.position.x = PADDING
+		editor.size.x = in_rect.end.x - PADDING
 
 func _value_type_expands(value: Variant) -> bool:
 	return typeof(value) in [
