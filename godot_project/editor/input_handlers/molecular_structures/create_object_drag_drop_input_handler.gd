@@ -527,6 +527,11 @@ func _calculate_drop_distance(in_context: StructureContext, in_camera: Camera3D)
 		if not is_nan(distance_to_shape_surface):
 			return distance_to_shape_surface
 	
+	var is_fixed_distance := _workspace_context.create_object_parameters.get_create_distance_method() == \
+			CreateObjectParameters.CreateDistanceMethod.FIXED_DISTANCE_TO_CAMERA
+	if is_fixed_distance:
+		return _workspace_context.create_object_parameters.drop_distance
+	
 	var drag_drop_plane := Plane(in_camera.basis.z, in_context.nano_structure.atom_get_position(_drag_start_atom_id))
 	return drag_drop_plane.distance_to(in_camera.global_position)
 
