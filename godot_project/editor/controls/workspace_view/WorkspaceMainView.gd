@@ -92,8 +92,6 @@ func _refresh_rendering_properties_view(in_show_properties_view: bool) -> void:
 
 const DEFAULT_WORKSPACE_EDITOR_DOCKERS = [
 	preload
-	("res://editor/controls/dockers/workspace_docker/object_tree_docker.tscn"),
-	preload
 	("res://editor/controls/dockers/workspace_docker/a_create_docker/create_docker.tscn"),
 	preload
 	("res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_docker.tscn"),

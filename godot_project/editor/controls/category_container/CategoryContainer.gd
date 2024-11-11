@@ -55,7 +55,8 @@ func _expand(in_animated: bool) -> void:
 	
 	_expand_collapse_button.icon = expanded_icon
 	_main_container.visible = true
-	var target_size: Vector2 = _main_container.get_combined_minimum_size()
+	const MARGIN := Vector2(10, 15)
+	var target_size: Vector2 = _main_container.get_combined_minimum_size() + MARGIN
 	_scroll_container.custom_minimum_size.x = target_size.x
 	
 	if !in_animated || Engine.is_editor_hint():
