@@ -39,6 +39,7 @@ var _label_edit_notice: Label = null
 var _label_error_notice: Label = null
 var _label_empty_notice: Label = null
 var _button_revert: Button = null
+var _button_end: Button = null
 var _button_view_alerts: Button = null
 var _open_mm_failure_tracker: OpenMMFailureTracker = null
 var _motors_warning_dialog: NanoAcceptDialog = null
@@ -107,6 +108,7 @@ func _notification(in_what: int) -> void:
 		_label_error_notice = %LabelErrorNotice as Label
 		_label_empty_notice = %LabelEmptyNotice as Label
 		_button_revert = %ButtonRevert as Button
+		_button_end = %ButtonEnd as Button
 		_button_view_alerts = %ButtonViewAlerts as Button
 		_open_mm_failure_tracker = %OpenMMFailureTracker as OpenMMFailureTracker
 		_motors_warning_dialog = %MotorsWarningDialog as NanoAcceptDialog
@@ -130,6 +132,7 @@ func _notification(in_what: int) -> void:
 		_spin_box_timeline.value_changed.connect(_on_spin_box_timeline_value_changed)
 		_option_button_timeline_unit.item_selected.connect(_on_option_button_timeline_unit_item_selected)
 		_button_revert.pressed.connect(_on_button_revert_pressed)
+		_button_end.pressed.connect(_on_button_end_pressed)
 		_button_view_alerts.pressed.connect(_on_button_view_alerts_pressed)
 		_open_mm_failure_tracker.results_collected.connect(_on_open_mm_failure_tracker_results_collected)
 
@@ -209,6 +212,7 @@ func _update_controls() -> void:
 			_spin_box_timeline.editable = false
 			_slider_timeline.editable = false
 			_button_revert.disabled = true
+			_button_end.disabled = true
 		Status.PREWARMING:
 			_temperature_picker.editable = false
 			_time_span_picker.editable = false
@@ -272,6 +276,7 @@ func _update_controls() -> void:
 			_spin_box_timeline.editable = true
 			_slider_timeline.editable = true
 			_button_revert.disabled = false
+			_button_end.disabled = true
 
 
 func _has_valid_atoms() -> bool:
@@ -312,6 +317,8 @@ func _set_error_playback_active(in_enabled: bool) -> void:
 
 func _on_simulation_frame_received(in_time: float, _in_state: Variant) -> void:
 	_simulation_length_nanoseconds = max(in_time, _simulation_length_nanoseconds)
+	if _is_simulation_complete():
+		_button_end.disabled = true
 
 
 func _on_simulation_invalid_state_received() -> void:
@@ -440,7 +447,6 @@ func _on_button_start_pause_pressed() -> void:
 			params.steps_per_report = int(_spin_box_steps_per_report.value)
 			params.total_step_count = int(_spin_box_steps_per_report.value) * int(_spin_box_report_count.value)
 			
-			
 			if _relax_before_sim_button.button_pressed and WorkspaceUtils.can_relax(_workspace_context, false):
 				# Disabling the button is not necesary at all
 				# I am doing this to catch any case in the future where promise returned by
@@ -481,6 +487,7 @@ func _on_button_start_pause_pressed() -> void:
 				_finish_prewarming_time = min(_total_simulation_len_nanoseconds, _finish_prewarming_time)
 				_spin_box_timeline.step = _nanoseconds_to_playback_unit(report_time_in_nanoseconds)
 				_slider_timeline.step = _nanoseconds_to_playback_unit(report_time_in_nanoseconds)
+				_button_end.disabled = false
 		Status.PREWARMING:
 			# Nothing to do here
 			return
@@ -643,6 +650,23 @@ func _on_button_revert_pressed() -> void:
 		_workspace_context.abort_simulation_if_running()
 		_status = Status.INACTIVE
 
+
+func _on_button_end_pressed() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
+	if _workspace_context.ignored_warnings.end_simulation == false:
+		const ACCEPT_WHEN_PRESSING_DONT_REMIND_ME_AGAIN := true
+		var message: String = tr("Are you sure you want to stop processing this simulation?")
+		var promise: Promise = _workspace_context.show_warning_dialog(
+				message, tr("OK"), tr("Cancel"),
+				&"end_simulation", ACCEPT_WHEN_PRESSING_DONT_REMIND_ME_AGAIN)
+		await promise.wait_for_fulfill()
+		if not promise.get_result():
+			return
+	
+	_workspace_context.end_simulation_if_running()
+	_button_end.disabled = true
+	_total_simulation_len_nanoseconds = _simulation_length_nanoseconds
 
 
 func _on_button_view_alerts_pressed() -> void:

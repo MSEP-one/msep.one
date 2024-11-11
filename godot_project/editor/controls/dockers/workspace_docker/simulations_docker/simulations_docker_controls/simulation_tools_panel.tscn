@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://b3gggkyj2olxa"]
+[gd_scene load_steps=14 format=3 uid="uid://b3gggkyj2olxa"]
 
 [ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_tools_panel.gd" id="1_8vt2h"]
 [ext_resource type="PackedScene" uid="uid://cvtq2ps52eix3" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.tscn" id="2_kk1ae"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_oqut5"]
 [ext_resource type="Texture2D" uid="uid://bggmkhivgos3r" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_revert.svg" id="4_xo5op"]
 [ext_resource type="PackedScene" uid="uid://dkfvcot2e4buu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/playback_speed_picker.tscn" id="5_7pvhb"]
+[ext_resource type="Texture2D" uid="uid://d1uqi1065c7ba" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_stop.svg" id="9_1gfm6"]
 [ext_resource type="PackedScene" uid="uid://43m5k0qxrqiu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/openmm_failure_tracker.tscn" id="9_6sv07"]
 [ext_resource type="Script" path="res://editor/controls/general/nano_accept_dialog.gd" id="10_84as7"]
 
@@ -225,7 +226,10 @@ autowrap_mode = 2
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="ButtonRevert" type="Button" parent="VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ButtonRevert" type="Button" parent="VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -233,6 +237,15 @@ disabled = true
 text = "Abort Simulation
 "
 icon = ExtResource("4_xo5op")
+
+[node name="ButtonEnd" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+disabled = true
+text = "End Simulation
+"
+icon = ExtResource("9_1gfm6")
 
 [node name="ButtonViewAlerts" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true

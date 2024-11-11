@@ -58,6 +58,7 @@ var ignored_warnings: Dictionary = {
 	invalid_tetrahedral_structure = false,
 	invalid_relaxed_tetrahedral_structure = false,
 	abort_simulation = false,
+	end_simulation = false,
 }
 
 var visible_object_tree: bool = false:
@@ -506,6 +507,14 @@ func abort_simulation_if_running() -> void:
 	_simulation = null
 	_is_simulation_playback_running = false
 	simulation_finished.emit()
+
+
+## Stops and discard the simulation on OpenMM's side, but keep the existing
+## frames in memory on MSEP so they can be displayed and manipulated.
+func end_simulation_if_running() -> void:
+	if !is_simulating():
+		return
+	OpenMM.request_abort_simulation(_simulation)
 
 
 ## This method is automatically called when any code attempts
