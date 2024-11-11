@@ -25,9 +25,9 @@ func get_icon() -> RingMenuIcon:
 
 func _execute_action() -> void:
 	if _workspace_context.are_hydrogens_visualized():
-		_workspace_context.disable_hydrogens_visualization()
+		_workspace_context.disable_hydrogens_visualization(true)
 	else:
-		_workspace_context.enable_hydrogens_visualization()
+		_workspace_context.enable_hydrogens_visualization(false)
 	_ring_menu.close()
 
 

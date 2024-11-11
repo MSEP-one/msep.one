@@ -489,6 +489,13 @@ func bond_set_order(_in_bond_id: int, _in_bond_order: int) -> void:
 	return
 
 
+func bond_is_hydrogen_involved(in_bond_id: int) -> bool:
+	var bond_data: Vector3i = get_bond(in_bond_id)
+	var is_hydrogen_involved: bool = atom_is_hydrogen(bond_data.x)
+	is_hydrogen_involved = is_hydrogen_involved or atom_is_hydrogen(bond_data.y)
+	return is_hydrogen_involved
+
+
 func spring_create(_in_anchor_id: int, _in_atom_id: int, _in_spring_constant_force: float,
 			_is_equilibrium_length_automatic: bool, _in_equilibrium_manual_length: float) -> int:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)

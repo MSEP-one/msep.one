@@ -820,7 +820,7 @@ func enable_hydrogens_visualization(clear_selection: bool = true) -> void:
 	workspace.representation_settings.set_hydrogen_visibility_and_notify(true)
 
 
-func disable_hydrogens_visualization(clear_selection: bool = true) -> void:
+func disable_hydrogens_visualization(in_clear_hydrogen_selection: bool = false) -> void:
 	if not are_hydrogens_visualized():
 		return
 	
@@ -833,11 +833,33 @@ func disable_hydrogens_visualization(clear_selection: bool = true) -> void:
 			# Ignore virtual objects
 			continue
 		context.nano_structure.disable_hydrogens_visibility()
-		if clear_selection:
-			context.clear_selection()
-	
+		if in_clear_hydrogen_selection:
+			_deselect_hydrogens(context)
+		
 	rendering.disable_hydrogens()
 	workspace.representation_settings.set_hydrogen_visibility_and_notify(false)
+
+
+func _deselect_hydrogens(out_structure_context: StructureContext) -> void:
+	var atoms_to_deselect: PackedInt32Array = PackedInt32Array()
+	var bonds_to_deselect: Dictionary = {
+		#bond_id<int> : true <bool>
+	}
+	var selected_atoms: PackedInt32Array = out_structure_context.get_selected_atoms()
+	var selected_bonds: PackedInt32Array = out_structure_context.get_selected_bonds()
+	for atom_id: int in selected_atoms:
+		var is_atom_hydrogen: bool = out_structure_context.nano_structure.atom_is_hydrogen(atom_id)
+		if is_atom_hydrogen:
+			atoms_to_deselect.append(atom_id)
+			var related_h_bonds: PackedInt32Array = out_structure_context.nano_structure.atom_get_bonds(atom_id)
+			for bond_id: int in related_h_bonds:
+				bonds_to_deselect[bond_id] = true
+	for bond_id: int in selected_bonds:
+		var is_bond_related_to_hydrogen: bool = out_structure_context.nano_structure.bond_is_hydrogen_involved(bond_id)
+		if is_bond_related_to_hydrogen:
+			bonds_to_deselect[bond_id] = true
+	out_structure_context.deselect_atoms(atoms_to_deselect)
+	out_structure_context.deselect_bonds(bonds_to_deselect.keys())
 
 
 # # Selection
