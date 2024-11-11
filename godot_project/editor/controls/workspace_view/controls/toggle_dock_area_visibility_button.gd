@@ -8,6 +8,10 @@ extends Button
 @onready var dock_area: Control = get_node_or_null(dock_area_path) #DockArea
 
 
+func _init() -> void:
+	hide()
+
+
 func _ready() -> void:
 	assert(dock_area != null, "Path to dock area is not valid: %s" % str(dock_area_path))
 	pressed.connect(_on_toggle_visible_button_pressed)
