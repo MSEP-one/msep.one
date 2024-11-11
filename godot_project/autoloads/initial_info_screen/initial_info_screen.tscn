@@ -91,8 +91,7 @@ theme_override_constants/separation = 0
 [node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
 custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
-text = "
-MSEP.one is a powerful, freely available, open-source platform to help with today's scientific tasks and foster designs for the future of generative nanotechnology.
+text = "MSEP.one is a powerful, freely available, open-source platform to help with today's scientific tasks and foster designs for the future of generative nanotechnology.
 
 With it you can design, visualize, and simulate nanodevices.
 
