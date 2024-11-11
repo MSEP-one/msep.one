@@ -159,6 +159,10 @@ func _get_new_workspace_name(in_path: String) -> String:
 ## Load a workspace from disk (if not already loaded) and immediately activate it.
 func load_and_activate_workspace(in_path: String) -> void:
 	var workspace: Workspace = soft_load_workspace(in_path)
+	if not is_instance_valid(workspace):
+		Editor_Utils.get_editor().prompt_error_msg(("Cannot load file '%s'\n" % in_path) +
+			"ensure write permissions are granted and file is not corrupted.")
+		return
 	var workspace_context: WorkspaceContext = get_workspace_context(workspace)
 	workspace_context.set_camera_global_transform(workspace.camera_transform)
 	var root_structure: NanoStructure = workspace.get_root_child_structures()[0]
