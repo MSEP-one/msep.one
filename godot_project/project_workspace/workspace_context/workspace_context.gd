@@ -643,6 +643,7 @@ func _on_structure_contents_modified_arg1(_ignore_arg1: Variant, in_structure_co
 func _on_virtual_object_transform_changed(_ignore_arg1: Variant, in_structure_context_id: int) -> void:
 	if not workspace.has_structure_with_int_guid(in_structure_context_id):
 		return
+	set_meta(_META_CACHED_SELECTION_AABB, null)
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
 	if structure_context != null:
 		virtual_object_transform_changed.emit(structure_context)

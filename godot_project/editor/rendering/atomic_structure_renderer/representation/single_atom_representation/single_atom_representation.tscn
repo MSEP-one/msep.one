@@ -17,6 +17,7 @@ script = ExtResource("2_0fyfn")
 
 [node name="SegmentedMultiMesh" parent="." index="0" instance=ExtResource("3_yh5yh")]
 multimesh = SubResource("MultiMesh_sb3wt")
-lod_bias = 0.1
-material_override = ExtResource("5_ks85r")
+_lod_bias = 0.1
+_material_override = ExtResource("5_ks85r")
 update_segments_on_movement = true
+visual_layers = 5
