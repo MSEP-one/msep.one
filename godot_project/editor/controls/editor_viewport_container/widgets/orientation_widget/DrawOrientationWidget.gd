@@ -1,6 +1,7 @@
 class_name OrientationWidgetUI
 extends Control
 
+const FLOATING_POINT_AMBIGUITY_THRESHOLD: float = .5
 const MAX_RESOLUTION: float = 16384.0
 const WIDGET_SIZE: float = 8.0
 const AXIS_LENGTH: float = .5
@@ -74,7 +75,7 @@ func _draw_single_axis(in_index : int) -> void:
 	
 	if axis_depths[in_index][DEPTH_INVERSION_ID]:
 		var dim_coefficient := INVERTED_AXIS_COLOR_DIM_COEFFICIENT
-		var circle_color := Color(axis_color.r * dim_coefficient, axis_color.g * dim_coefficient,\
+		var circle_color := Color(axis_color.r * dim_coefficient, axis_color.g * dim_coefficient, \
 				axis_color.b * dim_coefficient, axis_color.a)
 		draw_circle(axis_depths[in_index][DEPTH_2DPOSITION_ID], CIRCLE_RADIUS, circle_color)
 		var arc_color := Color(axis_color.r, axis_color.g, axis_color.b, axis_color.a)
@@ -82,15 +83,16 @@ func _draw_single_axis(in_index : int) -> void:
 				arc_color, 2.0, false)
 		
 		var axis_char := str("-", axis_depths[in_index][DEPTH_CHAR_ID])
-		draw_string(default_font, axis_depths[in_index][DEPTH_2DPOSITION_ID] + font_offset, \
-				axis_char, HORIZONTAL_ALIGNMENT_LEFT, -1, 14,\
-				font_color)
+		draw_string(default_font, ceil(axis_depths[in_index][DEPTH_2DPOSITION_ID] + font_offset - \
+				Vector2.ONE * FLOATING_POINT_AMBIGUITY_THRESHOLD), axis_char, \
+				HORIZONTAL_ALIGNMENT_LEFT, -1, 14, font_color)
 	else:
 		var circle_color := Color(axis_color.r, axis_color.g, axis_color.b, axis_color.a)
 		draw_line(Vector2.ZERO, axis_depths[in_index][DEPTH_2DPOSITION_ID], circle_color, \
 				LINE_THICKNESS, true)
 		draw_circle(axis_depths[in_index][DEPTH_2DPOSITION_ID], CIRCLE_RADIUS, circle_color)
-		draw_string(default_font, axis_depths[in_index][DEPTH_2DPOSITION_ID] + font_offset, \
+		draw_string(default_font, ceil(axis_depths[in_index][DEPTH_2DPOSITION_ID] + font_offset - \
+				Vector2.ONE * FLOATING_POINT_AMBIGUITY_THRESHOLD), \
 				axis_depths[in_index][DEPTH_CHAR_ID], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, font_color)
 
 
@@ -231,8 +233,8 @@ func _adjust_relative_to_resolution() -> void:
 	var global_widget_scale: float = MolecularEditorContext.msep_editor_settings.ui_widget_scale
 	scale = Vector2(_resolution_factor, _resolution_factor) * _initial_scale_factor * global_widget_scale
 	
-	position.x += _resolution_factor * global_widget_scale * manual_offset.x - manual_offset.x
-	position.y += _resolution_factor * global_widget_scale * manual_offset.y - manual_offset.y
+	position.x += ceil(_resolution_factor * global_widget_scale * manual_offset.x - manual_offset.x)
+	position.y += ceil(_resolution_factor * global_widget_scale * manual_offset.y - manual_offset.y)
 
 
 func _calculate_screen_offset(in_orbit_radius: float) -> Vector3:
