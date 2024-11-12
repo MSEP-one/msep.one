@@ -30,12 +30,8 @@ else:
 
 if platform in [ "macos"]:
   if env_lmdb["osxcross_sdk"]:
-    libs_to_link_against.remove("libkj-tls")
     autotools_command += " --osxcross_sdk {}".format(env_lmdb["osxcross_sdk"])
-    
-elif platform in ["windows"]:
-  libs_to_link_against.remove("libkj-gzip")
-  libs_to_link_against.remove("libkj-tls")
+
 
 command = subprocess.run(autotools_command, shell=True)
 if command.returncode != 0:
