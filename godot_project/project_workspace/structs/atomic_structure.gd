@@ -369,31 +369,8 @@ func set_color_override(in_atoms: PackedInt32Array, color: Color) -> void:
 	_signal_queue_atoms_color_changed.append_array(in_atoms)
 
 
-#TODO: This is probably not needed (THIS COMMENT SHOULD NOT BE PART OF PR)
-func get_color_override_snapshot() -> Dictionary:
+func get_color_overrides() -> Dictionary:
 	return color_overrides.duplicate()
-
-
-#TODO: This is probably not needed (THIS COMMENT SHOULD NOT BE PART OF PR)
-func apply_color_override_snapshot(in_color_snapshot: Dictionary) -> void:
-	assert(_is_being_edited, "Color override can only be changed while structure is being edited")
-	var all_colors: Dictionary = {
-		# atom_id<int> : color<Color>
-	}
-	all_colors.merge(color_overrides)
-	all_colors.merge(in_color_snapshot)
-	
-	for atom_id: int in all_colors.keys():
-		if color_overrides.get(atom_id, null) == in_color_snapshot.get(atom_id, null):
-			# did not change
-			continue
-		_signal_queue_atoms_color_changed.append(atom_id)
-		if not in_color_snapshot.has(atom_id):
-			# override was removed
-			color_overrides.erase(atom_id)
-		else:
-			# color was set or changed
-			color_overrides[atom_id] = in_color_snapshot[atom_id]
 
 
 func remove_color_override(in_atoms: PackedInt32Array) -> void:
@@ -675,7 +652,7 @@ func merge_structure(in_structure: AtomicStructure, in_placement_xform: Transfor
 	var new_atoms := PackedInt32Array()
 	var new_bonds := PackedInt32Array()
 	var new_springs := PackedInt32Array()
-	var old_color_overrides: Dictionary = in_structure.get_color_override_snapshot()
+	var old_color_overrides: Dictionary = in_structure.get_color_overrides()
 	var new_color_overrides: Dictionary = {
 	#	color<Color> = atoms_to_apply<PackedInt32Array>
 	}

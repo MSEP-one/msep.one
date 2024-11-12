@@ -499,7 +499,7 @@ static func _move_selection_to_existing_structure(
 			var source_structure_atoms_ids: PackedInt32Array = structure_context.get_selected_atoms()
 			var source_structure_bonds_ids: PackedInt32Array = structure_context.get_selected_bonds()
 			var source_structure_springs_ids: PackedInt32Array = PackedInt32Array()
-			var old_color_overrides: Dictionary = old_structure.get_color_override_snapshot()
+			var old_color_overrides: Dictionary = old_structure.get_color_overrides()
 			var new_color_overrides: Dictionary = {
 			#	color<Color> = atoms_to_apply<PackedInt32Array>
 			}
