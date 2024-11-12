@@ -459,10 +459,7 @@ func get_selection_snapshot() -> Dictionary:
 
 func apply_selection_snapshot(in_snapshot: Dictionary) -> void:
 	_is_virtual_object_selected = in_snapshot.is_virtual_object_selected
-	
-	var nano_structure: NanoStructure = _structure_context.nano_structure
 	var atom_snapshot: Array = in_snapshot.atom_snapshot
 	var spring_snapshot: Array = in_snapshot.spring_snapshot
-	
 	var _apply_result: AtomSelection.ApplySnapshotResult = _atom_selection.apply_snapshot(atom_snapshot)
 	_spring_selection.apply_snapshot(spring_snapshot)
