@@ -65,7 +65,6 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_structur
 
 
 func set_preview_position(in_position: Vector3) -> void:
-	var camera: Camera3D = get_workspace_context().get_editor_viewport().get_camera_3d()
 	var basis: Basis = Basis()
 	var center_offset: Vector3 = basis * (_preview_size / 2.0)
 	_rendering.structure_preview_set_transform(Transform3D(basis, in_position - center_offset))

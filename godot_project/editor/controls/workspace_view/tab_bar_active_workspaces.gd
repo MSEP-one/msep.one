@@ -40,7 +40,7 @@ func _ready() -> void:
 	MolecularEditorContext.homepage_activated.connect(_on_homepage_activated)
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	var tab_bar_rect: Rect2 = tab_bar_active_workspaces.get_global_rect()
 	var mouse_pos: Vector2 = get_global_mouse_position()
 	if not tab_bar_rect.has_point(mouse_pos):
