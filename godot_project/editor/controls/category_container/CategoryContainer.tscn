@@ -45,9 +45,14 @@ size_flags_vertical = 0
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 3
 
-[node name="MainContainer" type="VBoxContainer" parent="PanelContainer/ScrollContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_bottom = 10
+
+[node name="MainContainer" type="VBoxContainer" parent="PanelContainer/ScrollContainer/MarginContainer"]
 unique_name_in_owner = true
-clip_contents = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
