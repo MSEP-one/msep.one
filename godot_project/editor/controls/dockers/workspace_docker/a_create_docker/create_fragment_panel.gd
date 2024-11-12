@@ -88,6 +88,18 @@ func _on_fragment_selected(fragment_path: String) -> void:
 	var structure: NanoStructure = await WorkspaceUtils.get_nano_structure_from_file(workspace_context, absolute_path, false, false, false)
 	structure.set_structure_name(fragment_path.get_file().get_basename())
 	workspace_context.create_object_parameters.set_new_structure(structure)
+	# HACK: for responsivemes, we will "fake" a mouse movement to ensure preview of the molecule will
+	# reappear in the desired position only if the mouse is hovering the viewport
+	if BusyIndicator.visible:
+		# wait for busy indicator to fully dissapear, otherwise will consume the event
+		await BusyIndicator.visibility_changed
+		await get_tree().process_frame
+	var main_viewport: Viewport = get_tree().root
+	var mouse_move := InputEventMouseMotion.new()
+	mouse_move.position = main_viewport.get_mouse_position()
+	mouse_move.relative = Vector2.ZERO
+	main_viewport.push_input(mouse_move)
+
 
 
 func _unpack_mol_file_and_get_path(fragment_path: String) -> String:
