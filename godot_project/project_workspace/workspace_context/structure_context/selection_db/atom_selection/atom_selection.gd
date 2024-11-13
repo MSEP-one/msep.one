@@ -241,11 +241,6 @@ func can_grow_selection() -> bool:
 
 func grow_selection() -> AtomSelectionResult:
 	var atoms_to_select_dict: Dictionary = {}
-	# In the list of atoms to select we include already selected atoms,
-	# this helps to automatically expand selections of bonds in some corner cases
-	for atom_id: int in get_atoms_selection():
-		atoms_to_select_dict[atom_id] = true
-	
 	var related_structure: AtomicStructure = _structure_context.nano_structure as AtomicStructure
 	var bonds_to_test: Dictionary = _bonds_partially_influenced_by_atoms.duplicate()
 	bonds_to_test.merge(_bonds_selection)
@@ -261,7 +256,11 @@ func grow_selection() -> AtomSelectionResult:
 	if atoms_to_select.is_empty():
 		return AtomSelectionResult.new(false, PackedInt32Array(), PackedInt32Array(), PackedInt32Array())
 	
-	var result: AtomSelectionResult = select_atoms_and_get_auto_selected_bonds(atoms_to_select)
+	# using this list helps to deal with case when bond is unselected but both related atoms are selected
+	# (ensures bond will be selected afterwards)
+	var all_atom_selection: Dictionary = _atoms_selection.duplicate()
+	all_atom_selection.merge(atoms_to_select_dict)
+	var result: AtomSelectionResult = select_atoms_and_get_auto_selected_bonds(all_atom_selection.keys())
 	var selection_set: SelectionSet = SelectionSet.new(atoms_to_select, result.new_bonds_selected)
 	_selection_layers.push_back(selection_set)
 	return result
@@ -307,8 +306,10 @@ func _determine_bond_influence(in_any_atom_selected: bool, in_atoms: PackedInt32
 			var bond_participant: int = related_structure.atom_get_bond_target(atom_id, bond_id)
 			if is_atom_selected(bond_participant):
 				if in_update_bond_selection:
-					_bonds_selection[bond_id] = true
-					freshly_selected_bonds.append(bond_id)
+					var is_bond_already_selected: bool = _bonds_selection.get(bond_id, false)
+					if not is_bond_already_selected:
+						_bonds_selection[bond_id] = true
+						freshly_selected_bonds.append(bond_id)
 					_non_selected_bonds_fully_influenced_by_atoms.erase(bond_id)
 				else:
 					_non_selected_bonds_fully_influenced_by_atoms[bond_id] = true
