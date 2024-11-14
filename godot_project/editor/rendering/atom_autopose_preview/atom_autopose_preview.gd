@@ -14,6 +14,8 @@ var _candidates: Array[AtomCandidate]
 var _hovered_candidate: AtomCandidate
 var _camera: Camera3D
 var _camera_last_transform: Transform3D
+var _camera_last_zoom: float
+var _camera_last_projection: Camera3D.ProjectionType
 
 
 func set_atomic_number(in_atomic_number: int) -> void:
@@ -56,8 +58,13 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if visible and is_instance_valid(_camera) and _camera.global_transform != _camera_last_transform:
+	if visible and is_instance_valid(_camera) and (
+			_camera.global_transform != _camera_last_transform
+			or _camera.size != _camera_last_zoom
+			or _camera_last_projection != _camera.projection):
 		_camera_last_transform = _camera.global_transform
+		_camera_last_zoom = _camera.size
+		_camera_last_projection = _camera.projection
 		queue_redraw()
 
 
@@ -87,6 +94,10 @@ func _draw() -> void:
 			# so this if condition should not be needed to run often
 			context = workspace_context.get_structure_context(candidate.structrure_id)
 			atomic_structure = context.nano_structure as AtomicStructure
+		if not _camera.is_position_in_frustum(candidate.atom_position):
+			# clip out of the view
+			candidate.pos_2d_cache = Vector2.ONE * -15
+			continue
 		var pos_2d: Vector2 = _camera.unproject_position(candidate.atom_position)
 		candidate.pos_2d_cache = pos_2d
 		if not get_rect().grow(15).has_point(pos_2d):
@@ -121,7 +132,7 @@ func _draw() -> void:
 				# positive angle, candidate is below the original atom, draw dashes
 				_draw_dashed_connection(atom_pos_2d, pos_2d, bond_color)
 		draw_circle(pos_2d, 15.0, atom_color)
-		draw_string(font, pos_2d, candidate_element.symbol, HORIZONTAL_ALIGNMENT_CENTER, -1, 16, label_color)
+		_draw_label(font, pos_2d, candidate_element.symbol, label_color)
 
 
 func _draw_line_connection(in_from: Vector2, in_to: Vector2, in_color: Color) -> void:
@@ -159,3 +170,15 @@ func _draw_dashed_connection(in_from: Vector2, in_to: Vector2, in_color: Color) 
 			mid_point - offset_dir * half_dash_lenght,
 			mid_point + offset_dir * half_dash_lenght,
 			in_color, -1, true)
+
+
+func _draw_label(in_font: Font, in_center: Vector2, in_text: String, in_color: Color) -> void:
+	const FONT_SIZE: int = 16
+	const X_OFFSET_FACTOR: float = -0.5
+	const Y_OFFSET_FACTOR: float = +0.4
+	var text_size: Vector2 = in_font.get_string_size(in_text,HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE)
+	text_size.x *= X_OFFSET_FACTOR
+	text_size.y *= Y_OFFSET_FACTOR
+	draw_string(in_font, in_center + text_size, in_text,
+		HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, in_color)
+	

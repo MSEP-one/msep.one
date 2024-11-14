@@ -232,11 +232,10 @@ func _generate_candidates_for_atom(in_context: StructureContext, in_atom_id: int
 				var known_3 := HAtomsEmptyValenceDirections.Atom.new(other_atom_pos_3, "dummy")
 				directions = HAtomsEmptyValenceDirections.fill_valence_from_3(current_atom, known_1, known_2, known_3)
 		for dir in directions:
-			# Dir is in Angstroms, convert to nanometers
-			var candidate_pos: Vector3 = atom_position + dir * 0.1
+			var equilibrium_distance: float = _get_equilibrium_distance(atomic_number, _element_selected)
+			var candidate_pos: Vector3 = atom_position + dir * equilibrium_distance
 			candidate_positions.push_back(candidate_pos)
 	return candidate_positions
-	
 
 
 func _get_charge(in_nano_structure: NanoStructure, in_atom_id: int) -> int:
@@ -272,6 +271,14 @@ func _find_torsion_candidate(nano_structure: NanoStructure, in_atom_id: int, oth
 				var torsion_candidate := HAtomsEmptyValenceDirections.Atom.new(candidate_position, "dummy")
 				return torsion_candidate
 	return null
+
+
+func _get_equilibrium_distance(in_atomic_number_a: int, in_atomic_number_b: int) -> float:
+	var data_a: ElementData = PeriodicTable.get_by_atomic_number(in_atomic_number_a)
+	var data_b: ElementData = data_a if in_atomic_number_a == in_atomic_number_b else \
+								PeriodicTable.get_by_atomic_number(in_atomic_number_b)
+	var equilibrium_distance: float = (data_a.contact_radius + data_b.contact_radius) * 0.5
+	return equilibrium_distance
 
 
 func _do_create_atom_and_bonds(out_context: StructureContext, in_atom_params: AtomicStructure.AddAtomParameters,
