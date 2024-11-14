@@ -189,6 +189,8 @@ func _drag_drop_bond_preview_update(in_position: Vector3) -> void:
 				AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID)
 		return
 	
+	structure_context.set_atom_selection([_drag_start_atom_id])
+	
 	assert(_target_atom_id == AtomicStructure.INVALID_ATOM_ID, "This method should only handle dragging into void")
 	rendering.atom_preview_show()
 	rendering.atom_preview_set_position(in_position).atom_preview_set_atomic_number(second_atom_atomic_nmb)
