@@ -28,6 +28,7 @@ signal representation_changed(new_representation: Representation)
 @onready var _virtual_motor_renderers: Node = $VirtualMotorRenderers
 @onready var _virtual_anchor_renderers: Node = $VirtualAnchorRenderers
 @onready var _atom_preview: AtomPreview = $AtomPreview
+@onready var _atom_autopose_preview: AtomAutoposePreview = $AtomAutoposePreview
 @onready var _ballstick_bond_preview: BallStickBondPreview = $BallStickBondPreview
 @onready var _structure_preview: StructurePreview = $StructurePreview
 @onready var _reference_shape_preview: NanoShapeRenderer = $ReferenceShapePreview
@@ -610,6 +611,45 @@ func bond_preview_set_order(in_bond_order: int) -> Rendering:
 	if not enabled: return self
 	_ballstick_bond_preview.set_order(in_bond_order)
 	return self
+
+
+func atom_autopose_preview_is_visible() -> bool:
+	if not enabled: return false
+	return _atom_autopose_preview.is_visible()
+
+
+func atom_autopose_preview_show() -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.show()
+	return self
+
+
+func atom_autopose_preview_hide() -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.hide()
+	return self
+
+
+func atom_autopose_preview_set_atomic_number(in_atomic_number: int) -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.set_atomic_number(in_atomic_number)
+	return self
+
+
+func atom_autopose_preview_set_bond_order(in_bond_order: int) -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.set_bond_order(in_bond_order)
+	return self
+
+
+func atom_autopose_preview_set_candidates(in_candidates: Array[AtomAutoposePreview.AtomCandidate]) -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.set_candidates(in_candidates)
+	return self
+
+
+func atom_autopose_get_hovered_candidate_or_null() -> AtomAutoposePreview.AtomCandidate:
+	return _atom_autopose_preview.get_hovered_candidate_or_null()
 
 
 func is_structure_preview_visible() -> bool:
