@@ -20,6 +20,7 @@ var _structure_id_to_tree_item: Dictionary = {
 }
 var _edited_structure_tree_item: TreeItem = null: set = _set_edited_structure_tree_item
 var _changing_selection: bool = false
+var _multiselect_served_at_frame: int = -1
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -33,6 +34,8 @@ func _notification(what: int) -> void:
 		_structures_tree.button_clicked.connect(_on_structures_tree_button_clicked)
 		_structures_tree.item_edited.connect(_on_structures_tree_item_edited)
 		_structures_tree.item_collapsed.connect(_on_structures_tree_item_collapsed)
+		_structures_tree.cell_selected.connect(_on_structure_tree_cell_selected, CONNECT_DEFERRED)
+		
 	if what == NOTIFICATION_READY:
 		var groups_docker: GroupsDocker = _find_docker()
 		assert(groups_docker, "Could not find GroupsDocker")
@@ -265,25 +268,39 @@ func _on_structures_tree_gui_input(in_event: InputEvent) -> void:
 
 func _on_structures_tree_multi_selected(out_item: TreeItem, _in_column: int, in_is_selected: bool) -> void:
 	if _changing_selection or not in_is_selected: return
+	_multiselect_served_at_frame = Engine.get_process_frames()
 	var workspace_context: WorkspaceContext = get_workspace_context()
-	
 	var structure_id: int = _structure_id_to_tree_item.find_key(out_item)
-	var nano_structure: NanoStructure = workspace_context.workspace.get_structure_by_int_guid(structure_id)
-	var clicked_structure_context: StructureContext = workspace_context.get_nano_structure_context(nano_structure)
+	var clicked_structure_context: StructureContext = workspace_context.get_structure_context(structure_id)
 	if not clicked_structure_context.is_editable():
 		return
 	
 	_changing_selection = true
-	var previously_selected_groups: Array[StructureContext] = workspace_context.get_structure_contexts_with_selection()
-	for structure_context: StructureContext in previously_selected_groups:
-		structure_context.clear_selection()
+	workspace_context.clear_all_selection()
+	clicked_structure_context.select_all(true)
+	_changing_selection = false
+
+
+
+func _on_structure_tree_cell_selected() -> void:
+	if _changing_selection:
+		return
+	const NMB_OF_FRAMES_TO_IGNORE_AFTER_MULTISELECTED_SIGNAL = 3
+	var frame_delta: int = Engine.get_process_frames() - _multiselect_served_at_frame
+	if frame_delta < NMB_OF_FRAMES_TO_IGNORE_AFTER_MULTISELECTED_SIGNAL:
+		# workaround, we want for _on_structure_tree_cell_selected to never be called together with
+		# _on_structures_tree_multi_selected as a result of the same user click
+		return
+	var workspace_context: WorkspaceContext = get_workspace_context()
+	var tree_item: TreeItem = _structures_tree.get_selected()
+	if not is_instance_valid(tree_item):
+		return
 	
-	var topmost_structure_context: StructureContext = clicked_structure_context
-	if clicked_structure_context != workspace_context.get_current_structure_context():
-		topmost_structure_context = \
-				workspace_context.get_toplevel_editable_context(clicked_structure_context)
-	topmost_structure_context.select_all(true)
-	_workspace_context.snapshot_moment("Change Selection")
+	var structure_id: int = _structure_id_to_tree_item.find_key(tree_item)
+	var structure_context: StructureContext = workspace_context.get_structure_context(structure_id)
+	_changing_selection = true
+	workspace_context.clear_all_selection()
+	structure_context.select_all(true)
 	_changing_selection = false
 
 
