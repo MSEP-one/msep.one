@@ -189,6 +189,16 @@ func apply_theme(_in_theme: Theme3D) -> void:
 	return
 
 
+func saturate() -> void:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return
+
+
+func desaturate() -> void:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return
+
+
 static func get_atom_scale_factor(in_representation_settings: RepresentationSettings) -> float:
 	var representation := Rendering.Representation.BALLS_AND_STICKS
 	if in_representation_settings != null:

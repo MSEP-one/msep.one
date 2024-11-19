@@ -147,6 +147,14 @@ func get_structure_context() -> StructureContext:
 	return _workspace_context.get_structure_context(_structure_id)
 
 
+func saturate() -> void:
+	_material.saturate()
+
+
+func desaturate() -> void:
+	_material.desaturate()
+
+
 class TransformHandler:
 	var _spring_renderer: SpringRenderer
 	

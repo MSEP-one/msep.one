@@ -5,11 +5,14 @@ const INSTANCE_UNIFORM_BASE_SCALE: StringName = &"base_scale"
 const UNIFORM_CAPS_STARTS_AT_LOCAL_Z: StringName = &"caps_starts_at_local_z_position"
 const UNIFORM_OUTLINE_THICKNESS = &"outline_thickness"
 const UNIFORM_IS_HOVERED = &"is_hovered"
+const UNIFORM_SATURATION = &"saturation"
 
+const LOW_SATURATION = 0.0;
+const NORMAL_SATURATION = 1.0;
 
 func _init() -> void:
-	RenderingUtils.has_uniforms(self, [INSTANCE_UNIFORM_BASE_SCALE,
-			UNIFORM_CAPS_STARTS_AT_LOCAL_Z, UNIFORM_OUTLINE_THICKNESS])
+	RenderingUtils.has_uniforms(self, [INSTANCE_UNIFORM_BASE_SCALE, UNIFORM_CAPS_STARTS_AT_LOCAL_Z,
+			UNIFORM_OUTLINE_THICKNESS, UNIFORM_SATURATION])
 
 
 func set_scale(new_scale: float) -> CapsuleStickMaterial:
@@ -36,6 +39,14 @@ func set_hovered(in_is_hovered: bool) -> CapsuleStickMaterial:
 func set_caps_starts_at_local_z(in_start_distance: float) -> CapsuleStickMaterial:
 	set_shader_parameter(UNIFORM_CAPS_STARTS_AT_LOCAL_Z, in_start_distance)
 	return self
+
+
+func desaturate() -> void:
+	set_shader_parameter(UNIFORM_SATURATION, LOW_SATURATION)
+
+
+func saturate() -> void:
+	set_shader_parameter(UNIFORM_SATURATION, NORMAL_SATURATION)
 
 
 func copy_state_from(_in_from_material: ShaderMaterial) -> void:

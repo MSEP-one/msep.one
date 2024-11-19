@@ -319,6 +319,14 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_material = new_material
 
 
+func saturate() -> void:
+	return
+
+
+func desaturate() -> void:
+	return
+
+
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_workspace_context"] = _workspace_context

@@ -106,6 +106,7 @@ void fragment() {
 	albedo += COLOR.rgb * first_lower_then_second(percent, 0.0);
 	albedo += custom_color.rgb * first_greater_then_second(percent, 0.0);
 	ALBEDO = calculate_outline_color(albedo, COLOR);
+	ALBEDO.rgb = apply_saturation(ALBEDO.rgb);
 	
 	//
 	float metallic_tex = dot(texture(texture_metallic,base_uv),metallic_texture_channel);

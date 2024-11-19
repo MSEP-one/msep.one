@@ -877,6 +877,19 @@ func _deselect_hydrogens(out_structure_context: StructureContext) -> void:
 	out_structure_context.deselect_bonds(bonds_to_deselect.keys())
 
 
+func refresh_group_saturation() -> void:
+	var all_structure_contexts: Array[StructureContext] = get_all_structure_contexts()
+	var renderer: Rendering = get_rendering()
+	for structure: StructureContext in all_structure_contexts:
+		if not structure.nano_structure is AtomicStructure:
+			continue
+			
+		if structure.is_editable():
+			renderer.saturate_structure(structure.nano_structure)
+		else:
+			renderer.desaturate_structure(structure.nano_structure)
+
+
 # # Selection
 # # # # # #
 func has_selection() -> bool:
@@ -1057,6 +1070,7 @@ func _emit_new_editable_structures() -> void:
 		if context.is_editable():
 			_editable_structure_contexts_ids.push_back(context.get_int_guid())
 	editable_structure_context_list_changed.emit(get_editable_structure_contexts())
+	refresh_group_saturation()
 
 
 func update(_delta: float) -> void:

@@ -194,6 +194,16 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_single_atom_representation.apply_theme(in_theme)
 
 
+func saturate() -> void:
+	_stick_representation.saturate()
+	_single_atom_representation.saturate()
+
+
+func desaturate() -> void:
+	_stick_representation.desaturate()
+	_single_atom_representation.desaturate()
+
+
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_single_atom_representation.snapshot"] = _single_atom_representation.create_state_snapshot()
