@@ -378,6 +378,13 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_material.copy_state_from(old_material)
 
 
+func saturate() -> void:
+	_material.saturate()
+
+
+func desaturate() -> void:
+	_material.desaturate()
+
 
 func create_state_snapshot() -> Dictionary:
 	assert(is_instance_valid(_workspace_context))

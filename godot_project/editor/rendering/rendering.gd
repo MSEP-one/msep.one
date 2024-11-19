@@ -180,6 +180,16 @@ func set_atomic_structure_material_overlay(in_structure: AtomicStructure, in_mat
 	atomic_structure_renderer.material_overlay = in_material_overlay
 
 
+func saturate_structure(in_structure: AtomicStructure) -> void:
+	var structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
+	structure_renderer.saturate()
+
+
+func desaturate_structure(in_structure: AtomicStructure) -> void:
+	var structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
+	structure_renderer.desaturate()
+
+
 func is_renderer_for_atomic_structure_built(in_structure: AtomicStructure) -> bool:
 	if not enabled: return false
 	var structure_renderer_name: String = str(in_structure.int_guid)
@@ -272,6 +282,7 @@ func change_default_representation(in_representation: Rendering.Representation) 
 			continue
 		structure_renderer.change_representation(in_representation)
 	representation_changed.emit(in_representation)
+	_workspace_context.refresh_group_saturation()
 
 
 func refresh_atom_sizes() -> void:

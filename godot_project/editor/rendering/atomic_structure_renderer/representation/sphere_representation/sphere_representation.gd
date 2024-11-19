@@ -369,6 +369,14 @@ func refresh_bond_influence(_in_partially_selected_bonds: PackedInt32Array) -> v
 	return
 
 
+func saturate() -> void:
+	_material.saturate()
+
+
+func desaturate() -> void:
+	_material.desaturate()
+
+
 func apply_theme(in_theme: Theme3D) -> void:
 	var old_material: ShaderMaterial = _material
 	var new_mesh: Mesh = in_theme.create_ball_mesh()

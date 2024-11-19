@@ -156,7 +156,8 @@ void fragment() {
 	RIM = strength * 0.5 * rim * rim_tex.x;
 	RIM_TINT = rim_tint*rim_tex.y;
 	vec2 clearcoat_tex = texture(texture_clearcoat,base_uv).xy;
-	CLEARCOAT = clearcoat*clearcoat_tex.x;	CLEARCOAT_ROUGHNESS = clearcoat_roughness*clearcoat_tex.y;
+	CLEARCOAT = clearcoat*clearcoat_tex.x;
+	CLEARCOAT_ROUGHNESS = clearcoat_roughness*clearcoat_tex.y;
 	vec4 detail_tex = texture(texture_detail_albedo,UV2);
 	vec4 detail_norm_tex = texture(texture_detail_normal,UV2);
 	vec4 detail_mask_tex = texture(texture_detail_mask,base_uv);
@@ -164,6 +165,6 @@ void fragment() {
 	vec3 detail_norm = mix(NORMAL_MAP,detail_norm_tex.rgb,detail_tex.a);
 	NORMAL_MAP = mix(NORMAL_MAP,detail_norm,detail_mask_tex.r);
 	ALBEDO.rgb = mix(ALBEDO.rgb,detail,detail_mask_tex.r);
-	
 	ALBEDO = calculate_outline_color(ALBEDO, COLOR);
+	ALBEDO.rgb = apply_saturation(ALBEDO.rgb);
 }

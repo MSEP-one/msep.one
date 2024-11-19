@@ -305,6 +305,7 @@ func _screen_selection_logic(
 				_:
 					assert(false, "Invalid hit result")
 	if need_to_create_snapshot:
+		_workspace_context.refresh_group_saturation()
 		_workspace_context.snapshot_moment(snapshot_name)
 	return need_to_create_snapshot
 

@@ -293,6 +293,14 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_spring_renderer.change_look(in_theme.create_spring_mesh(), in_theme.create_spring_material())
 
 
+func saturate() -> void:
+	_spring_renderer.saturate()
+
+
+func desaturate() -> void:
+	_spring_renderer.desaturate()
+
+
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_workspace_context"] = _workspace_context

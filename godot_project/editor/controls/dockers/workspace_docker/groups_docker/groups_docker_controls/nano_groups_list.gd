@@ -279,6 +279,7 @@ func _on_structures_tree_multi_selected(out_item: TreeItem, _in_column: int, in_
 	workspace_context.clear_all_selection()
 	clicked_structure_context.select_all(true)
 	_changing_selection = false
+	workspace_context.refresh_group_saturation()
 
 
 
