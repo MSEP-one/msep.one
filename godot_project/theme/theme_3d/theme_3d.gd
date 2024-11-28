@@ -143,3 +143,7 @@ func create_environment() -> Environment:
 
 func get_highlight_color() -> Color:
 	return _highlight_color
+
+
+func get_background_color() -> Color:
+	return _environment.background_color

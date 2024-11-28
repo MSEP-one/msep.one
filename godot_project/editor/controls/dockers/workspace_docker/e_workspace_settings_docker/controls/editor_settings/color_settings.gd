@@ -67,16 +67,29 @@ func _setup(out_workspace_context: WorkspaceContext) -> void:
 			and is_instance_valid(_workspace_context.workspace.representation_settings) \
 			and _workspace_context.workspace.representation_settings.changed.is_connected(_on_representation_settings_changed):
 		_workspace_context.workspace.representation_settings.changed.disconnect(_on_representation_settings_changed)
+		_workspace_context.workspace.representation_settings.theme_changed.disconnect(_on_representation_settings_changed)
 		_workspace_context.history_snapshot_applied.disconnect(_on_workspace_context_history_snapshot_applied)
+
 	_workspace_context = out_workspace_context
 	_workspace_context.workspace.representation_settings.changed.connect(_on_representation_settings_changed)
+	_workspace_context.workspace.representation_settings.theme_changed.connect(_on_representation_settings_changed)
 	_workspace_context.history_snapshot_applied.connect(_on_workspace_context_history_snapshot_applied)
 	_on_representation_settings_changed()
 
 
 func _on_representation_settings_changed() -> void:
-	_background_color_button.set_color(_workspace_context.workspace.representation_settings.get_custom_background_color())
-	_selection_color_button.set_color(_workspace_context.workspace.representation_settings.get_custom_selection_outline_color())
+	var settings: RepresentationSettings = _workspace_context.workspace.representation_settings
+	var theme_3d: Theme3D = settings.get_theme()
+	var background_color: Color = theme_3d.get_background_color()
+	var outline_color: Color = theme_3d.get_highlight_color()
+	
+	if settings.get_custom_background_color_enabled():
+		background_color = settings.get_custom_background_color()
+	if settings.get_custom_selection_outline_color_enabled():
+		outline_color = settings.get_custom_selection_outline_color()
+
+	_background_color_button.set_color(background_color)
+	_selection_color_button.set_color(outline_color)
 
 
 func _on_workspace_context_history_snapshot_applied() -> void:
