@@ -186,6 +186,16 @@ func handle_hover_structure_changed(in_toplevel_hovered_structure_context: Struc
 			in_hovered_structure_context, in_atom_id, in_bond_id, in_spring_id)
 
 
+func saturate() -> void:
+	_sphere_representation.saturate()
+	_stick_representation.saturate()
+
+
+func desaturate() -> void:
+	_sphere_representation.desaturate()
+	_stick_representation.desaturate()
+
+
 func get_materials() -> Array[ShaderMaterial]:
 	var materials: Array[ShaderMaterial] = []
 	materials.append_array(_sphere_representation.get_materials())

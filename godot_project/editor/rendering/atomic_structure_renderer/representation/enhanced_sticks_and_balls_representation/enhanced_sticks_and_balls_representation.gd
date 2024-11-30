@@ -201,6 +201,16 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_balls_representation.apply_theme(in_theme)
 
 
+func saturate() -> void:
+	_stick_representation.saturate()
+	_balls_representation.saturate()
+
+
+func desaturate() -> void:
+	_stick_representation.desaturate()
+	_balls_representation.desaturate()
+
+
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_bond_rendering_visible"] = _bond_rendering_visible
