@@ -148,22 +148,11 @@ func _manage_old_orbit_position(_in_context: StructureContext) -> void:
 		axes_widget_gizmo.orbiting_allowed = visible_structure_found
 
 
-func _detect_which_modifiers_are_being_held_down(in_input_event: InputEvent) -> void:
-	if in_input_event is InputEventKey:
-		match in_input_event.keycode:
-			KEY_ALT:
-				_alt_key_is_held_down = in_input_event.pressed
-			KEY_CTRL:
-				_ctrl_key_is_held_down = in_input_event.pressed
-			KEY_META:
-				_meta_key_is_held_down = in_input_event.pressed
-			KEY_SHIFT:
-				_shift_key_is_held_down = in_input_event.pressed
-	elif in_input_event is InputEventWithModifiers:
-		_alt_key_is_held_down = in_input_event.alt_pressed
-		_ctrl_key_is_held_down = in_input_event.ctrl_pressed
-		_meta_key_is_held_down = in_input_event.meta_pressed
-		_shift_key_is_held_down = in_input_event.shift_pressed
+func _detect_which_modifiers_are_being_held_down() -> void:
+	_alt_key_is_held_down = Input.is_key_pressed(KEY_ALT)
+	_ctrl_key_is_held_down = Input.is_key_pressed(KEY_CTRL)
+	_meta_key_is_held_down = Input.is_key_pressed(KEY_META)
+	_shift_key_is_held_down = Input.is_key_pressed(KEY_SHIFT)
 
 
 func _finish_orientation_snap(_orientation_widget: Node3D) -> void:
@@ -179,7 +168,7 @@ func _finish_orientation_snap(_orientation_widget: Node3D) -> void:
 func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 		_in_context: StructureContext) -> bool:
 	
-	_detect_which_modifiers_are_being_held_down(in_input_event)
+	_detect_which_modifiers_are_being_held_down()
 	
 	_pending_scroll_return = _shift_key_is_held_down
 	
