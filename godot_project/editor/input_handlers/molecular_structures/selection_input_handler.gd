@@ -151,7 +151,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 				MultiStructureHitResult.HitType.HIT_SHAPE:
 					if _is_shape_selectable():
 						hovering_object = multi_structure_hit_result.closest_hit_structure_context
-					hover_position = hovering_object.nano_structure.get_position()
+						hover_position = hovering_object.nano_structure.get_position()
 				_:
 					# do nothing
 					pass
