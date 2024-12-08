@@ -14,6 +14,7 @@ var _structure_context_2_initial_object_transforms: Dictionary = {
 }
 var _selection_initial_position: Vector3 = Vector3()
 var _is_grabbed: bool = false
+var _other_handler_has_exclusivity: bool = false
 
 # region: virtual
 
@@ -194,6 +195,13 @@ func handle_inputs_end() -> void:
 		_apply_selection_transform()
 		GizmoRoot.grab_mode = GizmoRoot.GrabMode.NONE
 	GizmoRoot.disable_gizmo()
+	_other_handler_has_exclusivity = true
+
+
+func handle_inputs_resume() -> void:
+	if get_workspace_context().has_transformable_selection():
+		GizmoRoot.enable_gizmo()
+	_other_handler_has_exclusivity = false
 
 
 ## Hides the transform gizmo when creating atoms chains
@@ -431,6 +439,8 @@ func _force_gizmo_update() -> void:
 		_selection_initial_position = _init_initial_positions_and_determine_center()
 		_helper.global_transform.basis = Basis()
 		_helper.global_position = _selection_initial_position
+	if _other_handler_has_exclusivity:
+		GizmoRoot.disable_gizmo()
 
 
 func _hide_gizmo() -> void:

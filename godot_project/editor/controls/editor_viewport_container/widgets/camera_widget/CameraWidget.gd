@@ -82,14 +82,6 @@ func _process(_delta: float) -> void:
 	_manage_pressed_visuals()
 	_move_towards_the_goal()
 	
-	if _previous_move_direction != MoveDirection.NONE:
-		if _move_direction == MoveDirection.NONE:
-			if _editor_viewport.get_workspace_context().has_transformable_selection() && \
-					GizmoRoot.selected_node:
-						GizmoRoot.enable_gizmo()
-		else:
-			GizmoRoot.disable_gizmo()
-	
 	_previous_move_direction = _move_direction
 
 

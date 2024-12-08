@@ -251,8 +251,6 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 					axes_widget.start_mouse_wheel_movement_step()
 			else:
 				_reset_mouse()
-				if axes_widget_gizmo.workspace_has_transformable_selection:
-					GizmoRoot.enable_gizmo()
 		elif in_input_event is InputEventMouseMotion:
 			# To restore orbiting intertia check: 8c59342316b0407e60043b6a31772e39265e7275
 			axes_widget.set_mouse_delta(in_input_event.relative)
@@ -432,9 +430,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 	
 	if is_direction_key_pressed:
 		return true
- 
-	if axes_widget_gizmo.workspace_has_transformable_selection:
-		GizmoRoot.enable_gizmo()
+	
 	return false
 
 
