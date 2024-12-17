@@ -49,6 +49,18 @@ func hydrogens_rendering_on() -> void:
 	_ensure_material_configured()
 
 
+func saturate() -> void:
+	_material_bond_1.saturate()
+	_material_bond_2.saturate()
+	_material_bond_3.saturate()
+
+
+func desaturate() -> void:
+	_material_bond_1.desaturate()
+	_material_bond_2.desaturate()
+	_material_bond_3.desaturate()
+
+
 func _ensure_material_configured() -> void:
 	_single_stick_multimesh.set_material_override(_material_bond_1)
 	_double_stick_multimesh.set_material_override(_material_bond_2)

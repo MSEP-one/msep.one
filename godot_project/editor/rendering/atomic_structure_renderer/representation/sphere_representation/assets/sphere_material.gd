@@ -6,11 +6,16 @@ const UNIFORM_OUTLINE_THICKNESS = &"outline_thickness"
 const UNIFORM_GIZMO_ORIGIN = &"gizmo_origin"
 const UNIFORM_GIZMO_ROTATION = &"gizmo_rotation"
 const UNIFORM_SELECTION_DELTA = &"selection_delta"
+const UNIFORM_SATURATION = &"saturation"
+
+const LOW_SATURATION = 0.0;
+const NORMAL_SATURATION = 1.0;
 
 
 func _init() -> void:
 	RenderingUtils.has_uniforms(self, [UNIFORM_SCALE, UNIFORM_IS_SELECTABLE, UNIFORM_IS_HOVERED, UNIFORM_SHOW_HYDROGENS,
-			UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA, UNIFORM_OUTLINE_THICKNESS])
+			UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA, UNIFORM_OUTLINE_THICKNESS,
+			UNIFORM_SATURATION])
 
 
 func set_selectable(in_is_selectable: bool) -> SphereMaterial:
@@ -41,6 +46,14 @@ func update_gizmo(in_gizmo_origin: Vector3, in_gizmo_rotation: Basis) -> void:
 
 func update_selection_delta(in_selection_movement_delta: Vector3) -> void:
 	set_shader_parameter(UNIFORM_SELECTION_DELTA, in_selection_movement_delta)
+
+
+func desaturate() -> void:
+	set_shader_parameter(UNIFORM_SATURATION, LOW_SATURATION)
+
+
+func saturate() -> void:
+	set_shader_parameter(UNIFORM_SATURATION, NORMAL_SATURATION)
 
 
 func reset() -> void:

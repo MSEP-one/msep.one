@@ -100,6 +100,7 @@ void fragment() {
 	float curve_percent = texture(texture_color_curve, vec2(percent + 0.5)).r;
 	albedo = mix(albedo, custom_color, curve_percent);
 	ALBEDO = calculate_outline_color(albedo, COLOR);
+	ALBEDO.rgb = apply_saturation(ALBEDO.rgb);
 	EMISSION = albedo * emission_energy;
 	
 	//
