@@ -797,7 +797,8 @@ def create_forcefield_for_topology(topology_payload: PayloadTopologyReader) -> F
 	forcefield = ForceField(openff_forcefield_path)
 	for i in range(1, len(topology_payload.forcefields)):
 		forcefield_extension_path = os.path.join(os.path.dirname(__file__ ), "offxml_extensions", topology_payload.forcefields[i])
-		forcefield.parse_sources([forcefield_extension_path])
+		with open(forcefield_extension_path, 'r', encoding='utf-8') as f:
+			forcefield.parse_sources([f])
 	return forcefield
 
 
