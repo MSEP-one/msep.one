@@ -34,21 +34,12 @@ func handle_inputs_end() -> void:
 
 
 func handle_inputs_resume() -> void:
-	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
-	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS \
-			or not parameters.get_create_mode_enabled():
+	if not _is_shortcut_pressed() or not _should_show():
 		return
 	if _candidates_dirty:
 		_update_candidates()
-	var should_show: bool = (
-		Input.is_key_pressed(KEY_ALT) and
-		(not Input.is_key_pressed(KEY_SHIFT)) and
-		(not Input.is_key_pressed(KEY_CTRL)) and
-		(not Input.is_key_pressed(KEY_META))
-	)
 	var rendering: Rendering = _get_rendering()
-	if should_show and not _candidates.is_empty():
-		rendering.atom_autopose_preview_show()
+	rendering.atom_autopose_preview_show()
 
 
 func handle_input_omission() -> void:
@@ -82,50 +73,62 @@ func _on_current_structure_context_changed(in_context: StructureContext) -> void
 ## to continue
 func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context: StructureContext) -> bool:
 	var rendering: Rendering = out_context.workspace_context.get_rendering()
-	var create_mode_enabled: bool = out_context.workspace_context.create_object_parameters.get_create_mode_enabled()
-	if not create_mode_enabled:
+	var is_shortcut_pressed: bool = _check_input_event_can_bind(in_input_event)
+	if not is_shortcut_pressed and not _should_show():
 		rendering.atom_autopose_preview_hide()
 		return false
-	if _check_input_event_can_bind(in_input_event):
-		update_preview_position()
-		rendering.atom_autopose_preview_show()
-	else:
-		rendering.atom_autopose_preview_hide()
-	if in_input_event is InputEventMouseButton and _check_input_event_can_bind(in_input_event):
-		if in_input_event.button_index == MOUSE_BUTTON_LEFT and in_input_event.pressed:
-			
-			var preview_atomic_number: int = get_workspace_context().create_object_parameters.get_new_atom_element()
-			var cannot_create_because_hydrogen: bool = not out_context.nano_structure.are_hydrogens_visible() \
-					and preview_atomic_number == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
-			if cannot_create_because_hydrogen:
-				return true
-			
-			var hovered_candidate: AtomCandidate = rendering.atom_autopose_get_hovered_candidate_or_null()
-			if _check_input_event_can_bind(in_input_event) and hovered_candidate != null:
-				var atom_pos: Vector3 = hovered_candidate.atom_position
-				var element_to_create: int = _element_selected
-				const CARBON: int = 6
-				const NITROGEN: int = 7
-				const OXIGEN: int = 8
-				match hovered_candidate.atom_ids.size():
-					1: # Whatever user selected
-						element_to_create = _element_selected
-					2: # Merging 2 candidates, use Oxygen
-						element_to_create = OXIGEN
-					3: # Merging 3 candidates, use Nitrogen
-						element_to_create = NITROGEN
-					4, _: # Merging 4 or more candidates, use Carbon
-						element_to_create = CARBON
-				var params := AtomicStructure.AddAtomParameters.new(element_to_create, atom_pos)
-				var new_bond_order: int = out_context.workspace_context.create_object_parameters.get_new_bond_order()
-				if hovered_candidate.atom_ids.size() > 1:
-					# It's a merge candidate, use bond order 1
-					new_bond_order = 1
-				var _result: Dictionary = _do_create_atom_and_bonds(out_context, params, hovered_candidate.atom_ids, new_bond_order)
-				_ensure_create_mode()
-				_workspace_context.snapshot_moment("Add Atom")
-				return true
-	return false
+	
+	if is_shortcut_pressed:
+		_ensure_create_mode()
+	
+	update_preview_position()
+	rendering.atom_autopose_preview_show()
+
+	if not (in_input_event is InputEventMouseButton and 
+			in_input_event.pressed and
+			in_input_event.button_index == MOUSE_BUTTON_LEFT):
+		return false
+	
+	var preview_atomic_number: int = get_workspace_context().create_object_parameters.get_new_atom_element()
+	var cannot_create_because_hydrogen: bool = not out_context.nano_structure.are_hydrogens_visible() \
+			and preview_atomic_number == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
+	if cannot_create_because_hydrogen:
+		return true
+	
+	var hovered_candidate: AtomCandidate = rendering.atom_autopose_get_hovered_candidate_or_null()
+	if hovered_candidate == null:
+		return false
+	
+	var atom_pos: Vector3 = hovered_candidate.atom_position
+	var element_to_create: int = _element_selected
+	const CARBON: int = 6
+	const NITROGEN: int = 7
+	const OXIGEN: int = 8
+	match hovered_candidate.atom_ids.size():
+		1: # Whatever user selected
+			element_to_create = _element_selected
+		2: # Merging 2 candidates, use Oxygen
+			element_to_create = OXIGEN
+		3: # Merging 3 candidates, use Nitrogen
+			element_to_create = NITROGEN
+		4, _: # Merging 4 or more candidates, use Carbon
+			element_to_create = CARBON
+	var params := AtomicStructure.AddAtomParameters.new(element_to_create, atom_pos)
+	var new_bond_order: int = out_context.workspace_context.create_object_parameters.get_new_bond_order()
+	if hovered_candidate.atom_ids.size() > 1:
+		# It's a merge candidate, use bond order 1
+		new_bond_order = 1
+	var _result: Dictionary = _do_create_atom_and_bonds(out_context, params, hovered_candidate.atom_ids, new_bond_order)
+	_ensure_create_mode()
+	_workspace_context.snapshot_moment("Add Atom")
+	return true
+
+
+func is_exclusive_input_consumer() -> bool:
+	if _is_shortcut_pressed():
+		return true
+	var rendering: Rendering = get_workspace_context().get_rendering()
+	return rendering.atom_autopose_get_hovered_candidate_or_null() != null
 
 
 func set_preview_position(_in_position: Vector3) -> void:
@@ -314,6 +317,26 @@ func _ensure_create_mode() -> void:
 		MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME)
 
 
+## Returns true if create mode is ON and the auto posing visualization is enabled.
+## This setting is controlled from the visibility panel in the workspace docker.
+func _should_show() -> bool:
+	var parameters: CreateObjectParameters = _workspace_context.create_object_parameters
+	if not parameters.get_create_mode_enabled():
+		return false
+	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS:
+		return false
+	return _workspace_context.workspace.representation_settings.get_display_auto_posing()
+
+
+func _is_shortcut_pressed() -> bool:
+	return (
+		Input.is_key_pressed(KEY_ALT) and
+		not Input.is_key_pressed(KEY_SHIFT) and
+		not Input.is_key_pressed(KEY_CTRL) and
+		not Input.is_key_pressed(KEY_META)
+	)
+
+
 ## Input handlers will execute _forward_input_* in an order dictated by this parameter
 ## highter priority value means the input handler will execute first
 func get_priority() -> int:
@@ -344,8 +367,6 @@ func _on_workspace_context_history_changed() -> void:
 
 
 func _check_input_event_can_bind(in_event: InputEvent) -> bool:
-	if not _workspace_context.create_object_parameters.get_create_mode_enabled():
-		return false
 	if not in_event is InputEventWithModifiers:
 		return false
 	var alt_pressed: bool = in_event.alt_pressed

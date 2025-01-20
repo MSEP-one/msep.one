@@ -13,7 +13,7 @@ signal color_palette_changed(new_color_palette: PeriodicTable.ColorPalette)
 const LABELS_VISIBLE_BY_DEFAULT = false
 const HYDROGENS_VISIBLE_BY_DEFAULT = true
 const BONDS_VISIBLE_BY_DEFAULT = true
-
+const ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT = true
 
 enum UserAtomSizeSource {
 	PHYSICAL_RADIUS,
@@ -36,6 +36,9 @@ enum UserAtomSizeSource {
 
 
 @export var _display_atom_labels: bool = LABELS_VISIBLE_BY_DEFAULT
+
+
+@export var _display_auto_posing: bool = ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT
 
 
 @export var _custom_selection_outline_color_enabled: bool = false
@@ -103,6 +106,15 @@ func set_display_atom_labels(new_display_atom_labels: bool) -> void:
 
 func get_display_atom_labels() -> bool:
 	return _display_atom_labels
+
+
+func set_display_auto_posing(new_display_auto_posing: bool) -> void:
+	_display_auto_posing = new_display_auto_posing
+	emit_changed()
+
+
+func get_display_auto_posing() -> bool:
+	return _display_auto_posing
 
 
 func set_bond_visibility_and_notify(new_bond_visibility: bool) -> void:
