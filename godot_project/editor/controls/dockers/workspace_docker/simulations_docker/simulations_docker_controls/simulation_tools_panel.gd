@@ -667,6 +667,9 @@ func _on_button_end_pressed() -> void:
 	_workspace_context.end_simulation_if_running()
 	_button_end.disabled = true
 	_total_simulation_len_nanoseconds = _simulation_length_nanoseconds
+	
+	if _status == Status.PLAYING:
+		_status = Status.PAUSED
 
 
 func _on_button_view_alerts_pressed() -> void:
