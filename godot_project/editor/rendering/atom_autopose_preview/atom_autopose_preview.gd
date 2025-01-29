@@ -5,7 +5,9 @@ class AtomCandidate:
 	var structrure_id: int
 	var atom_ids: PackedInt32Array
 	var atom_position: Vector3
+	var total_free_valence: int
 	var pos_2d_cache: Vector2 = Vector2.ONE * -15
+
 
 
 var _new_atomic_number: int = PeriodicTable.ATOMIC_NUMBER_HYDROGEN
@@ -57,7 +59,7 @@ func _ready() -> void:
 	_camera = get_viewport().get_camera_3d()
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if visible and is_instance_valid(_camera) and (
 			_camera.global_transform != _camera_last_transform
 			or _camera.size != _camera_last_zoom
@@ -78,16 +80,10 @@ func _draw() -> void:
 	_camera = get_viewport().get_camera_3d()
 	var camera_up_vector: Vector3 = _camera.basis.y
 	var curr_atom_data: ElementData = PeriodicTable.get_by_atomic_number(_new_atomic_number)
-	const CARBON: int = 6
-	var carbon_data: ElementData = PeriodicTable.get_by_atomic_number(CARBON)
-	const NITROGEN: int = 7
-	var nitrogen_data: ElementData = PeriodicTable.get_by_atomic_number(NITROGEN)
-	const OXIGEN: int = 8
-	var oxygen_data: ElementData = PeriodicTable.get_by_atomic_number(OXIGEN)
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
 	var context: StructureContext = null
 	var atomic_structure: AtomicStructure = null
-	var candidate_element: ElementData
+	var candidate_element: ElementData = curr_atom_data
 	for candidate: AtomCandidate in _candidates:
 		if context == null or context.nano_structure.int_guid != candidate.structrure_id:
 			# OPTIMIZATION: Candidates are meant to be grouped by structure,
@@ -103,15 +99,7 @@ func _draw() -> void:
 		if not get_rect().grow(15).has_point(pos_2d):
 			# clip out of the view
 			continue
-		match candidate.atom_ids.size():
-			1: # Whatever user selected
-				candidate_element = curr_atom_data
-			2: # Merging 2 candidates, use Oxygen
-				candidate_element = oxygen_data
-			3: # Merging 3 candidates, use Nitrogen
-				candidate_element = nitrogen_data
-			4, _: # Merging 4 or more candidates, use Carbon
-				candidate_element = carbon_data
+		
 		var atom_color: Color = Color.WHITE if _hovered_candidate == candidate else candidate_element.color
 		var bond_color: Color = Color.WHITE if _hovered_candidate == candidate else candidate_element.bond_color
 		var label_color: Color = Color.DIM_GRAY if _hovered_candidate == candidate else candidate_element.font_color
@@ -137,7 +125,6 @@ func _draw() -> void:
 
 func _draw_line_connection(in_from: Vector2, in_to: Vector2, in_color: Color) -> void:
 	draw_line(in_from, in_to, in_color, 2)
-
 
 
 func _draw_wedge_connection(in_from: Vector2, in_to: Vector2, in_color: Color) -> void:

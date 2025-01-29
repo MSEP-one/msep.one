@@ -75,4 +75,3 @@ func _get_contact_radius() -> float:
 		return contact_radius
 	var fallback_factor: float = ProjectSettings.get_setting(VAN_DER_WAALS_FALLBACK_FACTOR_SETTING, 1.5)
 	return render_radius * fallback_factor
-
