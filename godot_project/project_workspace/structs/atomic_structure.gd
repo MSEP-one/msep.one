@@ -340,7 +340,7 @@ func atom_find_bond_between(_in_atom_id_a: int, _in_atom_id_b: int) -> int:
 
 
 ## Returns remaining valence which is still free to use
-func atom_get_remaininig_valence(in_atom_id: int) -> int:
+func atom_get_remaining_valence(in_atom_id: int) -> int:
 	var data: ElementData = PeriodicTable.get_by_atomic_number(atom_get_atomic_number(in_atom_id))
 	var atom_bonds: PackedInt32Array = atom_get_bonds(in_atom_id)
 	var used_valence: int = 0

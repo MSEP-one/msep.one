@@ -459,7 +459,7 @@ func _paste_atoms_and_bonds_in_structure(
 		old_atom_id_to_new_atom_id[atom.origin_id] = old_index_to_new_index[idx]
 		if in_auto_bond_order > -1:
 			assert(atom.origin_id > -1, "Bonded paste has been used, but there is no information about the source atom")
-			var valence_left: int = out_structure.atom_get_remaininig_valence(atom.origin_id)
+			var valence_left: int = out_structure.atom_get_remaining_valence(atom.origin_id)
 			var valance_allows_new_bond: bool = valence_left > 0
 			if valance_allows_new_bond:
 				var new_bond_order: int = min(in_auto_bond_order, valence_left)

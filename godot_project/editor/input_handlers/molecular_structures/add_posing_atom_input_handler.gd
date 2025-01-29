@@ -101,23 +101,16 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	
 	var atom_pos: Vector3 = hovered_candidate.atom_position
 	var element_to_create: int = _element_selected
-	const CARBON: int = 6
-	const NITROGEN: int = 7
-	const OXIGEN: int = 8
-	match hovered_candidate.atom_ids.size():
-		1: # Whatever user selected
-			element_to_create = _element_selected
-		2: # Merging 2 candidates, use Oxygen
-			element_to_create = OXIGEN
-		3: # Merging 3 candidates, use Nitrogen
-			element_to_create = NITROGEN
-		4, _: # Merging 4 or more candidates, use Carbon
-			element_to_create = CARBON
 	var params := AtomicStructure.AddAtomParameters.new(element_to_create, atom_pos)
 	var new_bond_order: int = out_context.workspace_context.create_object_parameters.get_new_bond_order()
-	if hovered_candidate.atom_ids.size() > 1:
-		# It's a merge candidate, use bond order 1
-		new_bond_order = 1
+	if hovered_candidate.total_free_valence < new_bond_order:
+		# Valence too low for the selected bond order.
+		if hovered_candidate.atom_ids.size() > 1:
+			new_bond_order = 1 # Merged candidates, default to 1
+		else:
+			# Use the highest valid bond order
+			new_bond_order = hovered_candidate.total_free_valence 
+	
 	var _result: Dictionary = _do_create_atom_and_bonds(out_context, params, hovered_candidate.atom_ids, new_bond_order)
 	_ensure_create_mode()
 	_workspace_context.snapshot_moment("Add Atom")
@@ -146,31 +139,37 @@ func _update_candidates() -> void:
 		if selected_atoms.size() > 0:
 			for atom_id in selected_atoms:
 				var candidates_positions: PackedVector3Array = _generate_candidates_for_atom(context, atom_id)
+				var free_valences: int = context.nano_structure.atom_get_remaining_valence(atom_id)
 				for pos: Vector3 in candidates_positions:
 					var candidate := AtomCandidate.new()
 					candidate.structrure_id = context.nano_structure.int_guid
 					candidate.atom_ids = [atom_id]
 					candidate.atom_position = pos
+					candidate.total_free_valence = free_valences
 					structure_candidates.push_back(candidate)
 			# Merge close atoms
 			var visited: Array[int] = []
 			for i: int in structure_candidates.size() - 1:
 				if i in visited:
 					continue
-				var average_positions: Array[Vector3] = [structure_candidates[i].atom_position]
+				var candidate: AtomCandidate = structure_candidates[i]
+				var other_candidate: AtomCandidate
+				var average_positions: Array[Vector3] = [candidate.atom_position]
 				for j: int in range(i+1, structure_candidates.size()):
-					if structure_candidates[i].atom_position.distance_squared_to(
-								structure_candidates[j].atom_position) < MAX_MERGE_DISTANCE_SQUARED:
-						var other_atom_id: int = structure_candidates[j].atom_ids[0]
-						structure_candidates[i].atom_ids.push_back(other_atom_id)
-						average_positions.push_back(structure_candidates[j].atom_position)
+					other_candidate = structure_candidates[j]
+					if candidate.atom_position.distance_squared_to(
+								other_candidate.atom_position) < MAX_MERGE_DISTANCE_SQUARED:
+						var other_atom_id: int = other_candidate.atom_ids[0]
+						candidate.atom_ids.push_back(other_atom_id)
+						candidate.total_free_valence += other_candidate.total_free_valence
+						average_positions.push_back(other_candidate.atom_position)
 						visited.push_back(j)
 				if average_positions.size() > 1:
 					var average := Vector3.ZERO
 					for pos in average_positions:
 						average += pos
 					average /= average_positions.size()
-					structure_candidates[i].atom_position = average
+					candidate.atom_position = average
 			visited.sort()
 			# Remove candidates that was "merged"
 			while visited.size():
@@ -395,7 +394,3 @@ func _hide_preview() -> void:
 
 func _get_rendering() -> Rendering:
 	return get_workspace_context().get_rendering()
-
-
-
-	
