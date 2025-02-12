@@ -4,8 +4,6 @@ const BASE_SCALE = 0.022;
 
 const SingleAtomMaterial: ShaderMaterial = preload("res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/single_atom_representation_material.tres")
 
-const UNIFORM_CAMERA_UP_VECTOR: StringName = StringName("camera_up_vector")
-const UNIFORM_CAMERA_RIGHT_VECTOR: StringName = StringName("camera_right_vector")
 
 var _structure_id: int
 var _workspace_context: WorkspaceContext

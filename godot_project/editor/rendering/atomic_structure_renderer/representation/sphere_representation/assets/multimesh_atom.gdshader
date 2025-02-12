@@ -6,6 +6,7 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlic
 #include "res://editor/rendering/atomic_structure_renderer/representation/hydrogens.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/outlines.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/selectable.gdshaderinc"
+#include "res://editor/rendering/atomic_structure_renderer/representation/billboard.gdshaderinc"
 
 // wavy uv
 const float wave_aplitude = 0.05;
@@ -77,18 +78,8 @@ void vertex() {
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
 	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale) * float_not(is_preview);
 	
-	// Calculate rotation matrix to align model with camera
-	vec3 camera_right = normalize(INV_VIEW_MATRIX[0].xyz);
-	vec3 camera_up = normalize(INV_VIEW_MATRIX[1].xyz);
-	mat4 billboard_rot = mat4(
-		vec4(normalize(camera_right), 0.0),
-		vec4(normalize(camera_up), 0.0),
-		vec4(cross(normalize(camera_right), normalize(camera_up)), 0.0),
-		vec4(0.0, 0.0, 0.0, 1.0)
-	);
-
 	// Transform the vertex using the billboard rotation
-	vec3 final_vertex = (billboard_rot * vec4(VERTEX, 1.0)).xyz;
+	vec3 final_vertex = billboard_atom(VERTEX, INV_VIEW_MATRIX);
 
 	// apply scale
 	final_vertex = final_vertex * scale;
