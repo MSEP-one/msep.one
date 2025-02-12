@@ -34,7 +34,7 @@ func handle_inputs_end() -> void:
 
 
 func handle_inputs_resume() -> void:
-	if not _is_shortcut_pressed() or not _should_show():
+	if not _should_show():
 		return
 	if _candidates_dirty:
 		_update_candidates()
