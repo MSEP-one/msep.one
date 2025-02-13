@@ -1,7 +1,8 @@
 extends InputHandlerCreateObjectBase
 
 
-const MAX_MERGE_DISTANCE_SQUARED: float = 0.06 * 0.06
+const MAX_MERGE_DISTANCE: float = 0.06
+const MAX_ATOMS_FOR_AUTO_POSING: int = 50
 const AtomCandidate = AtomAutoposePreview.AtomCandidate
 
 
@@ -132,50 +133,45 @@ func set_preview_position(_in_position: Vector3) -> void:
 
 func _update_candidates() -> void:
 	_candidates.clear()
+	
+	var total_atoms_selected: int = 0
 	var selected_contexts: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
+	for context: StructureContext in selected_contexts:
+		total_atoms_selected += context.get_selected_atoms().size()
+	if total_atoms_selected > MAX_ATOMS_FOR_AUTO_POSING:
+		return
+	
 	for context: StructureContext in selected_contexts:
 		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
 		var structure_candidates: Array[AtomCandidate] = []
-		if selected_atoms.size() > 0:
-			for atom_id in selected_atoms:
-				var candidates_positions: PackedVector3Array = _generate_candidates_for_atom(context, atom_id)
-				var free_valences: int = context.nano_structure.atom_get_remaining_valence(atom_id)
-				for pos: Vector3 in candidates_positions:
-					var candidate := AtomCandidate.new()
-					candidate.structrure_id = context.nano_structure.int_guid
-					candidate.atom_ids = [atom_id]
-					candidate.atom_position = pos
-					candidate.total_free_valence = free_valences
-					structure_candidates.push_back(candidate)
-			# Merge close atoms
-			var visited: Array[int] = []
-			for i: int in structure_candidates.size() - 1:
-				if i in visited:
-					continue
-				var candidate: AtomCandidate = structure_candidates[i]
-				var other_candidate: AtomCandidate
-				var average_positions: Array[Vector3] = [candidate.atom_position]
-				for j: int in range(i+1, structure_candidates.size()):
-					other_candidate = structure_candidates[j]
-					if candidate.atom_position.distance_squared_to(
-								other_candidate.atom_position) < MAX_MERGE_DISTANCE_SQUARED:
-						var other_atom_id: int = other_candidate.atom_ids[0]
-						candidate.atom_ids.push_back(other_atom_id)
-						candidate.total_free_valence += other_candidate.total_free_valence
-						average_positions.push_back(other_candidate.atom_position)
-						visited.push_back(j)
-				if average_positions.size() > 1:
-					var average := Vector3.ZERO
-					for pos in average_positions:
-						average += pos
-					average /= average_positions.size()
-					candidate.atom_position = average
-			visited.sort()
-			# Remove candidates that was "merged"
-			while visited.size():
-				var merged_candidate_idx: int = visited.pop_back()
-				structure_candidates.remove_at(merged_candidate_idx)
-			_candidates.append_array(structure_candidates)
+		var hash_grid := SpatialHashGrid.new(MAX_MERGE_DISTANCE)
+		if selected_atoms.is_empty():
+			continue
+		for atom_id in selected_atoms:
+			var candidates_positions: PackedVector3Array = _generate_candidates_for_atom(context, atom_id)
+			var free_valences: int = context.nano_structure.atom_get_remaining_valence(atom_id)
+			for pos: Vector3 in candidates_positions:
+				var candidate := AtomCandidate.new()
+				candidate.structrure_id = context.nano_structure.int_guid
+				candidate.atom_ids = [atom_id]
+				candidate.atom_position = pos
+				candidate.total_free_valence = free_valences
+				structure_candidates.push_back(candidate)
+				hash_grid.add_item(pos, candidate)
+		
+		# Merge close candidates
+		for candidates_to_merge in hash_grid.get_user_data_closer_than(MAX_MERGE_DISTANCE):
+			var merged_candidate: AtomCandidate = AtomCandidate.new()
+			for candidate: AtomCandidate in candidates_to_merge:
+				merged_candidate.atom_ids.push_back(candidate.atom_ids[0])
+				merged_candidate.atom_position += candidate.atom_position
+				merged_candidate.total_free_valence += candidate.total_free_valence
+				merged_candidate.structrure_id = candidate.structrure_id
+				structure_candidates.erase(candidate)
+			merged_candidate.atom_position /= candidates_to_merge.size()
+			structure_candidates.push_back(merged_candidate)
+		
+		_candidates.append_array(structure_candidates)
 	_get_rendering().atom_autopose_preview_set_candidates(_candidates)
 
 
