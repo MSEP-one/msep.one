@@ -119,3 +119,15 @@ func get_user_data_closer_than(distance: float) -> Array[Array]:
 			data_group.push_back(item.user_data)
 		result.push_back(data_group)
 	return result
+
+
+func has_any_closer_than(point: Vector3, distance: float) -> bool:
+	var distance_squared: float = pow(distance, 2.0)
+	var center_cell: Vector3 = snapped(point, _snap)
+	var neighbor_cells := get_neighbor_cells(center_cell)
+	neighbor_cells.push_front(center_cell)
+	for cell: Vector3 in neighbor_cells:
+		for item: HashGridItem in _grid.get(cell, []):
+			if item.position.distance_squared_to(point) < distance_squared:
+				return true
+	return false

@@ -3,12 +3,14 @@ extends InputHandlerCreateObjectBase
 
 const MAX_MERGE_DISTANCE: float = 0.06
 const MAX_ATOMS_FOR_AUTO_POSING: int = 50
+const MAX_DISTANCE_TO_ATOMS: float = 0.08
 const AtomCandidate = AtomAutoposePreview.AtomCandidate
 
 
 var _candidates_dirty: bool = true
 var _element_selected: int = -1
 var _candidates: Array[AtomCandidate] = []
+var _atom_grid: SpatialHashGrid
 
 # region virtual
 
@@ -54,13 +56,13 @@ func _init(in_context: WorkspaceContext) -> void:
 	in_context.create_object_parameters.new_bond_order_changed.connect(_on_new_bond_order_changed)
 	in_context.create_object_parameters.create_distance_method_changed.connect(_on_create_distance_method_changed)
 	in_context.create_object_parameters.creation_distance_from_camera_factor_changed.connect(_on_creation_distance_from_camera_factor_changed)
+	in_context.structure_contents_changed.connect(_on_structure_contents_changed)
 	_element_selected = in_context.create_object_parameters.get_new_atom_element()
 	_get_rendering().atom_autopose_preview_set_atomic_number(_element_selected)
 	var bond_order: int = in_context.create_object_parameters.get_new_bond_order()
 	_get_rendering().atom_autopose_preview_set_bond_order(bond_order)
 	# WorkspaceContext signals
 	in_context.history_changed.connect(_on_workspace_context_history_changed)
-	
 
 
 func _on_current_structure_context_changed(in_context: StructureContext) -> void:
@@ -143,10 +145,10 @@ func _update_candidates() -> void:
 	
 	for context: StructureContext in selected_contexts:
 		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
-		var structure_candidates: Array[AtomCandidate] = []
-		var hash_grid := SpatialHashGrid.new(MAX_MERGE_DISTANCE)
 		if selected_atoms.is_empty():
 			continue
+		var structure_candidates: Array[AtomCandidate] = []
+		var hash_grid := SpatialHashGrid.new(MAX_MERGE_DISTANCE)
 		for atom_id in selected_atoms:
 			var candidates_positions: PackedVector3Array = _generate_candidates_for_atom(context, atom_id)
 			var free_valences: int = context.nano_structure.atom_get_remaining_valence(atom_id)
@@ -172,6 +174,25 @@ func _update_candidates() -> void:
 			structure_candidates.push_back(merged_candidate)
 		
 		_candidates.append_array(structure_candidates)
+	
+	# Filter candidates colliding with existing atoms
+	if not _atom_grid:
+		_atom_grid = SpatialHashGrid.new(MAX_DISTANCE_TO_ATOMS)
+		for context: StructureContext in _workspace_context.get_all_structure_contexts():
+			if not context.nano_structure is AtomicStructure:
+				continue
+			var atomic_structure: AtomicStructure = context.nano_structure
+			for atom_id: int in atomic_structure.get_valid_atoms():
+				var atom_position: Vector3 = atomic_structure.atom_get_position(atom_id)
+				_atom_grid.add_item(atom_position, atom_id)
+	var index: int = 0
+	while index < _candidates.size():
+		var candidate: AtomCandidate = _candidates[index]
+		if _atom_grid.has_any_closer_than(candidate.atom_position, MAX_DISTANCE_TO_ATOMS):
+			_candidates.remove_at(index)
+		else:
+			index += 1
+	
 	_get_rendering().atom_autopose_preview_set_candidates(_candidates)
 
 
@@ -359,6 +380,11 @@ func _on_creation_distance_from_camera_factor_changed(_in_distance_factor: float
 
 func _on_workspace_context_history_changed() -> void:
 	_candidates_dirty = true
+
+
+func _on_structure_contents_changed(structure_context: StructureContext) -> void:
+	if structure_context.nano_structure is AtomicStructure:
+		_atom_grid = null
 
 
 func _check_input_event_can_bind(in_event: InputEvent) -> bool:
