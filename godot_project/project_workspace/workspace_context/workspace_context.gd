@@ -1222,6 +1222,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 			continue
 		_structure_contexts[structure_context_id].queue_free()
 		_structure_contexts.erase(structure_context_id)
+		_modified_structure_contexts.erase(structure_context_id)
+		_selection_modified_structure_contexts.erase(structure_context_id)
 	
 	_current_structure_context_id = in_snapshot["_current_structure_context_id"]
 	
