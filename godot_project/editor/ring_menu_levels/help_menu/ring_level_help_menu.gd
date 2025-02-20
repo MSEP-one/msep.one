@@ -15,3 +15,4 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	)
 	add_action(preload("ring_action_about_msep.gd").new(in_workspace_context, in_menu))
 	add_action(_workspace_context.action_documentation)
+	add_action(_workspace_context.action_video_tutorials)

@@ -109,6 +109,7 @@ var action_select_connected: RingActionSelectConnected = null
 var action_grow_selection: RingActionGrowSelection = null
 var action_shrink_selection: RingActionShrinkSelection = null
 var action_documentation: RingActionOpenDocumentation = null
+var action_video_tutorials: RingActionVideoTutorials = null
 
 
 var _hovered_structure_context: StructureContext
@@ -192,7 +193,8 @@ func _on_workspace_main_view_ready() -> void:
 	action_grow_selection = RingActionGrowSelection.new(self, ring_menu)
 	action_shrink_selection = RingActionShrinkSelection.new(self, ring_menu)
 	action_documentation = RingActionOpenDocumentation.new(self, ring_menu)
-
+	action_video_tutorials = RingActionVideoTutorials.new(self, ring_menu)
+	
 	var structures: Array = workspace.get_structures()
 	for structure: NanoStructure in structures:
 		add_nano_structure(structure)

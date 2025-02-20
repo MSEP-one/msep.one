@@ -1,0 +1,82 @@
+[gd_scene load_steps=6 format=3 uid="uid://brfr0wld3vhe0"]
+
+[ext_resource type="Texture2D" uid="uid://b372ph7moam52" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_playing.svg" id="1_uhv5s"]
+[ext_resource type="Script" path="res://editor/controls/video_tutorials_dialog/video_player.gd" id="1_yefmo"]
+[ext_resource type="Texture2D" uid="uid://b7wxqthabdoy4" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_pause.svg" id="2_jdb2m"]
+[ext_resource type="Texture2D" uid="uid://bkqrfovlyvkqh" path="res://editor/icons/icon_video.svg" id="2_tkbw3"]
+[ext_resource type="Texture2D" uid="uid://bggmkhivgos3r" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_revert.svg" id="5_fhtbd"]
+
+[node name="VideoPlayer" type="Window"]
+title = "Video player"
+position = Vector2i(0, 36)
+size = Vector2i(500, 500)
+min_size = Vector2i(200, 150)
+script = ExtResource("1_yefmo")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="VideoPlayerContainer" type="AspectRatioContainer" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+ratio = 1.7778
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/VBoxContainer/VideoPlayerContainer"]
+layout_mode = 2
+texture = ExtResource("2_tkbw3")
+expand_mode = 1
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="PanelContainer/VBoxContainer/VideoPlayerContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+expand = true
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+text = "Play"
+icon = ExtResource("1_uhv5s")
+
+[node name="PauseButton" type="Button" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+text = "Pause"
+icon = ExtResource("2_jdb2m")
+
+[node name="VSeparator" type="VSeparator" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="ReplayButton" type="Button" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+text = "Replay"
+icon = ExtResource("5_fhtbd")
+
+[node name="SeekBar" type="HSlider" parent="PanelContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 0.1
+editable = false
+scrollable = false

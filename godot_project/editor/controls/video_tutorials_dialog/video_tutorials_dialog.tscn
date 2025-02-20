@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://ddist487qh8in"]
+
+[ext_resource type="Script" path="res://editor/controls/video_tutorials_dialog/video_tutorials_dialog.gd" id="1_47fxy"]
+[ext_resource type="PackedScene" uid="uid://brfr0wld3vhe0" path="res://editor/controls/video_tutorials_dialog/video_player.tscn" id="3_ujvu5"]
+
+[node name="VideoTutorialsDialog" type="ConfirmationDialog"]
+title = "Video tutorials"
+position = Vector2i(0, 36)
+size = Vector2i(900, 500)
+visible = true
+ok_button_text = "Play"
+dialog_hide_on_ok = false
+script = ExtResource("1_47fxy")
+
+[node name="ItemList" type="ItemList" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 890.0
+offset_bottom = 453.0
+theme_override_constants/h_separation = 32
+max_text_lines = 3
+max_columns = 0
+same_column_width = true
+icon_mode = 0
+fixed_icon_size = Vector2i(150, 150)
+
+[node name="VideoPlayer" parent="." instance=ExtResource("3_ujvu5")]
+visible = false
