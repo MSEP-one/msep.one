@@ -4,6 +4,7 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlic
 
 #include "res://editor/rendering/atomic_structure_renderer/representation/hydrogens.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/gizmo_transform_delta.gdshaderinc"
+#include "res://editor/rendering/atomic_structure_renderer/representation/billboard.gdshaderinc"
 
 // determines the relationship between atom size and label size
 const float LABEL_SCALE = 0.6;
@@ -20,9 +21,6 @@ uniform float distance_fade_min;
 uniform float distance_fade_max;
 
 // camera info
-uniform vec3 camera_forward_vector;
-uniform vec3 camera_up_vector;
-uniform vec3 camera_right_vector;
 uniform float camera_size;
 
 // atom scale
@@ -34,15 +32,8 @@ void vertex() {
 	
 	mat4 inv_model_mat = inverse(MODEL_MATRIX);
 
-	// Calculate rotation matrix to align model with camera
-	mat4 billboard_rot = mat4(
-		vec4(normalize(camera_right_vector), 0.0),
-		vec4(normalize(camera_up_vector), 0.0),
-		vec4(cross(normalize(camera_right_vector), normalize(camera_up_vector)), 0.0),
-		vec4(0.0, 0.0, 0.0, 1.0)
-	);
-	
-	VERTEX = (billboard_rot * vec4(VERTEX, 1.0)).xyz;
+	// Make the atom face the camera
+	VERTEX = billboard_atom(VERTEX, INV_VIEW_MATRIX);
 	
 	// apply scale
 	VERTEX *= scale * LABEL_SCALE;
@@ -54,7 +45,8 @@ void vertex() {
 	VERTEX += get_translation_delta(COLOR, MODEL_MATRIX);
 	
 	// move a bit in front of the atoms
-	vec3 localCameraFacingVector = (inv_model_mat * vec4(camera_forward_vector, 0.0)).xyz;
+	vec3 camera_forward = normalize(INV_VIEW_MATRIX[2].xyz);
+	vec3 localCameraFacingVector = (inv_model_mat * vec4(camera_forward, 0.0)).xyz;
 	float atom_radius = COLOR.b;
 	// determined experimentally by checking how small and big atom's labels are behaving on minimal and maximal scale
 	float additional_distance_factor = 0.12 * scale - atom_radius * scale * 0.12;

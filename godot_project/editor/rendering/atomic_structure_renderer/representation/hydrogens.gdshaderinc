@@ -5,9 +5,6 @@
 
 
 const float HYDROGEN_LABEL_ID = 0.0;
-const vec3 HYDROGEN_ATOM_COLOR = vec3(0.549,  0.471,   0.0);
-const vec3 HYDROGEN_BOND_COLOR = vec3(1.0,    0.7843,  0.0);
-const float HYDROGEN_SPRING_ALPHA = 0.1;
 
 uniform float show_hydrogens: hint_range(0.0, 1.0, 1.0) = 1.0;
 
