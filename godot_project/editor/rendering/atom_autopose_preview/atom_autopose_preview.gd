@@ -75,6 +75,15 @@ func _process(_delta: float) -> void:
 # Wedges (slim triagles): atoms above the connected atom plane
 # Dashes: atoms below the connected atom plane
 func _draw() -> void:
+	const MAX_DISTANCE_SQUARED_FROM_CAMERA: float = pow(20.0, 2.0)
+	const MAX_ORTHOGRAPHIC_CAMERA_SIZE: float = 5.0
+	
+	# In orthographic projection, all atoms are visually at the same distance.
+	# If the camera is zoomed out enough, all candidates can be skipped.
+	if _camera.projection == Camera3D.PROJECTION_ORTHOGONAL and \
+			_camera.size > MAX_ORTHOGRAPHIC_CAMERA_SIZE:
+		return
+	
 	# If control is being drawn we assume candidates belongs to the current workspace context
 	var font: Font = get_theme_font(&"default_font")
 	_camera = get_viewport().get_camera_3d()
@@ -84,19 +93,27 @@ func _draw() -> void:
 	var context: StructureContext = null
 	var atomic_structure: AtomicStructure = null
 	var candidate_element: ElementData = curr_atom_data
+	var view_rect: Rect2 = get_rect().grow(15)
 	for candidate: AtomCandidate in _candidates:
 		if context == null or context.nano_structure.int_guid != candidate.structrure_id:
 			# OPTIMIZATION: Candidates are meant to be grouped by structure,
 			# so this if condition should not be needed to run often
 			context = workspace_context.get_structure_context(candidate.structrure_id)
 			atomic_structure = context.nano_structure as AtomicStructure
+		candidate.pos_2d_cache = Vector2.ONE * -15
 		if not _camera.is_position_in_frustum(candidate.atom_position):
 			# clip out of the view
-			candidate.pos_2d_cache = Vector2.ONE * -15
 			continue
+			
+		if _camera.projection == Camera3D.PROJECTION_PERSPECTIVE and \
+			candidate.atom_position.distance_squared_to(_camera.global_position) > MAX_DISTANCE_SQUARED_FROM_CAMERA:
+				# Candidate too far from the camera
+				continue
+		
 		var pos_2d: Vector2 = _camera.unproject_position(candidate.atom_position)
+		
 		candidate.pos_2d_cache = pos_2d
-		if not get_rect().grow(15).has_point(pos_2d):
+		if not view_rect.has_point(pos_2d):
 			# clip out of the view
 			continue
 		
@@ -114,7 +131,7 @@ func _draw() -> void:
 				# Close to the atom plane, draw a line
 				_draw_line_connection(atom_pos_2d, pos_2d, bond_color)
 			elif angle < 0:
-				# negative angle, candidate is abobe the original atom, draw a Wedge
+				# negative angle, candidate is above the original atom, draw a Wedge
 				_draw_wedge_connection(atom_pos_2d, pos_2d, bond_color)
 			else:
 				# positive angle, candidate is below the original atom, draw dashes

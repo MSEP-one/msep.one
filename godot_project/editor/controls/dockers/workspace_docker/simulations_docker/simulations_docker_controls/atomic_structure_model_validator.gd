@@ -47,7 +47,7 @@ func _validate_bonds_in_thread(
 			continue
 		var atomic_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
 		var ignored_springs: Array[Metadata] = []
-		var spatial_hash_grid: SpatialHashGrid = SpatialHashGrid.new(MAX_COVALENT_RADIUS)
+		var spatial_hash_grid: SpatialHashGridOverlaps = SpatialHashGridOverlaps.new(MAX_COVALENT_RADIUS)
 		var atoms: PackedInt32Array
 		if in_selection_only:
 			atoms = structure_context.get_selected_atoms()
@@ -58,7 +58,7 @@ func _validate_bonds_in_thread(
 			var atom_data: AtomData = AtomData.new(atom_id, structure_context)
 			if atom_data.has_invalid_bonds():
 				validation_results.push_back(atom_data)
-			spatial_hash_grid.add_atom(atom_data)
+			spatial_hash_grid.add_item(atom_data.get_position(), atom_data)
 			
 			# Collect Ignored Springs:
 			# Springs hooked to atoms that are locked in position will be ignored
@@ -134,7 +134,6 @@ func has_overlapping_atoms() -> bool:
 
 
 func fix_overlapping_atoms() -> void:
-	
 	for overlap: OverlapData in _overlaps:
 		if overlap.is_fixed:
 			continue
@@ -549,82 +548,31 @@ class InvalidSp123Data extends Metadata:
 		return false
 
 
-## The spatial hash grid is used to partition the atoms in a 3D grid and speed
-## up the overlap calculations.
-##
-## When adding an atom, the atom position is snapped to the nearest _cell_size
-## to get its parent cell id before adding the atom to the _grid.
-## When querying for nearby atoms, we check all 8 surrounding cells (if they exists)
-## and only calculate the distance to the atoms within these cells, instead of
-## using the entire set.
-class SpatialHashGrid:
-	var _grid: Dictionary = {
-		# cell_id <Vector3> : atoms <Array[AtomData]>
-	}
-	var _cell_size: float
-
-	func _init(min_distance: float) -> void:
-		_cell_size = min_distance
-
-	func add_atom(atom: AtomData) -> void:
-		var cell_id: Vector3 = snapped(atom.get_position(), Vector3(_cell_size, _cell_size, _cell_size))
-		if not _grid.has(cell_id):
-			_grid[cell_id] = []
-		_grid[cell_id].push_back(atom)
-
-	## Returns all 8 cells directly touching the cell (diagonals included)
-	## The main (center) cell is not included in the results.
-	func get_neighbor_cells(cell_id: Vector3) -> Array[Vector3]:
-		var neighbor_cells: Array[Vector3] = []
-		for x: int in [-1, 0, 1]:
-			for y: int in [-1, 0, 1]:
-				for z: int in [-1, 0, 1]:
-					var offset: Vector3 = Vector3(x, y, z) * _cell_size
-					var neighbor_id: Vector3 = offset + cell_id
-					if neighbor_id.is_equal_approx(cell_id):
-						continue # Don't include the center cell in the neighbors
-					if _grid.has(neighbor_id):
-						neighbor_cells.push_back(neighbor_id)
-		return neighbor_cells
-
-	## For each cell, find their 8 neighbors and get all the atoms within
-	## Calculate the distance between the atoms and mark them as overlapping
-	## if the distance is smaller than half their nominal bond length.
-	## When a cell is processed, ignore it from future calculations to avoid
-	## duplicates.
+## Specialization of the SpatialHashGrid
+## Scans for atoms close enough that their covalent radius intersect.
+class SpatialHashGridOverlaps extends SpatialHashGrid:
 	func get_overlaps() -> Array[OverlapData]:
-		var overlaps: Array[OverlapData] = []
-		var processed_cells: Array[Vector3] = []
-		for cell_id: Vector3 in _grid:
-			var atoms: Array[AtomData] = []
-			atoms.assign(_grid[cell_id])
-			
-			var neighbor_atoms: Array[AtomData] = []
-			var overlapping_atoms: Array[AtomData] = []
-			
-			neighbor_atoms.append_array(atoms)
-			for neighbor_cell: Vector3 in get_neighbor_cells(cell_id):
-				if processed_cells.has(neighbor_cell):
-					continue
-				atoms.append_array(_grid[neighbor_cell])
-			
-			for atom: AtomData in atoms:
+		var result: Array[OverlapData] = []
+		for close_atoms: Array[AtomData] in get_user_data_closer_than(MAX_COVALENT_RADIUS):
+			var visited: Dictionary = {}
+			# Scan every pair of atoms within the local group (close_atoms)
+			# Atoms overlaps if the sum of their radii is smaller than the distance between them.
+			for i: int in close_atoms.size() - 1 :
+				if visited.has(i):
+					# Skip if already included in another overlap
+					continue 
+				var overlapping_atoms: Array[AtomData] = []
+				var atom: AtomData = close_atoms[i]
 				var atom_pos: Vector3 = atom.get_position()
-				for other_atom: AtomData in neighbor_atoms:
-					if atom == other_atom:
-						continue
+				overlapping_atoms.push_back(atom)
+				for j: int in range(i + 1, close_atoms.size()):
+					var other_atom: AtomData = close_atoms[j]
 					var other_atom_pos: Vector3 = other_atom.get_position()
 					var min_distance: float = (atom.covalent_radius + other_atom.covalent_radius) * 0.5
 					if atom_pos.distance_squared_to(other_atom_pos) < pow(min_distance, 2.0):
-						if not overlapping_atoms.has(atom):
-							overlapping_atoms.push_back(atom)
-						if not overlapping_atoms.has(other_atom):
-							overlapping_atoms.push_back(other_atom)
-			
-			if not overlapping_atoms.is_empty():
-				var overlap := OverlapData.new(overlapping_atoms, atoms[0].structure_context)
-				overlaps.push_back(overlap)
-			
-			processed_cells.push_back(cell_id)
-		
-		return overlaps
+						overlapping_atoms.push_back(other_atom)
+						visited[j] = true
+				if overlapping_atoms.size() > 1:
+					var overlap := OverlapData.new(overlapping_atoms, atom.structure_context)
+					result.push_back(overlap)
+		return result
