@@ -11,7 +11,7 @@ signal previous_snapshot_applied(undone_snapshot_name: String)
 signal next_snapshot_applied(redone_snapshot_name: String)
 
 const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
-	"Change Edited Group" : true,
+	"Change Active Group" : true,
 	"Change Selection" : true,
 	"Box Selection" : true,
 	"Box Deselection" : true,
