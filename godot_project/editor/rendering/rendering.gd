@@ -502,6 +502,12 @@ func set_atom_selection_position_delta(in_selection_delta: Vector3, in_structure
 	atomic_structure_renderer.set_atom_selection_position_delta(in_selection_delta)
 
 
+func get_atom_selection_position_delta(in_structure: AtomicStructure) -> Vector3:
+	if not enabled: return Vector3.ZERO
+	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
+	return atomic_structure_renderer.get_atom_selection_position_delta()
+
+
 func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis, in_structure: AtomicStructure) -> void:
 	if not enabled: return
 	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
