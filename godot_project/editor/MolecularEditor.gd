@@ -20,6 +20,7 @@ var save_file_dialog: NanoFileDialog
 var export_file_dialog: NanoFileDialog
 var template_library_dialog: TemplateLibraryDialog
 var camera_position_dialog: AcceptDialog
+var video_tutorials_dialog: VideoTutorialsDialog
 
 var _wait_before_close_dlg: AcceptDialog
 
@@ -41,6 +42,7 @@ func _notification(what: int) -> void:
 		export_file_dialog = %ExportFileDialog as NanoFileDialog
 		template_library_dialog = $TemplateLibraryDialog
 		camera_position_dialog = %CameraPositionDialog
+		video_tutorials_dialog = %VideoTutorialsDialog
 		DisplayServer.window_set_min_size(WINDOW_MINIMUM_SIZE)
 		load_editor_layout()
 		EditorSfx.register_window(import_file_dialog)
