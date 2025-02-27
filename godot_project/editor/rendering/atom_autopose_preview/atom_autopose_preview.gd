@@ -60,7 +60,10 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if visible and is_instance_valid(_camera) and (
+	if not visible or _candidates.is_empty():
+		return
+	# Redraw if the camera is moving
+	if is_instance_valid(_camera) and (
 			_camera.global_transform != _camera_last_transform
 			or _camera.size != _camera_last_zoom
 			or _camera_last_projection != _camera.projection):
@@ -68,6 +71,16 @@ func _process(_delta: float) -> void:
 		_camera_last_zoom = _camera.size
 		_camera_last_projection = _camera.projection
 		queue_redraw()
+		return
+	# Redraw if the selection is being moved
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
+	var rendering: Rendering = workspace_context.get_rendering()
+	var selected_contexts: Array[StructureContext] = workspace_context.get_structure_contexts_with_selection()
+	for context: StructureContext in selected_contexts:
+		var structure: NanoStructure = context.nano_structure
+		if rendering.get_atom_selection_position_delta(structure) != Vector3.ZERO:
+			queue_redraw()
+			return
 
 
 # Visual language:
@@ -90,6 +103,7 @@ func _draw() -> void:
 	var camera_up_vector: Vector3 = _camera.basis.y
 	var curr_atom_data: ElementData = PeriodicTable.get_by_atomic_number(_new_atomic_number)
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
+	var rendering: Rendering = workspace_context.get_rendering()
 	var context: StructureContext = null
 	var atomic_structure: AtomicStructure = null
 	var candidate_element: ElementData = curr_atom_data
@@ -100,17 +114,19 @@ func _draw() -> void:
 			# so this if condition should not be needed to run often
 			context = workspace_context.get_structure_context(candidate.structrure_id)
 			atomic_structure = context.nano_structure as AtomicStructure
+		var position_delta: Vector3 = rendering.get_atom_selection_position_delta(atomic_structure)
+		var atom_position: Vector3 = candidate.atom_position + position_delta
 		candidate.pos_2d_cache = Vector2.ONE * -15
-		if not _camera.is_position_in_frustum(candidate.atom_position):
+		if not _camera.is_position_in_frustum(atom_position):
 			# clip out of the view
 			continue
 			
 		if _camera.projection == Camera3D.PROJECTION_PERSPECTIVE and \
-			candidate.atom_position.distance_squared_to(_camera.global_position) > MAX_DISTANCE_SQUARED_FROM_CAMERA:
+			atom_position.distance_squared_to(_camera.global_position) > MAX_DISTANCE_SQUARED_FROM_CAMERA:
 				# Candidate too far from the camera
 				continue
 		
-		var pos_2d: Vector2 = _camera.unproject_position(candidate.atom_position)
+		var pos_2d: Vector2 = _camera.unproject_position(atom_position)
 		
 		candidate.pos_2d_cache = pos_2d
 		if not view_rect.has_point(pos_2d):
@@ -121,10 +137,10 @@ func _draw() -> void:
 		var bond_color: Color = Color.WHITE if _hovered_candidate == candidate else candidate_element.bond_color
 		var label_color: Color = Color.DIM_GRAY if _hovered_candidate == candidate else candidate_element.font_color
 		for source: int in candidate.atom_ids:
-			var atom_pos: Vector3 = atomic_structure.atom_get_position(source)
+			var atom_pos: Vector3 = atomic_structure.atom_get_position(source) + position_delta
 			var atom_pos_2d: Vector2 = _camera.unproject_position(atom_pos)
 			var atom_floor_plane := Plane(camera_up_vector, atom_pos)
-			var candidate_projected: Vector3 = atom_floor_plane.project(candidate.atom_position)
+			var candidate_projected: Vector3 = atom_floor_plane.project(atom_position)
 			var atom_to_projection_dir: Vector3 = atom_pos.direction_to(candidate_projected)
 			var angle: float = Vector3.RIGHT.signed_angle_to(atom_to_projection_dir, Vector3.UP)
 			if abs(angle) < PI / 3:

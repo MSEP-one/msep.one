@@ -33,36 +33,31 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 
 
 func handle_inputs_end() -> void:
-	_hide_preview()
+	_show_preview()
 
 
 func handle_inputs_resume() -> void:
-	if not _should_show():
-		return
-	if _candidates_dirty:
-		_update_candidates()
-	var rendering: Rendering = _get_rendering()
-	rendering.atom_autopose_preview_show()
+	_show_preview()
 
 
 func handle_input_omission() -> void:
-	_hide_preview()
+	return
 
 
 func _init(in_context: WorkspaceContext) -> void:
 	super._init(in_context)
 	in_context.current_structure_context_changed.connect(_on_current_structure_context_changed)
+	in_context.history_changed.connect(_on_workspace_context_history_changed)
 	in_context.create_object_parameters.new_atom_element_changed.connect(_on_new_atom_element_changed)
 	in_context.create_object_parameters.new_bond_order_changed.connect(_on_new_bond_order_changed)
 	in_context.create_object_parameters.create_distance_method_changed.connect(_on_create_distance_method_changed)
 	in_context.create_object_parameters.creation_distance_from_camera_factor_changed.connect(_on_creation_distance_from_camera_factor_changed)
 	in_context.structure_contents_changed.connect(_on_structure_contents_changed)
+	in_context.create_object_parameters.create_mode_enabled_changed.connect(_on_create_mode_enabled_changed)
 	_element_selected = in_context.create_object_parameters.get_new_atom_element()
 	_get_rendering().atom_autopose_preview_set_atomic_number(_element_selected)
 	var bond_order: int = in_context.create_object_parameters.get_new_bond_order()
 	_get_rendering().atom_autopose_preview_set_bond_order(bond_order)
-	# WorkspaceContext signals
-	in_context.history_changed.connect(_on_workspace_context_history_changed)
 
 
 func _on_current_structure_context_changed(in_context: StructureContext) -> void:
@@ -128,12 +123,12 @@ func is_exclusive_input_consumer() -> bool:
 
 
 func set_preview_position(_in_position: Vector3) -> void:
-	if _candidates_dirty:
-		_update_candidates()
-		_candidates_dirty = false
+	_update_candidates_if_needed()
 
 
-func _update_candidates() -> void:
+func _update_candidates_if_needed() -> void:
+	if not _candidates_dirty:
+		return
 	_candidates.clear()
 	
 	var total_atoms_selected: int = 0
@@ -194,6 +189,7 @@ func _update_candidates() -> void:
 			index += 1
 	
 	_get_rendering().atom_autopose_preview_set_candidates(_candidates)
+	_candidates_dirty = false
 
 
 func _generate_candidates_for_atom(in_context: StructureContext, in_atom_id: int) -> PackedVector3Array:
@@ -378,8 +374,16 @@ func _on_creation_distance_from_camera_factor_changed(_in_distance_factor: float
 	pass
 
 
+func _on_create_mode_enabled_changed(enabled: bool) -> void:
+	if enabled:
+		_show_preview()
+	else:
+		_hide_preview()
+
+
 func _on_workspace_context_history_changed() -> void:
 	_candidates_dirty = true
+	_update_candidates_if_needed()
 
 
 func _on_structure_contents_changed(structure_context: StructureContext) -> void:
@@ -412,6 +416,13 @@ func _check_input_event_can_bind(in_event: InputEvent) -> bool:
 
 func _hide_preview() -> void:
 	_get_rendering().atom_autopose_preview_hide()
+
+
+func _show_preview() -> void:
+	if not _should_show():
+		return
+	_update_candidates_if_needed()
+	_get_rendering().atom_autopose_preview_show()
 
 
 func _get_rendering() -> Rendering:

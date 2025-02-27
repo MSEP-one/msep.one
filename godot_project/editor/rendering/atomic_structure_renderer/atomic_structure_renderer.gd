@@ -32,6 +32,8 @@ var _up_to_date_representations: Dictionary = {
 #	Rendering.Representation: true
 }
 var _workspace_context: WorkspaceContext = null
+var _selection_position_delta: Vector3
+
 
 func rebuild() -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_nano_structure_id)
@@ -457,11 +459,16 @@ func set_transparency(in_transparency: float) -> void:
 
 
 func set_atom_selection_position_delta(in_selection_delta: Vector3) -> void:
+	_selection_position_delta = in_selection_delta
 	_current_representation.set_atom_selection_position_delta(in_selection_delta)
 	_springs_representation.set_atom_selection_position_delta(in_selection_delta)
 	if _are_labels_active():
 		_labels_representation.set_atom_selection_position_delta(in_selection_delta)
 	_outdate_non_active_representations()
+
+
+func get_atom_selection_position_delta() -> Vector3:
+	return _selection_position_delta
 
 
 func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
