@@ -50,6 +50,10 @@ func show_homepage() -> void:
 	_update_window_title()
 
 
+func is_homepage_active() -> bool:
+	return _current_workspace == null
+
+
 ## Create a new workspace, initially stored in ram, will not be saved to disk until required
 func create_workspace() -> Workspace:
 	var workspace := Workspace.new()

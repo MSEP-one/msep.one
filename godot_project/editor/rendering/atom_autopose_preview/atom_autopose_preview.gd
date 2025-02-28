@@ -72,6 +72,8 @@ func _process(_delta: float) -> void:
 		_camera_last_projection = _camera.projection
 		queue_redraw()
 		return
+	if MolecularEditorContext.is_homepage_active():
+		return
 	# Redraw if the selection is being moved
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
 	var rendering: Rendering = workspace_context.get_rendering()
