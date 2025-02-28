@@ -652,6 +652,7 @@ func _on_nano_structure_visibility_changed(_in_visible: bool, in_structure_conte
 	if not workspace.has_structure_with_int_guid(in_structure_context_id):
 		return
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
+	structure_context.mark_is_editable_dirty()
 	if structure_context.is_editable() and not _editable_structure_contexts_ids.has(in_structure_context_id):
 		_queue_emit_new_editable_structures()
 	elif not structure_context.is_editable() and _editable_structure_contexts_ids.has(in_structure_context_id):
