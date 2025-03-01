@@ -136,6 +136,7 @@ func _update_candidates_if_needed() -> void:
 	for context: StructureContext in selected_contexts:
 		total_atoms_selected += context.get_selected_atoms().size()
 	if total_atoms_selected > MAX_ATOMS_FOR_AUTO_POSING:
+		_get_rendering().atom_autopose_preview_set_candidates(_candidates)
 		return
 	
 	for context: StructureContext in selected_contexts:
