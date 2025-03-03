@@ -154,5 +154,13 @@ func get_camera_global_transform() -> Transform3D:
 	return get_camera().global_transform
 
 
+func set_camera_orthogonal_size(in_orthogonal_size: float) -> void:
+	get_camera().size = in_orthogonal_size
+
+
+func get_camera_orthogonal_size() -> float:
+	return get_camera().size
+
+
 func bottom_bar_update_distance(in_message_text: String, in_distance: float) -> void:
 	editor_viewport_container.bottom_bar_update_distance(in_message_text, in_distance)
