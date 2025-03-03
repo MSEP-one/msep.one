@@ -57,7 +57,7 @@ text = "Auto-Create Bonds for All Atoms"
 [node name="NoSelectionLabel" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-text = "i No atoms selected."
+text = "ℹ No atoms selected."
 horizontal_alignment = 1
 autowrap_mode = 2
 
