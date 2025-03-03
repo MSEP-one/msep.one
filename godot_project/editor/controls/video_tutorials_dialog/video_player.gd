@@ -9,7 +9,6 @@ extends Window
 ## a Replay button instead. This happens when using the built in theora codec.
 
 
-@onready var _video_player_container: Control = %VideoPlayerContainer
 @onready var _video_stream_player: VideoStreamPlayer = %VideoStreamPlayer
 @onready var _play_button: Button = %PlayButton
 @onready var _pause_button: Button = %PauseButton
