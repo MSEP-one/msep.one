@@ -353,7 +353,7 @@ func _is_shortcut_pressed() -> bool:
 ## Input handlers will execute _forward_input_* in an order dictated by this parameter
 ## highter priority value means the input handler will execute first
 func get_priority() -> int:
-	return BuiltinInputHandlerPriorities.ADD_ATOM_INPUT_HANDLER_PRIORITY
+	return BuiltinInputHandlerPriorities.ADD_POSING_ATOM_INPUT_HANDLER_PRIORITY
 
 
 #region internal
