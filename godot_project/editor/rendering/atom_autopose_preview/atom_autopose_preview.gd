@@ -80,6 +80,8 @@ func _process(_delta: float) -> void:
 	var selected_contexts: Array[StructureContext] = workspace_context.get_structure_contexts_with_selection()
 	for context: StructureContext in selected_contexts:
 		var structure: NanoStructure = context.nano_structure
+		if not structure is AtomicStructure:
+			continue
 		if rendering.get_atom_selection_position_delta(structure) != Vector3.ZERO:
 			queue_redraw()
 			return
