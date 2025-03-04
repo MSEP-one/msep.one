@@ -3,7 +3,7 @@ extends InputHandlerCreateObjectBase
 
 const MAX_MERGE_DISTANCE: float = 0.06
 const MAX_ATOMS_FOR_AUTO_POSING: int = 50
-const MAX_DISTANCE_TO_ATOMS: float = 0.08
+const MIN_DISTANCE_TO_ATOMS: float = 0.14
 const AtomCandidate = AtomAutoposePreview.AtomCandidate
 
 
@@ -173,7 +173,7 @@ func _update_candidates_if_needed() -> void:
 	
 	# Filter candidates colliding with existing atoms
 	if not _atom_grid:
-		_atom_grid = SpatialHashGrid.new(MAX_DISTANCE_TO_ATOMS)
+		_atom_grid = SpatialHashGrid.new(MIN_DISTANCE_TO_ATOMS)
 		for context: StructureContext in _workspace_context.get_all_structure_contexts():
 			if not context.nano_structure is AtomicStructure:
 				continue
@@ -184,7 +184,7 @@ func _update_candidates_if_needed() -> void:
 	var index: int = 0
 	while index < _candidates.size():
 		var candidate: AtomCandidate = _candidates[index]
-		if _atom_grid.has_any_closer_than(candidate.atom_position, MAX_DISTANCE_TO_ATOMS):
+		if _atom_grid.has_any_closer_than(candidate.atom_position, MIN_DISTANCE_TO_ATOMS):
 			_candidates.remove_at(index)
 		else:
 			index += 1
