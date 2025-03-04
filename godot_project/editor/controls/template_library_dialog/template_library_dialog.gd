@@ -1,7 +1,7 @@
 class_name TemplateLibraryDialog extends ConfirmationDialog
 
 const LIBRARY_PATH: String = "res://template_library_files/"
-const LIBRARY_EXTENSIONS: PackedStringArray = ["pdb"]
+const LIBRARY_EXTENSIONS: PackedStringArray = ["pdb", "msep1"]
 const THUMBNAIL_EXTENSION: String = "png"
 const THUMBNAIL_FALLBACK: Texture2D = preload("res://splash.png")
 const FIXED_ICON_SIZE := Vector2i(160, 120)
