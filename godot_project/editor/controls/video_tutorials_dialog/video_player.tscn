@@ -1,16 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://brfr0wld3vhe0"]
+[gd_scene load_steps=7 format=3 uid="uid://brfr0wld3vhe0"]
 
 [ext_resource type="Texture2D" uid="uid://b372ph7moam52" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_playing.svg" id="1_uhv5s"]
 [ext_resource type="Script" path="res://editor/controls/video_tutorials_dialog/video_player.gd" id="1_yefmo"]
 [ext_resource type="Texture2D" uid="uid://b7wxqthabdoy4" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_pause.svg" id="2_jdb2m"]
 [ext_resource type="Texture2D" uid="uid://bkqrfovlyvkqh" path="res://editor/icons/icon_video.svg" id="2_tkbw3"]
 [ext_resource type="Texture2D" uid="uid://bggmkhivgos3r" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_revert.svg" id="5_fhtbd"]
+[ext_resource type="Texture2D" uid="uid://dxiyogf8l7gth" path="res://editor/controls/video_tutorials_dialog/icons/full_screen.svg" id="6_fwlbp"]
 
 [node name="VideoPlayer" type="Window"]
 title = "Video player"
 position = Vector2i(0, 36)
 size = Vector2i(500, 500)
-min_size = Vector2i(200, 150)
+min_size = Vector2i(500, 500)
 script = ExtResource("1_yefmo")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
@@ -33,6 +34,7 @@ ratio = 1.7778
 layout_mode = 2
 texture = ExtResource("2_tkbw3")
 expand_mode = 1
+stretch_mode = 3
 
 [node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="PanelContainer/VBoxContainer/VideoPlayerContainer"]
 unique_name_in_owner = true
@@ -80,3 +82,12 @@ size_flags_vertical = 4
 step = 0.1
 editable = false
 scrollable = false
+
+[node name="FullScreenButton" type="Button" parent="PanelContainer/VBoxContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+toggle_mode = true
+text = "Full Screen
+"
+icon = ExtResource("6_fwlbp")

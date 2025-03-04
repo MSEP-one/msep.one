@@ -14,20 +14,26 @@ extends Window
 @onready var _pause_button: Button = %PauseButton
 @onready var _seek_bar: HSlider = %SeekBar
 @onready var _replay_button: Button = %ReplayButton
+@onready var _full_screen_button: Button = %FullScreenButton
+@onready var _window_size_and_pos: Dictionary = {
+	"position" = position,
+	"size" = size
+}
 
 
 func _ready() -> void:
 	_play_button.pressed.connect(play)
 	_pause_button.pressed.connect(pause)
 	_replay_button.pressed.connect(_on_replay_pressed)
+	_full_screen_button.toggled.connect(_on_full_screen_button_toggled)
+	get_tree().root.size_changed.connect(_on_main_window_size_changed)
 	close_requested.connect(_on_close_requested)
 	pause()
 
 
 func _process(_delta: float) -> void:
-	if not _video_stream_player.is_playing():
-		return
-	_seek_bar.set_value_no_signal(_video_stream_player.get_stream_position())
+	if _video_stream_player.is_playing():
+		_seek_bar.set_value_no_signal(_video_stream_player.get_stream_position())
 
 
 func set_video(video_path: String, autoplay: bool = true) -> void:
@@ -66,6 +72,30 @@ func _on_replay_pressed() -> void:
 	_video_stream_player.play()
 	play()
 
+
+func _on_full_screen_button_toggled(in_button_pressed: bool) -> void:
+	if in_button_pressed:
+		# Store window values before changing them
+		_window_size_and_pos = {
+			"position" = position,
+			"size" = size
+		}
+		borderless = true
+		_update_full_screen_size()
+	else:
+		borderless = false
+		position = _window_size_and_pos.position
+		size = _window_size_and_pos.size
+
+
+func _on_main_window_size_changed() -> void:
+	if _full_screen_button.button_pressed:
+		_update_full_screen_size()
+
+
+func _update_full_screen_size() -> void:
+	position = Vector2.ZERO
+	size = get_tree().root.size
 
 func _on_close_requested() -> void:
 	pause()
