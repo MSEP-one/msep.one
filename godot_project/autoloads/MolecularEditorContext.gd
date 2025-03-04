@@ -169,8 +169,11 @@ func load_and_activate_workspace(in_path: String) -> void:
 		return
 	var workspace_context: WorkspaceContext = get_workspace_context(workspace)
 	workspace_context.set_camera_global_transform(workspace.camera_transform)
-	var root_structure: NanoStructure = workspace.get_root_child_structures()[0]
-	workspace_context.set_current_structure_context(workspace_context.get_nano_structure_context(root_structure))
+	# Needs to call_deferred to be executed after msep_editor_settings.changed is emmited
+	workspace_context.set_camera_orthogonal_size.call_deferred(workspace.camera_orthogonal_size)
+	var active_structure_id: int = workspace.active_structure_int_guid
+	var active_structure: NanoStructure = workspace.get_structure_by_int_guid(active_structure_id)
+	workspace_context.set_current_structure_context(workspace_context.get_nano_structure_context(active_structure))
 	if is_instance_valid(workspace):
 		activate_workspace(workspace)
 	_validate_forcefield_files(workspace_context)
@@ -192,6 +195,7 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	var path: String = in_path
 	var workspace_context: WorkspaceContext = get_workspace_context(in_workspace)
 	in_workspace.camera_transform = workspace_context.get_camera_global_transform()
+	in_workspace.camera_orthogonal_size = workspace_context.get_camera_orthogonal_size()
 	if path.is_empty():
 		path = in_workspace.resource_path
 	if path.is_empty():

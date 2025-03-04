@@ -153,6 +153,7 @@ func initialize(in_workspace: Workspace) -> void:
 	for structure: NanoStructure in nano_structures:
 		# ensure structure contexts are created
 		get_nano_structure_context(structure)
+	
 
 
 func notify_activated() -> void:
@@ -330,6 +331,7 @@ func set_current_structure_context(in_structure_context: StructureContext) -> vo
 		return
 	# Activating an object cancels create mode
 	abort_creating_object()
+	workspace.active_structure_int_guid = in_structure_context.get_int_guid()
 	_current_structure_context_id = in_structure_context.get_int_guid()
 	current_structure_context_changed.emit(in_structure_context)
 	_queue_emit_new_editable_structures()
@@ -1004,6 +1006,14 @@ func set_camera_global_transform(in_transform: Transform3D) -> void:
 
 func get_camera_global_transform() -> Transform3D:
 	return workspace_main_view.get_camera_global_transform()
+
+
+func set_camera_orthogonal_size(in_orthogonal_size: float) -> void:
+	workspace_main_view.set_camera_orthogonal_size(in_orthogonal_size)
+
+
+func get_camera_orthogonal_size() -> float:
+	return workspace_main_view.get_camera_orthogonal_size()
 
 
 func get_rendering() -> Rendering:

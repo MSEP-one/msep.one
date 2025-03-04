@@ -19,6 +19,12 @@ static var instance_counter: int = 0
 	# ID<int> : NanoStructure
 }
 
+@export var active_structure_int_guid: int = -1:
+	get:
+		if active_structure_int_guid == -1:
+			# active structure has never set, fallback to root
+			return main_structure_int_guid
+		return active_structure_int_guid
 
 @export var main_structure_int_guid: int:
 	get:
@@ -124,6 +130,12 @@ var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 @export var camera_transform: Transform3D = Transform3D():
 	set(v):
 		camera_transform = v
+		changed.emit()
+
+## Create workspace camera with this orthogonal size
+@export var camera_orthogonal_size: float = 1.0:
+	set(v):
+		camera_orthogonal_size = v
 		changed.emit()
 
 
