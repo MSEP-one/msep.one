@@ -58,6 +58,8 @@ func _init(in_context: WorkspaceContext) -> void:
 	_get_rendering().atom_autopose_preview_set_atomic_number(_element_selected)
 	var bond_order: int = in_context.create_object_parameters.get_new_bond_order()
 	_get_rendering().atom_autopose_preview_set_bond_order(bond_order)
+	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
+	representation_settings.changed.connect(_on_representation_settings_changed)
 
 
 func _on_current_structure_context_changed(in_context: StructureContext) -> void:
@@ -377,6 +379,13 @@ func _on_creation_distance_from_camera_factor_changed(_in_distance_factor: float
 
 func _on_create_mode_enabled_changed(enabled: bool) -> void:
 	if enabled:
+		_show_preview()
+	else:
+		_hide_preview()
+
+
+func _on_representation_settings_changed() -> void:
+	if _should_show():
 		_show_preview()
 	else:
 		_hide_preview()
