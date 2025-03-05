@@ -9,7 +9,6 @@ class AtomCandidate:
 	var pos_2d_cache: Vector2 = Vector2.ONE * -15
 
 
-
 var _new_atomic_number: int = PeriodicTable.ATOMIC_NUMBER_HYDROGEN
 var _new_bond_order: int = 1 # NOTE: Ignored at the moment
 var _candidates: Array[AtomCandidate]
@@ -35,24 +34,14 @@ func set_candidates(in_candidates: Array[AtomCandidate]) -> void:
 	queue_redraw()
 
 
+func set_hovered_candidate(in_candidate: AtomCandidate) -> void:
+	if _hovered_candidate != in_candidate:
+		_hovered_candidate = in_candidate
+		queue_redraw()
+
+
 func get_hovered_candidate_or_null() -> AtomCandidate:
 	return _hovered_candidate
-
-
-func _input(event: InputEvent) -> void:
-	if visible and event is InputEventMouse:
-		var hovered: AtomCandidate = null
-		var hovered_distance_sqrd: float = INF
-		const MIN_DISTANCE_SQRD: float = 15*15
-		for candidate: AtomCandidate in _candidates:
-			var distance_sqrd: float = event.position.distance_squared_to(candidate.pos_2d_cache)
-			if distance_sqrd < MIN_DISTANCE_SQRD:
-				if distance_sqrd < hovered_distance_sqrd:
-					hovered_distance_sqrd = distance_sqrd
-					hovered = candidate
-		if hovered != _hovered_candidate:
-			_hovered_candidate = hovered
-			queue_redraw()
 
 
 func _ready() -> void:

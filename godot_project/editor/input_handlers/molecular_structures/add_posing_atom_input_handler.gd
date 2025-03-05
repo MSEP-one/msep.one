@@ -10,6 +10,7 @@ const AtomCandidate = AtomAutoposePreview.AtomCandidate
 var _candidates_dirty: bool = true
 var _element_selected: int = -1
 var _candidates: Array[AtomCandidate] = []
+var _hovered_candidate: AtomCandidate
 var _atom_grid: SpatialHashGrid
 
 # region virtual
@@ -81,7 +82,23 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	
 	update_preview_position()
 	rendering.atom_autopose_preview_show()
-
+	
+	if in_input_event is InputEventMouse:
+		_hovered_candidate = null
+		var hovered_distance_sqrd: float = INF
+		const MIN_DISTANCE_SQRD: float = 15*15
+		for candidate: AtomCandidate in _candidates:
+			var distance_sqrd: float = in_input_event.position.distance_squared_to(candidate.pos_2d_cache)
+			if distance_sqrd < MIN_DISTANCE_SQRD:
+				if distance_sqrd < hovered_distance_sqrd:
+					hovered_distance_sqrd = distance_sqrd
+					_hovered_candidate = candidate
+		rendering.atom_autopose_preview_set_hovered_candidate(_hovered_candidate)
+	
+	# Discard atoms hovering if a candidate is hovered.
+	if _hovered_candidate != null:
+		out_context.workspace_context.set_hovered_structure_context(null, -1, -1, -1)
+	
 	if not (in_input_event is InputEventMouseButton and 
 			in_input_event.pressed and
 			in_input_event.button_index == MOUSE_BUTTON_LEFT):
@@ -93,23 +110,22 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	if cannot_create_because_hydrogen:
 		return true
 	
-	var hovered_candidate: AtomCandidate = rendering.atom_autopose_get_hovered_candidate_or_null()
-	if hovered_candidate == null:
+	if _hovered_candidate == null:
 		return false
 	
-	var atom_pos: Vector3 = hovered_candidate.atom_position
+	var atom_pos: Vector3 = _hovered_candidate.atom_position
 	var element_to_create: int = _element_selected
 	var params := AtomicStructure.AddAtomParameters.new(element_to_create, atom_pos)
 	var new_bond_order: int = out_context.workspace_context.create_object_parameters.get_new_bond_order()
-	if hovered_candidate.total_free_valence < new_bond_order:
+	if _hovered_candidate.total_free_valence < new_bond_order:
 		# Valence too low for the selected bond order.
-		if hovered_candidate.atom_ids.size() > 1:
+		if _hovered_candidate.atom_ids.size() > 1:
 			new_bond_order = 1 # Merged candidates, default to 1
 		else:
 			# Use the highest valid bond order
-			new_bond_order = hovered_candidate.total_free_valence 
+			new_bond_order = _hovered_candidate.total_free_valence 
 	
-	var _result: Dictionary = _do_create_atom_and_bonds(out_context, params, hovered_candidate.atom_ids, new_bond_order)
+	var _result: Dictionary = _do_create_atom_and_bonds(out_context, params, _hovered_candidate.atom_ids, new_bond_order)
 	_ensure_create_mode()
 	_workspace_context.snapshot_moment("Add Atom")
 	return true

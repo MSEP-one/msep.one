@@ -654,6 +654,12 @@ func atom_autopose_preview_set_candidates(in_candidates: Array[AtomAutoposePrevi
 	return self
 
 
+func atom_autopose_preview_set_hovered_candidate(in_candidate: AtomAutoposePreview.AtomCandidate) -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.set_hovered_candidate(in_candidate)
+	return self
+
+
 func atom_autopose_get_hovered_candidate_or_null() -> AtomAutoposePreview.AtomCandidate:
 	return _atom_autopose_preview.get_hovered_candidate_or_null()
 
