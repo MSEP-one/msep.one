@@ -116,14 +116,6 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		var hovering_bond_id: int = -1
 		var hovering_spring_id: int = -1
 		var hover_position: Vector3 = Vector3(INF, INF, INF)
-		var rendering: Rendering = _workspace_context.get_rendering()
-		var hovering_an_autopose_control: bool = (
-				rendering.atom_autopose_preview_is_visible() and
-				rendering.atom_autopose_get_hovered_candidate_or_null() != null
-		)
-		if hovering_an_autopose_control:
-			get_workspace_context().set_hovered_structure_context(null, -1, -1, -1)
-			return false
 		if not editable_structures.is_empty():
 			var multi_structure_hit_result := MultiStructureHitResult.new(in_camera, in_input_event.position, editable_structures)
 			match multi_structure_hit_result.hit_type:
