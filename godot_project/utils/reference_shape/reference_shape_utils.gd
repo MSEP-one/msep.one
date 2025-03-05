@@ -4,6 +4,7 @@ const InspectorControlSpinBox = preload("res://editor/controls/dockers/workspace
 const InspectorControlHSlider = preload("res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_range/inspector_control_hslider.tscn")
 const InspectorControlCheckButton = preload("res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_range/inspector_control_spin_box.tscn")
 
+const MAX_SHAPE_SIZE: float = 20.0
 
 static func get_reference_shape_properties(in_shape: PrimitiveMesh) -> Dictionary:
 	var properties: Dictionary = {}
@@ -21,9 +22,11 @@ static func get_reference_shape_properties(in_shape: PrimitiveMesh) -> Dictionar
 					_:
 						pass
 			var prop := ShapeProperty.new("Plane width", get_size_component.bind(Vector3.AXIS_X), set_size_component.bind(Vector3.AXIS_X))
-			properties[&"width"] = prop.with_min_value(0.05).with_step(0.001).with_unit(Units.get_distance_unit_string())
+			properties[&"width"] = prop.with_min_value(0.05).with_max_value(100.0).\
+				with_step(0.001).with_unit(Units.get_distance_unit_string())
 			prop = ShapeProperty.new("Plane length", get_size_component.bind(Vector3.AXIS_Y), set_size_component.bind(Vector3.AXIS_Y))
-			properties[&"length"] = prop.with_min_value(0.05).with_step(0.001).with_unit(Units.get_distance_unit_string())
+			properties[&"length"] = prop.with_min_value(0.05).with_max_value(100.0).\
+				with_step(0.001).with_unit(Units.get_distance_unit_string())
 		&"Cylinder":
 			properties[&"height"] = ShapeProperty.new("Cylinder height", in_shape.get_height, in_shape.set_height).\
 					with_min_value(0.05).with_step(0.001).with_unit(Units.get_distance_unit_string())
@@ -107,7 +110,7 @@ class ShapeProperty:
 	var setter: Callable
 	# min_value and max_value could be eighter float or Callable
 	var min_value: Variant = 0.001
-	var max_value: Variant = 9999999999999.0
+	var max_value: Variant = MAX_SHAPE_SIZE
 	var step: float = 0.0000001
 	var is_slider: bool = false
 	var unit: String = ""
