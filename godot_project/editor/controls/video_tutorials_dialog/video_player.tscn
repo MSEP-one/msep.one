@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://b7wxqthabdoy4" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_pause.svg" id="2_jdb2m"]
 [ext_resource type="Texture2D" uid="uid://bkqrfovlyvkqh" path="res://editor/icons/icon_video.svg" id="2_tkbw3"]
 [ext_resource type="Texture2D" uid="uid://bggmkhivgos3r" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_revert.svg" id="5_fhtbd"]
-[ext_resource type="Texture2D" uid="uid://dxiyogf8l7gth" path="res://editor/controls/video_tutorials_dialog/icons/full_screen.svg" id="6_fwlbp"]
+[ext_resource type="Texture2D" uid="uid://d12quwuw386xc" path="res://editor/controls/video_tutorials_dialog/icons/full_screen.svg" id="6_fwlbp"]
 
 [node name="VideoPlayer" type="Window"]
 title = "Video player"

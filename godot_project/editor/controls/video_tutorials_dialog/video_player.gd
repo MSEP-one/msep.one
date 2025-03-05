@@ -75,6 +75,8 @@ func _on_replay_pressed() -> void:
 
 func _on_full_screen_button_toggled(in_button_pressed: bool) -> void:
 	if in_button_pressed:
+		_full_screen_button.text = tr(&"Window View")
+		_full_screen_button.icon = preload("res://editor/controls/video_tutorials_dialog/icons/window_view.svg")
 		# Store window values before changing them
 		_window_size_and_pos = {
 			"position" = position,
@@ -83,6 +85,8 @@ func _on_full_screen_button_toggled(in_button_pressed: bool) -> void:
 		borderless = true
 		_update_full_screen_size()
 	else:
+		_full_screen_button.text = tr(&"Full Screen")
+		_full_screen_button.icon = preload("res://editor/controls/video_tutorials_dialog/icons/full_screen.svg")
 		borderless = false
 		position = _window_size_and_pos.position
 		size = _window_size_and_pos.size
