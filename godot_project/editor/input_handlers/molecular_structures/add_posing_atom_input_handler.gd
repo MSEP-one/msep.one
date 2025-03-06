@@ -149,53 +149,48 @@ func _update_candidates_if_needed() -> void:
 		return
 	_candidates.clear()
 	
-	var total_atoms_selected: int = 0
-	var selected_contexts: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
-	for context: StructureContext in selected_contexts:
-		total_atoms_selected += context.get_selected_atoms().size()
+	var context: StructureContext = _workspace_context.get_current_structure_context()
+	var total_atoms_selected: int = context.get_selected_atoms().size()
 	if total_atoms_selected > MAX_ATOMS_FOR_AUTO_POSING:
 		_get_rendering().atom_autopose_preview_set_candidates(_candidates)
 		return
 	
-	for context: StructureContext in selected_contexts:
-		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
-		if selected_atoms.is_empty():
-			continue
-		var structure_candidates: Array[AtomCandidate] = []
-		var hash_grid := SpatialHashGrid.new(MAX_MERGE_DISTANCE)
-		for atom_id in selected_atoms:
-			var candidates_positions: PackedVector3Array = _generate_candidates_for_atom(context, atom_id)
-			var free_valences: int = context.nano_structure.atom_get_remaining_valence(atom_id)
-			for pos: Vector3 in candidates_positions:
-				var candidate := AtomCandidate.new()
-				candidate.structrure_id = context.nano_structure.int_guid
-				candidate.atom_ids = [atom_id]
-				candidate.atom_position = pos
-				candidate.total_free_valence = free_valences
-				structure_candidates.push_back(candidate)
-				hash_grid.add_item(pos, candidate)
-		
-		# Merge close candidates
-		for candidates_to_merge in hash_grid.get_user_data_closer_than(MAX_MERGE_DISTANCE):
-			var merged_candidate: AtomCandidate = AtomCandidate.new()
-			for candidate: AtomCandidate in candidates_to_merge:
-				merged_candidate.atom_ids.push_back(candidate.atom_ids[0])
-				merged_candidate.atom_position += candidate.atom_position
-				merged_candidate.total_free_valence += candidate.total_free_valence
-				merged_candidate.structrure_id = candidate.structrure_id
-				structure_candidates.erase(candidate)
-			merged_candidate.atom_position /= candidates_to_merge.size()
-			structure_candidates.push_back(merged_candidate)
-		
-		_candidates.append_array(structure_candidates)
+	var selected_atoms: PackedInt32Array = context.get_selected_atoms()
+	var structure_candidates: Array[AtomCandidate] = []
+	var hash_grid := SpatialHashGrid.new(MAX_MERGE_DISTANCE)
+	for atom_id in selected_atoms:
+		var candidates_positions: PackedVector3Array = _generate_candidates_for_atom(context, atom_id)
+		var free_valences: int = context.nano_structure.atom_get_remaining_valence(atom_id)
+		for pos: Vector3 in candidates_positions:
+			var candidate := AtomCandidate.new()
+			candidate.structrure_id = context.nano_structure.int_guid
+			candidate.atom_ids = [atom_id]
+			candidate.atom_position = pos
+			candidate.total_free_valence = free_valences
+			structure_candidates.push_back(candidate)
+			hash_grid.add_item(pos, candidate)
+	
+	# Merge close candidates
+	for candidates_to_merge in hash_grid.get_user_data_closer_than(MAX_MERGE_DISTANCE):
+		var merged_candidate: AtomCandidate = AtomCandidate.new()
+		for candidate: AtomCandidate in candidates_to_merge:
+			merged_candidate.atom_ids.push_back(candidate.atom_ids[0])
+			merged_candidate.atom_position += candidate.atom_position
+			merged_candidate.total_free_valence += candidate.total_free_valence
+			merged_candidate.structrure_id = candidate.structrure_id
+			structure_candidates.erase(candidate)
+		merged_candidate.atom_position /= candidates_to_merge.size()
+		structure_candidates.push_back(merged_candidate)
+	
+	_candidates.append_array(structure_candidates)
 	
 	# Filter candidates colliding with existing atoms
 	if not _atom_grid:
 		_atom_grid = SpatialHashGrid.new(MIN_DISTANCE_TO_ATOMS)
-		for context: StructureContext in _workspace_context.get_all_structure_contexts():
-			if not context.nano_structure is AtomicStructure:
+		for other_context: StructureContext in _workspace_context.get_all_structure_contexts():
+			if not other_context.nano_structure is AtomicStructure:
 				continue
-			var atomic_structure: AtomicStructure = context.nano_structure
+			var atomic_structure: AtomicStructure = other_context.nano_structure
 			for atom_id: int in atomic_structure.get_valid_atoms():
 				var atom_position: Vector3 = atomic_structure.atom_get_position(atom_id)
 				_atom_grid.add_item(atom_position, atom_id)
