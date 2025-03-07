@@ -59,6 +59,9 @@ func _init(in_context: WorkspaceContext) -> void:
 	_get_rendering().atom_autopose_preview_set_atomic_number(_element_selected)
 	var bond_order: int = in_context.create_object_parameters.get_new_bond_order()
 	_get_rendering().atom_autopose_preview_set_bond_order(bond_order)
+	_workspace_context.create_object_parameters.create_mode_type_changed.connect(_on_create_object_parameters_create_mode_type_changed)
+	_workspace_context.simulation_started.connect(_on_workspace_context_simulation_started_or_finished)
+	_workspace_context.simulation_finished.connect(_on_workspace_context_simulation_started_or_finished)
 	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
 	representation_settings.changed.connect(_on_representation_settings_changed)
 
@@ -347,6 +350,8 @@ func _ensure_create_mode() -> void:
 ## This setting is controlled from the visibility panel in the workspace docker.
 func _should_show() -> bool:
 	var parameters: CreateObjectParameters = _workspace_context.create_object_parameters
+	if _workspace_context.is_simulating():
+		return false
 	if not parameters.get_create_mode_enabled():
 		return false
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS:
@@ -390,6 +395,21 @@ func _on_creation_distance_from_camera_factor_changed(_in_distance_factor: float
 
 func _on_create_mode_enabled_changed(enabled: bool) -> void:
 	if enabled:
+		_show_preview()
+	else:
+		_hide_preview()
+
+
+func _on_create_object_parameters_create_mode_type_changed(
+		_in_new_create_mode: CreateObjectParameters.CreateModeType) -> void:
+	if _should_show():
+		_show_preview()
+	else:
+		_hide_preview()
+
+
+func _on_workspace_context_simulation_started_or_finished() -> void:
+	if _should_show():
 		_show_preview()
 	else:
 		_hide_preview()
