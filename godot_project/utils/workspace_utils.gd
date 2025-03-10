@@ -730,10 +730,8 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 		return
 	
 	# Clear selection in other contexts
-	var other_contexts: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_selection()
-	for context: StructureContext in other_contexts:
-		context.clear_selection()
-	
+	out_workspace_context.clear_all_selection()
+
 	# Group the imported structures by their parents.
 	# To make it possible to import the same workspace multiple times, structures are duplicated
 	# and guids are reset. The original guid mapping is stored in `structures_map`. 
@@ -751,9 +749,17 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 		if not parent_id in structures_to_add:
 			structures_to_add[parent_id] = []
 		var copy: NanoStructure = structure.safe_duplicate()
+		copy.int_guid = out_workspace_context.workspace.create_int_guid()
 		structures_map[structure.int_guid] = copy
 		structures_to_add[parent_id].push_back(copy)
 		aabb = aabb.merge(copy.get_aabb())
+	
+	# Sort structures so virtual anchors are added before atomic structures
+	var sort_anchors_first: Callable = \
+		func(_structure_a: NanoStructure, structure_b: NanoStructure) -> bool:
+			return not structure_b is NanoVirtualAnchor
+	for id: int in structures_to_add:
+		structures_to_add[id].sort_custom(sort_anchors_first)
 	
 	# Add the main structure from the imported workspace under the current active group.
 	# Rename it if it still have the default name for better clarity.
@@ -773,7 +779,7 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 				continue # Parent structure was not added yet
 			for structure: NanoStructure in structures_to_add[old_parent_id]:
 				structure.int_parent_guid = parent_structure.int_guid
-				structure.int_guid = Workspace.INVALID_STRUCTURE_ID
+				structure.init_remap_structure_ids(structures_map)
 				out_workspace_context.workspace.add_structure(structure)
 				# Move the structure based on the placement options 
 				if structure.has_transform():
