@@ -157,6 +157,16 @@ func refresh_atom_sizes() -> void:
 	_outdate_non_active_representations()
 
 
+func saturate() -> void:
+	_current_representation.saturate()
+	_outdate_non_active_representations()
+
+
+func desaturate() -> void:
+	_current_representation.desaturate()
+	_outdate_non_active_representations()
+
+
 func change_representation(new_representation: Rendering.Representation) -> void:
 	var struct_context: StructureContext = _workspace_context.get_structure_context(_nano_structure_id)
 	var old_representation: Representation = _current_representation

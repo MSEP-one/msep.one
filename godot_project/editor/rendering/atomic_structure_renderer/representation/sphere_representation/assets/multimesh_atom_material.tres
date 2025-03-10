@@ -28,6 +28,7 @@ shader_parameter/uv1_scale = Vector3(1.1, 1.1, 1.1)
 shader_parameter/uv1_offset = null
 shader_parameter/uv2_scale = Vector3(1, 1, 1)
 shader_parameter/uv2_offset = null
+shader_parameter/saturation = 1.0
 shader_parameter/texture_noise = ExtResource("4_hcfkd")
 shader_parameter/texture_detail_albedo = ExtResource("3_frygv")
 script = ExtResource("1_olce1")
