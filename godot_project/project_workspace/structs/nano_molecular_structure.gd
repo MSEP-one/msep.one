@@ -449,12 +449,12 @@ func _on_anchor_position_change(_in_position: Vector3, in_anchor: NanoVirtualAnc
 	ScriptUtils.call_deferred_once(_ensure_edit_queue_flushed)
 
 
-
 func _on_anchor_visibility_changed(in_is_visible: bool, in_anchor: NanoVirtualAnchor) -> void:
 	var changed_springs: PackedInt32Array = in_anchor.get_related_springs(int_guid)
 	for related_spring_id: int in changed_springs:
 		_springs[related_spring_id].anchor_is_visible = in_is_visible
 	springs_visibility_changed.emit(changed_springs)
+
 
 func _ensure_edit_queue_flushed() -> void:
 	# Workaround, there are two scenarios:
@@ -695,6 +695,14 @@ func get_aabb() -> AABB:
 			else:
 				aabb = aabb.expand(atom.position)
 	return aabb.abs()
+
+
+func init_remap_structure_ids(in_structures_map: Dictionary) -> void:
+	for spring: NanoSpring in _springs.values():
+		var old_id: int = spring.target_anchor
+		var new_structure: NanoStructure = in_structures_map.get(old_id, null)
+		assert(is_instance_valid(new_structure), "Virtual anchor has vanished during import")
+		spring.target_anchor = new_structure.int_guid
 
 
 func create_state_snapshot() -> Dictionary:
