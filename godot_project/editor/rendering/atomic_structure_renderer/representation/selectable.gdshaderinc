@@ -4,8 +4,8 @@
 #include "float_operations.gdshaderinc"
 
 uniform float is_selectable: hint_range(0.0, 1.0, 1.0) = 1.0;
-uniform float saturation: hint_range(0.0, 1.0, 1.0) = 1.0;
-
+uniform float saturation: hint_range(0.0, 1.0, 0.1) = 1.0;
+uniform float value_correction: hint_range(0.0, 1.0, 0.1) = 1.0;
 
 // Usage:
 // COLOR.rgb = apply_selectable_dimming(COLOR).rgb;
@@ -20,5 +20,10 @@ vec4 apply_selectable_dimming(vec4 color) {
 
 vec3 apply_saturation(vec3 color) {
 	vec3 desaturated_color = vec3((color.r + color.g + color.b) / 3.0);
-	return mix(color, desaturated_color, float_eq(float_not(saturation), 1.0));
+	return mix(desaturated_color, color, saturation);
+}
+
+
+vec3 apply_value(vec3 color) {
+	return color * value_correction;
 }
