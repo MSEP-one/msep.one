@@ -189,13 +189,21 @@ func _on_structures_tree_item_edited() -> void:
 			if not motor.is_structure_id_connected(structure_id):
 				motor.connect_structure_by_id(structure_id)
 				var snapshot_name: String = "Connect '{0}' to '{1}'".format([structure_name, motor_name])
-				_workspace_context.snapshot_moment(snapshot_name)
+				_safely_snapshot_moment(snapshot_name)
 		else:
 			if motor.is_structure_id_connected(structure_id):
 				motor.disconnect_structure_by_id(structure_id)
 				var snapshot_name: String = "Disconnect '{0}' from '{1}'".format([structure_name, motor_name])
-				_workspace_context.snapshot_moment(snapshot_name)
+				_safely_snapshot_moment(snapshot_name)
 		_editing_connection = false
+
+
+func _safely_snapshot_moment(in_snapshot_name: String) -> void:
+	# Snapshot cannot happen while tree is being edited, this is because of
+	# internal state of Tree class causing errors when trying to modify it while is being edited,
+	# and this can happen if we edit the tree while a simulation is happening.
+	# For this reason we use call_deferred to run snalshot_moment
+	_workspace_context.snapshot_moment.call_deferred(in_snapshot_name)
 
 
 func _set_tracked_motor(in_motor: NanoVirtualMotor, in_connected_groups: PackedInt32Array = []) -> void:
