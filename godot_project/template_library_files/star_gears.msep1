@@ -55276,12 +55276,12 @@ _visible = true
 [sub_resource type="Resource" id="Resource_v3p34"]
 script = ExtResource("3")
 max_speed_type = 0
-top_revolutions_per_nanosecond = 25.0
+top_revolutions_per_nanosecond = 60.0
 max_torque = 50.0
 is_jerk_limited = false
 jerk_limit = 50.0
 polarity = 0
-ramp_in_time_in_nanoseconds = 0.01
+ramp_in_time_in_nanoseconds = 1.5e-07
 ramp_out_time_in_nanoseconds = 0.00015
 cycle_type = 0
 cycle_time_limit_in_femtoseconds = 500.0
@@ -76348,11 +76348,13 @@ _balls_and_sticks_size_factor = 0.3
 _hydrogens_visible = true
 _display_bonds = true
 _display_atom_labels = false
+_display_auto_posing = true
 _custom_selection_outline_color_enabled = false
 _custom_selection_outline_color = Color(0, 0, 0, 1)
 _custom_background_color_enabled = false
 _custom_background_color = Color(0, 0, 0, 1)
 _theme = ExtResource("5")
+_color_palette = 0
 
 [sub_resource type="Resource" id="Resource_oswo6"]
 script = ExtResource("8")
@@ -76376,6 +76378,7 @@ _structures = {
 1993897431: SubResource("Resource_v0uvx"),
 2000667658: SubResource("Resource_wdxlt")
 }
+active_structure_int_guid = 1090029816
 main_structure_int_guid = 1090029816
 description = ""
 authors = ""
@@ -76457,7 +76460,9 @@ msep_version_history = {
 "2024-09-24T18:57:24": "2024-09-24.ca82851931+Godot[windows,release,template_release,NVIDIA-GeForce-GTX-1070-Ti,NVIDIA]4.2.3-rc (custom_build)",
 "2024-09-24T19:03:02": "2024-09-24.ca82851931+Godot[windows,release,template_release,NVIDIA-GeForce-GTX-1070-Ti,NVIDIA]4.2.3-rc (custom_build)",
 "2024-09-24T19:49:17": "2024-09-24.ca82851931+Godot[windows,release,template_release,NVIDIA-GeForce-GTX-1070-Ti,NVIDIA]4.2.3-rc (custom_build)",
-"2024-09-24T19:49:40": "2024-09-24.ca82851931+Godot[windows,release,template_release,NVIDIA-GeForce-GTX-1070-Ti,NVIDIA]4.2.3-rc (custom_build)"
+"2024-09-24T19:49:40": "2024-09-24.ca82851931+Godot[windows,release,template_release,NVIDIA-GeForce-GTX-1070-Ti,NVIDIA]4.2.3-rc (custom_build)",
+"2025-03-12T11:00:42": "2025-03-11.a458987efc(devel)+Godot[windows,debug,editor,NVIDIA-GeForce-RTX-3060-Laptop-GPU,NVIDIA]4.2.3-rc (custom_build)",
+"2025-03-12T11:01:04": "2025-03-11.a458987efc(devel)+Godot[windows,debug,editor,NVIDIA-GeForce-RTX-3060-Laptop-GPU,NVIDIA]4.2.3-rc (custom_build)"
 }
 representation_settings = SubResource("Resource_g8vt7")
 simulation_parameters = SubResource("Resource_oswo6")
@@ -76469,4 +76474,5 @@ simulation_settings_msep_extensions_md5 = "e9626a0791d47c03c2467556b16fb0c7"
 simulation_settings_show_user_defined_extensions = false
 random_state = 434533344153355919
 random_seed = -1184376041584736495
-camera_transform = Transform3D(0.86721, 0.158307, -0.472108, -0.0158835, 0.956429, 0.291533, 0.497689, -0.245322, 0.831939, -14.8742, 10.292, 43.8796)
+camera_transform = Transform3D(-0.31595, -0.531811, 0.785718, -0.0982406, 0.842025, 0.530418, -0.943676, 0.0903963, -0.318283, 45.5957, 30.4454, -6.43013)
+camera_orthogonal_size = 7.79571
