@@ -107,7 +107,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	if not (in_input_event is InputEventMouseButton and 
 			in_input_event.pressed and
 			in_input_event.button_index == MOUSE_BUTTON_LEFT):
-		return false
+		return is_shortcut_pressed
 	
 	var preview_atomic_number: int = get_workspace_context().create_object_parameters.get_new_atom_element()
 	var cannot_create_because_hydrogen: bool = not out_context.nano_structure.are_hydrogens_visible() \
@@ -116,7 +116,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 		return true
 	
 	if _hovered_candidate == null:
-		return false
+		return is_shortcut_pressed
 	
 	var atom_pos: Vector3 = _hovered_candidate.atom_position
 	var element_to_create: int = _element_selected
@@ -139,8 +139,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 func is_exclusive_input_consumer() -> bool:
 	if _is_shortcut_pressed():
 		return true
-	var rendering: Rendering = get_workspace_context().get_rendering()
-	return rendering.atom_autopose_get_hovered_candidate_or_null() != null
+	return _hovered_candidate != null
 
 
 func set_preview_position(_in_position: Vector3) -> void:
