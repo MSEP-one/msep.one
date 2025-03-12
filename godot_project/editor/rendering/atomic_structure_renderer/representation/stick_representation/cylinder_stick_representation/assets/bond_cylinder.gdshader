@@ -101,6 +101,7 @@ void fragment() {
 	albedo = mix(albedo, custom_color, curve_percent);
 	ALBEDO = calculate_outline_color(albedo, COLOR);
 	ALBEDO.rgb = apply_saturation(ALBEDO.rgb);
+	ALBEDO.rgb = apply_value(ALBEDO.rgb);
 	EMISSION = albedo * emission_energy;
 	
 	//

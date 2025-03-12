@@ -158,4 +158,5 @@ void fragment() {
 	ALBEDO.rgb = mix(ALBEDO.rgb,detail,detail_mask_tex.r);
 	ALBEDO = calculate_outline_color(ALBEDO, COLOR);
 	ALBEDO.rgb = apply_saturation(ALBEDO.rgb);
+	ALBEDO.rgb = apply_value(ALBEDO.rgb);
 }
