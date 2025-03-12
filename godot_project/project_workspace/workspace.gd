@@ -143,7 +143,6 @@ var suggested_path: String = ""
 
 var _main_structure_int_guid: int = 0
 var _id: int
-var _reserved_int_guids: Dictionary = {} # {guid<int>: true}
 
 
 func _init() -> void:
@@ -165,7 +164,6 @@ func post_load() -> void:
 	# Main structure is the only one without a parent
 	for structure_id: int in _structures:
 		var structure: NanoStructure = _structures[structure_id]
-		_reserved_int_guids[structure.int_guid] = true
 		if structure.int_parent_guid == INVALID_STRUCTURE_ID:
 			_main_structure_int_guid = structure_id
 
@@ -247,6 +245,57 @@ func add_structure(in_structure: NanoStructure, in_parent: NanoStructure = null)
 	structure_added.emit(in_structure)
 
 
+## Add the structures from in_workspace to this workspace.
+## Incoming structures are duplicated and their IDs are regenerated to avoid
+## conflicts if the same workspace is added multiple times.
+func append_workspace(in_workspace: Workspace, in_xform: Transform3D = Transform3D()) -> Array[NanoStructure]:
+	# Add structures copies to the workspace
+	var new_structures: Array[NanoStructure] = []
+	var structures_map: Dictionary = {} # old_int_guid<int> : new_structure<NanoStructure>
+	for structure: NanoStructure in in_workspace.get_structures():
+		var copy: NanoStructure = structure.safe_duplicate()
+		new_structures.push_back(copy)
+		structures_map[structure.int_guid] = copy
+		copy.int_guid = INVALID_STRUCTURE_ID
+		if not in_workspace.get_parent_structure(structure):
+			# Structure is the imported main structure, add it under the current active group.
+			copy.int_parent_guid = active_structure_int_guid
+		_internal_add_structure(copy, null) # Don't override the old parent yet
+	
+	# Update references to other structures with their new GUIDs
+	for structure: NanoStructure in new_structures:
+		var parent: NanoStructure = structures_map.get(structure.int_parent_guid)
+		if parent:
+			structure.int_parent_guid = parent.int_guid
+		structure.init_remap_structure_ids(structures_map)
+	
+	# Notify MSEP about the new structures.
+	# Parent structures MUST be emitted before their children.
+	new_structures.sort_custom(is_a_ancestor_of_b)
+	for structure: NanoStructure in new_structures:
+		structure_added.emit(structure)
+	
+	# Move the structures to their new location
+	# Start with the anchors or the springs will be drawn in the wrong place
+	new_structures.sort_custom(
+		func(a: NanoStructure, _b: NanoStructure) -> bool:
+			return a is NanoVirtualAnchor
+	)
+	for structure: NanoStructure in new_structures:
+		if structure is NanoVirtualAnchor:
+			structure.set_position(in_xform * structure.get_position())
+		elif structure.has_transform():
+			structure.set_transform(in_xform * structure.get_transform())
+		elif structure is AtomicStructure:
+			structure.start_edit()
+			for atom_id: int in structure.get_valid_atoms():
+				var position: Vector3 = structure.atom_get_position(atom_id)
+				structure.atom_set_position(atom_id, in_xform * position)
+			structure.end_edit()
+	
+	return new_structures
+
+
 func _internal_add_structure(in_structure: NanoStructure, in_parent: NanoStructure = null) -> void:
 	if in_structure == null:
 		push_error("Cannot add null structure")
@@ -256,7 +305,7 @@ func _internal_add_structure(in_structure: NanoStructure, in_parent: NanoStructu
 		return
 	if in_structure.int_guid <= 0:
 		# initialize in_structure identifier
-		in_structure.int_guid = create_int_guid()
+		in_structure.int_guid = _create_int_guid()
 		if _main_structure_int_guid == 0:
 			_main_structure_int_guid = in_structure.int_guid
 	_structures[in_structure.int_guid] = in_structure
@@ -293,7 +342,6 @@ func remove_structure(struct: NanoStructure) -> void:
 		struct.renamed.disconnect(_on_nano_structure_renamed)
 	structure_about_to_remove.emit(struct)
 	_structures.erase(struct.get_int_guid())
-	_reserved_int_guids.erase(struct.get_int_guid())
 	structure_removed.emit(struct)
 
 
@@ -346,17 +394,16 @@ func is_a_ancestor_of_b(in_ancestor_candidate: NanoStructure, in_descendant_cand
 	return false
 
 
-func create_int_guid() -> int:
+func _create_int_guid() -> int:
 	var is_valid: bool = false
 	var int_id: int = 0
 	while !is_valid:
 		# int_id must be in 32 bit range since we are using PackedInt32Array across the project
 		int_id = _rng.randi_range(0, MAX_SIGNED_32_BIT_INT)
 		
-		if int_id <= 0 || _reserved_int_guids.has(int_id):
+		if int_id <= 0 || _structures.has(int_id):
 			continue
 		is_valid = true
-	_reserved_int_guids[int_id] = true
 	return int_id
 
 
@@ -408,7 +455,6 @@ func create_state_snapshot() -> Dictionary:
 		"camera_transform" : camera_transform,
 		"suggested_path" : suggested_path,
 		"_main_structure_int_guid" : _main_structure_int_guid,
-		"_reserved_int_guids" : _reserved_int_guids,
 		"_id" : _id
 	}
 	return snapshot
@@ -449,4 +495,3 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	suggested_path = in_snapshot["suggested_path"]
 	_main_structure_int_guid = in_snapshot["_main_structure_int_guid"]
 	_id = in_snapshot["_id"]
-	_reserved_int_guids = in_snapshot["_reserved_int_guids"]

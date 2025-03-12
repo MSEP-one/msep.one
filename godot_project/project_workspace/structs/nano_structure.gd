@@ -134,8 +134,6 @@ func _ensure_structure_is_not_virtual(in_structure: NanoStructure) -> bool:
 ## Called when importing a workspace, before the structures are actually added.
 ## Because the all the structure ids have changed, any reference to external
 ## structures must be updated.
-## New structures may or may not have been added to the workspace yet, but
-## already have a valid (new) int_guid.
 ## in_structure_map: {old_structure_id<int> : new_structure<NanoStructure>}
 func init_remap_structure_ids(_in_structures_map: Dictionary) -> void:
 	pass
