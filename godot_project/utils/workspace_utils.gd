@@ -731,71 +731,24 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 	
 	# Clear selection in other contexts
 	out_workspace_context.clear_all_selection()
-
-	# Group the imported structures by their parents.
-	# To make it possible to import the same workspace multiple times, structures are duplicated
-	# and guids are reset. The original guid mapping is stored in `structures_map`. 
-	var imported_main_structure: NanoStructure
-	var aabb := AABB()
-	var structures_to_add: Dictionary = {} # old_parent_guid<int> : child_structures<Array[NanoStructure]>
-	var structures_map: Dictionary = {} # old_int_guid<int> : new_structure<NanoStructure>
-	for structure: NanoStructure in imported_workspace.get_structures():
-		var parent_structure: NanoStructure = imported_workspace.get_parent_structure(structure)
-		if not parent_structure:
-			imported_main_structure = structure.safe_duplicate()
-			structures_map[structure.int_guid] = imported_main_structure
-			continue
-		var parent_id: int = parent_structure.int_guid
-		if not parent_id in structures_to_add:
-			structures_to_add[parent_id] = []
-		var copy: NanoStructure = structure.safe_duplicate()
-		copy.int_guid = out_workspace_context.workspace.create_int_guid()
-		structures_map[structure.int_guid] = copy
-		structures_to_add[parent_id].push_back(copy)
-		aabb = aabb.merge(copy.get_aabb())
 	
-	# Sort structures so virtual anchors are added before atomic structures
-	var sort_anchors_first: Callable = \
-		func(_structure_a: NanoStructure, structure_b: NanoStructure) -> bool:
-			return not structure_b is NanoVirtualAnchor
-	for id: int in structures_to_add:
-		structures_to_add[id].sort_custom(sort_anchors_first)
-	
-	# Add the main structure from the imported workspace under the current active group.
-	# Rename it if it still have the default name for better clarity.
+	# Rename the imported main structure for better clarity.
+	var imported_main_structure: NanoStructure = imported_workspace.get_main_structure()
 	if imported_main_structure.get_structure_name() == "Workspace":
 		imported_main_structure.set_structure_name(path.get_file().get_basename().capitalize())
-	var active_structure: NanoStructure = out_workspace_context.get_current_structure_context().nano_structure
-	imported_main_structure.int_guid = Workspace.INVALID_STRUCTURE_ID
-	out_workspace_context.workspace.add_structure(imported_main_structure, active_structure)
 	
-	# Add all structures to the workspace, starting from the direct children of the imported main_structure.
+	# Add all structures to the workspace based on the placement options
+	var aabb := AABB()
+	for structure: NanoStructure in imported_workspace.get_structures():
+		aabb = aabb.merge(structure.get_aabb())
 	var placement_xform: Transform3D = _get_placement_transform(out_workspace_context, aabb, placement)
-	while not structures_to_add.is_empty():
-		var structures_added: Array[int] = []
-		for old_parent_id: int in structures_to_add:
-			var parent_structure: NanoStructure = structures_map[old_parent_id]
-			if not out_workspace_context.has_nano_structure_context(parent_structure):
-				continue # Parent structure was not added yet
-			for structure: NanoStructure in structures_to_add[old_parent_id]:
-				structure.int_parent_guid = parent_structure.int_guid
-				structure.init_remap_structure_ids(structures_map)
-				out_workspace_context.workspace.add_structure(structure)
-				# Move the structure based on the placement options 
-				if structure.has_transform():
-					structure.set_transform(placement_xform * structure.get_transform())
-				elif structure is AtomicStructure:
-					structure.start_edit()
-					for atom_id: int in structure.get_valid_atoms():
-						var position: Vector3 = structure.atom_get_position(atom_id)
-						structure.atom_set_position(atom_id, placement_xform * position)
-					structure.end_edit()
-				# Select the newly added structure
-				var structure_context: StructureContext = out_workspace_context.get_nano_structure_context(structure)
-				structure_context.select_all()
-			structures_added.push_back(old_parent_id)
-		for structure_id: int in structures_added:
-			structures_to_add.erase(structure_id)
+	var new_structures: Array[NanoStructure]
+	new_structures = out_workspace_context.workspace.append_workspace(imported_workspace, placement_xform)
+	
+	# Select newly added
+	for structure: NanoStructure in new_structures:
+		var structure_context: StructureContext = out_workspace_context.get_nano_structure_context(structure)
+		structure_context.select_all()
 	
 	# Focus on the imported structures 
 	if placement != ImportFileDialog.Placement.IN_FRONT_OF_CAMERA:
