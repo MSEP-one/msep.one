@@ -133,6 +133,11 @@ func atom_find_bond_between(in_atom_id_a: int, in_atom_id_b: int) -> int:
 	return INVALID_BOND_ID
 
 
+func atoms_count_by_type(_types_to_count: PackedInt32Array) -> int:
+	assert(false, "FIXME: Unimplemented")
+	return 0
+
+
 func add_bond(in_atom_id_a: int, in_atom_id_b: int, in_bond_order: int) -> int:
 	assert(_is_being_edited, "To perform any changes to NanoStructure you need to put it in edit mode by calling start_edit()")
 	assert(atom_find_bond_between(in_atom_id_a, in_atom_id_b) == INVALID_BOND_ID)
