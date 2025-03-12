@@ -23,7 +23,7 @@ func _handles_type(typename: StringName) -> bool:
 
 
 func _load(path: String, _original_path: String, _use_sub_threads: bool, cache_mode: int) -> Workspace:
-	var tmp_path: String = path + ".tres"
+	var tmp_path: String = OS.get_cache_dir().path_join(path.get_file().get_basename() + ".tres")
 	var d: DirAccess = DirAccess.open("user://")
 	var workspace: Workspace = null
 	var file_content: String = FileAccess.get_file_as_string(path)
