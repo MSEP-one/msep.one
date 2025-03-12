@@ -62,6 +62,8 @@ func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = super.create_state_snapshot()
 	snapshot[UNIFORM_CAPS_STARTS_AT_LOCAL_Z] = get_shader_parameter(UNIFORM_CAPS_STARTS_AT_LOCAL_Z)
 	snapshot[UNIFORM_OUTLINE_THICKNESS] = get_shader_parameter(UNIFORM_OUTLINE_THICKNESS)
+	snapshot[UNIFORM_SATURATION] = get_shader_parameter(UNIFORM_SATURATION)
+	snapshot[UNIFORM_VALUE] = get_shader_parameter(UNIFORM_VALUE)
 	return snapshot
 
 
@@ -69,3 +71,5 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	super.apply_state_snapshot(in_snapshot)
 	set_shader_parameter(UNIFORM_CAPS_STARTS_AT_LOCAL_Z, in_snapshot[UNIFORM_CAPS_STARTS_AT_LOCAL_Z])
 	set_shader_parameter(UNIFORM_OUTLINE_THICKNESS, in_snapshot[UNIFORM_OUTLINE_THICKNESS])
+	set_shader_parameter(UNIFORM_SATURATION, in_snapshot[UNIFORM_SATURATION])
+	set_shader_parameter(UNIFORM_VALUE, in_snapshot[UNIFORM_VALUE])

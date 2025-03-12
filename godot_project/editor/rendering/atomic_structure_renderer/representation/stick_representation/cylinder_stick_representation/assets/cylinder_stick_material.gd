@@ -72,3 +72,17 @@ func copy_state_from(in_from_material: ShaderMaterial) -> void:
 	RenderingUtils.copy_selected_uniforms_from(in_from_material, self, [UNIFORM_ATOM_SCALE,
 			UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA,
 			UNIFORM_OUTLINE_THICKNESS])
+
+
+func create_state_snapshot() -> Dictionary:
+	var snapshot: Dictionary = super.create_state_snapshot()
+	snapshot[UNIFORM_SATURATION] = get_shader_parameter(UNIFORM_SATURATION)
+	snapshot[UNIFORM_VALUE] = get_shader_parameter(UNIFORM_VALUE)
+	return snapshot
+
+
+func apply_state_snapshot(in_snapshot: Dictionary) -> void:
+	super.apply_state_snapshot(in_snapshot)
+	set_shader_parameter(UNIFORM_SATURATION, in_snapshot[UNIFORM_SATURATION])
+	set_shader_parameter(UNIFORM_VALUE, in_snapshot[UNIFORM_VALUE])
+	
