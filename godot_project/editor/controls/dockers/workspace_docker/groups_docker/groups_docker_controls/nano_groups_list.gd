@@ -263,10 +263,11 @@ func _on_structures_tree_gui_input(in_event: InputEvent) -> void:
 		_workspace_context.change_current_structure_context(structure_context)
 		# We changed currently active structure, now lets make the content's selected following
 		# "group propagation rules"
-		_on_structures_tree_multi_selected(activated_item, _TREE_COLUMN_0, true)
+		var snapshot_name: String = "Change Active Group"
+		_on_structures_tree_multi_selected(activated_item, _TREE_COLUMN_0, true, snapshot_name)
 
 
-func _on_structures_tree_multi_selected(out_item: TreeItem, _in_column: int, in_is_selected: bool) -> void:
+func _on_structures_tree_multi_selected(out_item: TreeItem, _in_column: int, in_is_selected: bool, in_snapshot_name: String = "") -> void:
 	if _changing_selection or not in_is_selected: return
 	_multiselect_served_at_frame = Engine.get_process_frames()
 	var workspace_context: WorkspaceContext = get_workspace_context()
@@ -280,6 +281,9 @@ func _on_structures_tree_multi_selected(out_item: TreeItem, _in_column: int, in_
 	clicked_structure_context.select_all(true)
 	_changing_selection = false
 	workspace_context.refresh_group_saturation()
+	if in_snapshot_name.is_empty():
+		in_snapshot_name = "Select Group"
+	workspace_context.snapshot_moment(in_snapshot_name)
 
 
 
