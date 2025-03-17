@@ -175,6 +175,7 @@ func move_camera(in_delta_time: float) -> void:
 		return
 	
 	if mouse_wheel_movement and mouse_wheel_move_time_left <= .0:
+		interrupt_mouse_wheel_movement()
 		return
 	
 	if movement_x_coefficient != STOP || movement_y_coefficient != STOP || \
