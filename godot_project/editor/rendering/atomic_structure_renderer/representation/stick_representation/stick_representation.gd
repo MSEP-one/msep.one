@@ -705,6 +705,8 @@ func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: Stru
 	if not is_hovered and are_structures_valid:
 		is_hovered = workspace.is_a_ancestor_of_b(in_hovered_structure_context.nano_structure, \
 				structure_context.nano_structure)
+	if is_hovered and in_hovered_structure_context.nano_structure.int_guid == workspace.active_structure_int_guid:
+		is_hovered = false
 	_update_is_hovered_uniform(is_hovered)
 	if in_hovered_structure_context != structure_context:
 		in_bond_id = -1 # Hovered bond is not part of this structure, remove roll over if needed
