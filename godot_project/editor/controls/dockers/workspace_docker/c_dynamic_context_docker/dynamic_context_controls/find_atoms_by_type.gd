@@ -76,7 +76,7 @@ func _add_groups_recursively(in_structure: AtomicStructure, in_parent_item: Tree
 
 func _count_found_atoms(in_structure: AtomicStructure) -> int:
 	var types := PackedInt32Array(_selected_types.keys())
-	return _workspace_context.get_structure_context(in_structure.int_guid).count_by_type(types)
+	return _workspace_context.get_structure_context(in_structure.int_guid).count_visible_atoms_by_type(types)
 
 
 func _on_element_picker_atom_type_change_requested(element: int) -> void:
