@@ -354,6 +354,10 @@ func atom_get_remaining_valence(in_atom_id: int) -> int:
 	return valence_left
 
 
+func atoms_count_by_type(_types_to_count: PackedInt32Array) -> int:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return 0
+
 func has_color_override(in_atom_id: int) -> bool:
 	return color_overrides.has(in_atom_id)
 

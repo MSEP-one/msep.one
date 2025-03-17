@@ -626,6 +626,14 @@ func atom_has_motor_link(in_atom_id: int) -> bool:
 	return _motor_links.has(in_atom_id)
 
 
+func atoms_count_by_type(types_to_count: PackedInt32Array) -> int:
+	var count: int = 0
+	for atom: NanoAtomLegacy in _atoms:
+		if atom.valid and atom.atomic_number in types_to_count:
+			count += 1
+	return count
+
+
 func motor_link_get_motor_id(in_atom_id: int) -> int:
 	if connected_motor != 0:
 		return connected_motor

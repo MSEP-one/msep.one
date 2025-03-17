@@ -294,6 +294,12 @@ func select_atoms_and_get_auto_selected_bonds(in_atoms_to_select: PackedInt32Arr
 	return _selection_db.select_atoms_and_get_auto_selected_bonds(in_atoms_to_select)
 
 
+func count_by_type(types_to_count: PackedInt32Array) -> int:
+	if not nano_structure is AtomicStructure:
+		return 0
+	return nano_structure.atoms_count_by_type(types_to_count)
+
+
 func select_by_type(types_to_select: PackedInt32Array) -> void:
 	return _selection_db.select_by_type(types_to_select)
 

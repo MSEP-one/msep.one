@@ -48,7 +48,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/change_bond_type.tscn"
 			]
 		},
-	&"Select Atoms by Type":
+	&"Find Atoms by Type":
 		{
 			header = true,
 			scroll = false,
@@ -56,7 +56,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 			start_collapsed = true,
 			stretch_ratio = 0.0,
 			controls = [
-				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/select_atoms_by_type.tscn"
+				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/find_atoms_by_type.tscn"
 			]
 		},
 	&"Lock/Unlock Atoms":
