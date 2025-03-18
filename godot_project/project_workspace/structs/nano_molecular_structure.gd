@@ -626,10 +626,11 @@ func atom_has_motor_link(in_atom_id: int) -> bool:
 	return _motor_links.has(in_atom_id)
 
 
-func atoms_count_by_type(types_to_count: PackedInt32Array) -> int:
+func atoms_count_visible_by_type(types_to_count: PackedInt32Array) -> int:
 	var count: int = 0
-	for atom: NanoAtomLegacy in _atoms:
-		if atom.valid and atom.atomic_number in types_to_count:
+	for atom_id: int in _atoms.size():
+		var atom: NanoAtomLegacy = _atoms[atom_id]
+		if atom.valid and atom.atomic_number in types_to_count and is_atom_visible(atom_id):
 			count += 1
 	return count
 

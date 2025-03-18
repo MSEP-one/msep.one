@@ -48,7 +48,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/change_bond_type.tscn"
 			]
 		},
-	&"Find Atoms by Type":
+	&"Find Visible Atoms by Type":
 		{
 			header = true,
 			scroll = false,

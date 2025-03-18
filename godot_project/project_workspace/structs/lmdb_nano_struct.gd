@@ -133,7 +133,7 @@ func atom_find_bond_between(in_atom_id_a: int, in_atom_id_b: int) -> int:
 	return INVALID_BOND_ID
 
 
-func atoms_count_by_type(_types_to_count: PackedInt32Array) -> int:
+func atoms_count_visible_by_type(_types_to_count: PackedInt32Array) -> int:
 	assert(false, "FIXME: Unimplemented")
 	return 0
 
