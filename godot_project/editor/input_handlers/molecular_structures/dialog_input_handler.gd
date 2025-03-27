@@ -20,7 +20,7 @@ func is_exclusive_input_consumer() -> bool:
 	return false
 
 
-func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, _in_context: StructureContext) -> bool:
+func forward_input(_in_input_event: InputEvent, _in_camera: Camera3D, _in_context: StructureContext) -> bool:
 	if is_exclusive_input_consumer():
 		return true
 	return false

@@ -1,5 +1,11 @@
 extends DynamicContextControl
 
+## Group selection logic:
+##
+## + When a group is selected, all of its descendants should also be selected
+## + There can't be unselected groups between the current active group and the
+##   selected group
+
 
 const _WORKSPACE_ROOT_ID: int = 0
 const _TREE_COLUMN_0: int = 0
@@ -211,7 +217,7 @@ func _ensure_workspace_initialized(out_workspace_context: WorkspaceContext) -> v
 		out_workspace_context.structure_about_to_remove.connect(_on_nano_structure_removed)
 		out_workspace_context.workspace.structure_reparented.connect(_on_workspace_structure_reparented)
 		out_workspace_context.current_structure_context_changed.connect(_on_workspace_context_current_structure_context_changed)
-		out_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
+		out_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed, CONNECT_DEFERRED)
 		out_workspace_context.history_snapshot_applied.connect(_on_workspace_context_history_snapshot_applied)
 		_rebuild()
 
@@ -331,7 +337,7 @@ func _on_structures_tree_item_collapsed(in_item: TreeItem) -> void:
 	# folding arrows. Since it is still posible to fold the list in other ways we need to revert
 	# the folding as soon as it happens
 	in_item.collapsed = false
-	
+
 
 func _on_nano_structure_added(in_nano_structure: NanoStructure) -> void:
 	if not _can_appear_in_tree(in_nano_structure):
@@ -382,7 +388,7 @@ func _on_workspace_context_selection_in_structures_changed(in_structure_contexts
 		var item: TreeItem = _get_structure_tree_item_or_null(context.nano_structure.int_guid)
 		if not item:
 			continue
-		if context.is_fully_selected():
+		if context.has_atom_selection(true):
 			item.select(_TREE_COLUMN_0)
 		else:
 			item.deselect(_TREE_COLUMN_0)
@@ -428,6 +434,7 @@ func _create_structure_tree_item(in_structure_id: int) -> TreeItem:
 				_TREE_BUTTON_ID_DELETE, false,
 				tr(&"Delete this structure"))
 	return tree_item
+
 
 func _set_edited_structure_tree_item(out_tree_item: TreeItem) -> void:
 	if _edited_structure_tree_item == out_tree_item:
