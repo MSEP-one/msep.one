@@ -81,6 +81,10 @@ func build(in_structure_context: StructureContext) -> void:
 
 func handle_editable_structures_changed(_in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	_update_is_selectable_uniform()
+	# Active structure have changed, remove highlight if needed
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
+	if structure_context.nano_structure.int_guid == _workspace_context.workspace.active_structure_int_guid:
+		_material.set_hovered(false)
 
 
 func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: StructureContext,

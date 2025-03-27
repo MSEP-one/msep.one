@@ -691,6 +691,10 @@ func handle_editable_structures_changed(_in_new_editable_structure_contexts: Arr
 		assert(ScriptUtils.is_queued_for_deletion_reqursive(self), "structure deleted, this rendering instance is about to be deleted")
 		return
 	_update_is_selectable_uniform()
+	# Active structure have changed, remove highlight if needed
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
+	if structure_context.nano_structure.int_guid == _workspace_context.workspace.active_structure_int_guid:
+		_update_is_hovered_uniform(false)
 
 
 func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: StructureContext,
