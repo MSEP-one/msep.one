@@ -335,7 +335,7 @@ func hydrogens_rendering_on() -> void:
 
 func handle_editable_structures_changed(_in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	if not _workspace_context.has_nano_structure_context_id(_structure_id):
-		assert(ScriptUtils.is_queued_for_deletion_reqursive(self), "structure deleted, this rendering instance is about to be deleted")
+		assert(ScriptUtils.is_queued_for_deletion_recursive(self), "structure deleted, this rendering instance is about to be deleted")
 		return
 	_update_is_selectable_uniform()
 	# Active structure have changed, remove highlight if needed
