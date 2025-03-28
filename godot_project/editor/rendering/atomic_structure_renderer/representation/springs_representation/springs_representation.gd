@@ -252,7 +252,7 @@ func set_transparency(_in_transparency: float) -> void:
 
 func handle_editable_structures_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	if not _workspace_context.has_nano_structure_context_id(_structure_id):
-		assert(ScriptUtils.is_queued_for_deletion_reqursive(self), "structure deleted, this rendering instance is about to be deleted")
+		assert(ScriptUtils.is_queued_for_deletion_recursive(self), "structure deleted, this rendering instance is about to be deleted")
 		return
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	var is_editable: bool = in_new_editable_structure_contexts.find(structure_context)

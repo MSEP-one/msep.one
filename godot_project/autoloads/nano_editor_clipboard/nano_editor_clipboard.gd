@@ -123,6 +123,7 @@ func _copy_selected_atoms(
 	new_content[&"data"] = {}
 	new_content[&"data"][&"group_id"] = in_structure.int_guid
 	new_content[&"data"][&"parent_group_id"] = in_structure.int_parent_guid
+	new_content[&"data"][&"name"] = in_structure.get_structure_name()
 	new_content[&"data"][&"bonds"] = clipboard_bonds
 	new_content[&"data"][&"atoms"] = clipboard_atoms
 	out_content.push_back(new_content)
@@ -308,7 +309,10 @@ func paste(out_workspace_context: WorkspaceContext, in_auto_bond_order: int) -> 
 							next_pass_content.push_back(entity)
 							continue
 						var new_structure := AtomicStructure.create()
-						new_structure.set_structure_name("Structure %d" % (out_workspace_context.workspace.get_nmb_of_structures() + 1))
+						var new_name: String = entity.data.get(&"name", &"")
+						if new_name.is_empty():
+							new_name = "Structure %d" % (out_workspace_context.workspace.get_nmb_of_structures() + 1)
+						new_structure.set_structure_name(new_name)
 						var new_parent_id: int = original_to_new_structure_id[entity.data.parent_group_id]
 						var parent: NanoStructure = out_workspace_context.workspace.get_structure_by_int_guid(new_parent_id)
 						assert(parent)
