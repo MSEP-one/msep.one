@@ -229,7 +229,7 @@ func _screen_selection_logic(
 			if not need_to_create_snapshot:
 				snapshot_name = "Select Group"
 				need_to_create_snapshot = true
-			var affected_context: StructureContext = hit_context
+			var affected_context: StructureContext = _workspace_context.get_toplevel_editable_context(hit_context)
 			if affected_context.is_fully_selected() and is_multiselecting:
 				affected_context.clear_selection(true)
 			else:

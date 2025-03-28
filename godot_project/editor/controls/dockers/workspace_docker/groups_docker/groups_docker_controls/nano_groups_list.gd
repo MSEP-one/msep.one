@@ -1,5 +1,11 @@
 extends DynamicContextControl
 
+## Group selection logic:
+##
+## + When a group is selected, all of its descendants should also be selected
+## + There can't be unselected groups between the current active group and the
+##   selected group
+
 
 const _WORKSPACE_ROOT_ID: int = 0
 const _TREE_COLUMN_0: int = 0
@@ -20,7 +26,6 @@ var _structure_id_to_tree_item: Dictionary = {
 }
 var _edited_structure_tree_item: TreeItem = null: set = _set_edited_structure_tree_item
 var _changing_selection: bool = false
-var _multiselect_served_at_frame: int = -1
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -34,8 +39,6 @@ func _notification(what: int) -> void:
 		_structures_tree.button_clicked.connect(_on_structures_tree_button_clicked)
 		_structures_tree.item_edited.connect(_on_structures_tree_item_edited)
 		_structures_tree.item_collapsed.connect(_on_structures_tree_item_collapsed)
-		_structures_tree.cell_selected.connect(_on_structure_tree_cell_selected, CONNECT_DEFERRED)
-		
 	if what == NOTIFICATION_READY:
 		var groups_docker: GroupsDocker = _find_docker()
 		assert(groups_docker, "Could not find GroupsDocker")
@@ -214,7 +217,7 @@ func _ensure_workspace_initialized(out_workspace_context: WorkspaceContext) -> v
 		out_workspace_context.structure_about_to_remove.connect(_on_nano_structure_removed)
 		out_workspace_context.workspace.structure_reparented.connect(_on_workspace_structure_reparented)
 		out_workspace_context.current_structure_context_changed.connect(_on_workspace_context_current_structure_context_changed)
-		out_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
+		out_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed, CONNECT_DEFERRED)
 		out_workspace_context.history_snapshot_applied.connect(_on_workspace_context_history_snapshot_applied)
 		_rebuild()
 
@@ -269,44 +272,27 @@ func _on_structures_tree_gui_input(in_event: InputEvent) -> void:
 
 func _on_structures_tree_multi_selected(out_item: TreeItem, _in_column: int, in_is_selected: bool, in_snapshot_name: String = "") -> void:
 	if _changing_selection or not in_is_selected: return
-	_multiselect_served_at_frame = Engine.get_process_frames()
 	var workspace_context: WorkspaceContext = get_workspace_context()
+	
 	var structure_id: int = _structure_id_to_tree_item.find_key(out_item)
-	var clicked_structure_context: StructureContext = workspace_context.get_structure_context(structure_id)
+	var nano_structure: NanoStructure = workspace_context.workspace.get_structure_by_int_guid(structure_id)
+	var clicked_structure_context: StructureContext = workspace_context.get_nano_structure_context(nano_structure)
 	if not clicked_structure_context.is_editable():
 		return
 	
 	_changing_selection = true
 	workspace_context.clear_all_selection()
 	clicked_structure_context.select_all(true)
+	var topmost_structure_context: StructureContext = clicked_structure_context
+	if clicked_structure_context != workspace_context.get_current_structure_context():
+		topmost_structure_context = \
+				workspace_context.get_toplevel_editable_context(clicked_structure_context)
+	topmost_structure_context.select_all(true)
 	_changing_selection = false
 	workspace_context.refresh_group_saturation()
 	if in_snapshot_name.is_empty():
 		in_snapshot_name = "Select Group"
 	workspace_context.snapshot_moment(in_snapshot_name)
-
-
-
-func _on_structure_tree_cell_selected() -> void:
-	if _changing_selection:
-		return
-	const NMB_OF_FRAMES_TO_IGNORE_AFTER_MULTISELECTED_SIGNAL = 3
-	var frame_delta: int = Engine.get_process_frames() - _multiselect_served_at_frame
-	if frame_delta < NMB_OF_FRAMES_TO_IGNORE_AFTER_MULTISELECTED_SIGNAL:
-		# workaround, we want for _on_structure_tree_cell_selected to never be called together with
-		# _on_structures_tree_multi_selected as a result of the same user click
-		return
-	var workspace_context: WorkspaceContext = get_workspace_context()
-	var tree_item: TreeItem = _structures_tree.get_selected()
-	if not is_instance_valid(tree_item):
-		return
-	
-	var structure_id: int = _structure_id_to_tree_item.find_key(tree_item)
-	var structure_context: StructureContext = workspace_context.get_structure_context(structure_id)
-	_changing_selection = true
-	workspace_context.clear_all_selection()
-	structure_context.select_all(true)
-	_changing_selection = false
 
 
 func _on_structures_tree_button_clicked(out_item: TreeItem, _in_column: int, in_id: int, mouse_button_index: int) -> void:
@@ -351,7 +337,7 @@ func _on_structures_tree_item_collapsed(in_item: TreeItem) -> void:
 	# folding arrows. Since it is still posible to fold the list in other ways we need to revert
 	# the folding as soon as it happens
 	in_item.collapsed = false
-	
+
 
 func _on_nano_structure_added(in_nano_structure: NanoStructure) -> void:
 	if not _can_appear_in_tree(in_nano_structure):
@@ -402,7 +388,7 @@ func _on_workspace_context_selection_in_structures_changed(in_structure_contexts
 		var item: TreeItem = _get_structure_tree_item_or_null(context.nano_structure.int_guid)
 		if not item:
 			continue
-		if context.is_fully_selected():
+		if context.has_atom_selection(true):
 			item.select(_TREE_COLUMN_0)
 		else:
 			item.deselect(_TREE_COLUMN_0)
@@ -448,6 +434,7 @@ func _create_structure_tree_item(in_structure_id: int) -> TreeItem:
 				_TREE_BUTTON_ID_DELETE, false,
 				tr(&"Delete this structure"))
 	return tree_item
+
 
 func _set_edited_structure_tree_item(out_tree_item: TreeItem) -> void:
 	if _edited_structure_tree_item == out_tree_item:

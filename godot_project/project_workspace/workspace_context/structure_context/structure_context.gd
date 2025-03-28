@@ -240,6 +240,17 @@ func is_fully_selected() -> bool:
 			and _selection_db.get_selected_springs().size() == nano_structure.springs_count()
 
 
+func has_atom_selection(include_children: bool = true) -> bool:
+	if not get_selected_atoms().is_empty():
+		return true
+	if include_children:
+		for child_structure: NanoStructure in workspace_context.workspace.get_child_structures(nano_structure):
+			var structure_context: StructureContext = workspace_context.get_nano_structure_context(child_structure)
+			if structure_context.has_atom_selection(true):
+				return true
+	return false
+
+
 func is_empty_but_has_subgroups() -> bool:
 	return nano_structure is AtomicStructure and \
 			nano_structure.get_valid_atoms_count() == 0 and \
