@@ -532,6 +532,11 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_current_representation.apply_state_snapshot(in_snapshot["_current_representation.snapshot"])
 	_springs_representation.apply_state_snapshot(in_snapshot["_springs_representation.snapshot"])
 	_labels_representation.apply_state_snapshot(in_snapshot["_labels_representation.snapshot"])
+	var nano_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_nano_structure_id)
+	if not nano_structure.atoms_moved.is_connected(_on_nanostructure_atoms_moved):
+		# This can happen if the AtomicStructureRenderer was destroyed because
+		# a group was deleted, and a new one was created in it's place
+		_internal_build()
 	_refresh_label_visibility_state()
 	
 	#
