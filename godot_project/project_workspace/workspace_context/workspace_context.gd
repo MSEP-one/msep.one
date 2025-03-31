@@ -580,7 +580,8 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 		_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
 		structure_context.selection_changed.connect(_on_structure_context_selection_changed.bind(structure_context.get_int_guid()))
 		structure_context.virtual_object_selection_changed.connect(_on_structure_context_virtual_object_selection_changed.bind(structure_context.get_int_guid()))
-		if structure_context.nano_structure is AtomicStructure:
+		if structure_context.nano_structure is AtomicStructure \
+				and not structure_context.nano_structure.atoms_moved.is_connected(_on_structure_context_atoms_moved):
 			structure_context.nano_structure.atoms_moved.connect(_on_structure_context_atoms_moved.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_added.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_added.connect(_on_structure_context_atoms_added.bind(structure_context.get_int_guid()))
