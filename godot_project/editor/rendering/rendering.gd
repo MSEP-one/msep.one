@@ -937,7 +937,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for renderer_name: String in anchor_renderers:
 		var renderer: VirtualAnchorRenderer
 		var anchor_renderer_snapshot: Dictionary = anchor_renderes_snapshots[renderer_name]
-		if is_instance_valid(anchor_renderers[renderer_name]):
+		if is_instance_valid(anchor_renderers[renderer_name]) \
+				and not anchor_renderers[renderer_name].is_queued_for_deletion():
 			renderer = anchor_renderers[renderer_name]
 		else:
 			# create new one
@@ -951,7 +952,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for renderer_name: String in motors_renderers:
 		var renderer: VirtualMotorRenderer
 		var motor_renderer_snapshot: Dictionary = motors_renderers_snapshots[renderer_name]
-		if is_instance_valid(motors_renderers[renderer_name]):
+		if is_instance_valid(motors_renderers[renderer_name]) \
+				and not motors_renderers[renderer_name].is_queued_for_deletion():
 			renderer = motors_renderers[renderer_name]
 		else:
 			# create new one
@@ -965,7 +967,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for renderer_name: String in shapes_renderers:
 		var renderer: NanoShapeRenderer
 		var shape_renderer_snapshot: Dictionary = shapes_renderers_snapshots[renderer_name]
-		if is_instance_valid(shapes_renderers[renderer_name]):
+		if is_instance_valid(shapes_renderers[renderer_name]) \
+				and not shapes_renderers[renderer_name].is_queued_for_deletion():
 			renderer = shapes_renderers[renderer_name]
 		else:
 			# create new one

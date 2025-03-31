@@ -170,7 +170,6 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["color_selected"] = color_selected
 	snapshot["color_unselected"] = color_unselected
-	snapshot["_nano_shape_primitive_mesh"] = _nano_shape_primitive_mesh.duplicate(true)
 	snapshot["_shape_id"] = _shape_id
 	snapshot["_hover_enabled"] = _hover_enabled
 	snapshot["visible"] = visible
