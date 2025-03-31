@@ -442,6 +442,12 @@ func _on_nano_structure_springs_moved(in_springs_moved: PackedInt32Array) -> voi
 
 
 func _on_nano_structure_springs_visibility_changed(in_springs: PackedInt32Array) -> void:
+	if _structure_context.is_queued_for_deletion():
+		# There's a corner case where this could happen:
+		# When deleting a group in middle of a simulation the system will create a StructureContext
+		# only during one frame to take a snapshot of the system with the simulation applyed,
+		# but without the deletion. And then will delete it before the frame ends
+		return
 	var atomic_structure: AtomicStructure = _structure_context.nano_structure as AtomicStructure
 	for spring_id: int in in_springs:
 		if not _spring_collision_space.is_external_id_known(spring_id):
