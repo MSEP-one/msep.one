@@ -28,6 +28,7 @@ func initialize(out_workspace_context: WorkspaceContext) -> void:
 	out_workspace_context.structure_renamed.connect(_on_workspace_context_structure_renamed)
 	out_workspace_context.workspace.structure_reparented.connect(_on_workspace_structure_reparented)
 	out_workspace_context.current_structure_context_changed.connect(_on_workspace_context_current_structure_context_changed)
+	out_workspace_context.history_snapshot_applied.connect(_on_workspace_history_snapshot_applied)
 	rebuild_if_needed()
 
 
@@ -139,6 +140,10 @@ func _on_workspace_context_structure_renamed(_in_nano_structure: NanoStructure, 
 
 
 func _on_workspace_context_current_structure_context_changed(_in_structure_context: StructureContext) -> void:
+	rebuild_if_needed()
+
+
+func _on_workspace_history_snapshot_applied() -> void:
 	rebuild_if_needed()
 
 
