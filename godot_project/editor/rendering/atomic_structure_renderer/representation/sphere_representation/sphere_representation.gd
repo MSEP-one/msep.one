@@ -177,6 +177,8 @@ func refresh_atoms_atomic_number(in_atoms_and_atomic_numbers: Array[Vector2i]) -
 
 
 func refresh_atoms_sizes(in_update_atoms_radii: bool = false) -> void:
+	if not _segmented_multimesh.is_visible():
+		return
 	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
 	var scale_factor: float = Representation.get_atom_scale_factor(related_nanostructure.get_representation_settings())
 	_apply_scale_factor(scale_factor)

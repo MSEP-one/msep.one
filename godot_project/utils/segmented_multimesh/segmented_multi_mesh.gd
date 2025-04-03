@@ -228,6 +228,10 @@ func hide() -> void:
 	_set_visible(false)
 
 
+func is_visible() -> bool:
+	return _visible
+
+
 func _set_visible(in_visible: bool) -> void:
 	_visible = in_visible
 	for segment: Segment in _id_to_segment_map.values():
