@@ -19,6 +19,13 @@ var _camera_last_zoom: float
 var _camera_last_projection: Camera3D.ProjectionType
 
 
+func is_visible_in_msep_editor() -> bool:
+	# Because this node is child of a subviewport, we cannot rely on
+	# `is_visible_on_tree()` because it does not care if the SubViewportContainer
+	# containing this viewport is visible or not, so we have to make our own conclusions
+	return get_viewport().get_parent().is_visible_in_tree()
+
+
 func set_atomic_number(in_atomic_number: int) -> void:
 	_new_atomic_number = in_atomic_number
 	queue_redraw()
@@ -49,7 +56,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if not visible or _candidates.is_empty():
+	if (not is_visible_in_msep_editor()) or _candidates.is_empty():
 		return
 	# Redraw if the camera is moving
 	if is_instance_valid(_camera) and (
@@ -66,14 +73,13 @@ func _process(_delta: float) -> void:
 	# Redraw if the selection is being moved
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
 	var rendering: Rendering = workspace_context.get_rendering()
-	var selected_contexts: Array[StructureContext] = workspace_context.get_structure_contexts_with_selection()
-	for context: StructureContext in selected_contexts:
-		var structure: NanoStructure = context.nano_structure
-		if not structure is AtomicStructure:
-			continue
-		if rendering.get_atom_selection_position_delta(structure) != Vector3.ZERO:
-			queue_redraw()
-			return
+	var context: StructureContext = workspace_context.get_current_structure_context()
+	var structure: NanoStructure = context.nano_structure
+	if not structure is AtomicStructure or not context.has_atom_selection(false):
+		return
+	if rendering.get_atom_selection_position_delta(structure) != Vector3.ZERO:
+		queue_redraw()
+		return
 
 
 # Visual language:
