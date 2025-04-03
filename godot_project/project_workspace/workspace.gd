@@ -227,9 +227,11 @@ func get_structure_by_int_guid(in_int_guid: int) -> NanoStructure:
 	return _structures.get(in_int_guid, null)
 
 
+## Returns true if workspace has a structure with the same int_guid, and is the same instance
 func has_structure(in_nano_structure: NanoStructure) -> bool:
 	assert(is_instance_valid(in_nano_structure), "Invalid guid")
-	return has_structure_with_int_guid(in_nano_structure.int_guid)
+	var int_guid: int = in_nano_structure.int_guid
+	return _structures.has(int_guid) and _structures[int_guid] == in_nano_structure
 
 
 ## Returns true if the workspace contains a structure with matching int_guid
