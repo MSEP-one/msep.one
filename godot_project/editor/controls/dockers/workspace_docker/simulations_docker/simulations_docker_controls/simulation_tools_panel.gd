@@ -271,10 +271,14 @@ func _update_controls() -> void:
 			_button_start_pause.icon = _ICONS.play_error
 			_button_start_pause.text = tr("Play")
 			_button_start_pause.disabled = false
+			_slider_timeline.editable = true
+			if _simulation_length_nanoseconds == 0:
+				# Cannot replay animation when no frames have been received
+				_button_start_pause.disabled = true
+				_slider_timeline.editable = false
 			_status_icon.texture = _ICONS.pause
 			_status_label.text = tr("❌Error")
 			_spin_box_timeline.editable = true
-			_slider_timeline.editable = true
 			_button_revert.disabled = false
 			_button_end.disabled = true
 
