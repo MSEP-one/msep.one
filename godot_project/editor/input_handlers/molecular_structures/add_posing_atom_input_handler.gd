@@ -86,6 +86,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 		_ensure_create_mode()
 	
 	update_preview_position()
+	_update_candidates_if_needed()
 	rendering.atom_autopose_preview_show()
 	
 	if in_input_event is InputEventMouse:
@@ -147,7 +148,7 @@ func set_preview_position(_in_position: Vector3) -> void:
 
 
 func _update_candidates_if_needed() -> void:
-	if not _candidates_dirty:
+	if not _candidates_dirty or not _should_show():
 		return
 	_candidates.clear()
 	
@@ -155,6 +156,8 @@ func _update_candidates_if_needed() -> void:
 	var total_atoms_selected: int = context.get_selected_atoms().size()
 	if total_atoms_selected > MAX_ATOMS_FOR_AUTO_POSING:
 		_get_rendering().atom_autopose_preview_set_candidates(_candidates)
+		_workspace_context.get_editor_viewport_container().show_warning_in_message_bar(\
+			"Selecting over 50 atoms hides Potential Atom Position. Select fewer to enable this feature.")
 		return
 	
 	var selected_atoms: PackedInt32Array = context.get_selected_atoms()
@@ -355,6 +358,8 @@ func _should_show() -> bool:
 		return false
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS:
 		return false
+	if _is_shortcut_pressed():
+		return true
 	return _workspace_context.workspace.representation_settings.get_display_auto_posing()
 
 
