@@ -36,7 +36,7 @@ text = "Only selected molecules"
 unique_name_in_owner = true
 layout_mode = 2
 button_group = SubResource("ButtonGroup_cya10")
-text = "All visible molecules"
+text = "All molecules"
 
 [node name="TemperaturePicker" parent="PanelContainer/VBoxContainer" instance=ExtResource("2_k633u")]
 unique_name_in_owner = true
