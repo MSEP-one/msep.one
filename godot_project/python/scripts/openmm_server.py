@@ -893,145 +893,204 @@ running_simulations: dict = {
 #	id<int> = stop_trigger<threading.Event>
 }
 def start_simulation(socket, socket_lock, simulation_id: int, parameters: PayloadSimulationParameters, topology_payload: PayloadTopologyReader, state_payload: PayloadStateReader):
-	molecules: list[Molecule] = topology_payload.to_openff_molecules()
-	topology = Topology.from_molecules(molecules)
-	forcefield = create_forcefield_for_topology(topology_payload)
-	interchange = Interchange.from_smirnoff(forcefield, topology, charge_from_molecules=molecules)
-	openmm_system: System =interchange.to_openmm(combine_nonbonded_forces=True, add_constrained_forces=False)
-	openff_initial_positions: list[Vec3] = []
-	for i in range(len(state_payload.positions)):
-		payload_atom_id = topology_payload.openff_atom_to_payload[i]
-		openff_initial_positions.append(state_payload.positions[payload_atom_id])
-	openmm_system.setDefaultPeriodicBoxVectors(Vec3(float("inf"), 0, 0), Vec3(0, float("inf"), 0), Vec3(0, 0, float("inf")))
-	# Anchors
-	bond_force: HarmonicBondForce = None
-	nonbonded_force: NonbondedForce = None
-	for force in openmm_system.getForces():
-		if isinstance(force, HarmonicBondForce):
-			bond_force = force
-		if isinstance(force, NonbondedForce):
-			nonbonded_force = force
-	if bond_force == None:
-		bond_force = HarmonicBondForce()
-		openmm_system.addForce(bond_force)
-	for anchor_id in topology_payload.anchors:
-		anchor: AnchorPoint = topology_payload.anchors[anchor_id]
-		if len(anchor.springs) == 0:
-			continue
-		anchor.openmm_particle_id = openmm_system.addParticle(0.0)
-		if nonbonded_force != None:
-			nonbonded_force.addParticle(0.0, 1.0, 0.0)
-		pos = anchor.position
-		openff_initial_positions.append(Vec3(pos[0], pos[1], pos[2]))
-		for spring in anchor.springs:
-			k_constant: float = spring.k_constant
-			equilibrium_length: float = spring.equilibrium_length
-			if nonbonded_force != None:
-				nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
-			# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
-			bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
-	for i, atom in enumerate(topology_payload.atoms):
-		if atom.is_locked:
-			openff_atom_id = topology_payload.payload_to_openff_atom[i]
-			lock_particle_id = openmm_system.addParticle(0.0)
+	try:
+		stop_trigger: threading.Event = running_simulations.get(simulation_id, None)
+		stop_exists: bool = stop_trigger != None
+		if stop_exists and stop_trigger.is_set():
+			if running_simulations.pop(simulation_id, None) != None:
+				logging.info(f"Aborted simulation while starting, step #1")
+			return
+		molecules: list[Molecule] = topology_payload.to_openff_molecules()
+		topology = Topology.from_molecules(molecules)
+		forcefield = create_forcefield_for_topology(topology_payload)
+		interchange = Interchange.from_smirnoff(forcefield, topology, charge_from_molecules=molecules)
+		if stop_exists and stop_trigger.is_set():
+			if running_simulations.pop(simulation_id, None) != None:
+				logging.info(f"Aborted simulation while starting, step #2")
+			return
+		openmm_system: System =interchange.to_openmm(combine_nonbonded_forces=True, add_constrained_forces=False)
+		if stop_exists and stop_trigger.is_set():
+			if running_simulations.pop(simulation_id, None) != None:
+				logging.info(f"Aborted simulation while starting, step #3")
+			return
+		openff_initial_positions: list[Vec3] = []
+		for i in range(len(state_payload.positions)):
+			payload_atom_id = topology_payload.openff_atom_to_payload[i]
+			openff_initial_positions.append(state_payload.positions[payload_atom_id])
+		openmm_system.setDefaultPeriodicBoxVectors(Vec3(float("inf"), 0, 0), Vec3(0, float("inf"), 0), Vec3(0, 0, float("inf")))
+		# Anchors
+		bond_force: HarmonicBondForce = None
+		nonbonded_force: NonbondedForce = None
+		for force in openmm_system.getForces():
+			if isinstance(force, HarmonicBondForce):
+				bond_force = force
+			if isinstance(force, NonbondedForce):
+				nonbonded_force = force
+		if bond_force == None:
+			bond_force = HarmonicBondForce()
+			openmm_system.addForce(bond_force)
+		for anchor_id in topology_payload.anchors:
+			anchor: AnchorPoint = topology_payload.anchors[anchor_id]
+			if len(anchor.springs) == 0:
+				continue
+			anchor.openmm_particle_id = openmm_system.addParticle(0.0)
 			if nonbonded_force != None:
 				nonbonded_force.addParticle(0.0, 1.0, 0.0)
-			pos = state_payload.positions[i]
-			openff_initial_positions.append(pos)
-			k_constant: float = 500000.0
-			equilibrium_length: float = 0.0
-			if nonbonded_force != None:
-				nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)
-			# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
-			bond_force.addBond(lock_particle_id, openff_atom_id, equilibrium_length, k_constant)
-		if atom.is_passivation_atom:
-			openff_atom_id = topology_payload.payload_to_openff_atom[i]
-			nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
-	# Propagate the System with Langevin dynamics.
-	# "Typical time steps range from 0.25 fs for systems with light nuclei (such as hydrogen), to 2 fs or greater for systems with more massive nuclei"
-	# Femtosecond = 1/1000 picosecond = 1e-15 s
-	temperature = parameters.temperature_in_kelvins * kelvins  # simulation temperature
-	time_step = parameters.time_step_in_femtoseconds*femtosecond  # simulation timestep
-	time_step_in_nanoseconds = parameters.time_step_in_femtoseconds / 1e+6
-	friction = 1/picosecond  # collision rate
+			pos = anchor.position
+			openff_initial_positions.append(Vec3(pos[0], pos[1], pos[2]))
+			for spring in anchor.springs:
+				k_constant: float = spring.k_constant
+				equilibrium_length: float = spring.equilibrium_length
+				if nonbonded_force != None:
+					nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
+				# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
+				bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
+		for i, atom in enumerate(topology_payload.atoms):
+			if atom.is_locked:
+				openff_atom_id = topology_payload.payload_to_openff_atom[i]
+				lock_particle_id = openmm_system.addParticle(0.0)
+				if nonbonded_force != None:
+					nonbonded_force.addParticle(0.0, 1.0, 0.0)
+				pos = state_payload.positions[i]
+				openff_initial_positions.append(pos)
+				k_constant: float = 500000.0
+				equilibrium_length: float = 0.0
+				if nonbonded_force != None:
+					nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)
+				# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
+				bond_force.addBond(lock_particle_id, openff_atom_id, equilibrium_length, k_constant)
+			if atom.is_passivation_atom:
+				openff_atom_id = topology_payload.payload_to_openff_atom[i]
+				nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
+		if stop_exists and stop_trigger.is_set():
+			if running_simulations.pop(simulation.simulation_id, None) != None:
+				logging.info(f"Aborted simulation while starting, step #4")
+			return
+		# Propagate the System with Langevin dynamics.
+		# "Typical time steps range from 0.25 fs for systems with light nuclei (such as hydrogen), to 2 fs or greater for systems with more massive nuclei"
+		# Femtosecond = 1/1000 picosecond = 1e-15 s
+		temperature = parameters.temperature_in_kelvins * kelvins  # simulation temperature
+		time_step = parameters.time_step_in_femtoseconds*femtosecond  # simulation timestep
+		time_step_in_nanoseconds = parameters.time_step_in_femtoseconds / 1e+6
+		friction = 1/picosecond  # collision rate
 
-	# Length of the simulation.
-	num_steps = parameters.total_step_count  # number of integration steps to run
+		# Length of the simulation.
+		num_steps = parameters.total_step_count  # number of integration steps to run
 
-	# Logging options.
-	trj_freq = parameters.steps_per_report  # number of steps per written trajectory frame
+		# Logging options.
+		trj_freq = parameters.steps_per_report  # number of steps per written trajectory frame
 
-	# Set up an OpenMM simulation.
-	# NOTE: The original implementation of simulation was as follows:
-	# ```
-	# simulation = interchange.to_openmm_simulation(integrator)
-	# ```
-	# However, to take anchors and springs into accounts we hacked into the integrator Interchange
-	# class to use a modified version of `openmm_system`
-	platforms_to_test: list[Platform] = [
-		None, # None will fallback to the best possible, but CUDA failed for me to
-		Platform.getPlatformByName("Reference"), # Reference is a CPU fallback that should always work
-	]
-	simulation: Simulation = None
-	for platform_candidate in platforms_to_test:
-		simulation = Simulation(
-			topology=topology.to_openmm(),
-			system=openmm_system,
-			integrator=VerletIntegrator(time_step),
-			platform=platform_candidate
-		)
-		simulation.simulation_id = simulation_id
-		simulation.atoms_count = topology_payload.atoms_count
-		simulation.anchors_count = len(topology_payload.anchors)
-		simulation.payload_to_openff_atom = topology_payload.payload_to_openff_atom
-		simulation.openff_atom_to_payload = topology_payload.openff_atom_to_payload
+		# Set up an OpenMM simulation.
+		# NOTE: The original implementation of simulation was as follows:
+		# ```
+		# simulation = interchange.to_openmm_simulation(integrator)
+		# ```
+		# However, to take anchors and springs into accounts we hacked into the integrator Interchange
+		# class to use a modified version of `openmm_system`
+		platforms_to_test: list[Platform] = [
+			None, # None will fallback to the best possible, but CUDA failed for me to
+			Platform.getPlatformByName("Reference"), # Reference is a CPU fallback that should always work
+		]
+		simulation: Simulation = None
+		for platform_candidate in platforms_to_test:
+			simulation = Simulation(
+				topology=topology.to_openmm(),
+				system=openmm_system,
+				integrator=VerletIntegrator(time_step),
+				platform=platform_candidate
+			)
+			simulation.simulation_id = simulation_id
+			simulation.atoms_count = topology_payload.atoms_count
+			simulation.anchors_count = len(topology_payload.anchors)
+			simulation.payload_to_openff_atom = topology_payload.payload_to_openff_atom
+			simulation.openff_atom_to_payload = topology_payload.openff_atom_to_payload
+			
+
+			simulation.context.setPositions(openff_initial_positions)
+			if not math.isnan(simulation.context.getState(getPositions=True).getPositions()[0][0]._value):
+				Quantity
+				logging.info(f"Platform is '{str(simulation.context.getPlatform().getName())}'")
+				break
+		# Randomize the velocities from a Boltzmann distribution at a given temperature.
+		simulation.context.setVelocitiesToTemperature(temperature)
+
+		thermostat = AndersenThermostat(temperature, 1.0)
+		openmm_system.addForce(thermostat)
+		# Configure publish reporter
+		socket_publish_reporter = ZmqPublishReporter(simulation_id, socket, socket_lock, trj_freq)
+		simulation.reporters.append(socket_publish_reporter)
 		
+		logs_config_file = os.path.join(os.path.dirname(__file__), "._log_enabled")
+		if os.path.isfile(logs_config_file):
+			# Logs enabled
+			with open(logs_config_file) as f: logs_config = f.read()
+			logs_location = logs_config.split("\n")[0]
+			reporter_strings = logs_config.split("\n")[1]
+			date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+			report_file_name = date_time
+			# Supported reporters: PDBxReporter,PDBReporter,CheckpointReporter,DCDReporter,StateDataReporter,CustomCSVReporter
+			if "PDBxReporter" in reporter_strings:
+				pdbx_reporter = PDBxReporter(os.path.join(logs_location, report_file_name + ".mmcif"), parameters.steps_per_report)
+				simulation.reporters.append(pdbx_reporter)
+			if "PDBReporter" in reporter_strings:
+				pdb_reporter = PDBReporter(os.path.join(logs_location, report_file_name + ".pdb"), parameters.steps_per_report)
+				simulation.reporters.append(pdb_reporter)
+			if "CheckpointReporter" in reporter_strings:
+				chk_reporter = CheckpointReporter(os.path.join(logs_location, report_file_name + "-state.xml"), parameters.steps_per_report, writeState=True)
+				simulation.reporters.append(chk_reporter)
+				chk_reporter = CheckpointReporter(os.path.join(logs_location, report_file_name + "-checkpoint.chk"), parameters.steps_per_report, writeState=False)
+				simulation.reporters.append(chk_reporter)
+			if "DCDReporter" in reporter_strings:
+				dcd_reporter = DCDReporter(os.path.join(logs_location, report_file_name + ".dcd"), parameters.steps_per_report)
+				simulation.reporters.append(dcd_reporter)
+			if "StateDataReporter" in reporter_strings:
+				sd_reporter = StateDataReporter(os.path.join(logs_location, report_file_name + ".csv"), parameters.steps_per_report,
+						step=True, time=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=False, density=False,
+						progress=True, remainingTime=True, speed=True, elapsedTime=False, separator=',', systemMass=None, totalSteps=num_steps)
+				simulation.reporters.append(sd_reporter)
+		
+		if stop_exists and stop_trigger.is_set():
+			if running_simulations.pop(simulation.simulation_id, None) != None:
+				logging.info(f"Aborted simulation while starting, step #5")
+			return
+		with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+			executor.submit(thread_simulate, simulation, num_steps, topology_payload.motors_forces, time_step_in_nanoseconds)
+	except Exception as inst:
+			with socket_lock:
+				socket.send_string("err:" + str(simulation_id), zmq.SNDMORE)
+				if not topology is None and hasattr(topology, 'openff_atom_to_payload'):
+					# Packing atom ids map topology.openff_atom_to_payload
+					# It is necesary for identification of the actual problems in the model
+					atom_id_buffer: bytes = b''
+					for openff_atom in topology.openff_atom_to_payload.keys():
+						atom_id_buffer += struct.pack("<I", openff_atom)
+						atom_id_buffer += struct.pack("<I", topology.openff_atom_to_payload[openff_atom])
+					socket.send(atom_id_buffer, zmq.SNDMORE)
+				else:
+					# Will not send IDs to remap
+					socket.send(b'', zmq.SNDMORE)
+				socket.send_string(f"[b]{str(inst)}[/b]", zmq.SNDMORE)
+				socket.send_string("\n[b]Traceback:[/b]", zmq.SNDMORE)
 
-		simulation.context.setPositions(openff_initial_positions)
-		if not math.isnan(simulation.context.getState(getPositions=True).getPositions()[0][0]._value):
-			Quantity
-			logging.info(f"Platform is '{str(simulation.context.getPlatform().getName())}'")
-			break
-	# Randomize the velocities from a Boltzmann distribution at a given temperature.
-	simulation.context.setVelocitiesToTemperature(temperature)
+				environment_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "msep.one")
+				trace: list = traceback.extract_tb(inst.__traceback__)
+				traceback_str = ""
+				for trace_data in trace:
+					full_path = trace_data[0]
+					short_path = full_path.replace(__file__, "openmm_server.py")
+					short_path = short_path.replace(environment_dir, "<env>")
+					line = trace_data[1]
+					module = trace_data[2]
+					trace_line = f"\n    File [url={full_path}@{line}]{short_path}:{line}[/url], in {module}\n"
+					for i in range(3, len(trace_data)):
+						code = trace_data[i]
+						trace_line += f"    {line-3+i}|   {code}\n"
+					traceback_str += trace_line
+				socket.send_string(traceback_str)
+				traceback.print_exc()
+				# raise inst
 
-	thermostat = AndersenThermostat(temperature, 1.0)
-	openmm_system.addForce(thermostat)
-	# Configure publish reporter
-	socket_publish_reporter = ZmqPublishReporter(simulation_id, socket, socket_lock, trj_freq)
-	simulation.reporters.append(socket_publish_reporter)
-	
-	logs_config_file = os.path.join(os.path.dirname(__file__), "._log_enabled")
-	if os.path.isfile(logs_config_file):
-		# Logs enabled
-		with open(logs_config_file) as f: logs_config = f.read()
-		logs_location = logs_config.split("\n")[0]
-		reporter_strings = logs_config.split("\n")[1]
-		date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-		report_file_name = date_time
-		# Supported reporters: PDBxReporter,PDBReporter,CheckpointReporter,DCDReporter,StateDataReporter,CustomCSVReporter
-		if "PDBxReporter" in reporter_strings:
-			pdbx_reporter = PDBxReporter(os.path.join(logs_location, report_file_name + ".mmcif"), parameters.steps_per_report)
-			simulation.reporters.append(pdbx_reporter)
-		if "PDBReporter" in reporter_strings:
-			pdb_reporter = PDBReporter(os.path.join(logs_location, report_file_name + ".pdb"), parameters.steps_per_report)
-			simulation.reporters.append(pdb_reporter)
-		if "CheckpointReporter" in reporter_strings:
-			chk_reporter = CheckpointReporter(os.path.join(logs_location, report_file_name + "-state.xml"), parameters.steps_per_report, writeState=True)
-			simulation.reporters.append(chk_reporter)
-			chk_reporter = CheckpointReporter(os.path.join(logs_location, report_file_name + "-checkpoint.chk"), parameters.steps_per_report, writeState=False)
-			simulation.reporters.append(chk_reporter)
-		if "DCDReporter" in reporter_strings:
-			dcd_reporter = DCDReporter(os.path.join(logs_location, report_file_name + ".dcd"), parameters.steps_per_report)
-			simulation.reporters.append(dcd_reporter)
-		if "StateDataReporter" in reporter_strings:
-			sd_reporter = StateDataReporter(os.path.join(logs_location, report_file_name + ".csv"), parameters.steps_per_report,
-					step=True, time=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=False, density=False,
-					progress=True, remainingTime=True, speed=True, elapsedTime=False, separator=',', systemMass=None, totalSteps=num_steps)
-			simulation.reporters.append(sd_reporter)
-	
-	with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
-		executor.submit(thread_simulate, simulation, num_steps, topology_payload.motors_forces, time_step_in_nanoseconds)
+
 def thread_simulate(simulation: Simulation, num_steps, motors_forces, time_step_in_nanoseconds):
 	stop_trigger: threading.Event = running_simulations.get(simulation.simulation_id, None)
 	stop_exists: bool = stop_trigger != None
@@ -1285,17 +1344,13 @@ if __name__ == '__main__':
 						json_string: str = socket.recv_string()
 						json_object: dict = json.loads(json_string)
 						topology.add_virtual_object(json_object)
-					# TEST: make a premature test to check if system is valid,
-					# minimize_energy will throw an exception (in the main thread) if the system has invalid valence values
-					minimized_positions = minimize_energy(topology, state, 300, max_iterations = 1)
-					# /TEST
+					socket.send(b'Running')
 					running_simulations[simulation_id] = threading.Event()
 					threading.Thread(target=start_simulation, args=(socket_publish_simulation, socket_publick_lock, simulation_id, parameters, topology, state)).start()
-					socket.send(b'Running')
 				case b'AbortSimulation':
 					id_bytes: bytes = socket.recv()
 					simulation_id: int = struct.unpack('<q', id_bytes)[0]
-					stop_trigger: threading.Event = running_simulations.pop(simulation_id, None)
+					stop_trigger: threading.Event = running_simulations.get(simulation_id, None)
 					if stop_trigger != None and not stop_trigger.is_set():
 						logging.info(f"Server received an Abort Simulation request")
 						stop_trigger.set()
@@ -1348,6 +1403,11 @@ if __name__ == '__main__':
 					PDBFile.writeFile(topology.to_openmm(), openff_positions, output_file)
 					output_file.close()
 					socket.send_string("SUCCESS")
+				case b"GetProcessID":
+					pid: int = os.getpid()
+					pid_buffer: bytes = b''
+					pid_buffer += struct.pack("<Q", pid)
+					socket.send(pid_buffer)
 				case b"Quit":
 					for simulation_id in running_simulations.keys():
 						stop_trigger: threading.Event = running_simulations.get(simulation_id, None)
