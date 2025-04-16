@@ -168,9 +168,9 @@
 			},
 			{
 				"name": "Windows: Play Msep (Windows)",
-				"type": "cppvsdbg",
-				"preLaunchTask": "Windows: Build Godot Editor Debug",
+				"type": "cppdbg",
 				"program": "${workspaceFolder:godot}/bin/godot.windows.editor.x86_64.exe",
+				"MIMode": "gdb",
 				"args": [],
 				"request": "launch",
 				"cwd": "${workspaceFolder:godot_project}",
