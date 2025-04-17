@@ -715,7 +715,7 @@ Variant LightningMemoryMappedDatabase::get_value(const Variant &in_key, const Va
 void LightningMemoryMappedDatabase::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("initialize", "database_file_path"), &LightningMemoryMappedDatabase::initialize);
 	ClassDB::bind_method(D_METHOD("put_value", "key", "value"), &LightningMemoryMappedDatabase::put_value);
-	ClassDB::bind_method(D_METHOD("get_value", "key", "default_value"), &LightningMemoryMappedDatabase::get_value, "default", &LightningMemoryMappedDatabase::get_value, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("get_value", "key", "default_value"), &LightningMemoryMappedDatabase::get_value, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("commit"), &LightningMemoryMappedDatabase::commit);
 	ClassDB::bind_method(D_METHOD("is_active"), &LightningMemoryMappedDatabase::is_active);
 	ClassDB::bind_method(D_METHOD("create_molecule"), &LightningMemoryMappedDatabase::create_molecule);
