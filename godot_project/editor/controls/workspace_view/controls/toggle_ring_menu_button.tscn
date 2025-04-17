@@ -12,6 +12,7 @@ theme_override_colors/icon_normal_color = Color(1, 1, 1, 0.356863)
 theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/icon_hover_color = Color(1, 1, 1, 0.737255)
 theme_override_colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+action_mode = 0
 icon = ExtResource("1_t1q0r")
 flat = true
 expand_icon = true
