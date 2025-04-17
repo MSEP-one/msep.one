@@ -55,6 +55,8 @@ func _init(in_context: WorkspaceContext) -> void:
 	in_context.create_object_parameters.creation_distance_from_camera_factor_changed.connect(_on_creation_distance_from_camera_factor_changed)
 	in_context.structure_contents_changed.connect(_on_structure_contents_changed)
 	in_context.create_object_parameters.create_mode_enabled_changed.connect(_on_create_mode_enabled_changed)
+	in_context.atoms_relaxation_started.connect(_on_workspace_context_atom_relaxation_started)
+	in_context.atoms_relaxation_finished.connect(_on_workspace_context_atoms_relaxation_finished)
 	_element_selected = in_context.create_object_parameters.get_new_atom_element()
 	_get_rendering().atom_autopose_preview_set_atomic_number(_element_selected)
 	var bond_order: int = in_context.create_object_parameters.get_new_bond_order()
@@ -434,6 +436,15 @@ func _on_workspace_context_history_changed() -> void:
 func _on_structure_contents_changed(structure_context: StructureContext) -> void:
 	if structure_context.nano_structure is AtomicStructure:
 		_atom_grid = null
+
+
+func _on_workspace_context_atom_relaxation_started() -> void:
+	_hide_preview()
+
+
+func _on_workspace_context_atoms_relaxation_finished(_error: String) -> void:
+	if _should_show():
+		_show_preview()
 
 
 func _check_input_event_can_bind(in_event: InputEvent) -> bool:
