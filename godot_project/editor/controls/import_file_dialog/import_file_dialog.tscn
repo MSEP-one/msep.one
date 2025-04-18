@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dj61no1d5t16w"]
 
-[ext_resource type="Script" path="res://editor/controls/import_file_dialog/import_file_dialog.gd" id="1_q65sr"]
+[ext_resource type="Script" uid="uid://bqvr0sbjtrf8p" path="res://editor/controls/import_file_dialog/import_file_dialog.gd" id="1_q65sr"]
 
 [node name="ImportFileDialog" type="FileDialog"]
 title = "Open a File"

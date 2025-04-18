@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://dc8ravynpfq5r"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/validate_bonds_panel.gd" id="1_aw3s3"]
+[ext_resource type="Script" uid="uid://dgjh6otelold1" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/validate_bonds_panel.gd" id="1_aw3s3"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_7qb31"]
 [ext_resource type="Texture2D" uid="uid://0vc3s1b68mgy" path="res://editor/icons/icon_validate_bonds_16px.svg" id="2_m0edm"]
 [ext_resource type="PackedScene" uid="uid://cdgadvhha48lt" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/atomic_structure_model_validator.tscn" id="4_itsb7"]

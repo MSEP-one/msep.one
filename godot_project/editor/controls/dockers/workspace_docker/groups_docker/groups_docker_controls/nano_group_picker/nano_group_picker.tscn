@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bksgdopfe0r38"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_group_picker/nano_group_picker.gd" id="1_1px20"]
+[ext_resource type="Script" uid="uid://cc41u5reighrq" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_group_picker/nano_group_picker.gd" id="1_1px20"]
 [ext_resource type="PackedScene" uid="uid://dyfyqssb7twmn" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_group_picker/nano_group_picker_popup_panel.tscn" id="2_d13b4"]
 
 [node name="NanoGroupPicker" type="Button"]

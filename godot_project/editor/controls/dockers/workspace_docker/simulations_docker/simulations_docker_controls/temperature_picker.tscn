@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cvtq2ps52eix3"]
 
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="1_g7lms"]
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.gd" id="1_x0w03"]
+[ext_resource type="Script" uid="uid://bwtyu57vrn51r" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.gd" id="1_x0w03"]
 
 [node name="TemperaturePicker" type="HBoxContainer"]
 size_flags_horizontal = 3

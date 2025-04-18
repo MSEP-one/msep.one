@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://d2adostjms5t1" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button.glb" id="1_di3f8"]
 [ext_resource type="Material" uid="uid://dgii0n4d5qvfw" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button_mat.tres" id="2_5exxa"]
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/ring_menu_button_model.gd" id="2_qosqu"]
+[ext_resource type="Script" uid="uid://n457u3hx5r3w" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/ring_menu_button_model.gd" id="2_qosqu"]
 
 [sub_resource type="Animation" id="Animation_xhvlw"]
 length = 0.001
@@ -69,10 +69,10 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_73jcn"]
 _data = {
-"RESET": SubResource("Animation_xhvlw"),
-"dim": SubResource("Animation_ppxpg"),
-"inactive": SubResource("Animation_ons2g"),
-"un-dim": SubResource("Animation_ks5lx")
+&"RESET": SubResource("Animation_xhvlw"),
+&"dim": SubResource("Animation_ppxpg"),
+&"inactive": SubResource("Animation_ons2g"),
+&"un-dim": SubResource("Animation_ks5lx")
 }
 
 [sub_resource type="Animation" id="Animation_sqs7d"]
@@ -93,9 +93,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ypmml"]
 _data = {
-"RESET": SubResource("Animation_xhvlw"),
-"active": SubResource("Animation_sqs7d"),
-"inactive": SubResource("Animation_ons2g")
+&"RESET": SubResource("Animation_xhvlw"),
+&"active": SubResource("Animation_sqs7d"),
+&"inactive": SubResource("Animation_ons2g")
 }
 
 [node name="RingMenuButtonModel" instance=ExtResource("1_di3f8")]

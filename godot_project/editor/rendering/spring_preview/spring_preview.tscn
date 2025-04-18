@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://dmf7a8rad2ixj"]
 
-[ext_resource type="Script" path="res://editor/rendering/spring_preview/spring_preview.gd" id="1_xhwxw"]
+[ext_resource type="Script" uid="uid://caa0nxoq8fp6k" path="res://editor/rendering/spring_preview/spring_preview.gd" id="1_xhwxw"]
 [ext_resource type="Material" uid="uid://dkxttu4vymylk" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_material.tres" id="2_mc4vt"]
 [ext_resource type="ArrayMesh" uid="uid://cvyuohtyyh420" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_chain_mesh.res" id="3_0gmvr"]
 

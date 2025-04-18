@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c6gt8vvh1iisr"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_icon.gd" id="1_2xddn"]
+[ext_resource type="Script" uid="uid://jf11ls5qj6kn" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_icon.gd" id="1_2xddn"]
 
 [node name="RingMenuIcon" type="Node3D"]
 script = ExtResource("1_2xddn")

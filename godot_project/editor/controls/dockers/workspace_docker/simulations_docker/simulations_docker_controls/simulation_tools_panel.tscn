@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=3 uid="uid://b3gggkyj2olxa"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_tools_panel.gd" id="1_8vt2h"]
+[ext_resource type="Script" uid="uid://c7m37bfygxf4g" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_tools_panel.gd" id="1_8vt2h"]
 [ext_resource type="PackedScene" uid="uid://cvtq2ps52eix3" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.tscn" id="2_kk1ae"]
 [ext_resource type="Texture2D" uid="uid://bvw6bs8u3dl5k" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_play_rec.svg" id="2_t66qa"]
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="3_v247p"]
@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://dkfvcot2e4buu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/playback_speed_picker.tscn" id="5_7pvhb"]
 [ext_resource type="Texture2D" uid="uid://d1uqi1065c7ba" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_stop.svg" id="9_1gfm6"]
 [ext_resource type="PackedScene" uid="uid://43m5k0qxrqiu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/openmm_failure_tracker.tscn" id="9_6sv07"]
-[ext_resource type="Script" path="res://editor/controls/general/nano_accept_dialog.gd" id="10_84as7"]
+[ext_resource type="Script" uid="uid://bedfpdhraymiu" path="res://editor/controls/general/nano_accept_dialog.gd" id="10_84as7"]
 
 [sub_resource type="Animation" id="Animation_k5o5r"]
 resource_name = "idle"
@@ -30,7 +30,7 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_mo30t"]
 _data = {
-"idle": SubResource("Animation_k5o5r")
+&"idle": SubResource("Animation_k5o5r")
 }
 
 [node name="simulation_tools_panel" type="VBoxContainer"]
@@ -151,8 +151,8 @@ select_all_on_focus = true
 [node name="OptionButtonTimelineUnit" type="OptionButton" parent="HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-item_count = 5
 selected = 1
+item_count = 5
 popup/item_0/text = "Femtoseconds"
 popup/item_0/id = 0
 popup/item_1/text = "Picoseconds"
@@ -173,7 +173,7 @@ texture = ExtResource("3_x0281")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/StatusIcon"]
 libraries = {
-"": SubResource("AnimationLibrary_mo30t")
+&"": SubResource("AnimationLibrary_mo30t")
 }
 autoplay = "idle"
 speed_scale = 0.3

@@ -1,6 +1,6 @@
 [gd_scene load_steps=15 format=3 uid="uid://bjafgyuy0crti"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_3d.gd" id="1_evv0m"]
+[ext_resource type="Script" uid="uid://cta184clqjnv6" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_3d.gd" id="1_evv0m"]
 [ext_resource type="PackedScene" uid="uid://c6yfqjgcvshyu" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/ring_menu_button.tscn" id="2_pvibr"]
 [ext_resource type="PackedScene" uid="uid://tdwi57bmug4" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/ring_inner_circle.tscn" id="2_v2t0p"]
 [ext_resource type="PackedScene" uid="uid://dxgg3ppvxk0pt" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/side_button.tscn" id="11_u8ehc"]
@@ -104,12 +104,12 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ol0l3"]
 _data = {
-"RESET": SubResource("Animation_voy1w"),
-"level_0": SubResource("Animation_kecxi"),
-"level_1": SubResource("Animation_pvptf"),
-"level_2": SubResource("Animation_5fl76"),
-"lower_to_level_0": SubResource("Animation_qcc3t"),
-"lower_to_level_1": SubResource("Animation_ep05f")
+&"RESET": SubResource("Animation_voy1w"),
+&"level_0": SubResource("Animation_kecxi"),
+&"level_1": SubResource("Animation_pvptf"),
+&"level_2": SubResource("Animation_5fl76"),
+&"lower_to_level_0": SubResource("Animation_qcc3t"),
+&"lower_to_level_1": SubResource("Animation_ep05f")
 }
 
 [node name="RingMenu3D" type="Node3D"]

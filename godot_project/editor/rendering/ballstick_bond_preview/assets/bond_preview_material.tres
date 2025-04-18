@@ -1,7 +1,7 @@
 [gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://dv58mh0ihcavh"]
 
-[ext_resource type="Shader" path="res://editor/rendering/ballstick_bond_preview/assets/ballstick_bond_preview.gdshader" id="1_cnh8c"]
-[ext_resource type="Script" path="res://editor/rendering/ballstick_bond_preview/assets/preview_base_bond_material.gd" id="1_oyvor"]
+[ext_resource type="Shader" uid="uid://dqniw1mnjp4ti" path="res://editor/rendering/ballstick_bond_preview/assets/ballstick_bond_preview.gdshader" id="1_cnh8c"]
+[ext_resource type="Script" uid="uid://b1amr2y6dstnc" path="res://editor/rendering/ballstick_bond_preview/assets/preview_base_bond_material.gd" id="1_oyvor"]
 
 [sub_resource type="Curve" id="Curve_jww5y"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.129032, 0), 0.0, 0.0, 0, 0, Vector2(0.863799, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
@@ -13,17 +13,17 @@ curve = SubResource("Curve_jww5y")
 [resource]
 render_priority = -100
 shader = ExtResource("1_cnh8c")
+shader_parameter/texture_color_curve = SubResource("CurveTexture_ppeeh")
 shader_parameter/emission_energy = 0.2
 shader_parameter/first_color = Color(1, 0, 0, 1)
 shader_parameter/second_color = Color(0, 1, 0, 1)
-shader_parameter/point_size = null
-shader_parameter/roughness = null
-shader_parameter/metallic_texture_channel = null
-shader_parameter/specular = null
-shader_parameter/metallic = null
-shader_parameter/uv1_scale = null
-shader_parameter/uv1_offset = null
-shader_parameter/uv2_scale = null
-shader_parameter/uv2_offset = null
-shader_parameter/texture_color_curve = SubResource("CurveTexture_ppeeh")
+shader_parameter/point_size = 0.0
+shader_parameter/roughness = 0.0
+shader_parameter/metallic_texture_channel = Vector4(0, 0, 0, 0)
+shader_parameter/specular = 0.0
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(0, 0, 0)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(0, 0, 0)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
 script = ExtResource("1_oyvor")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bi1vulexoa6mv"]
 
-[ext_resource type="Script" path="res://editor/rendering/ballstick_bond_preview/ballstick_bond_preview.gd" id="1_3xe01"]
+[ext_resource type="Script" uid="uid://dsnpfuul5k1d" path="res://editor/rendering/ballstick_bond_preview/ballstick_bond_preview.gd" id="1_3xe01"]
 [ext_resource type="Material" uid="uid://dv58mh0ihcavh" path="res://editor/rendering/ballstick_bond_preview/assets/bond_preview_material.tres" id="2_3e74b"]
 
 [node name="BallStickBondPreview" type="Node"]

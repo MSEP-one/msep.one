@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bxccwp5bqi14a"]
 
-[ext_resource type="Shader" path="res://editor/rendering/virtual_motor_renderer/asset/axle.gdshader" id="1_6puch"]
+[ext_resource type="Shader" uid="uid://fw7or2nssuvl" path="res://editor/rendering/virtual_motor_renderer/asset/axle.gdshader" id="1_6puch"]
 
 [resource]
 render_priority = 0

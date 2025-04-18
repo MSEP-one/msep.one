@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://df6twl5j41stt"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/advanced_color_picker_button.gd" id="1_wc1dn"]
+[ext_resource type="Script" uid="uid://dse18ole286pe" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/advanced_color_picker_button.gd" id="1_wc1dn"]
 [ext_resource type="PackedScene" uid="uid://bp7rxpcqxxpej" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/confirmation_color_popup.tscn" id="2_kasyh"]
 
 [node name="AdvancedColorPickerButton" type="Button"]

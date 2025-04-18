@@ -1,9 +1,9 @@
 [gd_scene load_steps=6 format=3 uid="uid://d37ya5x4dxffm"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/assign_group_panel.gd" id="1_0yhvs"]
+[ext_resource type="Script" uid="uid://05xyi60lciac" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/assign_group_panel.gd" id="1_0yhvs"]
 [ext_resource type="PackedScene" uid="uid://bksgdopfe0r38" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_group_picker/nano_group_picker.tscn" id="2_ftdtl"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="3_k1004"]
-[ext_resource type="Script" path="res://editor/controls/general/nano_accept_dialog.gd" id="4_xvjnc"]
+[ext_resource type="Script" uid="uid://bedfpdhraymiu" path="res://editor/controls/general/nano_accept_dialog.gd" id="4_xvjnc"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_r6e6c"]
 

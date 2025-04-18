@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://brfr0wld3vhe0"]
 
 [ext_resource type="Texture2D" uid="uid://b372ph7moam52" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_playing.svg" id="1_uhv5s"]
-[ext_resource type="Script" path="res://editor/controls/video_tutorials_dialog/video_player.gd" id="1_yefmo"]
+[ext_resource type="Script" uid="uid://cxqf1g7dx5ai6" path="res://editor/controls/video_tutorials_dialog/video_player.gd" id="1_yefmo"]
 [ext_resource type="Texture2D" uid="uid://b7wxqthabdoy4" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_pause.svg" id="2_jdb2m"]
 [ext_resource type="Texture2D" uid="uid://bkqrfovlyvkqh" path="res://editor/icons/icon_video.svg" id="2_tkbw3"]
 [ext_resource type="Texture2D" uid="uid://bggmkhivgos3r" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_revert.svg" id="5_fhtbd"]

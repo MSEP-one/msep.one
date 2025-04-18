@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cfdfx7iow623o"]
 
-[ext_resource type="Script" path="res://editor/controls/import_file_dialog/import_settings.gd" id="1_patfr"]
+[ext_resource type="Script" uid="uid://cquostgff0x08" path="res://editor/controls/import_file_dialog/import_settings.gd" id="1_patfr"]
 
 [node name="ImportSettings" type="VBoxContainer"]
 offset_left = 10.0

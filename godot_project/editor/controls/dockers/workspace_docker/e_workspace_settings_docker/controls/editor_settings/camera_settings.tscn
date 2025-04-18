@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://iofkm3htupj0"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/camera_settings.gd" id="1_vsnv4"]
+[ext_resource type="Script" uid="uid://d0gc7jfbicsel" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/camera_settings.gd" id="1_vsnv4"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_lsx0g"]
 

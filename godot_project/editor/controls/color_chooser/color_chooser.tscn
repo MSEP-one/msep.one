@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://chrkdjgi3kuke"]
 
-[ext_resource type="Script" path="res://editor/controls/color_chooser/color_chooser.gd" id="1_3d3rl"]
+[ext_resource type="Script" uid="uid://dfiemsa1so30f" path="res://editor/controls/color_chooser/color_chooser.gd" id="1_3d3rl"]
 
 [node name="ColorChooser" type="MarginContainer"]
 offset_right = 160.0

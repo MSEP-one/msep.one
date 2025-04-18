@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://xbv58dgmimih"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_bond_order/inspector_control_bond_order.gd" id="1_1yxol"]
+[ext_resource type="Script" uid="uid://bwd5jhs0gcwqa" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_bond_order/inspector_control_bond_order.gd" id="1_1yxol"]
 
 [node name="InspectorControlBondOrder" type="MarginContainer"]
 offset_right = 99.0

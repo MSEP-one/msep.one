@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://dxpjkn3lni0jn"]
 
-[ext_resource type="Script" path="res://editor/controls/quick_search_dialog/quick_search_dialog.gd" id="1_ox6k4"]
-[ext_resource type="Script" path="res://editor/controls/quick_search_dialog/quick_search_bar.gd" id="2_hy03f"]
-[ext_resource type="Script" path="res://editor/controls/quick_search_dialog/tree_navigation.gd" id="3_amcpv"]
+[ext_resource type="Script" uid="uid://m22gosfhx2eo" path="res://editor/controls/quick_search_dialog/quick_search_dialog.gd" id="1_ox6k4"]
+[ext_resource type="Script" uid="uid://byufxh3ptiup" path="res://editor/controls/quick_search_dialog/quick_search_bar.gd" id="2_hy03f"]
+[ext_resource type="Script" uid="uid://yuopkctw0cyi" path="res://editor/controls/quick_search_dialog/tree_navigation.gd" id="3_amcpv"]
 
 [node name="QuickSearchDialog" type="PopupPanel"]
 disable_3d = true

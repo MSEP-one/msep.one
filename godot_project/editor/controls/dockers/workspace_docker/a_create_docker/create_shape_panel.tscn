@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://i6pc12ehdie6"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_shape_panel.gd" id="1_hkcax"]
+[ext_resource type="Script" uid="uid://dlx2nkshph2vh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_shape_panel.gd" id="1_hkcax"]
 [ext_resource type="PackedScene" uid="uid://qxeql30brxko" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/shape_preview.tscn" id="2_6gxsr"]
 [ext_resource type="PackedScene" uid="uid://bxj5mknc52ncf" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/rotation_editor.tscn" id="3_634yk"]
 

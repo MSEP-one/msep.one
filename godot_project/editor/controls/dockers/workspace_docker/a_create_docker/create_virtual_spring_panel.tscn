@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c7wf5fan7x7e3"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_virtual_spring_panel.gd" id="1_a5mkf"]
+[ext_resource type="Script" uid="uid://clqa2pwilg5ta" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_virtual_spring_panel.gd" id="1_a5mkf"]
 [ext_resource type="PackedScene" uid="uid://hdccjj6rq37k" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/spring_properties_editor.tscn" id="2_rshf5"]
 
 [node name="CreateVirtualSpringPanel" type="MarginContainer"]

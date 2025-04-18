@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dg7wgefiwe42n"]
 
-[ext_resource type="Script" path="res://editor/controls/camera_position_dialog/camera_position_dialog.gd" id="1_ci8e0"]
+[ext_resource type="Script" uid="uid://dp8pbkmfookj0" path="res://editor/controls/camera_position_dialog/camera_position_dialog.gd" id="1_ci8e0"]
 [ext_resource type="PackedScene" uid="uid://7oyj4up6dm2c" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_vector3/inspector_control_vector3.tscn" id="2_32bag"]
 [ext_resource type="PackedScene" uid="uid://dexerp0mkuhpy" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_direction/inspector_control_direction.tscn" id="3_r88a8"]
 

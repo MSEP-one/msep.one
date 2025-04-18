@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cb66pj0uioeda"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_real_time_visuals/ring_real_time_visuals.gd" id="1_ltjyu"]
+[ext_resource type="Script" uid="uid://bvqedqrlj3873" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_real_time_visuals/ring_real_time_visuals.gd" id="1_ltjyu"]
 
 [node name="RingRealTimeVisuals" type="Node3D"]
 script = ExtResource("1_ltjyu")

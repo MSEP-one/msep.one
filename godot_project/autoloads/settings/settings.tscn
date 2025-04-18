@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bwirxie82fwqn"]
 
-[ext_resource type="Script" path="res://autoloads/settings/settings.gd" id="1_20kd7"]
+[ext_resource type="Script" uid="uid://cqpq2jsttkbe7" path="res://autoloads/settings/settings.gd" id="1_20kd7"]
 [ext_resource type="PackedScene" uid="uid://b1ljg4wf4xe1g" path="res://autoloads/settings/performance_adjuster/performance_adjuster.tscn" id="2_fnat1"]
 
 [node name="Settings" type="Node"]

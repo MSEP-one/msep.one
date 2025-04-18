@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ResourceAttribution" load_steps=3 format=3 uid="uid://g6tnxfo6r5ew"]
 
 [ext_resource type="AudioStream" uid="uid://bi7upx63x66cf" path="res://autoloads/editor_sfx/sfx/rollover_1.ogg" id="1_f0n5c"]
-[ext_resource type="Script" path="res://autoloads/attributions/resource_attribution/resource_attribution.gd" id="2_x5pkx"]
+[ext_resource type="Script" uid="uid://dows5uoha6ja7" path="res://autoloads/attributions/resource_attribution/resource_attribution.gd" id="2_x5pkx"]
 
 [resource]
 script = ExtResource("2_x5pkx")

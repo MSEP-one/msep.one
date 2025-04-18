@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://btt2fm6ii0xka"]
 
-[ext_resource type="Script" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_renderer.gd" id="1_0itix"]
+[ext_resource type="Script" uid="uid://ce4m1kp8kl5wy" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_renderer.gd" id="1_0itix"]
 [ext_resource type="PackedScene" uid="uid://br7s8piqcp1j" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_model.tscn" id="1_v763n"]
 
 [node name="VirtualAnchorRenderer" instance=ExtResource("1_v763n")]

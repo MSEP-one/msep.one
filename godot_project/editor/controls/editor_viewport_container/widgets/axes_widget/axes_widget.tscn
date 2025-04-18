@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://c7ah6aa0h076n"]
 
-[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/axes_widget.gd" id="1_issv1"]
-[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/DrawAxesWidget.gd" id="2_3ag08"]
+[ext_resource type="Script" uid="uid://ddro7il1rikpk" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/axes_widget.gd" id="1_issv1"]
+[ext_resource type="Script" uid="uid://d0s5mh34jat6h" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/DrawAxesWidget.gd" id="2_3ag08"]
 [ext_resource type="Texture2D" uid="uid://cn248qbofp1wv" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Default.svg" id="3_lv0lt"]
 [ext_resource type="Texture2D" uid="uid://duw21ccv8bsy8" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Hover.svg" id="4_b5lwk"]
 [ext_resource type="Texture2D" uid="uid://cf7es81gfbfcr" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Pressed.svg" id="5_2tbtw"]

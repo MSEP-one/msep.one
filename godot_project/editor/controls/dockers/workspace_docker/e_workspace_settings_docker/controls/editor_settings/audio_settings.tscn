@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://pui30rij7ce7"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/audio_settings.gd" id="1_rfsqk"]
+[ext_resource type="Script" uid="uid://dk7h02f754oje" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/audio_settings.gd" id="1_rfsqk"]
 
 [node name="AudioSettings" type="VBoxContainer"]
 offset_right = 484.0

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://iryundcga074"]
 
-[ext_resource type="Script" path="res://autoloads/algorithm_tweaks/algorithm_tweaks.gd" id="1_qpn2k"]
+[ext_resource type="Script" uid="uid://bnlgbvxpny1md" path="res://autoloads/algorithm_tweaks/algorithm_tweaks.gd" id="1_qpn2k"]
 
 [node name="AlgorithmTweaks" type="Window"]
 disable_3d = true

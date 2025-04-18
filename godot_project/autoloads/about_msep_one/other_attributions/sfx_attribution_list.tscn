@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://4anxvx6mxc3m"]
 
-[ext_resource type="Script" path="res://autoloads/about_msep_one/other_attributions/sfx_attribution_list.gd" id="1_vsxdk"]
+[ext_resource type="Script" uid="uid://t18v3q1bs1tc" path="res://autoloads/about_msep_one/other_attributions/sfx_attribution_list.gd" id="1_vsxdk"]
 
 [node name="SfxAttributionList" type="ScrollContainer"]
 offset_right = 358.0

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cf61noq802k8b"]
 
-[ext_resource type="Script" path="res://autoloads/class_utils/class_utils.gd" id="1_rcf1q"]
+[ext_resource type="Script" uid="uid://cuupayaob6y2e" path="res://autoloads/class_utils/class_utils.gd" id="1_rcf1q"]
 
 [node name="ClassUtils" type="Node"]
 script = ExtResource("1_rcf1q")

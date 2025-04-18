@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bp7rxpcqxxpej"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/confirmation_color_popup.gd" id="1_7tw21"]
+[ext_resource type="Script" uid="uid://b7154pm1pfupy" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/confirmation_color_popup.gd" id="1_7tw21"]
 
 [node name="ConfirmationColorPopup" type="PopupPanel"]
 size = Vector2i(316, 535)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://cn1chj7ww8g7m"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/relax_tools_panel.gd" id="1_afauy"]
+[ext_resource type="Script" uid="uid://clnb03qnvvwmq" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/relax_tools_panel.gd" id="1_afauy"]
 [ext_resource type="PackedScene" uid="uid://cvtq2ps52eix3" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.tscn" id="2_k633u"]
 [ext_resource type="Texture2D" uid="uid://boq5wsbyh1je0" path="res://editor/controls/menu_bar/menu_simulation/icons/icon_ActionRing_RelaxBonds_16px.svg" id="3_885b2"]
 [ext_resource type="PackedScene" uid="uid://43m5k0qxrqiu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/openmm_failure_tracker.tscn" id="4_5qhdq"]

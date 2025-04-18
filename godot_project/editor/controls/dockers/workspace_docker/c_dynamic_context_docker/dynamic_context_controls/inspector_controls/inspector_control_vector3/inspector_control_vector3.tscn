@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://7oyj4up6dm2c"]
 
 [ext_resource type="PackedScene" uid="uid://c1rmw14fm6jco" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control.tscn" id="1_2yyc2"]
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_vector3/inspector_control_vector3.gd" id="2_yqb7w"]
-[ext_resource type="Script" path="res://editor/controls/general/spin_box_slider.gd" id="3_awwg8"]
+[ext_resource type="Script" uid="uid://bm58tidimgc7i" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_vector3/inspector_control_vector3.gd" id="2_yqb7w"]
+[ext_resource type="Script" uid="uid://ci2a678xscx2c" path="res://editor/controls/general/spin_box_slider.gd" id="3_awwg8"]
 
 [node name="TypeVector3" instance=ExtResource("1_2yyc2")]
 mouse_filter = 2

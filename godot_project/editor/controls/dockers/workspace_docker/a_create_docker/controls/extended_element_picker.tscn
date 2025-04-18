@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://cjqhv1ucctc0p"]
 
 [ext_resource type="PackedScene" uid="uid://cw8eqtylp4n8q" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_picker_button.tscn" id="1_lmx8q"]
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/extended_element_picker.gd" id="1_rmh0f"]
-[ext_resource type="Texture2D" path="res://editor/icons/icon_search.svg" id="3_5b588"]
+[ext_resource type="Script" uid="uid://dey05hegcke3l" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/extended_element_picker.gd" id="1_rmh0f"]
+[ext_resource type="Texture2D" uid="uid://c0uyh0jlgutcy" path="res://editor/icons/icon_search.svg" id="3_5b588"]
 
 [node name="ExtendedElementPicker" type="PopupPanel"]
 size = Vector2i(960, 579)

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Theme3D" load_steps=20 format=3 uid="uid://bjqw7h7j2hcfp"]
 
-[ext_resource type="Script" path="res://theme/theme_3d/theme_3d.gd" id="1_4jpfn"]
+[ext_resource type="Script" uid="uid://ogd3gfrmswel" path="res://theme/theme_3d/theme_3d.gd" id="1_4jpfn"]
 [ext_resource type="Material" uid="uid://31pg52iiavht" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/multimesh_atom_material.tres" id="1_672sh"]
 [ext_resource type="ArrayMesh" uid="uid://df3bi5akriful" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_half_outline.mesh" id="2_cjtvv"]
 [ext_resource type="ArrayMesh" uid="uid://cwhl4ccke7kce" path="res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/sphere_half_outline.mesh" id="2_idvvg"]

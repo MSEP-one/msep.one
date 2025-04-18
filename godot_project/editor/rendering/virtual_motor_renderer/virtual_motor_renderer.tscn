@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://c1cjktftkuj1d"]
 
-[ext_resource type="Script" path="res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.gd" id="1_fa7eh"]
+[ext_resource type="Script" uid="uid://bapswesd3drsw" path="res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.gd" id="1_fa7eh"]
 [ext_resource type="PackedScene" uid="uid://bbhhg161kyu0h" path="res://editor/rendering/virtual_motor_renderer/asset/motor3D_Gears00.glb" id="2_qtbmu"]
 [ext_resource type="Texture2D" uid="uid://6ej6w86sx6f1" path="res://editor/rendering/virtual_motor_renderer/asset/rotary_sprite.svg" id="3_n0doo"]
 [ext_resource type="Texture2D" uid="uid://vgwaelryj6lw" path="res://editor/rendering/virtual_motor_renderer/asset/linear_sprite.svg" id="4_tndce"]
@@ -89,8 +89,8 @@ tracks/2/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xerup"]
 _data = {
-"RESET": SubResource("Animation_ha65t"),
-"idle": SubResource("Animation_ef75a")
+&"RESET": SubResource("Animation_ha65t"),
+&"idle": SubResource("Animation_ef75a")
 }
 
 [node name="VirtualMotorRenderer" type="Node3D"]

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://xfjybjko82so"]
 
 [ext_resource type="PackedScene" uid="uid://dgdewlc5wq5ri" path="res://utils/segmented_multimesh/segmented_multi_mesh.tscn" id="1_n2sjo"]
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/proximity_segmented_multimesh/proximity_segmented_multimesh.gd" id="2_ubafo"]
+[ext_resource type="Script" uid="uid://bhb4rjnamd8eu" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/proximity_segmented_multimesh/proximity_segmented_multimesh.gd" id="2_ubafo"]
 
 [node name="ProximitySegmentedMultimesh" instance=ExtResource("1_n2sjo")]
 script = ExtResource("2_ubafo")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cpn4p48johkpp"]
 
-[ext_resource type="Script" path="res://project_workspace/workspace_context/structure_context/selection_db/selection_db.gd" id="1_57p4d"]
+[ext_resource type="Script" uid="uid://c7hrgvqgb3rac" path="res://project_workspace/workspace_context/structure_context/selection_db/selection_db.gd" id="1_57p4d"]
 [ext_resource type="PackedScene" uid="uid://cb10dxc1kgkf3" path="res://project_workspace/workspace_context/structure_context/selection_db/atom_selection/atom_selection.tscn" id="2_mqhxb"]
 [ext_resource type="PackedScene" uid="uid://bcan5f5tjhwhs" path="res://project_workspace/workspace_context/structure_context/selection_db/spring_selection/spring_selection.tscn" id="3_rotn6"]
 

@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://bk8h3hla8tqrp"]
 
 [ext_resource type="Texture2D" uid="uid://bfkvb82wyvqq0" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_groups_x16.svg" id="1_4t6op"]
-[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_virtual_objects/menu_virtual_objects.gd" id="1_uqyrh"]
+[ext_resource type="Script" uid="uid://db0okwwkskwnp" path="res://editor/controls/menu_bar/menu_virtual_objects/menu_virtual_objects.gd" id="1_uqyrh"]
 [ext_resource type="Texture2D" uid="uid://bvavld1u82nu1" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_rotary_motor_x16.svg" id="2_3i4gw"]
 [ext_resource type="Texture2D" uid="uid://dmlgge26svgiq" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_linear_motor_x16.svg" id="3_dn7d5"]
 [ext_resource type="Texture2D" uid="uid://dcofsgdplm752" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_spring_x16.svg" id="4_7vc16"]

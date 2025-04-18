@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://dxgg3ppvxk0pt"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/side_button.gd" id="1_6q8vb"]
+[ext_resource type="Script" uid="uid://bsoe5lqxdueui" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/side_button.gd" id="1_6q8vb"]
 [ext_resource type="PackedScene" uid="uid://cq4i6btensu0c" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_button_model.tscn" id="2_nfxob"]
 [ext_resource type="PackedScene" uid="uid://biw8ofxcm7vd7" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/CaptureInputArea/capture_input_area.tscn" id="3_rx2nb"]
 

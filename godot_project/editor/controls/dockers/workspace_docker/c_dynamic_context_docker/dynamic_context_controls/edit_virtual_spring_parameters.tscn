@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://blyfn6m2qgbvg"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_virtual_spring_parameters.gd" id="1_ry0br"]
+[ext_resource type="Script" uid="uid://bpe72un5jmxr0" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_virtual_spring_parameters.gd" id="1_ry0br"]
 [ext_resource type="PackedScene" uid="uid://hdccjj6rq37k" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/spring_properties_editor.tscn" id="2_u7r6k"]
 
 [node name="EditVirtualSpringParameters" type="MarginContainer"]

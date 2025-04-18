@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b2b25o2443x3b"]
 
-[ext_resource type="Script" path="res://editor/controls/general/info_label.gd" id="1_nm0c7"]
+[ext_resource type="Script" uid="uid://3hjuxktmfb16" path="res://editor/controls/general/info_label.gd" id="1_nm0c7"]
 
 [node name="InfoLabel" type="RichTextLabel"]
 clip_contents = false

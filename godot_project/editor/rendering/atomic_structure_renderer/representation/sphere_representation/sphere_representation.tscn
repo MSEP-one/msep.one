@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://ntegojtqd8oo"]
 
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/sphere_representation.gd" id="1_6fuxv"]
+[ext_resource type="Script" uid="uid://dj6ye6t4dfwkm" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/sphere_representation.gd" id="1_6fuxv"]
 [ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_532kg"]
 [ext_resource type="PackedScene" uid="uid://dgdewlc5wq5ri" path="res://utils/segmented_multimesh/segmented_multi_mesh.tscn" id="2_0h4xh"]
 [ext_resource type="MultiMesh" uid="uid://bamrev3ipjwpg" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_representation_multimesh.tres" id="4_46hji"]

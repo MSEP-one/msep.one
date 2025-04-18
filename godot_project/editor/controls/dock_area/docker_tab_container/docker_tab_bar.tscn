@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://qjui18vhtwxw"]
 
-[ext_resource type="Script" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_bar.gd" id="1_n4of1"]
+[ext_resource type="Script" uid="uid://ci70sof84ni32" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_bar.gd" id="1_n4of1"]
 [ext_resource type="Texture2D" uid="uid://m4vremymr7x2" path="res://editor/controls/dock_area/icons/tab_arrow_left.svg" id="2_i0pwp"]
 [ext_resource type="Texture2D" uid="uid://dpy64yay6n15f" path="res://editor/controls/dock_area/icons/tab_arrow_right.svg" id="3_226as"]
 

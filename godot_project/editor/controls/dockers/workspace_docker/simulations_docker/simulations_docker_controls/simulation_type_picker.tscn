@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ctb7np3papjg2"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_type_picker.gd" id="1_if2vd"]
+[ext_resource type="Script" uid="uid://c7aedl327oi8c" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_type_picker.gd" id="1_if2vd"]
 
 [node name="SimulationTypePicker" type="MarginContainer"]
 anchors_preset = 15

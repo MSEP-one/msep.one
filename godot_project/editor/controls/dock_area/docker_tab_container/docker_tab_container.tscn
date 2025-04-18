@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://om4o0nkeln5c"]
 
-[ext_resource type="Script" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_container.gd" id="1_20iod"]
+[ext_resource type="Script" uid="uid://txa4sf0qwqo3" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_container.gd" id="1_20iod"]
 [ext_resource type="PackedScene" uid="uid://qjui18vhtwxw" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_bar.tscn" id="2_ambiu"]
 
 [node name="DockerTabContainer" type="VBoxContainer"]
