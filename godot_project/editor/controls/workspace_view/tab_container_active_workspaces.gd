@@ -23,6 +23,11 @@ func _ready() -> void:
 	tab_bar.tab_close_display_policy = TabBar.CLOSE_BUTTON_SHOW_NEVER
 	tab_bar.tab_changed.connect(_on_tab_changed)
 	tab_bar.tab_close_pressed.connect(_on_tab_close_pressed)
+	
+	for workspace: Workspace in MolecularEditorContext.get_open_workspaces():
+		_on_workspace_loaded(workspace)
+	if not MolecularEditorContext.is_homepage_active():
+		_on_workspace_activated(MolecularEditorContext.get_current_workspace())
 
 
 func _notification(what: int) -> void:
@@ -114,4 +119,3 @@ func _update_workspace_name(in_workspace: Workspace) -> void:
 		wp_name += "*"
 	set_tab_title(index, wp_name)
 	tab_title_updated.emit(index)
-

@@ -26,6 +26,7 @@ func _ready() -> void:
 	_rendering.atom_preview_hide()
 	_rendering.bond_preview_hide()
 	_rendering.shape_preview_hide()
+	_rendering.atom_autopose_preview_hide()
 	_rendering.virtual_motor_preview_hide()
 	_rendering.structure_preview_hide()
 	_rendering.disable_hover()

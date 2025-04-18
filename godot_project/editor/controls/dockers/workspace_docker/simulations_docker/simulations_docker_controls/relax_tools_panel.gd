@@ -117,7 +117,7 @@ func _on_button_run_relaxation_pressed() -> void:
 				await warning_promise.wait_for_fulfill()
 				if warning_promise.get_result() == true:
 					# "Run Validation" button selected
-					_workspace_context.create_object_parameters.validate_bonds_requested.emit(selection_only)
+					_workspace_context.create_object_parameters.request_validate_bonds(selection_only)
 					return
 		var include_springs: bool = _check_box_include_springs.button_pressed
 		var lock_atoms: bool = _check_box_maintain_locks.button_pressed

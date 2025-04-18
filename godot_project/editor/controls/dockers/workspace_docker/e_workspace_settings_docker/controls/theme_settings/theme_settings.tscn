@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dq6o18vwybnpj"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/theme_settings/theme_settings.gd" id="1_kmu3a"]
+[ext_resource type="Script" uid="uid://8y5bsqnge5yh" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/theme_settings/theme_settings.gd" id="1_kmu3a"]
 
 [node name="ThemeSettings" type="VBoxContainer"]
 anchors_preset = 15
@@ -40,4 +40,4 @@ theme_type_variation = &"SubcategoryPanel"
 layout_mode = 2
 
 [connection signal="item_selected" from="PanelContainer/ThemeChooser" to="." method="_on_theme_chooser_item_selected"]
-[connection signal="item_selected" from="PanelContainer2/ColorPaletteChooser" to="." method="_on_color_palette_chooser_item_selected"]
+[connection signal="item_selected" from="PanelContainer2/ColorPaletteChooser" to="." method="_on_color_schema_chooser_item_selected"]

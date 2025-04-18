@@ -37,6 +37,14 @@ func cancel() -> void:
 	promise.fail("Cancelled", OpenMMClass.RelaxResult.new(original_payload,original_payload.initial_positions))
 
 
+func notify_retry(out_retry_request: RelaxRequest) -> void:
+	retrying.emit(out_retry_request)
+
+
+func notify_retry_discarded() -> void:
+	retry_discarded.emit()
+
+
 func _get_temperature_in_kelvins() -> float:
 	return _temperature_in_kelvins
 

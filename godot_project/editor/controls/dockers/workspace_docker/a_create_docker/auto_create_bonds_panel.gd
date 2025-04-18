@@ -167,7 +167,7 @@ func _on_auto_create_bonds_button_pressed() -> void:
 		if context.nano_structure is AtomicStructure:
 			await _auto_create_bonds_async(context, _option_selected_atoms.button_pressed)
 	_workspace_context.end_async_work()
-	_workspace_context.bonds_auto_created.emit(_new_bonds_created)
+	_workspace_context.notify_bonds_auto_created(_new_bonds_created)
 	if _did_create_undo_action:
 		_workspace_context.snapshot_moment("Automatically Create Bonds")
 

@@ -1121,7 +1121,7 @@ static func _retry_relax(
 	var passivate_molecules: bool = out_relax_request.passivate_molecules
 	var request: RelaxRequest = OpenMM.request_relax(out_workspace_context, temperature_in_kelvins, selection_only, include_springs, lock_atoms, passivate_molecules)
 	out_relax_request.retried = true
-	out_relax_request.retrying.emit(request)
+	out_relax_request.notify_retry(request)
 	_process_relax_request(request, out_workspace_context, true)
 	return request
 
@@ -1141,7 +1141,7 @@ static func _process_relax_request(
 			var alert_dialog : AcceptDialog = OpenmmWarningDialog.instantiate()
 			alert_dialog.set_detailed_message(error)
 			Engine.get_main_loop().root.add_child(alert_dialog)
-		out_workspace_context.atoms_relaxation_finished.emit(error)
+		out_workspace_context.notify_atoms_relaxation_finished(error)
 		return
 	var payload: OpenMMPayload = relax_result.original_payload
 	var tween_duration: float = 0.0
@@ -1149,7 +1149,7 @@ static func _process_relax_request(
 		tween_duration = ProjectSettings.get_setting(&"msep/simulation/relaxation_animation_time", 0.5)
 		out_workspace_context.pause_inputs(tween_duration)
 		var tween: Tween = Engine.get_main_loop().create_tween()
-		out_workspace_context.atoms_relaxation_started.emit()
+		out_workspace_context.notify_atoms_relaxation_started()
 		var result_positions: PackedVector3Array = relax_result.positions.duplicate()
 		tween.tween_method(
 			# method:
@@ -1161,12 +1161,12 @@ static func _process_relax_request(
 		var _on_relaxation_tween_finished: Callable = func() -> void:
 			_validate_relax_result(out_workspace_context, out_request)
 			out_workspace_context.snapshot_moment("Relaxation Done")
-			out_workspace_context.atoms_relaxation_finished.emit(out_request.promise.get_error())
+			out_workspace_context.notify_atoms_relaxation_finished(out_request.promise.get_error())
 		tween.finished.connect(_on_relaxation_tween_finished)
 	else:
 		_do_tween_atom_positions(1.0, out_workspace_context, payload, relax_result.positions)
 		_validate_relax_result(out_workspace_context, out_request)
-		out_workspace_context.atoms_relaxation_finished.emit(out_request.promise.get_error())
+		out_workspace_context.notify_atoms_relaxation_finished(out_request.promise.get_error())
 
 
 static func _do_tween_atom_positions(
@@ -1208,7 +1208,7 @@ static func _validate_relax_result(out_workspace_context: WorkspaceContext, in_r
 	if warning_promise.get_result() as bool:
 		_retry_relax(out_workspace_context, in_relax_request)
 	else:
-		in_relax_request.retry_discarded.emit()
+		in_relax_request.notify_retry_discarded()
 
 
 static func _forward_event(out_workspace_context: WorkspaceContext, event: InputEvent) -> void:

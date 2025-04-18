@@ -84,6 +84,9 @@ var _default_shape: int = 0
 
 static var _tmp_nano_shape := NanoShape.new()
 
+func request_validate_bonds(in_selection_only: bool) -> void:
+	validate_bonds_requested.emit(in_selection_only)
+
 func _get_property_list() -> Array[Dictionary]:
 	var custom_props: Array[Dictionary] = []
 	var supported_shapes_names: PackedStringArray = []
@@ -293,4 +296,3 @@ func set_spring_equilibrium_manual_length(in_manual_length: float) -> void:
 
 func get_spring_equilibrium_manual_length() -> float:
 	return _spring_equilibrium_manual_length
-

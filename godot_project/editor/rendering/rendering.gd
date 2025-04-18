@@ -73,7 +73,7 @@ func initialize(in_workspace_context: WorkspaceContext) -> void:
 	_theme_in_use = workspace.representation_settings.get_theme()
 	workspace.representation_settings.changed.connect(_on_workspace_settings_changed)
 	workspace.representation_settings.theme_changed.connect(_on_representation_settings_theme_changed.bind(weakref(workspace)))
-	workspace.representation_settings.color_palette_changed.connect(_on_representation_settings_color_palette_changed)
+	workspace.representation_settings.color_schema_changed.connect(_on_representation_settings_color_schema_changed)
 	apply_theme(workspace.representation_settings.get_theme())
 	_selection_preview.init(_workspace_context)
 
@@ -872,8 +872,8 @@ func _on_representation_settings_theme_changed(in_workspace_wref: WeakRef) -> vo
 	apply_theme(representation_settings.get_theme())
 
 
-func _on_representation_settings_color_palette_changed(in_new_color_palette: PeriodicTable.ColorPalette) -> void:
-	PeriodicTable.load_palette(in_new_color_palette)
+func _on_representation_settings_color_schema_changed(in_new_color_schema: PeriodicTable.ColorSchema) -> void:
+	PeriodicTable.load_schema(in_new_color_schema)
 	var structure_renderers := _atomic_structure_renderers.get_children()
 	for structure_renderer: Node in structure_renderers:
 		if structure_renderer is AtomicStructureRenderer:

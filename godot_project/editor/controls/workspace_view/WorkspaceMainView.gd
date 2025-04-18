@@ -31,6 +31,7 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_working_area_rect_control = %WorkingAreaRectControl
+		editor_viewport_container = %EditorViewportContainer
 		workspace_tools_container = %WorkspaceToolsContainer
 
 
