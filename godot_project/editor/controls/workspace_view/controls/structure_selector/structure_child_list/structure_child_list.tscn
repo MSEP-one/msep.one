@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bbcfic1vg0t6y"]
 
-[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/structure_selector/structure_child_list/structure_child_list.gd" id="1_6hr6f"]
+[ext_resource type="Script" uid="uid://tlvdgkk7hwus" path="res://editor/controls/workspace_view/controls/structure_selector/structure_child_list/structure_child_list.gd" id="1_6hr6f"]
 
 [node name="StructureChildList" type="VBoxContainer"]
 offset_left = 178.0

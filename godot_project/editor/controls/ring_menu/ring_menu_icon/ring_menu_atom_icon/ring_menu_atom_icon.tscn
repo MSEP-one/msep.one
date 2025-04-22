@@ -1,7 +1,7 @@
 [gd_scene load_steps=20 format=3 uid="uid://jq1733orco5o"]
 
 [ext_resource type="PackedScene" uid="uid://c6gt8vvh1iisr" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_icon.tscn" id="1_y8dpp"]
-[ext_resource type="Script" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_atom_icon/ring_menu_atom_icon.gd" id="2_0dehc"]
+[ext_resource type="Script" uid="uid://di2acfniwfy8q" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_atom_icon/ring_menu_atom_icon.gd" id="2_0dehc"]
 [ext_resource type="Texture2D" uid="uid://cu5nnpewjlepr" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/inner_rim.png" id="3_on6hq"]
 [ext_resource type="Texture2D" uid="uid://c5p7jdrmkycg1" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/atom_noise_atlas.png" id="4_4w36a"]
 [ext_resource type="PackedScene" uid="uid://ci70112ruoqau" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_atom_icon/2dNodeIn3DWorld/2d_node_in_3d_world.tscn" id="5_23snn"]
@@ -131,21 +131,21 @@ shader = SubResource("Shader_0h6t6")
 shader_parameter/atlas_id = 0.0
 shader_parameter/noise_albedo = Color(0.709804, 0.184314, 0.831373, 1)
 shader_parameter/albedo = Color(0, 0, 0, 1)
-shader_parameter/point_size = null
+shader_parameter/texture_noise = ExtResource("4_4w36a")
+shader_parameter/point_size = 0.0
 shader_parameter/roughness = 0.75
-shader_parameter/metallic_texture_channel = null
+shader_parameter/metallic_texture_channel = Vector4(0, 0, 0, 0)
 shader_parameter/specular = 0.5
-shader_parameter/metallic = null
+shader_parameter/metallic = 0.0
 shader_parameter/rim = 1.0
 shader_parameter/rim_tint = 0.0
 shader_parameter/clearcoat = 1.0
 shader_parameter/clearcoat_roughness = 1.0
-shader_parameter/uv1_scale = Vector3(1.1, 1.1, 1.1)
-shader_parameter/uv1_offset = null
-shader_parameter/uv2_scale = Vector3(1, 1, 1)
-shader_parameter/uv2_offset = null
-shader_parameter/texture_noise = ExtResource("4_4w36a")
 shader_parameter/texture_detail_albedo = ExtResource("3_on6hq")
+shader_parameter/uv1_scale = Vector3(1.1, 1.1, 1.1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
 
 [sub_resource type="LabelSettings" id="LabelSettings_p06et"]
 resource_local_to_scene = true
@@ -243,9 +243,9 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_4175v"]
 _data = {
-"RESET": SubResource("Animation_au2o3"),
-"in": SubResource("Animation_4886e"),
-"out": SubResource("Animation_nbwyt")
+&"RESET": SubResource("Animation_au2o3"),
+&"in": SubResource("Animation_4886e"),
+&"out": SubResource("Animation_nbwyt")
 }
 
 [sub_resource type="Animation" id="Animation_poon5"]
@@ -335,9 +335,9 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_gam3m"]
 _data = {
-"RESET": SubResource("Animation_poon5"),
-"in": SubResource("Animation_vq5pw"),
-"out": SubResource("Animation_ljfnd")
+&"RESET": SubResource("Animation_poon5"),
+&"in": SubResource("Animation_vq5pw"),
+&"out": SubResource("Animation_ljfnd")
 }
 
 [node name="RingMenuAtomIcon" instance=ExtResource("1_y8dpp")]

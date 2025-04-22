@@ -1,10 +1,10 @@
 [gd_scene load_steps=6 format=3 uid="uid://bv2kmjwm1fqi8"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/openmm_settings.gd" id="1_yo12d"]
+[ext_resource type="Script" uid="uid://bbj8vluarffjv" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/openmm_settings.gd" id="1_yo12d"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_8bpmt"]
 [ext_resource type="Texture2D" uid="uid://bpkq2vixf0nhe" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/icons/icon_rename.svg" id="3_2w73w"]
 [ext_resource type="Texture2D" uid="uid://c3ao6qg41qyee" path="res://editor/controls/menu_bar/menu_file/icons/icon_load_workspace_16px.svg" id="4_wdlvy"]
-[ext_resource type="Script" path="res://editor/controls/general/nano_file_dialog.gd" id="5_xx54g"]
+[ext_resource type="Script" uid="uid://d2k0yfuvhmtby" path="res://editor/controls/general/nano_file_dialog.gd" id="5_xx54g"]
 
 [node name="OpenMMSettings" type="VBoxContainer"]
 offset_right = 411.0

@@ -1,6 +1,6 @@
 [gd_scene load_steps=36 format=3 uid="uid://41v3r3iejmay"]
 
-[ext_resource type="Script" path="res://autoloads/shader_precompiler/shader_precompiler.gd" id="1_syley"]
+[ext_resource type="Script" uid="uid://cyotie5nvkmkf" path="res://autoloads/shader_precompiler/shader_precompiler.gd" id="1_syley"]
 [ext_resource type="PackedScene" uid="uid://bvif8jwmnd6e7" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/ring_menu_button_model.tscn" id="2_kbvs8"]
 [ext_resource type="PackedScene" uid="uid://cc1vxs7srlfjh" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_sprite_icon/ring_menu_sprite_icon.tscn" id="3_37dvm"]
 [ext_resource type="PackedScene" uid="uid://bpahm004wig30" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/assets/center_circle_model.tscn" id="4_oqwjp"]
@@ -24,7 +24,7 @@
 [ext_resource type="Material" uid="uid://dv58mh0ihcavh" path="res://editor/rendering/ballstick_bond_preview/assets/bond_preview_material.tres" id="20_546qm"]
 [ext_resource type="ArrayMesh" uid="uid://dj0e2uonwaml8" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_single.mesh" id="21_qxssn"]
 [ext_resource type="Material" uid="uid://wvju7e8kntu2" path="res://editor/rendering/reference_shape_renderer/assets/reference_shape_renderer_material.tres" id="22_1julo"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="23_wyggu"]
+[ext_resource type="Script" uid="uid://rpaxm2votab3" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="23_wyggu"]
 [ext_resource type="Material" uid="uid://cefsc4ia284yo" path="res://editor/rendering/reference_shape_renderer/assets/pivot_material.tres" id="24_d3l2x"]
 
 [sub_resource type="World3D" id="World3D_868mj"]

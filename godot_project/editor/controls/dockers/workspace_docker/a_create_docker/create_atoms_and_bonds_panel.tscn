@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://pc27dq3y4goe"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_atoms_and_bonds_panel.gd" id="1_lawel"]
+[ext_resource type="Script" uid="uid://bcgrgim4yoyb8" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_atoms_and_bonds_panel.gd" id="1_lawel"]
 [ext_resource type="PackedScene" uid="uid://dx1gn0krp0avh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.tscn" id="2_n4exp"]
 [ext_resource type="PackedScene" uid="uid://djdtnhc6tuvrh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.tscn" id="3_ut705"]
 [ext_resource type="PackedScene" uid="uid://7drqqrsqeol0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/bond_picker.tscn" id="4_xb63e"]

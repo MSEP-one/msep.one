@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://4srk73h7yp5i"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/nano_ring_menu.gd" id="1_d8283"]
+[ext_resource type="Script" uid="uid://b1uncgf6pyv5o" path="res://editor/controls/ring_menu/nano_ring_menu/nano_ring_menu.gd" id="1_d8283"]
 [ext_resource type="PackedScene" uid="uid://s1kifiq0kp1j" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_ui.tscn" id="2_s3rdr"]
 
 [node name="NanoRingMenu" type="Control"]

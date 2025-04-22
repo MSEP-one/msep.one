@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://biw8ofxcm7vd7"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/CaptureInputArea/capture_input_area.gd" id="1_54ifc"]
+[ext_resource type="Script" uid="uid://chg2ul15r0xoa" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/CaptureInputArea/capture_input_area.gd" id="1_54ifc"]
 
 [node name="CaptureInputArea" type="Area3D"]
 collision_layer = 0

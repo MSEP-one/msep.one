@@ -1,6 +1,6 @@
 [gd_scene load_steps=21 format=3 uid="uid://cq4i6btensu0c"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_button_model.gd" id="1_1w50k"]
+[ext_resource type="Script" uid="uid://csfmix68mw4tu" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_button_model.gd" id="1_1w50k"]
 [ext_resource type="PackedScene" uid="uid://b86p67mjwhg27" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_btn_frame.tscn" id="1_muocp"]
 [ext_resource type="PackedScene" uid="uid://coujb4cb6gfkr" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_btn_internal.tscn" id="2_2s1vf"]
 [ext_resource type="Texture2D" uid="uid://dqlk3rj55mhbj" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/back_ico.png" id="3_1ser1"]
@@ -56,9 +56,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_r7sp2"]
 _data = {
-"RESET": SubResource("Animation_3knul"),
-"zoom_in": SubResource("Animation_3cgs7"),
-"zoom_out": SubResource("Animation_751qf")
+&"RESET": SubResource("Animation_3knul"),
+&"zoom_in": SubResource("Animation_3cgs7"),
+&"zoom_out": SubResource("Animation_751qf")
 }
 
 [sub_resource type="Animation" id="Animation_bffhm"]
@@ -95,8 +95,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_sxe5p"]
 _data = {
-"RESET": SubResource("Animation_bffhm"),
-"idle": SubResource("Animation_elu0h")
+&"RESET": SubResource("Animation_bffhm"),
+&"idle": SubResource("Animation_elu0h")
 }
 
 [sub_resource type="Animation" id="Animation_ril4a"]
@@ -215,10 +215,10 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_4xkt1"]
 _data = {
-"RESET": SubResource("Animation_ril4a"),
-"dissapear": SubResource("Animation_ipb68"),
-"pop": SubResource("Animation_0o7xw"),
-"pop_counter_clock_wise": SubResource("Animation_1i4h4")
+&"RESET": SubResource("Animation_ril4a"),
+&"dissapear": SubResource("Animation_ipb68"),
+&"pop": SubResource("Animation_0o7xw"),
+&"pop_counter_clock_wise": SubResource("Animation_1i4h4")
 }
 
 [sub_resource type="Animation" id="Animation_yvmav"]
@@ -307,9 +307,9 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_7eu5v"]
 _data = {
-"RESET": SubResource("Animation_yvmav"),
-"press_in": SubResource("Animation_nj4d4"),
-"press_out": SubResource("Animation_g4khg")
+&"RESET": SubResource("Animation_yvmav"),
+&"press_in": SubResource("Animation_nj4d4"),
+&"press_out": SubResource("Animation_g4khg")
 }
 
 [node name="SideButtonModel" type="Node3D"]

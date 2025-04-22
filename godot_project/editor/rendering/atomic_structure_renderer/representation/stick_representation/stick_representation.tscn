@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://bq2gfornm12h"]
 
 [ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_ennnk"]
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/stick_representation.gd" id="1_y41b7"]
+[ext_resource type="Script" uid="uid://b2hpa3pev6swd" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/stick_representation.gd" id="1_y41b7"]
 [ext_resource type="PackedScene" uid="uid://dgdewlc5wq5ri" path="res://utils/segmented_multimesh/segmented_multi_mesh.tscn" id="3_jjunp"]
 
 [node name="StickRepresentation" instance=ExtResource("1_ennnk")]

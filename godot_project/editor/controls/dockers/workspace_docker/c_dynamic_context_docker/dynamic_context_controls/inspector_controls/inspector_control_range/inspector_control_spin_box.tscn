@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://c4avj0vxmvvth"]
 
 [ext_resource type="PackedScene" uid="uid://c1rmw14fm6jco" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control.tscn" id="1_hhpkt"]
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_range/inspector_control_range.gd" id="2_rn8b1"]
+[ext_resource type="Script" uid="uid://n8cnhngscdrs" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control_range/inspector_control_range.gd" id="2_rn8b1"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_djmdj"]
 
 [node name="InspectorControlSpinBox" instance=ExtResource("1_hhpkt")]

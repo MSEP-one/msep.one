@@ -1,6 +1,6 @@
 [gd_scene load_steps=29 format=3 uid="uid://jd3h4vq4vyea"]
 
-[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_view/menu_view.gd" id="1_2o615"]
+[ext_resource type="Script" uid="uid://b5ukrkgc61jpo" path="res://editor/controls/menu_bar/menu_view/menu_view.gd" id="1_2o615"]
 [ext_resource type="Texture2D" uid="uid://bmubyere46xyj" path="res://editor/controls/dockers/workspace_docker/icons/icon_focus.svg" id="1_jslvw"]
 [ext_resource type="Texture2D" uid="uid://rdnyaknp7tg5" path="res://editor/controls/dockers/workspace_docker/icons/icon_focus_selection.svg" id="2_6t3n3"]
 [ext_resource type="Texture2D" uid="uid://cjb8fhvhlxy0e" path="res://editor/controls/dockers/workspace_docker/icons/icon_hidden.svg" id="3_svvq5"]
@@ -58,6 +58,8 @@ events = [SubResource("InputEventKey_hkl84")]
 
 [node name="View" type="PopupMenu"]
 size = Vector2i(492, 636)
+visible = true
+unfocusable = true
 item_count = 21
 item_0/text = "Focus on Visible Objects"
 item_0/icon = ExtResource("1_jslvw")
@@ -136,3 +138,4 @@ shortcut_hide_selected_objects = SubResource("Shortcut_suqnu")
 shortcut_show_hidden_objects = SubResource("Shortcut_hp7en")
 
 [node name="Camera" parent="." instance=ExtResource("21_qnyh1")]
+unfocusable = true

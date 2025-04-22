@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bxwwcdp4r5d05"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/selection_info.gd" id="1_yqxii"]
+[ext_resource type="Script" uid="uid://cfyfjaeeuwo1x" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/selection_info.gd" id="1_yqxii"]
 
 [node name="selection_info" type="MarginContainer"]
 custom_minimum_size = Vector2(0, 300)

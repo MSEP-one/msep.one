@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://den8g00lupskg"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/create_mode_picker.gd" id="1_4csw7"]
+[ext_resource type="Script" uid="uid://b1ocf868tur54" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/create_mode_picker.gd" id="1_4csw7"]
 
 [node name="CreateModePicker" type="MarginContainer"]
 anchors_preset = 10

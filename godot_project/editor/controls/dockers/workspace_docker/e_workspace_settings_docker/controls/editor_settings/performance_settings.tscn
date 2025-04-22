@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cjvjuaxjbr4vn"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/performance_settings.gd" id="1_ljkt2"]
+[ext_resource type="Script" uid="uid://wf4j5hsnus1g" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/performance_settings.gd" id="1_ljkt2"]
 
 [node name="PerformanceSettings" type="VBoxContainer"]
 offset_right = 484.0

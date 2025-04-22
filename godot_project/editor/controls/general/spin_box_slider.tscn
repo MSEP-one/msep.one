@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b15453vqjum8"]
 
-[ext_resource type="Script" path="res://editor/controls/general/spin_box_slider.gd" id="1_2c5cp"]
+[ext_resource type="Script" uid="uid://ci2a678xscx2c" path="res://editor/controls/general/spin_box_slider.gd" id="1_2c5cp"]
 
 [node name="SpinBoxSlider" type="SpinBox"]
 custom_minimum_size = Vector2(0, 31)

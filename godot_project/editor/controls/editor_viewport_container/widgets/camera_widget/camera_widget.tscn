@@ -1,6 +1,6 @@
 [gd_scene load_steps=16 format=3 uid="uid://h16ki8tgdk2e"]
 
-[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/CameraWidget.gd" id="1_y36xg"]
+[ext_resource type="Script" uid="uid://nonnk1umolk4" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/CameraWidget.gd" id="1_y36xg"]
 [ext_resource type="Texture2D" uid="uid://c10i2ecq52wtb" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Y_Default.svg" id="2_a4qov"]
 [ext_resource type="Texture2D" uid="uid://ysj4b2rm44k7" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Y_Pressed.svg" id="3_scxx8"]
 [ext_resource type="Texture2D" uid="uid://d1y0nyjm17lag" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/svg/UI_CamGizmo_Y_Hover.svg" id="4_is4ph"]

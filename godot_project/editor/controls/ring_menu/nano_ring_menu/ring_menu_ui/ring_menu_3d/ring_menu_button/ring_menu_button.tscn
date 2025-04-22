@@ -1,6 +1,6 @@
 [gd_scene load_steps=23 format=3 uid="uid://c6yfqjgcvshyu"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/ring_menu_button.gd" id="1_ev5nt"]
+[ext_resource type="Script" uid="uid://bt547w3qnhmgg" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/ring_menu_button.gd" id="1_ev5nt"]
 [ext_resource type="PackedScene" uid="uid://bvif8jwmnd6e7" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/ring_menu_button_model.tscn" id="2_bnrlq"]
 [ext_resource type="PackedScene" uid="uid://biw8ofxcm7vd7" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/CaptureInputArea/capture_input_area.tscn" id="2_rk3n6"]
 [ext_resource type="PackedScene" uid="uid://kwy5pjmh1iku" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button_frame.tscn" id="3_go1kx"]
@@ -74,10 +74,10 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_x56u5"]
 _data = {
-"RESET": SubResource("Animation_cf3tw"),
-"highlight": SubResource("Animation_vmkct"),
-"highlight_slow": SubResource("Animation_01x2y"),
-"lowlight": SubResource("Animation_624a4")
+&"RESET": SubResource("Animation_cf3tw"),
+&"highlight": SubResource("Animation_vmkct"),
+&"highlight_slow": SubResource("Animation_01x2y"),
+&"lowlight": SubResource("Animation_624a4")
 }
 
 [sub_resource type="Animation" id="Animation_uq2ns"]
@@ -130,9 +130,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_x2g37"]
 _data = {
-"RESET": SubResource("Animation_uq2ns"),
-"press_in": SubResource("Animation_pqv10"),
-"press_out": SubResource("Animation_ufdr8")
+&"RESET": SubResource("Animation_uq2ns"),
+&"press_in": SubResource("Animation_pqv10"),
+&"press_out": SubResource("Animation_ufdr8")
 }
 
 [sub_resource type="Animation" id="Animation_lgpgr"]
@@ -207,8 +207,8 @@ tracks/2/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_71pnw"]
 _data = {
-"RESET": SubResource("Animation_lgpgr"),
-"pop": SubResource("Animation_e07vc")
+&"RESET": SubResource("Animation_lgpgr"),
+&"pop": SubResource("Animation_e07vc")
 }
 
 [sub_resource type="Animation" id="Animation_nbnh1"]
@@ -362,9 +362,9 @@ tracks/3/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_352iv"]
 _data = {
-"RESET": SubResource("Animation_nbnh1"),
-"change": SubResource("Animation_deeut"),
-"change_mild": SubResource("Animation_u5kfj")
+&"RESET": SubResource("Animation_nbnh1"),
+&"change": SubResource("Animation_deeut"),
+&"change_mild": SubResource("Animation_u5kfj")
 }
 
 [node name="RingMenuButton" type="Node3D"]

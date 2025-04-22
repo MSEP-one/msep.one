@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://djysvtj85xgxs"]
 
-[ext_resource type="Script" path="res://autoloads/ui_blocker/ui_blocker.gd" id="1_lyq0i"]
+[ext_resource type="Script" uid="uid://gcx68ri1yhgm" path="res://autoloads/ui_blocker/ui_blocker.gd" id="1_lyq0i"]
 
 [node name="UiBlocker" type="CanvasLayer"]
 layer = 128

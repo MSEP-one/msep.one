@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://c24sasgp25l6c"]
 
 [ext_resource type="Texture2D" uid="uid://dsnljh3opu7ae" path="res://editor/icons/MolecularStructure_x64.svg" id="1_bpnh5"]
-[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/structure_preview.gd" id="1_jq2et"]
+[ext_resource type="Script" uid="uid://h0h4cq8hj7m0" path="res://editor/controls/workspace_view/controls/structure_preview.gd" id="1_jq2et"]
 
 [node name="StructurePreview" type="VBoxContainer"]
 offset_right = 100.0

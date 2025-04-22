@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://2c5nknjesiv6" path="res://editor/controls/menu_bar/menu_help/icons/icon_about_16px.png" id="1_tflsd"]
 [ext_resource type="Texture2D" uid="uid://bae35qsi6c2f3" path="res://editor/icons/icon_documentation_x24.svg" id="2_ejfnr"]
-[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_help/menu_help.gd" id="3_slcf1"]
+[ext_resource type="Script" uid="uid://dx5pgf7jt2dg0" path="res://editor/controls/menu_bar/menu_help/menu_help.gd" id="3_slcf1"]
 [ext_resource type="Texture2D" uid="uid://bup4caohkc28h" path="res://editor/icons/icon_video_x16.svg" id="3_xy328"]
 
 [node name="MenuHelp" type="PopupMenu"]

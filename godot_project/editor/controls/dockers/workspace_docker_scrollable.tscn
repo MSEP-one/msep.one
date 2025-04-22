@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://rsi10ce4bt10"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker.gd" id="1_vkf6y"]
+[ext_resource type="Script" uid="uid://dp66e6h1ni3e3" path="res://editor/controls/dockers/workspace_docker.gd" id="1_vkf6y"]
 
 [node name="WorkspaceDockerScrollable" type="MarginContainer"]
 anchors_preset = 15

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cdgadvhha48lt"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/atomic_structure_model_validator.gd" id="1_ee286"]
+[ext_resource type="Script" uid="uid://c2tkoxhp8w3s5" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/atomic_structure_model_validator.gd" id="1_ee286"]
 
 [node name="AtomicStructureModelValidator" type="Node"]
 script = ExtResource("1_ee286")

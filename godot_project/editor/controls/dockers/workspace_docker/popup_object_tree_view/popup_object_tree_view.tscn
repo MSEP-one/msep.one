@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d1ieb50lpntfu"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/popup_object_tree_view/popup_object_tree_view.gd" id="1_6uhjh"]
+[ext_resource type="Script" uid="uid://bc6ysb7385hce" path="res://editor/controls/dockers/workspace_docker/popup_object_tree_view/popup_object_tree_view.gd" id="1_6uhjh"]
 
 [node name="PopupObjectTreeActions" type="PopupMenu"]
 size = Vector2i(100, 120)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://kfei2jsreos"]
 
-[ext_resource type="Script" path="res://autoloads/feature_flag_manager/FeatureFlagManager.gd" id="1_6dmtn"]
+[ext_resource type="Script" uid="uid://heyuy057eyee" path="res://autoloads/feature_flag_manager/FeatureFlagManager.gd" id="1_6dmtn"]
 [ext_resource type="PackedScene" uid="uid://bj7jfe55c2gnh" path="res://autoloads/feature_flag_manager/FeatureFlagEntryView.tscn" id="2_5at8g"]
 [ext_resource type="Texture2D" uid="uid://fyydv8ouy8mm" path="res://autoloads/feature_flag_manager/assets/seamless_floral_background.png" id="3_yymem"]
 [ext_resource type="Texture2D" uid="uid://dxnxc2gm5uv33" path="res://autoloads/feature_flag_manager/assets/icon_on.svg" id="4_swjpp"]

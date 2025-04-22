@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://boak3fdup2i47"]
 
-[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/structure_selector/structure_selector_bar.gd" id="1_g7ibi"]
+[ext_resource type="Script" uid="uid://c2sbdr4uf7wmr" path="res://editor/controls/workspace_view/controls/structure_selector/structure_selector_bar.gd" id="1_g7ibi"]
 [ext_resource type="PackedScene" uid="uid://bbcfic1vg0t6y" path="res://editor/controls/workspace_view/controls/structure_selector/structure_child_list/structure_child_list.tscn" id="1_vq07a"]
 
 [node name="StructureSelectorBar" type="Control"]

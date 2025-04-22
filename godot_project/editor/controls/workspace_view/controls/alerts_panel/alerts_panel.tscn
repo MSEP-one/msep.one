@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://7sq87rc5vdf5"]
 
-[ext_resource type="Shader" path="res://theme/blurry_panel.gdshader" id="1_15atc"]
-[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/alerts_panel/alerts_panel.gd" id="2_se7m7"]
+[ext_resource type="Shader" uid="uid://ccp2v6p310iom" path="res://theme/blurry_panel.gdshader" id="1_15atc"]
+[ext_resource type="Script" uid="uid://cpwk11ttug7vh" path="res://editor/controls/workspace_view/controls/alerts_panel/alerts_panel.gd" id="2_se7m7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tuc5w"]
 shader = ExtResource("1_15atc")

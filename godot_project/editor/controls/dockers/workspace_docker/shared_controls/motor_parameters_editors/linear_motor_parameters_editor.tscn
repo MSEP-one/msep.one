@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://dgp1lik5qg0mv"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/linear_motor_parameters_editor.gd" id="1_8n0fw"]
+[ext_resource type="Script" uid="uid://bf7lsjdptesg5" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/linear_motor_parameters_editor.gd" id="1_8n0fw"]
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_pb8n6"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_crlk1"]
 

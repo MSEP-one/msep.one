@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://urydq1etcq8p"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/no_selection_preview.gd" id="1_cjmao"]
+[ext_resource type="Script" uid="uid://bpoisr4pjtfvd" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/no_selection_preview.gd" id="1_cjmao"]
 
 [node name="NoSelectionPreview" type="Label"]
 anchors_preset = 15

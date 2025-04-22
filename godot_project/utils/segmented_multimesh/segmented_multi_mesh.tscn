@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dgdewlc5wq5ri"]
 
-[ext_resource type="Script" path="res://utils/segmented_multimesh/segmented_multi_mesh.gd" id="1_7llfi"]
+[ext_resource type="Script" uid="uid://bmi5mp8f5ebkr" path="res://utils/segmented_multimesh/segmented_multi_mesh.gd" id="1_7llfi"]
 
 [node name="SegmentedMultiMesh" type="Node3D"]
 script = ExtResource("1_7llfi")

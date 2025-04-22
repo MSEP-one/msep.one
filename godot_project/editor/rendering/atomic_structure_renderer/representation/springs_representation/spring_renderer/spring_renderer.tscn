@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://c8i651vdu21vm"]
 
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/spring_renderer.gd" id="1_k8r4r"]
+[ext_resource type="Script" uid="uid://dtvnn1d6lehuw" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/spring_renderer.gd" id="1_k8r4r"]
 [ext_resource type="PackedScene" uid="uid://dgdewlc5wq5ri" path="res://utils/segmented_multimesh/segmented_multi_mesh.tscn" id="2_lxuhi"]
 [ext_resource type="ArrayMesh" uid="uid://cvyuohtyyh420" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_chain_mesh.res" id="3_1mbkk"]
 [ext_resource type="Material" uid="uid://dkxttu4vymylk" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_material.tres" id="4_e5huk"]

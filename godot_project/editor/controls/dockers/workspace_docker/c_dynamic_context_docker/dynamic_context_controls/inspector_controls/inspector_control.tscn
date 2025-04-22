@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c1rmw14fm6jco"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control.gd" id="1_tkakr"]
+[ext_resource type="Script" uid="uid://cvkfx4rs683ms" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/inspector_controls/inspector_control.gd" id="1_tkakr"]
 
 [node name="InspectorControl" type="MarginContainer"]
 offset_right = 40.0

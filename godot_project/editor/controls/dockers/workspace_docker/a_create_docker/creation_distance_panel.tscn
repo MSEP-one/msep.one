@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://c4lae1ua2atl7"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/creation_distance_panel.gd" id="1_0kw06"]
+[ext_resource type="Script" uid="uid://x6xutacs7u6q" path="res://editor/controls/dockers/workspace_docker/a_create_docker/creation_distance_panel.gd" id="1_0kw06"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="1_5pt0s"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_gr1fe"]

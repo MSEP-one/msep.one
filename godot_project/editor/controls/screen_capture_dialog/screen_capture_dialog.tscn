@@ -1,11 +1,11 @@
 [gd_scene load_steps=13 format=3 uid="uid://blxop3sf64kc3"]
 
-[ext_resource type="Script" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.gd" id="1_607do"]
+[ext_resource type="Script" uid="uid://b843gvlm2wtou" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.gd" id="1_607do"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="1_y3r51"]
-[ext_resource type="Shader" path="res://editor/controls/screen_capture_dialog/checkboard_texture.gdshader" id="3_o58h2"]
+[ext_resource type="Shader" uid="uid://cn5e8dyclhwkt" path="res://editor/controls/screen_capture_dialog/checkboard_texture.gdshader" id="3_o58h2"]
 [ext_resource type="PackedScene" uid="uid://dbyklroe2rigw" path="res://editor/controls/screen_capture_dialog/resolution_confirmation_dialog/resolution_confirmation_dialog.tscn" id="4_mtj6f"]
-[ext_resource type="Script" path="res://editor/controls/screen_capture_dialog/texture_rect_capture_preview.gd" id="4_q6wua"]
-[ext_resource type="Script" path="res://editor/controls/general/nano_file_dialog.gd" id="5_gts1f"]
+[ext_resource type="Script" uid="uid://dukbiw60mtuok" path="res://editor/controls/screen_capture_dialog/texture_rect_capture_preview.gd" id="4_q6wua"]
+[ext_resource type="Script" uid="uid://d2k0yfuvhmtby" path="res://editor/controls/general/nano_file_dialog.gd" id="5_gts1f"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_r5oqb"]
 

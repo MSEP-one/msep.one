@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cpgjutpaudo5p"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/single_color_button.gd" id="1_5cqgf"]
+[ext_resource type="Script" uid="uid://ck616ue5gqxbt" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/single_color_button.gd" id="1_5cqgf"]
 
 [node name="ColorButton" type="Button"]
 custom_minimum_size = Vector2(32, 32)

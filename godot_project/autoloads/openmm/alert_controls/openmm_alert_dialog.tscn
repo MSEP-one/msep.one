@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bpbwiy6aole7v"]
 
-[ext_resource type="Script" path="res://autoloads/openmm/alert_controls/openmm_alert_dialog.gd" id="1_v4mil"]
+[ext_resource type="Script" uid="uid://yvt1r0jfyy4n" path="res://autoloads/openmm/alert_controls/openmm_alert_dialog.gd" id="1_v4mil"]
 
 [node name="AcceptDialog" type="AcceptDialog"]
 transparent_bg = true

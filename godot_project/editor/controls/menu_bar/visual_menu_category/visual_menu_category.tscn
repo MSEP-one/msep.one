@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bd8i28m4k4x22"]
 
-[ext_resource type="Script" path="res://editor/controls/menu_bar/visual_menu_category/visual_menu_category.gd" id="1_6ye84"]
+[ext_resource type="Script" uid="uid://ngcmjvkitfu3" path="res://editor/controls/menu_bar/visual_menu_category/visual_menu_category.gd" id="1_6ye84"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7x8xe"]
 

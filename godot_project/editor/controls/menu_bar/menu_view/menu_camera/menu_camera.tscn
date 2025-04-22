@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://bh8iwsy4ji3k0"]
 
 [ext_resource type="Texture2D" uid="uid://bdtmhsuvkbll3" path="res://editor/icons/icon_camera_x16.svg" id="2_67edx"]
-[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_view/menu_camera/menu_camera.gd" id="2_qiyix"]
+[ext_resource type="Script" uid="uid://btoksqd1lfe6r" path="res://editor/controls/menu_bar/menu_view/menu_camera/menu_camera.gd" id="2_qiyix"]
 [ext_resource type="Texture2D" uid="uid://bgwo87rpq5iys" path="res://editor/icons/icon_add_x16.svg" id="3_u0t3u"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_3k5pr"]

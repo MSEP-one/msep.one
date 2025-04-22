@@ -52,10 +52,6 @@ func get_height() -> float:
 	return height
 
 
-func request_update() -> void:
-	_update()
-
-
 func _create_mesh_array() -> Array:
 	var vertexes := PackedVector3Array()
 	var normals := PackedVector3Array()

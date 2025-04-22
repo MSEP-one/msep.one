@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bkq41fq1rss41"]
 
 [ext_resource type="Texture2D" uid="uid://bxu62wy5r2g1d" path="res://editor/controls/workspace_view/controls/structure_selector/structure_button/icon_select_child.svg" id="1_1i2af"]
-[ext_resource type="Script" path="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.gd" id="1_mb2p3"]
+[ext_resource type="Script" uid="uid://c778khavmxj70" path="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.gd" id="1_mb2p3"]
 
 [node name="StructureSelectorButton" type="HBoxContainer"]
 size_flags_vertical = 0

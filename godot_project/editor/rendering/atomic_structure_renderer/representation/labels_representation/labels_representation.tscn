@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://ctg26amq4yx8c"]
 
 [ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_lkwvt"]
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/labels_representation.gd" id="2_ff8xq"]
+[ext_resource type="Script" uid="uid://dqaewnat30l38" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/labels_representation.gd" id="2_ff8xq"]
 [ext_resource type="PackedScene" uid="uid://xfjybjko82so" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/proximity_segmented_multimesh/proximity_segmented_multimesh.tscn" id="3_20jm3"]
 [ext_resource type="Material" uid="uid://u67yxpenxftr" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_material.tres" id="4_dpmev"]
 

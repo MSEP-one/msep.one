@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://r8okqydiyaj8"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_fragment_panel.gd" id="1_0xfy8"]
+[ext_resource type="Script" uid="uid://d361ngbbqkco1" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_fragment_panel.gd" id="1_0xfy8"]
 
 [node name="LoadFragmentPanel" type="MarginContainer"]
 offset_right = 259.0

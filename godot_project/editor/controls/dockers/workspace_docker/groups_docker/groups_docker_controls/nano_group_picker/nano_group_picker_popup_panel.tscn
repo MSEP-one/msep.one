@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dyfyqssb7twmn"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_group_picker/nano_group_picker_popup_panel.gd" id="1_44aqs"]
+[ext_resource type="Script" uid="uid://br1ky3s712k2k" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_group_picker/nano_group_picker_popup_panel.gd" id="1_44aqs"]
 
 [node name="NanoGroupPickerPopupPanel" type="PopupPanel"]
 position = Vector2i(0, 28)

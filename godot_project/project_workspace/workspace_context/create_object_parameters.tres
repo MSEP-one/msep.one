@@ -1,22 +1,24 @@
 [gd_resource type="Resource" script_class="CreateObjectParameters" load_steps=24 format=3 uid="uid://bfjxhptyon02v"]
 
-[ext_resource type="Script" path="res://project_workspace/structs/nano_linear_motor_parameters.gd" id="1_aa1i5"]
-[ext_resource type="Script" path="res://project_workspace/workspace_context/create_object_parameters.gd" id="1_ycqpx"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/cone_mesh.gd" id="2_auc84"]
-[ext_resource type="Script" path="res://project_workspace/structs/nano_rotary_motor_parameters.gd" id="2_plga1"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="3_2atp2"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_cylinder_mesh.gd" id="4_gcr6y"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_box_mesh.gd" id="4_ti0d7"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/plane_mesh.gd" id="4_tty5x"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_capsule_mesh.gd" id="8_4enk7"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_sphere_mesh.gd" id="9_io35m"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_prism_mesh.gd" id="10_5n4lm"]
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/nano_torus_mesh.gd" id="11_ubvjt"]
+[ext_resource type="Script" uid="uid://bbkhist7x0lll" path="res://project_workspace/structs/nano_linear_motor_parameters.gd" id="1_aa1i5"]
+[ext_resource type="Script" uid="uid://m0uynwemmwcl" path="res://project_workspace/workspace_context/create_object_parameters.gd" id="1_ycqpx"]
+[ext_resource type="Script" uid="uid://72fgr5c7ggge" path="res://project_workspace/custom_shapes/cone_mesh.gd" id="2_auc84"]
+[ext_resource type="Script" uid="uid://bap7uga7bgdut" path="res://project_workspace/structs/nano_rotary_motor_parameters.gd" id="2_plga1"]
+[ext_resource type="Script" uid="uid://rpaxm2votab3" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="3_2atp2"]
+[ext_resource type="Script" uid="uid://b5idxkhug1qrh" path="res://project_workspace/custom_shapes/nano_cylinder_mesh.gd" id="4_gcr6y"]
+[ext_resource type="Script" uid="uid://vosccac0iriy" path="res://project_workspace/custom_shapes/nano_box_mesh.gd" id="4_ti0d7"]
+[ext_resource type="Script" uid="uid://delocjtjy2rcg" path="res://project_workspace/custom_shapes/plane_mesh.gd" id="4_tty5x"]
+[ext_resource type="Script" uid="uid://bsixlj0bi6q4l" path="res://project_workspace/custom_shapes/nano_capsule_mesh.gd" id="8_4enk7"]
+[ext_resource type="Script" uid="uid://214mdgspomjg" path="res://project_workspace/custom_shapes/nano_sphere_mesh.gd" id="9_io35m"]
+[ext_resource type="Script" uid="uid://bw2n03hb56u61" path="res://project_workspace/custom_shapes/nano_prism_mesh.gd" id="10_5n4lm"]
+[ext_resource type="Script" uid="uid://bpetj56e8puam" path="res://project_workspace/custom_shapes/nano_torus_mesh.gd" id="11_ubvjt"]
 
 [sub_resource type="Resource" id="Resource_hrp7i"]
 script = ExtResource("1_aa1i5")
 top_speed_in_nanometers_by_nanoseconds = 100000.0
 polarity = 0
+ramp_in_time_in_nanoseconds = null
+ramp_out_time_in_nanoseconds = null
 cycle_type = 0
 cycle_time_limit_in_femtoseconds = 500.0
 cycle_distance_limit = 10.0
@@ -33,6 +35,8 @@ max_torque = 50.0
 is_jerk_limited = false
 jerk_limit = 50.0
 polarity = 0
+ramp_in_time_in_nanoseconds = null
+ramp_out_time_in_nanoseconds = null
 cycle_type = 0
 cycle_time_limit_in_femtoseconds = 500.0
 cycle_distance_limit = 1.0

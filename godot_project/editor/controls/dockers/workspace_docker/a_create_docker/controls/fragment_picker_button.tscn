@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://d3666jw26ls5i"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/fragment_picker_button.gd" id="1_cxe2j"]
+[ext_resource type="Script" uid="uid://pymrimvih653" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/fragment_picker_button.gd" id="1_cxe2j"]
 [ext_resource type="Texture2D" uid="uid://dsnljh3opu7ae" path="res://editor/icons/MolecularStructure_x64.svg" id="2_drxxw"]
 
 [node name="FragmentButton" type="VBoxContainer"]

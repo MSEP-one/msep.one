@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cjdno8b8vkglk"]
 
-[ext_resource type="Script" path="res://editor/controls/dock_area/DockArea.gd" id="1_hexvt"]
+[ext_resource type="Script" uid="uid://b4cmpkydtar6b" path="res://editor/controls/dock_area/DockArea.gd" id="1_hexvt"]
 [ext_resource type="PackedScene" uid="uid://om4o0nkeln5c" path="res://editor/controls/dock_area/docker_tab_container/docker_tab_container.tscn" id="2_nuv1x"]
 
 [node name="DockArea" type="MarginContainer"]

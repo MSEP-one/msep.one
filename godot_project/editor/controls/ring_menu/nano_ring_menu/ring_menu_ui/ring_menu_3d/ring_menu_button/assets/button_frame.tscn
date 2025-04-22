@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://kwy5pjmh1iku"]
 
 [ext_resource type="PackedScene" uid="uid://cmyxbipm351tf" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button_frame.glb" id="1_8i6c2"]
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button_frame.gd" id="2_5bqts"]
+[ext_resource type="Script" uid="uid://dfvhj4okg4m3u" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/button_frame.gd" id="2_5bqts"]
 [ext_resource type="Material" uid="uid://ccuohkpvspcuq" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_button/assets/frame_mat.tres" id="2_88ljp"]
 
 [sub_resource type="Animation" id="Animation_8f5rd"]
@@ -52,9 +52,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_qwjix"]
 _data = {
-"RESET": SubResource("Animation_8f5rd"),
-"active": SubResource("Animation_agpvi"),
-"inactive": SubResource("Animation_xkvro")
+&"RESET": SubResource("Animation_8f5rd"),
+&"active": SubResource("Animation_agpvi"),
+&"inactive": SubResource("Animation_xkvro")
 }
 
 [node name="button_frame" instance=ExtResource("1_8i6c2")]

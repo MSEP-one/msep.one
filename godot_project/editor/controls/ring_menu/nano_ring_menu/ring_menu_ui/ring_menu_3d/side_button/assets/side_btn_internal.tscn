@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://coujb4cb6gfkr"]
 
 [ext_resource type="PackedScene" uid="uid://cqj7kaccbxx6a" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/back_btns.glb" id="1_jehrh"]
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_btn_internal.gd" id="2_bnyvl"]
+[ext_resource type="Script" uid="uid://civ1xg6bd4kgf" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_btn_internal.gd" id="2_bnyvl"]
 [ext_resource type="Material" uid="uid://csmgcvg4044cg" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/side_button/assets/side_btn_internal_mat.tres" id="3_2gmmq"]
 
 [sub_resource type="Animation" id="Animation_g87ta"]
@@ -55,9 +55,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_34rs6"]
 _data = {
-"RESET": SubResource("Animation_g87ta"),
-"dim": SubResource("Animation_pgclb"),
-"un-dim": SubResource("Animation_8srrh")
+&"RESET": SubResource("Animation_g87ta"),
+&"dim": SubResource("Animation_pgclb"),
+&"un-dim": SubResource("Animation_8srrh")
 }
 
 [node name="SideBtnInternalModel" instance=ExtResource("1_jehrh")]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cgmcb3in42kol"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/visibility_settings/visibility_settings.gd" id="1_u6kr4"]
+[ext_resource type="Script" uid="uid://d1hlvmcb6x56u" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/visibility_settings/visibility_settings.gd" id="1_u6kr4"]
 
 [node name="VisibilitySettings" type="MarginContainer"]
 offset_right = 10.0

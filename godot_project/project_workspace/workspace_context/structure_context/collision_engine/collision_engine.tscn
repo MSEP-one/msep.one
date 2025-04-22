@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://tlvrua11wwf1"]
 
-[ext_resource type="Script" path="res://project_workspace/workspace_context/structure_context/collision_engine/collision_engine.gd" id="1_w4neu"]
+[ext_resource type="Script" uid="uid://co5tt1j11s1o6" path="res://project_workspace/workspace_context/structure_context/collision_engine/collision_engine.gd" id="1_w4neu"]
 [ext_resource type="PackedScene" uid="uid://b8ahf120j3w87" path="res://project_workspace/workspace_context/structure_context/collision_engine/collision_space/collision_space.tscn" id="2_u5fly"]
 
 [node name="CollisionEngine" type="Node"]

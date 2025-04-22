@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://gxawguce88cy"]
 
-[ext_resource type="Script" path="res://autoloads/about_msep_one/about_msep_one.gd" id="1_6fjpy"]
-[ext_resource type="Shader" path="res://autoloads/initial_info_screen/initial_info_screen.gdshader" id="2_8o7yo"]
+[ext_resource type="Script" uid="uid://ci2xg3fgnwxor" path="res://autoloads/about_msep_one/about_msep_one.gd" id="1_6fjpy"]
+[ext_resource type="Shader" uid="uid://cehfsfju1x4m5" path="res://autoloads/initial_info_screen/initial_info_screen.gdshader" id="2_8o7yo"]
 [ext_resource type="Theme" uid="uid://d3fnr4sbrd6ik" path="res://theme/theme.tres" id="3_beojv"]
 [ext_resource type="Texture2D" uid="uid://bm36o6fo1evuo" path="res://logo.png" id="4_38ii1"]
 [ext_resource type="PackedScene" uid="uid://ceqlu15mn5g3q" path="res://autoloads/about_msep_one/third_party_software/third_party_software.tscn" id="5_p4fbb"]
@@ -76,12 +76,14 @@ layout_mode = 2
 [node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"TabContainerCrystal"
+current_tab = 0
 
 [node name="About Us" type="MarginContainer" parent="VBoxContainer/TabContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"CollapsableCategoryPanel"
+metadata/_tab_index = 0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/TabContainer/About Us"]
 layout_mode = 2
@@ -124,10 +126,12 @@ autowrap_mode = 2
 [node name="Third Party Software" parent="VBoxContainer/TabContainer" instance=ExtResource("5_p4fbb")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="Other Attributions" parent="VBoxContainer/TabContainer" instance=ExtResource("6_qip5g")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 2
 
 [node name="Separator2" type="Control" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 10)
