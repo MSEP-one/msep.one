@@ -49,6 +49,7 @@ func _post_init() -> void:
 	
 	_highest_spring_id = _springs.size() - 1 # First unnexact approach of finding _highest_spring_id
 	var related_workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	var invisible_springs := PackedInt32Array()
 	if related_workspace == null:
 		return
 	for spring_id: int in _springs:
@@ -61,6 +62,10 @@ func _post_init() -> void:
 		if not anchor.visibility_changed.is_connected(_on_anchor_visibility_changed.bind(anchor)):
 			anchor.visibility_changed.connect(_on_anchor_visibility_changed.bind(anchor))
 		_springs[spring_id].anchor_is_visible = anchor.get_visible()
+		if not spring_is_visible(spring_id):
+			invisible_springs.push_back(spring_id)
+	if not invisible_springs.is_empty():
+		springs_visibility_changed.emit(invisible_springs)
 	_is_being_edited = false
 
 
@@ -767,5 +772,3 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	
 	# This call defferent should not be needed when Renderer will implement snapshoting
 	History.apply_signal_snapshot_to_object.call_deferred(self, in_state_snapshot["signals"])
-
-
