@@ -5,22 +5,14 @@ const _DEFAULT_BOND_WIDTH: float = 1.0
 
 var _workspace_context: WorkspaceContext
 var _related_structure_id: int
-var _bond_id_to_particle_id: Dictionary = {
-	#bond_id<int> : particle_id<ParticleID>
-}
-var _current_bond_partial_selection: Dictionary = {
-	# bond_id<int> : true<bool>
-}
-var _bond_id_to_bond_order: Dictionary = {
-	# bond_id<int> : order<int>
-}
+var _bond_id_to_particle_id: Dictionary[int, ParticleID] = {}
+var _current_bond_partial_selection: Dictionary[int, bool] = {}
+var _bond_id_to_bond_order: Dictionary[int, int] = {}
 
 static var _shader_scale_factor: float = 1.0
 
 var _hovered_bond_id: int = -1
-var _highlighted_bonds: Dictionary = {
-	# bond_id<int> : is_highlighted<bool>
-}
+var _highlighted_bonds: Dictionary[int, bool] = {}
 
 @onready var _single_stick_multimesh: SegmentedMultimesh = $SingleStickSegmentedMultiMesh
 @onready var _double_stick_multimesh: SegmentedMultimesh = $DoubleStickSegmentedMultiMesh
@@ -146,11 +138,32 @@ static func _find_atom_connected_to_first_but_not_second(in_first_atom: int, in_
 	return -1
 
 
-func highlight_atoms(_in_atoms_ids: PackedInt32Array, \
+func highlight_atoms(in_atoms_ids: PackedInt32Array, \
 		new_partially_influenced_bonds: PackedInt32Array = PackedInt32Array(), \
-				in_bonds_released_from_partial_influence: PackedInt32Array = PackedInt32Array()) -> void:
+		in_bonds_released_from_partial_influence: PackedInt32Array = PackedInt32Array()) -> void:
+	# Case A: atoms and bond was unselected, now one atom is selected
 	_refresh_bond_partial_influence_status(new_partially_influenced_bonds)
+	# Case B: One atom was selected, now both or none atoms are selected
 	_refresh_bond_partial_influence_status(in_bonds_released_from_partial_influence)
+	# Case C: Only bond was selected, now both atoms are selected
+	if in_atoms_ids.is_empty() or _highlighted_bonds.is_empty():
+		return
+	var bonds_to_refresh := PackedInt32Array()
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
+	var related_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
+	for bond_id: int in _highlighted_bonds.keys():
+		if (not bond_id in _bond_id_to_particle_id) \
+				or (bond_id in new_partially_influenced_bonds) \
+				or (bond_id in in_bonds_released_from_partial_influence):
+			continue
+		var bond: Vector3i = related_structure.get_bond(bond_id)
+		var first_atom_id: int = bond.x
+		var second_atom_id: int = bond.y
+		var needs_refresh: bool = (first_atom_id in in_atoms_ids) or (second_atom_id in in_atoms_ids)
+		if needs_refresh:
+			bonds_to_refresh.push_back(bond_id)
+	if not bonds_to_refresh.is_empty():
+		_refresh_bond_partial_influence_status(bonds_to_refresh)
 
 
 func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: PackedInt32Array) -> void:
@@ -780,4 +793,3 @@ class ParticleID:
 	func _init(in_bond_order: int, in_bond_id: int) -> void:
 		bond_order = in_bond_order
 		bond_id = in_bond_id
-
