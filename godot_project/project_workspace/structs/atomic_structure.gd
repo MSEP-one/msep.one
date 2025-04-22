@@ -12,6 +12,7 @@ signal atoms_moved(atoms_moved: PackedInt32Array)
 signal atoms_atomic_number_changed(changed_atoms: Array[Vector2i])
 signal atoms_color_override_changed(changed_atoms: PackedInt32Array)
 signal atoms_locking_changed(atoms_changed: PackedInt32Array)
+@warning_ignore("unused_signal")
 signal atoms_cleared()
 signal bonds_created(new_bonds: PackedInt32Array)
 signal bonds_removed(removed_bonds: PackedInt32Array)
@@ -1010,4 +1011,3 @@ class VisibilitySnapshot:
 		hidden_atoms = in_atoms.duplicate()
 		hidden_bonds = in_bonds.duplicate()
 		hidden_springs = in_springs.duplicate()
-

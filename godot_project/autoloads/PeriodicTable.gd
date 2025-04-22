@@ -4,7 +4,7 @@ extends Node
 const ATOMIC_NUMBER_HYDROGEN = 1
 const ATOMIC_NUMBER_CARBON = 6
 const MAX_ATOMIC_NUMBER = 118
-enum ColorPalette {
+enum ColorSchema {
 	MSEP,
 	COREY,
 	KOLTUN,
@@ -24,7 +24,7 @@ var _elements : Dictionary
 var _elements_by_name : Dictionary
 var _elements_by_symbol : Dictionary
 var _unknown_element := ElementData.new("-1,0,0,,Unknown,,,,,,,,,,,,#FFFFFF,#FFFFFF,#FFFFFF,#000000,0.0")
-var _current_color_palette := ColorPalette.MSEP
+var _current_color_schema := ColorSchema.MSEP
 
 func _init() -> void:
 	var f := FileAccess.open("res://autoloads/data/periodic_table_data.csv", FileAccess.READ)
@@ -42,20 +42,20 @@ func _init() -> void:
 		_elements_by_symbol[element.symbol] = element
 
 
-func get_current_color_palette() -> ColorPalette:
-	return _current_color_palette
+func get_current_color_schema() -> ColorSchema:
+	return _current_color_schema
 
 
-func load_palette(in_which: ColorPalette) -> void:
-	if _current_color_palette == in_which:
+func load_schema(in_which: ColorSchema) -> void:
+	if _current_color_schema == in_which:
 		return
 	const PALETTES: Dictionary = {
-		ColorPalette.MSEP: preload("res://autoloads/data/color_palettes/MSEP.tres"),
-		ColorPalette.COREY: preload("res://autoloads/data/color_palettes/Corey.tres"),
-		ColorPalette.KOLTUN: preload("res://autoloads/data/color_palettes/Koltun.tres"),
-		ColorPalette.JMOL: preload("res://autoloads/data/color_palettes/JMol.tres"),
-		ColorPalette.RASMOL: preload("res://autoloads/data/color_palettes/Rasmol.tres"),
-		ColorPalette.PUBCHEM: preload("res://autoloads/data/color_palettes/PubChem.tres"),
+		ColorSchema.MSEP: preload("res://autoloads/data/color_palettes/MSEP.tres"),
+		ColorSchema.COREY: preload("res://autoloads/data/color_palettes/Corey.tres"),
+		ColorSchema.KOLTUN: preload("res://autoloads/data/color_palettes/Koltun.tres"),
+		ColorSchema.JMOL: preload("res://autoloads/data/color_palettes/JMol.tres"),
+		ColorSchema.RASMOL: preload("res://autoloads/data/color_palettes/Rasmol.tres"),
+		ColorSchema.PUBCHEM: preload("res://autoloads/data/color_palettes/PubChem.tres"),
 	}
 	var palette := PALETTES[in_which] as PeriodicTableColorPalette 
 	for i in range(1, MAX_ATOMIC_NUMBER+1):
@@ -64,17 +64,17 @@ func load_palette(in_which: ColorPalette) -> void:
 		element_data.noise_color = palette.get_noise_color_for_element(i)
 		element_data.bond_color = palette.get_bond_color_for_element(i)
 		element_data.font_color = palette.get_font_color_for_element(i)
-	_current_color_palette = in_which
+	_current_color_schema = in_which
 
 
-func get_color_palette_name(in_which: ColorPalette) -> String:
+func get_color_schema_name(in_which: ColorSchema) -> String:
 	const PALETTE_NAMES: Dictionary = {
-		ColorPalette.MSEP: "MSEP.one",
-		ColorPalette.COREY: "Corey",
-		ColorPalette.KOLTUN: "Koltun",
-		ColorPalette.JMOL: "Jmol",
-		ColorPalette.RASMOL: "Rasmol",
-		ColorPalette.PUBCHEM: "PubChem",
+		ColorSchema.MSEP: "MSEP.one",
+		ColorSchema.COREY: "Corey",
+		ColorSchema.KOLTUN: "Koltun",
+		ColorSchema.JMOL: "Jmol",
+		ColorSchema.RASMOL: "Rasmol",
+		ColorSchema.PUBCHEM: "PubChem",
 	}
 	return PALETTE_NAMES[in_which]
 
@@ -97,4 +97,3 @@ func get_by_symbol(symbol : String) -> ElementData:
 		push_warning("Unknown element with symbol %s" % symbol)
 		return _unknown_element
 	return _elements_by_symbol[symbol]
-
