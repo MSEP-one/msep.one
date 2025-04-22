@@ -92,6 +92,8 @@ func _process_openmm_errors(in_promise: Promise, in_original_payload: OpenMMPayl
 			_create_invalid_valence_item(in_original_payload, openff_to_zmq_atom_id, line, _extract_greater_valence_indices)
 	elif error.begins_with("Invalid position for"):
 		_workspace_context.push_error_alert(error)
+	elif error == OpenMM.OPENMM_CRASH_MESSAGE:
+		pass
 	else:
 		assert(false, "Unhandled OpenMM Error: " + error)
 		pass
