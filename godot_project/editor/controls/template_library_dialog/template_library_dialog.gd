@@ -1,7 +1,7 @@
 class_name TemplateLibraryDialog extends ConfirmationDialog
 
 const LIBRARY_PATH: String = "res://template_library_files/"
-const LIBRARY_EXTENSIONS: PackedStringArray = ["pdb"]
+const LIBRARY_EXTENSIONS: PackedStringArray = ["pdb", "msep1"]
 const THUMBNAIL_EXTENSION: String = "png"
 const THUMBNAIL_FALLBACK: Texture2D = preload("res://splash.png")
 const FIXED_ICON_SIZE := Vector2i(160, 120)
@@ -44,10 +44,9 @@ func _notification(what: int) -> void:
 
 func _load_library_contents() -> void:
 	var files_in_library_dir: PackedStringArray = DirAccess.get_files_at(LIBRARY_PATH)
-	
-	var content_in_library: PackedStringArray = Array(files_in_library_dir).filter(_is_valid_content)
-	content_in_library.sort()
-	for filename in content_in_library:
+	var content_in_library: Array = Array(files_in_library_dir).filter(_is_valid_content)
+	content_in_library.sort_custom(_library_content_sorter)
+	for filename: String in content_in_library:
 		var basename: = filename.get_basename()
 		var icon_path: = LIBRARY_PATH.path_join(basename) + "." + THUMBNAIL_EXTENSION
 		var item_icon: Texture2D = THUMBNAIL_FALLBACK
@@ -56,6 +55,18 @@ func _load_library_contents() -> void:
 		var idx: int = _item_list_library.add_item(basename.capitalize(), item_icon, true)
 		var path: String = LIBRARY_PATH.path_join(filename)
 		_item_list_library.set_item_metadata(idx, path)
+
+
+## Used to sort library templates alphabetically, but moves all msep1 files at
+## the begining of the list
+func _library_content_sorter(file_a: String, file_b: String) -> bool:
+	var extension_a: String = file_a.get_extension()
+	var extension_b: String = file_b.get_extension()
+	if extension_a == extension_b:
+		return file_a.naturalnocasecmp_to(file_b) < 0
+	if extension_a == &"msep1":
+		return true
+	return false
 
 
 func _is_valid_content(in_filepath: String) -> bool:

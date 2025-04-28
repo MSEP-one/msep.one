@@ -3,6 +3,8 @@ shader_type spatial;
 render_mode blend_mix,depth_draw_always,cull_disabled,diffuse_burley,specular_schlick_ggx;
 
 #include "res://editor/rendering/atomic_structure_renderer/representation/hydrogens.gdshaderinc"
+#include "res://editor/rendering/atomic_structure_renderer/representation/instance_state.gdshaderinc"
+#include "res://editor/rendering/atomic_structure_renderer/representation/selectable.gdshaderinc"
 
 uniform vec4 albedo : source_color;
 uniform sampler2D texture_albedo : source_color,filter_linear,repeat_enable;
@@ -28,6 +30,11 @@ const float SPRING_DENSITY_FACTOR = 15.0;
 
 void vertex() {
 	VERTEX = hide_hydrogen_springs(VERTEX, COLOR.a);
+	
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	float is_selected = is_atom_or_bond_selected(COLOR.a);
+	VERTEX *= float_or(float_not(is_preview), is_selected);
+	
 	mat3 basis = mat3(MODELVIEW_MATRIX);
 	vec3 scale = vec3(length(basis[0]), length(basis[1]), length(basis[2]));
 	UV = UV * vec2(scale.z * SPRING_DENSITY_FACTOR, 1.0);
@@ -38,6 +45,8 @@ void fragment() {
 	vec2 base_uv = UV;
 	vec4 albedo_tex = texture(texture_albedo,base_uv);
 	ALBEDO = albedo.rgb * COLOR.rgb * albedo_tex.rgb;
+	ALBEDO.rgb = apply_saturation(ALBEDO.rgb);
+	ALBEDO.rgb = apply_value(ALBEDO.rgb);
 	float metallic_tex = dot(texture(texture_metallic,base_uv),metallic_texture_channel);
 	METALLIC = metallic_tex * metallic;
 	vec4 roughness_texture_channel = vec4(0.0,1.0,0.0,0.0);

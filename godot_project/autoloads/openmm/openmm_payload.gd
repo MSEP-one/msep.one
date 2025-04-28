@@ -280,7 +280,7 @@ func _create_random_nudge() -> Vector3:
 # Returns a list of positions where hydrogens bonded to atoms would preferably be placed
 func _passivate_atom(in_structure: AtomicStructure, in_atom_id: int) -> PackedVector3Array:
 	var directions: PackedVector3Array = []
-	var remaininig_valence: int = in_structure.atom_get_remaininig_valence(in_atom_id)
+	var remaininig_valence: int = in_structure.atom_get_remaining_valence(in_atom_id)
 	if remaininig_valence > 0:
 		# Add hydrogens
 		var atomic_number: int = in_structure.atom_get_atomic_number(in_atom_id)

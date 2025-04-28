@@ -6,6 +6,3 @@
 [node name="WorkspaceSettingsDocker" instance=ExtResource("1_slevb")]
 script = ExtResource("1_1lxmm")
 docker_tab_title = "Workspace Settings"
-
-[node name="CategoryContainer" parent="ScrollContainer" index="0"]
-size_flags_vertical = 0

@@ -19,9 +19,6 @@ uniform float metallic;
 uniform vec3 uv1_scale;
 uniform vec3 uv1_offset;
 
-uniform vec3 camera_up_vector;
-uniform vec3 camera_right_vector;
-
 uniform float scale = 0.01;
 
 uniform float flat_saturation: hint_range(0,1) = 0.75;
@@ -70,15 +67,18 @@ void vertex() {
 	UV=UV*uv1_scale.xy+uv1_offset.xy;
 	
 	// outline
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
 	is_outline = uv_is_outline(UV);
-	VERTEX += displace_outline(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR);
+	VERTEX += displace_outline(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR) * float_not(is_preview);;
 	
 	// Calculate rotation matrix to align model with camera
+	vec3 camera_right = normalize(INV_VIEW_MATRIX[0].xyz);
+	vec3 camera_up = normalize(INV_VIEW_MATRIX[1].xyz);
 	mat4 billboard_rot = mat4(
-		vec4(normalize(camera_right_vector), 0.0),
-		vec4(normalize(camera_up_vector), 0.0),
-		vec4(cross(normalize(camera_right_vector), normalize(camera_up_vector)), 0.0),
+		vec4(normalize(camera_right), 0.0),
+		vec4(normalize(camera_up), 0.0),
+		vec4(cross(normalize(camera_right), normalize(camera_up)), 0.0),
 		vec4(0.0, 0.0, 0.0, 1.0)
 	);
 	vec3 final_vertex = (billboard_rot * vec4(VERTEX, 1.0)).xyz;
@@ -91,6 +91,9 @@ void vertex() {
 
 	//apply translation delta
 	final_vertex += get_translation_delta(COLOR, MODEL_MATRIX);
+	
+	//preview visibility
+	final_vertex *= float_or(float_not(is_preview), is_atom_or_bond_selected(COLOR.a));
 	
 	VERTEX = hide_hydrogen_atoms(final_vertex, COLOR.a);
 }

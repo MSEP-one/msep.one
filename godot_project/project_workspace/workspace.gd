@@ -19,6 +19,12 @@ static var instance_counter: int = 0
 	# ID<int> : NanoStructure
 }
 
+@export var active_structure_int_guid: int = -1:
+	get:
+		if active_structure_int_guid == -1:
+			# active structure has never set, fallback to root
+			return main_structure_int_guid
+		return active_structure_int_guid
 
 @export var main_structure_int_guid: int:
 	get:
@@ -58,8 +64,6 @@ static var instance_counter: int = 0
 ## like atom size settings, background color, etc... stored inside the project
 @export var representation_settings := RepresentationSettings.new():
 	set = _set_representation_settings
-
-
 
 
 ## User defined simulation settings
@@ -126,6 +130,12 @@ var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 		camera_transform = v
 		changed.emit()
 
+## Create workspace camera with this orthogonal size
+@export var camera_orthogonal_size: float = 1.0:
+	set(v):
+		camera_orthogonal_size = v
+		changed.emit()
+
 
 ## Used when duplicating an existing workspace from a .msep1 file
 var suggested_path: String = ""
@@ -150,12 +160,12 @@ func _init() -> void:
 func post_load() -> void:
 	if _main_structure_int_guid != INVALID_STRUCTURE_ID:
 		return
+	# Rebuild the reserved id list
 	# Main structure is the only one without a parent
 	for structure_id: int in _structures:
 		var structure: NanoStructure = _structures[structure_id]
 		if structure.int_parent_guid == INVALID_STRUCTURE_ID:
 			_main_structure_int_guid = structure_id
-			return 
 
 
 func get_nmb_of_structures() -> int:
@@ -217,9 +227,11 @@ func get_structure_by_int_guid(in_int_guid: int) -> NanoStructure:
 	return _structures.get(in_int_guid, null)
 
 
+## Returns true if workspace has a structure with the same int_guid, and is the same instance
 func has_structure(in_nano_structure: NanoStructure) -> bool:
 	assert(is_instance_valid(in_nano_structure), "Invalid guid")
-	return has_structure_with_int_guid(in_nano_structure.int_guid)
+	var int_guid: int = in_nano_structure.int_guid
+	return _structures.has(int_guid) and _structures[int_guid] == in_nano_structure
 
 
 ## Returns true if the workspace contains a structure with matching int_guid
@@ -233,6 +245,57 @@ func has_structure_with_int_guid(int_guid: int) -> bool:
 func add_structure(in_structure: NanoStructure, in_parent: NanoStructure = null) -> void:
 	_internal_add_structure(in_structure, in_parent)
 	structure_added.emit(in_structure)
+
+
+## Add the structures from in_workspace to this workspace.
+## Incoming structures are duplicated and their IDs are regenerated to avoid
+## conflicts if the same workspace is added multiple times.
+func append_workspace(in_workspace: Workspace, in_xform: Transform3D = Transform3D()) -> Array[NanoStructure]:
+	# Add structures copies to the workspace
+	var new_structures: Array[NanoStructure] = []
+	var structures_map: Dictionary = {} # old_int_guid<int> : new_structure<NanoStructure>
+	for structure: NanoStructure in in_workspace.get_structures():
+		var copy: NanoStructure = structure.safe_duplicate()
+		new_structures.push_back(copy)
+		structures_map[structure.int_guid] = copy
+		copy.int_guid = INVALID_STRUCTURE_ID
+		if not in_workspace.get_parent_structure(structure):
+			# Structure is the imported main structure, add it under the current active group.
+			copy.int_parent_guid = active_structure_int_guid
+		_internal_add_structure(copy, null) # Don't override the old parent yet
+	
+	# Update references to other structures with their new GUIDs
+	for structure: NanoStructure in new_structures:
+		var parent: NanoStructure = structures_map.get(structure.int_parent_guid)
+		if parent:
+			structure.int_parent_guid = parent.int_guid
+		structure.init_remap_structure_ids(structures_map)
+	
+	# Notify MSEP about the new structures.
+	# Parent structures MUST be emitted before their children.
+	new_structures.sort_custom(is_a_ancestor_of_b)
+	for structure: NanoStructure in new_structures:
+		structure_added.emit(structure)
+	
+	# Move the structures to their new location
+	# Start with the anchors or the springs will be drawn in the wrong place
+	new_structures.sort_custom(
+		func(a: NanoStructure, _b: NanoStructure) -> bool:
+			return a is NanoVirtualAnchor
+	)
+	for structure: NanoStructure in new_structures:
+		if structure is NanoVirtualAnchor:
+			structure.set_position(in_xform * structure.get_position())
+		elif structure.has_transform():
+			structure.set_transform(in_xform * structure.get_transform())
+		elif structure is AtomicStructure:
+			structure.start_edit()
+			for atom_id: int in structure.get_valid_atoms():
+				var position: Vector3 = structure.atom_get_position(atom_id)
+				structure.atom_set_position(atom_id, in_xform * position)
+			structure.end_edit()
+	
+	return new_structures
 
 
 func _internal_add_structure(in_structure: NanoStructure, in_parent: NanoStructure = null) -> void:
@@ -340,7 +403,7 @@ func _create_int_guid() -> int:
 		# int_id must be in 32 bit range since we are using PackedInt32Array across the project
 		int_id = _rng.randi_range(0, MAX_SIGNED_32_BIT_INT)
 		
-		if int_id <= 0 || has_structure_with_int_guid(int_id):
+		if int_id <= 0 || _structures.has(int_id):
 			continue
 		is_valid = true
 	return int_id

@@ -38,6 +38,7 @@ func _init(in_context: WorkspaceContext) -> void:
 		_helper.transform_changed.connect(_on_helper_transform_changed)
 	in_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 	in_context.atoms_position_in_structure_changed.connect(_on_atoms_position_in_structure_changed)
+	in_context.virtual_object_transform_changed.connect(_on_virtual_object_transform_changed)
 	in_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
 	
 	
@@ -195,6 +196,11 @@ func handle_inputs_end() -> void:
 	GizmoRoot.disable_gizmo()
 
 
+func handle_inputs_resume() -> void:
+	if get_workspace_context().has_transformable_selection():
+		GizmoRoot.enable_gizmo()
+
+
 ## Hides the transform gizmo when creating atoms chains
 func handle_input_served() -> void:
 	var rendering: Rendering = get_workspace_context().get_rendering()
@@ -350,6 +356,12 @@ func _on_atoms_position_in_structure_changed(_structure_context: StructureContex
 	_helper.position = _get_gizmo_center_position()
 
 
+func _on_virtual_object_transform_changed(_structure_context: StructureContext) -> void:
+	if _capturing_inputs or !get_workspace_context().has_transformable_selection():
+		return
+	_helper.position = _get_gizmo_center_position()
+
+
 func _on_workspace_context_atoms_relaxation_finished(error: String) -> void:
 	if not get_workspace_context().has_transformable_selection() or not error.is_empty():
 		return
@@ -424,6 +436,9 @@ func _force_gizmo_update() -> void:
 		_selection_initial_position = _init_initial_positions_and_determine_center()
 		_helper.global_transform.basis = Basis()
 		_helper.global_position = _selection_initial_position
+	if not is_exclusive_input_consumer():
+		if get_workspace_context().get_editor_viewport().has_exclusive_input_consumer():
+			GizmoRoot.disable_gizmo()
 
 
 func _hide_gizmo() -> void:

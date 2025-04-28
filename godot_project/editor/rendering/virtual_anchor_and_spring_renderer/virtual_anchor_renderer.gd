@@ -103,6 +103,10 @@ func _on_workspace_context_selection_in_structures_changed(out_structure_context
 			const UNSELECTED_VALUE: float = 0.0
 			var is_selected: bool = context.is_anchor_selected()
 			_set_shader_uniform(&"is_selected",SELECTED_VALUE if is_selected else UNSELECTED_VALUE)
+			if is_selected:
+				show_in_selection_preview()
+			else:
+				hide_from_selection_preview()
 			return
 
 
@@ -126,3 +130,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
 	_set_shader_uniform(&"is_selectable", in_snapshot["material_selectable"])
 	global_transform = in_snapshot["global_transform"]
+	
+	if in_snapshot["material_selected"]:
+		show_in_selection_preview()
+	else:
+		hide_from_selection_preview()

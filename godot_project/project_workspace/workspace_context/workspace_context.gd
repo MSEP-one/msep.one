@@ -8,6 +8,7 @@ signal selection_in_structures_changed(structure_contexts: Array[StructureContex
 signal atoms_position_in_structure_changed(structure_context: StructureContext)
 signal atoms_locking_in_structure_changed(structure_context: StructureContext, atoms_changed: PackedInt32Array)
 signal structure_contents_changed(structure_context: StructureContext)
+signal virtual_object_transform_changed(structure_context: StructureContext)
 signal atoms_added_to_structure(structure_context: StructureContext, atom_ids: PackedInt32Array)
 signal current_structure_context_changed(structure_context: StructureContext)
 signal hovered_structure_context_changed(toplevel_hovered_structure_context: StructureContext,
@@ -57,6 +58,7 @@ var ignored_warnings: Dictionary = {
 	invalid_tetrahedral_structure = false,
 	invalid_relaxed_tetrahedral_structure = false,
 	abort_simulation = false,
+	end_simulation = false,
 }
 
 var visible_object_tree: bool = false:
@@ -107,6 +109,7 @@ var action_select_connected: RingActionSelectConnected = null
 var action_grow_selection: RingActionGrowSelection = null
 var action_shrink_selection: RingActionShrinkSelection = null
 var action_documentation: RingActionOpenDocumentation = null
+var action_video_tutorials: RingActionVideoTutorials = null
 
 
 var _hovered_structure_context: StructureContext
@@ -150,10 +153,12 @@ func initialize(in_workspace: Workspace) -> void:
 	for structure: NanoStructure in nano_structures:
 		# ensure structure contexts are created
 		get_nano_structure_context(structure)
+	
 
 
 func notify_activated() -> void:
 	# Executed from MolecularEditorContext when the tab of this workspace becomes active
+	PeriodicTable.load_palette(workspace.representation_settings.get_color_palette())
 	var rendering: Rendering = get_rendering()
 	if is_instance_valid(rendering):
 		rendering.apply_theme(workspace.representation_settings.get_theme())
@@ -189,7 +194,8 @@ func _on_workspace_main_view_ready() -> void:
 	action_grow_selection = RingActionGrowSelection.new(self, ring_menu)
 	action_shrink_selection = RingActionShrinkSelection.new(self, ring_menu)
 	action_documentation = RingActionOpenDocumentation.new(self, ring_menu)
-
+	action_video_tutorials = RingActionVideoTutorials.new(self, ring_menu)
+	
 	var structures: Array = workspace.get_structures()
 	for structure: NanoStructure in structures:
 		add_nano_structure(structure)
@@ -268,22 +274,6 @@ func _on_weak_workspace_structure_about_to_remove(in_structure: NanoStructure) -
 	rendering.remove(in_structure)
 	if in_structure is NanoVirtualAnchor:
 		in_structure.deinitialize()
-	# not needed since structure_context will be deleted immediatelly
-	#structure_context.selection_changed.disconnect(_on_structure_context_selection_changed)
-	#structure_context.virtual_object_selection_changed.disconnect(_on_structure_context_virtual_object_selection_changed)
-	#if structure_context.nano_structure is AtomicStructure:
-		#structure_context.nano_structure.atoms_moved.disconnect(_on_structure_context_atoms_moved)
-		#structure_context.nano_structure.atoms_added.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_added.disconnect(_on_structure_context_atoms_added)
-		#structure_context.nano_structure.atoms_removed.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_moved.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_atomic_number_changed.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_cleared.disconnect(_on_structure_contents_modified_arg0)
-		#structure_context.nano_structure.bonds_created.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.bonds_changed.disconnect(_on_structure_contents_modified_arg1)
-		#structure_context.nano_structure.atoms_locking_changed.disconnect(_on_nano_structure_atoms_locking_changed)
-	#structure_context.nano_structure.visibility_changed.disconnect(_on_nano_structure_visibility_changed)
-	#_removed_structure_contexts[in_structure] = structure_context
 	structure_about_to_remove.emit(in_structure)
 	_structure_contexts.erase(in_structure.int_guid)
 	_emit_new_editable_structures()
@@ -341,6 +331,7 @@ func set_current_structure_context(in_structure_context: StructureContext) -> vo
 		return
 	# Activating an object cancels create mode
 	abort_creating_object()
+	workspace.active_structure_int_guid = in_structure_context.get_int_guid()
 	_current_structure_context_id = in_structure_context.get_int_guid()
 	current_structure_context_changed.emit(in_structure_context)
 	_queue_emit_new_editable_structures()
@@ -522,6 +513,14 @@ func abort_simulation_if_running() -> void:
 	simulation_finished.emit()
 
 
+## Stops and discard the simulation on OpenMM's side, but keep the existing
+## frames in memory on MSEP so they can be displayed and manipulated.
+func end_simulation_if_running() -> void:
+	if !is_simulating():
+		return
+	OpenMM.request_abort_simulation(_simulation)
+
+
 ## This method is automatically called when any code attempts
 ## to create a new action with `snapshot_moment()`
 func apply_simulation_if_running() -> void:
@@ -576,14 +575,13 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 	var guid: int = in_nano_structure.int_guid
 	assert(workspace.has_structure(in_nano_structure))
 	if !_structure_contexts.has(guid):
-		var structure_context: StructureContext = null
-		if structure_context == null:
-			structure_context = StructureContextScn.instantiate()
-			structure_context.initialize(self, guid, in_nano_structure)
-			_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
+		var structure_context: StructureContext = StructureContextScn.instantiate() as StructureContext
+		structure_context.initialize(self, guid, in_nano_structure)
+		_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
 		structure_context.selection_changed.connect(_on_structure_context_selection_changed.bind(structure_context.get_int_guid()))
 		structure_context.virtual_object_selection_changed.connect(_on_structure_context_virtual_object_selection_changed.bind(structure_context.get_int_guid()))
-		if structure_context.nano_structure is AtomicStructure:
+		if structure_context.nano_structure is AtomicStructure \
+				and not structure_context.nano_structure.atoms_moved.is_connected(_on_structure_context_atoms_moved):
 			structure_context.nano_structure.atoms_moved.connect(_on_structure_context_atoms_moved.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_added.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_added.connect(_on_structure_context_atoms_added.bind(structure_context.get_int_guid()))
@@ -598,6 +596,13 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.visibility_changed.connect(_on_nano_structure_visibility_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is NanoShape:
 			structure_context.nano_structure.shape_properties_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
+		if structure_context.nano_structure.is_virtual_object():
+			if structure_context.nano_structure is NanoVirtualAnchor:
+				# Anchors only have position
+				structure_context.nano_structure.position_changed.connect(_on_virtual_object_transform_changed.bind(structure_context.get_int_guid()))
+			else:
+				# Shapes and Motors have transforms
+				structure_context.nano_structure.transform_changed.connect(_on_virtual_object_transform_changed.bind(structure_context.get_int_guid()))
 		_structure_contexts[guid] = structure_context
 		if structure_context.has_selection():
 			set_meta(_META_CACHED_SELECTION_AABB, null)
@@ -620,6 +625,7 @@ func _on_structure_context_atoms_moved(in_atoms: PackedInt32Array, in_structure_
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
 	if is_structure_context_valid(structure_context):
 		atoms_position_in_structure_changed.emit(structure_context, in_atoms)
+		set_meta(_META_CACHED_SELECTION_AABB, null)
 
 
 func _on_structure_context_atoms_added(in_atoms: PackedInt32Array, in_structure_context_id: int) -> void:
@@ -648,10 +654,20 @@ func _on_structure_contents_modified_arg1(_ignore_arg1: Variant, in_structure_co
 	_check_for_empty_workspace()
 
 
+func _on_virtual_object_transform_changed(_ignore_arg1: Variant, in_structure_context_id: int) -> void:
+	if not workspace.has_structure_with_int_guid(in_structure_context_id):
+		return
+	set_meta(_META_CACHED_SELECTION_AABB, null)
+	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
+	if structure_context != null:
+		virtual_object_transform_changed.emit(structure_context)
+
+
 func _on_nano_structure_visibility_changed(_in_visible: bool, in_structure_context_id: int) -> void:
 	if not workspace.has_structure_with_int_guid(in_structure_context_id):
 		return
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
+	structure_context.mark_is_editable_dirty()
 	if structure_context.is_editable() and not _editable_structure_contexts_ids.has(in_structure_context_id):
 		_queue_emit_new_editable_structures()
 	elif not structure_context.is_editable() and _editable_structure_contexts_ids.has(in_structure_context_id):
@@ -820,7 +836,7 @@ func enable_hydrogens_visualization(clear_selection: bool = true) -> void:
 	workspace.representation_settings.set_hydrogen_visibility_and_notify(true)
 
 
-func disable_hydrogens_visualization(clear_selection: bool = true) -> void:
+func disable_hydrogens_visualization(in_clear_hydrogen_selection: bool = false) -> void:
 	if not are_hydrogens_visualized():
 		return
 	
@@ -833,11 +849,46 @@ func disable_hydrogens_visualization(clear_selection: bool = true) -> void:
 			# Ignore virtual objects
 			continue
 		context.nano_structure.disable_hydrogens_visibility()
-		if clear_selection:
-			context.clear_selection()
-	
+		if in_clear_hydrogen_selection:
+			_deselect_hydrogens(context)
+		
 	rendering.disable_hydrogens()
 	workspace.representation_settings.set_hydrogen_visibility_and_notify(false)
+
+
+func _deselect_hydrogens(out_structure_context: StructureContext) -> void:
+	var atoms_to_deselect: PackedInt32Array = PackedInt32Array()
+	var bonds_to_deselect: Dictionary = {
+		#bond_id<int> : true <bool>
+	}
+	var selected_atoms: PackedInt32Array = out_structure_context.get_selected_atoms()
+	var selected_bonds: PackedInt32Array = out_structure_context.get_selected_bonds()
+	for atom_id: int in selected_atoms:
+		var is_atom_hydrogen: bool = out_structure_context.nano_structure.atom_is_hydrogen(atom_id)
+		if is_atom_hydrogen:
+			atoms_to_deselect.append(atom_id)
+			var related_h_bonds: PackedInt32Array = out_structure_context.nano_structure.atom_get_bonds(atom_id)
+			for bond_id: int in related_h_bonds:
+				bonds_to_deselect[bond_id] = true
+	for bond_id: int in selected_bonds:
+		var is_bond_related_to_hydrogen: bool = out_structure_context.nano_structure.bond_is_hydrogen_involved(bond_id)
+		if is_bond_related_to_hydrogen:
+			bonds_to_deselect[bond_id] = true
+	out_structure_context.deselect_atoms(atoms_to_deselect)
+	out_structure_context.deselect_bonds(bonds_to_deselect.keys())
+
+
+func refresh_group_saturation() -> void:
+	var all_structure_contexts: Array[StructureContext] = get_all_structure_contexts()
+	var renderer: Rendering = get_rendering()
+	for structure: StructureContext in all_structure_contexts:
+		if not structure.nano_structure is AtomicStructure:
+			continue
+			
+		if structure.is_editable():
+			renderer.saturate_structure(structure.nano_structure)
+		else:
+			renderer.desaturate_structure(structure.nano_structure)
 
 
 # # Selection
@@ -971,6 +1022,14 @@ func get_camera_global_transform() -> Transform3D:
 	return workspace_main_view.get_camera_global_transform()
 
 
+func set_camera_orthogonal_size(in_orthogonal_size: float) -> void:
+	workspace_main_view.set_camera_orthogonal_size(in_orthogonal_size)
+
+
+func get_camera_orthogonal_size() -> float:
+	return workspace_main_view.get_camera_orthogonal_size()
+
+
 func get_rendering() -> Rendering:
 	return rendering_override if rendering_override != null else get_editor_viewport().get_rendering()
 
@@ -1012,6 +1071,7 @@ func _emit_new_editable_structures() -> void:
 		if context.is_editable():
 			_editable_structure_contexts_ids.push_back(context.get_int_guid())
 	editable_structure_context_list_changed.emit(get_editable_structure_contexts())
+	refresh_group_saturation()
 
 
 func update(_delta: float) -> void:
@@ -1190,6 +1250,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 			continue
 		_structure_contexts[structure_context_id].queue_free()
 		_structure_contexts.erase(structure_context_id)
+		_modified_structure_contexts.erase(structure_context_id)
+		_selection_modified_structure_contexts.erase(structure_context_id)
 	
 	_current_structure_context_id = in_snapshot["_current_structure_context_id"]
 	
@@ -1218,7 +1280,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
 		
 		# Go back just before starting the simulation
-		_history.apply_previous_snapshot()
+		await _history.apply_previous_snapshot()
 		
 		# Rewind simulation to the latest point and create a snapshot.
 		# This will drop the user operation (final_snapshot) from history. 
@@ -1294,6 +1356,7 @@ func _on_history_changed() -> void:
 
 func _on_history_snapshot_applied() -> void:
 	history_snapshot_applied.emit()
+	set_meta(_META_CACHED_SELECTION_AABB, null)
 
 
 func _on_history_snapshot_created(in_snapshot_name: String) -> void:

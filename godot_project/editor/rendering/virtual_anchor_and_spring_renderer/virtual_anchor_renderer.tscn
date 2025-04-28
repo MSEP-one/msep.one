@@ -5,6 +5,3 @@
 
 [node name="VirtualAnchorRenderer" instance=ExtResource("1_v763n")]
 script = ExtResource("1_0itix")
-
-[node name="Model" parent="." index="0"]
-transform = Transform3D(0.013, 0, 0, 0, -5.68248e-10, 0.008, 0, -0.013, -3.49691e-10, 0, 0, 0)

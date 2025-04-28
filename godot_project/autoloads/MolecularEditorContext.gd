@@ -50,6 +50,10 @@ func show_homepage() -> void:
 	_update_window_title()
 
 
+func is_homepage_active() -> bool:
+	return _current_workspace == null
+
+
 ## Create a new workspace, initially stored in ram, will not be saved to disk until required
 func create_workspace() -> Workspace:
 	var workspace := Workspace.new()
@@ -159,10 +163,17 @@ func _get_new_workspace_name(in_path: String) -> String:
 ## Load a workspace from disk (if not already loaded) and immediately activate it.
 func load_and_activate_workspace(in_path: String) -> void:
 	var workspace: Workspace = soft_load_workspace(in_path)
+	if not is_instance_valid(workspace):
+		Editor_Utils.get_editor().prompt_error_msg(("Cannot load file '%s'\n" % in_path) +
+			"ensure write permissions are granted and file is not corrupted.")
+		return
 	var workspace_context: WorkspaceContext = get_workspace_context(workspace)
 	workspace_context.set_camera_global_transform(workspace.camera_transform)
-	var root_structure: NanoStructure = workspace.get_root_child_structures()[0]
-	workspace_context.set_current_structure_context(workspace_context.get_nano_structure_context(root_structure))
+	# Needs to call_deferred to be executed after msep_editor_settings.changed is emmited
+	workspace_context.set_camera_orthogonal_size.call_deferred(workspace.camera_orthogonal_size)
+	var active_structure_id: int = workspace.active_structure_int_guid
+	var active_structure: NanoStructure = workspace.get_structure_by_int_guid(active_structure_id)
+	workspace_context.set_current_structure_context(workspace_context.get_nano_structure_context(active_structure))
 	if is_instance_valid(workspace):
 		activate_workspace(workspace)
 	_validate_forcefield_files(workspace_context)
@@ -184,6 +195,7 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	var path: String = in_path
 	var workspace_context: WorkspaceContext = get_workspace_context(in_workspace)
 	in_workspace.camera_transform = workspace_context.get_camera_global_transform()
+	in_workspace.camera_orthogonal_size = workspace_context.get_camera_orthogonal_size()
 	if path.is_empty():
 		path = in_workspace.resource_path
 	if path.is_empty():
@@ -214,11 +226,10 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 
 func export_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	var path: String = in_path
-	var workspace_context: WorkspaceContext = get_workspace_context(in_workspace)
 	if path.is_empty():
 		Editor_Utils.get_editor().show_export_workspace_dialog(in_workspace)
 		return
-	var err: Error = await ResourceSaver.save(in_workspace, path)
+	var err: Error = ResourceSaver.save(in_workspace, path)
 	if err != OK:
 		Editor_Utils.get_editor().prompt_error_msg(tr(&"Failed to export to file {0} with error '{1}'").format([path, error_string(err)]))
 
@@ -274,7 +285,8 @@ func request_workspace_docker_focus(in_docker_unique_name: StringName, in_catego
 	
 	if in_category_name == StringName():
 		return
-	
+	# Wait one frame to allow controls update their visibility
+	await get_tree().process_frame
 	if docker.has_category(in_category_name):
 		docker.highlight_category(in_category_name)
 
@@ -347,6 +359,11 @@ func paste_clipboard_content(in_auto_bond_order: int) -> void:
 
 func is_clipboard_empty() -> bool:
 	return not _clipboard.has_content()
+
+
+func bottom_bar_update_distance(in_workspace_context: WorkspaceContext, in_distance_description: String, in_distance: float) -> void:
+	var view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	view.bottom_bar_update_distance(in_distance_description, in_distance)
 
 
 func _init() -> void:

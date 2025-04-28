@@ -32,6 +32,8 @@ var _up_to_date_representations: Dictionary = {
 #	Rendering.Representation: true
 }
 var _workspace_context: WorkspaceContext = null
+var _selection_position_delta: Vector3
+
 
 func rebuild() -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_nano_structure_id)
@@ -152,6 +154,16 @@ func refresh_atom_sizes() -> void:
 	_current_representation.refresh_atoms_sizes()
 	if _are_labels_active():
 		_labels_representation.refresh_atoms_sizes()
+	_outdate_non_active_representations()
+
+
+func saturate() -> void:
+	_current_representation.saturate()
+	_outdate_non_active_representations()
+
+
+func desaturate() -> void:
+	_current_representation.desaturate()
 	_outdate_non_active_representations()
 
 
@@ -445,10 +457,10 @@ func update(delta: float) -> void:
 	_springs_representation.update(delta)
 
 
-func set_partially_selected_bonds(in_partially_selected_bonds: PackedInt32Array) -> void:
-	_current_representation.set_partially_selected_bonds(in_partially_selected_bonds)
+func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> void:
+	_current_representation.refresh_bond_influence(in_partially_selected_bonds)
 	if _are_labels_active():
-		_labels_representation.set_partially_selected_bonds(in_partially_selected_bonds)
+		_labels_representation.refresh_bond_influence(in_partially_selected_bonds)
 	_outdate_non_active_representations()
 
 
@@ -457,11 +469,16 @@ func set_transparency(in_transparency: float) -> void:
 
 
 func set_atom_selection_position_delta(in_selection_delta: Vector3) -> void:
+	_selection_position_delta = in_selection_delta
 	_current_representation.set_atom_selection_position_delta(in_selection_delta)
 	_springs_representation.set_atom_selection_position_delta(in_selection_delta)
 	if _are_labels_active():
 		_labels_representation.set_atom_selection_position_delta(in_selection_delta)
 	_outdate_non_active_representations()
+
+
+func get_atom_selection_position_delta() -> Vector3:
+	return _selection_position_delta
 
 
 func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
@@ -515,6 +532,11 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_current_representation.apply_state_snapshot(in_snapshot["_current_representation.snapshot"])
 	_springs_representation.apply_state_snapshot(in_snapshot["_springs_representation.snapshot"])
 	_labels_representation.apply_state_snapshot(in_snapshot["_labels_representation.snapshot"])
+	var nano_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_nano_structure_id)
+	if not nano_structure.atoms_moved.is_connected(_on_nanostructure_atoms_moved):
+		# This can happen if the AtomicStructureRenderer was destroyed because
+		# a group was deleted, and a new one was created in it's place
+		_internal_build()
 	_refresh_label_visibility_state()
 	
 	#

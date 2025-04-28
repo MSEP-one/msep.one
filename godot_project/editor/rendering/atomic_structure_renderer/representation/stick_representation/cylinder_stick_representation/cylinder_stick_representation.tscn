@@ -31,11 +31,14 @@ script = ExtResource("2_xqn7h")
 [node name="SingleStickSegmentedMultiMesh" parent="." index="0"]
 multimesh = SubResource("MultiMesh_b3fjb")
 _material_override = ExtResource("4_yvyo0")
+visual_layers = 5
 
 [node name="DoubleStickSegmentedMultiMesh" parent="." index="1"]
 multimesh = SubResource("MultiMesh_raneo")
 _material_override = ExtResource("4_yvyo0")
+visual_layers = 5
 
 [node name="TrippleStickSegmentedMultiMesh" parent="." index="2"]
 multimesh = SubResource("MultiMesh_jfqei")
 _material_override = ExtResource("4_yvyo0")
+visual_layers = 5

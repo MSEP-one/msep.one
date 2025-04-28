@@ -25,6 +25,7 @@ func _ready() -> void:
 			"OpenMM", "8.0.0", "https://openmm.org/",
 			"MIT", "Massachusetts Institute of Technology",
 			_format_lisence(OTHERS_LICENSES["MIT"], "2017-2024", "OpenMM team"))
+	_create_software_tree_item(openmm_info)
 	var openff_info := LicenseInfo.new(
 			"OpenFF", "openff-interchange 0.3.9; openff-toolkit 0.14.0", "https://openforcefield.org/",
 			"MIT", "Massachusetts Institute of Technology",

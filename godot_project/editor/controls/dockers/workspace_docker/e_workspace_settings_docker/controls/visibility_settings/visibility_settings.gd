@@ -79,8 +79,11 @@ func _on_show_hydrogens_toggle_toggled(button_pressed: bool) -> void:
 		return
 	
 	if new_h_visibility:
-		_workspace_context.enable_hydrogens_visualization()
+		_workspace_context.enable_hydrogens_visualization(false)
 	else:
-		_workspace_context.disable_hydrogens_visualization()
+		_workspace_context.disable_hydrogens_visualization(true)
 	_workspace_context.snapshot_moment("Change Hydrogen Visibility")
-	
+
+
+func _on_show_potential_atoms_toggle_toggled(button_pressed: bool) -> void:
+	_workspace_context.workspace.representation_settings.set_display_auto_posing(button_pressed)

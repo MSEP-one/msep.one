@@ -4,8 +4,6 @@ const BASE_SCALE = 0.022;
 
 const SingleAtomMaterial: ShaderMaterial = preload("res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/single_atom_representation_material.tres")
 
-const UNIFORM_CAMERA_UP_VECTOR: StringName = StringName("camera_up_vector")
-const UNIFORM_CAMERA_RIGHT_VECTOR: StringName = StringName("camera_right_vector")
 
 var _structure_id: int
 var _workspace_context: WorkspaceContext
@@ -316,14 +314,10 @@ func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply:
 
 
 func update(_delta: float) -> void:
-	var camera3d: Camera3D = get_viewport().get_camera_3d()
-	var to_local: Quaternion = Quaternion(self.global_basis.inverse())
-	var camera_up: Vector3 = to_local * camera3d.global_transform.basis.y
-	var camera_right: Vector3 = to_local * camera3d.global_transform.basis.x
-	_material.update_camera(camera_up, camera_right)
+	pass
 
 
-func set_partially_selected_bonds(_in_partially_selected_bonds: PackedInt32Array) -> void:
+func refresh_bond_influence(_in_partially_selected_bonds: PackedInt32Array) -> void:
 	return
 
 
@@ -341,9 +335,13 @@ func hydrogens_rendering_on() -> void:
 
 func handle_editable_structures_changed(_in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	if not _workspace_context.has_nano_structure_context_id(_structure_id):
-		assert(ScriptUtils.is_queued_for_deletion_reqursive(self), "structure deleted, this rendering instance is about to be deleted")
+		assert(ScriptUtils.is_queued_for_deletion_recursive(self), "structure deleted, this rendering instance is about to be deleted")
 		return
 	_update_is_selectable_uniform()
+	# Active structure have changed, remove highlight if needed
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
+	if structure_context.nano_structure.int_guid == _workspace_context.workspace.active_structure_int_guid:
+		_material.set_hovered(false)
 
 
 func handle_hover_structure_changed(in_toplevel_hovered_structure_context: StructureContext,
@@ -355,6 +353,8 @@ func handle_hover_structure_changed(in_toplevel_hovered_structure_context: Struc
 	if in_toplevel_hovered_structure_context != null:
 		is_hovered = (in_toplevel_hovered_structure_context == structure_context) \
 				or workspace.is_a_ancestor_of_b(in_toplevel_hovered_structure_context.nano_structure, structure_context.nano_structure)
+	if is_hovered and in_hovered_structure_context.nano_structure.int_guid == workspace.active_structure_int_guid:
+		is_hovered = false
 	var hovered_atom_id: int = -1 if in_hovered_structure_context != structure_context else in_atom_id
 	if hovered_atom_id != _hovered_atom_id:
 		_set_hovered_atom_id(hovered_atom_id)
@@ -381,6 +381,13 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_segmented_multimesh.set_material_override(_material)
 	_material.copy_state_from(old_material)
 
+
+func saturate() -> void:
+	_material.saturate()
+
+
+func desaturate() -> void:
+	_material.desaturate()
 
 
 func create_state_snapshot() -> Dictionary:

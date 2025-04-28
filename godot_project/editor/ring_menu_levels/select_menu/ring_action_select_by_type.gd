@@ -14,7 +14,7 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	super._init(
 		tr("Select Atoms by Type"),
 		_execute_action,
-		tr("Select atoms by their atomic number")
+		tr("Select visible atoms by their atomic number")
 	)
 	with_validation(has_structure_with_atoms)
 
@@ -31,4 +31,4 @@ func has_structure_with_atoms() -> bool:
 
 func _execute_action() -> void:
 	_ring_menu.close()
-	MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME, &"Select Atoms by Type")
+	MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME, &"Find Visible Atoms by Type")

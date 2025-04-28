@@ -10,11 +10,14 @@ script = ExtResource("1_y41b7")
 [node name="SingleStickSegmentedMultiMesh" parent="." index="0" instance=ExtResource("3_jjunp")]
 use_custom_data = true
 update_segments_on_movement = true
+visual_layers = 5
 
 [node name="DoubleStickSegmentedMultiMesh" parent="." index="1" instance=ExtResource("3_jjunp")]
 use_custom_data = true
 update_segments_on_movement = true
+visual_layers = 5
 
 [node name="TrippleStickSegmentedMultiMesh" parent="." index="2" instance=ExtResource("3_jjunp")]
 use_custom_data = true
 update_segments_on_movement = true
+visual_layers = 5

@@ -340,7 +340,7 @@ func atom_find_bond_between(_in_atom_id_a: int, _in_atom_id_b: int) -> int:
 
 
 ## Returns remaining valence which is still free to use
-func atom_get_remaininig_valence(in_atom_id: int) -> int:
+func atom_get_remaining_valence(in_atom_id: int) -> int:
 	var data: ElementData = PeriodicTable.get_by_atomic_number(atom_get_atomic_number(in_atom_id))
 	var atom_bonds: PackedInt32Array = atom_get_bonds(in_atom_id)
 	var used_valence: int = 0
@@ -353,6 +353,10 @@ func atom_get_remaininig_valence(in_atom_id: int) -> int:
 	valence_left -= used_valence
 	return valence_left
 
+
+func atoms_count_visible_by_type(_types_to_count: PackedInt32Array) -> int:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return 0
 
 func has_color_override(in_atom_id: int) -> bool:
 	return color_overrides.has(in_atom_id)
@@ -369,31 +373,8 @@ func set_color_override(in_atoms: PackedInt32Array, color: Color) -> void:
 	_signal_queue_atoms_color_changed.append_array(in_atoms)
 
 
-#TODO: This is probably not needed (THIS COMMENT SHOULD NOT BE PART OF PR)
-func get_color_override_snapshot() -> Dictionary:
+func get_color_overrides() -> Dictionary:
 	return color_overrides.duplicate()
-
-
-#TODO: This is probably not needed (THIS COMMENT SHOULD NOT BE PART OF PR)
-func apply_color_override_snapshot(in_color_snapshot: Dictionary) -> void:
-	assert(_is_being_edited, "Color override can only be changed while structure is being edited")
-	var all_colors: Dictionary = {
-		# atom_id<int> : color<Color>
-	}
-	all_colors.merge(color_overrides)
-	all_colors.merge(in_color_snapshot)
-	
-	for atom_id: int in all_colors.keys():
-		if color_overrides.get(atom_id, null) == in_color_snapshot.get(atom_id, null):
-			# did not change
-			continue
-		_signal_queue_atoms_color_changed.append(atom_id)
-		if not in_color_snapshot.has(atom_id):
-			# override was removed
-			color_overrides.erase(atom_id)
-		else:
-			# color was set or changed
-			color_overrides[atom_id] = in_color_snapshot[atom_id]
 
 
 func remove_color_override(in_atoms: PackedInt32Array) -> void:
@@ -487,6 +468,13 @@ func get_bond(_in_bond_id: int) -> Vector3i:
 func bond_set_order(_in_bond_id: int, _in_bond_order: int) -> void:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return
+
+
+func bond_is_hydrogen_involved(in_bond_id: int) -> bool:
+	var bond_data: Vector3i = get_bond(in_bond_id)
+	var is_hydrogen_involved: bool = atom_is_hydrogen(bond_data.x)
+	is_hydrogen_involved = is_hydrogen_involved or atom_is_hydrogen(bond_data.y)
+	return is_hydrogen_involved
 
 
 func spring_create(_in_anchor_id: int, _in_atom_id: int, _in_spring_constant_force: float,
@@ -675,7 +663,7 @@ func merge_structure(in_structure: AtomicStructure, in_placement_xform: Transfor
 	var new_atoms := PackedInt32Array()
 	var new_bonds := PackedInt32Array()
 	var new_springs := PackedInt32Array()
-	var old_color_overrides: Dictionary = in_structure.get_color_override_snapshot()
+	var old_color_overrides: Dictionary = in_structure.get_color_overrides()
 	var new_color_overrides: Dictionary = {
 	#	color<Color> = atoms_to_apply<PackedInt32Array>
 	}

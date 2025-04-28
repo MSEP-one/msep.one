@@ -92,8 +92,6 @@ func _reset_mouse() -> void:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 			Input.warp_mouse(_last_visible_mouse_position)
 		_is_in_use = false
-		axes_widget_gizmo.mouse_delta = Vector2.ZERO
-		axes_widget_gizmo.mouse_delta_goal = Vector2.ZERO
 		disable_orbiting()
 
 
@@ -150,22 +148,11 @@ func _manage_old_orbit_position(_in_context: StructureContext) -> void:
 		axes_widget_gizmo.orbiting_allowed = visible_structure_found
 
 
-func _detect_which_modifiers_are_being_held_down(in_input_event: InputEvent) -> void:
-	if in_input_event is InputEventKey:
-		match in_input_event.keycode:
-			KEY_ALT:
-				_alt_key_is_held_down = in_input_event.pressed
-			KEY_CTRL:
-				_ctrl_key_is_held_down = in_input_event.pressed
-			KEY_META:
-				_meta_key_is_held_down = in_input_event.pressed
-			KEY_SHIFT:
-				_shift_key_is_held_down = in_input_event.pressed
-	elif in_input_event is InputEventWithModifiers:
-		_alt_key_is_held_down = in_input_event.alt_pressed
-		_ctrl_key_is_held_down = in_input_event.ctrl_pressed
-		_meta_key_is_held_down = in_input_event.meta_pressed
-		_shift_key_is_held_down = in_input_event.shift_pressed
+func _detect_which_modifiers_are_being_held_down() -> void:
+	_alt_key_is_held_down = Input.is_key_pressed(KEY_ALT)
+	_ctrl_key_is_held_down = Input.is_key_pressed(KEY_CTRL)
+	_meta_key_is_held_down = Input.is_key_pressed(KEY_META)
+	_shift_key_is_held_down = Input.is_key_pressed(KEY_SHIFT)
 
 
 func _finish_orientation_snap(_orientation_widget: Node3D) -> void:
@@ -181,7 +168,7 @@ func _finish_orientation_snap(_orientation_widget: Node3D) -> void:
 func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 		_in_context: StructureContext) -> bool:
 	
-	_detect_which_modifiers_are_being_held_down(in_input_event)
+	_detect_which_modifiers_are_being_held_down()
 	
 	_pending_scroll_return = _shift_key_is_held_down
 	
@@ -229,9 +216,6 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 			if in_input_event.is_pressed():
 				if in_input_event.button_index == MOUSE_BUTTON_LEFT:
 					if axes_widget_gizmo.mouse_is_in_drag_radius:
-						axes_widget_gizmo.mouse_delta = Vector2.ZERO
-						axes_widget_gizmo.mouse_delta_goal = Vector2.ZERO
-						
 						axes_widget_gizmo.mouse_drag_in_widget_is_active = true
 						# Captured is nicer than confined, because as mouse must be invisible in
 						# both cases it moves, but with captured we won't stop transformation
@@ -256,11 +240,9 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 					axes_widget.start_mouse_wheel_movement_step()
 			else:
 				_reset_mouse()
-				if axes_widget_gizmo.workspace_has_transformable_selection:
-					GizmoRoot.enable_gizmo()
 		elif in_input_event is InputEventMouseMotion:
-			axes_widget_gizmo.mouse_delta_goal = in_input_event.relative
-			axes_widget.mouse_delta = in_input_event.relative
+			# To restore orbiting intertia check: 8c59342316b0407e60043b6a31772e39265e7275
+			axes_widget.set_mouse_delta(in_input_event.relative)
 		return _is_in_use or _is_hovering
 	
 	elif in_input_event is InputEventKey:
@@ -375,10 +357,6 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 				axes_widget.rotation_x_coefficient = axes_widget.LEFT
 			elif axes_widget.rotation_x_coefficient == axes_widget.LEFT:
 				axes_widget.rotation_x_coefficient = axes_widget.STOP
-		
-		if axes_widget.rotation_x_coefficient == axes_widget.STOP && \
-		axes_widget.rotation_y_coefficient == axes_widget.STOP:
-			axes_widget.speed_up_rotation = float(axes_widget.STOP)
 	else:
 		stop_key_rotation()
 		
@@ -441,9 +419,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 	
 	if is_direction_key_pressed:
 		return true
- 
-	if axes_widget_gizmo.workspace_has_transformable_selection:
-		GizmoRoot.enable_gizmo()
+	
 	return false
 
 
@@ -487,7 +463,6 @@ func allow_only_up_down_key_movement() -> void:
 func stop_key_rotation() -> void:
 	axes_widget.rotation_x_coefficient = axes_widget.STOP
 	axes_widget.rotation_y_coefficient = axes_widget.STOP
-	axes_widget.speed_up_rotation = float(axes_widget.STOP)
 
 
 ## Input handlers will execute _forward_input_* in an order dictated by this parameter

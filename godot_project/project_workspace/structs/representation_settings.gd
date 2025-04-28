@@ -8,12 +8,12 @@ signal bond_visibility_changed(are_visible: bool)
 signal hydrogen_visibility_changed(are_visible: bool)
 signal atom_labels_visibility_changed(are_visible: bool)
 signal theme_changed()
-
+signal color_palette_changed(new_color_palette: PeriodicTable.ColorPalette)
 
 const LABELS_VISIBLE_BY_DEFAULT = false
 const HYDROGENS_VISIBLE_BY_DEFAULT = true
 const BONDS_VISIBLE_BY_DEFAULT = true
-
+const ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT = true
 
 enum UserAtomSizeSource {
 	PHYSICAL_RADIUS,
@@ -38,6 +38,9 @@ enum UserAtomSizeSource {
 @export var _display_atom_labels: bool = LABELS_VISIBLE_BY_DEFAULT
 
 
+@export var _display_auto_posing: bool = ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT
+
+
 @export var _custom_selection_outline_color_enabled: bool = false
 
 
@@ -51,6 +54,9 @@ enum UserAtomSizeSource {
 
 
 @export var _theme: Theme3D = load("res://theme/theme_3d/available_themes/modern_theme/modern_theme.tres")
+
+
+@export var _color_palette: PeriodicTable.ColorPalette = PeriodicTable.ColorPalette.MSEP
 
 
 func set_balls_and_sticks_size_source(in_size_souce: UserAtomSizeSource) -> void:
@@ -100,6 +106,15 @@ func set_display_atom_labels(new_display_atom_labels: bool) -> void:
 
 func get_display_atom_labels() -> bool:
 	return _display_atom_labels
+
+
+func set_display_auto_posing(new_display_auto_posing: bool) -> void:
+	_display_auto_posing = new_display_auto_posing
+	emit_changed()
+
+
+func get_display_auto_posing() -> bool:
+	return _display_auto_posing
 
 
 func set_bond_visibility_and_notify(new_bond_visibility: bool) -> void:
@@ -180,6 +195,16 @@ func get_theme() -> Theme3D:
 	return _theme
 
 
+func set_color_palette(new_color_palette: PeriodicTable.ColorPalette) -> void:
+	if _color_palette != new_color_palette:
+		_color_palette = new_color_palette
+		color_palette_changed.emit(new_color_palette)
+
+
+func get_color_palette() -> PeriodicTable.ColorPalette:
+	return _color_palette
+
+
 func deep_copy() -> RepresentationSettings:
 	var copy := RepresentationSettings.new()
 	copy._rendering_representation = _rendering_representation
@@ -193,6 +218,7 @@ func deep_copy() -> RepresentationSettings:
 	copy._custom_background_color_enabled = _custom_background_color_enabled
 	copy._custom_background_color = _custom_background_color
 	copy._theme = _theme.duplicate(true)
+	copy._color_palette = _color_palette
 	return copy
 	
 
@@ -209,7 +235,8 @@ func create_state_snapshot() -> Dictionary:
 		"_custom_selection_outline_color" : _custom_selection_outline_color,
 		"_custom_background_color_enabled" : _custom_background_color_enabled,
 		"_custom_background_color" : _custom_background_color,
-		"_theme.path" : _theme.resource_path
+		"_theme.path" : _theme.resource_path,
+		"_color_palette" : _color_palette,
 		
 	}
 	return snapshot
@@ -227,3 +254,4 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_custom_background_color_enabled = in_state_snapshot["_custom_background_color_enabled"]
 	_custom_background_color = in_state_snapshot["_custom_background_color"]
 	_theme = load(in_state_snapshot["_theme.path"])
+	_color_palette = in_state_snapshot["_color_palette"]

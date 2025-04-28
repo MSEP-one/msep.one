@@ -92,8 +92,6 @@ func _refresh_rendering_properties_view(in_show_properties_view: bool) -> void:
 
 const DEFAULT_WORKSPACE_EDITOR_DOCKERS = [
 	preload
-	("res://editor/controls/dockers/workspace_docker/object_tree_docker.tscn"),
-	preload
 	("res://editor/controls/dockers/workspace_docker/a_create_docker/create_docker.tscn"),
 	preload
 	("res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_docker.tscn"),
@@ -154,3 +152,15 @@ func set_camera_global_transform(in_transform: Transform3D) -> void:
 
 func get_camera_global_transform() -> Transform3D:
 	return get_camera().global_transform
+
+
+func set_camera_orthogonal_size(in_orthogonal_size: float) -> void:
+	get_camera().size = in_orthogonal_size
+
+
+func get_camera_orthogonal_size() -> float:
+	return get_camera().size
+
+
+func bottom_bar_update_distance(in_message_text: String, in_distance: float) -> void:
+	editor_viewport_container.bottom_bar_update_distance(in_message_text, in_distance)

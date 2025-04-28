@@ -202,7 +202,7 @@ func lowlight_bonds(_in_bonds_ids: PackedInt32Array) -> void:
 	return
 
 
-func set_partially_selected_bonds(_in_partially_selected_bonds: PackedInt32Array) -> void:
+func refresh_bond_influence(_in_partially_selected_bonds: PackedInt32Array) -> void:
 	return
 
 
@@ -264,11 +264,7 @@ func update(in_delta: float) -> void:
 	_segmented_multimesh.update(in_delta)
 	
 	var camera: Camera3D = get_viewport().get_camera_3d()
-	var to_local: Quaternion = Quaternion(self.global_basis.inverse())
-	var cam_forward: Vector3 = camera.global_transform.basis.z
-	var cam_up: Vector3 = to_local * camera.global_transform.basis.y
-	var cam_right: Vector3 = to_local * camera.global_transform.basis.x
-	_material.update_camera(cam_forward, cam_up, cam_right, camera.size)
+	_material.update_camera(camera.size)
 
 
 func set_transparency(_in_transparency: float) -> void:
@@ -321,6 +317,14 @@ func apply_theme(in_theme: Theme3D) -> void:
 	new_material.set_scale_factor(scale)
 	_segmented_multimesh.set_material_override(new_material)
 	_material = new_material
+
+
+func saturate() -> void:
+	return
+
+
+func desaturate() -> void:
+	return
 
 
 func create_state_snapshot() -> Dictionary:

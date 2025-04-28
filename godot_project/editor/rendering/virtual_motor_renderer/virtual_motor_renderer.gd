@@ -6,6 +6,8 @@ var parameters: NanoVirtualMotorParameters:
 
 var _motor_id: int
 var _workspace_context: WorkspaceContext
+var _gear_model: MeshInstance3D
+var _motor_model: MeshInstance3D
 
 var _rotary_polarity: Sprite3D
 var _rotary_axle: MeshInstance3D
@@ -24,6 +26,8 @@ func _notification(what: int) -> void:
 		# Initialize Materials
 		_materials = []
 		var model_root: Node = $motor3D_Gears00
+		_gear_model = $motor3D_Gears00/Gear
+		_motor_model = $motor3D_Gears00/Motor
 		_seek_materials_recursively(model_root)
 
 
@@ -187,6 +191,7 @@ func _on_workspace_context_selection_in_structures_changed(out_structure_context
 			const UNSELECTED_VALUE: float = 0.0
 			var is_selected: bool = context.is_motor_selected()
 			_set_shader_uniform(&"is_selected",SELECTED_VALUE if is_selected else UNSELECTED_VALUE)
+			_refresh_selection_preview(is_selected)
 			return
 
 
@@ -197,6 +202,11 @@ func _set_shader_uniform(in_uniform: StringName, in_value: Variant) -> void:
 
 func _get_shader_uniform(in_uniform: StringName) -> Variant:
 	return _materials[0].get_shader_parameter(in_uniform)
+
+
+func _refresh_selection_preview(in_is_selected: bool) -> void:
+	_gear_model.set_layer_mask_value(Rendering.SELECTION_PREVIEW_LAYER_BIT, in_is_selected)
+	_motor_model.set_layer_mask_value(Rendering.SELECTION_PREVIEW_LAYER_BIT, in_is_selected)
 
 
 func create_state_snapshot() -> Dictionary:
@@ -217,6 +227,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	self.visible = motor.get_visible()
 	parameters = motor.get_parameters()
 	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
+	_refresh_selection_preview(in_snapshot["material_selected"])
 	_set_shader_uniform(&"is_selectable", in_snapshot["material_selectable"])
 	_update_type_and_polarity()
 

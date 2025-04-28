@@ -1,8 +1,6 @@
 extends Resource
 class_name MSEPSettings
 
-const MIN_SFX_VOLUME = -80.0
-const MAX_SFX_VOLUME = 6.0
 const SETTINGS_RESOURCE_PATH = "user://editor/msep_settings.tres"
 
 enum OpenMMLoggingReporters {
@@ -22,8 +20,7 @@ const ALL_REPORTS = \
 var _ui_sfx_bus_index: int =  AudioServer.get_bus_index(&"Ui Sfx")
 @export var editor_sfx_enabled: bool = AudioServer.is_bus_mute(_ui_sfx_bus_index) :
 	set = set_editor_sfx_enabled
-@export_range(MIN_SFX_VOLUME, MAX_SFX_VOLUME) var editor_sfx_volume: float = \
-	AudioServer.get_bus_volume_db(_ui_sfx_bus_index) :
+@export var editor_sfx_volume_db: float = AudioServer.get_bus_volume_db(_ui_sfx_bus_index) :
 	set = set_editor_sfx_volume_db
 @export var editor_camera_camera_orbit_x_inverted: bool = false
 @export var editor_camera_camera_orbit_y_inverted: bool = false
@@ -68,10 +65,9 @@ func set_editor_sfx_enabled(in_value: bool) -> void:
 	editor_sfx_enabled = in_value
 
 
-func set_editor_sfx_volume_db(in_value: float) -> void:
-	in_value = clamp(in_value, MIN_SFX_VOLUME, MAX_SFX_VOLUME)
-	AudioServer.set_bus_volume_db(_ui_sfx_bus_index, in_value)
-	editor_sfx_volume = in_value
+func set_editor_sfx_volume_db(in_value_db: float) -> void:
+	AudioServer.set_bus_volume_db(_ui_sfx_bus_index, in_value_db)
+	editor_sfx_volume_db = in_value_db
 
 
 func set_editor_max_undo_count(in_value: int) -> void:

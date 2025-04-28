@@ -1,4 +1,3 @@
-// "cap" in context of this file means part of capsule sphere (rounded start and ending)
 
 shader_type spatial;
 
@@ -13,6 +12,7 @@ const float MODEL_LENGTH = 0.5;
 
 const float NUMERICAL_PRECISION = 0.0001;
 
+// "cap" in context of this file means part of capsule sphere (rounded start and ending)
 // model z position above and below which there is capsule cap 
 uniform float caps_starts_at_local_z_position = 0.235;
 uniform float roughness : hint_range(0,1);
@@ -52,9 +52,11 @@ void vertex() {
 	COLOR.rgb = _apply_bond_highlight_factor(COLOR.rgb, right_active);
 	custom_color.rgb = _apply_bond_highlight_factor(custom_color.rgb, left_active);
 	
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	
 	is_outline = uv_is_outline(UV);
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR);
+	VERTEX += calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR)  * float_not(is_preview);;
 	
 	//helper to prevent numerical errors
 	float cap_vertexes_above_local_pos = caps_starts_at_local_z_position - NUMERICAL_PRECISION;
@@ -90,6 +92,9 @@ void vertex() {
 	VERTEX = position;
 	VERTEX = hide_hydrogen_bonds(VERTEX, COLOR.a, INSTANCE_CUSTOM.a);
 	VERTEX *= is_atom_or_bond_visible(COLOR.a);
+	
+	//preview visibility
+	VERTEX *= float_or(float_not(is_preview), is_atom_or_bond_selected(COLOR.a));
 }
 
 
@@ -101,6 +106,8 @@ void fragment() {
 	albedo += COLOR.rgb * first_lower_then_second(percent, 0.0);
 	albedo += custom_color.rgb * first_greater_then_second(percent, 0.0);
 	ALBEDO = calculate_outline_color(albedo, COLOR);
+	ALBEDO.rgb = apply_saturation(ALBEDO.rgb);
+	ALBEDO.rgb = apply_value(ALBEDO.rgb);
 	
 	//
 	float metallic_tex = dot(texture(texture_metallic,base_uv),metallic_texture_channel);

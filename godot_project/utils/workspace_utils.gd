@@ -63,6 +63,15 @@ static func import_file(out_workspace_context: WorkspaceContext, path: String,
 						generate_bonds: bool, add_hydrogens: bool, remove_waters: bool,
 						placement: ImportFileDialog.Placement, create_new_group: bool = true,
 						snapshot_name: String = "Import File") -> void:
+	if _is_msep_workspace(path):
+		_import_msep_workspace(out_workspace_context, path, placement, snapshot_name)
+		return
+	if _is_invalid_mol_file(path):
+		Editor_Utils.get_editor().prompt_error_msg(
+			("Cannot load file '%s'\n" % path) +
+			"mol file was saved with V3000 specification, which is unsupported."
+		)
+		return
 	var import_file_result: OpenMMClass.ImportFileResult
 	import_file_result = await _import_file(out_workspace_context, path, generate_bonds, add_hydrogens, remove_waters)
 	if import_file_result == null:
@@ -493,7 +502,7 @@ static func _move_selection_to_existing_structure(
 			var source_structure_atoms_ids: PackedInt32Array = structure_context.get_selected_atoms()
 			var source_structure_bonds_ids: PackedInt32Array = structure_context.get_selected_bonds()
 			var source_structure_springs_ids: PackedInt32Array = PackedInt32Array()
-			var old_color_overrides: Dictionary = old_structure.get_color_override_snapshot()
+			var old_color_overrides: Dictionary = old_structure.get_color_overrides()
 			var new_color_overrides: Dictionary = {
 			#	color<Color> = atoms_to_apply<PackedInt32Array>
 			}
@@ -691,6 +700,64 @@ static func _focus_camera_on_aabb(out_workspace_context: WorkspaceContext, in_fo
 	focus_tween.play()
 
 
+static func _is_invalid_mol_file(in_path: String) -> bool:
+	if in_path.begins_with("res://") or in_path.get_extension().to_lower() != "mol":
+		# If builtin or not a mol file assume valid
+		return false
+	var path: String = ProjectSettings.globalize_path(in_path)
+	var file := FileAccess.open(path, FileAccess.READ)
+	var line: String = file.get_line()
+	while not line.begins_with("M  "):
+		if line.findn("v3000") != -1:
+			# invalid V3000 mol file
+			return true
+		line = file.get_line()
+	return false
+
+
+static func _is_msep_workspace(in_path: String) -> bool:
+	return in_path.get_extension() == "msep1"
+
+
+## Imports an MSEP workspace from disk, inside the current workspace.
+## The structure hierarchy from the imported file is preserved and added under
+## the current active group.
+static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path: String,
+						placement: ImportFileDialog.Placement, snapshot_name: String) -> void:
+	var imported_workspace: Workspace = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+	if not imported_workspace:
+		Editor_Utils.get_editor().prompt_error_msg("Cannot load file: " + path)
+		return
+	
+	# Clear selection in other contexts
+	out_workspace_context.clear_all_selection()
+	
+	# Rename the imported main structure for better clarity.
+	var imported_main_structure: NanoStructure = imported_workspace.get_main_structure()
+	if imported_main_structure.get_structure_name() == "Workspace":
+		imported_main_structure.set_structure_name(path.get_file().get_basename().capitalize())
+	
+	# Add all structures to the workspace based on the placement options
+	var aabb := AABB()
+	for structure: NanoStructure in imported_workspace.get_structures():
+		aabb = aabb.merge(structure.get_aabb())
+	var placement_xform: Transform3D = _get_placement_transform(out_workspace_context, aabb, placement)
+	var new_structures: Array[NanoStructure]
+	new_structures = out_workspace_context.workspace.append_workspace(imported_workspace, placement_xform)
+	
+	# Select newly added
+	for structure: NanoStructure in new_structures:
+		var structure_context: StructureContext = out_workspace_context.get_nano_structure_context(structure)
+		structure_context.select_all()
+	
+	# Focus on the imported structures 
+	if placement != ImportFileDialog.Placement.IN_FRONT_OF_CAMERA:
+		WorkspaceUtils.focus_camera_on_aabb(out_workspace_context, aabb)
+	
+	# Undo redo
+	out_workspace_context.snapshot_moment(snapshot_name)
+
+
 static var _import_thread: Thread = null
 static func _import_file(out_workspace_context: WorkspaceContext, path: String,
 						generate_bonds: bool, add_hydrogens: bool, remove_waters: bool) -> OpenMMClass.ImportFileResult:
@@ -796,8 +863,8 @@ static func _load_import_file_result(out_workspace_context: WorkspaceContext,
 	structure_context.set_bond_selection(new_bonds)
 	structure_context.set_shape_selected(false)
 	
-	var selection_aabb: AABB = out_workspace_context.get_selection_aabb()
 	if placement != ImportFileDialog.Placement.IN_FRONT_OF_CAMERA:
+		var selection_aabb: AABB = out_workspace_context.get_selection_aabb()
 		WorkspaceUtils.focus_camera_on_aabb(out_workspace_context, selection_aabb)
 	
 	# 4. register Undo/Redo actions
@@ -855,6 +922,7 @@ static func _get_placement_transform(out_workspace_context: WorkspaceContext, or
 		_:
 			assert(false, "Invalid or unknown placement value")
 			return Transform3D()
+
 
 static func _fallback_pdb_load(out_payload: OpenMMClass.ImportFilePayload) -> Promise:
 	var promise := Promise.new()

@@ -5,11 +5,17 @@ const INSTANCE_UNIFORM_BASE_SCALE: StringName = &"base_scale"
 const UNIFORM_CAPS_STARTS_AT_LOCAL_Z: StringName = &"caps_starts_at_local_z_position"
 const UNIFORM_OUTLINE_THICKNESS = &"outline_thickness"
 const UNIFORM_IS_HOVERED = &"is_hovered"
+const UNIFORM_SATURATION = &"saturation"
+const UNIFORM_VALUE = &"value_correction"
 
+const LOW_SATURATION = 0.5;
+const NORMAL_SATURATION = 1.0;
+const LOW_VALUE = 0.4;
+const NORMAL_VALUE = 1.0;
 
 func _init() -> void:
-	RenderingUtils.has_uniforms(self, [INSTANCE_UNIFORM_BASE_SCALE,
-			UNIFORM_CAPS_STARTS_AT_LOCAL_Z, UNIFORM_OUTLINE_THICKNESS])
+	RenderingUtils.has_uniforms(self, [INSTANCE_UNIFORM_BASE_SCALE, UNIFORM_CAPS_STARTS_AT_LOCAL_Z,
+			UNIFORM_OUTLINE_THICKNESS, UNIFORM_SATURATION, UNIFORM_VALUE])
 
 
 func set_scale(new_scale: float) -> CapsuleStickMaterial:
@@ -38,6 +44,16 @@ func set_caps_starts_at_local_z(in_start_distance: float) -> CapsuleStickMateria
 	return self
 
 
+func desaturate() -> void:
+	set_shader_parameter(UNIFORM_SATURATION, LOW_SATURATION)
+	set_shader_parameter(UNIFORM_VALUE, LOW_VALUE)
+
+
+func saturate() -> void:
+	set_shader_parameter(UNIFORM_SATURATION, NORMAL_SATURATION)
+	set_shader_parameter(UNIFORM_VALUE, NORMAL_VALUE)
+
+
 func copy_state_from(_in_from_material: ShaderMaterial) -> void:
 	return # no need in this case
 
@@ -46,6 +62,8 @@ func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = super.create_state_snapshot()
 	snapshot[UNIFORM_CAPS_STARTS_AT_LOCAL_Z] = get_shader_parameter(UNIFORM_CAPS_STARTS_AT_LOCAL_Z)
 	snapshot[UNIFORM_OUTLINE_THICKNESS] = get_shader_parameter(UNIFORM_OUTLINE_THICKNESS)
+	snapshot[UNIFORM_SATURATION] = get_shader_parameter(UNIFORM_SATURATION)
+	snapshot[UNIFORM_VALUE] = get_shader_parameter(UNIFORM_VALUE)
 	return snapshot
 
 
@@ -53,3 +71,5 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	super.apply_state_snapshot(in_snapshot)
 	set_shader_parameter(UNIFORM_CAPS_STARTS_AT_LOCAL_Z, in_snapshot[UNIFORM_CAPS_STARTS_AT_LOCAL_Z])
 	set_shader_parameter(UNIFORM_OUTLINE_THICKNESS, in_snapshot[UNIFORM_OUTLINE_THICKNESS])
+	set_shader_parameter(UNIFORM_SATURATION, in_snapshot[UNIFORM_SATURATION])
+	set_shader_parameter(UNIFORM_VALUE, in_snapshot[UNIFORM_VALUE])

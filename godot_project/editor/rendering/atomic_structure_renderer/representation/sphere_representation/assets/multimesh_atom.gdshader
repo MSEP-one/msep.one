@@ -6,6 +6,7 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlic
 #include "res://editor/rendering/atomic_structure_renderer/representation/hydrogens.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/outlines.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/selectable.gdshaderinc"
+#include "res://editor/rendering/atomic_structure_renderer/representation/billboard.gdshaderinc"
 
 // wavy uv
 const float wave_aplitude = 0.05;
@@ -17,9 +18,6 @@ const float wave_frequency_x = 7.000;
 const float COLOR_ADDITIONAL_POWER = 0.05;
 const float ATLAS_SIZE_XY = 4.0;
 const float UV_ATLAS_SIZE = 1.0 / ATLAS_SIZE_XY;
-
-uniform vec3 camera_up_vector;
-uniform vec3 camera_right_vector;
 
 // atom sizing
 uniform float scale = 0.01;
@@ -44,7 +42,6 @@ uniform vec3 uv1_scale;
 uniform vec3 uv1_offset;
 uniform vec3 uv2_scale;
 uniform vec3 uv2_offset;
-
 
 varying vec4 custom_data;
 varying vec2 instance_variation;
@@ -73,22 +70,16 @@ void vertex() {
 	if (!OUTPUT_IS_SRGB) {
 		COLOR.rgb = srgb(COLOR.rgb);
 	}
-
+	
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	
 	// Make the outline mesh visible if the atom is selected
 	is_outline = uv_is_outline(UV);
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale);
+	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale) * float_not(is_preview);
 	
-	// Calculate rotation matrix to align model with camera
-	mat4 billboard_rot = mat4(
-		vec4(normalize(camera_right_vector), 0.0),
-		vec4(normalize(camera_up_vector), 0.0),
-		vec4(cross(normalize(camera_right_vector), normalize(camera_up_vector)), 0.0),
-		vec4(0.0, 0.0, 0.0, 1.0)
-	);
-
 	// Transform the vertex using the billboard rotation
-	vec3 final_vertex = (billboard_rot * vec4(VERTEX, 1.0)).xyz;
+	vec3 final_vertex = billboard_atom(VERTEX, INV_VIEW_MATRIX);
 
 	// apply scale
 	final_vertex = final_vertex * scale;
@@ -100,6 +91,9 @@ void vertex() {
 	final_vertex += get_translation_delta(COLOR, MODEL_MATRIX);
 	
 	final_vertex *= is_atom_or_bond_visible(COLOR.a);
+	
+	//preview visibility
+	final_vertex *= float_or(float_not(is_preview), is_atom_or_bond_selected(COLOR.a));
 	
 	VERTEX = final_vertex;
 	
@@ -153,7 +147,8 @@ void fragment() {
 	RIM = strength * 0.5 * rim * rim_tex.x;
 	RIM_TINT = rim_tint*rim_tex.y;
 	vec2 clearcoat_tex = texture(texture_clearcoat,base_uv).xy;
-	CLEARCOAT = clearcoat*clearcoat_tex.x;	CLEARCOAT_ROUGHNESS = clearcoat_roughness*clearcoat_tex.y;
+	CLEARCOAT = clearcoat*clearcoat_tex.x;
+	CLEARCOAT_ROUGHNESS = clearcoat_roughness*clearcoat_tex.y;
 	vec4 detail_tex = texture(texture_detail_albedo,UV2);
 	vec4 detail_norm_tex = texture(texture_detail_normal,UV2);
 	vec4 detail_mask_tex = texture(texture_detail_mask,base_uv);
@@ -161,6 +156,7 @@ void fragment() {
 	vec3 detail_norm = mix(NORMAL_MAP,detail_norm_tex.rgb,detail_tex.a);
 	NORMAL_MAP = mix(NORMAL_MAP,detail_norm,detail_mask_tex.r);
 	ALBEDO.rgb = mix(ALBEDO.rgb,detail,detail_mask_tex.r);
-	
 	ALBEDO = calculate_outline_color(ALBEDO, COLOR);
+	ALBEDO.rgb = apply_saturation(ALBEDO.rgb);
+	ALBEDO.rgb = apply_value(ALBEDO.rgb);
 }

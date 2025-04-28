@@ -81,9 +81,15 @@ func _update_preview() -> void:
 	var first_data: ElementData = PeriodicTable.get_by_atomic_number(_first_atomic_number)
 	var second_data: ElementData = PeriodicTable.get_by_atomic_number(_second_atomic_number)
 	var camera: Camera3D = get_viewport().get_camera_3d()
-	var up_vector: Vector3 = camera.basis.z * -1.0
-	var bond_transform: Transform3D = CylinderStickRepresentation.calculate_transform_for_bond(_first_pos,
-			_second_pos, up_vector)
+	var dir_between_start_and_end: Vector3 = _first_pos.direction_to(_second_pos)
+	var up_vector: Vector3 = dir_between_start_and_end.cross(camera.global_transform.basis.y)
+	var scale_factor: float = Representation.get_atom_scale_factor(_representation_settings)
+	var first_radius: float = Representation.get_atom_radius(first_data, _representation_settings) * scale_factor
+	var second_radius: float = Representation.get_atom_radius(second_data, _representation_settings) * scale_factor
+	var first_update_point: Vector3 = _first_pos + dir_between_start_and_end * first_radius
+	var second_update_point: Vector3 = _second_pos - dir_between_start_and_end * second_radius
+	var bond_transform: Transform3D = CylinderStickRepresentation.calculate_transform_for_bond(first_update_point,
+			second_update_point, up_vector)
 	_preview.transform = bond_transform
 	_material.apply_element_data(first_data, second_data)
 	set_order(_bond_order)

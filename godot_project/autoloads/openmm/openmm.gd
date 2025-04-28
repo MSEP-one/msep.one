@@ -674,7 +674,6 @@ func _process_export_file_request_on_thread(in_file_path: String, out_payload: O
 	var response: PackedByteArray = _bus.receive_buffer()
 	_bus_lock.unlock(mutex_context)
 	if response == "err".to_utf8_buffer():
-		var positions: PackedVector3Array = []
 		_handle_request_error(out_promise, null) # TMP
 		return
 	out_promise.fulfill.call_deferred(OK)

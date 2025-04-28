@@ -96,8 +96,9 @@ func _on_workspace_context_structure_added(in_nano_structure: NanoStructure) -> 
 
 func _on_workspace_context_structure_removed(in_nano_structure: NanoStructure) -> void:
 	var other_parent_id: int = in_nano_structure.int_parent_guid
-	var self_parent_id: int = \
-			0 if _parent_structure_context == null else _parent_structure_context.nano_structure.int_guid
+	var is_structure_context_valid: bool = _parent_structure_context != null and \
+			is_instance_valid(_parent_structure_context.nano_structure)
+	var self_parent_id: int = 0 if not is_structure_context_valid else _parent_structure_context.nano_structure.int_guid
 	if other_parent_id == self_parent_id:
 		rebuild_list()
 

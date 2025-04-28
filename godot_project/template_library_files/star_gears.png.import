@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cmei7s5xpbqeo"
-path="res://.godot/imported/4_bis_4-dimethylaminophenyl_methylene-2_5-cyclohexadien-1-iminium.png-d3470c8ecd7273327a3468d31594f096.ctex"
+uid="uid://d11myde512u3o"
+path="res://.godot/imported/star_gears.png-e26f39edd124ce0a5201546b355014d7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://chemical_structures/nitroalkanes/4_bis_4-dimethylaminophenyl_methylene-2_5-cyclohexadien-1-iminium.png"
-dest_files=["res://.godot/imported/4_bis_4-dimethylaminophenyl_methylene-2_5-cyclohexadien-1-iminium.png-d3470c8ecd7273327a3468d31594f096.ctex"]
+source_file="res://template_library_files/star_gears.png"
+dest_files=["res://.godot/imported/star_gears.png-e26f39edd124ce0a5201546b355014d7.ctex"]
 
 [params]
 

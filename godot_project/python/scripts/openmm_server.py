@@ -19,6 +19,10 @@ import logging
 
 DETAILED_LOGS = False
 
+try:
+	os.mkdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "logs" ))
+except Exception as e:
+	pass
 log_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "logs", "msep.log" )
 
 logging.basicConfig(
@@ -273,8 +277,22 @@ class PayloadTopologyReader(PayloadChunkReader):
 				mol.assign_partial_charges(partial_charge_method="mmff94", toolkit_registry=RDKitToolkitWrapper())
 		except Exception as e:
 			logging.warning(f"Failed to assign partial charges with method 'mmff94'. Fallback to 'gasteiger'")
-			for mol in molecules:
-				mol.assign_partial_charges(partial_charge_method="gasteiger", toolkit_registry=RDKitToolkitWrapper())
+			try:
+				for i, mol in enumerate(molecules):
+					mol.assign_partial_charges(partial_charge_method="gasteiger", toolkit_registry=RDKitToolkitWrapper())
+			except Exception as e:
+				# Atom id in the error is the ID of the molecule, not the ID in the entire structure
+				# we need to rewrite the error before raising it
+				err_text: str = str(e)
+				start: int = err_text.find("atom # ") + 7
+				end: int = err_text.find(" ", start)
+				num_string: str = err_text[start:end]
+				mol_atom_id: int = int(num_string)
+				# `i` from for loop should be unchanged
+				payload_atom: int = group_atom_to_atom[(i, mol_atom_id)]
+				openff_atom_id: int = self.payload_to_openff_atom[payload_atom]
+				err_text = err_text[0:start] + str(openff_atom_id) + err_text[end:len(err_text)]
+				raise Exception(err_text)
 		
 		self._openff_molecules = molecules
 		return molecules
@@ -797,7 +815,8 @@ def create_forcefield_for_topology(topology_payload: PayloadTopologyReader) -> F
 	forcefield = ForceField(openff_forcefield_path)
 	for i in range(1, len(topology_payload.forcefields)):
 		forcefield_extension_path = os.path.join(os.path.dirname(__file__ ), "offxml_extensions", topology_payload.forcefields[i])
-		forcefield.parse_sources([forcefield_extension_path])
+		with open(forcefield_extension_path, 'r', encoding='utf-8') as f:
+			forcefield.parse_sources([f])
 	return forcefield
 
 

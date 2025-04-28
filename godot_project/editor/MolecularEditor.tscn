@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cgb7a8s4egpox"]
+[gd_scene load_steps=10 format=3 uid="uid://cgb7a8s4egpox"]
 
 [ext_resource type="Script" path="res://editor/MolecularEditor.gd" id="1_u8b6i"]
 [ext_resource type="PackedScene" uid="uid://b711oqbglehtg" path="res://editor/controls/menu_bar/menu_bar.tscn" id="2_a3o8y"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dj61no1d5t16w" path="res://editor/controls/import_file_dialog/import_file_dialog.tscn" id="6_criww"]
 [ext_resource type="PackedScene" uid="uid://18crkb1kbthw" path="res://editor/controls/template_library_dialog/template_library_dialog.tscn" id="7_uupny"]
 [ext_resource type="PackedScene" uid="uid://dg7wgefiwe42n" path="res://editor/controls/camera_position_dialog/camera_position_dialog.tscn" id="8_1w46u"]
+[ext_resource type="PackedScene" uid="uid://ddist487qh8in" path="res://editor/controls/video_tutorials_dialog/video_tutorials_dialog.tscn" id="9_18n8r"]
 
 [node name="MolecularEditor" type="Panel"]
 anchors_preset = 15
@@ -90,5 +91,9 @@ unique_name_in_owner = true
 visible = false
 
 [node name="CameraPositionDialog" parent="." instance=ExtResource("8_1w46u")]
+unique_name_in_owner = true
+visible = false
+
+[node name="VideoTutorialsDialog" parent="." instance=ExtResource("9_18n8r")]
 unique_name_in_owner = true
 visible = false

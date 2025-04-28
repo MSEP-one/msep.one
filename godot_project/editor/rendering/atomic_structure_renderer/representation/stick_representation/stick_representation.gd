@@ -156,7 +156,7 @@ func highlight_atoms(_in_atoms_ids: PackedInt32Array, \
 func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: PackedInt32Array) -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
 	var related_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
-	for bond_id in new_partially_influenced_bonds:
+	for bond_id: int in new_partially_influenced_bonds:
 		if not bond_id in _bond_id_to_particle_id:
 			continue
 		var bond: Vector3i = related_structure.get_bond(bond_id)
@@ -181,11 +181,13 @@ func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: Pack
 		var second_atom_radius: float = get_atom_radius(second_atom_periodic_table_data, related_structure.get_representation_settings())
 		var smaller_atom_radius: float = min(first_atom_radius, second_atom_radius)
 		second_highlight_color.a = smaller_atom_radius
-		if bond_state.is_first_atom_selected and bond_state.is_second_atom_selected:
+		var is_under_full_influence := bond_state.is_first_atom_selected and bond_state.is_second_atom_selected
+		var is_under_no_influence := not bond_state.is_first_atom_selected and not bond_state.is_second_atom_selected
+		var is_under_partial_influence := bond_state.is_first_atom_selected != bond_state.is_second_atom_selected
+		if is_under_full_influence or is_under_no_influence:
 			_current_bond_partial_selection.erase(bond_id)
-		elif bond_state.is_first_atom_selected != bond_state.is_second_atom_selected:
+		elif is_under_partial_influence:
 			_current_bond_partial_selection[bond_id] = true
-		
 		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
 		var segmented_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[bond_order]
 		segmented_multimesh.update_particle_color(particle_id.bond_id, first_highlight_color,
@@ -196,9 +198,6 @@ func lowlight_atoms(_in_atoms_ids: PackedInt32Array, in_bonds_released_from_part
 			new_partially_influenced_bonds: PackedInt32Array = PackedInt32Array()) -> void:
 	_refresh_bond_partial_influence_status(in_bonds_released_from_partial_influence)
 	_refresh_bond_partial_influence_status(new_partially_influenced_bonds)
-	if _current_bond_partial_selection.size() == in_bonds_released_from_partial_influence.size():
-		_current_bond_partial_selection.clear()
-		return
 
 
 func highlight_bonds(in_bonds_to_highlight: PackedInt32Array) -> void:
@@ -584,10 +583,13 @@ static func _calc_up_vector_for_higher_bond(in_first_atom_id: int, in_second_ato
 	return plane.normal
 
 
-func set_partially_selected_bonds(in_partially_selected_bonds: PackedInt32Array) -> void:
-	_refresh_bond_partial_influence_status(_current_bond_partial_selection.keys())
-	_current_bond_partial_selection.clear()
-	_refresh_bond_partial_influence_status(in_partially_selected_bonds)
+func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> void:
+	var bonds_to_refresh: Dictionary = {}
+	for bond_id: int in in_partially_selected_bonds:
+		bonds_to_refresh[bond_id] = true
+	for bond_id: int in _current_bond_partial_selection:
+		bonds_to_refresh[bond_id] = true
+	_refresh_bond_partial_influence_status(bonds_to_refresh.keys())
 
 
 func rotate_atom_selection_around_point(_in_point: Vector3, _in_rotation_to_apply: Basis) -> void:
@@ -686,29 +688,29 @@ func set_transparency(in_transparency: float) -> void:
 
 func handle_editable_structures_changed(_in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	if not _workspace_context.has_nano_structure_context_id(_related_structure_id):
-		assert(ScriptUtils.is_queued_for_deletion_reqursive(self), "structure deleted, this rendering instance is about to be deleted")
+		assert(ScriptUtils.is_queued_for_deletion_recursive(self), "structure deleted, this rendering instance is about to be deleted")
 		return
 	_update_is_selectable_uniform()
+	# Active structure have changed, remove highlight if needed
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
+	if structure_context.nano_structure.int_guid == _workspace_context.workspace.active_structure_int_guid:
+		_update_is_hovered_uniform(false)
 
 
-func handle_hover_structure_changed(in_toplevel_hovered_structure_context: StructureContext,
+func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: StructureContext,
 			in_hovered_structure_context: StructureContext, _in_atom_id: int, in_bond_id: int,
 			_in_spring_id: int) -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
 	var workspace: Workspace = _workspace_context.workspace
-	var current_context: StructureContext = _workspace_context.get_current_structure_context()
-	var is_hovered: bool = false
-	var did_hover_a_group: bool = in_toplevel_hovered_structure_context != null
-	var is_context_edited_by_user: bool = current_context == structure_context
-	if did_hover_a_group and not is_context_edited_by_user:
-		var is_entire_group_hovered: bool = (
-				in_toplevel_hovered_structure_context == structure_context
-				or workspace.is_a_ancestor_of_b(
-					in_toplevel_hovered_structure_context.nano_structure,
-					structure_context.nano_structure)
-				)
-		if is_entire_group_hovered:
-			is_hovered = true
+	var is_hovered: bool = in_hovered_structure_context == structure_context
+	var are_structures_valid: bool = is_instance_valid(in_hovered_structure_context) and \
+			is_instance_valid(structure_context) and is_instance_valid(structure_context.nano_structure) \
+			and is_instance_valid(in_hovered_structure_context.nano_structure)
+	if not is_hovered and are_structures_valid:
+		is_hovered = workspace.is_a_ancestor_of_b(in_hovered_structure_context.nano_structure, \
+				structure_context.nano_structure)
+	if is_hovered and in_hovered_structure_context.nano_structure.int_guid == workspace.active_structure_int_guid:
+		is_hovered = false
 	_update_is_hovered_uniform(is_hovered)
 	if in_hovered_structure_context != structure_context:
 		in_bond_id = -1 # Hovered bond is not part of this structure, remove roll over if needed

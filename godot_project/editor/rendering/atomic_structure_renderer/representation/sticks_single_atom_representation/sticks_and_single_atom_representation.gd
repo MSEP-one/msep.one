@@ -143,9 +143,9 @@ func set_material_overlay(_in_material: Material) -> void:
 	_stick_representation.set_material_overlay(_in_material)
 
 
-func set_partially_selected_bonds(in_partially_selected_bonds: PackedInt32Array) -> void:
-	_single_atom_representation.set_partially_selected_bonds(in_partially_selected_bonds)
-	_stick_representation.set_partially_selected_bonds(in_partially_selected_bonds)
+func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> void:
+	_single_atom_representation.refresh_bond_influence(in_partially_selected_bonds)
+	_stick_representation.refresh_bond_influence(in_partially_selected_bonds)
 
 
 func set_atom_selection_position_delta(in_movement_delta: Vector3) -> void:
@@ -192,6 +192,16 @@ func get_materials() -> Array[ShaderMaterial]:
 func apply_theme(in_theme: Theme3D) -> void:
 	_stick_representation.apply_theme(in_theme)
 	_single_atom_representation.apply_theme(in_theme)
+
+
+func saturate() -> void:
+	_stick_representation.saturate()
+	_single_atom_representation.saturate()
+
+
+func desaturate() -> void:
+	_stick_representation.desaturate()
+	_single_atom_representation.desaturate()
 
 
 func create_state_snapshot() -> Dictionary:

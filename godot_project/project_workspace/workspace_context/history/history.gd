@@ -11,7 +11,7 @@ signal previous_snapshot_applied(undone_snapshot_name: String)
 signal next_snapshot_applied(redone_snapshot_name: String)
 
 const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
-	"Change Edited Group" : true,
+	"Change Active Group" : true,
 	"Change Selection" : true,
 	"Box Selection" : true,
 	"Box Deselection" : true,
@@ -122,10 +122,21 @@ func apply_previous_snapshot() -> void:
 	_stack_pointer -= 1
 	_apply_snapshot(_stack_pointer)
 	_version -= 1
+	# IMPORTANT: if a method uses call_deferred part of the snapshot, that would make the
+	#            "aplication of the snapshot" incomplete until the next frame.
+	#            I have confirmed this happens at least when the snapshot is creating a new group,
+	#            because of AtomicStructure._post_init.call_deferred()
+	await _wait_one_frame()
 	changed.emit()
 	snapshot_applied.emit()
 	previous_snapshot_applied.emit(undone_snapshot_name)
 
+
+func _wait_one_frame() -> void:
+	var viewport: Viewport = Engine.get_main_loop().root
+	viewport.gui_disable_input = true
+	await Engine.get_main_loop().process_frame
+	viewport.gui_disable_input = false
 
 func apply_next_snapshot() -> void:
 	var cannot_move_forward: bool = _stack_pointer >= (_snapshot_stack.size() - 1)
@@ -261,7 +272,7 @@ static func create_signal_snapshot(in_signal: Signal) -> Dictionary:
 	return snapshot
 
 
-static func apply_signal_snapshot(in_signal_origin: Object, in_signal_name: String, in_snapshot: Dictionary) -> void:
+static func apply_signal_snapshot(in_signal_origin: Object, _in_signal_name: String, in_snapshot: Dictionary) -> void:
 	var callables: Array[Dictionary] = in_snapshot["callables"]
 	for idx in callables.size():
 		var callable_dict: Dictionary = callables[idx]

@@ -5,9 +5,6 @@
 
 
 const float HYDROGEN_LABEL_ID = 0.0;
-const vec3 HYDROGEN_ATOM_COLOR = vec3(0.549,  0.471,   0.0);
-const vec3 HYDROGEN_BOND_COLOR = vec3(1.0,    0.7843,  0.0);
-const float HYDROGEN_SPRING_ALPHA = 0.1;
 
 uniform float show_hydrogens: hint_range(0.0, 1.0, 1.0) = 1.0;
 
@@ -33,10 +30,9 @@ float _should_hide_hydrogen_label(float element_id) {
 }
 
 float _should_hide_hydrogen_spring(float color_alpha) {
-	float is_hydrogen_spring = float_eq(color_alpha, HYDROGEN_SPRING_ALPHA);
+	float is_hydrogen_spring = is_hydrogen(color_alpha);
 	return float_and(is_hydrogen_spring, float_not(show_hydrogens));
 }
-
 
 // Usage:
 // VERTEX = hide_hydrogen_atoms(VERTEX, COLOR.a);

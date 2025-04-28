@@ -95,13 +95,14 @@ stretch_mode = 6
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TabContainer/About Us/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
 [node name="Label" type="Label" parent="VBoxContainer/TabContainer/About Us/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "(c) 2022-Present, MSEP.one Contributors
 
-Ongoing contributions provided by Prehensile Tales, BV
+Ongoing contributions provided by MSEP Foundation, and Prehensile Tales BV
 
 "
 

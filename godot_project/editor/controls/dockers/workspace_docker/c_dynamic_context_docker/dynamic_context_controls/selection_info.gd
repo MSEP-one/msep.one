@@ -54,7 +54,55 @@ func _update_selected_info() -> void:
 	_tree_info.set_column_title(1, "Value")
 	if contexts_with_selection.is_empty():
 		return
+	var total_atoms_selected: int = 0
+	var total_bonds_selected: int = 0
+	var total_springs_selected: int = 0
+	var total_shapes_selected: int = 0
+	var total_motors_selected: int = 0
+	var total_anchors_selected: int = 0
 	var selected_structures: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
+	# 1. First pass only for counting
+	for context in selected_structures:
+		if context.nano_structure is AtomicStructure:
+			total_atoms_selected += context.get_selected_atoms().size()
+			total_bonds_selected += context.get_selected_bonds().size()
+			total_springs_selected += context.get_selected_springs().size()
+		elif context.nano_structure is NanoShape:
+			total_shapes_selected += 1
+		elif context.nano_structure is NanoVirtualMotor:
+			total_motors_selected += 1
+		elif context.nano_structure is NanoVirtualAnchor:
+			total_anchors_selected += 1
+	# 1.1 Render total counts
+	if total_atoms_selected + total_bonds_selected + total_springs_selected + \
+			total_shapes_selected + total_motors_selected + total_anchors_selected > 0:
+		var item_summary: TreeItem = _tree_info.create_item(root)
+		item_summary.set_text(0, tr(&"Summary"))
+		if total_atoms_selected > 0:
+			var item: TreeItem = _tree_info.create_item(item_summary)
+			item.set_text(0, tr(&"Total Atoms count"))
+			item.set_text(1, str(total_atoms_selected))
+		if total_bonds_selected > 0:
+			var item: TreeItem = _tree_info.create_item(item_summary)
+			item.set_text(0, tr(&"Total Bonds count"))
+			item.set_text(1, str(total_bonds_selected))
+		if total_springs_selected > 0:
+			var item: TreeItem = _tree_info.create_item(item_summary)
+			item.set_text(0, tr(&"Total Springs count"))
+			item.set_text(1, str(total_springs_selected))
+		if total_shapes_selected > 0:
+			var item: TreeItem = _tree_info.create_item(item_summary)
+			item.set_text(0, tr(&"Total Shapes count"))
+			item.set_text(1, str(total_shapes_selected))
+		if total_motors_selected > 0:
+			var item: TreeItem = _tree_info.create_item(item_summary)
+			item.set_text(0, tr(&"Total Motors count"))
+			item.set_text(1, str(total_motors_selected))
+		if total_anchors_selected > 0:
+			var item: TreeItem = _tree_info.create_item(item_summary)
+			item.set_text(0, tr(&"Total Anchors count"))
+			item.set_text(1, str(total_anchors_selected))
+	# 2. Second pass for details
 	for context in selected_structures:
 		var selection_info: Dictionary = SelectionInfo.create_selection_info(context, SelectionInfo.Type.READ_WRITE_PROPERTIES)
 		var structure_root: TreeItem = _tree_info.create_item(root)
@@ -168,6 +216,11 @@ func _fit_editor_in_cell(in_item: TreeItem, in_rect: Rect2) -> void:
 	if min_size.x > in_rect.size.x:
 		editor.position.x = in_rect.end.x - min_size.x
 	editor.size = in_rect.size
+	if in_item.get_text(0).is_empty():
+		# Expand the editor to fit both colums:
+		const PADDING: int = 60
+		editor.position.x = PADDING
+		editor.size.x = in_rect.end.x - PADDING
 
 func _value_type_expands(value: Variant) -> bool:
 	return typeof(value) in [

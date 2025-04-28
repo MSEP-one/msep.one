@@ -37,6 +37,20 @@ func setup(in_structure_context: StructureContext, in_bond_id: int, in_is_editab
 	var bond: Vector3i = in_structure_context.nano_structure.get_bond(_bond_id)
 	var bond_order: int = bond.z
 	_option_button.select(BOND_ORDER_TO_OPTION_IDX[bond_order])
+	
+	var rendering: Rendering = in_structure_context.get_rendering()
+	if not rendering.representation_changed.is_connected(_on_rendering_representation_changed):
+		rendering.representation_changed.connect(_on_rendering_representation_changed)
+	_update_availability(rendering.get_default_representation())
+
+
+func _on_rendering_representation_changed(in_representation: Rendering.Representation) -> void:
+	_update_availability(in_representation)
+
+
+func _update_availability(in_representation: Rendering.Representation) -> void:
+	var can_be_edited_by_user: bool = in_representation != Rendering.Representation.STICKS
+	_option_button.disabled = not can_be_edited_by_user
 
 
 func is_editable() -> bool:

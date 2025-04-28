@@ -7,6 +7,8 @@ const NanoShapeRendererScn: PackedScene = preload("res://editor/rendering/refere
 const NanoVirtualMotorRendererScn: PackedScene = preload("res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.tscn")
 const NanoVirtualAnchorRendererScn: PackedScene = preload("res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_renderer.tscn")
 
+const SELECTION_PREVIEW_LAYER_BIT = 3
+
 enum Representation {
 	VAN_DER_WAALS_SPHERES     = 0,
 	MECHANICAL_SIMULATION     = 1,
@@ -26,6 +28,7 @@ signal representation_changed(new_representation: Representation)
 @onready var _virtual_motor_renderers: Node = $VirtualMotorRenderers
 @onready var _virtual_anchor_renderers: Node = $VirtualAnchorRenderers
 @onready var _atom_preview: AtomPreview = $AtomPreview
+@onready var _atom_autopose_preview: AtomAutoposePreview = $AtomAutoposePreview
 @onready var _ballstick_bond_preview: BallStickBondPreview = $BallStickBondPreview
 @onready var _structure_preview: StructurePreview = $StructurePreview
 @onready var _reference_shape_preview: NanoShapeRenderer = $ReferenceShapePreview
@@ -33,6 +36,7 @@ signal representation_changed(new_representation: Representation)
 @onready var _virtual_anchor_preview: VirtualAnchorPreview = $VirtualAnchorPreview
 @onready var _world_environment: WorldEnvironment = $WorldEnvironment
 @onready var _spring_preview: SpringPreview = $SpringPreview
+@onready var _selection_preview: SelectionPreview = $SelectionPreview
 var _default_representation: Rendering.Representation = Representation.BALLS_AND_STICKS
 var _environment: Environment = null
 var _hover_disabled: bool = false
@@ -61,12 +65,17 @@ func snapshot_rebuild(in_structure_context: StructureContext) -> void:
 
 func initialize(in_workspace_context: WorkspaceContext) -> void:
 	if not enabled: return
+	var _selection_layer_bit_enumerated_from_0: int = SELECTION_PREVIEW_LAYER_BIT - 1
+	assert(pow(2, _selection_layer_bit_enumerated_from_0) == RenderingUtils.get_selection_preview_visual_layer(),
+			"SELECTION_PREVIEW_LAYER_BIT must correspond with constants.gdshaderinc.SELECTION_PREVIEW_VISUAL_LAYER")
 	_workspace_context = in_workspace_context
 	var workspace: Workspace = in_workspace_context.workspace
 	_theme_in_use = workspace.representation_settings.get_theme()
 	workspace.representation_settings.changed.connect(_on_workspace_settings_changed)
 	workspace.representation_settings.theme_changed.connect(_on_representation_settings_theme_changed.bind(weakref(workspace)))
+	workspace.representation_settings.color_palette_changed.connect(_on_representation_settings_color_palette_changed)
 	apply_theme(workspace.representation_settings.get_theme())
+	_selection_preview.init(_workspace_context)
 
 
 ## Returns whether it is initialized or not
@@ -123,6 +132,15 @@ func build_virtual_anchor_rendering(in_anchor: NanoVirtualAnchor) -> void:
 		anchor_renderer.disable_hover()
 
 
+func get_selection_preview_texture() -> Texture:
+	_selection_preview.refresh()
+	return _selection_preview.get_texture()
+
+
+func rotate_selection_preview(in_rotation_strength: float) -> void:
+	_selection_preview.rotate_camera(in_rotation_strength)
+
+
 func get_reference_shape_renderer(in_shape_renderer_name: String) -> NanoShapeRenderer:
 	return _reference_shape_renderers.get_node(in_shape_renderer_name)
 
@@ -161,6 +179,16 @@ func set_atomic_structure_material_overlay(in_structure: AtomicStructure, in_mat
 	
 	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
 	atomic_structure_renderer.material_overlay = in_material_overlay
+
+
+func saturate_structure(in_structure: AtomicStructure) -> void:
+	var structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
+	structure_renderer.saturate()
+
+
+func desaturate_structure(in_structure: AtomicStructure) -> void:
+	var structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
+	structure_renderer.desaturate()
 
 
 func is_renderer_for_atomic_structure_built(in_structure: AtomicStructure) -> bool:
@@ -255,6 +283,7 @@ func change_default_representation(in_representation: Rendering.Representation) 
 			continue
 		structure_renderer.change_representation(in_representation)
 	representation_changed.emit(in_representation)
+	_workspace_context.refresh_group_saturation()
 
 
 func refresh_atom_sizes() -> void:
@@ -472,16 +501,22 @@ func disable_hydrogens() -> void:
 		structure_renderer.ensure_hydrogens_rendering_off()
 
 
-func set_partially_selected_bonds(in_partially_selected_bonds: PackedInt32Array, in_structure: AtomicStructure) -> void:
+func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array, in_structure: AtomicStructure) -> void:
 	if not enabled: return
 	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
-	atomic_structure_renderer.set_partially_selected_bonds(in_partially_selected_bonds)
+	atomic_structure_renderer.refresh_bond_influence(in_partially_selected_bonds)
 
 
 func set_atom_selection_position_delta(in_selection_delta: Vector3, in_structure: AtomicStructure) -> void:
 	if not enabled: return
 	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
 	atomic_structure_renderer.set_atom_selection_position_delta(in_selection_delta)
+
+
+func get_atom_selection_position_delta(in_structure: AtomicStructure) -> Vector3:
+	if not enabled: return Vector3.ZERO
+	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
+	return atomic_structure_renderer.get_atom_selection_position_delta()
 
 
 func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis, in_structure: AtomicStructure) -> void:
@@ -593,6 +628,51 @@ func bond_preview_set_order(in_bond_order: int) -> Rendering:
 	if not enabled: return self
 	_ballstick_bond_preview.set_order(in_bond_order)
 	return self
+
+
+func atom_autopose_preview_is_visible() -> bool:
+	if not enabled: return false
+	return _atom_autopose_preview.is_visible()
+
+
+func atom_autopose_preview_show() -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.show()
+	return self
+
+
+func atom_autopose_preview_hide() -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.hide()
+	return self
+
+
+func atom_autopose_preview_set_atomic_number(in_atomic_number: int) -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.set_atomic_number(in_atomic_number)
+	return self
+
+
+func atom_autopose_preview_set_bond_order(in_bond_order: int) -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.set_bond_order(in_bond_order)
+	return self
+
+
+func atom_autopose_preview_set_candidates(in_candidates: Array[AtomAutoposePreview.AtomCandidate]) -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.set_candidates(in_candidates)
+	return self
+
+
+func atom_autopose_preview_set_hovered_candidate(in_candidate: AtomAutoposePreview.AtomCandidate) -> Rendering:
+	if not enabled: return self
+	_atom_autopose_preview.set_hovered_candidate(in_candidate)
+	return self
+
+
+func atom_autopose_get_hovered_candidate_or_null() -> AtomAutoposePreview.AtomCandidate:
+	return _atom_autopose_preview.get_hovered_candidate_or_null()
 
 
 func is_structure_preview_visible() -> bool:
@@ -792,6 +872,14 @@ func _on_representation_settings_theme_changed(in_workspace_wref: WeakRef) -> vo
 	apply_theme(representation_settings.get_theme())
 
 
+func _on_representation_settings_color_palette_changed(in_new_color_palette: PeriodicTable.ColorPalette) -> void:
+	PeriodicTable.load_palette(in_new_color_palette)
+	var structure_renderers := _atomic_structure_renderers.get_children()
+	for structure_renderer: Node in structure_renderers:
+		if structure_renderer is AtomicStructureRenderer:
+			structure_renderer.rebuild()
+
+
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_default_representation"] = _default_representation
@@ -833,7 +921,9 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for renderer_name: String in renderers:
 		var renderer: AtomicStructureRenderer
 		var renderer_snapshot: Dictionary = renderers_snapshots[renderer_name]
-		if is_instance_valid(renderers[renderer_name]):
+		var is_alive: bool = is_instance_valid(renderers[renderer_name]) and \
+				not renderers[renderer_name].is_queued_for_deletion()
+		if is_alive:
 			renderer = renderers[renderer_name]
 		else:
 			# create new one
@@ -847,7 +937,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for renderer_name: String in anchor_renderers:
 		var renderer: VirtualAnchorRenderer
 		var anchor_renderer_snapshot: Dictionary = anchor_renderes_snapshots[renderer_name]
-		if is_instance_valid(anchor_renderers[renderer_name]):
+		if is_instance_valid(anchor_renderers[renderer_name]) \
+				and not anchor_renderers[renderer_name].is_queued_for_deletion():
 			renderer = anchor_renderers[renderer_name]
 		else:
 			# create new one
@@ -861,7 +952,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for renderer_name: String in motors_renderers:
 		var renderer: VirtualMotorRenderer
 		var motor_renderer_snapshot: Dictionary = motors_renderers_snapshots[renderer_name]
-		if is_instance_valid(motors_renderers[renderer_name]):
+		if is_instance_valid(motors_renderers[renderer_name]) \
+				and not motors_renderers[renderer_name].is_queued_for_deletion():
 			renderer = motors_renderers[renderer_name]
 		else:
 			# create new one
@@ -875,7 +967,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for renderer_name: String in shapes_renderers:
 		var renderer: NanoShapeRenderer
 		var shape_renderer_snapshot: Dictionary = shapes_renderers_snapshots[renderer_name]
-		if is_instance_valid(shapes_renderers[renderer_name]):
+		if is_instance_valid(shapes_renderers[renderer_name]) \
+				and not shapes_renderers[renderer_name].is_queued_for_deletion():
 			renderer = shapes_renderers[renderer_name]
 		else:
 			# create new one
@@ -883,3 +976,4 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 		renderer.apply_state_snapshot(shape_renderer_snapshot)
 	
 	apply_theme(_workspace_context.workspace.representation_settings.get_theme())
+	_selection_preview.refresh()

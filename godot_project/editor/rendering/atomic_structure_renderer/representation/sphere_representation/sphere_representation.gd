@@ -80,27 +80,30 @@ func build(in_structure_context: StructureContext) -> void:
 
 
 func handle_editable_structures_changed(_in_new_editable_structure_contexts: Array[StructureContext]) -> void:
+	if not _workspace_context.has_nano_structure_context_id(_structure_id):
+		assert(ScriptUtils.is_queued_for_deletion_recursive(self), "structure deleted, this rendering instance is about to be deleted")
+		return
 	_update_is_selectable_uniform()
+	# Active structure have changed, remove highlight if needed
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
+	if structure_context.nano_structure.int_guid == _workspace_context.workspace.active_structure_int_guid:
+		_material.set_hovered(false)
 
 
-func handle_hover_structure_changed(in_toplevel_hovered_structure_context: StructureContext,
+func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: StructureContext,
 			in_hovered_structure_context: StructureContext, in_atom_id: int, _in_bond_id: int,
 			_in_spring_id: int) -> void:
 	var workspace: Workspace = _workspace_context.workspace
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
-	var current_context: StructureContext = _workspace_context.get_current_structure_context()
-	var is_hovered: bool = false
-	var did_hover_a_group: bool = in_toplevel_hovered_structure_context != null
-	var is_context_edited_by_user: bool = current_context == structure_context
-	if did_hover_a_group and not is_context_edited_by_user:
-		var is_entire_group_hovered: bool = (
-				in_toplevel_hovered_structure_context == structure_context
-				or workspace.is_a_ancestor_of_b(
-					in_toplevel_hovered_structure_context.nano_structure,
-					structure_context.nano_structure)
-				)
-		if is_entire_group_hovered:
-			is_hovered = true
+	var is_hovered: bool = in_hovered_structure_context == structure_context
+	var are_structures_valid := is_instance_valid(in_hovered_structure_context) and \
+			is_instance_valid(structure_context) and is_instance_valid(structure_context.nano_structure) \
+			and is_instance_valid(in_hovered_structure_context.nano_structure)
+	if not is_hovered and are_structures_valid:
+		is_hovered = workspace.is_a_ancestor_of_b(in_hovered_structure_context.nano_structure, \
+				structure_context.nano_structure)
+	if is_hovered and in_hovered_structure_context.nano_structure.int_guid == workspace.active_structure_int_guid:
+		is_hovered = false
 	var hovered_atom_id: int = -1 if in_hovered_structure_context != structure_context else in_atom_id
 	if hovered_atom_id != _hovered_atom_id:
 		_set_hovered_atom_id(hovered_atom_id)
@@ -119,9 +122,6 @@ func _set_hovered_atom_id(in_hovered_atom_id: int) -> void:
 
 
 func _update_is_selectable_uniform() -> void:
-	if not _workspace_context.has_nano_structure_context_id(_structure_id):
-		assert(ScriptUtils.is_queued_for_deletion_reqursive(self), "structure deleted, this rendering instance is about to be deleted")
-		return
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	var is_editable: bool = structure_context.is_editable()
 	_material.set_selectable(is_editable)
@@ -177,6 +177,8 @@ func refresh_atoms_atomic_number(in_atoms_and_atomic_numbers: Array[Vector2i]) -
 
 
 func refresh_atoms_sizes(in_update_atoms_radii: bool = false) -> void:
+	if not _segmented_multimesh.is_visible():
+		return
 	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
 	var scale_factor: float = Representation.get_atom_scale_factor(related_nanostructure.get_representation_settings())
 	_apply_scale_factor(scale_factor)
@@ -356,11 +358,7 @@ func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply:
 
 
 func update(_delta: float) -> void:
-	var camera3d: Camera3D = get_viewport().get_camera_3d()
-	var to_local: Quaternion = Quaternion(self.global_basis.inverse())
-	var camera_up: Vector3 = to_local * camera3d.global_transform.basis.y
-	var camera_right: Vector3 = to_local * camera3d.global_transform.basis.x
-	_material.update_camera(camera_up, camera_right)
+	pass
 
 
 func set_transparency(in_transparency: float) -> void:
@@ -375,8 +373,16 @@ func show_bond_rendering() -> void:
 	return
 
 
-func set_partially_selected_bonds(_in_partially_selected_bonds: PackedInt32Array) -> void:
+func refresh_bond_influence(_in_partially_selected_bonds: PackedInt32Array) -> void:
 	return
+
+
+func saturate() -> void:
+	_material.saturate()
+
+
+func desaturate() -> void:
+	_material.desaturate()
 
 
 func apply_theme(in_theme: Theme3D) -> void:

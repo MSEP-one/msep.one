@@ -71,10 +71,10 @@ static func _describe_function(stack_frame: Dictionary) -> String:
 			str(stack_frame.source).get_file(), stack_frame.line, stack_frame.function]
 
 
-static func is_queued_for_deletion_reqursive(in_node: Node) -> bool:
+static func is_queued_for_deletion_recursive(in_node: Node) -> bool:
 	if in_node.is_queued_for_deletion():
 		return true
 	var parent: Node = in_node.get_parent()
 	if parent != null:
-		return is_queued_for_deletion_reqursive(parent)
+		return is_queued_for_deletion_recursive(parent)
 	return false

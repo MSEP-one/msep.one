@@ -139,6 +139,14 @@ func is_motor_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> bo
 	return false
 
 
+func init_remap_structure_ids(in_structures_map: Dictionary) -> void:
+	for old_structure_id: int in get_connected_structures():
+		_connected_structures.erase(old_structure_id)
+		var new_structure: NanoStructure = in_structures_map.get(old_structure_id, null)
+		assert(is_instance_valid(new_structure), "Structure has vanished during import")
+		_connected_structures[new_structure.int_guid] = true
+
+
 func create_state_snapshot() -> Dictionary:
 	var state_snapshot: Dictionary = super.create_state_snapshot()
 	state_snapshot["script.resource_path"] = get_script().resource_path

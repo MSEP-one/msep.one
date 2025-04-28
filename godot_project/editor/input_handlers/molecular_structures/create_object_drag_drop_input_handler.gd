@@ -1,5 +1,7 @@
 extends InputHandlerCreateObjectBase
 
+const BOND_LENGTH_MSG_TEXT = "Bond length: "
+const SPRING_LENGTH_MSG_TEXT = "Spring length: "
 
 enum {
 	_NO_DRAG,
@@ -158,11 +160,13 @@ func set_preview_position(in_position: Vector3) -> void:
 				# and Spring end is located at mouse current position
 				rendering.virtual_anchor_preview_set_position(_press_down_position_3d)
 				rendering.virtual_anchor_preview_set_spring_ends([in_position])
+				_update_distance(SPRING_LENGTH_MSG_TEXT, _press_down_position_3d, in_position)
 			elif _drag_state == _DRAG_FROM_ATOM:
 				# When dragging from atom, anchor is located at current mouse position and
 				# and Spring end is located at initial _press_down_position_3d position
 				rendering.virtual_anchor_preview_set_position(in_position)
 				rendering.virtual_anchor_preview_set_spring_ends([_press_down_position_3d])
+				_update_distance(SPRING_LENGTH_MSG_TEXT, _press_down_position_3d, in_position)
 			else:
 				assert(false, "Unsupported drag state %d" % _drag_state)
 				pass
@@ -185,12 +189,23 @@ func _drag_drop_bond_preview_update(in_position: Vector3) -> void:
 				AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID)
 		return
 	
+	structure_context.set_atom_selection([_drag_start_atom_id])
+	
 	assert(_target_atom_id == AtomicStructure.INVALID_ATOM_ID, "This method should only handle dragging into void")
 	rendering.atom_preview_show()
 	rendering.atom_preview_set_position(in_position).atom_preview_set_atomic_number(second_atom_atomic_nmb)
 
 	rendering.bond_preview_show()
 	rendering.bond_preview_update_all(bond_start_pos, in_position, first_atomic_number, second_atom_atomic_nmb, bond_order)
+	_update_distance(BOND_LENGTH_MSG_TEXT, bond_start_pos, in_position)
+
+
+func _update_distance(in_msg: String, in_position_one: Vector3, in_position_two: Vector3) -> void:
+	var distance: float = in_position_one.distance_to(in_position_two)
+	if is_equal_approx(distance, 0.0):
+		MolecularEditorContext.bottom_bar_update_distance(_workspace_context, "", 0)
+	else:
+		MolecularEditorContext.bottom_bar_update_distance(_workspace_context, in_msg, distance)
 
 
 func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> bool:
@@ -513,6 +528,11 @@ func _calculate_drop_distance(in_context: StructureContext, in_camera: Camera3D)
 		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse()
 		if not is_nan(distance_to_shape_surface):
 			return distance_to_shape_surface
+	
+	var is_fixed_distance := _workspace_context.create_object_parameters.get_create_distance_method() == \
+			CreateObjectParameters.CreateDistanceMethod.FIXED_DISTANCE_TO_CAMERA
+	if is_fixed_distance:
+		return _workspace_context.create_object_parameters.drop_distance
 	
 	var drag_drop_plane := Plane(in_camera.basis.z, in_context.nano_structure.atom_get_position(_drag_start_atom_id))
 	return drag_drop_plane.distance_to(in_camera.global_position)

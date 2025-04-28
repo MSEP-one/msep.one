@@ -5,6 +5,7 @@ const SHADER_CONSTANTS_INCLUDE = preload("res://editor/rendering/atomic_structur
 
 # Those consts reflects the names from the constants.gdshaderinc file
 const _CONST_NAME_BOND_HIGHLIGHT_FACTOR = "BOND_HIGHLIGHT_FACTOR"
+const _SELECTION_PREVIEW_VISUAL_LAYER = "SELECTION_PREVIEW_VISUAL_LAYER"
 
 static var shader_constant_data_cache: Dictionary = {}
 
@@ -25,6 +26,10 @@ static func calculate_atom_visual_radius(in_atomic_nmb: int, in_representation_s
 
 static func get_bond_highlight_factor() -> float:
 	return _get_shader_constants_data()[_CONST_NAME_BOND_HIGHLIGHT_FACTOR].to_float()
+
+
+static func get_selection_preview_visual_layer() -> int:
+	return _get_shader_constants_data()[_SELECTION_PREVIEW_VISUAL_LAYER].to_int()
 
 
 # Can be used to get a dictionary of constants which are defined in constants.gdshaderinc

@@ -49,8 +49,6 @@ func _ensure_atom_material_preprendered(in_multimesh_instance: MultiMeshInstance
 	in_multimesh_instance.multimesh.instance_count = 2
 	in_multimesh_instance.multimesh.visible_instance_count = 2
 	in_multimesh_instance.material_override = shader
-	shader.set_shader_parameter("camera_up_vector", camera.global_transform.basis.y)
-	shader.set_shader_parameter("camera_right_vector", camera.global_transform.basis.x)
 	shader.set_shader_parameter("gizmo_origin", gizmo.global_transform.basis.y)
 	shader.set_shader_parameter("gizmo_rotation", gizmo.global_transform.basis.x)
 	shader.set_shader_parameter("scale", 1.0)

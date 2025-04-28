@@ -1,0 +1,424 @@
+[gd_resource type="Resource" script_class="PeriodicTableColorPalette" load_steps=2 format=3 uid="uid://bydhof64slt1x"]
+
+[ext_resource type="Script" path="res://autoloads/data/color_palettes/periodic_table_color_palette.gd" id="1_fmusj"]
+
+[resource]
+script = ExtResource("1_fmusj")
+_data = {
+0: {
+"bond_color": Color(1, 0.752941, 0.796078, 1),
+"color": Color(1, 0.752941, 0.796078, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.745098, 0.745098, 0.745098, 1)
+},
+1: {
+"bond_color": Color(0.830335, 0.830335, 0.830335, 1),
+"color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.581235, 0.581235, 0.581235, 1),
+"set": true
+},
+2: {
+"set": false
+},
+3: {
+"set": false
+},
+4: {
+"set": false
+},
+5: {
+"set": false
+},
+6: {
+"bond_color": Color(0.12549, 0.12549, 0.12549, 1),
+"color": Color(0.12549, 0.12549, 0.12549, 1),
+"font_color": Color(1, 1, 1, 1),
+"noise_color": Color(0.745098, 0.745098, 0.745098, 1),
+"set": true
+},
+7: {
+"bond_color": Color(0.12549, 0.376471, 1, 1),
+"color": Color(0.12549, 0.376471, 1, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.0878431, 0.263529, 0.7, 1),
+"set": true
+},
+8: {
+"bond_color": Color(0.933333, 0.12549, 0.0627451, 1),
+"color": Color(0.933333, 0.12549, 0.0627451, 1),
+"font_color": Color(1, 1, 1, 1),
+"noise_color": Color(1, 0.188235, 0.0941177, 1),
+"set": true
+},
+9: {
+"bond_color": Color(0, 1, 0, 1),
+"color": Color(0, 1, 0, 1),
+"font_color": Color(1, 1, 1, 1),
+"noise_color": Color(0, 1, 0, 1),
+"set": true
+},
+10: {
+"set": false
+},
+11: {
+"set": false
+},
+12: {
+"set": false
+},
+13: {
+"set": false
+},
+14: {
+"set": false
+},
+15: {
+"bond_color": Color(0.501961, 0.12549, 1, 1),
+"color": Color(0.501961, 0.12549, 1, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.351373, 0.0878431, 0.7, 1),
+"set": true
+},
+16: {
+"bond_color": Color(1, 1, 0, 1),
+"color": Color(1, 1, 0, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.7, 0.7, 0, 1),
+"set": true
+},
+17: {
+"bond_color": Color(0, 0.733333, 0, 1),
+"color": Color(0, 0.733333, 0, 1),
+"font_color": Color(1, 1, 1, 1),
+"noise_color": Color(0, 1, 0, 1),
+"set": true
+},
+18: {
+"set": false
+},
+19: {
+"set": false
+},
+20: {
+"set": false
+},
+21: {
+"set": false
+},
+22: {
+"set": false
+},
+23: {
+"set": false
+},
+24: {
+"set": false
+},
+25: {
+"set": false
+},
+26: {
+"bond_color": Color(0.815686, 0.815686, 0.815686, 1),
+"color": Color(0.815686, 0.815686, 0.815686, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.57098, 0.57098, 0.57098, 1),
+"set": true
+},
+27: {
+"bond_color": Color(0.815686, 0.815686, 0.815686, 1),
+"color": Color(0.815686, 0.815686, 0.815686, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.57098, 0.57098, 0.57098, 1),
+"set": true
+},
+28: {
+"bond_color": Color(0.815686, 0.815686, 0.815686, 1),
+"color": Color(0.815686, 0.815686, 0.815686, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.57098, 0.57098, 0.57098, 1),
+"set": true
+},
+29: {
+"bond_color": Color(0.815686, 0.815686, 0.815686, 1),
+"color": Color(0.815686, 0.815686, 0.815686, 1),
+"font_color": Color(0, 0, 0, 1),
+"noise_color": Color(0.57098, 0.57098, 0.57098, 1),
+"set": true
+},
+30: {
+"set": false
+},
+31: {
+"set": false
+},
+32: {
+"set": false
+},
+33: {
+"set": false
+},
+34: {
+"set": false
+},
+35: {
+"bond_color": Color(0, 0.533333, 0, 1),
+"color": Color(0, 0.533333, 0, 1),
+"font_color": Color(1, 1, 1, 1),
+"noise_color": Color(0, 0.8, 0, 1),
+"set": true
+},
+36: {
+"set": false
+},
+37: {
+"set": false
+},
+38: {
+"set": false
+},
+39: {
+"set": false
+},
+40: {
+"set": false
+},
+41: {
+"set": false
+},
+42: {
+"set": false
+},
+43: {
+"set": false
+},
+44: {
+"set": false
+},
+45: {
+"set": false
+},
+46: {
+"set": false
+},
+47: {
+"set": false
+},
+48: {
+"set": false
+},
+49: {
+"set": false
+},
+50: {
+"set": false
+},
+51: {
+"set": false
+},
+52: {
+"set": false
+},
+53: {
+"bond_color": Color(0, 0.333333, 0, 1),
+"color": Color(0, 0.333333, 0, 1),
+"font_color": Color(1, 1, 1, 1),
+"noise_color": Color(0, 0.5, 0, 1),
+"set": true
+},
+54: {
+"set": false
+},
+55: {
+"set": false
+},
+56: {
+"set": false
+},
+57: {
+"set": false
+},
+58: {
+"set": false
+},
+59: {
+"set": false
+},
+60: {
+"set": false
+},
+61: {
+"set": false
+},
+62: {
+"set": false
+},
+63: {
+"set": false
+},
+64: {
+"set": false
+},
+65: {
+"set": false
+},
+66: {
+"set": false
+},
+67: {
+"set": false
+},
+68: {
+"set": false
+},
+69: {
+"set": false
+},
+70: {
+"set": false
+},
+71: {
+"set": false
+},
+72: {
+"set": false
+},
+73: {
+"set": false
+},
+74: {
+"set": false
+},
+75: {
+"set": false
+},
+76: {
+"set": false
+},
+77: {
+"set": false
+},
+78: {
+"set": false
+},
+79: {
+"set": false
+},
+80: {
+"set": false
+},
+81: {
+"set": false
+},
+82: {
+"set": false
+},
+83: {
+"set": false
+},
+84: {
+"set": false
+},
+85: {
+"set": false
+},
+86: {
+"set": false
+},
+87: {
+"set": false
+},
+88: {
+"set": false
+},
+89: {
+"set": false
+},
+90: {
+"set": false
+},
+91: {
+"set": false
+},
+92: {
+"set": false
+},
+93: {
+"set": false
+},
+94: {
+"set": false
+},
+95: {
+"set": false
+},
+96: {
+"set": false
+},
+97: {
+"set": false
+},
+98: {
+"set": false
+},
+99: {
+"set": false
+},
+100: {
+"set": false
+},
+101: {
+"set": false
+},
+102: {
+"set": false
+},
+103: {
+"set": false
+},
+104: {
+"set": false
+},
+105: {
+"set": false
+},
+106: {
+"set": false
+},
+107: {
+"set": false
+},
+108: {
+"set": false
+},
+109: {
+"set": false
+},
+110: {
+"set": false
+},
+111: {
+"set": false
+},
+112: {
+"set": false
+},
+113: {
+"set": false
+},
+114: {
+"set": false
+},
+115: {
+"set": false
+},
+116: {
+"set": false
+},
+117: {
+"set": false
+},
+118: {
+"set": false
+}
+}

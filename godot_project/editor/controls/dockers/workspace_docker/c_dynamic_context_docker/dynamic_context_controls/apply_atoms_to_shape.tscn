@@ -25,6 +25,7 @@ theme_type_variation = &"SubcategoryPanel"
 [node name="ElementPicker" parent="PanelContainerElement" instance=ExtResource("2_wxv1h")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 4
 
 [node name="Tree" type="Tree" parent="."]
 unique_name_in_owner = true

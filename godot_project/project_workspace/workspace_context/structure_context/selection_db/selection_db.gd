@@ -303,19 +303,24 @@ func set_atom_selection(in_atoms_to_select: PackedInt32Array) -> void:
 	assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 	_validate_atom_selection(in_atoms_to_select)
 	
+	var partial_influence_bonds_before: Dictionary = _atom_selection.get_bonds_partially_influenced_by_selection_as_dict()
+	var full_influence_bonds_before: Dictionary = _atom_selection.get_non_selected_bonds_fully_influenced_by_selection_as_dict()
 	var previous_selection: PackedInt32Array = _atom_selection.get_atoms_selection()
 	_atom_selection.clear_atom_selection()
 	_atom_selection.select_atoms(in_atoms_to_select)
-
+	
 	var deselected_atoms: PackedInt32Array = PackedInt32Array()
 	for previously_selected_atom_id in previous_selection:
 		var is_valid_deselection: bool = not _atom_selection.is_atom_selected(previously_selected_atom_id) and \
 			nano_structure.is_atom_valid(previously_selected_atom_id)
 		if is_valid_deselection:
 			deselected_atoms.append(previously_selected_atom_id)
-
+	
 	var rendering: Rendering = _structure_context.get_rendering()
-	rendering.set_partially_selected_bonds(_atom_selection.get_bonds_partially_influenced_by_selection(), nano_structure)
+	var bonds_influenced_by_selection_change: Dictionary = _atom_selection.get_bonds_partially_influenced_by_selection_as_dict()
+	bonds_influenced_by_selection_change.merge(partial_influence_bonds_before)
+	bonds_influenced_by_selection_change.merge(full_influence_bonds_before)
+	rendering.refresh_bond_influence(bonds_influenced_by_selection_change.keys(), nano_structure)
 	rendering.highlight_atoms(_atom_selection.get_atoms_selection(), nano_structure, PackedInt32Array(), PackedInt32Array())
 	if not deselected_atoms.is_empty():
 		rendering.lowlight_atoms(deselected_atoms, nano_structure, PackedInt32Array(), PackedInt32Array())
@@ -375,7 +380,7 @@ func clear_selection() -> void:
 		rendering.lowlight_atoms(deselected_atoms, nano_structure, bonds_released_from_partial_influence,
 				PackedInt32Array())
 		rendering.lowlight_bonds(bonds_selection_to_lowlight, nano_structure)
-		rendering.lowlight_bonds(bonds_released_from_full_influence, nano_structure)
+		rendering.refresh_bond_influence(bonds_released_from_full_influence, nano_structure)
 		rendering.lowlight_springs(spring_selection_to_lowlight, nano_structure)
 		
 		atoms_deselected.emit(deselected_atoms)
@@ -454,60 +459,7 @@ func get_selection_snapshot() -> Dictionary:
 
 func apply_selection_snapshot(in_snapshot: Dictionary) -> void:
 	_is_virtual_object_selected = in_snapshot.is_virtual_object_selected
-	
-	var nano_structure: NanoStructure = _structure_context.nano_structure
 	var atom_snapshot: Array = in_snapshot.atom_snapshot
 	var spring_snapshot: Array = in_snapshot.spring_snapshot
-	
-	var atoms_to_selection_status: Dictionary = {
-		# atom_id<int> : is_atom_currently_selected<bool>
-	}
-	
-	var bond_to_selection_status: Dictionary = {
-		# bond_id<int> : is_bond_currently_selected<bool>
-	}
-	var spring_to_selection_status: Dictionary = {
-		# spring_id<int> : is_spring_selected<bool>
-	}
-	
 	var _apply_result: AtomSelection.ApplySnapshotResult = _atom_selection.apply_snapshot(atom_snapshot)
-	var atoms_to_highlight: PackedInt32Array = PackedInt32Array()
-	var atoms_to_lowlight: PackedInt32Array = PackedInt32Array()
-	var new_atom_selection: PackedInt32Array = _atom_selection.get_atoms_selection()
-	for atom_id in new_atom_selection:
-		assert(nano_structure.is_atom_valid(atom_id))
-		atoms_to_selection_status[atom_id] = true
-	
-	for atom_id: int in atoms_to_selection_status:
-		if atoms_to_selection_status[atom_id]:
-			atoms_to_highlight.append(atom_id)
-		else:
-			atoms_to_lowlight.append(atom_id)
-	
-	var bonds_to_highlight: PackedInt32Array = PackedInt32Array()
-	var bonds_to_lowlight: PackedInt32Array = PackedInt32Array()
-	var new_bond_selection: PackedInt32Array = _atom_selection.get_bonds_selection()
-	for bond_id in new_bond_selection:
-		assert(nano_structure.is_bond_valid(bond_id))
-		bond_to_selection_status[bond_id] = true
-	
-	for bond_id: int in bond_to_selection_status:
-		if bond_to_selection_status[bond_id]:
-			bonds_to_highlight.append(bond_id)
-		else:
-			bonds_to_lowlight.append(bond_id)
-	
 	_spring_selection.apply_snapshot(spring_snapshot)
-	var springs_to_highlight: PackedInt32Array = PackedInt32Array()
-	var springs_to_lowlight: PackedInt32Array = PackedInt32Array()
-	var new_spring_selection: PackedInt32Array = _spring_selection.get_selection()
-	for spring_id in new_spring_selection:
-		assert(nano_structure.spring_has(spring_id))
-		spring_to_selection_status[spring_id] = true
-	
-	for spring_id: int in spring_to_selection_status:
-		var spring_selected: bool = spring_to_selection_status[spring_id]
-		if spring_selected:
-			springs_to_highlight.append(spring_id)
-		else:
-			springs_to_lowlight.append(spring_id)

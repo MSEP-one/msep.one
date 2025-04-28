@@ -35,6 +35,10 @@ func show() -> void:
 	_single_stick_multimesh.set_material_override(_capsule_material)
 	_double_stick_multimesh.set_material_override(_capsule_material)
 	_tripple_stick_multimesh.set_material_override(_capsule_material)
+	# Override members from parent class
+	_material_bond_1 = _capsule_material
+	_material_bond_2 = _capsule_material
+	_material_bond_3 = _capsule_material
 	_init_material_uniforms()
 
 
@@ -148,6 +152,18 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_material_bond_1.copy_state_from(old_order_1_material)
 	_material_bond_2.copy_state_from(old_order_2_material)
 	_material_bond_3.copy_state_from(old_order_3_material)
+
+
+func saturate() -> void:
+	_material_bond_1.saturate()
+	_material_bond_2.saturate()
+	_material_bond_3.saturate()
+
+
+func desaturate() -> void:
+	_material_bond_1.desaturate()
+	_material_bond_2.desaturate()
+	_material_bond_3.desaturate()
 
 
 func create_state_snapshot() -> Dictionary:

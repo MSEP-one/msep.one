@@ -4,7 +4,8 @@ const INSTANCE_UNIFORM_BASE_SCALE: StringName = StringName("base_scale")
 const UNIFORM_ATOM_SCALE: StringName = StringName("atom_scale")
 
 # Base atom radius on which we are not modifying stick width
-const _BASE_RADIUS_FOR_STICK_WIDTH_FACTOR = 0.045
+const _STICK_VISUAL_RADIUS = 0.045
+const _BASE_RADIUS_FOR_STICK_WIDTH_FACTOR = (1.0 / _STICK_VISUAL_RADIUS) * 2.2
 
 # After multiplying atom radius by this value we will get bond with width aproximatelly equal to atom radius,
 # this value has been found out experimentally and we might need to adjust it if we will ever modify the
@@ -48,6 +49,18 @@ func hydrogens_rendering_on() -> void:
 	_ensure_material_configured()
 
 
+func saturate() -> void:
+	_material_bond_1.saturate()
+	_material_bond_2.saturate()
+	_material_bond_3.saturate()
+
+
+func desaturate() -> void:
+	_material_bond_1.desaturate()
+	_material_bond_2.desaturate()
+	_material_bond_3.desaturate()
+
+
 func _ensure_material_configured() -> void:
 	_single_stick_multimesh.set_material_override(_material_bond_1)
 	_double_stick_multimesh.set_material_override(_material_bond_2)
@@ -82,9 +95,7 @@ static func calc_bond_width_factor(in_bond_order: int, in_smaller_atom_radius: f
 	if in_bond_order == 1:
 		return in_smaller_atom_radius * _SINGLE_BOND_RADIUS_FACTOR
 	else:
-		# when smaller_atom_radius is lower then _BASE_RADIUS_FOR_STICK_WIDTH_FACTOR the stick width will be lower,
-		# when it's bigger then radius will be bigger as well
-		var width: float = in_smaller_atom_radius / _BASE_RADIUS_FOR_STICK_WIDTH_FACTOR
+		var width: float = in_smaller_atom_radius * _BASE_RADIUS_FOR_STICK_WIDTH_FACTOR
 		return width
 
 

@@ -449,12 +449,12 @@ func _on_anchor_position_change(_in_position: Vector3, in_anchor: NanoVirtualAnc
 	ScriptUtils.call_deferred_once(_ensure_edit_queue_flushed)
 
 
-
 func _on_anchor_visibility_changed(in_is_visible: bool, in_anchor: NanoVirtualAnchor) -> void:
 	var changed_springs: PackedInt32Array = in_anchor.get_related_springs(int_guid)
 	for related_spring_id: int in changed_springs:
 		_springs[related_spring_id].anchor_is_visible = in_is_visible
 	springs_visibility_changed.emit(changed_springs)
+
 
 func _ensure_edit_queue_flushed() -> void:
 	# Workaround, there are two scenarios:
@@ -626,6 +626,15 @@ func atom_has_motor_link(in_atom_id: int) -> bool:
 	return _motor_links.has(in_atom_id)
 
 
+func atoms_count_visible_by_type(types_to_count: PackedInt32Array) -> int:
+	var count: int = 0
+	for atom_id: int in _atoms.size():
+		var atom: NanoAtomLegacy = _atoms[atom_id]
+		if atom.valid and atom.atomic_number in types_to_count and is_atom_visible(atom_id):
+			count += 1
+	return count
+
+
 func motor_link_get_motor_id(in_atom_id: int) -> int:
 	if connected_motor != 0:
 		return connected_motor
@@ -695,6 +704,14 @@ func get_aabb() -> AABB:
 			else:
 				aabb = aabb.expand(atom.position)
 	return aabb.abs()
+
+
+func init_remap_structure_ids(in_structures_map: Dictionary) -> void:
+	for spring: NanoSpring in _springs.values():
+		var old_id: int = spring.target_anchor
+		var new_structure: NanoStructure = in_structures_map.get(old_id, null)
+		assert(is_instance_valid(new_structure), "Virtual anchor has vanished during import")
+		spring.target_anchor = new_structure.int_guid
 
 
 func create_state_snapshot() -> Dictionary:

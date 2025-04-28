@@ -11,7 +11,7 @@ point_count = 4
 curve = SubResource("Curve_jww5y")
 
 [resource]
-render_priority = 0
+render_priority = -100
 shader = ExtResource("1_cnh8c")
 shader_parameter/emission_energy = 0.2
 shader_parameter/first_color = Color(1, 0, 0, 1)

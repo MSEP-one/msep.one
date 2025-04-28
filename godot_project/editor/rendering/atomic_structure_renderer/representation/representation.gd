@@ -150,7 +150,7 @@ func update(_in_delta_time: float) -> void:
 	return
 
 
-func set_partially_selected_bonds(_in_partially_selected_bonds: PackedInt32Array) -> void:
+func refresh_bond_influence(_in_partially_selected_bonds: PackedInt32Array) -> void:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return
 
@@ -185,6 +185,16 @@ func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: Stru
 
 
 func apply_theme(_in_theme: Theme3D) -> void:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return
+
+
+func saturate() -> void:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return
+
+
+func desaturate() -> void:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return
 
