@@ -66,6 +66,9 @@ static func import_file(out_workspace_context: WorkspaceContext, path: String,
 	if _is_msep_workspace(path):
 		_import_msep_workspace(out_workspace_context, path, placement, snapshot_name)
 		return
+	if _is_xyz_file(path):
+		_import_xyz_file(out_workspace_context, path, placement, create_new_group, generate_bonds, snapshot_name)
+		return
 	if _is_invalid_mol_file(path):
 		Editor_Utils.get_editor().prompt_error_msg(
 			("Cannot load file '%s'\n" % path) +
@@ -715,6 +718,10 @@ static func _is_invalid_mol_file(in_path: String) -> bool:
 	return false
 
 
+static func _is_xyz_file(in_path: String) -> bool:
+	return in_path.get_extension() == "xyz"
+
+
 static func _is_msep_workspace(in_path: String) -> bool:
 	return in_path.get_extension() == "msep1"
 
@@ -756,6 +763,49 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 	
 	# Undo redo
 	out_workspace_context.snapshot_moment(snapshot_name)
+
+
+static func _import_xyz_file(out_workspace_context: WorkspaceContext, path: String,
+		placement: ImportFileDialog.Placement, create_new_group: bool, generate_bonds: bool, snapshot_name: String) -> void:
+	out_workspace_context.start_async_work("Importing XYZ file")
+	out_workspace_context.clear_all_selection()
+	
+	# Actual loading happens in external/xyz_format_loader.gd
+	var xyz_structure: NanoMolecularStructure = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+	if not xyz_structure:
+		Editor_Utils.get_editor().prompt_error_msg("Cannot load file: " + path)
+		return
+	
+	# Add structure to current workspace
+	var aabb := xyz_structure.get_aabb()
+	var placement_xform: Transform3D = _get_placement_transform(out_workspace_context, aabb, placement)
+	var context: StructureContext = out_workspace_context.get_current_structure_context()
+	var active_structure: NanoMolecularStructure = context.nano_structure
+	if create_new_group:
+		xyz_structure.start_edit()
+		for atom_id: int in xyz_structure.get_valid_atoms():
+			var new_position: Vector3 = placement_xform * xyz_structure.atom_get_position(atom_id)
+			xyz_structure.atom_set_position(atom_id, new_position)
+		xyz_structure.end_edit()
+		xyz_structure.set_structure_name(path.get_file().get_basename().capitalize())
+		out_workspace_context.workspace.add_structure(xyz_structure, active_structure)
+		context = out_workspace_context.get_nano_structure_context(xyz_structure)
+		context.select_all()
+	else:
+		var merge_result: AtomicStructure.MergeStructureResult = active_structure.merge_structure(
+			xyz_structure, placement_xform, out_workspace_context.workspace)
+		context.select_atoms(merge_result.new_atoms)
+	
+	if generate_bonds:
+		# Only generate bonds for the selected atoms (the ones from the xyz file),
+		# not the whole structure. This is relevant if create_new_group is false.
+		await AutoBonder.generate_bonds_for_structure(context, true)
+	
+	if placement != ImportFileDialog.Placement.IN_FRONT_OF_CAMERA:
+		WorkspaceUtils.focus_camera_on_aabb(out_workspace_context, aabb)
+	
+	out_workspace_context.snapshot_moment(snapshot_name)
+	out_workspace_context.end_async_work()
 
 
 static var _import_thread: Thread = null

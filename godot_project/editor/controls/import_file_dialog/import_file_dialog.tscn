@@ -8,5 +8,5 @@ size = Vector2i(500, 500)
 ok_button_text = "Open"
 file_mode = 0
 access = 2
-filters = PackedStringArray("*.pdb;Protein Data Base", "*.sdf;Structure-Data File", "*.mol;Molfile")
+filters = PackedStringArray("*.pdb;Protein Data Base", "*.sdf;Structure-Data File", "*.mol;Molfile", "*.xyz;XYZ file")
 script = ExtResource("1_q65sr")
