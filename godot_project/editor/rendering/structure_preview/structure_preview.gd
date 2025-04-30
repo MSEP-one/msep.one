@@ -3,7 +3,7 @@ extends Node3D
 
 
 const AtomicStructureRendererScn = preload("res://editor/rendering/atomic_structure_renderer/atomic_structure_renderer.tscn")
-const WorkspaceContextScn: PackedScene = preload("res://project_workspace/workspace_context/workspace_context.tscn")
+const WorkspaceContextScn: String = "uid://xof5f45xkn2n"
 const StructureContextScn = preload("res://project_workspace/workspace_context/structure_context/structure_context.tscn")
 
 const DEFAULT_PREVIEW_TRANSPARENCY: float = 0.35
@@ -53,7 +53,7 @@ func set_structure(in_structure_context: StructureContext) -> void:
 	
 	var structure_copy: NanoStructure = NanoMolecularStructure.new()
 	structure_copy.apply_state_snapshot(in_structure_context.nano_structure.create_state_snapshot())
-	_preview_workspace_context = WorkspaceContextScn.instantiate()
+	_preview_workspace_context = load(WorkspaceContextScn).instantiate()
 	_preview_workspace = Workspace.new()
 	_preview_workspace.add_structure(structure_copy)
 	add_child(_preview_workspace_context)
