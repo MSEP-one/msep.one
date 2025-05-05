@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://0tpjcm38osex"
 path.s3tc="res://.godot/imported/chain_Material_Normal.png-16702f282f6ea1a5f2582e5559dbfe14.s3tc.ctex"
+path.etc2="res://.godot/imported/chain_Material_Normal.png-16702f282f6ea1a5f2582e5559dbfe14.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/chain_Material_Normal.png"
-dest_files=["res://.godot/imported/chain_Material_Normal.png-16702f282f6ea1a5f2582e5559dbfe14.s3tc.ctex"]
+dest_files=["res://.godot/imported/chain_Material_Normal.png-16702f282f6ea1a5f2582e5559dbfe14.s3tc.ctex", "res://.godot/imported/chain_Material_Normal.png-16702f282f6ea1a5f2582e5559dbfe14.etc2.ctex"]
 
 [params]
 

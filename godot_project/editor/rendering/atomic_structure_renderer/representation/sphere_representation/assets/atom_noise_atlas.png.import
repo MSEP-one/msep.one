@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5p7jdrmkycg1"
 path.s3tc="res://.godot/imported/atom_noise_atlas.png-ee024760392e00703c7d0b235ba88e63.s3tc.ctex"
+path.etc2="res://.godot/imported/atom_noise_atlas.png-ee024760392e00703c7d0b235ba88e63.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/atom_noise_atlas.png"
-dest_files=["res://.godot/imported/atom_noise_atlas.png-ee024760392e00703c7d0b235ba88e63.s3tc.ctex"]
+dest_files=["res://.godot/imported/atom_noise_atlas.png-ee024760392e00703c7d0b235ba88e63.s3tc.ctex", "res://.godot/imported/atom_noise_atlas.png-ee024760392e00703c7d0b235ba88e63.etc2.ctex"]
 
 [params]
 

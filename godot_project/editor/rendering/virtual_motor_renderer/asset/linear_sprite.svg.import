@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://vgwaelryj6lw"
 path.s3tc="res://.godot/imported/linear_sprite.svg-4f3b0539bfc66b44f30c6c495156b3d4.s3tc.ctex"
+path.etc2="res://.godot/imported/linear_sprite.svg-4f3b0539bfc66b44f30c6c495156b3d4.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://editor/rendering/virtual_motor_renderer/asset/linear_sprite.svg"
-dest_files=["res://.godot/imported/linear_sprite.svg-4f3b0539bfc66b44f30c6c495156b3d4.s3tc.ctex"]
+dest_files=["res://.godot/imported/linear_sprite.svg-4f3b0539bfc66b44f30c6c495156b3d4.s3tc.ctex", "res://.godot/imported/linear_sprite.svg-4f3b0539bfc66b44f30c6c495156b3d4.etc2.ctex"]
 
 [params]
 
