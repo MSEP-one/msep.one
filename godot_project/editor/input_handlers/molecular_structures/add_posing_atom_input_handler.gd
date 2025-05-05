@@ -397,6 +397,8 @@ func get_priority() -> int:
 func _on_new_atom_element_changed(in_element: int) -> void:
 	_element_selected = in_element
 	_get_rendering().atom_autopose_preview_set_atomic_number(in_element)
+	_candidates_dirty = true
+	_update_candidates_if_needed()
 
 
 func _on_new_bond_order_changed(in_order: int) -> void:
