@@ -878,7 +878,7 @@ func _create_payload(
 	var virtual_object_contexts: Array[StructureContext] = structure_contexts.filter(_is_virtual_object_context)
 	if in_selection_only:
 		structure_contexts = structure_contexts.filter(_has_selected_atoms)
-	var payload: OpenMMPayload = OpenMMPayload.new()
+	var payload: OpenMMPayload = OpenMMPayload.new(in_workspace_context.workspace)
 	payload.nudge_atoms_fix_enabled = in_nudge_atoms_fix
 	payload.lock_atoms = in_lock_atoms
 	payload.passivate_molecules = in_passivate_molecules

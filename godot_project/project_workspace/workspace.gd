@@ -100,8 +100,22 @@ static var instance_counter: int = 0
 ## Show user defined forcefields in the dropdown UI of the Simulations docker
 @export var simulation_settings_show_user_defined_extensions: bool = false
 
-@export_group("", "") # end of "Simulation Settings" group
+@export_group("Advanced Simulation Settings", "simulation_settings_advanced_") # end of "Simulation Settings" group
 
+## When disabled, the rest of the advanced simulation settings will be ignored and default value will be used
+@export var simulation_settings_advanced_enabled: bool = false
+
+## Integrator used during simulation/relaxation
+@export var simulation_settings_advanced_integrator: String = "verlet"
+
+## If false, the simulation will use infinite periodic boxes
+@export var simulation_settings_advanced_use_constrained_simulation_box: bool = false
+
+## When [code]simulation_settings_advanced_use_constrained_simulation_box[/code] is enabled, this value will be used
+## to calculate periodic box by growing the existing AABB by this percentage
+@export_range(100.0, 200.0, 1.0, "or_greater") var simulation_settings_advanced_constrained_simulation_box_size_percentage: float = 125.0
+
+@export_group("", "") # end of "Advanced Simulation Settings" group
 
 ## RandomNumberGenerator is used to create unique IDs, state and seed are stored
 ## to avoid generating the same known ids in subsequent excecutions

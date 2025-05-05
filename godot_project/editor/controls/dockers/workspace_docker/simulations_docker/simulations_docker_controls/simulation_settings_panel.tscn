@@ -1,41 +1,43 @@
-[gd_scene load_steps=4 format=3 uid="uid://68pxeirr34eg"]
+[gd_scene load_steps=6 format=3 uid="uid://68pxeirr34eg"]
 
 [ext_resource type="Script" uid="uid://c431bm81rvc83" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_settings_panel.gd" id="1_b1gw6"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_i1oqk"]
 [ext_resource type="Texture2D" uid="uid://cwjxqu17t25nb" path="res://editor/icons/icon_hamburguer_a.svg" id="3_r271m"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_y5kv6"]
 
-[node name="SimulationSettingsPanel" type="MarginContainer"]
-offset_right = 519.0
-offset_bottom = 67.0
+[sub_resource type="ButtonGroup" id="ButtonGroup_sjw3i"]
+
+[node name="SimulationSettingsPanel" type="VBoxContainer"]
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 514.0
+offset_bottom = 396.0
+theme_override_constants/separation = 10
 script = ExtResource("1_b1gw6")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="GridContainer" type="GridContainer" parent="VBoxContainer"]
+[node name="GridContainer" type="GridContainer" parent="."]
 layout_mode = 2
 columns = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/GridContainer"]
+[node name="Label" type="Label" parent="GridContainer"]
 layout_mode = 2
 text = "Force Field"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/GridContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 
-[node name="ForceFieldOptionButton" type="OptionButton" parent="VBoxContainer/GridContainer/HBoxContainer"]
+[node name="ForceFieldOptionButton" type="OptionButton" parent="GridContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-item_count = 1
 selected = 0
+item_count = 1
 popup/item_0/text = "OpenFF 2.1.0"
 popup/item_0/id = 0
 
-[node name="AdvancedMenuButton" type="MenuButton" parent="VBoxContainer/GridContainer/HBoxContainer"]
+[node name="AdvancedMenuButton" type="MenuButton" parent="GridContainer/HBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(27.31, 0)
 layout_mode = 2
@@ -46,26 +48,26 @@ popup/item_0/text = "Show user defined files"
 popup/item_0/checkable = 1
 popup/item_0/id = 0
 
-[node name="Label2" type="Label" parent="VBoxContainer/GridContainer"]
+[node name="Label2" type="Label" parent="GridContainer"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 text = "Additional Force Field"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/GridContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="GridContainer"]
 layout_mode = 2
 
-[node name="ExtensionOptionButton" type="OptionButton" parent="VBoxContainer/GridContainer/HBoxContainer2"]
+[node name="ExtensionOptionButton" type="OptionButton" parent="GridContainer/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-item_count = 2
 selected = 0
+item_count = 2
 popup/item_0/text = "Disable Extensions"
 popup/item_0/id = 0
 popup/item_1/text = "MSEP.one Extensions 0.0.1"
 popup/item_1/id = 1
 
-[node name="ExtensionAdvancedMenuButton" type="MenuButton" parent="VBoxContainer/GridContainer/HBoxContainer2"]
+[node name="ExtensionAdvancedMenuButton" type="MenuButton" parent="GridContainer/HBoxContainer2"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(27.31, 0)
 layout_mode = 2
@@ -76,27 +78,27 @@ popup/item_0/text = "Show user defined files"
 popup/item_0/checkable = 1
 popup/item_0/id = 0
 
-[node name="Label3" type="Label" parent="VBoxContainer/GridContainer"]
+[node name="Label3" type="Label" parent="GridContainer"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 text = "Molecular Simulation Toolkit "
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/GridContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="GridContainer"]
 layout_mode = 2
 
-[node name="MolecularSimulationToolkitOptionButton" type="OptionButton" parent="VBoxContainer/GridContainer/HBoxContainer3"]
+[node name="MolecularSimulationToolkitOptionButton" type="OptionButton" parent="GridContainer/HBoxContainer3"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-item_count = 2
 selected = 0
+item_count = 2
 popup/item_0/text = "OpenMM"
 popup/item_0/id = 0
 popup/item_1/text = "LAMMPS (under development)"
 popup/item_1/id = 1
 popup/item_1/disabled = true
 
-[node name="MolecularSimulationToolkitAdvancedMenuButton" type="MenuButton" parent="VBoxContainer/GridContainer/HBoxContainer3"]
+[node name="MolecularSimulationToolkitAdvancedMenuButton" type="MenuButton" parent="GridContainer/HBoxContainer3"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(27.31, 0)
 layout_mode = 2
@@ -107,16 +109,95 @@ popup/item_0/text = "Show user defined files"
 popup/item_0/checkable = 1
 popup/item_0/id = 0
 
-[node name="ExtensionsInfoLabel" parent="VBoxContainer" instance=ExtResource("2_i1oqk")]
+[node name="ExtensionsInfoLabel" parent="." instance=ExtResource("2_i1oqk")]
 unique_name_in_owner = true
 layout_mode = 2
 text = "[center][pulse start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/pulse] MSEP.one Extensions includes unvalidated estimated values[/center]"
 message = &"MSEP.one Extensions includes unvalidated estimated values"
 effect = "pulse"
 
-[node name="UserForcefieldInfoLabel" parent="VBoxContainer" instance=ExtResource("2_i1oqk")]
+[node name="UserForcefieldInfoLabel" parent="." instance=ExtResource("2_i1oqk")]
 unique_name_in_owner = true
 layout_mode = 2
 text = "[center][pulse start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/pulse] Force Field files defined by user are in use. Use with care under your own risk[/center]"
 message = &"Force Field files defined by user are in use. Use with care under your own risk"
+effect = "pulse"
+
+[node name="AdvancedOptionsCheckBox" type="CheckBox" parent="."]
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"HeaderSmallCheckBox"
+text = "Advanced Simulation Options"
+flat = true
+
+[node name="AdvancedOptionsPanel" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AdvancedOptionsPanel"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="AdvancedOptionsPanel/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="AdvancedOptionsPanel/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Integrator"
+
+[node name="IntegratorOptionButton" type="OptionButton" parent="AdvancedOptionsPanel/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "Verlet"
+popup/item_0/id = 0
+popup/item_1/text = "Langevin"
+popup/item_1/id = 1
+
+[node name="Label2" type="Label" parent="AdvancedOptionsPanel/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Simulation Size"
+
+[node name="PanelContainer" type="PanelContainer" parent="AdvancedOptionsPanel/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AdvancedOptionsPanel/VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="SimulationBoxUnconstrainedButton" type="CheckBox" parent="AdvancedOptionsPanel/VBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+button_group = SubResource("ButtonGroup_sjw3i")
+text = "Unconstrained"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="AdvancedOptionsPanel/VBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SimulationBoxConstrainedButton" type="CheckBox" parent="AdvancedOptionsPanel/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_group = SubResource("ButtonGroup_sjw3i")
+text = "Current simulation volume *"
+
+[node name="SimulationBoxSizeSlider" parent="AdvancedOptionsPanel/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer" instance=ExtResource("4_y5kv6")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 1
+min_value = 100.0
+max_value = 200.0
+value = 125.0
+allow_greater = true
+editable = false
+suffix = "%"
+metadata/_custom_type_script = "uid://ci2a678xscx2c"
+
+[node name="AdvancedSettingsInfoLabel" parent="AdvancedOptionsPanel/VBoxContainer" instance=ExtResource("2_i1oqk")]
+layout_mode = 2
+text = "[center][pulse start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/pulse] Settings may affect simulation performance.[/center]"
+message = &"Settings may affect simulation performance."
 effect = "pulse"

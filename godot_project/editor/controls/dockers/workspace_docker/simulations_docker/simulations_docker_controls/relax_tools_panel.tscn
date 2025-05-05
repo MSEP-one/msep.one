@@ -15,7 +15,7 @@ script = ExtResource("1_afauy")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
-theme_type_variation = &"HeaderMedium"
+theme_type_variation = &"HeaderSmall"
 text = "Relaxation Parameters"
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
