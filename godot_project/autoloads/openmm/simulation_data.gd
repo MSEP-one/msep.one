@@ -27,6 +27,15 @@ var frames: Dictionary = {
 
 func _init(in_parameters: SimulationParameters) -> void:
 	parameters = in_parameters
+	_track_start_promise_error()
+
+
+func _track_start_promise_error() -> void:
+	await start_promise.wait_for_fulfill()
+	if start_promise.has_error() and _status == Status.REQUESTING:
+		_has_error = true
+		_status = Status.RUNNING
+
 
 func push_frame(in_time: float, in_positions: PackedVector3Array) -> void:
 	if _has_error:
