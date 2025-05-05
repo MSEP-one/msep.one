@@ -862,6 +862,8 @@ func _handle_request_error(
 
 func _dispose_thread_when_done(out_promise: Promise, out_thread: Thread) -> void:
 	await out_promise.wait_for_fulfill()
+	while out_thread.is_alive():
+		await get_tree().process_frame
 	out_thread.wait_to_finish()
 	_threads.erase(out_thread)
 
