@@ -174,7 +174,7 @@ func _configure_tree_item(in_item: TreeItem, in_editor_widget: InspectorControl)
 	var min_size: Vector2 = in_editor_widget.get_combined_minimum_size()
 	in_item.custom_minimum_height = int(min_size.y)
 	_custom_editors[in_item] = in_editor_widget
-	in_item.set_custom_draw(1, self, &"_fit_editor_in_cell")
+	in_item.set_custom_draw_callback(1, _fit_editor_in_cell)
 	in_item.set_editable(1, in_editor_widget.is_editable())
 
 
@@ -186,7 +186,7 @@ func _configure_trim_label(in_item: TreeItem, in_label: TrimLabel) -> void:
 	var min_size: Vector2 = in_label.get_combined_minimum_size()
 	in_item.custom_minimum_height = int(min_size.y)
 	_custom_editors[in_item] = in_label
-	in_item.set_custom_draw(1, self, &"_fit_editor_in_cell")
+	in_item.set_custom_draw_callback(1, _fit_editor_in_cell)
 
 func _on_tree_item_collapsed(_in_item: TreeItem) -> void:
 	_hide_all_editors()
