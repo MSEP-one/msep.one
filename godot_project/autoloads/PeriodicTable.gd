@@ -13,6 +13,15 @@ enum ColorSchema {
 	PUBCHEM,
 }
 
+static var PALETTES: Dictionary = {
+	ColorSchema.MSEP: load("res://autoloads/data/color_palettes/MSEP.tres"),
+	ColorSchema.COREY: load("res://autoloads/data/color_palettes/Corey.tres"),
+	ColorSchema.KOLTUN: load("res://autoloads/data/color_palettes/Koltun.tres"),
+	ColorSchema.JMOL: load("res://autoloads/data/color_palettes/JMol.tres"),
+	ColorSchema.RASMOL: load("res://autoloads/data/color_palettes/Rasmol.tres"),
+	ColorSchema.PUBCHEM: load("res://autoloads/data/color_palettes/PubChem.tres"),
+}
+
 const INVALID_ATOMIC_NUMBER = -1
 const NON_METALS = [1, 6, 7, 8, 9, 14, 15, 16, 17]
 #				   [H, C, N, O, F, Si,  P,  S, Cl]
@@ -46,17 +55,10 @@ func get_current_color_schema() -> ColorSchema:
 	return _current_color_schema
 
 
+
 func load_schema(in_which: ColorSchema) -> void:
 	if _current_color_schema == in_which:
 		return
-	const PALETTES: Dictionary = {
-		ColorSchema.MSEP: preload("res://autoloads/data/color_palettes/MSEP.tres"),
-		ColorSchema.COREY: preload("res://autoloads/data/color_palettes/Corey.tres"),
-		ColorSchema.KOLTUN: preload("res://autoloads/data/color_palettes/Koltun.tres"),
-		ColorSchema.JMOL: preload("res://autoloads/data/color_palettes/JMol.tres"),
-		ColorSchema.RASMOL: preload("res://autoloads/data/color_palettes/Rasmol.tres"),
-		ColorSchema.PUBCHEM: preload("res://autoloads/data/color_palettes/PubChem.tres"),
-	}
 	var palette := PALETTES[in_which] as PeriodicTableColorPalette 
 	for i in range(1, MAX_ATOMIC_NUMBER+1):
 		var element_data: ElementData = _elements[i]
