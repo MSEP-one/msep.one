@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cu5nnpewjlepr"
 path.s3tc="res://.godot/imported/inner_rim.png-56ef5af6564aa1efb18dc647fcd8a911.s3tc.ctex"
+path.etc2="res://.godot/imported/inner_rim.png-56ef5af6564aa1efb18dc647fcd8a911.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/inner_rim.png"
-dest_files=["res://.godot/imported/inner_rim.png-56ef5af6564aa1efb18dc647fcd8a911.s3tc.ctex"]
+dest_files=["res://.godot/imported/inner_rim.png-56ef5af6564aa1efb18dc647fcd8a911.s3tc.ctex", "res://.godot/imported/inner_rim.png-56ef5af6564aa1efb18dc647fcd8a911.etc2.ctex"]
 
 [params]
 

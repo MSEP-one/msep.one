@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6orqvlvykjnq"
 path.s3tc="res://.godot/imported/MotorLink_dashed-line.png-01e1b7ee265af0e5452eadce894d0c11.s3tc.ctex"
+path.etc2="res://.godot/imported/MotorLink_dashed-line.png-01e1b7ee265af0e5452eadce894d0c11.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://editor/rendering/virtual_motor_renderer/motor_link_renderer/assets/MotorLink_dashed-line.png"
-dest_files=["res://.godot/imported/MotorLink_dashed-line.png-01e1b7ee265af0e5452eadce894d0c11.s3tc.ctex"]
+dest_files=["res://.godot/imported/MotorLink_dashed-line.png-01e1b7ee265af0e5452eadce894d0c11.s3tc.ctex", "res://.godot/imported/MotorLink_dashed-line.png-01e1b7ee265af0e5452eadce894d0c11.etc2.ctex"]
 
 [params]
 

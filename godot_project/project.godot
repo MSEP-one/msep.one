@@ -346,6 +346,7 @@ limits/debugger/max_chars_per_second.editor=3000000
 
 [rendering]
 
+textures/vram_compression/import_etc2_astc=true
 textures/vram_compression/import_s3tc_bptc.macos=true
 
 [shader_globals]

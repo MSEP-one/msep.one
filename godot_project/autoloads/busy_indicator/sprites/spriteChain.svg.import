@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bksfdiemg1kia"
 path.s3tc="res://.godot/imported/spriteChain.svg-1f7d7ab9a98568ba2d3559043fe76487.s3tc.ctex"
+path.etc2="res://.godot/imported/spriteChain.svg-1f7d7ab9a98568ba2d3559043fe76487.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://autoloads/busy_indicator/sprites/spriteChain.svg"
-dest_files=["res://.godot/imported/spriteChain.svg-1f7d7ab9a98568ba2d3559043fe76487.s3tc.ctex"]
+dest_files=["res://.godot/imported/spriteChain.svg-1f7d7ab9a98568ba2d3559043fe76487.s3tc.ctex", "res://.godot/imported/spriteChain.svg-1f7d7ab9a98568ba2d3559043fe76487.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://4j7hqk2o5uuu"
 path.s3tc="res://.godot/imported/chain_chain.png-75c37c4f2837d5d4a2426f47c665da1a.s3tc.ctex"
+path.etc2="res://.godot/imported/chain_chain.png-75c37c4f2837d5d4a2426f47c665da1a.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/chain_chain.png"
-dest_files=["res://.godot/imported/chain_chain.png-75c37c4f2837d5d4a2426f47c665da1a.s3tc.ctex"]
+dest_files=["res://.godot/imported/chain_chain.png-75c37c4f2837d5d4a2426f47c665da1a.s3tc.ctex", "res://.godot/imported/chain_chain.png-75c37c4f2837d5d4a2426f47c665da1a.etc2.ctex"]
 
 [params]
 
