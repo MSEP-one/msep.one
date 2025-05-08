@@ -1,8 +1,8 @@
 extends WorldEnvironment
 
 
-const DarkBackgroundSky = preload("res://editor/rendering/resources/background_sky.tres")
-const LightBackgroundSky = preload("res://editor/rendering/resources/sky.tres")
+static var DarkBackgroundSky: Sky = load("res://editor/rendering/resources/background_sky.tres")
+static var LightBackgroundSky: Sky = load("res://editor/rendering/resources/sky.tres")
 
 
 func _ready() -> void:

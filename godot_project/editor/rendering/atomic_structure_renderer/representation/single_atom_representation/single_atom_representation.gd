@@ -2,7 +2,7 @@ class_name SingleAtomRepresentation extends Representation
 
 const BASE_SCALE = 0.022;
 
-const SingleAtomMaterial: ShaderMaterial = preload("res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/single_atom_representation_material.tres")
+static var SingleAtomMaterial: ShaderMaterial = load("res://editor/rendering/atomic_structure_renderer/representation/single_atom_representation/assets/single_atom_representation_material.tres")
 
 
 var _structure_id: int
