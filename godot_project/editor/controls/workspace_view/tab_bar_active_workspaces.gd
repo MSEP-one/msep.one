@@ -24,6 +24,7 @@ func _ready() -> void:
 		tab_bar_active_workspaces.set_tab_hidden(tab_index, active_workspaces.is_tab_hidden(tab_index))
 		tab_bar_active_workspaces.set_tab_disabled(tab_index, active_workspaces.is_tab_disabled(tab_index))
 	tab_bar_active_workspaces.current_tab = active_workspaces.current_tab
+	tab_bar_active_workspaces.tab_close_display_policy = active_workspaces.tab_bar.tab_close_display_policy
 	
 	active_workspaces.tab_changed.connect(_on_active_workspaces_tab_changed, CONNECT_DEFERRED)
 	active_workspaces.tab_title_updated.connect(_on_active_workspaces_tab_title_updated, CONNECT_DEFERRED)
