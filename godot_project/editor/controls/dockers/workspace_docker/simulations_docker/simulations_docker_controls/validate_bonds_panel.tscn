@@ -14,7 +14,7 @@ script = ExtResource("1_aw3s3")
 
 [node name="ParametersLabel" type="Label" parent="."]
 layout_mode = 2
-theme_type_variation = &"HeaderMedium"
+theme_type_variation = &"HeaderSmall"
 text = "Validation Parameters"
 
 [node name="PanelContainer" type="PanelContainer" parent="."]

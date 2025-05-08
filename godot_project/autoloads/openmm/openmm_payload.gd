@@ -1,6 +1,6 @@
 class_name OpenMMPayload extends RefCounted
 
-const HEADER_SIZE: int         = 20 # in bytes
+const HEADER_SIZE_WITHOUT_INTEGRATOR: int         = 44 # in bytes
 const ATOM_CHUNK_SIZE: int     = 4  # in bytes
 const MOLECULE_CHUNK_SIZE: int = 12  # in bytes
 const MOLECULE_ID_SIZE: int    = 4
@@ -51,6 +51,18 @@ var passivated_atoms_count: int = 0
 var other_objects_count: int = 0
 var nudge_atoms_fix_enabled: bool = false
 var spring_counter: int = 0
+var calculated_aabb := AABB()
+
+var integrator: String = "verlet"
+var use_constrained_simulation_box: bool = false
+var constrained_simulation_box_size_percentage: float = 125.0
+
+
+func _init(in_workspace: Workspace) -> void:
+	if in_workspace.simulation_settings_advanced_enabled:
+		integrator = in_workspace.simulation_settings_advanced_integrator
+		use_constrained_simulation_box = in_workspace.simulation_settings_advanced_use_constrained_simulation_box
+		constrained_simulation_box_size_percentage = in_workspace.simulation_settings_advanced_constrained_simulation_box_size_percentage
 
 
 func add_structure(structure: NanoStructure, atom_ids: PackedInt32Array, bond_ids: PackedInt32Array) -> void:
@@ -101,6 +113,7 @@ func add_structure(structure: NanoStructure, atom_ids: PackedInt32Array, bond_id
 		# chunk[8-15]:  position Y
 		# chunk[16-23]: position Z
 		var atom_pos: Vector3 = structure.atom_get_position(atom_id)
+		_expand_aabb_to(atom_pos)
 		raw_initial_positions.push_back(atom_pos)
 		if nudge_atoms_fix_enabled and not is_atom_locked:
 			atom_pos += _create_random_nudge()
@@ -172,6 +185,9 @@ func add_shape(in_shape: NanoShape) -> void:
 	shape_dict[&"molecule_id"] = in_shape.int_parent_guid # shape is attached to this molecule, and could be moved by a motor
 	shape_dict[&"transform"] = transform
 	other_objects_data[in_shape.int_guid] = JSON.stringify(shape_dict, "\t")
+	var shape_aabb: AABB = in_shape.get_aabb()
+	_expand_aabb_to(shape_aabb.position)
+	_expand_aabb_to(shape_aabb.end)
 
 
 func add_motor(in_motor: NanoVirtualMotor) -> void:
@@ -193,6 +209,7 @@ func add_motor(in_motor: NanoVirtualMotor) -> void:
 		var value: Variant = in_motor.get_parameters().get(prop_info.name)
 		motor_dict.parameters[prop_info.name] = value
 	other_objects_data[in_motor.int_guid] = JSON.stringify(motor_dict, "\t")
+	_expand_aabb_to(position)
 
 
 func add_springs(in_structure_context: StructureContext, in_springs: PackedInt32Array) -> void:
@@ -239,11 +256,19 @@ func _add_anchor(in_anchor: NanoVirtualAnchor) -> void:
 	anchor_dict[&"anchor_id"] = in_anchor.int_guid
 	anchor_dict[&"position"] = [position.x, position.y, position.z]
 	other_objects_data[in_anchor.int_guid] = JSON.stringify(anchor_dict, "\t")
+	_expand_aabb_to(position)
+
+
+func _expand_aabb_to(in_to_point: Vector3) -> void:
+	if calculated_aabb == AABB():
+		calculated_aabb.position = in_to_point
+	else:
+		calculated_aabb = calculated_aabb.expand(in_to_point)
 
 
 func _get_header() -> PackedByteArray:
 	var bytes := PackedByteArray()
-	bytes.resize(HEADER_SIZE)
+	bytes.resize(HEADER_SIZE_WITHOUT_INTEGRATOR)
 	
 	# chunk[0-3]: Molecules count
 	bytes.encode_u32(0, molecules_ids.size())
@@ -255,6 +280,22 @@ func _get_header() -> PackedByteArray:
 	bytes.encode_u32(12, passivated_atoms_count)
 	# chunk[16-19]: Shapes+Motors count
 	bytes.encode_u32(16, other_objects_count)
+	# chunk[20-44]: Simulation box size
+	var simulation_box_size := Vector3(-1, -1, -1)
+	if use_constrained_simulation_box:
+		simulation_box_size = calculated_aabb.size
+		simulation_box_size = simulation_box_size * constrained_simulation_box_size_percentage / 100.0
+	bytes.encode_double(20, simulation_box_size.x)
+	bytes.encode_double(28, simulation_box_size.y)
+	bytes.encode_double(36, simulation_box_size.z)
+	# chunk[45-...] integrator name
+	var integrator_bytes: PackedByteArray = integrator.to_utf8_buffer()
+	var buffer_size: int = integrator_bytes.size()
+	var integrator_length_bytes := PackedByteArray()
+	integrator_length_bytes.resize(2)
+	integrator_length_bytes.encode_u16(0, buffer_size)
+	bytes.append_array(integrator_length_bytes)
+	bytes.append_array(integrator_bytes)
 	return bytes
 
 

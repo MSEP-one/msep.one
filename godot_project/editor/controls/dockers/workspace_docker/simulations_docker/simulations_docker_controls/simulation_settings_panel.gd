@@ -10,6 +10,13 @@ var _extensions_info_label: InfoLabel
 var _user_forcefield_info_label: InfoLabel
 var _molecular_simulation_toolkit_option_button: OptionButton
 var _molecular_simulation_toolkit_advanced_menu_button: MenuButton
+# Advanced Simulation Settings
+var _advanced_options_checkbox: CheckBox
+var _advanced_options_panel: PanelContainer
+var _integrator_option_button: OptionButton
+var _simulation_box_unconstrained_button: CheckBox
+var _simulation_box_constrained_button: CheckBox
+var _simulation_box_size_slider: SpinBoxSlider
 
 
 var _workspace_context: WorkspaceContext
@@ -34,6 +41,17 @@ func _notification(what: int) -> void:
 		_extension_advanced_menu_button.get_popup().id_pressed.connect(_on_extension_advanced_menu_button_id_pressed)
 		_force_field_option_button.item_selected.connect(_on_force_field_option_button_item_selected)
 		_extension_option_button.item_selected.connect(_on_extension_option_button_item_selected)
+		# Advanced Simulation Settings
+		_advanced_options_checkbox = $AdvancedOptionsCheckBox as CheckBox
+		_advanced_options_panel = $AdvancedOptionsPanel as PanelContainer
+		_integrator_option_button = %IntegratorOptionButton as OptionButton
+		_simulation_box_unconstrained_button = %SimulationBoxUnconstrainedButton as CheckBox
+		_simulation_box_constrained_button = %SimulationBoxConstrainedButton as CheckBox
+		_simulation_box_size_slider = %SimulationBoxSizeSlider as SpinBoxSlider
+		_advanced_options_checkbox.toggled.connect(_on_advanced_menu_button_toggled)
+		_integrator_option_button.item_selected.connect(_on_integrator_option_button_item_selected)
+		_simulation_box_unconstrained_button.toggled.connect(_on_simulation_box_unconstrained_button_toggled)
+		_simulation_box_size_slider.value_confirmed.connect(_on_simulation_box_size_slider_value_confirmed)
 
 
 func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
@@ -41,6 +59,7 @@ func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
 		_workspace_context = in_workspace_context
 		_workspace_context.simulation_started.connect(_on_workspace_context_simulation_started)
 		_workspace_context.simulation_finished.connect(_on_workspace_context_simulation_finished)
+		
 		var forcefield_popup: PopupMenu = _advanced_menu_button.get_popup()
 		forcefield_popup.set_item_checked(forcefield_popup.get_item_index(_MENU_ITEM_SHOW_USER_FILES),
 					_workspace_context.workspace.simulation_settings_show_user_defined_forcefields)
@@ -49,6 +68,22 @@ func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
 		extension_popup.set_item_checked(extension_popup.get_item_index(_MENU_ITEM_SHOW_USER_FILES),
 					_workspace_context.workspace.simulation_settings_show_user_defined_extensions)
 		ScriptUtils.call_deferred_once(_update_extensions_list)
+		# Advanced Simulation Settings
+		_advanced_options_checkbox.set_pressed_no_signal(_workspace_context.workspace.simulation_settings_advanced_enabled)
+		var integrator: String = _workspace_context.workspace.simulation_settings_advanced_integrator
+		for index: int in _integrator_option_button.item_count:
+			if _integrator_option_button.get_item_text(index).to_lower() == integrator:
+				_integrator_option_button.set_block_signals(true)
+				_integrator_option_button.select(index)
+				_integrator_option_button.set_block_signals(false)
+				break
+		var use_constrained_simulation_box: bool = _workspace_context.workspace.simulation_settings_advanced_use_constrained_simulation_box
+		_simulation_box_unconstrained_button.set_pressed_no_signal(not use_constrained_simulation_box)
+		_simulation_box_constrained_button.set_pressed_no_signal(use_constrained_simulation_box)
+		var box_size_percentage: float = _workspace_context.workspace.simulation_settings_advanced_constrained_simulation_box_size_percentage
+		_simulation_box_size_slider.set_value_no_signal(box_size_percentage)
+		_simulation_box_size_slider.editable = use_constrained_simulation_box
+		_update_advanced_settings_ui()
 
 
 func _on_advanced_menu_button_id_pressed(in_item_id: int) -> void:
@@ -94,6 +129,50 @@ func _on_extension_option_button_item_selected(_in_index: int) -> void:
 	_update_user_forcefield_info_label()
 
 
+func _on_advanced_menu_button_toggled(in_pressed: bool) -> void:
+	_workspace_context.workspace.simulation_settings_advanced_enabled = in_pressed
+	_update_advanced_settings_ui()
+
+
+func _update_advanced_settings_ui() -> void:
+	if _workspace_context == null or _workspace_context.workspace == null:
+		return
+	var is_expanded: bool = _workspace_context.workspace.simulation_settings_advanced_enabled
+	_advanced_options_panel.visible = is_expanded
+	if is_expanded:
+		await get_tree().process_frame
+		_ensure_scroll_visible()
+
+
+func _ensure_scroll_visible() -> void:
+	var parent: Control = get_parent_control()
+	while parent != null and not parent is ScrollContainer:
+		parent = parent.get_parent_control()
+	if parent is ScrollContainer:
+		parent.ensure_control_visible(_advanced_options_panel)
+
+
+func _on_integrator_option_button_item_selected(_in_index: int) -> void:
+	if _workspace_context == null or _workspace_context.workspace == null:
+		return
+	var selected_integrator: String = _integrator_option_button.text.to_lower()
+	_workspace_context.workspace.simulation_settings_advanced_integrator = selected_integrator
+
+
+func _on_simulation_box_unconstrained_button_toggled(_in_pressed: bool) -> void:
+	if _workspace_context == null or _workspace_context.workspace == null:
+		return
+	var use_constrained_simulation_box: bool = _simulation_box_constrained_button.button_pressed
+	_workspace_context.workspace.simulation_settings_advanced_use_constrained_simulation_box = use_constrained_simulation_box
+	_simulation_box_size_slider.editable = use_constrained_simulation_box
+
+
+func _on_simulation_box_size_slider_value_confirmed(in_value: float) -> void:
+	if _workspace_context == null or _workspace_context.workspace == null:
+		return
+	_workspace_context.workspace.simulation_settings_advanced_constrained_simulation_box_size_percentage = in_value
+
+
 func _on_workspace_context_simulation_started() -> void:
 	_force_field_option_button.disabled = true
 	_advanced_menu_button.disabled = true
@@ -101,6 +180,12 @@ func _on_workspace_context_simulation_started() -> void:
 	_extension_advanced_menu_button.disabled = true
 	_molecular_simulation_toolkit_option_button.disabled = true
 	_molecular_simulation_toolkit_advanced_menu_button.disabled = true
+	# Advanced Simulation Settings
+	_advanced_options_checkbox.disabled = true
+	_integrator_option_button.disabled = true
+	_simulation_box_unconstrained_button.disabled = true
+	_simulation_box_constrained_button.disabled = true
+	_simulation_box_size_slider.editable = false
 
 
 func _on_workspace_context_simulation_finished() -> void:
@@ -110,6 +195,12 @@ func _on_workspace_context_simulation_finished() -> void:
 	_extension_advanced_menu_button.disabled = false
 	_molecular_simulation_toolkit_option_button.disabled = false
 	_molecular_simulation_toolkit_advanced_menu_button.disabled = false
+	# Advanced Simulation Settings
+	_advanced_options_checkbox.disabled = false
+	_integrator_option_button.disabled = false
+	_simulation_box_unconstrained_button.disabled = false
+	_simulation_box_constrained_button.disabled = false
+	_simulation_box_size_slider.editable = _simulation_box_constrained_button.button_pressed
 
 
 func _update_forcefields_list() -> void:

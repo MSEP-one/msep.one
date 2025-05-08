@@ -125,6 +125,15 @@ class PayloadChunkReader:
 		self.seek += 8
 		return decoded_float
 
+	def read_utf8_string(self) -> str:
+		pack: bytes = self.chunk[self.seek:self.seek+2]
+		decoded_length = struct.unpack('<h', pack)[0]
+		self.seek += 2
+		pack = self.chunk[self.seek:self.seek+decoded_length]
+		decoded_string: str = pack.decode('utf-8')
+		self.seek += decoded_length
+		return decoded_string
+
 class PayloadSimulationParameters(PayloadChunkReader):
 	def __init__(self, chunk):
 		super().__init__(chunk)
@@ -142,6 +151,8 @@ class PayloadHeaderReader(PayloadChunkReader):
 		self.bonds_count: int = self.read_uint32()
 		self.passivated_atoms_count: int = self.read_uint32()
 		self.virtual_objects_count: int = self.read_uint32()
+		self.periodic_box_size: float[3] = [self.read_float(), self.read_float(), self.read_float()]
+		self.integrator: str = self.read_utf8_string()
 		assert(self.passivated_atoms_count <= self.atoms_count, "There are more passivated atoms than total atoms. That doesn't sound about right")
 		assert(self.seek == len(self.chunk))
 
@@ -820,7 +831,7 @@ def create_forcefield_for_topology(topology_payload: PayloadTopologyReader) -> F
 	return forcefield
 
 
-def minimize_energy(topology_payload: PayloadTopologyReader, state_payload: PayloadStateReader, temperature_in_kelvins: float, max_iterations: int = 0) -> list[Vec3]:
+def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopologyReader, state_payload: PayloadStateReader, temperature_in_kelvins: float, max_iterations: int = 0) -> list[Vec3]:
 	molecules: list[Molecule] = topology_payload.to_openff_molecules()
 	topology = Topology.from_molecules(molecules)
 	forcefield = create_forcefield_for_topology(topology_payload)
@@ -832,6 +843,11 @@ def minimize_energy(topology_payload: PayloadTopologyReader, state_payload: Payl
 	for i in range(len(state_payload.positions)):
 		payload_atom_id = topology_payload.openff_atom_to_payload[i]
 		openff_initial_positions.append(state_payload.positions[payload_atom_id])
+	if (not header is None) and header.periodic_box_size[0] > 0 and header.periodic_box_size[1] > 0 and header.periodic_box_size[2] > 0:
+		openmm_system.setDefaultPeriodicBoxVectors(
+			Vec3(header.periodic_box_size[0], 0, 0),
+			Vec3(0, header.periodic_box_size[1], 0),
+			Vec3(0, 0, header.periodic_box_size[2]))
 	# Anchors
 	bond_force: HarmonicBondForce = None
 	nonbonded_force: NonbondedForce = None
@@ -873,7 +889,11 @@ def minimize_energy(topology_payload: PayloadTopologyReader, state_payload: Payl
 		if atom.is_passivation_atom:
 			openff_atom_id = topology_payload.payload_to_openff_atom[i]
 			nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
-	integrator = LangevinMiddleIntegrator(temperature_in_kelvins*kelvin, 1/picosecond, 0.004*picoseconds)
+	integrator: Integrator = None
+	if (not header is None) and header.integrator == "langevin":
+		integrator = LangevinMiddleIntegrator(temperature_in_kelvins*kelvin, 1/picosecond, 0.004*picoseconds)
+	else:
+		integrator = VerletIntegrator(0.004*picoseconds)
 	simulation = Simulation(openmm_topology, openmm_system, integrator)
 	simulation.context.setPositions(openff_initial_positions)
 	tolerance = Quantity(value=10.000000000000004, unit=kilojoule/mole)
@@ -917,7 +937,13 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 		for i in range(len(state_payload.positions)):
 			payload_atom_id = topology_payload.openff_atom_to_payload[i]
 			openff_initial_positions.append(state_payload.positions[payload_atom_id])
-		openmm_system.setDefaultPeriodicBoxVectors(Vec3(float("inf"), 0, 0), Vec3(0, float("inf"), 0), Vec3(0, 0, float("inf")))
+		if header.periodic_box_size[0] < 0 or header.periodic_box_size[1] < 0 or header.periodic_box_size[2] < 0:
+			openmm_system.setDefaultPeriodicBoxVectors(Vec3(float("inf"), 0, 0), Vec3(0, float("inf"), 0), Vec3(0, 0, float("inf")))
+		else:
+			openmm_system.setDefaultPeriodicBoxVectors(
+				Vec3(header.periodic_box_size[0], 0, 0),
+				Vec3(0, header.periodic_box_size[1], 0),
+				Vec3(0, 0, header.periodic_box_size[2]))
 		# Anchors
 		bond_force: HarmonicBondForce = None
 		nonbonded_force: NonbondedForce = None
@@ -992,11 +1018,16 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 			Platform.getPlatformByName("Reference"), # Reference is a CPU fallback that should always work
 		]
 		simulation: Simulation = None
+		integrator: Integrator = None
 		for platform_candidate in platforms_to_test:
+			if header.integrator == "langevin":
+				integrator = LangevinIntegrator(temperature, friction, time_step)
+			else:
+				integrator = VerletIntegrator(time_step)
 			simulation = Simulation(
 				topology=topology.to_openmm(),
 				system=openmm_system,
-				integrator=VerletIntegrator(time_step),
+				integrator=integrator,
 				platform=platform_candidate
 			)
 			simulation.simulation_id = simulation_id
@@ -1193,7 +1224,7 @@ def prewarm_openmm_ff():
 		Vec3(1.0, 1.0, 0.0),
 		Vec3(-1.0, 0.0, 0.0)
 	]
-	new_state: list = minimize_energy(topology, state, 300)
+	new_state: list = minimize_energy(None, topology, state, 300)
 	if DETAILED_LOGS:
 		logging.info(f"prewarmed openmm/ff relaxating a water molecule.\n\tpositions={str(new_state)}")
 
@@ -1310,7 +1341,7 @@ if __name__ == '__main__':
 					for m in range(header.virtual_objects_count):
 						json_object: dict = json.loads(socket.recv_string())
 						topology.add_virtual_object(json_object)
-					minimized_positions = minimize_energy(topology, state, temperature_in_kelvins, max_iterations=500)
+					minimized_positions = minimize_energy(header, topology, state, temperature_in_kelvins, max_iterations=500)
 					new_state_buffer: bytes = b''
 					for pos in minimized_positions:
 						for i in range(3):

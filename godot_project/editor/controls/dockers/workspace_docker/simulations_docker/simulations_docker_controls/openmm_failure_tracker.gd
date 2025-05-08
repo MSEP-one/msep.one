@@ -192,4 +192,3 @@ class InvalidValenceMetadata extends ErrorMetadata:
 		var focus_aabb: AABB = WorkspaceUtils.get_selected_objects_aabb(out_workspace_context)
 		WorkspaceUtils.focus_camera_on_aabb(out_workspace_context, focus_aabb)
 		out_workspace_context.snapshot_moment("Select atoms")
-
