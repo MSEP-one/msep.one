@@ -156,6 +156,7 @@ func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructur
 
 func _refresh_target_list() -> void:
 	var total: int = 0
+	const MARGINS_OFFSET: float = 12
 	var per_element_count: Dictionary = {
 		# element_id:int = count: int
 	}
@@ -177,6 +178,8 @@ func _refresh_target_list() -> void:
 		# All selected atoms are of the same size
 		_setup_tree_item(item_all, per_element_count.keys()[0], total)
 		_update_selection_description()
+		var last_item_rect: Rect2 = _tree.get_item_area_rect(item_all)
+		_tree.custom_minimum_size.y = last_item_rect.end.y + MARGINS_OFFSET
 		return
 	item_all.set_text(0, "({0}) {1}".format([total, tr(&"All")]))
 	item_all.set_metadata(_METADATA_ID_COUNT, total)
@@ -188,8 +191,7 @@ func _refresh_target_list() -> void:
 		_setup_tree_item(item, element, per_element_count[element])
 		last_item = item
 	var last_item_rect: Rect2 = _tree.get_item_area_rect(last_item)
-	var margins_offset: float = 30
-	_tree.custom_minimum_size.y = last_item_rect.end.y + margins_offset
+	_tree.custom_minimum_size.y = last_item_rect.end.y + MARGINS_OFFSET
 	last_item.propagate_check(0, false)
 	_update_selection_description()
 
@@ -227,4 +229,3 @@ func _get_count_selected() -> int:
 		if child.is_checked(0):
 			selected_count += child.get_metadata(_METADATA_ID_COUNT)
 	return selected_count
-
