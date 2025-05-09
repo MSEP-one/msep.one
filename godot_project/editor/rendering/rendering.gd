@@ -70,7 +70,6 @@ func initialize(in_workspace_context: WorkspaceContext) -> void:
 			"SELECTION_PREVIEW_LAYER_BIT must correspond with constants.gdshaderinc.SELECTION_PREVIEW_VISUAL_LAYER")
 	_workspace_context = in_workspace_context
 	var workspace: Workspace = in_workspace_context.workspace
-	_theme_in_use = workspace.representation_settings.get_theme()
 	workspace.representation_settings.changed.connect(_on_workspace_settings_changed)
 	workspace.representation_settings.theme_changed.connect(_on_representation_settings_theme_changed.bind(weakref(workspace)))
 	workspace.representation_settings.color_schema_changed.connect(_on_representation_settings_color_schema_changed)
