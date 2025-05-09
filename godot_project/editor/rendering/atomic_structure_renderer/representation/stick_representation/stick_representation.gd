@@ -63,6 +63,8 @@ func build(in_structure_context: StructureContext) -> void:
 		if related_nanostructure.is_bond_valid(bond_id):
 			bond_state.is_visible = not related_nanostructure.is_bond_hidden_by_user(bond_id)
 			bond_state.is_selected = bond_id in selected_bonds
+			if bond_state.is_selected:
+				_highlighted_bonds[bond_id] = true
 			var bond_data: Vector3i = related_nanostructure.get_bond(bond_id)
 			bond_state.is_first_atom_selected = bond_data.x in selected_atoms
 			bond_state.is_second_atom_selected = bond_data.y in selected_atoms
