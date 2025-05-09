@@ -73,8 +73,8 @@ func initialize(in_workspace_context: WorkspaceContext) -> void:
 	workspace.representation_settings.changed.connect(_on_workspace_settings_changed)
 	workspace.representation_settings.theme_changed.connect(_on_representation_settings_theme_changed.bind(weakref(workspace)))
 	workspace.representation_settings.color_schema_changed.connect(_on_representation_settings_color_schema_changed)
-	apply_theme(workspace.representation_settings.get_theme())
 	_selection_preview.init(_workspace_context)
+	apply_theme(workspace.representation_settings.get_theme())
 
 
 ## Returns whether it is initialized or not
@@ -346,6 +346,7 @@ func apply_theme(in_theme: Theme3D) -> void:
 	if _theme_in_use == in_theme:
 		_refresh_viewport_background()
 		_refresh_outline_color()
+		_selection_preview.refresh()
 		return
 	_theme_in_use = in_theme
 	_environment = in_theme.create_environment()
@@ -360,6 +361,7 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_ballstick_bond_preview.apply_theme(in_theme)
 	_refresh_viewport_background()
 	_refresh_outline_color()
+	_selection_preview.refresh()
 
 
 func _get_renderer_for_atomic_structure(in_structure: AtomicStructure) -> AtomicStructureRenderer:
@@ -877,6 +879,7 @@ func _on_representation_settings_color_schema_changed(in_new_color_schema: Perio
 	for structure_renderer: Node in structure_renderers:
 		if structure_renderer is AtomicStructureRenderer:
 			structure_renderer.rebuild()
+	_selection_preview.refresh()
 
 
 func create_state_snapshot() -> Dictionary:
