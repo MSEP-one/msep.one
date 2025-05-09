@@ -1,6 +1,12 @@
 class_name SimulationData extends RefCounted
 
 
+enum Status {
+	REQUESTING,
+	RUNNING,
+	ABORTED,
+}
+
 signal frame_received(time: float, state: PackedVector3Array)
 signal invalid_state_received()
 
@@ -14,17 +20,31 @@ var parameters: SimulationParameters = null:
 	set = _set_parameters_once
 var original_payload: OpenMMPayload = null
 var _has_error: bool = false
+var _status := Status.REQUESTING
 var frames: Dictionary = {
 	# time:float = positions:PackedVector3Array
 }
 
 func _init(in_parameters: SimulationParameters) -> void:
 	parameters = in_parameters
+	_track_start_promise_error()
+
+
+func _track_start_promise_error() -> void:
+	await start_promise.wait_for_fulfill()
+	if start_promise.has_error() and _status == Status.REQUESTING:
+		_has_error = true
+		_status = Status.RUNNING
+
 
 func push_frame(in_time: float, in_positions: PackedVector3Array) -> void:
 	if _has_error:
 		# ignore incomming frames after an error was detected
 		return
+	if _status == Status.REQUESTING and in_time > 0:
+		# push frame happens in a thread, use call deferred for fulfilling the start promise
+		start_promise.fulfill.call_deferred(true)
+		_status = Status.RUNNING
 	if OS.get_thread_caller_id() != OS.get_main_thread_id():
 		# Only run in the main thread
 		push_frame.bind(in_time, in_positions).call_deferred()
@@ -37,6 +57,18 @@ func push_frame(in_time: float, in_positions: PackedVector3Array) -> void:
 	frame_received.emit(in_time, in_positions)
 
 
+func abort() -> void:
+	_status = Status.ABORTED
+
+
+func was_aborted() -> bool:
+	return _status == Status.ABORTED
+
+
+func is_being_requested() -> bool:
+	return _status == Status.REQUESTING
+
+
 func invalidate() -> void:
 	if OS.get_thread_caller_id() != OS.get_main_thread_id():
 		# Only run in the main thread
@@ -44,6 +76,7 @@ func invalidate() -> void:
 		return
 	if not _has_error:
 		_has_error = true
+		_status = Status.ABORTED
 		invalid_state_received.emit()
 
 

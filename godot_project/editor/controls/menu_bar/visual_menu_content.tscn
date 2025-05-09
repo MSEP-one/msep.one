@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://72l6yycury6e"]
 
-[ext_resource type="Script" path="res://editor/controls/menu_bar/visual_menu_content.gd" id="1_8lere"]
+[ext_resource type="Script" uid="uid://7tet5ft5h70y" path="res://editor/controls/menu_bar/visual_menu_content.gd" id="1_8lere"]
 [ext_resource type="Texture2D" uid="uid://bbs12w5lvns5j" path="res://editor/controls/dockers/workspace_docker/icons/icon_filter.svg" id="2_y45a8"]
 
 [node name="VisualMenuContent" type="MarginContainer"]

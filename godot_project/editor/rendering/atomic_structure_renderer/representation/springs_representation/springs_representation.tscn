@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cejbwdiw030yu"]
 
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/springs_representation.gd" id="1_ai3nn"]
+[ext_resource type="Script" uid="uid://qa6e4suxbyjo" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/springs_representation.gd" id="1_ai3nn"]
 [ext_resource type="PackedScene" uid="uid://c8i651vdu21vm" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/spring_renderer.tscn" id="2_d5ekg"]
 
 [node name="SpringsRepresentation" type="Node3D"]

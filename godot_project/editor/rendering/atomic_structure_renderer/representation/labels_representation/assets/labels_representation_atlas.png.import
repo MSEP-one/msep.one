@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bop2i8h1ut1xd"
 path.bptc="res://.godot/imported/labels_representation_atlas.png-334fb94389fa1dda20cdd25b8495d1cb.bptc.ctex"
+path.astc="res://.godot/imported/labels_representation_atlas.png-334fb94389fa1dda20cdd25b8495d1cb.astc.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_atlas.png"
-dest_files=["res://.godot/imported/labels_representation_atlas.png-334fb94389fa1dda20cdd25b8495d1cb.bptc.ctex"]
+dest_files=["res://.godot/imported/labels_representation_atlas.png-334fb94389fa1dda20cdd25b8495d1cb.bptc.ctex", "res://.godot/imported/labels_representation_atlas.png-334fb94389fa1dda20cdd25b8495d1cb.astc.ctex"]
 
 [params]
 

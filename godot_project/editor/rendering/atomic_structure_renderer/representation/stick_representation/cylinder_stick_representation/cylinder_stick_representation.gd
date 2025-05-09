@@ -18,7 +18,7 @@ const _SINGLE_BOND_RADIUS_FACTOR = _BOND_TO_ATOM_WIDTH * 0.33
 # Note: Currently all three cylinder models, have exactly the same radius
 const CYLINDER_MODEL_RADIUS = 0.023054
 
-const CylinderMaterial: CylinderStickMaterial = preload("res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/bond_cylinder_material.tres")
+static var CylinderMaterial: CylinderStickMaterial = load("res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/bond_cylinder_material.tres")
 
 
 func _initialize() -> void:

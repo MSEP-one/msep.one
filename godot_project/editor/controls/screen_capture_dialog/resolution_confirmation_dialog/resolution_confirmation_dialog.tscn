@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dbyklroe2rigw"]
 
-[ext_resource type="Script" path="res://editor/controls/screen_capture_dialog/resolution_confirmation_dialog/resolution_confirmation_dialog.gd" id="1_as4as"]
+[ext_resource type="Script" uid="uid://b0bpukdidb5h" path="res://editor/controls/screen_capture_dialog/resolution_confirmation_dialog/resolution_confirmation_dialog.gd" id="1_as4as"]
 
 [node name="ResolutionConfirmationDialog" type="ConfirmationDialog"]
 size = Vector2i(500, 123)

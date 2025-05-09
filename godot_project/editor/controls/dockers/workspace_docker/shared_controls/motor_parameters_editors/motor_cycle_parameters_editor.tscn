@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://ctmxf28yulsqb"]
 
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_rxo35"]
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/motor_cycle_parameters_editor.gd" id="1_yjrg2"]
+[ext_resource type="Script" uid="uid://e75bxwb1co5x" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/motor_cycle_parameters_editor.gd" id="1_yjrg2"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_s1kxu"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_2we7t"]
@@ -468,10 +468,10 @@ tracks/9/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_1v0wx"]
 _data = {
-"continuous_cycle": SubResource("Animation_jicvq"),
-"linear_distance_cycle": SubResource("Animation_rd73d"),
-"rotary_distance_cycle": SubResource("Animation_8avpv"),
-"timed_cycle": SubResource("Animation_qedyx")
+&"continuous_cycle": SubResource("Animation_jicvq"),
+&"linear_distance_cycle": SubResource("Animation_rd73d"),
+&"rotary_distance_cycle": SubResource("Animation_8avpv"),
+&"timed_cycle": SubResource("Animation_qedyx")
 }
 
 [node name="MotorCycleParametersEditor" type="VBoxContainer"]

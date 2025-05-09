@@ -8,7 +8,7 @@ signal bond_visibility_changed(are_visible: bool)
 signal hydrogen_visibility_changed(are_visible: bool)
 signal atom_labels_visibility_changed(are_visible: bool)
 signal theme_changed()
-signal color_palette_changed(new_color_palette: PeriodicTable.ColorPalette)
+signal color_schema_changed(new_color_schema: PeriodicTable.ColorSchema)
 
 const LABELS_VISIBLE_BY_DEFAULT = false
 const HYDROGENS_VISIBLE_BY_DEFAULT = true
@@ -56,7 +56,7 @@ enum UserAtomSizeSource {
 @export var _theme: Theme3D = load("res://theme/theme_3d/available_themes/modern_theme/modern_theme.tres")
 
 
-@export var _color_palette: PeriodicTable.ColorPalette = PeriodicTable.ColorPalette.MSEP
+@export var _color_schema: PeriodicTable.ColorSchema = PeriodicTable.ColorSchema.MSEP
 
 
 func set_balls_and_sticks_size_source(in_size_souce: UserAtomSizeSource) -> void:
@@ -195,14 +195,14 @@ func get_theme() -> Theme3D:
 	return _theme
 
 
-func set_color_palette(new_color_palette: PeriodicTable.ColorPalette) -> void:
-	if _color_palette != new_color_palette:
-		_color_palette = new_color_palette
-		color_palette_changed.emit(new_color_palette)
+func set_color_schema(new_color_schema: PeriodicTable.ColorSchema) -> void:
+	if _color_schema != new_color_schema:
+		_color_schema = new_color_schema
+		color_schema_changed.emit(new_color_schema)
 
 
-func get_color_palette() -> PeriodicTable.ColorPalette:
-	return _color_palette
+func get_color_schema() -> PeriodicTable.ColorSchema:
+	return _color_schema
 
 
 func deep_copy() -> RepresentationSettings:
@@ -218,7 +218,7 @@ func deep_copy() -> RepresentationSettings:
 	copy._custom_background_color_enabled = _custom_background_color_enabled
 	copy._custom_background_color = _custom_background_color
 	copy._theme = _theme.duplicate(true)
-	copy._color_palette = _color_palette
+	copy._color_schema = _color_schema
 	return copy
 	
 
@@ -236,7 +236,7 @@ func create_state_snapshot() -> Dictionary:
 		"_custom_background_color_enabled" : _custom_background_color_enabled,
 		"_custom_background_color" : _custom_background_color,
 		"_theme.path" : _theme.resource_path,
-		"_color_palette" : _color_palette,
+		"_color_schema" : _color_schema,
 		
 	}
 	return snapshot
@@ -254,4 +254,4 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_custom_background_color_enabled = in_state_snapshot["_custom_background_color_enabled"]
 	_custom_background_color = in_state_snapshot["_custom_background_color"]
 	_theme = load(in_state_snapshot["_theme.path"])
-	_color_palette = in_state_snapshot["_color_palette"]
+	_color_schema = in_state_snapshot["_color_schema"]

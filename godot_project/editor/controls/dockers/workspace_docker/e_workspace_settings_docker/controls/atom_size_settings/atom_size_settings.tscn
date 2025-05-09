@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dbf80aqque7n0"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/atom_size_settings/atom_size_settings.gd" id="1_vawmt"]
+[ext_resource type="Script" uid="uid://b348vl3365vvs" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/atom_size_settings/atom_size_settings.gd" id="1_vawmt"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_k1wlr"]
 
 [node name="AtomSizeSettings" type="VBoxContainer"]

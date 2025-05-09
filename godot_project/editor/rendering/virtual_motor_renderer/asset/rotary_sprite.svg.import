@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://6ej6w86sx6f1"
 path.s3tc="res://.godot/imported/rotary_sprite.svg-f4f0fd68f7eabdf8537478722075dcb6.s3tc.ctex"
+path.etc2="res://.godot/imported/rotary_sprite.svg-f4f0fd68f7eabdf8537478722075dcb6.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://editor/rendering/virtual_motor_renderer/asset/rotary_sprite.svg"
-dest_files=["res://.godot/imported/rotary_sprite.svg-f4f0fd68f7eabdf8537478722075dcb6.s3tc.ctex"]
+dest_files=["res://.godot/imported/rotary_sprite.svg-f4f0fd68f7eabdf8537478722075dcb6.s3tc.ctex", "res://.godot/imported/rotary_sprite.svg-f4f0fd68f7eabdf8537478722075dcb6.etc2.ctex"]
 
 [params]
 

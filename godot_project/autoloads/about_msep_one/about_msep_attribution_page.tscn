@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://x6gk8had4k33"]
 
-[ext_resource type="Script" path="res://autoloads/about_msep_one/about_msep_attribution_page.gd" id="1_5fc3a"]
+[ext_resource type="Script" uid="uid://cxxkbuo3fry1r" path="res://autoloads/about_msep_one/about_msep_attribution_page.gd" id="1_5fc3a"]
 
 [node name="AttributionPage" type="MarginContainer"]
 size_flags_horizontal = 3

@@ -26,3 +26,4 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 				data, _workspace_context, _ring_menu
 		)
 		add_action(action_set_element)
+	add_action(preload("ring_action_show_periodic_table.gd").new(_workspace_context, in_menu))

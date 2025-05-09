@@ -384,8 +384,10 @@ func _ready() -> void:
 	# Manually register the resources format savers and loaders.
 	# This should happen automatically when giving the loader/saver a class_name but an engine bug
 	# causes the parser to fail because these classes indirectly references one or more autoloads.
+	# Github issue: https://github.com/godotengine/godot/issues/98292
 	const FORMAT_LOADERS: PackedStringArray = [
 		"res://project_workspace/file_format/workspace_format_loader.gd",
+		"res://project_workspace/file_format/external/xyz_format_loader.gd",
 	]
 	const FORMAT_SAVERS: PackedStringArray = [
 		"res://project_workspace/file_format/workspace_format_saver.gd",
@@ -553,4 +555,3 @@ func _validate_forcefield_files(in_workspace_context: WorkspaceContext) -> void:
 		}
 		var full_message: String = "\n\n".join(messages).format(format_arguments)
 		in_workspace_context.show_warning_dialog(full_message, tr("OK"), "")
-

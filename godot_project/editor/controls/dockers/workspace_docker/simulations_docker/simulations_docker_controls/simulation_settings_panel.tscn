@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://68pxeirr34eg"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_settings_panel.gd" id="1_b1gw6"]
+[ext_resource type="Script" uid="uid://c431bm81rvc83" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_settings_panel.gd" id="1_b1gw6"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_i1oqk"]
 [ext_resource type="Texture2D" uid="uid://cwjxqu17t25nb" path="res://editor/icons/icon_hamburguer_a.svg" id="3_r271m"]
 

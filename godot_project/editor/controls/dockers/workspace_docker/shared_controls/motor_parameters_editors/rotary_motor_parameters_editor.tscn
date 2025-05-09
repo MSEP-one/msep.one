@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://dm1rw27pn4ruw"]
 
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_ldadn"]
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/rotary_motor_parameters_editor.gd" id="1_pdebe"]
+[ext_resource type="Script" uid="uid://c3a3er2v22tly" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/rotary_motor_parameters_editor.gd" id="1_pdebe"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_03etg"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_uca0l"]

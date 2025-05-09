@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ci70112ruoqau"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_atom_icon/2dNodeIn3DWorld/2d_node_in_3d_world.gd" id="1_x6e04"]
+[ext_resource type="Script" uid="uid://b1cmrahbdhhkr" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_atom_icon/2dNodeIn3DWorld/2d_node_in_3d_world.gd" id="1_x6e04"]
 
 [node name="2DNodeIn3DWorld" type="Node2D"]
 script = ExtResource("1_x6e04")

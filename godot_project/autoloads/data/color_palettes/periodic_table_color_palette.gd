@@ -173,8 +173,8 @@ func _create_default_data() -> Dictionary:
 	return default
 
 
-func _create_msep_palette() -> Dictionary:
-	var msep_palette: Dictionary = {
+func _create_msep_schema() -> Dictionary:
+	var msep_schema: Dictionary = {
 		0: {
 			"color": Color.WHITE,
 			"noise_color": Color.DARK_GRAY,
@@ -184,11 +184,11 @@ func _create_msep_palette() -> Dictionary:
 	}
 	for i in range(1, PeriodicTable.MAX_ATOMIC_NUMBER+1):
 		var data: ElementData = PeriodicTable.get_by_atomic_number(i)
-		msep_palette[i] = {
+		msep_schema[i] = {
 			"set": true,
 			"color": data.color,
 			"noise_color": data.noise_color,
 			"bond_color": data.bond_color,
 			"font_color": data.font_color,
 		}
-	return msep_palette
+	return msep_schema

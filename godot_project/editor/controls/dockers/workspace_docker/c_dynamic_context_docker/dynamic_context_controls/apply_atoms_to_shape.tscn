@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://ct60a47xpcr5q"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/apply_atoms_to_shape.gd" id="1_1hka1"]
+[ext_resource type="Script" uid="uid://do5wwid7ys6tl" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/apply_atoms_to_shape.gd" id="1_1hka1"]
 [ext_resource type="PackedScene" uid="uid://djdtnhc6tuvrh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.tscn" id="2_wxv1h"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_wm30c"]
 

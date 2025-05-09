@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bonww8imkbnn5"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/general_settings/general_settings.gd" id="1_pbl7g"]
+[ext_resource type="Script" uid="uid://ddc2o6mvadvud" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/general_settings/general_settings.gd" id="1_pbl7g"]
 
 [node name="general_settings" type="VBoxContainer"]
 offset_right = 484.0

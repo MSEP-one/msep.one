@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://j3p15qv5en5j"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color_settings.gd" id="1_7v4a2"]
+[ext_resource type="Script" uid="uid://h7dh15awb1t7" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color_settings.gd" id="1_7v4a2"]
 [ext_resource type="PackedScene" uid="uid://df6twl5j41stt" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/advanced_color_picker_button.tscn" id="2_0gv26"]
 
 [node name="BackgroundSettings" type="VBoxContainer"]

@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b1048txw7wtv6"
 path.s3tc="res://.godot/imported/ring_inner_circle_back_glow.png-2fe924d9c1b8e79da1ae103b329fabc4.s3tc.ctex"
+path.etc2="res://.godot/imported/ring_inner_circle_back_glow.png-2fe924d9c1b8e79da1ae103b329fabc4.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/assets/ring_inner_circle_back_glow.png"
-dest_files=["res://.godot/imported/ring_inner_circle_back_glow.png-2fe924d9c1b8e79da1ae103b329fabc4.s3tc.ctex"]
+dest_files=["res://.godot/imported/ring_inner_circle_back_glow.png-2fe924d9c1b8e79da1ae103b329fabc4.s3tc.ctex", "res://.godot/imported/ring_inner_circle_back_glow.png-2fe924d9c1b8e79da1ae103b329fabc4.etc2.ctex"]
 
 [params]
 

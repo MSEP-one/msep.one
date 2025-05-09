@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://chsuafehq6kn2"]
 
 [ext_resource type="PackedScene" uid="uid://bot7rbc830g06" path="res://editor/controls/dockers/workspace_docker.tscn" id="1_5r7ka"]
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker.gd" id="2_qf57w"]
+[ext_resource type="Script" uid="uid://gjvcgv1hexly" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker.gd" id="2_qf57w"]
 
 [node name="GroupsDocker" instance=ExtResource("1_5r7ka")]
 script = ExtResource("2_qf57w")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bystdhbca4tt8"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker.gd" id="1_2u767"]
+[ext_resource type="Script" uid="uid://dpbmxpgwgmg6c" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker.gd" id="1_2u767"]
 
 [node name="SimulationsDocker" type="MarginContainer"]
 theme_type_variation = &"DockerMargin"

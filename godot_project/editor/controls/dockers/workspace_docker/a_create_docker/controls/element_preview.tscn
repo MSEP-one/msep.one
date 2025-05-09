@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://dx1gn0krp0avh"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.gd" id="1_gyh6c"]
+[ext_resource type="Script" uid="uid://cei0wbkrlt3j2" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.gd" id="1_gyh6c"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p8b72"]
 resource_local_to_scene = true

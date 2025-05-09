@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://br7s8piqcp1j"]
 
-[ext_resource type="Script" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_model.gd" id="1_8momy"]
+[ext_resource type="Script" uid="uid://b742r8kkbb6aw" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_model.gd" id="1_8momy"]
 [ext_resource type="PackedScene" uid="uid://cstm1x1ql4bmu" path="res://editor/rendering/virtual_anchor_and_spring_renderer/asset/spring_model.tscn" id="2_ixcvw"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_42ku4"]

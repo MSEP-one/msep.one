@@ -5,7 +5,7 @@ const BASE_SCALE = 1.0;
 const NMB_OF_KNOWN_ATOMS = 118
 const SCALE_FACTOR = 4.0 # tweak to modify relation relation between atom size and label size
 
-const HydrogensMaterial: ShaderMaterial = preload("res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_material.tres")
+static var HydrogensMaterial: ShaderMaterial = load("res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_material.tres")
 
 const UNIFORM_SCALE = &"scale"
 

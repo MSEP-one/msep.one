@@ -66,6 +66,9 @@ static func import_file(out_workspace_context: WorkspaceContext, path: String,
 	if _is_msep_workspace(path):
 		_import_msep_workspace(out_workspace_context, path, placement, snapshot_name)
 		return
+	if _is_xyz_file(path):
+		_import_xyz_file(out_workspace_context, path, placement, create_new_group, generate_bonds, snapshot_name)
+		return
 	if _is_invalid_mol_file(path):
 		Editor_Utils.get_editor().prompt_error_msg(
 			("Cannot load file '%s'\n" % path) +
@@ -715,6 +718,10 @@ static func _is_invalid_mol_file(in_path: String) -> bool:
 	return false
 
 
+static func _is_xyz_file(in_path: String) -> bool:
+	return in_path.get_extension() == "xyz"
+
+
 static func _is_msep_workspace(in_path: String) -> bool:
 	return in_path.get_extension() == "msep1"
 
@@ -756,6 +763,49 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 	
 	# Undo redo
 	out_workspace_context.snapshot_moment(snapshot_name)
+
+
+static func _import_xyz_file(out_workspace_context: WorkspaceContext, path: String,
+		placement: ImportFileDialog.Placement, create_new_group: bool, generate_bonds: bool, snapshot_name: String) -> void:
+	out_workspace_context.start_async_work("Importing XYZ file")
+	out_workspace_context.clear_all_selection()
+	
+	# Actual loading happens in external/xyz_format_loader.gd
+	var xyz_structure: NanoMolecularStructure = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+	if not xyz_structure:
+		Editor_Utils.get_editor().prompt_error_msg("Cannot load file: " + path)
+		return
+	
+	# Add structure to current workspace
+	var aabb := xyz_structure.get_aabb()
+	var placement_xform: Transform3D = _get_placement_transform(out_workspace_context, aabb, placement)
+	var context: StructureContext = out_workspace_context.get_current_structure_context()
+	var active_structure: NanoMolecularStructure = context.nano_structure
+	if create_new_group:
+		xyz_structure.start_edit()
+		for atom_id: int in xyz_structure.get_valid_atoms():
+			var new_position: Vector3 = placement_xform * xyz_structure.atom_get_position(atom_id)
+			xyz_structure.atom_set_position(atom_id, new_position)
+		xyz_structure.end_edit()
+		xyz_structure.set_structure_name(path.get_file().get_basename().capitalize())
+		out_workspace_context.workspace.add_structure(xyz_structure, active_structure)
+		context = out_workspace_context.get_nano_structure_context(xyz_structure)
+		context.select_all()
+	else:
+		var merge_result: AtomicStructure.MergeStructureResult = active_structure.merge_structure(
+			xyz_structure, placement_xform, out_workspace_context.workspace)
+		context.select_atoms(merge_result.new_atoms)
+	
+	if generate_bonds:
+		# Only generate bonds for the selected atoms (the ones from the xyz file),
+		# not the whole structure. This is relevant if create_new_group is false.
+		await AutoBonder.generate_bonds_for_structure(context, true)
+	
+	if placement != ImportFileDialog.Placement.IN_FRONT_OF_CAMERA:
+		WorkspaceUtils.focus_camera_on_aabb(out_workspace_context, aabb)
+	
+	out_workspace_context.snapshot_moment(snapshot_name)
+	out_workspace_context.end_async_work()
 
 
 static var _import_thread: Thread = null
@@ -1121,7 +1171,7 @@ static func _retry_relax(
 	var passivate_molecules: bool = out_relax_request.passivate_molecules
 	var request: RelaxRequest = OpenMM.request_relax(out_workspace_context, temperature_in_kelvins, selection_only, include_springs, lock_atoms, passivate_molecules)
 	out_relax_request.retried = true
-	out_relax_request.retrying.emit(request)
+	out_relax_request.notify_retry(request)
 	_process_relax_request(request, out_workspace_context, true)
 	return request
 
@@ -1141,7 +1191,7 @@ static func _process_relax_request(
 			var alert_dialog : AcceptDialog = OpenmmWarningDialog.instantiate()
 			alert_dialog.set_detailed_message(error)
 			Engine.get_main_loop().root.add_child(alert_dialog)
-		out_workspace_context.atoms_relaxation_finished.emit(error)
+		out_workspace_context.notify_atoms_relaxation_finished(error)
 		return
 	var payload: OpenMMPayload = relax_result.original_payload
 	var tween_duration: float = 0.0
@@ -1149,7 +1199,7 @@ static func _process_relax_request(
 		tween_duration = ProjectSettings.get_setting(&"msep/simulation/relaxation_animation_time", 0.5)
 		out_workspace_context.pause_inputs(tween_duration)
 		var tween: Tween = Engine.get_main_loop().create_tween()
-		out_workspace_context.atoms_relaxation_started.emit()
+		out_workspace_context.notify_atoms_relaxation_started()
 		var result_positions: PackedVector3Array = relax_result.positions.duplicate()
 		tween.tween_method(
 			# method:
@@ -1161,12 +1211,12 @@ static func _process_relax_request(
 		var _on_relaxation_tween_finished: Callable = func() -> void:
 			_validate_relax_result(out_workspace_context, out_request)
 			out_workspace_context.snapshot_moment("Relaxation Done")
-			out_workspace_context.atoms_relaxation_finished.emit(out_request.promise.get_error())
+			out_workspace_context.notify_atoms_relaxation_finished(out_request.promise.get_error())
 		tween.finished.connect(_on_relaxation_tween_finished)
 	else:
 		_do_tween_atom_positions(1.0, out_workspace_context, payload, relax_result.positions)
 		_validate_relax_result(out_workspace_context, out_request)
-		out_workspace_context.atoms_relaxation_finished.emit(out_request.promise.get_error())
+		out_workspace_context.notify_atoms_relaxation_finished(out_request.promise.get_error())
 
 
 static func _do_tween_atom_positions(
@@ -1208,7 +1258,7 @@ static func _validate_relax_result(out_workspace_context: WorkspaceContext, in_r
 	if warning_promise.get_result() as bool:
 		_retry_relax(out_workspace_context, in_relax_request)
 	else:
-		in_relax_request.retry_discarded.emit()
+		in_relax_request.notify_retry_discarded()
 
 
 static func _forward_event(out_workspace_context: WorkspaceContext, event: InputEvent) -> void:

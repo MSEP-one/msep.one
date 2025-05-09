@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://ctjhe1sb584il"]
 
-[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/orientation_widget/orientation_widget.gd" id="1_0b6yg"]
-[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/widgets/orientation_widget/DrawOrientationWidget.gd" id="2_s8lfg"]
+[ext_resource type="Script" uid="uid://bj32u6if271sg" path="res://editor/controls/editor_viewport_container/widgets/orientation_widget/orientation_widget.gd" id="1_0b6yg"]
+[ext_resource type="Script" uid="uid://ot6i50k6qmt6" path="res://editor/controls/editor_viewport_container/widgets/orientation_widget/DrawOrientationWidget.gd" id="2_s8lfg"]
 
 [node name="OrientationWidget" type="Node3D"]
 script = ExtResource("1_0b6yg")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3 uid="uid://7drqqrsqeol0"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/bond_picker.gd" id="1_dmedv"]
+[ext_resource type="Script" uid="uid://cnm1edsjo7c4j" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/bond_picker.gd" id="1_dmedv"]
 [ext_resource type="Texture2D" uid="uid://qn5bgnygn1jt" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/icon_BondSingle.svg" id="2_sq8uq"]
 [ext_resource type="Texture2D" uid="uid://bsqgf1craj03i" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/icon_BondDouble.svg" id="3_usypf"]
 [ext_resource type="Texture2D" uid="uid://bmw5i4fv44r1s" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/icon_BondTriple.svg" id="4_chyqq"]

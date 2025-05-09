@@ -74,21 +74,21 @@ func _sort_tree_items_alphabetically(in_item_a: TreeItem, in_item_b: TreeItem) -
 
 func _get_file_dialog_line_edit() -> LineEdit:
 	var body_container: VBoxContainer = get_child(3, true) as VBoxContainer
-	assert(is_instance_valid(body_container), "Invalid child of FileDialog, Did engine version change from 4.1.1?")
-	var footer_container: HBoxContainer = body_container.get_child(3, true) as HBoxContainer
-	assert(is_instance_valid(footer_container), "Invalid child of body_container, Did engine version change from 4.1.1?")
+	assert(is_instance_valid(body_container), "Invalid child of FileDialog, Did engine version change from 4.4.1?")
+	var footer_container: HBoxContainer = body_container.get_child(4, true) as HBoxContainer
+	assert(is_instance_valid(footer_container), "Invalid child of body_container, Did engine version change from 4.4.1?")
 	var line_edit: LineEdit = footer_container.get_child(1, true) as LineEdit
-	assert(is_instance_valid(line_edit), "Invalid child of footer_container, Did engine version change from 4.1.1?")
+	assert(is_instance_valid(line_edit), "Invalid child of footer_container, Did engine version change from 4.4.1?")
 	return line_edit
 
 
 func _get_file_dialog_tree() -> Tree:
 	var body_container: VBoxContainer = get_child(3, true) as VBoxContainer
-	assert(is_instance_valid(body_container), "Invalid child of FileDialog, Did engine version change from 4.1.1?")
+	assert(is_instance_valid(body_container), "Invalid child of FileDialog, Did engine version change from 4.4.1?")
 	var margin_container: MarginContainer = body_container.get_child(2, true) as MarginContainer
-	assert(is_instance_valid(margin_container), "Invalid child of body_container, Did engine version change from 4.1.1?")
+	assert(is_instance_valid(margin_container), "Invalid child of body_container, Did engine version change from 4.4.1?")
 	var tree: Tree = margin_container.get_child(0, true) as Tree
-	assert(is_instance_valid(tree), "Invalid child of margin_container, Did engine version change from 4.1.1?")
+	assert(is_instance_valid(tree), "Invalid child of margin_container, Did engine version change from 4.4.1?")
 	return tree
 
 

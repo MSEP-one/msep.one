@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://bd6w7652o62kb" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/assets/center_circle.glb" id="1_1tu3l"]
 [ext_resource type="Material" uid="uid://dkdb1ndswtf0f" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/assets/center_circle_material.tres" id="2_66rph"]
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/assets/center_circle_model.gd" id="2_b34b7"]
+[ext_resource type="Script" uid="uid://kkuxh14b0x2m" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/assets/center_circle_model.gd" id="2_b34b7"]
 
 [node name="CenterCircleModel" instance=ExtResource("1_1tu3l")]
 script = ExtResource("2_b34b7")

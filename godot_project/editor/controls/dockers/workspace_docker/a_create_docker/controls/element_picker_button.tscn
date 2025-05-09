@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://cw8eqtylp4n8q"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_picker_button.gd" id="1_0cxmc"]
+[ext_resource type="Script" uid="uid://bj4s3glepkia3" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_picker_button.gd" id="1_0cxmc"]
 [ext_resource type="PackedScene" uid="uid://dx1gn0krp0avh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.tscn" id="1_tws4x"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_opr7h"]

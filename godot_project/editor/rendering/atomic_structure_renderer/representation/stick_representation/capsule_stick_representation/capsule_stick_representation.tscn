@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://cv03jxekchhn1"]
 
 [ext_resource type="PackedScene" uid="uid://bq2gfornm12h" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/stick_representation.tscn" id="1_wuun7"]
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/capsule_stick_representation.gd" id="2_ipkpn"]
+[ext_resource type="Script" uid="uid://cf4q42kitwyxk" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/capsule_stick_representation.gd" id="2_ipkpn"]
 [ext_resource type="ArrayMesh" uid="uid://dctfhmq8ej8ac" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/ico_straight_bond_single_mesh.res" id="3_lgmte"]
 [ext_resource type="Material" uid="uid://djjmqhw4kbs2b" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/capsule_stick_material.tres" id="4_8tp6p"]
 

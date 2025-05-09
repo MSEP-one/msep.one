@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://c1pl3akl77luo"]
 
 [ext_resource type="PackedScene" uid="uid://bq2gfornm12h" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/stick_representation.tscn" id="1_0o8vb"]
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/cylinder_stick_representation.gd" id="2_xqn7h"]
+[ext_resource type="Script" uid="uid://bewvaapvpdcnt" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/cylinder_stick_representation.gd" id="2_xqn7h"]
 [ext_resource type="ArrayMesh" uid="uid://dj0e2uonwaml8" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_single.mesh" id="3_pncja"]
 [ext_resource type="Material" uid="uid://nqctxdqtoge0" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/bond_cylinder_material.tres" id="4_yvyo0"]
 [ext_resource type="ArrayMesh" uid="uid://cah4tb7ho4jvm" path="res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_double.mesh" id="5_p0s1p"]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://ddist487qh8in"]
 
-[ext_resource type="Script" path="res://editor/controls/video_tutorials_dialog/video_tutorials_dialog.gd" id="1_47fxy"]
+[ext_resource type="Script" uid="uid://c6rkvoykjhcdl" path="res://editor/controls/video_tutorials_dialog/video_tutorials_dialog.gd" id="1_47fxy"]
 [ext_resource type="PackedScene" uid="uid://brfr0wld3vhe0" path="res://editor/controls/video_tutorials_dialog/video_player.tscn" id="3_ujvu5"]
 
 [node name="VideoTutorialsDialog" type="ConfirmationDialog"]

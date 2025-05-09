@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dtpr0fry1c4if"]
 
-[ext_resource type="Script" path="res://editor/rendering/atom_preview/atom_preview.gd" id="1_0ktxt"]
+[ext_resource type="Script" uid="uid://cwojmyj5uetxf" path="res://editor/rendering/atom_preview/atom_preview.gd" id="1_0ktxt"]
 [ext_resource type="Material" uid="uid://e874b10fy1e6" path="res://theme/theme_3d/available_themes/modern_theme/modern_preview_atom_material/modern_preview_sphere_mat.tres" id="2_hqq61"]
 [ext_resource type="ArrayMesh" uid="uid://bmjxk4oieq5pr" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_half.mesh" id="3_bty5a"]
 

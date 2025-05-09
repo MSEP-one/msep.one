@@ -14,7 +14,7 @@
 [ext_resource type="Material" uid="uid://u67yxpenxftr" path="res://editor/rendering/atomic_structure_renderer/representation/labels_representation/assets/labels_representation_material.tres" id="12_ausdn"]
 [ext_resource type="Material" uid="uid://bs0f4sfoqif1" path="res://theme/theme_3d/available_themes/flat_theme/flat_preview_atom_material/flat_preview_sphere_material.tres" id="13_j5oux"]
 [ext_resource type="Material" uid="uid://dv58mh0ihcavh" path="res://editor/rendering/ballstick_bond_preview/assets/bond_preview_material.tres" id="14_0kc3x"]
-[ext_resource type="Script" path="res://theme/theme_3d/theme_3d.gd" id="15_qmigq"]
+[ext_resource type="Script" uid="uid://ogd3gfrmswel" path="res://theme/theme_3d/theme_3d.gd" id="15_qmigq"]
 [ext_resource type="Material" uid="uid://dkxttu4vymylk" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_material.tres" id="16_y3xu0"]
 [ext_resource type="ArrayMesh" uid="uid://cvyuohtyyh420" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/spring_renderer/assets/spring_chain_mesh.res" id="17_7gym7"]
 

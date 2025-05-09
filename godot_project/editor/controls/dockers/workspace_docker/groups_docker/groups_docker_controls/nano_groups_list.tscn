@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://d20hh105vhm6r"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_groups_list.gd" id="1_twecs"]
+[ext_resource type="Script" uid="uid://dnwjim52j4p8b" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/nano_groups_list.gd" id="1_twecs"]
 
 [sub_resource type="ImageTexture" id="ImageTexture_x17cd"]
 

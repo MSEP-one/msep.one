@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dwsqtuqrh2cj8"]
 
-[ext_resource type="Script" path="res://project_workspace/workspace_context/history/history.gd" id="1_0vsc3"]
+[ext_resource type="Script" uid="uid://cosdaxwqgn018" path="res://project_workspace/workspace_context/history/history.gd" id="1_0vsc3"]
 
 [node name="History" type="Node"]
 script = ExtResource("1_0vsc3")

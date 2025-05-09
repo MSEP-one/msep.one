@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://s1kifiq0kp1j"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_ui.gd" id="1_to78h"]
+[ext_resource type="Script" uid="uid://cvjcxnrbsj0dj" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_ui.gd" id="1_to78h"]
 [ext_resource type="PackedScene" uid="uid://bjafgyuy0crti" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_menu_3d.tscn" id="2_s17pm"]
 [ext_resource type="Environment" uid="uid://53vsrmime8ox" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_world_environment.tres" id="3_1v3j8"]
 
@@ -55,9 +55,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_wd55v"]
 _data = {
-"RESET": SubResource("Animation_3iosm"),
-"fade_in": SubResource("Animation_o2dlf"),
-"fade_out": SubResource("Animation_m1pne")
+&"RESET": SubResource("Animation_3iosm"),
+&"fade_in": SubResource("Animation_o2dlf"),
+&"fade_out": SubResource("Animation_m1pne")
 }
 
 [node name="RingMenuUI" type="SubViewportContainer"]

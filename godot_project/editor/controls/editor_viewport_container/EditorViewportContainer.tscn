@@ -1,10 +1,10 @@
 [gd_scene load_steps=9 format=3 uid="uid://dd2x0k2b74ok"]
 
-[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/EditorViewportContainer.gd" id="1_e0y3u"]
+[ext_resource type="Script" uid="uid://bnrwyaua57d58" path="res://editor/controls/editor_viewport_container/EditorViewportContainer.gd" id="1_e0y3u"]
 [ext_resource type="PackedScene" uid="uid://cpmer44bkrmxr" path="res://editor/controls/editor_viewport_container/editor_viewport.tscn" id="2_ax3gd"]
 [ext_resource type="PackedScene" uid="uid://c7ah6aa0h076n" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/axes_widget.tscn" id="3_1em67"]
 [ext_resource type="PackedScene" uid="uid://4srk73h7yp5i" path="res://editor/controls/ring_menu/nano_ring_menu/nano_ring_menu.tscn" id="3_5kmu5"]
-[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/editor_widgets_container.gd" id="3_gtrkx"]
+[ext_resource type="Script" uid="uid://dn6087narv74y" path="res://editor/controls/editor_viewport_container/editor_widgets_container.gd" id="3_gtrkx"]
 [ext_resource type="PackedScene" uid="uid://ctjhe1sb584il" path="res://editor/controls/editor_viewport_container/widgets/orientation_widget/orientation_widget.tscn" id="4_31kt5"]
 [ext_resource type="PackedScene" uid="uid://bwua62ckacyc6" path="res://editor/controls/message_bar/message_bar.tscn" id="4_rdlsj"]
 [ext_resource type="PackedScene" uid="uid://h16ki8tgdk2e" path="res://editor/controls/editor_viewport_container/widgets/camera_widget/camera_widget.tscn" id="7_vqbti"]

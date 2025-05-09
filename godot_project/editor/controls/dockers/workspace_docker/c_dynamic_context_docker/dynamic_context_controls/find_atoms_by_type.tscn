@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bbebvg0rfmuux"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/find_atoms_by_type.gd" id="1_uh6tv"]
+[ext_resource type="Script" uid="uid://r40lmtxligu4" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/find_atoms_by_type.gd" id="1_uh6tv"]
 [ext_resource type="PackedScene" uid="uid://djdtnhc6tuvrh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.tscn" id="2_5wa70"]
 
 [node name="SelectByAtomTypes" type="VBoxContainer"]

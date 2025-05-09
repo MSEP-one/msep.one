@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dqmow61mohi8f"]
 
-[ext_resource type="Script" path="res://editor/rendering/rendering_properties_editor/rendering_properties_editor.gd" id="1_02htr"]
+[ext_resource type="Script" uid="uid://ksxdjrw4plgb" path="res://editor/rendering/rendering_properties_editor/rendering_properties_editor.gd" id="1_02htr"]
 [ext_resource type="PackedScene" uid="uid://chrkdjgi3kuke" path="res://editor/controls/color_chooser/color_chooser.tscn" id="2_nf7rh"]
 
 [node name="RenderingPropertiesEditor" type="MarginContainer"]

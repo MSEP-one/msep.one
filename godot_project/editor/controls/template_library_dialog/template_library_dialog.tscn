@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://18crkb1kbthw"]
 
-[ext_resource type="Script" path="res://editor/controls/template_library_dialog/template_library_dialog.gd" id="1_x5o1u"]
+[ext_resource type="Script" uid="uid://clcpko2o53kpg" path="res://editor/controls/template_library_dialog/template_library_dialog.gd" id="1_x5o1u"]
 [ext_resource type="PackedScene" uid="uid://cfdfx7iow623o" path="res://editor/controls/import_file_dialog/import_settings.tscn" id="2_6eeyu"]
 
 [node name="TemplateLibraryDialog" type="ConfirmationDialog"]

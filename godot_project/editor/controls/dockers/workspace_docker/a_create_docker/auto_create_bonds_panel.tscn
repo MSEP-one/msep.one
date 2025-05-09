@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://rchntfjl7ucw"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/auto_create_bonds_panel.gd" id="1_o1qpr"]
+[ext_resource type="Script" uid="uid://c7oj8r28ou73r" path="res://editor/controls/dockers/workspace_docker/a_create_docker/auto_create_bonds_panel.gd" id="1_o1qpr"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_k66tf"]
 [ext_resource type="Texture2D" uid="uid://wbe2syrxllv8" path="res://editor/controls/menu_bar/menu_create/menu_atoms/icons/icon_AutoBonder_16px.svg" id="3_5f1lf"]
 

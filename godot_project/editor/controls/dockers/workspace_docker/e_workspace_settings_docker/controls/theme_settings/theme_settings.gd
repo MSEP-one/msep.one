@@ -7,7 +7,7 @@ const _THEME_FILEPATH_TO_OPTION_ID: Dictionary = {
 
 
 var _theme_chooser: OptionButton
-var _color_palette_chooser: OptionButton
+var _color_schema_chooser: OptionButton
 var _workspace_context: WorkspaceContext = null
 var _ignore_select_signal: bool = false
 
@@ -15,14 +15,14 @@ var _ignore_select_signal: bool = false
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_theme_chooser = $PanelContainer/ThemeChooser as OptionButton
-		_color_palette_chooser = $PanelContainer2/ColorPaletteChooser as OptionButton
+		_color_schema_chooser = $PanelContainer2/ColorPaletteChooser as OptionButton
 		for theme_filepath: String in _THEME_FILEPATH_TO_OPTION_ID:
 			assert(is_instance_valid(load(theme_filepath)))
 			pass
-		_color_palette_chooser.clear()
-		for palette: PeriodicTable.ColorPalette in PeriodicTable.ColorPalette.values():
-			var palette_name: String = PeriodicTable.get_color_palette_name(palette)
-			_color_palette_chooser.add_item(palette_name, palette)
+		_color_schema_chooser.clear()
+		for palette: PeriodicTable.ColorSchema in PeriodicTable.ColorSchema.values():
+			var palette_name: String = PeriodicTable.get_color_schema_name(palette)
+			_color_schema_chooser.add_item(palette_name, palette)
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
@@ -39,9 +39,9 @@ func load_settings(in_settings: RepresentationSettings) -> void:
 	var current_option_id: int = _THEME_FILEPATH_TO_OPTION_ID[theme3d.resource_path]
 	var current_option_idx: int = _theme_chooser.get_item_index(current_option_id)
 	_theme_chooser.select(current_option_idx)
-	current_option_id = in_settings.get_color_palette()
-	current_option_idx = _color_palette_chooser.get_item_index(current_option_id)
-	_color_palette_chooser.select(current_option_idx)
+	current_option_id = in_settings.get_color_schema()
+	current_option_idx = _color_schema_chooser.get_item_index(current_option_id)
+	_color_schema_chooser.select(current_option_idx)
 	_ignore_select_signal = false
 
 
@@ -62,17 +62,17 @@ func _update_settings(out_settings: RepresentationSettings) -> void:
 	_workspace_context.snapshot_moment("Theme Changed")
 
 
-func _on_color_palette_chooser_item_selected(_index: int) -> void:
+func _on_color_schema_chooser_item_selected(_index: int) -> void:
 	if _ignore_select_signal:
 		return
-	_update_color_palette(_workspace_context.workspace.representation_settings)
+	_update_color_schema(_workspace_context.workspace.representation_settings)
 
 
-func _update_color_palette(out_settings: RepresentationSettings) -> void:
-	var selected_palette: PeriodicTable.ColorPalette = _color_palette_chooser.get_selected_id() as PeriodicTable.ColorPalette
-	if out_settings.get_color_palette() == selected_palette:
+func _update_color_schema(out_settings: RepresentationSettings) -> void:
+	var selected_schema: PeriodicTable.ColorSchema = _color_schema_chooser.get_selected_id() as PeriodicTable.ColorSchema
+	if out_settings.get_color_schema() == selected_schema:
 		return
-	out_settings.set_color_palette(selected_palette)
+	out_settings.set_color_schema(selected_schema)
 	_workspace_context.snapshot_moment("Color Schema Changed")
 
 
@@ -87,9 +87,7 @@ func _on_workspace_history_snapshot_applied() -> void:
 	assert(theme_button_id != -1, "Theme not found in OptionButton")
 	var idx: int = _theme_chooser.get_item_index(theme_button_id)
 	_theme_chooser.select(idx)
-	var current_palette: PeriodicTable.ColorPalette = \
-			_workspace_context.workspace.representation_settings.get_color_palette()
-	idx = _color_palette_chooser.get_item_index(current_palette)
-	_color_palette_chooser.select(idx)
-
-
+	var current_schema: PeriodicTable.ColorSchema = \
+			_workspace_context.workspace.representation_settings.get_color_schema()
+	idx = _color_schema_chooser.get_item_index(current_schema)
+	_color_schema_chooser.select(idx)

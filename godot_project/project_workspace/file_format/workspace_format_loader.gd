@@ -43,4 +43,3 @@ func _load(path: String, _original_path: String, _use_sub_threads: bool, cache_m
 			workspace.take_over_path(path)
 	d.remove(tmp_path)
 	return workspace
-

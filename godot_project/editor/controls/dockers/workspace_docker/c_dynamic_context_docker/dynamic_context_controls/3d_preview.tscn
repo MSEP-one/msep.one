@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bvcir1rta2mqw"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview.gd" id="1_3qux7"]
+[ext_resource type="Script" uid="uid://bfosd1kctfwiy" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview.gd" id="1_3qux7"]
 
 [node name="AspectRatioContainer" type="AspectRatioContainer"]
 offset_right = 40.0

@@ -5,7 +5,7 @@ signal rendering_ready
 const BASE_SCALE = 1.0;
 const HIGHLIGHT_FACTOR = 3.0;
 
-const MultimeshAtomMaterial: SphereMaterial = preload("res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/multimesh_atom_material.tres")
+static var MultimeshAtomMaterial: SphereMaterial = load("res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/multimesh_atom_material.tres")
 
 @onready var _segmented_multimesh: SegmentedMultimesh = $SegmentedMultiMesh
 

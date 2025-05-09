@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=3 uid="uid://cc1vxs7srlfjh"]
 
 [ext_resource type="PackedScene" uid="uid://c6gt8vvh1iisr" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_icon.tscn" id="1_56nc5"]
-[ext_resource type="Script" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_sprite_icon/ring_menu_sprite_icon.gd" id="2_djgmf"]
+[ext_resource type="Script" uid="uid://b60vtk2lfuh8l" path="res://editor/controls/ring_menu/ring_menu_icon/ring_menu_sprite_icon/ring_menu_sprite_icon.gd" id="2_djgmf"]
 [ext_resource type="Texture2D" uid="uid://b4uxqucqyx2eb" path="res://editor/icons/icon_Atom.svg" id="3_finoo"]
 
 [sub_resource type="Animation" id="Animation_t3p2j"]
@@ -87,11 +87,11 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_jl2ac"]
 _data = {
-"RESET": SubResource("Animation_t3p2j"),
-"active": SubResource("Animation_3ysir"),
-"in": SubResource("Animation_ej4i7"),
-"inactive": SubResource("Animation_4pqmy"),
-"out": SubResource("Animation_a2nqr")
+&"RESET": SubResource("Animation_t3p2j"),
+&"active": SubResource("Animation_3ysir"),
+&"in": SubResource("Animation_ej4i7"),
+&"inactive": SubResource("Animation_4pqmy"),
+&"out": SubResource("Animation_a2nqr")
 }
 
 [sub_resource type="Animation" id="Animation_bt5u6"]
@@ -143,9 +143,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xl3st"]
 _data = {
-"RESET": SubResource("Animation_bt5u6"),
-"in": SubResource("Animation_jm83d"),
-"out": SubResource("Animation_38q71")
+&"RESET": SubResource("Animation_bt5u6"),
+&"in": SubResource("Animation_jm83d"),
+&"out": SubResource("Animation_38q71")
 }
 
 [node name="RingMenuSpriteIcon" instance=ExtResource("1_56nc5")]

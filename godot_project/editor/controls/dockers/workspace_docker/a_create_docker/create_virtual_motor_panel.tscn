@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://83kdmdxlkofu"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_virtual_motor_panel.gd" id="1_eipyd"]
+[ext_resource type="Script" uid="uid://d4mrukec8o2im" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_virtual_motor_panel.gd" id="1_eipyd"]
 [ext_resource type="PackedScene" uid="uid://dm1rw27pn4ruw" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/rotary_motor_parameters_editor.tscn" id="2_okc76"]
 [ext_resource type="PackedScene" uid="uid://dgp1lik5qg0mv" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/linear_motor_parameters_editor.tscn" id="3_w23p5"]
 [ext_resource type="PackedScene" uid="uid://ctmxf28yulsqb" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/motor_cycle_parameters_editor.tscn" id="4_67g6y"]

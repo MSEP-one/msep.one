@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="PeriodicTableColorPalette" load_steps=2 format=3 uid="uid://c75tes3iukwrs"]
 
-[ext_resource type="Script" path="res://autoloads/data/color_palettes/periodic_table_color_palette.gd" id="1_ydqq0"]
+[ext_resource type="Script" uid="uid://btnvt2xowxbit" path="res://autoloads/data/color_palettes/periodic_table_color_palette.gd" id="1_ydqq0"]
 
 [resource]
 script = ExtResource("1_ydqq0")

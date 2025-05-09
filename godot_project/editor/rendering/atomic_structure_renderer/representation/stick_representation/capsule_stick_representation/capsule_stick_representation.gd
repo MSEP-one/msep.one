@@ -1,6 +1,6 @@
 class_name CapsuleStickRepresentation extends StickRepresentation
 
-const CapsuleMaterial: ShaderMaterial = preload("res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/capsule_stick_material.tres")
+static var CapsuleMaterial: ShaderMaterial = load("res://editor/rendering/atomic_structure_renderer/representation/stick_representation/capsule_stick_representation/assets/capsule_stick_material.tres")
 
 const _SHADER_SINGLE_BOND_MESH_CAPS_STARTS_AT_LOCAL_Z = 0.44
 const _SHADER_DOUBLE_BOND_MESH_CAPS_STARTS_AT_LOCAL_Z = 0.44

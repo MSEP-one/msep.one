@@ -76,4 +76,3 @@ func _on_forward_id_pressed(in_id: int) -> void:
 
 func _on_id_pressed(_in_id: int) -> void:
 	assert(false, "Implement this function in your specialized class")
-

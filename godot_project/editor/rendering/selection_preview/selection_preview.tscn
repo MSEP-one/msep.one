@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d38yfchnnwvt"]
 
-[ext_resource type="Script" path="res://editor/rendering/selection_preview/selection_preview.gd" id="1_82o16"]
+[ext_resource type="Script" uid="uid://1og7xq6wfn23" path="res://editor/rendering/selection_preview/selection_preview.gd" id="1_82o16"]
 
 [node name="SelectionPreview" type="SubViewport"]
 msaa_3d = 3

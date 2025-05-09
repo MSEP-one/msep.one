@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://7rfh8pbbfd1k"]
 
-[ext_resource type="Script" path="res://autoloads/about_msep_one/other_attributions/sfx_panel.gd" id="1_o6g62"]
+[ext_resource type="Script" uid="uid://jqqy3hxtnacd" path="res://autoloads/about_msep_one/other_attributions/sfx_panel.gd" id="1_o6g62"]
 
 [node name="SfxPanel" type="PanelContainer"]
 size_flags_horizontal = 3

@@ -1,6 +1,6 @@
 [gd_scene load_steps=18 format=3 uid="uid://tdwi57bmug4"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/ring_inner_circle.gd" id="1_qc2tw"]
+[ext_resource type="Script" uid="uid://c1800jsmn8e4e" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/ring_inner_circle.gd" id="1_qc2tw"]
 [ext_resource type="FontFile" uid="uid://b3jkav4yxw06w" path="res://theme/Gidole-Regular.ttf" id="2_62lpr"]
 [ext_resource type="PackedScene" uid="uid://r0llxnjtskca" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/AutoSizedLabel/auto_sized_label.tscn" id="3_tpcnd"]
 [ext_resource type="PackedScene" uid="uid://bpahm004wig30" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/assets/center_circle_model.tscn" id="4_4y1hf"]
@@ -71,8 +71,8 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xfkof"]
 _data = {
-"RESET": SubResource("Animation_xautb"),
-"pop": SubResource("Animation_fu3jd")
+&"RESET": SubResource("Animation_xautb"),
+&"pop": SubResource("Animation_fu3jd")
 }
 
 [sub_resource type="Animation" id="Animation_6sq81"]
@@ -202,9 +202,9 @@ tracks/2/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_tqq2m"]
 _data = {
-"RESET": SubResource("Animation_6sq81"),
-"lvl_down": SubResource("Animation_3fern"),
-"lvl_up": SubResource("Animation_3rqk0")
+&"RESET": SubResource("Animation_6sq81"),
+&"lvl_down": SubResource("Animation_3fern"),
+&"lvl_up": SubResource("Animation_3rqk0")
 }
 
 [sub_resource type="Animation" id="Animation_ibooj"]
@@ -258,9 +258,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_uftjm"]
 _data = {
-"RESET": SubResource("Animation_ibooj"),
-"next_page": SubResource("Animation_46wpo"),
-"prev_page": SubResource("Animation_70ofg")
+&"RESET": SubResource("Animation_ibooj"),
+&"next_page": SubResource("Animation_46wpo"),
+&"prev_page": SubResource("Animation_70ofg")
 }
 
 [node name="RingInnerCircle" type="Node3D"]

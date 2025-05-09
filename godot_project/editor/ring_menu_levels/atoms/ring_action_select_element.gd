@@ -37,5 +37,3 @@ func _execute_action() -> void:
 	_workspace_context.create_object_parameters.set_create_mode_type(
 			CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
 	_ring_menu.close()
-
-

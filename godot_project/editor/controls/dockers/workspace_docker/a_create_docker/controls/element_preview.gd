@@ -47,7 +47,7 @@ extends Control
 var _atomic_number: int
 var _is_render_radii_known: bool = true
 var _is_vdw_radii_known: bool = true
-var _current_color_palette: PeriodicTable.ColorPalette = PeriodicTable.get_current_color_palette()
+var _current_color_schema: PeriodicTable.ColorSchema = PeriodicTable.get_current_color_schema()
 
 func set_element_number(in_atomic_number: int) -> void:
 	_atomic_number = in_atomic_number
@@ -92,16 +92,16 @@ func _ready() -> void:
 	mass.label_settings = general_label_settings
 	label_render_warning.label_settings = general_label_settings
 	if not Engine.is_editor_hint():
-		_current_color_palette = PeriodicTable.get_current_color_palette()
+		_current_color_schema = PeriodicTable.get_current_color_schema()
 		visibility_changed.connect(_on_visibility_changed)
 
 
 func _on_visibility_changed() -> void:
 	if not is_visible_in_tree() or _atomic_number == 0:
 		return
-	if _current_color_palette == PeriodicTable.get_current_color_palette():
+	if _current_color_schema == PeriodicTable.get_current_color_schema():
 		return
-	_current_color_palette = PeriodicTable.get_current_color_palette()
+	_current_color_schema = PeriodicTable.get_current_color_schema()
 	# Reapply element data
 	set_element_number(_atomic_number)
 

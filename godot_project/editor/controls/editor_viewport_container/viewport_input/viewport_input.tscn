@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cg86t1pg55kxs"]
 
-[ext_resource type="Script" path="res://editor/controls/editor_viewport_container/viewport_input/viewport_input.gd" id="1_gwyny"]
+[ext_resource type="Script" uid="uid://w4yuit51efj1" path="res://editor/controls/editor_viewport_container/viewport_input/viewport_input.gd" id="1_gwyny"]
 
 [node name="ViewportInput" type="Node"]
 script = ExtResource("1_gwyny")

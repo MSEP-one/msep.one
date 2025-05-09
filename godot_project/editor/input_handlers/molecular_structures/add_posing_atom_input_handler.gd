@@ -55,6 +55,8 @@ func _init(in_context: WorkspaceContext) -> void:
 	in_context.create_object_parameters.creation_distance_from_camera_factor_changed.connect(_on_creation_distance_from_camera_factor_changed)
 	in_context.structure_contents_changed.connect(_on_structure_contents_changed)
 	in_context.create_object_parameters.create_mode_enabled_changed.connect(_on_create_mode_enabled_changed)
+	in_context.atoms_relaxation_started.connect(_on_workspace_context_atom_relaxation_started)
+	in_context.atoms_relaxation_finished.connect(_on_workspace_context_atoms_relaxation_finished)
 	_element_selected = in_context.create_object_parameters.get_new_atom_element()
 	_get_rendering().atom_autopose_preview_set_atomic_number(_element_selected)
 	var bond_order: int = in_context.create_object_parameters.get_new_bond_order()
@@ -78,12 +80,13 @@ func _on_current_structure_context_changed(in_context: StructureContext) -> void
 func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context: StructureContext) -> bool:
 	var rendering: Rendering = out_context.workspace_context.get_rendering()
 	var is_shortcut_pressed: bool = _check_input_event_can_bind(in_input_event)
-	if not is_shortcut_pressed and not _should_show():
+	
+	if is_shortcut_pressed and _should_show(true):
+		# Auto enable create mode if we're in selection mode but all the other conditions are met
+		_ensure_create_mode()
+	elif not _should_show():
 		rendering.atom_autopose_preview_hide()
 		return false
-	
-	if is_shortcut_pressed:
-		_ensure_create_mode()
 	
 	update_preview_position()
 	_update_candidates_if_needed()
@@ -138,7 +141,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 
 
 func is_exclusive_input_consumer() -> bool:
-	if _is_shortcut_pressed():
+	if _is_shortcut_pressed() and _should_show(true):
 		return true
 	return _hovered_candidate != null
 
@@ -350,13 +353,15 @@ func _ensure_create_mode() -> void:
 
 ## Returns true if create mode is ON and the auto posing visualization is enabled.
 ## This setting is controlled from the visibility panel in the workspace docker.
-func _should_show() -> bool:
+func _should_show(ignore_create_mode: bool = false) -> bool:
 	var parameters: CreateObjectParameters = _workspace_context.create_object_parameters
 	if _workspace_context.is_simulating():
 		return false
-	if not parameters.get_create_mode_enabled():
+	if not ignore_create_mode and not parameters.get_create_mode_enabled():
 		return false
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS:
+		return false
+	if not _is_valid_representation():
 		return false
 	if _is_shortcut_pressed():
 		return true
@@ -372,6 +377,15 @@ func _is_shortcut_pressed() -> bool:
 	)
 
 
+func _is_valid_representation() -> bool:
+	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
+	const VALID_REPRESENTATIONS := [
+		Rendering.Representation.BALLS_AND_STICKS,
+		Rendering.Representation.ENHANCED_STICKS_AND_BALLS,
+	]
+	return VALID_REPRESENTATIONS.has(representation_settings.get_rendering_representation())
+
+
 ## Input handlers will execute _forward_input_* in an order dictated by this parameter
 ## highter priority value means the input handler will execute first
 func get_priority() -> int:
@@ -383,6 +397,8 @@ func get_priority() -> int:
 func _on_new_atom_element_changed(in_element: int) -> void:
 	_element_selected = in_element
 	_get_rendering().atom_autopose_preview_set_atomic_number(in_element)
+	_candidates_dirty = true
+	_update_candidates_if_needed()
 
 
 func _on_new_bond_order_changed(in_order: int) -> void:
@@ -434,6 +450,15 @@ func _on_workspace_context_history_changed() -> void:
 func _on_structure_contents_changed(structure_context: StructureContext) -> void:
 	if structure_context.nano_structure is AtomicStructure:
 		_atom_grid = null
+
+
+func _on_workspace_context_atom_relaxation_started() -> void:
+	_hide_preview()
+
+
+func _on_workspace_context_atoms_relaxation_finished(_error: String) -> void:
+	if _should_show():
+		_show_preview()
 
 
 func _check_input_event_can_bind(in_event: InputEvent) -> bool:

@@ -1,10 +1,10 @@
 [gd_scene load_steps=10 format=3 uid="uid://cgb7a8s4egpox"]
 
-[ext_resource type="Script" path="res://editor/MolecularEditor.gd" id="1_u8b6i"]
+[ext_resource type="Script" uid="uid://dv8mr4midqkwd" path="res://editor/MolecularEditor.gd" id="1_u8b6i"]
 [ext_resource type="PackedScene" uid="uid://b711oqbglehtg" path="res://editor/controls/menu_bar/menu_bar.tscn" id="2_a3o8y"]
 [ext_resource type="PackedScene" uid="uid://dyasomjmc2u21" path="res://editor/controls/workspace_view/tab_bar_active_workspaces.tscn" id="4_8puqg"]
 [ext_resource type="PackedScene" uid="uid://d27bh6k3cluw1" path="res://editor/controls/workspace_view/tab_container_active_workspaces.tscn" id="5_3fwwi"]
-[ext_resource type="Script" path="res://editor/controls/general/nano_file_dialog.gd" id="6_2adso"]
+[ext_resource type="Script" uid="uid://d2k0yfuvhmtby" path="res://editor/controls/general/nano_file_dialog.gd" id="6_2adso"]
 [ext_resource type="PackedScene" uid="uid://dj61no1d5t16w" path="res://editor/controls/import_file_dialog/import_file_dialog.tscn" id="6_criww"]
 [ext_resource type="PackedScene" uid="uid://18crkb1kbthw" path="res://editor/controls/template_library_dialog/template_library_dialog.tscn" id="7_uupny"]
 [ext_resource type="PackedScene" uid="uid://dg7wgefiwe42n" path="res://editor/controls/camera_position_dialog/camera_position_dialog.tscn" id="8_1w46u"]
@@ -51,6 +51,7 @@ offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
+current_tab = 0
 
 [node name="TabBarActiveWorkspaces" parent="MainContainer/WorkArea" instance=ExtResource("4_8puqg")]
 layout_mode = 1
@@ -62,7 +63,7 @@ unique_name_in_owner = true
 [node name="LoadFileDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
 title = "Open a File"
-size = Vector2i(392, 162)
+size = Vector2i(392, 175)
 ok_button_text = "Open"
 file_mode = 0
 access = 2
@@ -71,8 +72,7 @@ script = ExtResource("6_2adso")
 
 [node name="SaveFileDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
-size = Vector2i(392, 162)
-ok_button_text = "Save"
+size = Vector2i(392, 175)
 access = 2
 filters = PackedStringArray("*.msep1 ; MSEP.one Workspace")
 script = ExtResource("6_2adso")
@@ -80,8 +80,7 @@ script = ExtResource("6_2adso")
 [node name="ExportFileDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
 title = "Export a File"
-size = Vector2i(392, 162)
-ok_button_text = "Export"
+size = Vector2i(392, 175)
 access = 2
 filters = PackedStringArray("*.xyz ; XYZ format", "*.pdb ; Protein Data Bank format")
 script = ExtResource("6_2adso")

@@ -158,7 +158,7 @@ func initialize(in_workspace: Workspace) -> void:
 
 func notify_activated() -> void:
 	# Executed from MolecularEditorContext when the tab of this workspace becomes active
-	PeriodicTable.load_palette(workspace.representation_settings.get_color_palette())
+	PeriodicTable.load_schema(workspace.representation_settings.get_color_schema())
 	var rendering: Rendering = get_rendering()
 	if is_instance_valid(rendering):
 		rendering.apply_theme(workspace.representation_settings.get_theme())
@@ -223,6 +223,18 @@ func _on_alerts_panel_visibility_changed() -> void:
 
 func notify_object_visibility_changed() -> void:
 	object_visibility_changed.emit()
+
+
+func notify_atoms_relaxation_started() -> void:
+	atoms_relaxation_started.emit()
+
+
+func notify_atoms_relaxation_finished(in_error_description_or_empty: String) -> void:
+	atoms_relaxation_finished.emit(in_error_description_or_empty)
+
+
+func notify_bonds_auto_created(in_count_added: int) -> void:
+	bonds_auto_created.emit(in_count_added)
 
 
 func _on_workspace_structure_reparented(_in_struct: NanoStructure, _in_new_parent: NanoStructure) -> void:

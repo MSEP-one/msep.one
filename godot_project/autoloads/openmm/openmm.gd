@@ -3,6 +3,7 @@ class_name OpenMMClass extends Node
 const _PRINT_REQUEST_AND_RESPONSE: bool = false
 const _CONNECT_TO_DEBUG_SOCKET: bool = false # Change this to lanch and debug server manually
 const _DEBUG_SOCKET_NAME: String = "msep-one-socket"
+const OPENMM_CRASH_MESSAGE: String = "OpenMM server crashed with unexpected result"
 
 const ImportFilePayload = preload("res://autoloads/openmm/import_file_payload.gd")
 
@@ -10,7 +11,8 @@ const ServerCommands: Dictionary = {
 	RELAX    = "Relax",
 	SIMULATE = "Simulate",
 	ABORT_SIMULATION = "AbortSimulation",
-	EXPORT = "Export File",
+	EXPORT   = "Export File",
+	GET_PID  = "GetProcessID",
 	QUIT     = "Quit",
 }
 
@@ -60,7 +62,7 @@ var _bus_lock := TrackableMutex.new("Zmq-Main-Bus", false)
 var _subscription_bus: ZMQSocket = null
 var _subscription_thread: Thread = null
 var _subscription_thread_running: bool = false
-var _subscription_thread_lock := Mutex.new() #TrackableMutex.new("Simulation-Subscription-Bus", false)
+var _subscription_thread_lock := TrackableMutex.new("Simulation-Subscription-Bus", false)
 var _threads: Array[Thread] = []
 var _running_simulations: Dictionary = {
 	# subscription_id:int = data:SimulationData
@@ -68,6 +70,17 @@ var _running_simulations: Dictionary = {
 var _tmp_dir: String = _find_tmp_dir()
 var extract_thread: Thread = null
 var _is_windows: bool = OS.get_name().to_lower() == "windows"
+var _server_pid_mutex := Mutex.new() # TrackableMutex.new("OpenMM-Server-PID", false)
+var _server_pid: int = -1:
+	set(v):
+		_server_pid_mutex.lock()#("setter")
+		_server_pid = v
+		_server_pid_mutex.unlock()#("setter")
+	get:
+		_server_pid_mutex.lock()#("getter")
+		var pid: int = _server_pid
+		_server_pid_mutex.unlock()#("getter")
+		return pid
 
 
 func _ready() -> void:
@@ -158,6 +171,12 @@ func _ready() -> void:
 			dlg.popup_centered.call_deferred()
 	_bus = ZMQSocket.create(_ctx, ZMQSocket.TYPE_REQUEST)
 	_subscription_bus = ZMQSocket.create(_ctx, ZMQSocket.TYPE_SUB)
+	_start_zmq_sockets()
+
+
+func _start_zmq_sockets() -> void:
+	const mutex_context: String = "OpenMM::_restart_zmq_sockets"
+	_bus_lock.lock(mutex_context)
 	if _CONNECT_TO_DEBUG_SOCKET:
 		var tmp_path: String = _tmp_dir.path_join(_DEBUG_SOCKET_NAME)
 		_bus.connect_to_server("ipc://" + tmp_path)
@@ -165,6 +184,7 @@ func _ready() -> void:
 		tmp_path += "-subscription"
 		_subscription_bus.connect_to_server("ipc://" + tmp_path)
 		print_rich("[color=magenta]Connected to IPC socket " + tmp_path + "[/color]")
+		_capture_openmm_server_pid.call_deferred()
 	else:
 		# Conda takes time to initialize, so let's start as soon as possible
 		_bus_thread = Thread.new()
@@ -175,7 +195,7 @@ func _ready() -> void:
 		socket += "-subscription"
 		_subscription_bus.connect_to_server("ipc://" + socket)
 		print_rich("[color=magenta]Connected to IPC socket " + socket + "[/color]")
-
+	_bus_lock.unlock(mutex_context)
 
 func _shortcut_input(event: InputEvent) -> void:
 	if shortcut_kill_server == null or !OS.has_feature("editor"):
@@ -335,6 +355,7 @@ func _request_start_simulation(
 		print_rich("[color=orange] State: %s[/color]" % str(out_simulation_data.original_payload.state))
 	_running_simulations[out_simulation_data.id] = out_simulation_data
 	_subscription_bus.set_option(ZMQSocket.OPT_SUBSCRIBE, str(out_simulation_data.id))
+	_subscription_bus.set_option(ZMQSocket.OPT_SUBSCRIBE, "err:"+str(out_simulation_data.id))
 	if _subscription_thread == null:
 		_subscription_thread = Thread.new()
 		_subscription_thread.start(_listen_simulation_subscriptions_in_thread)
@@ -408,6 +429,7 @@ func _schedule_app_re_focus() -> void:
 
 
 func _launch_openmm_server_in_thread(script_path: String) -> void:
+	_capture_openmm_server_pid.call_deferred()
 	var socket: String = _tmp_dir.path_join("msep-%d" % OS.get_process_id())
 	
 	var stdout: Array = []
@@ -433,31 +455,66 @@ func _launch_openmm_server_in_thread(script_path: String) -> void:
 		script_path = script_path.path_join("launch_server.sh")
 		script_path = "\'%s\'" % script_path
 		result = OS.execute( "eval", [script_path, args, environment], stdout, true, true)
+	_server_pid = -abs(result)
 	if result != OK:
-		push_error("OpenMM server finished with unexpected result: %d" % result)
+		push_error("OpenMM server finished with unexpected result: %X" % result)
 	var print_color: String = "green" if result == OK else "red"
-	print_rich("[color=%s]OpenMM server finished with result: %d[/color]" % [print_color, result])
+	print_rich("[color=%s]OpenMM server finished with result: %X[/color]" % [print_color, result])
 	for line: String in _format_server_stdout(stdout):
 		print_rich(">>  %s" % line)
-	_dispose_bus_threads.call_deferred()
+	var needs_restart: bool = result != OK
+	_dispose_bus_threads.call_deferred(needs_restart)
+
+
+func _capture_openmm_server_pid() -> void:
+	_server_pid = 0
+	var thread := Thread.new()
+	var promise := Promise.new()
+	thread.start(_capture_openmm_server_pid_in_thread.bind(promise))
+	_dispose_thread_when_done.call_deferred(promise, thread)
+	if _CONNECT_TO_DEBUG_SOCKET:
+		await promise.wait_for_fulfill()
+		print_debug("Relax requests will only read responses from PID ", _server_pid,
+		". If this process dies you will need to restart the debugging process",
+		". Sorry for inconvenience")
+
+
+func _capture_openmm_server_pid_in_thread(out_promise: Promise) -> void:
+	const mutex_context: String = "OpenMM::_capture_openmm_server_pid_in_thread"
+	_bus_lock.lock(mutex_context)
+	_bus.send_string(ServerCommands.GET_PID)
+	var response: PackedByteArray = _bus.receive_buffer()
+	_bus_lock.unlock(mutex_context)
+	_server_pid = -1 if response.is_empty() else response.decode_u64(0)
+	out_promise.fulfill.call_deferred(null)
+
 
 func _listen_simulation_subscriptions_in_thread() -> void:
-	_subscription_thread_lock.lock()
+	const mutex_context: String = "_listen_simulation_subscriptions_in_thread"
+	_subscription_thread_lock.lock(mutex_context)
 	_subscription_thread_running = true
 	while _subscription_thread_running:
-		_subscription_thread_lock.unlock()
 		var str_subscription_id: String = _subscription_bus.receive_string(ZMQSocket.RECEIVE_FLAG_DONT_WAIT)
+		_subscription_thread_lock.unlock(mutex_context)
 		if str_subscription_id.is_empty():
-			_subscription_thread_lock.lock()
-			continue
-		assert(str_subscription_id.is_valid_int(), "Invalid Simulation ID: %s" % str_subscription_id)
-		var subscription_id: int = str_subscription_id.to_int()
-		if _running_simulations.has(subscription_id):
-			var simulation_data: SimulationData = _running_simulations.get(subscription_id, null)
-			_handle_simulation_data(simulation_data)
+			OS.delay_msec(10)
+		elif str_subscription_id.begins_with("err:"):
+			# An error ocurred in the startup of a simulation
+			var subscription_id: int = str_subscription_id.substr(4).to_int()
+			if _running_simulations.has(subscription_id):
+				var simulation_data: SimulationData = _running_simulations.get(subscription_id, null)
+				_handle_request_error(simulation_data.start_promise, false, _subscription_thread_lock, _subscription_bus)
 		else:
-			assert(false, "Simulation %d is not running" % subscription_id)
-		_subscription_thread_lock.lock()
+			assert(str_subscription_id.is_valid_int(), "Invalid Simulation ID: %s" % str_subscription_id)
+			var subscription_id: int = str_subscription_id.to_int()
+			if _running_simulations.has(subscription_id):
+				var simulation_data: SimulationData = _running_simulations.get(subscription_id, null)
+				_handle_simulation_data(simulation_data)
+			else:
+				assert(false, "Simulation %d is not running" % subscription_id)
+				pass
+		_subscription_thread_lock.lock(mutex_context)
+	_subscription_thread_lock.unlock(mutex_context)
 
 
 func _handle_simulation_data(simulation_data: SimulationData) -> void:
@@ -480,22 +537,36 @@ func _handle_simulation_data(simulation_data: SimulationData) -> void:
 	simulation_data.push_frame(time, positions)
 
 
-func _dispose_bus_threads() -> void:
+func _dispose_bus_threads(in_restart_zmq_sockets: bool = false) -> void:
 	assert(OS.get_thread_caller_id() == OS.get_main_thread_id(), "This method should only be called in the main thread!")
 	if is_instance_valid(_bus_thread) and _bus_thread.is_started():
 		_bus_thread.wait_to_finish()
 	_bus_thread = null
-	_subscription_thread_lock.lock()
+	_subscription_thread_lock.lock("_dispose_bus_threads")
 	_subscription_thread_running = false
-	_subscription_thread_lock.unlock()
+	_subscription_thread_lock.unlock("_dispose_bus_threads")
 	if is_instance_valid(_subscription_thread) and _subscription_thread.is_started():
 		_subscription_thread.wait_to_finish()
 	_subscription_thread = null
+	if in_restart_zmq_sockets:
+		while _threads.size():
+			# Wait for all processes to end
+			await get_tree().process_frame
+		const mutex_context: String = "OpenMM::_dispose_bus_threads::in_restart_zmq_sockets"
+		_bus_lock.lock(mutex_context)
+		_bus = ZMQSocket.create(_ctx, ZMQSocket.TYPE_REQUEST)
+		_subscription_bus = ZMQSocket.create(_ctx, ZMQSocket.TYPE_SUB)
+		_bus_lock.unlock(mutex_context)
+		_start_zmq_sockets()
 
 
 func _process_relax_request_on_thread(out_relax_request: RelaxRequest,
 			in_workspace_context: WorkspaceContext) -> void:
 	const mutex_context: String = "OpenMM::_process_relax_request_on_thread"
+	var initial_server_pid: int = 0
+	while initial_server_pid <= 0:
+		OS.delay_msec(100)
+		initial_server_pid = _server_pid
 	var relax_promise: Promise = out_relax_request.promise
 	var other_objects_to_send: Array[String] = []
 	other_objects_to_send.assign(out_relax_request.original_payload.other_objects_data.values())
@@ -518,8 +589,18 @@ func _process_relax_request_on_thread(out_relax_request: RelaxRequest,
 		send_flags = ZMQSocket.SEND_FLAG_NONE if other_objects_to_send.is_empty() else ZMQSocket.SEND_FLAG_SNDMORE
 		_bus.send_string(motor_data_buffer, send_flags)
 	
-	var response: PackedByteArray = _bus.receive_buffer()
+	var response: PackedByteArray = []
+	while response.is_empty() and initial_server_pid == _server_pid:
+		response = _bus.receive_buffer(ZMQSocket.RECEIVE_FLAG_DONT_WAIT)
+		_bus_lock.unlock(mutex_context)
+		# This makes the query non blocking
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
 	_bus_lock.unlock(mutex_context)
+	var did_server_crash: bool = initial_server_pid != _server_pid
+	if did_server_crash:
+		out_relax_request.promise.fail.call_deferred(OPENMM_CRASH_MESSAGE)
+		return
 	if response == "err".to_utf8_buffer():
 		var positions: PackedVector3Array = []
 		_handle_request_error(relax_promise, RelaxResult.new(out_relax_request.original_payload, positions))
@@ -556,6 +637,11 @@ func _position_integrity_check(out_relax_request: RelaxRequest, in_workspace_con
 
 func _start_simulation_on_thread(in_simulation_data: SimulationData) -> void:
 	const mutex_context: String = "OpenMM::_start_simulation_on_thread"
+	var simulation_id: int = in_simulation_data.id
+	var initial_server_pid: int = 0
+	while initial_server_pid <= 0:
+		OS.delay_msec(100)
+		initial_server_pid = _server_pid
 	var other_objects_to_send: Array[String] = []
 	other_objects_to_send.assign(in_simulation_data.original_payload.other_objects_data.values())
 	assert(other_objects_to_send.size() == in_simulation_data.original_payload.other_objects_count)
@@ -579,17 +665,62 @@ func _start_simulation_on_thread(in_simulation_data: SimulationData) -> void:
 		send_flags = ZMQSocket.SEND_FLAG_NONE if other_objects_to_send.is_empty() else ZMQSocket.SEND_FLAG_SNDMORE
 		_bus.send_string(motor_data_buffer, send_flags)
 	
-	var response: PackedByteArray = _bus.receive_buffer()
+	var response: PackedByteArray = []
+	while response.is_empty() and initial_server_pid == _server_pid and not _was_simulation_aborted(simulation_id):
+		response = _bus.receive_buffer(ZMQSocket.RECEIVE_FLAG_DONT_WAIT)
+		_bus_lock.unlock(mutex_context)
+		# This makes the query non blocking
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
 	_bus_lock.unlock(mutex_context)
+	
+	var did_server_crash: bool = initial_server_pid != _server_pid
+	if did_server_crash:
+		in_simulation_data.start_promise.fail.call_deferred(OPENMM_CRASH_MESSAGE)
+		return
+	
 	if response == "err".to_utf8_buffer():
 		_handle_request_error(in_simulation_data.start_promise, false)
 		return
+	
 	assert(response == "Running".to_utf8_buffer(), "Unexpected response")
-	in_simulation_data.start_promise.fulfill.call_deferred(true)
+	
+	# OpenMM server makes an early return, but server can crash before the first frame was received
+	# Lets track this corner case
+	while initial_server_pid == _server_pid and _is_simulation_starting(simulation_id) and not _was_simulation_aborted(simulation_id):
+		# This makes the query non blocking
+		OS.delay_msec(100)
+	did_server_crash = initial_server_pid != _server_pid
+	if did_server_crash:
+		in_simulation_data.start_promise.fail.call_deferred(OPENMM_CRASH_MESSAGE)
+		return
+	
+	if _was_simulation_aborted(simulation_id):
+		in_simulation_data.start_promise.fulfill.call_deferred(false)
+
+
+func _is_simulation_starting(in_simulation_id: int) -> bool:
+	_subscription_thread_lock.lock("_is_simulation_starting")
+	var data: SimulationData = _running_simulations.get(in_simulation_id, null)
+	var starting: bool = true if data == null else data.is_being_requested()
+	_subscription_thread_lock.unlock("_is_simulation_starting")
+	return starting
+
+
+func _was_simulation_aborted(in_simulation_id: int) -> bool:
+	_subscription_thread_lock.lock("_was_simulation_aborted")
+	var data: SimulationData = _running_simulations.get(in_simulation_id, null)
+	var aborted: bool = true if data == null else data.was_aborted()
+	_subscription_thread_lock.unlock("_was_simulation_aborted")
+	return aborted
 
 
 func _abort_simulation_on_thread(in_simulation_id: int, out_abort_promise: Promise) -> void:
 	const mutex_context: String = "OpenMM::_abort_simulation_on_thread"
+	var initial_server_pid: int = 0
+	while initial_server_pid <= 0:
+		OS.delay_msec(100)
+		initial_server_pid = _server_pid
 	_bus_lock.lock(mutex_context)
 	_bus.send_string(ServerCommands.ABORT_SIMULATION, ZMQSocket.SEND_FLAG_SNDMORE)
 	var id_bytes := PackedByteArray()
@@ -597,9 +728,25 @@ func _abort_simulation_on_thread(in_simulation_id: int, out_abort_promise: Promi
 	id_bytes.encode_s64(0, in_simulation_id)
 	_bus.send_buffer(id_bytes)
 	
-	var response: PackedByteArray = _bus.receive_buffer()
+	var response: PackedByteArray = []
+	while response.is_empty() and initial_server_pid == _server_pid:
+		response = _bus.receive_buffer(ZMQSocket.RECEIVE_FLAG_DONT_WAIT)
+		_bus_lock.unlock(mutex_context)
+		# This makes the query non blocking
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
 	_bus_lock.unlock(mutex_context)
+	var did_server_crash: bool = initial_server_pid != _server_pid
+	if did_server_crash:
+		# If server crashed, in practice simulation is no longer procesing, so it's a success
+		out_abort_promise.fulfill.call_deferred(true)
+		return
+	
 	if response != "ack".to_utf8_buffer():
+		_subscription_thread_lock.lock(mutex_context)
+		if in_simulation_id in _running_simulations:
+			_running_simulations[in_simulation_id].abort()
+		_subscription_thread_lock.unlock(mutex_context)
 		_handle_request_error(out_abort_promise, false)
 		return
 	out_abort_promise.fulfill.call_deferred(true)
@@ -679,11 +826,13 @@ func _process_export_file_request_on_thread(in_file_path: String, out_payload: O
 	out_promise.fulfill.call_deferred(OK)
 
 
-func _handle_request_error(out_promise: Promise, out_fallback_result: Variant = null) -> void:
+func _handle_request_error(
+			out_promise: Promise, out_fallback_result: Variant = null,
+			out_bus_mutex: TrackableMutex = _bus_lock, out_bus: ZMQSocket = _bus) -> void:
 	const mutex_context: String = "OpenMM::_handle_request_error"
-	_bus_lock.lock(mutex_context)
-	if _bus.has_more():
-		var openff_atom_map_buffer: PackedByteArray = _bus.receive_buffer()
+	out_bus_mutex.lock(mutex_context)
+	if out_bus.has_more():
+		var openff_atom_map_buffer: PackedByteArray = out_bus.receive_buffer()
 		var openff_to_zmq_atom_id: Dictionary = {
 		#	openff_atom_id<int> = zmq_atom_id<int>
 		}
@@ -691,8 +840,8 @@ func _handle_request_error(out_promise: Promise, out_fallback_result: Variant = 
 			var openff_atom_id: int = openff_atom_map_buffer.decode_s32(seek)
 			var request_atom_id: int = openff_atom_map_buffer.decode_s32(seek+4)
 			openff_to_zmq_atom_id[openff_atom_id] = request_atom_id
-		var messages: PackedStringArray = _bus.receive_multipart_string()
-		_bus_lock.unlock(mutex_context)
+		var messages: PackedStringArray = out_bus.receive_multipart_string()
+		out_bus_mutex.unlock(mutex_context)
 		if _PRINT_REQUEST_AND_RESPONSE:
 			print_rich("[color=red] Error:[/color]")
 			for msg in messages:
@@ -704,11 +853,11 @@ func _handle_request_error(out_promise: Promise, out_fallback_result: Variant = 
 		# unless someone has a better idea let's use the meta properties of the promise
 		out_promise.set_meta(&"openff_to_zmq_atom_id", openff_to_zmq_atom_id)
 		out_promise.fail.call_deferred("\n".join(messages), out_fallback_result)
-		return
-	_bus_lock.unlock(mutex_context)
-	if _PRINT_REQUEST_AND_RESPONSE:
-		print_rich("[color=red]Error: Failed request[/color]")
-	out_promise.fail.call_deferred("Failed request", out_fallback_result)
+	else:
+		if _PRINT_REQUEST_AND_RESPONSE:
+			print_rich("[color=red]Error: Failed request[/color]")
+		out_promise.fail.call_deferred("Failed request", out_fallback_result)
+	out_bus_mutex.unlock(mutex_context)
 
 
 func _dispose_thread_when_done(out_promise: Promise, out_thread: Thread) -> void:

@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://b6snixhbqq57y"]
 
-[ext_resource type="Script" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="1_i0rg7"]
-[ext_resource type="Script" path="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.gd" id="2_ani6v"]
+[ext_resource type="Script" uid="uid://rpaxm2votab3" path="res://project_workspace/custom_shapes/pyramid_mesh.gd" id="1_i0rg7"]
+[ext_resource type="Script" uid="uid://dnlhb3cxhpf3m" path="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.gd" id="2_ani6v"]
 [ext_resource type="Material" uid="uid://wvju7e8kntu2" path="res://editor/rendering/reference_shape_renderer/assets/reference_shape_renderer_material.tres" id="3_4jnju"]
 [ext_resource type="Material" uid="uid://cefsc4ia284yo" path="res://editor/rendering/reference_shape_renderer/assets/pivot_material.tres" id="4_brcex"]
 

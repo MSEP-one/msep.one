@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://ka1kytlpw1r4"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview_viewport.gd" id="1_f4nnp"]
+[ext_resource type="Script" uid="uid://m4y64cbc8fhi" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview_viewport.gd" id="1_f4nnp"]
 [ext_resource type="PackedScene" uid="uid://cd8ybm2fs1ox" path="res://editor/rendering/rendering.tscn" id="2_118c4"]
 [ext_resource type="PackedScene" uid="uid://digks72jm6rqi" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/spring_selection_preview/spring_selection_preview.tscn" id="3_oov5d"]
 

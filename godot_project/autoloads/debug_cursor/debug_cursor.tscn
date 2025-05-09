@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://de2f1vld6yjfd"]
 
-[ext_resource type="Script" path="res://autoloads/debug_cursor/debug_cursor.gd" id="1_qstc1"]
+[ext_resource type="Script" uid="uid://bcycl144bloas" path="res://autoloads/debug_cursor/debug_cursor.gd" id="1_qstc1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rf5nt"]
 bg_color = Color(1, 1, 1, 1)

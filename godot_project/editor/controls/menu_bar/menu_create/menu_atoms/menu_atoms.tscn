@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://cjfhdmk36w0te"]
 
-[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_create/menu_atoms/menu_atoms.gd" id="1_nq8v5"]
+[ext_resource type="Script" uid="uid://xdmxyqubrsg4" path="res://editor/controls/menu_bar/menu_create/menu_atoms/menu_atoms.gd" id="1_nq8v5"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_oxgh7"]
 device = -1

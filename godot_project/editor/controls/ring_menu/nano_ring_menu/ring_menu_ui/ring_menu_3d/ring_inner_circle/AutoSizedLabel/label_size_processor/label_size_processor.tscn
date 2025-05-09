@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c4t0eh2cnhyvw"]
 
-[ext_resource type="Script" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/AutoSizedLabel/label_size_processor/label_size_processor.gd" id="1_tboxy"]
+[ext_resource type="Script" uid="uid://cd8y6bqbr2khl" path="res://editor/controls/ring_menu/nano_ring_menu/ring_menu_ui/ring_menu_3d/ring_inner_circle/AutoSizedLabel/label_size_processor/label_size_processor.gd" id="1_tboxy"]
 
 [node name="LabelSizeProcessor" type="Node"]
 script = ExtResource("1_tboxy")

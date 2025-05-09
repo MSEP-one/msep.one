@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://m1q18cpkrt8n"]
 
-[ext_resource type="Script" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.gd" id="1_lbilf"]
+[ext_resource type="Script" uid="uid://bgtb58rwxk6b7" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.gd" id="1_lbilf"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_2fgfn"]
 
 [node name="TimeSpanPicker" type="HBoxContainer"]

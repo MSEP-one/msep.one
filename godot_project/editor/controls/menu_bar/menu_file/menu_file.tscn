@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://b0u2u4oqkalh6" path="res://editor/controls/menu_bar/menu_file/icons/icon_new_workspace_16px.svg" id="1_8iynl"]
 [ext_resource type="Texture2D" uid="uid://c1gkfabphk2cm" path="res://editor/icons/import_x28.svg" id="1_1325o"]
-[ext_resource type="Script" path="res://editor/controls/menu_bar/menu_file/menu_file.gd" id="2_8babr"]
+[ext_resource type="Script" uid="uid://cnv8imkkymavy" path="res://editor/controls/menu_bar/menu_file/menu_file.gd" id="2_8babr"]
 [ext_resource type="Texture2D" uid="uid://c3ao6qg41qyee" path="res://editor/controls/menu_bar/menu_file/icons/icon_load_workspace_16px.svg" id="2_wpidh"]
 [ext_resource type="Texture2D" uid="uid://dv5irs4j2ujlg" path="res://editor/controls/menu_bar/menu_file/icons/icon_save_workspace_16px.svg" id="3_7vpg8"]
 [ext_resource type="Texture2D" uid="uid://67h2ve4topwx" path="res://editor/controls/menu_bar/menu_file/icons/icon_save_workspace_as_16px.svg" id="4_1p5tx"]

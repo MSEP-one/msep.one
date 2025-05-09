@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://my1w5ld3goh4"]
 
-[ext_resource type="Script" path="res://autoloads/openmm/openmm.gd" id="1_v0shm"]
-[ext_resource type="Script" path="res://autoloads/openmm/openmm_utils.gd" id="2_omqeh"]
+[ext_resource type="Script" uid="uid://duloc235tk88g" path="res://autoloads/openmm/openmm.gd" id="1_v0shm"]
+[ext_resource type="Script" uid="uid://bx547ap8p2pbm" path="res://autoloads/openmm/openmm_utils.gd" id="2_omqeh"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_7woi7"]
 device = -1
