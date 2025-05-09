@@ -100,7 +100,8 @@ func _copy_selected_atoms(
 			local_to_camera_position, 
 			in_structure.atom_get_atomic_number(atom_id),
 			color_override,
-			atom_id
+			atom_id,
+			in_structure.int_guid
 		)
 		clipboard_atoms.push_back(atom)
 	
@@ -461,7 +462,8 @@ func _paste_atoms_and_bonds_in_structure(
 			)
 		)
 		old_atom_id_to_new_atom_id[atom.origin_id] = old_index_to_new_index[idx]
-		if in_auto_bond_order > -1:
+		if in_auto_bond_order > -1 and atom.origin_group_id == out_structure.int_guid:
+			# Cannot paste bonded atoms to a different structure from where it was originated
 			assert(atom.origin_id > -1, "Bonded paste has been used, but there is no information about the source atom")
 			var valence_left: int = out_structure.atom_get_remaining_valence(atom.origin_id)
 			var valance_allows_new_bond: bool = valence_left > 0
@@ -696,12 +698,15 @@ class ClipboardAtom:
 	var has_color_override: bool = false
 	var color_override: Color = Color.BLACK
 	var origin_id: int
+	var origin_group_id: int
 	
 	func _init(in_position: Vector3, in_atomic_number: int, in_color_override: Variant = null,
-			in_originating_from_atom: int = AtomicStructure.INVALID_ATOM_ID) -> void:
+			in_originating_from_atom: int = AtomicStructure.INVALID_ATOM_ID,
+			in_origination_from_group: int = Workspace.INVALID_STRUCTURE_ID) -> void:
 		position = in_position
 		atomic_number = in_atomic_number
 		origin_id = in_originating_from_atom
+		origin_group_id = in_origination_from_group
 		if typeof(in_color_override) == TYPE_COLOR:
 			has_color_override = true
 			color_override = in_color_override
