@@ -108,8 +108,10 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	if _hovered_candidate != null:
 		out_context.workspace_context.set_hovered_structure_context(null, -1, -1, -1)
 	
-	if not (in_input_event is InputEventMouseButton and 
-			in_input_event.pressed and
+	if not in_input_event is InputEventMouseButton:
+		return false
+	
+	if not (in_input_event.pressed and
 			in_input_event.button_index == MOUSE_BUTTON_LEFT):
 		return is_shortcut_pressed
 	
@@ -141,8 +143,6 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 
 
 func is_exclusive_input_consumer() -> bool:
-	if _is_shortcut_pressed() and _should_show(true):
-		return true
 	return _hovered_candidate != null
 
 
