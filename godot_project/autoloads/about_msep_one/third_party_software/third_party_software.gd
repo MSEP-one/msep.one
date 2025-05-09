@@ -46,8 +46,9 @@ func _ready() -> void:
 			"MPL 2.0", "Mozilla Public License Version 2.0",
 			licences_texts["BSD-3-clause"])
 	_create_software_tree_item(zeromq_info)
+	
 	var godot_info := LicenseInfo.new(
-			"Godot Engine", "4.2.3-(custom)", "https://godotengine.org/",
+			"Godot Engine", Engine.get_version_info().string, "https://godotengine.org/",
 			"MIT", "Massachusetts Institute of Technology",
 			Engine.get_license_text())
 	_create_software_tree_item(godot_info)
