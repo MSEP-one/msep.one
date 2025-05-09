@@ -125,16 +125,31 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	var atom_pos: Vector3 = _hovered_candidate.atom_position
 	var element_to_create: int = _element_selected
 	var params := AtomicStructure.AddAtomParameters.new(element_to_create, atom_pos)
-	var new_bond_order: int = out_context.workspace_context.create_object_parameters.get_new_bond_order()
-	if _hovered_candidate.total_free_valence < new_bond_order:
-		# Valence too low for the selected bond order.
-		if _hovered_candidate.atom_ids.size() > 1:
-			new_bond_order = 1 # Merged candidates, default to 1
-		else:
-			# Use the highest valid bond order
-			new_bond_order = _hovered_candidate.total_free_valence 
 	
-	var _result: Dictionary = _do_create_atom_and_bonds(out_context, params, _hovered_candidate.atom_ids, new_bond_order)
+	# Ensure the new bonds don't exceed the free valence on the existing atoms.
+	# Ex: If a carbon (valence 4) already have 3 bonds but a bond order 2 is
+	# selected, the new bond order must go down to 1.
+	# Repeat for all atoms connected to the candidate.
+	var new_bond_order: int = out_context.workspace_context.create_object_parameters.get_new_bond_order()
+	var bonds_order_array: PackedInt32Array = []
+	var total_valence: int = 0
+	for i: int in _hovered_candidate.atom_ids.size():
+		var free_valences: int = _hovered_candidate.atom_free_valence[i]
+		var final_bond_order: int = min(new_bond_order, free_valences)
+		bonds_order_array.push_back(final_bond_order)
+		total_valence += final_bond_order
+	
+	# In case of a merged candidate, the new atom might result with more connections than
+	# allowed. In that case the new bonds order are decreased until the configuration is valid.
+	var i: int = 0
+	while total_valence > _hovered_candidate.total_free_valence:
+		bonds_order_array[i] -= 1
+		total_valence -= 1
+		i += 1
+		if i >= bonds_order_array.size():
+			i = 0
+	
+	var _result: Dictionary = _do_create_atom_and_bonds(out_context, params, _hovered_candidate.atom_ids, bonds_order_array)
 	_ensure_create_mode()
 	_workspace_context.snapshot_moment("Add Atom")
 	return true
@@ -163,6 +178,8 @@ func _update_candidates_if_needed() -> void:
 			"Selecting over 50 atoms hides Potential Atom Position. Select fewer to enable this feature.")
 		return
 	
+	var candidate_data: ElementData = PeriodicTable.get_by_atomic_number(_element_selected)
+	var candidate_free_valence: int = -_get_stable_charge(candidate_data)
 	var selected_atoms: PackedInt32Array = context.get_selected_atoms()
 	var structure_candidates: Array[AtomCandidate] = []
 	var hash_grid := SpatialHashGrid.new(MAX_MERGE_DISTANCE)
@@ -173,21 +190,29 @@ func _update_candidates_if_needed() -> void:
 			var candidate := AtomCandidate.new()
 			candidate.structrure_id = context.nano_structure.int_guid
 			candidate.atom_ids = [atom_id]
+			candidate.atom_free_valence = [free_valences]
 			candidate.atom_position = pos
-			candidate.total_free_valence = free_valences
+			candidate.total_free_valence = candidate_free_valence
 			structure_candidates.push_back(candidate)
 			hash_grid.add_item(pos, candidate)
 	
 	# Merge close candidates
+	# Close candidates up to `candidate_free_valence` will be merged into one,
+	# the rest will be discarded. This avoid suggesting to connect an hydrogen atom
+	# (which can only have one bond) to two atoms at once.
 	for candidates_to_merge in hash_grid.get_user_data_closer_than(MAX_MERGE_DISTANCE):
 		var merged_candidate: AtomCandidate = AtomCandidate.new()
+		merged_candidate.total_free_valence = candidate_free_valence
+		var merge_count: int = 0
 		for candidate: AtomCandidate in candidates_to_merge:
-			merged_candidate.atom_ids.push_back(candidate.atom_ids[0])
-			merged_candidate.atom_position += candidate.atom_position
-			merged_candidate.total_free_valence += candidate.total_free_valence
-			merged_candidate.structrure_id = candidate.structrure_id
+			if merge_count < candidate_free_valence:
+				merged_candidate.atom_ids.push_back(candidate.atom_ids[0])
+				merged_candidate.atom_free_valence.push_back(candidate.atom_free_valence[0])
+				merged_candidate.atom_position += candidate.atom_position
+				merged_candidate.structrure_id = candidate.structrure_id
+				merge_count += 1
 			structure_candidates.erase(candidate)
-		merged_candidate.atom_position /= candidates_to_merge.size()
+		merged_candidate.atom_position /= merge_count
 		structure_candidates.push_back(merged_candidate)
 	
 	_candidates.append_array(structure_candidates)
@@ -319,12 +344,15 @@ func _get_equilibrium_distance(in_atomic_number_a: int, in_atomic_number_b: int)
 
 
 func _do_create_atom_and_bonds(out_context: StructureContext, in_atom_params: AtomicStructure.AddAtomParameters,
-			in_bind_to_ids: PackedInt32Array, in_new_bond_order: int) -> Dictionary:
+			in_bind_to_ids: PackedInt32Array, in_bonds_order: PackedInt32Array) -> Dictionary:
+	assert(in_bind_to_ids.size() == in_bonds_order.size(), "The provided bonds order don't match the atoms list")
 	out_context.nano_structure.start_edit()
 	var new_atom_id: int = out_context.nano_structure.add_atom(in_atom_params)
 	var new_bond_ids: PackedInt32Array = []
-	for atom_to_bind: int in in_bind_to_ids:
-		var new_bond_id: int = out_context.nano_structure.add_bond(atom_to_bind, new_atom_id, in_new_bond_order)
+	for i: int in in_bind_to_ids.size():
+		var atom_to_bind: int = in_bind_to_ids[i]
+		var bond_order: int = in_bonds_order[i]
+		var new_bond_id: int = out_context.nano_structure.add_bond(atom_to_bind, new_atom_id, bond_order)
 		new_bond_ids.push_back(new_bond_id)
 	out_context.nano_structure.end_edit()
 	out_context.select_atoms([new_atom_id])
