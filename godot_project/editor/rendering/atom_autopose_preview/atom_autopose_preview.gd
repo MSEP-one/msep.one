@@ -4,6 +4,7 @@ class_name AtomAutoposePreview extends Control
 class AtomCandidate:
 	var structrure_id: int
 	var atom_ids: PackedInt32Array
+	var atom_free_valence: PackedInt32Array
 	var atom_position: Vector3
 	var total_free_valence: int
 	var pos_2d_cache: Vector2 = Vector2.ONE * -15
