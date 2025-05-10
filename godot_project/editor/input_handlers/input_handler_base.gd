@@ -46,6 +46,12 @@ func is_exclusive_input_consumer() -> bool:
 	return false
 
 
+## When true, the shortcuts defined in the MSEP popup menu will be actived even if this handler
+## is an exclusive input consumer.
+func forward_inputs_when_exclusive_consumer() -> bool:
+	return false
+
+
 ## Can be used to react to the fact other InputHandlerBase has started to exclusively consuming inputs
 ## Usually used to clean up internal state and prepare for fresh input sequence
 func handle_inputs_end() -> void:

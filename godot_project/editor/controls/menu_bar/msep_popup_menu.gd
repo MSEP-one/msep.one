@@ -6,7 +6,7 @@ func _init() -> void:
 	MolecularEditorContext.workspace_activated.connect(_on_workspace_activated)
 	about_to_popup.connect(_on_about_to_popup)
 	popup_hide.connect(_on_popup_hide)
-	id_pressed.connect(_on_forward_id_pressed)
+	id_pressed.connect(_on_id_pressed)
 	InitialInfoScreen.visibility_changed.connect(_on_full_screen_popupup_visibility_changed)
 	BusyIndicator.visibility_changed.connect(_on_full_screen_popupup_visibility_changed)
 
@@ -62,16 +62,6 @@ func _set_all_is_disabled(out_menu:PopupMenu, in_disable: float) -> void:
 
 func _update_menu() -> void:
 	assert(false, "Implement this function in your specialized class")
-
-
-func _on_forward_id_pressed(in_id: int) -> void:
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
-	if is_instance_valid(workspace_context):
-		if workspace_context.get_editor_viewport().has_exclusive_input_consumer():
-			# block menu activations (assumed from keyboard shortcuts)
-			# when viewport has an exclusive consumer
-			return
-	_on_id_pressed(in_id)
 
 
 func _on_id_pressed(_in_id: int) -> void:

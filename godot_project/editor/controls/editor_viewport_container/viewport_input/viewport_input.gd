@@ -17,8 +17,10 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
 		_input_handlers.clear()
 
+
 func has_exclusive_input_consumer() -> bool:
 	return is_instance_valid(_exclusive_input_consumer) and _exclusive_input_consumer.is_exclusive_input_consumer()
+
 
 func forward_viewport_input(in_event: InputEvent, in_workspace_editor_viewport: WorkspaceEditorViewport,
 			in_structure_context: StructureContext) -> void:
@@ -46,7 +48,8 @@ func _on_exclusive_input_consumer(in_event: InputEvent, in_workspace_editor_view
 	if is_instance_valid(_exclusive_input_consumer):
 		if _exclusive_input_consumer.is_exclusive_input_consumer():
 			if _exclusive_input_consumer.forward_input(in_event, camera_3d, in_structure_context):
-				in_workspace_editor_viewport.set_input_as_handled()
+				if not _exclusive_input_consumer.forward_inputs_when_exclusive_consumer():
+					in_workspace_editor_viewport.set_input_as_handled()
 			if not _exclusive_input_consumer.is_exclusive_input_consumer():
 				# Input handler is no longer interested in consuming inputs
 				_notify_handlers_about_exclusive_input_ended_cycle()
