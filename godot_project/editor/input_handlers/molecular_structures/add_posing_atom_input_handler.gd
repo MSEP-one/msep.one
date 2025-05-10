@@ -146,6 +146,10 @@ func is_exclusive_input_consumer() -> bool:
 	return _hovered_candidate != null
 
 
+func forward_inputs_when_exclusive_consumer() -> bool:
+	return true
+
+
 func set_preview_position(_in_position: Vector3) -> void:
 	_update_candidates_if_needed()
 
