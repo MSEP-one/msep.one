@@ -5,3 +5,6 @@
 
 [node name="AttributionPage" instance=ExtResource("1_5bfvd")]
 script = ExtResource("1_0l2rr")
+
+[node name="Tree" parent="VBoxContainer" index="0"]
+theme_type_variation = &"TreeCrystal"
