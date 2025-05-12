@@ -37,6 +37,8 @@ signal representation_changed(new_representation: Representation)
 @onready var _world_environment: WorldEnvironment = $WorldEnvironment
 @onready var _spring_preview: SpringPreview = $SpringPreview
 @onready var _selection_preview: SelectionPreview = $SelectionPreview
+@onready var _simulation_boundaries_representation: SimulationBoundariesRepresentation = $SimulationBoundariesRepresentation
+
 var _default_representation: Rendering.Representation = Representation.BALLS_AND_STICKS
 var _environment: Environment = null
 var _hover_disabled: bool = false
@@ -69,6 +71,8 @@ func initialize(in_workspace_context: WorkspaceContext) -> void:
 	assert(pow(2, _selection_layer_bit_enumerated_from_0) == RenderingUtils.get_selection_preview_visual_layer(),
 			"SELECTION_PREVIEW_LAYER_BIT must correspond with constants.gdshaderinc.SELECTION_PREVIEW_VISUAL_LAYER")
 	_workspace_context = in_workspace_context
+	_workspace_context.simulation_started.connect(_on_workspace_context_simulation_started)
+	_workspace_context.simulation_finished.connect(_on_workspace_context_simulation_finished)
 	var workspace: Workspace = in_workspace_context.workspace
 	workspace.representation_settings.changed.connect(_on_workspace_settings_changed)
 	workspace.representation_settings.theme_changed.connect(_on_representation_settings_theme_changed.bind(weakref(workspace)))
@@ -857,10 +861,40 @@ func spring_preview_hide() -> void:
 	_spring_preview.hide_preview()
 
 
+func _on_workspace_context_simulation_started() -> void:
+	_update_simulation_boundaries_visibility()
+
+
+func _on_workspace_context_simulation_finished() -> void:
+	_simulation_boundaries_representation.hide()
+
+
 func _on_workspace_settings_changed() -> void:
 	if not enabled: return
 	_refresh_viewport_background()
 	_refresh_outline_color()
+	_update_simulation_boundaries_visibility()
+
+
+func _update_simulation_boundaries_visibility() -> void:
+	if not is_instance_valid(_workspace_context):
+		_simulation_boundaries_representation.hide()
+		return
+	var workspace: Workspace = _workspace_context.workspace
+	if not is_instance_valid(workspace):
+		push_error("Workspace is not valid")
+		return
+	var representation_settings: RepresentationSettings = workspace.representation_settings
+	var should_show_simulation_boundaries: bool = (
+		_workspace_context.is_simulating()
+		and _workspace_context.workspace.simulation_settings_advanced_use_constrained_simulation_box
+		and representation_settings.get_display_simulation_boundaries()
+	)
+	if should_show_simulation_boundaries:
+		_simulation_boundaries_representation.setup(_workspace_context.get_simulation_boundaries())
+		_simulation_boundaries_representation.show()
+	else:
+		_simulation_boundaries_representation.hide()
 
 
 func _on_representation_settings_theme_changed(in_workspace_wref: WeakRef) -> void:

@@ -14,6 +14,7 @@ const LABELS_VISIBLE_BY_DEFAULT = false
 const HYDROGENS_VISIBLE_BY_DEFAULT = true
 const BONDS_VISIBLE_BY_DEFAULT = true
 const ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT = true
+const SIMULATION_BOUNDARIES_VISIBLE_BY_DEFAULT = true
 
 enum UserAtomSizeSource {
 	PHYSICAL_RADIUS,
@@ -40,6 +41,7 @@ enum UserAtomSizeSource {
 
 @export var _display_auto_posing: bool = ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT
 
+@export var _display_simulation_boundaries: bool = SIMULATION_BOUNDARIES_VISIBLE_BY_DEFAULT
 
 @export var _custom_selection_outline_color_enabled: bool = false
 
@@ -115,6 +117,15 @@ func set_display_auto_posing(new_display_auto_posing: bool) -> void:
 
 func get_display_auto_posing() -> bool:
 	return _display_auto_posing
+
+
+func set_display_simulation_boundaries(new_display_simulation_boundaries: bool) -> void:
+	_display_simulation_boundaries = new_display_simulation_boundaries
+	emit_changed()
+
+
+func get_display_simulation_boundaries() -> bool:
+	return _display_simulation_boundaries
 
 
 func set_bond_visibility_and_notify(new_bond_visibility: bool) -> void:

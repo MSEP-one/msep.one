@@ -387,3 +387,7 @@ is_bond_influence_highlight_enabled={
 "type": "float",
 "value": 0.0
 }
+simulation_boundaries_wireframe_color={
+"type": "color",
+"value": Color(0.0854945, 0.323129, 0.999996, 1)
+}
