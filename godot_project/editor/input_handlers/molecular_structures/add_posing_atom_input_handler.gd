@@ -471,6 +471,7 @@ func _on_representation_settings_changed() -> void:
 
 
 func _on_workspace_context_history_changed() -> void:
+	_atom_grid = null
 	_candidates_dirty = true
 	_update_candidates_if_needed()
 
