@@ -46,7 +46,13 @@ layout_mode = 2
 button_pressed = true
 text = "Show Potential Atom Positions"
 
+[node name="ShowSimulationBoundariesToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer"]
+layout_mode = 2
+button_pressed = true
+text = "Show Simulation Boundaries"
+
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowBondsToggle" to="." method="_on_show_bonds_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowLabelsToggle" to="." method="_on_show_labels_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowHydrogensToggle" to="." method="_on_show_hydrogens_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowPotentialAtomsToggle" to="." method="_on_show_potential_atoms_toggle_toggled"]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowSimulationBoundariesToggle" to="." method="_on_show_simulation_boundaries_toggle_toggled"]

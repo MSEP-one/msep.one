@@ -491,6 +491,20 @@ func start_simulating(in_simulation_data: SimulationData) -> void:
 	_simulation = in_simulation_data
 	simulation_started.emit()
 
+
+func get_simulation_boundaries() -> AABB:
+	assert(is_simulating(), "There's not an active simulation")
+	var aabb: AABB = _simulation.original_payload.calculated_aabb
+	if workspace != null:
+		var grow_factor: float = \
+			workspace.simulation_settings_advanced_constrained_simulation_box_size_percentage / 100.0
+		var grown_aabb := AABB()
+		grown_aabb.size = aabb.size * grow_factor
+		grown_aabb.position = aabb.get_center() - (grown_aabb.size * 0.5)
+		aabb = grown_aabb
+	return aabb
+
+
 # Plaback means the simulation is currently advancing every frame, this operation is very intensive
 # so some of the functionality is disabled during the playback and only refreshed after playback ends
 func set_simulation_playback_running(in_is_playback_running: bool) -> void:

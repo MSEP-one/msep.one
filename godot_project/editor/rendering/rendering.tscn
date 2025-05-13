@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cd8ybm2fs1ox"]
+[gd_scene load_steps=16 format=3 uid="uid://cd8ybm2fs1ox"]
 
 [ext_resource type="Script" uid="uid://c27b08chswrkq" path="res://editor/rendering/rendering.gd" id="1_vymcv"]
 [ext_resource type="PackedScene" uid="uid://cyy5lagn5jes7" path="res://editor/rendering/world_environment.tscn" id="2_vyad3"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://4hk2achugjb2" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_preview.tscn" id="9_hs37s"]
 [ext_resource type="PackedScene" uid="uid://dmf7a8rad2ixj" path="res://editor/rendering/spring_preview/spring_preview.tscn" id="10_cxht2"]
 [ext_resource type="PackedScene" uid="uid://d38yfchnnwvt" path="res://editor/rendering/selection_preview/selection_preview.tscn" id="12_n4gg0"]
+[ext_resource type="PackedScene" uid="uid://bamvuoulrst7s" path="res://editor/rendering/simulation_boundaries_representation/simulation_boundaries_representation.tscn" id="13_nh7yk"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_17w4n"]
 resource_local_to_scene = true
@@ -22,6 +23,9 @@ shading_mode = 0
 albedo_color = Color(0.168627, 0.172549, 0.580392, 1)
 albedo_texture = ExtResource("9_ey5dj")
 uv1_offset = Vector3(1, 0, 0)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bgi63"]
+resource_local_to_scene = true
 
 [node name="Rendering" type="Node" groups=["Rendering"]]
 script = ExtResource("1_vymcv")
@@ -78,6 +82,10 @@ modulate = Color(0.168627, 0.172549, 0.580392, 1)
 [node name="SpringPreview" parent="." instance=ExtResource("10_cxht2")]
 
 [node name="SelectionPreview" parent="." instance=ExtResource("12_n4gg0")]
+
+[node name="SimulationBoundariesRepresentation" parent="." instance=ExtResource("13_nh7yk")]
+layers = 3
+mesh = SubResource("BoxMesh_bgi63")
 
 [editable path="VirtualMotorPreview"]
 [editable path="VirtualMotorPreview/motor3D_Gears00"]

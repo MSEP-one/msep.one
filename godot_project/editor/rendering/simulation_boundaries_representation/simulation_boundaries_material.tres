@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://g7untydkwewi"]
+
+[ext_resource type="Shader" uid="uid://ddo3tdkn3vd8l" path="res://editor/rendering/simulation_boundaries_representation/simulation_boundaries_shader.gdshader" id="1_yuh64"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_yuh64")
+shader_parameter/wire_width = 0.8
