@@ -894,13 +894,22 @@ func _create_payload(
 			var springs_ids: PackedInt32Array = context.nano_structure.springs_get_all()
 			if in_selection_only:
 				atom_ids = context.get_selected_atoms()
-				bond_ids = context.get_selected_bonds()
+				# Ignore selected bonds, instead we will find existing bonds between selected atoms
+				var all_bonds_ids: PackedInt32Array = bond_ids
+				bond_ids = []
+				for bond_id: int in all_bonds_ids:
+					var bond: Vector3i = structure.get_bond(bond_id)
+					var atom_1: int = bond.x
+					var atom_2: int = bond.y
+					if atom_1 in atom_ids and atom_2 in atom_ids:
+						bond_ids.push_back(bond_id)
 				springs_ids = []
 				for spring_id: int in context.get_selected_springs():
 					# Only add the spring if the atom is also selected
 					if structure.spring_get_atom_id(spring_id) in atom_ids:
 						springs_ids.push_back(spring_id)
-			payload.add_structure(structure, atom_ids, bond_ids)
+			var is_partially_selected: bool = in_selection_only and not context.is_fully_selected()
+			payload.add_structure(structure, atom_ids, bond_ids, is_partially_selected)
 		
 			if in_include_springs:
 				payload.add_springs(context, springs_ids)

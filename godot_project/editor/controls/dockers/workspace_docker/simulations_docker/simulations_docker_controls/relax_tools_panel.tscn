@@ -30,7 +30,7 @@ unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
 button_group = SubResource("ButtonGroup_cya10")
-text = "Only selected molecules"
+text = "Selection only"
 
 [node name="OptionAllVisible" type="CheckBox" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
@@ -60,13 +60,6 @@ unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
 text = "Treat incomplete valences as if they have been filled by hydrogens"
-
-[node name="LabelSelectOnlyNotice" type="Label" parent="."]
-unique_name_in_owner = true
-layout_mode = 2
-text = "ℹ When relaxing selected molecules, all atoms in the molecule should be selected"
-horizontal_alignment = 1
-autowrap_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
