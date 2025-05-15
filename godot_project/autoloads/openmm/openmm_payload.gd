@@ -95,7 +95,7 @@ func add_structure(structure: AtomicStructure, atom_ids: PackedInt32Array,
 	for bond_id in bond_ids:
 		_store_bond_in_byte_array(structure, bond_id, original_to_request_atom_id_map)
 	
-	var atoms_to_pasivate: PackedInt32Array = atom_ids.duplicate() if passivate_molecules else []
+	var atoms_to_pasivate: PackedInt32Array = atom_ids.duplicate() if passivate_molecules else PackedInt32Array()
 	var bonds_for_passivation: PackedInt32Array = bond_ids.duplicate()
 	if is_partially_selected:
 		# When passing only selection and structure is partially selected, find if

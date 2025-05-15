@@ -1,7 +1,9 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://wvju7e8kntu2"]
 
-[ext_resource type="Shader" path="res://editor/rendering/reference_shape_renderer/reference_shape_shader.gdshader" id="1_wem1y"]
+[ext_resource type="Shader" uid="uid://cx6ygy56gp742" path="res://editor/rendering/reference_shape_renderer/reference_shape_shader.gdshader" id="1_wem1y"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_wem1y")
+shader_parameter/default_wire_width = 0.8
+shader_parameter/hovered_wire_width = 2.4
