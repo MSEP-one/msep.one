@@ -22,11 +22,12 @@ signal validate_bonds_requested(selection_only: bool)
 
 
 enum CreateModeType {
-	CREATE_ATOMS_AND_BONDS,
-	CREATE_SHAPES,
-	CREATE_FRAGMENT,
-	CREATE_VIRTUAL_MOTORS,
-	CREATE_ANCHORS_AND_SPRINGS,
+	CREATE_ATOMS_AND_BONDS     = 0,
+	CREATE_SHAPES              = 1,
+	CREATE_FRAGMENT            = 2,
+	CREATE_VIRTUAL_MOTORS      = 3,
+	CREATE_PARTICLE_EMITTERS   = 4,
+	CREATE_ANCHORS_AND_SPRINGS = 5,
 	CREATE_CUSTOM
 }
 
@@ -55,6 +56,7 @@ var _create_mode_enabled: bool = false
 var _create_mode_type: CreateModeType = CreateModeType.CREATE_ATOMS_AND_BONDS
 var _selected_shape_for_new_objects: PrimitiveMesh
 var _selected_virtual_motor_parameters: NanoVirtualMotorParameters
+var _new_particle_emitter_parameters := NanoParticleEmitterParameters.new()
 
 var drop_distance: float = 20:
 	get = get_drop_distance
@@ -169,6 +171,10 @@ func get_selected_virtual_motor_parameters() -> NanoVirtualMotorParameters:
 		# Default is rotary motor
 		return new_rotary_motor_parameters
 	return _selected_virtual_motor_parameters
+
+
+func get_new_particle_emitter_parameters() -> NanoParticleEmitterParameters:
+	return _new_particle_emitter_parameters
 
 
 func get_drop_distance() -> float:
