@@ -25,7 +25,7 @@ var topology_bonds: PackedByteArray = []
 var topology_passivated_atoms: PackedByteArray = []
 var atoms_state: PackedByteArray = []
 var passivation_state: PackedByteArray = []
-var request_atom_id_to_structure_and_atom_id_map: Dictionary = {
+var request_atom_id_to_structure_and_atom_id_map: Dictionary[int,PackedInt32Array] = {
 #	request_atom_id: int = [structure_int_guid: int, atom_id: int]
 }
 var raw_initial_positions: PackedVector3Array = [] # Unaltered positions from the source structure
@@ -65,14 +65,15 @@ func _init(in_workspace: Workspace) -> void:
 		constrained_simulation_box_size_percentage = in_workspace.simulation_settings_advanced_constrained_simulation_box_size_percentage
 
 
-func add_structure(structure: NanoStructure, atom_ids: PackedInt32Array, bond_ids: PackedInt32Array) -> void:
+func add_structure(structure: AtomicStructure, atom_ids: PackedInt32Array,
+		bond_ids: PackedInt32Array, is_partially_selected: bool) -> void:
+	
 	atoms_count += atom_ids.size()
 	bonds_count += bond_ids.size()
 	
 	# Pack molecule header data
 	# chunk[0-3]:  molecule_id
 	# chunk[4-7]:  atoms_count
-	# chunk[8-11]: bonds_count
 	molecules_ids.push_back(structure.int_guid)
 	atoms_count_per_molecule[structure.int_guid] = atom_ids.size()
 	bonds_count_per_molecule[structure.int_guid] = bond_ids.size()
@@ -82,79 +83,75 @@ func add_structure(structure: NanoStructure, atom_ids: PackedInt32Array, bond_id
 	topology_molecules.encode_u32(pos, structure.int_guid)
 	pos += MOLECULE_ID_SIZE
 	# Atoms count
+	var atoms_count_position: int = pos
 	topology_molecules.encode_u32(pos, atom_ids.size())
 	pos += COUNT_SIZE
 	
-	var original_to_request_atom_id_map: Dictionary = {}
+	var original_to_request_atom_id_map: Dictionary[int, int] = {}
 	for atom_id in atom_ids:
-		# Register atom id
-		var request_atom_id: int = next_request_atom_id
-		request_atom_id_to_structure_and_atom_id_map[request_atom_id] = [structure.int_guid, atom_id]
-		original_to_request_atom_id_map[atom_id] = request_atom_id
-		next_request_atom_id += 1
-		
-		# Save topology_atoms data
-		# chunk[0]: element
-		# chunk[1]: hidrolization
-		# chunk[2]: formal_charge
-		# chunk[3]: is_locked
-		var atomic_number: int = structure.atom_get_atomic_number(atom_id)
-		topology_atoms.append(atomic_number)
-		topology_atoms.append(0) # (reserved to specfy one of [auto, sp, sp2, sp3, sp3d, and sp3d2]
-		var formal_charge: int = int(structure.atom_get_formal_charge(atom_id))
-		topology_atoms.append(abs(formal_charge))
-		if formal_charge < 0:
-			topology_atoms[-1] |= 0b10000000
 		var is_atom_locked: bool = lock_atoms and structure.atom_is_locked(atom_id)
-		topology_atoms.push_back(1 if is_atom_locked else 0)
-		
-		# Save state data
-		# chunk[0-7]:   position X
-		# chunk[8-15]:  position Y
-		# chunk[16-23]: position Z
-		var atom_pos: Vector3 = structure.atom_get_position(atom_id)
-		_expand_aabb_to(atom_pos)
-		raw_initial_positions.push_back(atom_pos)
-		if nudge_atoms_fix_enabled and not is_atom_locked:
-			atom_pos += _create_random_nudge()
-		initial_positions.push_back(atom_pos)
-		var atoms_seek: int = atoms_state.size()
-		atoms_state.resize(atoms_state.size() + POSITION_CHUNK_SIZE)
-		for axis: int in [Vector3.AXIS_X, Vector3.AXIS_Y, Vector3.AXIS_Z]:
-			atoms_state.encode_double(atoms_seek, atom_pos[axis])
-			atoms_seek += FLOAT_SIZE
+		_store_atom_in_byte_array(structure, atom_id, is_atom_locked, original_to_request_atom_id_map)
+
 	for bond_id in bond_ids:
-		# chunk[0-3]: atom1
-		# chunk[4-7]: atom2
-		# chunk[8]:   order
-		var bond: Vector3i = structure.get_bond(bond_id)
-		var atom1: int = original_to_request_atom_id_map[bond.x]
-		var atom2: int = original_to_request_atom_id_map[bond.y]
-		var order: int = bond.z
-		var bonds_seek: int = topology_bonds.size()
-		topology_bonds.resize(topology_bonds.size() + BOND_CHUNK_SIZE)
-		topology_bonds.encode_u32(bonds_seek, atom1)
-		bonds_seek += ATOM_ID_SIZE
-		topology_bonds.encode_u32(bonds_seek, atom2)
-		bonds_seek += ATOM_ID_SIZE
-		topology_bonds.encode_u8(bonds_seek,order)
+		_store_bond_in_byte_array(structure, bond_id, original_to_request_atom_id_map)
+	
+	var atoms_to_pasivate: PackedInt32Array = atom_ids.duplicate() if passivate_molecules else []
+	var bonds_for_passivation: PackedInt32Array = bond_ids.duplicate()
+	if is_partially_selected:
+		# When passing only selection and structure is partially selected, find if
+		# there are additional unselected atoms connected to the atoms to relax.
+		# Those atoms are added to the payload as locked passivated atoms
+		var unselected_atoms := PackedInt32Array()
+		for atom_id: int in atom_ids:
+			var bonds: PackedInt32Array = structure.atom_get_bonds(atom_id)
+			for bond_id: int in bonds:
+				var other_atom_id: int = structure.atom_get_bond_target(atom_id, bond_id)
+				if not other_atom_id in atom_ids:
+					# other_atom_id is unselected, let's add it to the payload and also passivate it
+					if not original_to_request_atom_id_map.has(other_atom_id):
+						# same unselected atom could be connected to 2 selected atoms,
+						# in that case we only need to add the bond
+						unselected_atoms.push_back(other_atom_id)
+						const ATOM_LOCKED = true
+						_store_atom_in_byte_array(structure, other_atom_id, ATOM_LOCKED,
+							original_to_request_atom_id_map)
+						atoms_count += 1
+						atoms_count_per_molecule[structure.int_guid] += 1
+						atoms_to_pasivate.push_back(other_atom_id)
+					_store_bond_in_byte_array(structure, bond_id, original_to_request_atom_id_map)
+					bonds_count += 1
+					bonds_count_per_molecule[structure.int_guid] += 1
+					bonds_for_passivation.push_back(bond_id)
+		# Find bonds between unselected atoms
+		for atom_id: int in unselected_atoms:
+			var bonds: PackedInt32Array = structure.atom_get_bonds(atom_id)
+			for bond_id: int in bonds:
+				var other_atom_id: int = structure.atom_get_bond_target(atom_id, bond_id)
+				if other_atom_id in unselected_atoms and not bond_id in bonds_for_passivation:
+					# found a pair of unselected atoms that is bonded, let's add it's bond as well
+					_store_bond_in_byte_array(structure, bond_id, original_to_request_atom_id_map)
+					bonds_count += 1
+					bonds_count_per_molecule[structure.int_guid] += 1
+					bonds_for_passivation.push_back(bond_id)
+		# Update Atoms count
+		var atoms_in_molecule: int = atoms_count_per_molecule[structure.int_guid]
+		topology_molecules.encode_u32(atoms_count_position, atoms_in_molecule)
 	
 	var structure_passivation_atoms_count: int = 0
-	if passivate_molecules:
-		var passivate_state_pos: int = passivation_state.size()
-		var passivate_atom_pos: int = topology_passivated_atoms.size()
-		for atom_id in atom_ids:
-			var hydrogen_candidates: PackedVector3Array = _passivate_atom(structure, atom_id)
-			var request_id: int = original_to_request_atom_id_map[atom_id]
-			structure_passivation_atoms_count += hydrogen_candidates.size()
-			passivation_state.resize(passivation_state.size() + POSITION_CHUNK_SIZE * hydrogen_candidates.size())
-			topology_passivated_atoms.resize(topology_passivated_atoms.size() + ATOM_ID_SIZE * hydrogen_candidates.size())
-			for candidate: Vector3 in hydrogen_candidates:
-				for axis: int in [Vector3.AXIS_X, Vector3.AXIS_Y, Vector3.AXIS_Z]:
-					passivation_state.encode_double(passivate_state_pos, candidate[axis])
-					passivate_state_pos += FLOAT_SIZE
-				topology_passivated_atoms.encode_u32(passivate_atom_pos, request_id)
-				passivate_atom_pos += ATOM_ID_SIZE
+	var passivate_state_pos: int = passivation_state.size()
+	var passivate_atom_pos: int = topology_passivated_atoms.size()
+	for atom_id in atoms_to_pasivate:
+		var hydrogen_candidates: PackedVector3Array = _passivate_atom(structure, atom_id, bonds_for_passivation)
+		var request_id: int = original_to_request_atom_id_map[atom_id]
+		structure_passivation_atoms_count += hydrogen_candidates.size()
+		passivation_state.resize(passivation_state.size() + POSITION_CHUNK_SIZE * hydrogen_candidates.size())
+		topology_passivated_atoms.resize(topology_passivated_atoms.size() + ATOM_ID_SIZE * hydrogen_candidates.size())
+		for candidate: Vector3 in hydrogen_candidates:
+			for axis: int in [Vector3.AXIS_X, Vector3.AXIS_Y, Vector3.AXIS_Z]:
+				passivation_state.encode_double(passivate_state_pos, candidate[axis])
+				passivate_state_pos += FLOAT_SIZE
+			topology_passivated_atoms.encode_u32(passivate_atom_pos, request_id)
+			passivate_atom_pos += ATOM_ID_SIZE
 	# Passivation Atoms Count
 	topology_molecules.encode_u32(pos, structure_passivation_atoms_count)
 	pos += COUNT_SIZE
@@ -166,6 +163,65 @@ func add_structure(structure: NanoStructure, atom_ids: PackedInt32Array, bond_id
 			+ atoms_count * ATOM_CHUNK_SIZE \
 			+ bonds_count * BOND_CHUNK_SIZE \
 			+ passivated_atoms_count * ATOM_ID_SIZE)
+
+
+func _store_atom_in_byte_array(structure: AtomicStructure, in_atom_id: int,
+		in_atom_locked: bool,
+		out_original_to_request_atom_id_map: Dictionary[int,int]) -> void:
+	
+	# Register atom id
+	var request_atom_id: int = next_request_atom_id
+	request_atom_id_to_structure_and_atom_id_map[request_atom_id] = PackedInt32Array([structure.int_guid, in_atom_id])
+	out_original_to_request_atom_id_map[in_atom_id] = request_atom_id
+	next_request_atom_id += 1
+	
+	# Save atoms topology data
+	# chunk[0]: element
+	# chunk[1]: hidrolization
+	# chunk[2]: formal_charge
+	# chunk[3]: is_locked
+	var atomic_number: int = structure.atom_get_atomic_number(in_atom_id)
+	topology_atoms.append(atomic_number)
+	topology_atoms.append(0) # (reserved to specfy one of [auto, sp, sp2, sp3, sp3d, and sp3d2]
+	var formal_charge: int = int(structure.atom_get_formal_charge(in_atom_id))
+	topology_atoms.append(abs(formal_charge))
+	if formal_charge < 0:
+		topology_atoms[-1] |= 0b10000000
+	topology_atoms.push_back(1 if in_atom_locked else 0)
+	
+	# Save state data
+	# chunk[0-7]:   position X
+	# chunk[8-15]:  position Y
+	# chunk[16-23]: position Z
+	var atom_pos: Vector3 = structure.atom_get_position(in_atom_id)
+	_expand_aabb_to(atom_pos)
+	raw_initial_positions.push_back(atom_pos)
+	if nudge_atoms_fix_enabled and not in_atom_locked:
+		atom_pos += _create_random_nudge()
+	initial_positions.push_back(atom_pos)
+	var atoms_seek: int = atoms_state.size()
+	atoms_state.resize(atoms_state.size() + POSITION_CHUNK_SIZE)
+	for axis: int in [Vector3.AXIS_X, Vector3.AXIS_Y, Vector3.AXIS_Z]:
+		atoms_state.encode_double(atoms_seek, atom_pos[axis])
+		atoms_seek += FLOAT_SIZE
+
+
+func _store_bond_in_byte_array(structure: AtomicStructure, in_bond_id: int,
+			in_original_to_request_atom_id_map: Dictionary[int,int]) -> void:
+		# chunk[0-3]: atom1
+		# chunk[4-7]: atom2
+		# chunk[8]:   order
+		var bond: Vector3i = structure.get_bond(in_bond_id)
+		var atom1: int = in_original_to_request_atom_id_map[bond.x]
+		var atom2: int = in_original_to_request_atom_id_map[bond.y]
+		var order: int = bond.z
+		var bonds_seek: int = topology_bonds.size()
+		topology_bonds.resize(topology_bonds.size() + BOND_CHUNK_SIZE)
+		topology_bonds.encode_u32(bonds_seek, atom1)
+		bonds_seek += ATOM_ID_SIZE
+		topology_bonds.encode_u32(bonds_seek, atom2)
+		bonds_seek += ATOM_ID_SIZE
+		topology_bonds.encode_u8(bonds_seek,order)
 
 
 func add_shape(in_shape: NanoShape) -> void:
@@ -319,16 +375,20 @@ func _create_random_nudge() -> Vector3:
 	return nudge
 
 # Returns a list of positions where hydrogens bonded to atoms would preferably be placed
-func _passivate_atom(in_structure: AtomicStructure, in_atom_id: int) -> PackedVector3Array:
+func _passivate_atom(in_structure: AtomicStructure, in_atom_id: int, in_included_bond_ids: PackedInt32Array) -> PackedVector3Array:
 	var directions: PackedVector3Array = []
-	var remaininig_valence: int = in_structure.atom_get_remaining_valence(in_atom_id)
+	#var remaininig_valence: int = in_structure.atom_get_remaining_valence(in_atom_id)
+	var remaininig_valence: int = _calculate_remaining_valence(in_structure, in_atom_id, in_included_bond_ids)
 	if remaininig_valence > 0:
 		# Add hydrogens
 		var atomic_number: int = in_structure.atom_get_atomic_number(in_atom_id)
 		var element_data: ElementData = PeriodicTable.get_by_atomic_number(atomic_number)
 		var atom_position: Vector3 = in_structure.atom_get_position(in_atom_id)
 		var current_atom := HAtomsEmptyValenceDirections.Atom.new(atom_position, element_data.symbol)
-		var known_bonds: PackedInt32Array = in_structure.atom_get_bonds(in_atom_id)
+		var known_bonds: PackedInt32Array = []
+		for bond_id: int in in_structure.atom_get_bonds(in_atom_id):
+			if bond_id in in_included_bond_ids:
+				known_bonds.push_back(bond_id)
 		current_atom.valence = remaininig_valence + known_bonds.size()
 		match current_atom.valence:
 			4:
@@ -370,6 +430,22 @@ func _passivate_atom(in_structure: AtomicStructure, in_atom_id: int) -> PackedVe
 			# Correct the position of each atom
 			directions[i] = _place_passivation_hydrogen(in_structure, in_atom_id, directions[i])
 	return directions
+
+
+func _calculate_remaining_valence(in_structure: AtomicStructure, in_atom_id: int, in_included_bond_ids: PackedInt32Array) -> int:
+	var data: ElementData = PeriodicTable.get_by_atomic_number(in_structure.atom_get_atomic_number(in_atom_id))
+	var atom_bonds: PackedInt32Array = in_structure.atom_get_bonds(in_atom_id)
+	var used_valence: int = 0
+	for bond_id in atom_bonds:
+		if not bond_id in in_included_bond_ids:
+			continue
+		var bond_order: int = in_structure.get_bond(bond_id).z
+		used_valence += bond_order
+	var valence_left: int = data.valence
+	if data.number > 5:
+		valence_left = 8 - valence_left
+	valence_left -= used_valence
+	return valence_left
 
 
 func _place_passivation_hydrogen(in_nano_structure: NanoStructure, in_atom_id: int, in_direction: Vector3) -> Vector3:

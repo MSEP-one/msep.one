@@ -1076,29 +1076,12 @@ static func _can_relax_selection(in_workspace_context: WorkspaceContext) -> bool
 			in_workspace_context.get_atomic_structure_contexts_with_selection()
 	if selected_structures.is_empty():
 		return false
-	var something_selected: bool = false
 	for context in selected_structures:
 		var structure: AtomicStructure = context.nano_structure
 		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
-		var selected_bonds: PackedInt32Array = context.get_selected_bonds()
-		# Atoms selection could be empty if only springs are selected
-		something_selected = something_selected or not selected_atoms.is_empty()
-		# 1. Check if all bonds connected to selected atoms are also selected
-		for atom_id in selected_atoms:
-			var atom_bonds: PackedInt32Array = structure.atom_get_bonds(atom_id)
-			for atom_bond_id in atom_bonds:
-				if not atom_bond_id in selected_bonds:
-					# At least one bond is not selected
-					# This means molecule is not fully selected
-					return false
-		# 2. Check if all atoms connected to selected bonds are also selected
-		for bond_id: int in selected_bonds:
-			var bond_data: Vector3i = structure.get_bond(bond_id)
-			if not bond_data.x in selected_atoms or not bond_data.y in selected_atoms:
-				# At least one atom is not selected
-				# This means molecule is not fully selected
-				return false
-	return something_selected
+		if not selected_atoms.is_empty():
+			return true
+	return false
 
 
 static func _can_relax_all(in_workspace_context: WorkspaceContext) -> bool:

@@ -11,14 +11,11 @@ var _temperature_picker: TemperaturePicker = null
 var _check_box_maintain_locks: CheckBox = null
 var _check_box_include_springs: CheckBox = null
 var _check_box_passivate_molecules: CheckBox = null
-var _label_select_only_notice: Label = null
 var _button_run_relaxation: Button = null
 var _button_view_alerts: Button = null
 var _open_mm_failure_tracker: OpenMMFailureTracker
 var _atomic_structure_model_validator: AtomicStructureModelValidator = null
 var _workspace_context: WorkspaceContext = null
-var _selection_only_notice_dimmed: bool = true
-
 
 
 func _notification(in_what: int) -> void:
@@ -33,13 +30,11 @@ func _notification(in_what: int) -> void:
 		FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
 		var show_temperature_picker: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.RELAX_EDITABLE_TEMPERATURE)
 		_temperature_picker.visible = show_temperature_picker
-		_label_select_only_notice = %LabelSelectOnlyNotice as Label
 		_button_run_relaxation = %ButtonRunRelaxation as Button
 		_button_view_alerts = %ButtonViewAlerts as Button
 		_open_mm_failure_tracker = %OpenMMFailureTracker as OpenMMFailureTracker
 		_atomic_structure_model_validator = %AtomicStructureModelValidator as AtomicStructureModelValidator
 		assert(_option_group.get_pressed_button() != null, "There's no a default state!")
-		_label_select_only_notice.self_modulate.a = _DIMMED_ALPHA
 		_option_group.pressed.connect(_on_option_group_pressed)
 		_button_run_relaxation.pressed.connect(_on_button_run_relaxation_pressed)
 		_button_view_alerts.pressed.connect(_on_button_view_alerts_pressed)
@@ -92,12 +87,6 @@ func _on_workspace_context_alerts_panel_visibility_changed(in_is_visible: bool) 
 func _update_button_run_relaxation_state() -> void:
 	var can_relax: bool = WorkspaceUtils.can_relax(_workspace_context, _is_relax_selection_only_selected())
 	_button_run_relaxation.disabled = not can_relax
-	var should_dim_notice: bool = not _button_run_relaxation.disabled
-	if _selection_only_notice_dimmed != should_dim_notice:
-		_selection_only_notice_dimmed = should_dim_notice
-		var tween: Tween = create_tween()
-		var target_alpha: float = _DIMMED_ALPHA if should_dim_notice else 1.0
-		tween.tween_property(_label_select_only_notice, "self_modulate:a", target_alpha, 0.1)
 
 
 func _on_option_group_pressed(_in_button: BaseButton) -> void:
