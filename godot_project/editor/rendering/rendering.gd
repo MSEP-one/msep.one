@@ -883,6 +883,7 @@ func _update_simulation_boundaries_visibility() -> void:
 	var workspace: Workspace = _workspace_context.workspace
 	if not is_instance_valid(workspace):
 		push_error("Workspace is not valid")
+		_simulation_boundaries_representation.hide()
 		return
 	var representation_settings: RepresentationSettings = workspace.representation_settings
 	var should_show_simulation_boundaries: bool = (
