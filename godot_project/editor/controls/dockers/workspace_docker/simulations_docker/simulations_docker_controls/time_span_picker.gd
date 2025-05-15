@@ -27,6 +27,13 @@ var _spin_box_slider: SpinBoxSlider = null
 var _option_button_time_span_unit: OptionButton = null
 
 
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+	if not tooltip_text.is_empty() and _spin_box_slider.tooltip_text.is_empty():
+		_spin_box_slider.tooltip_text = tooltip_text
+
+
 func _notification(in_what: int) -> void:
 	if in_what == NOTIFICATION_SCENE_INSTANTIATED:
 		# Hack: time_span_femtoseconds is assigned on _init, but cannot be assigned to

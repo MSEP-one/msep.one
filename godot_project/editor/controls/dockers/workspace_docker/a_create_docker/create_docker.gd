@@ -63,6 +63,16 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/a_create_docker/create_virtual_motor_panel.tscn"
 			]
 		},
+	&"Particle Emitters":
+		{
+			header = true,
+			scroll = false,
+			collapse = false,
+			start_collapsed = false,
+			controls = [
+				"res://editor/controls/dockers/workspace_docker/a_create_docker/create_particle_emitter_panel.tscn"
+			]
+		},
 	&"Virtual Springs":
 		{
 			header = true,

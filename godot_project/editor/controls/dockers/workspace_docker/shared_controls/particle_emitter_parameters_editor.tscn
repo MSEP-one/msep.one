@@ -1,0 +1,213 @@
+[gd_scene load_steps=6 format=3 uid="uid://c7itseuxfv2fj"]
+
+[ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_74ssd"]
+[ext_resource type="Script" uid="uid://v3smn5bgab3l" path="res://editor/controls/dockers/workspace_docker/shared_controls/particle_emitter_parameters_editor.gd" id="1_f4m0x"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_a8qyp"]
+[ext_resource type="PackedScene" uid="uid://bvcir1rta2mqw" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview.tscn" id="3_va07x"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_6vwam"]
+
+[node name="ParticleEmitterParametersEditor" type="VBoxContainer"]
+script = ExtResource("1_f4m0x")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Parameters"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="RotaryMotorParametersEditor" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Initial Delay"
+vertical_alignment = 1
+
+[node name="InitialDelayTimePicker" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("1_74ssd")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Used to configure when the particle emitter starts emitting, first emission will happen at this time in the simulation."
+time_span_femtoseconds = 0.0
+min_value_in_femtoseconds = 0.0
+
+[node name="SpinBoxSlider" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/InitialDelayTimePicker" index="0"]
+min_value = 0.0
+value = 0.0
+
+[node name="Label8" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Create"
+vertical_alignment = 1
+
+[node name="MoleculesPerInstanceSpinBox" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("2_a8qyp")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Every time the particle emitter creates molecules, it will create this amount at the same time."
+min_value = 1.0
+max_value = 50.0
+value = 1.0
+allow_greater = true
+suffix = "Molecules"
+
+[node name="Label2" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Every"
+vertical_alignment = 1
+
+[node name="InstanceRateTimePicker" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("1_74ssd")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Interval between particles instantations."
+time_span_femtoseconds = 50.0
+min_value_in_femtoseconds = 0.0
+
+[node name="Label4" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = " ・ Initial Speed"
+vertical_alignment = 1
+
+[node name="InitialSpeedSpinBox" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("2_a8qyp")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "As soon as molecules are created, they will have this initial speed, in the direction of the Particle Emitter. This is necesary to prevent particles from crowding the area.
+See also: Spread Angle"
+max_value = 2.0
+step = 0.001
+value = 0.5
+allow_greater = true
+suffix = "nm/ps"
+
+[node name="Label3" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = " ・ Spread Angle"
+vertical_alignment = 1
+
+[node name="SpreadAngleSpinBox" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("2_a8qyp")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Initial velocity direction will be randomized inside a cone with this aperture, this allows to control spreading of molecules in the system
+"
+max_value = 180.0
+step = 0.001
+suffix = "º"
+
+[node name="Label5" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Stop condition"
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="StopNeverButton" type="Button" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Particle emitter will continue creating molecules until the simulation ends."
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_6vwam")
+text = "Never"
+
+[node name="StopCountButton" type="Button" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Particle emitter will continue creating molecules until it has created this many molecules."
+theme_type_variation = &"StructureSelectorTernary"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_6vwam")
+text = "At Count"
+
+[node name="StopTimeButton" type="Button" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Particle emitter will continue creating molecules until this moment in the timeline."
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_6vwam")
+text = "After Time"
+
+[node name="LimitLabel" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Stop after"
+vertical_alignment = 1
+
+[node name="LimitInstancesSpinBox" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("2_a8qyp")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Particle emitter will continue creating molecules until it has created this many molecules."
+min_value = 1.0
+max_value = 50.0
+value = 50.0
+allow_greater = true
+suffix = "Instances"
+
+[node name="LimitNanosecondsTimePicker" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("1_74ssd")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "Particle emitter will continue creating molecules until this moment in the timeline."
+time_span_femtoseconds = 50.0
+min_value_in_femtoseconds = 0.0
+
+[node name="Label2" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Molecule Template"
+
+[node name="PanelContainer2" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer2"]
+layout_mode = 2
+
+[node name="MoleculePreview" parent="PanelContainer2/VBoxContainer" instance=ExtResource("3_va07x")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer2/VBoxContainer"]
+layout_mode = 2
+
+[node name="LoadMoleculeFromSelectionButton" type="Button" parent="PanelContainer2/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Create a template from selected atoms and bonds."
+theme_type_variation = &"CrystalButton"
+text = "Set from Selection"
+
+[node name="LoadMoleculeFromLibraryButton" type="Button" parent="PanelContainer2/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Select from the Small Molecules library."
+theme_type_variation = &"CrystalButton"
+text = "Set from Small Molecules"
+
+[editable path="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/InitialDelayTimePicker"]

@@ -24,6 +24,7 @@ const SHOW_ASYNC_PROCESS_ELAPSED_TIME = &"feature_flags/show_async_process_elaps
 const RELAX_EDITABLE_TEMPERATURE = &"feature_flags/relax_editable_temperature"
 const TEMPERATURE_IN_FAHRENHEIT = &"feature_flags/temperature_in_fahrenheit"
 const FEATURE_FLAG_VIRTUAL_MOTORS = &"feature_flags/virtual_motors"
+const FEATURE_FLAG_PARTICLE_EMITTERS = &"feature_flags/particle_emitters"
 const FEATURE_FLAG_VIRTUAL_MOTORS_SIMULATION_WARNING = &"feature_flags/virtual_motors_simulation_warning"
 const FEATURE_FLAG_VIRTUAL_SPRINGS = &"feature_flags/virtual_springs"
 const FEATURE_FLAG_APPLY_WORKSPACE_VERSION_FIXES = &"feature_flags/apply_workspace_version_fixes"

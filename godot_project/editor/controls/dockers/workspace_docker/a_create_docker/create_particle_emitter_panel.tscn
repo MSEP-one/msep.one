@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://dknplmbqictst"]
+
+[ext_resource type="Script" uid="uid://dpnjg8a3642kc" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_particle_emitter_panel.gd" id="1_6vwam"]
+[ext_resource type="PackedScene" uid="uid://c7itseuxfv2fj" path="res://editor/controls/dockers/workspace_docker/shared_controls/particle_emitter_parameters_editor.tscn" id="2_jvqep"]
+
+[node name="CreateParticleEmitterPanel" type="MarginContainer"]
+offset_right = 361.0
+offset_bottom = 610.0
+script = ExtResource("1_6vwam")
+
+[node name="ParticleEmitterParametersEditor" parent="." instance=ExtResource("2_jvqep")]
+unique_name_in_owner = true
+layout_mode = 2
