@@ -1077,7 +1077,6 @@ static func _can_relax_selection(in_workspace_context: WorkspaceContext) -> bool
 	if selected_structures.is_empty():
 		return false
 	for context in selected_structures:
-		var structure: AtomicStructure = context.nano_structure
 		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
 		if not selected_atoms.is_empty():
 			return true
