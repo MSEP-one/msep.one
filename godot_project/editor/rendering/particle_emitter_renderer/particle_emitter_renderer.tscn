@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://b0jv0ex0g4qmp"]
+
+[ext_resource type="PackedScene" uid="uid://cn6hp8lf5rmjm" path="res://editor/rendering/particle_emitter_renderer/assets/ParticleEmitterModel.glb" id="1_i0uky"]
+[ext_resource type="Script" uid="uid://e4ldy5p573rs" path="res://editor/rendering/particle_emitter_renderer/particle_emitter_renderer.gd" id="1_ytgeg"]
+
+[node name="ParticleEmitterRenderer" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+script = ExtResource("1_ytgeg")
+
+[node name="ParticleEmitterModel" parent="." instance=ExtResource("1_i0uky")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
