@@ -171,6 +171,10 @@ func _is_input_handler_registered(input_handler_class: Script) -> bool:
 
 func _input_handlers_compare(a: InputHandlerBase, b: InputHandlerBase) -> bool:
 	if a.get_priority() == b.get_priority():
+		if a == b:
+			# sort_custom is just being dumb, no need to give a warning
+			# https://github.com/godotengine/godot/issues/106599
+			return false
 		push_warning("input handlers '%s' and '%s' share the same priority %f, will be sort alphabetically by file path" %
 		[a.get_script().resource_path, b.get_script().resource_path, a.get_priority()])
 		return a.get_script().resource_path > b.get_script().resource_path

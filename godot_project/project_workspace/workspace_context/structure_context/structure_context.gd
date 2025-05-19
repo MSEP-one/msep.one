@@ -214,6 +214,10 @@ func is_motor_selected() -> bool:
 	return _selection_db.is_virtual_object_selected() and nano_structure is NanoVirtualMotor
 
 
+func is_particle_emitter_selected() -> bool:
+	return _selection_db.is_virtual_object_selected() and nano_structure is NanoParticleEmitter
+
+
 func is_anchor_selected() -> bool:
 	return _selection_db.is_virtual_object_selected() and nano_structure is NanoVirtualAnchor
 
@@ -229,6 +233,8 @@ func is_fully_selected() -> bool:
 		return is_shape_selected()
 	if nano_structure is NanoVirtualMotor:
 		return is_motor_selected()
+	if nano_structure is NanoParticleEmitter:
+		return is_particle_emitter_selected()
 	if nano_structure is NanoVirtualAnchor: 
 		if not is_anchor_selected():
 			# Anchor is not selected, make an early return
@@ -377,6 +383,11 @@ func set_shape_selected(in_selected: bool) -> void:
 
 func set_motor_selected(in_selected: bool) -> void:
 	if nano_structure is NanoVirtualMotor:
+		_selection_db.set_virtual_object_selected(in_selected)
+
+
+func set_particle_emitter_selected(in_selected: bool) -> void:
+	if nano_structure is NanoParticleEmitter:
 		_selection_db.set_virtual_object_selected(in_selected)
 
 
