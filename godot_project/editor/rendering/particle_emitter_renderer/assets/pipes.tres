@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://b5pxcybk6ahrt"]
+
+[ext_resource type="Shader" uid="uid://crf7cxtd6i1eh" path="res://editor/rendering/virtual_motor_renderer/asset/motor_material.gdshader" id="1_4gb5q"]
+
+[resource]
+resource_name = "pipes"
+render_priority = 0
+shader = ExtResource("1_4gb5q")
+shader_parameter/outline_thickness = 0.2
+shader_parameter/is_hovered = 0.0
+shader_parameter/is_selectable = 1.0
+shader_parameter/saturation = 1.0
+shader_parameter/value_correction = 1.0
+shader_parameter/albedo = Color(0.906332, 0.588694, 0.554013, 1)
+shader_parameter/roughness = 0.5
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/is_selected = 0.0

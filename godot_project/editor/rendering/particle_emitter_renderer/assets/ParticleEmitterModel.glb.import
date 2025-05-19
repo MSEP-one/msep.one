@@ -32,6 +32,25 @@ animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
-_subresources={}
+_subresources={
+"materials": {
+"belt": {
+"use_external/enabled": true,
+"use_external/path": "res://editor/rendering/particle_emitter_renderer/assets/belt.tres"
+},
+"block": {
+"use_external/enabled": true,
+"use_external/path": "res://editor/rendering/particle_emitter_renderer/assets/block.tres"
+},
+"cylinder": {
+"use_external/enabled": true,
+"use_external/path": "res://editor/rendering/particle_emitter_renderer/assets/cylinder.tres"
+},
+"pipes": {
+"use_external/enabled": true,
+"use_external/path": "res://editor/rendering/particle_emitter_renderer/assets/pipes.tres"
+}
+}
+}
 gltf/naming_version=1
 gltf/embedded_image_handling=1
