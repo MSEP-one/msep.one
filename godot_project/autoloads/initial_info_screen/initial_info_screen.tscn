@@ -1,8 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://dxr8wwnkafu0b"]
+[gd_scene load_steps=7 format=3 uid="uid://dxr8wwnkafu0b"]
 
 [ext_resource type="Script" uid="uid://rox2byn31qs3" path="res://autoloads/initial_info_screen/initial_info_screen.gd" id="1_1nwna"]
 [ext_resource type="Shader" uid="uid://cehfsfju1x4m5" path="res://autoloads/initial_info_screen/initial_info_screen.gdshader" id="2_k0y41"]
-[ext_resource type="Theme" uid="uid://d3fnr4sbrd6ik" path="res://theme/theme.tres" id="3_lpwn0"]
 [ext_resource type="Texture2D" uid="uid://bm36o6fo1evuo" path="res://logo.png" id="4_4ravn"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_g7c2g"]
@@ -44,7 +43,6 @@ grow_vertical = 2
 
 [node name="Label" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-theme = ExtResource("3_lpwn0")
 theme_type_variation = &"HeaderLarge"
 theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
 theme_override_constants/shadow_offset_x = 0
@@ -82,7 +80,7 @@ stretch_mode = 6
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-theme_type_variation = &"CollapsableCategoryPanel"
+theme_type_variation = &"PanelContainerCrystal"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/PanelContainer"]
 layout_mode = 2
