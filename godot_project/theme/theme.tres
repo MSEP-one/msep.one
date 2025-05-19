@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=89 format=3 uid="uid://d3fnr4sbrd6ik"]
+[gd_resource type="Theme" load_steps=90 format=3 uid="uid://d3fnr4sbrd6ik"]
 
 [ext_resource type="FontFile" uid="uid://b3jkav4yxw06w" path="res://theme/Gidole-Regular.ttf" id="1_8indu"]
 [ext_resource type="Texture2D" uid="uid://bh1ju2ymvv1co" path="res://theme/icons/icon_on.svg" id="1_n28s0"]
@@ -339,6 +339,17 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6l1ye"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.5, 0.5, 0.5, 0.470588)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r6qfk"]
 content_margin_left = 20.0
@@ -996,6 +1007,8 @@ OptionButton/styles/pressed = SubResource("StyleBoxFlat_cvnwt")
 OptionButton/styles/pressed_mirrored = SubResource("StyleBoxFlat_4y3vi")
 Panel/styles/panel = SubResource("StyleBoxFlat_b5xkc")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_udr83")
+PanelContainerCrystal/base_type = &"PanelContainer"
+PanelContainerCrystal/styles/panel = SubResource("StyleBoxFlat_6l1ye")
 PopupMenu/colors/font_disabled_color = Color(0.733333, 0.729412, 0.729412, 0.8)
 RoundedWindow/base_type = &"AcceptDialog"
 RoundedWindow/styles/panel = SubResource("StyleBoxFlat_r6qfk")
