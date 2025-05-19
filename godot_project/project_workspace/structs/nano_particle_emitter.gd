@@ -59,3 +59,26 @@ func get_aabb() -> AABB:
 	var aabb := AABB(_transform.origin, Vector3())
 	aabb = aabb.grow(0.5)
 	return aabb.abs()
+
+
+func is_particle_emitter_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> bool:
+	var emitter_screen_position: Vector2 = in_camera.unproject_position(_transform.origin)
+	if screen_rect.abs().has_point(emitter_screen_position):
+		return true
+	return false
+
+
+func create_state_snapshot() -> Dictionary:
+	var state_snapshot: Dictionary = super.create_state_snapshot()
+	state_snapshot["script.resource_path"] = get_script().resource_path
+	state_snapshot["_transform"] = _transform
+	state_snapshot["_parameters_snapshot"] = _parameters.create_state_snapshot()
+	return state_snapshot
+
+
+func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
+	super.apply_state_snapshot(in_state_snapshot)
+	_transform = in_state_snapshot["_transform"]
+	if _parameters == null:
+		_parameters = NanoParticleEmitterParameters.new()
+	_parameters.apply_state_snapshot(in_state_snapshot["_parameters_snapshot"])

@@ -117,7 +117,7 @@ func _on_workspace_context_selection_in_structures_changed(out_structure_context
 		if is_this_emitter:
 			const SELECTED_VALUE: float = 1.0
 			const UNSELECTED_VALUE: float = 0.0
-			var is_selected: bool = context.is_emitter_selected()
+			var is_selected: bool = context.is_particle_emitter_selected()
 			_set_shader_uniform(&"is_selected",SELECTED_VALUE if is_selected else UNSELECTED_VALUE)
 			_set_selection_preview_flag(is_selected)
 			return

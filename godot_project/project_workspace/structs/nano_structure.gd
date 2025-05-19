@@ -91,7 +91,7 @@ func get_visible() -> bool:
 ## Returns true if the object is not a group of particles. Ex: Shapes, Motors, Springs
 func is_virtual_object() -> bool:
 	return self is NanoShape or self.get_type() in \
-			[&"RotaryMotor", &"LinearMotor", &"Spring", &"AnchorPoint"]
+			[&"RotaryMotor", &"LinearMotor", &"Spring", &"AnchorPoint", &"ParticleEmitter"]
 
 ## Returns a texture to represent the structure in the UI, it can be a predefined
 ## icon or a thumbnail of the actual structure

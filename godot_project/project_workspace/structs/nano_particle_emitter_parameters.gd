@@ -103,3 +103,35 @@ func set_spread_angle(in_spread_angle: float) -> void:
 func get_spread_angle() -> float:
 	return _spread_angle
 
+
+func create_state_snapshot() -> Dictionary:
+	var state_snapshot: Dictionary = {}
+	state_snapshot["_molecule"] = {} if _molecule == null else _molecule.create_state_snapshot()
+	state_snapshot["_initial_delay_in_nanoseconds"] = _initial_delay_in_nanoseconds
+	state_snapshot["_molecules_per_instance"] = _molecules_per_instance
+	state_snapshot["_instance_rate_time_in_nanoseconds"] = _instance_rate_time_in_nanoseconds
+	state_snapshot["_limit_type"] = _limit_type
+	state_snapshot["_stop_emitting_after_count"] = _stop_emitting_after_count
+	state_snapshot["_stop_emitting_after_nanoseconds"] = _stop_emitting_after_nanoseconds
+	state_snapshot["_instance_speed_nanometers_per_picosecond"] = _instance_speed_nanometers_per_picosecond
+	state_snapshot["_spread_angle"] = _spread_angle
+	return state_snapshot
+
+
+func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
+	if _molecule == null and not in_state_snapshot["_molecule"].is_empty():
+		# Create a molecule to assign state
+		_molecule = AtomicStructure.create()
+	elif _molecule != null and in_state_snapshot["_molecule"].is_empty():
+		# Unassign molecule
+		_molecule = null
+	if not in_state_snapshot["_molecule"].is_empty():
+		_molecule.apply_state_snapshot(in_state_snapshot["_molecule"])
+	_initial_delay_in_nanoseconds = in_state_snapshot["_initial_delay_in_nanoseconds"]
+	_molecules_per_instance = in_state_snapshot["_molecules_per_instance"]
+	_instance_rate_time_in_nanoseconds = in_state_snapshot["_instance_rate_time_in_nanoseconds"]
+	_limit_type = in_state_snapshot["_limit_type"]
+	_stop_emitting_after_count = in_state_snapshot["_stop_emitting_after_count"]
+	_stop_emitting_after_nanoseconds = in_state_snapshot["_stop_emitting_after_nanoseconds"]
+	_instance_speed_nanometers_per_picosecond = in_state_snapshot["_instance_speed_nanometers_per_picosecond"]
+	_spread_angle = in_state_snapshot["_spread_angle"]
