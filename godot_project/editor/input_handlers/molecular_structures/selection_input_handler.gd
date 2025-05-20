@@ -97,6 +97,9 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		if rendering.is_virtual_motor_preview_visible():
 			# Virtual Motor is being created, avoid changing selection
 			return false
+		if rendering.is_particle_emitter_preview_visible():
+			# Particle Emitter is being created, avoid changing selection
+			return false
 		if rendering.is_virtual_anchor_preview_visible():
 			# Virtual Anchor and/or Spring is being created, avoid changing selection
 			return false
@@ -134,7 +137,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 					hovering_spring_id = multi_structure_hit_result.closest_hit_spring_id
 					hover_position = (hovering_object.nano_structure.spring_get_atom_position(hovering_spring_id) + \
 							hovering_object.nano_structure.spring_get_anchor_position(hovering_spring_id, hovering_object)) / 2.0
-				MultiStructureHitResult.HitType.HIT_MOTOR:
+				MultiStructureHitResult.HitType.HIT_MOTOR, MultiStructureHitResult.HitType.HIT_EMITTER:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hover_position = hovering_object.nano_structure.get_transform().origin
 				MultiStructureHitResult.HitType.HIT_ANCHOR:
@@ -192,7 +195,7 @@ func _activate_selection_logic(
 		if hit_context != get_workspace_context().get_current_structure_context():
 			var affected_context: = get_workspace_context().get_toplevel_editable_context(hit_context)
 			if affected_context.nano_structure.is_virtual_object():
-				# Shapes, Motors, Springs, etc; cannot be activated, this is on purpose to have a more compact group hierarchy
+				# Shapes, Motors, Emitters, Springs, etc; cannot be activated, this is on purpose to have a more compact group hierarchy
 				return false
 			get_workspace_context().change_current_structure_context(affected_context)
 			return true
@@ -291,6 +294,18 @@ func _screen_selection_logic(
 								snapshot_name = "Select Motor"
 								need_to_create_snapshot = true
 							hit_context.set_motor_selected(true)
+				MultiStructureHitResult.HitType.HIT_EMITTER:
+					if _is_select_mode_enabled():
+						if hit_context.is_particle_emitter_selected():
+							if not need_to_create_snapshot:
+								snapshot_name = "Deselect Particle Emitter"
+								need_to_create_snapshot = true
+							hit_context.set_particle_emitter_selected(false)
+						else:
+							if not need_to_create_snapshot:
+								snapshot_name = "Select Particle Emitter"
+								need_to_create_snapshot = true
+							hit_context.set_particle_emitter_selected(true)
 				MultiStructureHitResult.HitType.HIT_ANCHOR:
 					if hit_context.is_anchor_selected():
 						if not need_to_create_snapshot:
@@ -350,9 +365,13 @@ func _screen_deselection_logic(
 					did_create_undo_action = true
 					hit_context.set_shape_selected(false)
 				MultiStructureHitResult.HitType.HIT_MOTOR:
-					snapshot_name = "Deselect MOTOR"
+					snapshot_name = "Deselect Motor"
 					did_create_undo_action = true
 					hit_context.set_motor_selected(false)
+				MultiStructureHitResult.HitType.HIT_EMITTER:
+					snapshot_name = "Deselect Particle Emitter"
+					did_create_undo_action = true
+					hit_context.set_particle_emitter_selected(false)
 				MultiStructureHitResult.HitType.HIT_SPRING:
 					snapshot_name = "Deselect Spring"
 					did_create_undo_action = true

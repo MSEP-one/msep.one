@@ -59,3 +59,10 @@ func get_aabb() -> AABB:
 	var aabb := AABB(_transform.origin, Vector3())
 	aabb = aabb.grow(0.5)
 	return aabb.abs()
+
+
+func is_particle_emitter_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> bool:
+	var emitter_screen_position: Vector2 = in_camera.unproject_position(_transform.origin)
+	if screen_rect.abs().has_point(emitter_screen_position):
+		return true
+	return false
