@@ -92,6 +92,17 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_virtual_motor_parameters.tscn"
 			]
 		},
+	&"Edit Particle Emitter":
+		{
+			header = true,
+			scroll = false, # will use Tree control scroll instead
+			collapse = false,
+			start_collapsed = false,
+			stretch_ratio = 0.0,
+			controls = [
+				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_particle_emitter_panel.tscn"
+			]
+		},
 	&"Edit Springs Parameters":
 		{
 			header = true,

@@ -66,3 +66,19 @@ func is_particle_emitter_within_screen_rect(in_camera: Camera3D, screen_rect: Re
 	if screen_rect.abs().has_point(emitter_screen_position):
 		return true
 	return false
+
+
+func create_state_snapshot() -> Dictionary:
+	var state_snapshot: Dictionary = super.create_state_snapshot()
+	state_snapshot["script.resource_path"] = get_script().resource_path
+	state_snapshot["_transform"] = _transform
+	state_snapshot["_parameters_snapshot"] = _parameters.create_state_snapshot()
+	return state_snapshot
+
+
+func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
+	super.apply_state_snapshot(in_state_snapshot)
+	_transform = in_state_snapshot["_transform"]
+	if _parameters == null:
+		_parameters = NanoParticleEmitterParameters.new()
+	_parameters.apply_state_snapshot(in_state_snapshot["_parameters_snapshot"])
