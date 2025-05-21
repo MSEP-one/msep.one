@@ -20,9 +20,9 @@ enum LimitType {
 
 
 func set_molecule_template(out_molecule: AtomicStructure) -> void:
-	assert(out_molecule.int_guid == Workspace.INVALID_STRUCTURE_ID,
+	assert(out_molecule == null or out_molecule.int_guid == Workspace.INVALID_STRUCTURE_ID,
 		"Should not assign a structure directly from workspace, create a duplicate instead")
-	if not out_molecule.get_aabb().get_center().is_equal_approx(Vector3.ZERO):
+	if out_molecule != null and not out_molecule.get_aabb().get_center().is_equal_approx(Vector3.ZERO):
 		push_warning("Molecule Template is not roughtly centered in the origin")
 	_molecule = out_molecule
 	emit_changed()

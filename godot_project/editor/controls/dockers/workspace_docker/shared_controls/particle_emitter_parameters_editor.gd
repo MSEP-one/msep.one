@@ -219,7 +219,35 @@ func _on_limit_nanoseconds_time_picker_time_span_changed(
 
 
 func _on_load_molecule_from_selection_button_pressed() -> void:
-	var _parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
+	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+	var selected_contexts: Array[StructureContext] = workspace_context.get_atomic_structure_contexts_with_selection()
+	if selected_contexts.is_empty():
+		parameters.set_molecule_template(null)
+	else:
+		var template := AtomicStructure.create()
+		template.start_edit()
+		for context: StructureContext in selected_contexts:
+			var structure: AtomicStructure = context.nano_structure as AtomicStructure
+			var atoms: PackedInt32Array = context.get_selected_atoms()
+			var bonds: PackedInt32Array = context.get_selected_bonds()
+			var atom_map: Dictionary[int,int] # { original_id = new_id }
+			for atom_id: int in atoms:
+				var element: int = structure.atom_get_atomic_number(atom_id)
+				var pos: Vector3 = structure.atom_get_position(atom_id)
+				# Asiming template is NanoMolecualStructure
+				atom_map[atom_id] = template.add_atom(NanoMolecularStructure.AddAtomParameters.new(element, pos))
+			for bond_id: int in bonds:
+				var bond_data: Vector3i = structure.get_bond(bond_id)
+				var atom1: int = bond_data.x
+				var atom2: int = bond_data.y
+				if atom1 in atoms and atom2 in atoms:
+					var order: int = bond_data.z
+					template.add_bond(atom_map[atom1], atom_map[atom2], order)
+		template.end_edit()
+		template.set_structure_name("Template")
+		template.set_representation_settings(workspace_context.workspace.representation_settings)
+		parameters.set_molecule_template(template)
 	_take_snapshot_if_configured(tr(&"Molecule Template"))
 
 
