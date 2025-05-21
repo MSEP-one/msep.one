@@ -42,12 +42,13 @@ func _validate_bonds_in_thread(
 		out_promise: Promise,
 		in_selection_only: bool) -> void:
 	var validation_results: Array[Metadata] = []
+	var spatial_hash_grid: SpatialHashGridOverlaps = SpatialHashGridOverlaps.new(MAX_COVALENT_RADIUS)
+	
 	for structure_context: StructureContext in in_visible_structure_contexts:
 		if not structure_context.nano_structure is AtomicStructure:
 			continue
 		var atomic_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
 		var ignored_springs: Array[Metadata] = []
-		var spatial_hash_grid: SpatialHashGridOverlaps = SpatialHashGridOverlaps.new(MAX_COVALENT_RADIUS)
 		var atoms: PackedInt32Array
 		if in_selection_only:
 			atoms = structure_context.get_selected_atoms()
@@ -68,9 +69,9 @@ func _validate_bonds_in_thread(
 					var ignored_springs_data := IgnoredSpring.new(atom_id, atom_springs, structure_context)
 					ignored_springs.push_back(ignored_springs_data)
 		
-		validation_results.append_array(spatial_hash_grid.get_overlaps())
 		validation_results.append_array(ignored_springs)
-		
+	
+	validation_results.append_array(spatial_hash_grid.get_overlaps())
 	
 	var drastically_bad_sp3_groups: Array[Dictionary] = WorkspaceUtils.collect_drastically_invalid_tetrahedral_structure(
 		in_visible_structure_contexts, in_selection_only)
@@ -156,8 +157,8 @@ func fix_overlapping_atoms() -> void:
 				# atom was deleted after overlaps was validated
 				continue
 			var atom_position: Vector3 = nano_structure.atom_get_position(atom_id)
-			var random_dir: Vector3 = Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5) * 0.01
-			atoms_positions[atom_id] = atom_position + random_dir
+			var random_dir: Vector3 = Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5).normalized()
+			atoms_positions[atom_id] = atom_position + random_dir * MAX_COVALENT_RADIUS * 0.15
 		
 		# Relax the atoms positions.
 		# For each atom, find the nearest atom and move away. Repeat up to MAX_SHAKE_ITERATIONS
@@ -412,11 +413,14 @@ class AtomData extends Metadata:
 class OverlapData extends Metadata:
 	var atoms_id: PackedInt32Array
 	var structure_context: StructureContext
+	var other_structures: Array # Array[StructureContext]
 	var is_fixed: bool = false
 	
-	func _init(in_atoms: Array[AtomData], in_structure_context: StructureContext) -> void:
+	func _init(in_atoms: Array[AtomData], in_structure_context: StructureContext, 
+			in_other_structures: Array = []) -> void:
 		structure_context = in_structure_context
 		atoms_id = PackedInt32Array()
+		other_structures.assign(in_other_structures)
 		var map: Dictionary = {
 			# Element name <String> : Atoms count <int>
 		}
@@ -429,16 +433,34 @@ class OverlapData extends Metadata:
 		# ex: "1 Carbon, 1 Hydrogen and 2 Oxygens are overlapping"
 		var delimiter: String = ", "
 		var index: int = 0
+		var plural: bool = map.size() > 1
 		for element: String in map:
 			var count: int = map[element]
+			if count > 1:
+				plural = true
 			if index == map.size() - 2:
 				delimiter = " and "
 			elif index == map.size() - 1:
 				delimiter = ""
 			text += "%d %s%s%s" % [count, element, "s" if count != 1 else "", delimiter]
 			index += 1
-		text += " are overlapping."
-	
+		if plural:
+			text += " are overlapping"
+		else:
+			text += " is overlapping"
+		match other_structures.size():
+			0:
+				text += "."
+			1:
+				text += " with group: %s." % [other_structures[0].name.capitalize()]
+			_:
+				text += " with groups: "
+				for i in other_structures.size():
+					text += other_structures[i].name.capitalize()
+					if i < other_structures.size() - 1:
+						text += ", "
+				text += "."
+
 	func has_invalid_atoms() -> bool:
 		if not is_instance_valid(structure_context) or not structure_context.is_inside_workspace():
 			return true
@@ -553,26 +575,39 @@ class InvalidSp123Data extends Metadata:
 class SpatialHashGridOverlaps extends SpatialHashGrid:
 	func get_overlaps() -> Array[OverlapData]:
 		var result: Array[OverlapData] = []
+		
 		for close_atoms: Array[AtomData] in get_user_data_closer_than(MAX_COVALENT_RADIUS):
-			var visited: Dictionary = {}
+			var visited: Dictionary[int, bool] = {}
 			# Scan every pair of atoms within the local group (close_atoms)
 			# Atoms overlaps if the sum of their radii is smaller than the distance between them.
 			for i: int in close_atoms.size() - 1 :
 				if visited.has(i):
 					# Skip if already included in another overlap
-					continue 
-				var overlapping_atoms: Array[AtomData] = []
+					continue
+				# Find overlapping atoms and group them by their structure context
+				var overlapping_atoms: Dictionary = {} # StructureContext: Array[AtomData]
 				var atom: AtomData = close_atoms[i]
 				var atom_pos: Vector3 = atom.get_position()
-				overlapping_atoms.push_back(atom)
+				overlapping_atoms[atom.structure_context] = [atom]
 				for j: int in range(i + 1, close_atoms.size()):
 					var other_atom: AtomData = close_atoms[j]
 					var other_atom_pos: Vector3 = other_atom.get_position()
 					var min_distance: float = (atom.covalent_radius + other_atom.covalent_radius) * 0.5
 					if atom_pos.distance_squared_to(other_atom_pos) < pow(min_distance, 2.0):
-						overlapping_atoms.push_back(other_atom)
+						if not overlapping_atoms.has(other_atom.structure_context):
+							overlapping_atoms[other_atom.structure_context] = []
+						overlapping_atoms[other_atom.structure_context].push_back(other_atom)
 						visited[j] = true
-				if overlapping_atoms.size() > 1:
-					var overlap := OverlapData.new(overlapping_atoms, atom.structure_context)
+				if overlapping_atoms.size() <= 1:
+					continue
+				# Overlapping atoms might belong to different structures.
+				# Create a new OverlapData per structure to prevent the user from selecting
+				# atoms from different groups at once when clicking on the error.
+				for current_structure: StructureContext in overlapping_atoms:
+					var atoms: Array[AtomData] = []
+					atoms.assign(overlapping_atoms[current_structure])
+					var other_structures: Array = overlapping_atoms.keys().duplicate()
+					other_structures.erase(current_structure)
+					var overlap := OverlapData.new(atoms, current_structure, other_structures)
 					result.push_back(overlap)
 		return result
