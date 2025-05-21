@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_74ssd"]
 [ext_resource type="Script" uid="uid://v3smn5bgab3l" path="res://editor/controls/dockers/workspace_docker/shared_controls/particle_emitter_parameters_editor.gd" id="1_f4m0x"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_a8qyp"]
-[ext_resource type="PackedScene" uid="uid://bvcir1rta2mqw" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview.tscn" id="3_va07x"]
+[ext_resource type="PackedScene" uid="uid://dlnuekwtrxhsd" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/molecule_preview.tscn" id="4_1q6cm"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_6vwam"]
 
@@ -187,9 +187,11 @@ theme_type_variation = &"SubcategoryPanel"
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer2"]
 layout_mode = 2
 
-[node name="MoleculePreview" parent="PanelContainer2/VBoxContainer" instance=ExtResource("3_va07x")]
+[node name="MoleculePreview" parent="PanelContainer2/VBoxContainer" instance=ExtResource("4_1q6cm")]
 unique_name_in_owner = true
 layout_mode = 2
+ratio = 4.0506
+stretch_mode = 0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer2/VBoxContainer"]
 layout_mode = 2

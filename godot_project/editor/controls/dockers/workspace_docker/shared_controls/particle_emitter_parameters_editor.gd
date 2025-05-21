@@ -15,10 +15,13 @@ var _limit_nanoseconds_time_picker: TimeSpanPicker
 var _molecule_preview: AspectRatioContainer
 var _load_molecule_from_selection_button: Button
 var _load_molecule_from_library_button: Button
-
+var _small_molecules_picker: SmallMoleculesPicker:
+	get = _get_small_molecules_picker
 
 # when not null an snapshot in this workspace will be taken on change from UI
 var _workspace_snapshot_target: WorkspaceContext = null
+var _current_molecule_template: AtomicStructure = null
+var _dummy_structure_context: StructureContext = null
 var _parameters_wref: WeakRef = weakref(null) # WeakRef<NanoParticleEmitterParameters>
 
 
@@ -48,6 +51,20 @@ func _notification(what: int) -> void:
 		_limit_nanoseconds_time_picker.time_span_changed.connect(_on_limit_nanoseconds_time_picker_time_span_changed)
 		_load_molecule_from_selection_button.pressed.connect(_on_load_molecule_from_selection_button_pressed)
 		_load_molecule_from_library_button.pressed.connect(_on_load_molecule_from_library_button_pressed)
+	if what == NOTIFICATION_READY:
+		_molecule_preview.get_structure_preview().enable_on_preview_viewport()
+		_molecule_preview.get_structure_preview().set_transparency(0)
+
+
+func _get_small_molecules_picker() -> SmallMoleculesPicker:
+	if _small_molecules_picker == null:
+		# lazy loading on demand
+		var scene: PackedScene = load("uid://dp606sfgxdepk") as PackedScene
+		_small_molecules_picker = scene.instantiate()
+		_small_molecules_picker.set_meta(&"base_height", _small_molecules_picker.size.y)
+		_small_molecules_picker.molecule_selected.connect(_on_small_molecules_picker_molecule_selected)
+		add_child(_small_molecules_picker)
+	return _small_molecules_picker
 
 
 func track_parameters(out_emitter_parameters: NanoParticleEmitterParameters) -> void:
@@ -58,6 +75,9 @@ func track_parameters(out_emitter_parameters: NanoParticleEmitterParameters) -> 
 	if out_emitter_parameters != null:
 		out_emitter_parameters.changed.connect(_on_emitter_parameters_changed)
 		_on_emitter_parameters_changed()
+	else:
+		# clear reference to current structure
+		_update_template_preview(null)
 
 
 func ensure_undo_redo_initialized(in_workspace_context: WorkspaceContext) -> void:
@@ -101,6 +121,31 @@ func _on_emitter_parameters_changed() -> void:
 	_limit_instances_spin_box.set_value_no_signal(parameters.get_stop_emitting_after_count())
 	_limit_nanoseconds_time_picker.time_span_femtoseconds = TimeSpanPicker.unit_to_femtoseconds(
 			parameters.get_stop_emitting_after_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
+	_update_template_preview(parameters.get_molecule_template())
+
+
+func _update_template_preview(in_structure: AtomicStructure) -> void:
+	if _current_molecule_template == in_structure:
+		return
+	var rendering: Rendering = _molecule_preview.get_rendering() as Rendering
+	_current_molecule_template = in_structure
+	if _dummy_structure_context != null:
+		_dummy_structure_context.queue_free()
+		_dummy_structure_context = null
+	if in_structure != null:
+		_dummy_structure_context = WorkspaceContext.StructureContextScn.instantiate()
+		_dummy_structure_context.initialize_as_template(null, in_structure)
+		add_child(_dummy_structure_context)
+	_molecule_preview.get_structure_preview().set_structure(_dummy_structure_context)
+	if in_structure == null:
+		rendering.structure_preview_hide()
+	else:
+		rendering.structure_preview_show()
+		rendering.structure_preview_set_transform(Transform3D())
+		var structure_center: Vector3 = in_structure.get_aabb().get_center()
+		var structure_size: float = in_structure.get_aabb().get_longest_axis_size()
+		_molecule_preview.set_preview_camera_pivot_position(structure_center)
+		_molecule_preview.set_preview_camera_distance_to_pivot(structure_size * 3.0)
 
 
 func _on_initial_delay_time_picker_time_span_changed(
@@ -175,12 +220,57 @@ func _on_limit_nanoseconds_time_picker_time_span_changed(
 
 func _on_load_molecule_from_selection_button_pressed() -> void:
 	var _parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
-	assert("TODO")
 	_take_snapshot_if_configured(tr(&"Molecule Template"))
 
 
 func _on_load_molecule_from_library_button_pressed() -> void:
+	_small_molecules_picker.size.y = _small_molecules_picker.get_meta(&"base_height", 450)
+	_small_molecules_picker.position.x = int(_load_molecule_from_library_button.global_position.x)
+	_small_molecules_picker.position.y = int(_load_molecule_from_library_button.get_global_rect().end.y)
+	
+	# Adjust x position
+	var picker_rect_end: Vector2 = _small_molecules_picker.position + _small_molecules_picker.size
+	var out_of_screen_x: bool = picker_rect_end.x > get_tree().root.size.x
+	if out_of_screen_x:
+		_small_molecules_picker.position.x = \
+			int(_load_molecule_from_library_button.get_global_rect().end.x- _small_molecules_picker.size.x)
+	
+	# Adjust y position (and size?)
+	var up_space := int(_load_molecule_from_library_button.global_position.y)
+	var down_space := int(get_tree().root.size.y - _load_molecule_from_library_button.get_global_rect().end.y)
+	if down_space >= _small_molecules_picker.size.y:
+		_put_small_molecules_picker_bellow()
+	elif up_space >= _small_molecules_picker.size.y:
+		_put_small_molecules_picker_avobe()
+	elif up_space > down_space:
+		_small_molecules_picker.size.y = up_space
+		_put_small_molecules_picker_avobe()
+	else:
+		_small_molecules_picker.size.y = down_space
+		_put_small_molecules_picker_bellow()
+	
+	_small_molecules_picker.popup()
+
+
+func _on_small_molecules_picker_molecule_selected(in_path: String) -> void:
 	var _parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
-	assert("TODO")
+	var unpacked_mol_path: String = WorkspaceUtils.unpack_mol_file_and_get_path(in_path)
+	var absolute_path: String = ProjectSettings.globalize_path(unpacked_mol_path)
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+	assert(is_instance_valid(workspace_context))
+	var structure: NanoStructure = await WorkspaceUtils.get_nano_structure_from_file(workspace_context, absolute_path, false, false, false)
+	structure.set_structure_name(in_path.get_file().get_basename())
+	structure.set_representation_settings(workspace_context.workspace.representation_settings)
+	_parameters.set_molecule_template(structure)
 	_take_snapshot_if_configured(tr(&"Molecule Template"))
+
+
+func _put_small_molecules_picker_avobe() -> void:
+	_small_molecules_picker.position.y = \
+		int(_load_molecule_from_library_button.global_position.y - _small_molecules_picker.size.y)
+
+
+func _put_small_molecules_picker_bellow() -> void:
+	_small_molecules_picker.position.y = \
+		int(_load_molecule_from_library_button.get_global_rect().end.y)
 

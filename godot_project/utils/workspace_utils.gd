@@ -59,6 +59,10 @@ static func move_camera_outside_of_aabb(out_workspace_context: WorkspaceContext,
 	_move_camera_outside_of_aabb(out_workspace_context, aabb)
 
 
+static func unpack_mol_file_and_get_path(fragment_path: String) -> String:
+	return _unpack_mol_file_and_get_path(fragment_path)
+
+
 static func import_file(out_workspace_context: WorkspaceContext, path: String,
 						generate_bonds: bool, add_hydrogens: bool, remove_waters: bool,
 						placement: ImportFileDialog.Placement, create_new_group: bool = true,
@@ -654,6 +658,25 @@ static func _move_camera_outside_of_aabb(out_workspace_context: WorkspaceContext
 	var move_offset: float = aabb.get_longest_axis_size()
 	while aabb.has_point(camera.global_position):
 		camera.global_position += camera.global_basis.z * move_offset
+
+
+static func _unpack_mol_file_and_get_path(fragment_path: String) -> String:
+	assert(fragment_path.begins_with("res://"), "Unexpected file path")
+	var unpacked_path: String = fragment_path.replace("res://", "user://")
+	if FileAccess.file_exists(unpacked_path):
+		# Check if has changed
+		var local_fragment_md5: String = FileAccess.get_md5(fragment_path)
+		var user_fragment_md5: String = FileAccess.get_md5(unpacked_path)
+		if local_fragment_md5 == user_fragment_md5:
+			# file is up to date
+			return unpacked_path
+	var dir_path: String = ProjectSettings.globalize_path(unpacked_path).get_base_dir()
+	DirAccess.make_dir_recursive_absolute(dir_path)
+	var file: FileAccess = FileAccess.open(unpacked_path, FileAccess.WRITE)
+	assert(file != null, "Could not initialize FileAccess on path " + unpacked_path)
+	file.store_buffer(FileAccess.get_file_as_bytes(fragment_path))
+	file.close()
+	return unpacked_path
 
 
 static func _focus_camera_on_aabb(out_workspace_context: WorkspaceContext, in_focus_aabb: AABB) -> void:
