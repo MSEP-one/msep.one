@@ -244,6 +244,7 @@ func _on_load_molecule_from_selection_button_pressed() -> void:
 				if atom1 in atoms and atom2 in atoms:
 					var order: int = bond_data.z
 					template.add_bond(atom_map[atom1], atom_map[atom2], order)
+		_center_template_on_origin(template)
 		template.end_edit()
 		template.set_structure_name("Template")
 		template.set_representation_settings(workspace_context.workspace.representation_settings)
@@ -289,8 +290,23 @@ func _on_small_molecules_picker_molecule_selected(in_path: String) -> void:
 	var structure: NanoStructure = await WorkspaceUtils.get_nano_structure_from_file(workspace_context, absolute_path, false, false, false)
 	structure.set_structure_name(in_path.get_file().get_basename())
 	structure.set_representation_settings(workspace_context.workspace.representation_settings)
+	structure.start_edit()
+	_center_template_on_origin(structure)
+	structure.end_edit()
 	_parameters.set_molecule_template(structure)
 	_take_snapshot_if_configured(tr(&"Molecule Template"))
+
+
+func _center_template_on_origin(out_template: AtomicStructure) -> void:
+	var center: Vector3 = out_template.get_aabb().get_center()
+	if center.is_equal_approx(Vector3.ZERO):
+		return
+	var atoms: PackedInt32Array = out_template.get_valid_atoms()
+	var positions: PackedVector3Array = []
+	for atom_id: int in atoms:
+		var new_pos: Vector3 = out_template.atom_get_position(atom_id) - center
+		positions.push_back(new_pos)
+	out_template.atoms_set_positions(atoms, positions)
 
 
 func _put_small_molecules_picker_avobe() -> void:
