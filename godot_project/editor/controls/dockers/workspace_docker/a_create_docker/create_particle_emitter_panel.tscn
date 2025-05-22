@@ -1,13 +1,41 @@
-[gd_scene load_steps=3 format=3 uid="uid://dknplmbqictst"]
+[gd_scene load_steps=4 format=3 uid="uid://dknplmbqictst"]
 
 [ext_resource type="Script" uid="uid://dpnjg8a3642kc" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_particle_emitter_panel.gd" id="1_6vwam"]
 [ext_resource type="PackedScene" uid="uid://c7itseuxfv2fj" path="res://editor/controls/dockers/workspace_docker/shared_controls/particle_emitter_parameters_editor.tscn" id="2_jvqep"]
+[ext_resource type="Script" uid="uid://3hjuxktmfb16" path="res://editor/controls/general/info_label.gd" id="3_vh652"]
 
 [node name="CreateParticleEmitterPanel" type="MarginContainer"]
 offset_right = 361.0
-offset_bottom = 610.0
+offset_bottom = 353.0
 script = ExtResource("1_6vwam")
 
 [node name="ParticleEmitterParametersEditor" parent="." instance=ExtResource("2_jvqep")]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="InfoLabel" type="RichTextLabel" parent="ParticleEmitterParametersEditor"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]ℹ Selection must be part of the active group, and have fully selected molecules[/center]"
+fit_content = true
+script = ExtResource("3_vh652")
+message = &"Selection must be part of the active group, and have fully selected molecules"
+effect = "none"
+metadata/_custom_type_script = "uid://3hjuxktmfb16"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ParticleEmitterParametersEditor"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="CreateFromSelectionButton" type="Button" parent="ParticleEmitterParametersEditor/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+text = "Convert Selection to Emitter"
+
+[node name="CreateFromSmallMoleculesButton" type="Button" parent="ParticleEmitterParametersEditor/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+text = "Create From Small Molecules"
