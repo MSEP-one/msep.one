@@ -6,6 +6,7 @@ enum HitType {
 	HIT_BOND,
 	HIT_SHAPE,
 	HIT_MOTOR,
+	HIT_EMITTER,
 	HIT_ANCHOR,
 	HIT_SPRING,
 }
@@ -103,8 +104,13 @@ func _init(in_camera: Camera3D, in_screen_position: Vector2, in_query_structures
 	if is_virtual_object_the_closest:
 		if closest_virtual_object_context.nano_structure is NanoVirtualMotor:
 			hit_type = HitType.HIT_MOTOR
+		elif closest_virtual_object_context.nano_structure is NanoParticleEmitter:
+			hit_type = HitType.HIT_EMITTER
 		elif closest_virtual_object_context.nano_structure is NanoVirtualAnchor:
 			hit_type = HitType.HIT_ANCHOR
+		else:
+			assert(false, "Untracked hit type!")
+			pass
 		closest_hit_structure_context = closest_virtual_object_context
 
 

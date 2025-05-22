@@ -156,6 +156,8 @@ func _is_virtual_object_within_screen_rect(in_context: StructureContext, in_came
 		return in_context.nano_structure.is_shape_within_screen_rect(in_camera, _rect)
 	if in_context.nano_structure is NanoVirtualMotor:
 		return in_context.nano_structure.is_motor_within_screen_rect(in_camera, _rect)
+	if in_context.nano_structure is NanoParticleEmitter:
+		return in_context.nano_structure.is_particle_emitter_within_screen_rect(in_camera, _rect)
 	if in_context.nano_structure is NanoVirtualAnchor:
 		return in_context.nano_structure.is_anchor_within_screen_rect(in_camera, _rect)
 	return false
