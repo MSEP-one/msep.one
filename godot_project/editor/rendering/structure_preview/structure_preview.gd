@@ -16,7 +16,7 @@ var _transparency: float = DEFAULT_PREVIEW_TRANSPARENCY
 var _preview_workspace_context: WorkspaceContext
 var _preview_workspace: Workspace
 var _preview_structure_context: StructureContext
-
+var _enabled_on_preview_viewport: bool = false
 
 func _ready() -> void:
 	hide()
@@ -33,8 +33,13 @@ func _ready_deferred() -> void:
 	representation_settings.changed.connect(_on_representation_settings_changed.bind(representation_settings))
 
 
+func enable_on_preview_viewport() -> void:
+	assert(get_viewport() is PreviewViewport3D)
+	_enabled_on_preview_viewport = true
+
+
 func set_structure(in_structure_context: StructureContext) -> void:
-	if get_viewport() is PreviewViewport3D:
+	if get_viewport() is PreviewViewport3D and not _enabled_on_preview_viewport:
 		# Structure Previews are never shown in preview viewports (used to show selected objects)
 		return
 	if not is_instance_valid(in_structure_context) or not in_structure_context.nano_structure is AtomicStructure:

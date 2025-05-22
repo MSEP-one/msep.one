@@ -27,24 +27,24 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 
 
 func _update_contents(in_selected_structures: Array[StructureContext] ) -> void:
-	var selected_motors_count: int = 0
+	var selected_emitters_count: int = 0
 	var parameters_to_track: NanoParticleEmitterParameters = null
 	for context: StructureContext in in_selected_structures:
 		if context.nano_structure is NanoParticleEmitter:
-			selected_motors_count += 1
+			selected_emitters_count += 1
 			parameters_to_track = context.nano_structure.get_parameters()
-			if selected_motors_count > 1:
+			if selected_emitters_count > 1:
 				break # early stop
-	if selected_motors_count > 1:
-		# More than 1 motor selected, show message label
+	if selected_emitters_count > 1:
+		# More than 1 emitter selected, show message label
 		_select_one_info_label.show()
 		_particle_emitter_parameters_editor.hide()
 		_particle_emitter_parameters_editor.track_parameters(null)
-	elif selected_motors_count == 0:
+	elif selected_emitters_count == 0:
 		# Entire editor should not be shown, just stop tracking any parameter if this was the case
 		_particle_emitter_parameters_editor.track_parameters(null)
 	else:
-		# Selected unique linear motor
+		# Selected unique linear emitter
 		_select_one_info_label.hide()
 		_particle_emitter_parameters_editor.track_parameters(parameters_to_track)
 		_particle_emitter_parameters_editor.show()

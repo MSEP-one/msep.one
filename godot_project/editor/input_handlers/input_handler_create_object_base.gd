@@ -20,12 +20,11 @@ func set_preview_position(_position: Vector3) -> void:
 
 ## Returns the distance between the mouse cursor and the surface of the shape below
 ## Returns NAN if the mouse cursor is not over a shape.
-func get_distance_to_shape_surface_under_mouse() -> float:
-	var workspace_context: WorkspaceContext = get_workspace_context()
-	var camera: Camera3D = get_workspace_context().get_editor_viewport().get_camera_3d()
+static func get_distance_to_shape_surface_under_mouse(in_workspace_context: WorkspaceContext) -> float:
+	var camera: Camera3D = in_workspace_context.get_editor_viewport().get_camera_3d()
 	var camera_plane: Plane = Plane(-camera.global_basis.z, camera.position)
 	var mouse_position: Vector2 = camera.get_viewport().get_mouse_position()
-	var visible_structures: Array[StructureContext] = workspace_context.get_visible_structure_contexts()
+	var visible_structures: Array[StructureContext] = in_workspace_context.get_visible_structure_contexts()
 	var distance_to_shape_surface: float = NAN
 	
 	for context in visible_structures:
@@ -43,9 +42,8 @@ func get_distance_to_shape_surface_under_mouse() -> float:
 	return distance_to_shape_surface
 
 
-func is_snap_to_shape_surface_enabled() -> bool:
-	var workspace_context: WorkspaceContext = get_workspace_context()
-	var snap_to_surface_enabled: bool = workspace_context.create_object_parameters.get_snap_to_shape_surface()
+static func is_snap_to_shape_surface_enabled(in_workspace_context: WorkspaceContext) -> bool:
+	var snap_to_surface_enabled: bool = in_workspace_context.create_object_parameters.get_snap_to_shape_surface()
 	# Holding Ctrl inverts the setting
 	if Input.is_key_pressed(KEY_CTRL):
 		return not snap_to_surface_enabled
@@ -58,8 +56,8 @@ func update_preview_position() -> void:
 		_set_preview_position_to_distance(10000.0)
 		return
 	
-	if is_snap_to_shape_surface_enabled():
-		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse()
+	if is_snap_to_shape_surface_enabled(get_workspace_context()):
+		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse(get_workspace_context())
 		if not is_nan(distance_to_shape_surface):
 			_set_preview_position_to_distance(distance_to_shape_surface)
 			return
@@ -75,6 +73,59 @@ func update_preview_position() -> void:
 				_set_preview_position_to_distance(get_workspace_context().create_object_parameters.drop_distance)
 		CreateObjectParameters.CreateDistanceMethod.FIXED_DISTANCE_TO_CAMERA:
 			_set_preview_position_to_distance(get_workspace_context().create_object_parameters.drop_distance)
+
+
+static func calculate_preview_position(in_workspace_context: WorkspaceContext) -> Vector3:
+	var main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	var working_area: Control = main_view.get_working_area_rect_control()
+	var screen_center: Vector2 = working_area.get_global_rect().get_center()
+	if BusyIndicator.is_active():
+		return _get_preview_position_to_distance(in_workspace_context, 10000.0, screen_center)
+		
+	
+	if is_snap_to_shape_surface_enabled(in_workspace_context):
+		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse(in_workspace_context)
+		if not is_nan(distance_to_shape_surface):
+			return _get_preview_position_to_distance(in_workspace_context, distance_to_shape_surface, screen_center)
+			
+	
+	var method: CreateObjectParameters.CreateDistanceMethod = \
+		in_workspace_context.create_object_parameters.get_create_distance_method()
+	match method:
+		CreateObjectParameters.CreateDistanceMethod.CLOSEST_OBJECT_TO_POINTER:
+			var pos: Vector3 = _try_get_preview_position_to_closest_object(in_workspace_context, screen_center)
+			if is_nan(pos.x):
+				pos = _get_preview_position_to_distance(
+					in_workspace_context,
+					in_workspace_context.create_object_parameters.drop_distance,
+					screen_center
+				)
+			return pos
+		CreateObjectParameters.CreateDistanceMethod.CENTER_OF_SELECTION:
+			var pos := Vector3(NAN, NAN, NAN)
+			if in_workspace_context.has_transformable_selection():
+				var selection_aabb: AABB = in_workspace_context.get_selection_aabb()
+				var center_of_selection: Vector3 = selection_aabb.get_center()
+				pos = _try_get_preview_position_to_center_of_selection(
+					in_workspace_context,
+					center_of_selection,
+					screen_center
+				)
+			if is_nan(pos.x):
+				pos = _get_preview_position_to_distance(
+					in_workspace_context,
+					in_workspace_context.create_object_parameters.drop_distance,
+					screen_center
+				)
+			return pos
+		CreateObjectParameters.CreateDistanceMethod.FIXED_DISTANCE_TO_CAMERA:
+			return _get_preview_position_to_distance(
+				in_workspace_context,
+				in_workspace_context.create_object_parameters.drop_distance,
+				screen_center
+			)
+	assert(false, "Should never happen")
+	return Vector3()
 
 
 # region: Private
@@ -94,10 +145,20 @@ func _on_workspace_context_selection_changed(_in_structure_contexts: Array[Struc
 
 
 func _try_set_preview_position_to_closest_object() -> bool:
-	var workspace_context: WorkspaceContext = get_workspace_context()
-	var camera: Camera3D = get_workspace_context().get_editor_viewport().get_camera_3d()
+	var pos: Vector3 = _try_get_preview_position_to_closest_object(
+		get_workspace_context(),
+		get_workspace_context().get_editor_viewport().get_mouse_position()
+	)
+	if is_nan(pos.x):
+		return false
+	set_preview_position(pos)
+	return true
+
+
+static func _try_get_preview_position_to_closest_object(in_workspace_context: WorkspaceContext, in_screen_position: Vector2) -> Vector3:
+	var camera: Camera3D = in_workspace_context.get_editor_viewport().get_camera_3d()
 	var mouse_position: Vector2 = camera.get_viewport().get_mouse_position()
-	var visible_structures: Array[StructureContext] = workspace_context.get_visible_structure_contexts()
+	var visible_structures: Array[StructureContext] = in_workspace_context.get_visible_structure_contexts()
 	var closest_distance_squared_2d: float = NAN
 	var closest_position_3d := Vector3.ZERO
 	for context in visible_structures:
@@ -118,30 +179,59 @@ func _try_set_preview_position_to_closest_object() -> bool:
 				closest_position_3d = shape_pos_3d
 	if not is_nan(closest_distance_squared_2d):
 		var closest_obj_plane: Plane = Plane(camera.basis.z, closest_position_3d)
-		_set_preview_position_to_distance(abs(closest_obj_plane.distance_to(camera.global_position)))
+		return _get_preview_position_to_distance(
+			in_workspace_context,
+			abs(closest_obj_plane.distance_to(camera.global_position)),
+			in_screen_position
+		)
+	return Vector3(NAN, NAN, NAN)
+
+
+func _try_set_preview_position_to_center_of_selection() -> bool:
+	if _last_center_of_selection != INVALID_CENTER_OF_SELECTION:
+		var pos: Vector3 = _try_get_preview_position_to_center_of_selection(
+			get_workspace_context(),
+			_last_center_of_selection,
+			get_workspace_context().get_editor_viewport().get_mouse_position()
+		)
+		if is_nan(pos.x):
+			return false
+		set_preview_position(pos)
 		return true
 	return false
 
 
-func _try_set_preview_position_to_center_of_selection() -> bool:
-	var workspace_context: WorkspaceContext = get_workspace_context()
-	if _last_center_of_selection != INVALID_CENTER_OF_SELECTION:
-		var camera: Camera3D = workspace_context.get_editor_viewport().get_camera_3d()
-		var selection_center_plane: Plane = Plane(camera.basis.z, _last_center_of_selection)
-		var distance_to_camera: float = selection_center_plane.distance_to(camera.global_position)
-		if distance_to_camera >= 0.0:
-			# Preview position will keep using center of selection even if it is outside
-			# of the camera, *except* when the center of selection is behind the camera.
-			# In that case it will fall back to "fixed distance".
-			_set_preview_position_to_distance(distance_to_camera)
-			return true
-	return false
+static func _try_get_preview_position_to_center_of_selection(
+		in_workspace_context: WorkspaceContext,
+		in_center_of_selection: Vector3,
+		in_screen_position: Vector2) -> Vector3:
+	var camera: Camera3D = in_workspace_context.get_editor_viewport().get_camera_3d()
+	var selection_center_plane: Plane = Plane(camera.basis.z, in_center_of_selection)
+	var distance_to_camera: float = selection_center_plane.distance_to(camera.global_position)
+	if distance_to_camera >= 0.0:
+		# Preview position will keep using center of selection even if it is outside
+		# of the camera, *except* when the center of selection is behind the camera.
+		# In that case it will fall back to "fixed distance".
+		return _get_preview_position_to_distance(in_workspace_context, distance_to_camera, in_screen_position)
+	return Vector3(NAN, NAN, NAN)
 
 
 func _set_preview_position_to_distance(in_distance: float) -> void:
-	var mouse_position: Vector2 = get_workspace_context().get_editor_viewport().get_mouse_position()
-	var camera: Camera3D = get_workspace_context().get_editor_viewport().get_camera_3d()
-	var new_pos3d: Vector3 = camera.project_position(mouse_position, in_distance)
-	set_preview_position(new_pos3d)
+	set_preview_position(
+		_get_preview_position_to_distance(
+			get_workspace_context(),
+			in_distance,
+			get_workspace_context().get_editor_viewport().get_mouse_position()
+		)
+	)
+
+
+static func _get_preview_position_to_distance(
+		in_workspace_context: WorkspaceContext,
+		in_distance: float,
+		in_screen_pos: Vector2) -> Vector3:
+	var camera: Camera3D = in_workspace_context.get_editor_viewport().get_camera_3d()
+	var new_pos3d: Vector3 = camera.project_position(in_screen_pos, in_distance)
+	return new_pos3d
 
 

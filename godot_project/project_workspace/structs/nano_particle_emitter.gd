@@ -3,8 +3,10 @@ class_name NanoParticleEmitter extends NanoStructure
 signal transform_changed(new_transform: Transform3D)
 signal parameters_changed(in_parameters: NanoParticleEmitterParameters)
 
+const DEFAULT_ROTATION = Quaternion(Vector3.RIGHT, deg_to_rad(90))
+const DEFAULT_TRANSFORM = Transform3D(Basis(DEFAULT_ROTATION))
 
-@export var _transform: Transform3D
+@export var _transform := DEFAULT_TRANSFORM
 @export var _parameters: NanoParticleEmitterParameters
 
 

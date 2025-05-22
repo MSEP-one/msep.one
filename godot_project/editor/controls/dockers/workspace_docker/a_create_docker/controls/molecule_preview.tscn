@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://dlnuekwtrxhsd"]
+
+[ext_resource type="Script" uid="uid://ixtxvh8rshww" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/molecule_preview.gd" id="1_5p3gk"]
+[ext_resource type="PackedScene" uid="uid://ka1kytlpw1r4" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview_viewport.tscn" id="2_xnjbg"]
+
+[node name="MoleculePreview" type="AspectRatioContainer"]
+script = ExtResource("1_5p3gk")
+
+[node name="3DPreviewContainer" type="SubViewportContainer" parent="."]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+stretch = true
+
+[node name="3DPreviewViewport" parent="3DPreviewContainer" instance=ExtResource("2_xnjbg")]
+unique_name_in_owner = true
+own_world_3d = true
+size = Vector2i(200, 200)
+render_target_update_mode = 4
+
+[node name="PreviewCameraPivot" parent="3DPreviewContainer/3DPreviewViewport" index="0"]
+transform = Transform3D(0.819152, -0.286788, 0.496732, 0, 0.866025, 0.5, -0.573576, -0.409576, 0.709406, 0, 0, 0)
+
+[editable path="3DPreviewContainer/3DPreviewViewport"]

@@ -131,6 +131,7 @@ func activate(in_with_message: String = "",
 
 func deactivate() -> void:
 	set_process(false)
+	_active = false
 	_cancel_callback = Callable()
 	_stop_callback = Callable()
 	if is_instance_valid(_tween_gears):
@@ -145,7 +146,6 @@ func deactivate() -> void:
 		.set_trans(Tween.TRANS_EXPO)
 	_tween_self.tween_property(self, "_blur_factor", 0.0, TWEEN_TIME)
 	await _tween_self.finished
-	_active = false
 	hide()
 
 
