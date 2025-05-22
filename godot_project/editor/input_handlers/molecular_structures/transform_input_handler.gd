@@ -112,7 +112,7 @@ func _init_initial_positions_and_determine_center() -> Vector3:
 		
 		# Phase 2: Transformable Objects
 		if context.nano_structure.has_transform():
-			if context.is_shape_selected() or context.is_motor_selected():
+			if context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected():
 				selection_size += 1
 				center_pos += context.nano_structure.get_transform().origin
 				_structure_context_2_initial_object_transforms[context.get_int_guid()] = context.nano_structure.get_transform()
@@ -266,7 +266,7 @@ func _apply_selection_transform() -> void:
 		
 		# Phase 3: Flush
 		var atoms_changed: bool = nmb_of_moved_atoms > 0
-		var object_moved: bool = context.is_shape_selected() or context.is_motor_selected()
+		var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
 		var anchor_moved: bool = context.is_anchor_selected()
 		if atoms_changed or object_moved or anchor_moved:
 			if atoms_changed:
@@ -305,7 +305,7 @@ func _get_gizmo_center_position() -> Vector3:
 		
 		# Phase 2: Objects with Transform3D
 		if context.nano_structure.has_transform():
-			if context.is_shape_selected() or context.is_motor_selected():
+			if context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected():
 				selection_size += 1
 				center_pos += context.nano_structure.get_transform().origin
 		elif context.is_anchor_selected():
@@ -403,7 +403,7 @@ func _force_gizmo_update() -> void:
 			var selection: PackedInt32Array = context.get_selected_atoms()
 			selection_size += selection.size()
 			if context.nano_structure.has_transform():
-				if context.is_shape_selected() or context.is_motor_selected():
+				if context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected():
 					selection_size += 1
 					has_transformable_objects_selected = true
 			elif context.is_anchor_selected():

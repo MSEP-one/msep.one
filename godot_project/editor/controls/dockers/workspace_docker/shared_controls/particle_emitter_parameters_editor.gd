@@ -17,6 +17,8 @@ var _load_molecule_from_selection_button: Button
 var _load_molecule_from_library_button: Button
 
 
+# when not null an snapshot in this workspace will be taken on change from UI
+var _workspace_snapshot_target: WorkspaceContext = null
 var _parameters_wref: WeakRef = weakref(null) # WeakRef<NanoParticleEmitterParameters>
 
 
@@ -58,6 +60,23 @@ func track_parameters(out_emitter_parameters: NanoParticleEmitterParameters) -> 
 		_on_emitter_parameters_changed()
 
 
+func ensure_undo_redo_initialized(in_workspace_context: WorkspaceContext) -> void:
+	if _workspace_snapshot_target != in_workspace_context:
+		_workspace_snapshot_target = in_workspace_context
+		_workspace_snapshot_target.history_snapshot_applied.connect(_on_workspace_context_history_snapshot_applied)
+
+
+func _take_snapshot_if_configured(in_modified_property: String) -> void:
+	if is_instance_valid(_workspace_snapshot_target):
+		_workspace_snapshot_target.snapshot_moment("Set: " + in_modified_property)
+
+
+func _on_workspace_context_history_snapshot_applied() -> void:
+	if is_instance_valid(_get_emitter_parameters()):
+		# if instance is still valid refresh the UI
+		_on_emitter_parameters_changed()
+
+
 func _get_emitter_parameters() -> NanoParticleEmitterParameters:
 	return _parameters_wref.get_ref() as NanoParticleEmitterParameters
 
@@ -80,6 +99,8 @@ func _on_emitter_parameters_changed() -> void:
 	_limit_instances_spin_box.visible = parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.INSTANCE_COUNT
 	_limit_nanoseconds_time_picker.visible = parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.TIME
 	_limit_instances_spin_box.set_value_no_signal(parameters.get_stop_emitting_after_count())
+	_limit_nanoseconds_time_picker.time_span_femtoseconds = TimeSpanPicker.unit_to_femtoseconds(
+			parameters.get_stop_emitting_after_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
 
 
 func _on_initial_delay_time_picker_time_span_changed(
@@ -89,11 +110,13 @@ func _on_initial_delay_time_picker_time_span_changed(
 	var time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
 			time_in_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
 	parameters.set_initial_delay_in_nanoseconds(time_in_nanoseconds)
+	_take_snapshot_if_configured(tr(&"Initial Delay"))
 
 
 func _on_molecules_per_instance_spin_box_value_confirmed(in_value: float) -> void:
 	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
 	parameters.set_molecules_per_instance(int(in_value))
+	_take_snapshot_if_configured(tr(&"Molecules per Instantation"))
 
 
 func _on_instance_rate_time_picker_time_span_changed(
@@ -103,16 +126,19 @@ func _on_instance_rate_time_picker_time_span_changed(
 	var time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
 			time_in_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
 	parameters.set_instance_rate_time_in_nanoseconds(time_in_nanoseconds)
+	_take_snapshot_if_configured(tr(&"Instance Rate"))
 
 
 func _on_initial_speed_spin_box_value_confirmed(in_value: float) -> void:
 	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
 	parameters.set_instance_speed_nanometers_per_picosecond(in_value)
+	_take_snapshot_if_configured(tr(&"Initial Speed"))
 
 
 func _on_spread_angle_spin_box_value_confirmed(in_value: float) -> void:
 	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
 	parameters.set_spread_angle(in_value)
+	_take_snapshot_if_configured(tr(&"Spread Angle"))
 
 
 func _on_stop_condition_button_group_pressed(in_button: Button) -> void:
@@ -128,11 +154,13 @@ func _on_stop_condition_button_group_pressed(in_button: Button) -> void:
 		assert(false, "Unexpected button in ButtonGroup: " + str(get_path_to(in_button)))
 		pass
 	parameters.set_limit_type(type)
+	_take_snapshot_if_configured(tr(&"Stop Condition"))
 
 
 func _on_limit_instances_spin_box_value_confirmed(in_value: float) -> void:
 	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
 	parameters.set_stop_emitting_after_count(int(in_value))
+	_take_snapshot_if_configured(tr(&"Instance Limit"))
 
 
 func _on_limit_nanoseconds_time_picker_time_span_changed(
@@ -142,14 +170,17 @@ func _on_limit_nanoseconds_time_picker_time_span_changed(
 	var time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
 			time_in_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
 	parameters.set_stop_emitting_after_nanoseconds(time_in_nanoseconds)
+	_take_snapshot_if_configured(tr(&"Time Limit"))
 
 
 func _on_load_molecule_from_selection_button_pressed() -> void:
 	var _parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
 	assert("TODO")
+	_take_snapshot_if_configured(tr(&"Molecule Template"))
 
 
 func _on_load_molecule_from_library_button_pressed() -> void:
 	var _parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
 	assert("TODO")
+	_take_snapshot_if_configured(tr(&"Molecule Template"))
 

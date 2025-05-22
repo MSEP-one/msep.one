@@ -49,7 +49,7 @@ func _update_contents(in_selected_structures: Array[StructureContext] ) -> void:
 		_motor_cycle_parameters_editor.hide()
 		_motor_cycle_parameters_editor.track_parameters(null)
 	elif selected_motors_count == 0:
-		# Entire editor should not be shown, jsut stop tracking any parameter if this was the case
+		# Entire editor should not be shown, just stop tracking any parameter if this was the case
 		_rotary_motor_parameters_editor.track_parameters(null)
 		_linear_motor_parameters_editor.track_parameters(null)
 		_motor_cycle_parameters_editor.track_parameters(null)

@@ -265,6 +265,8 @@ func add_nano_structure(in_structure: NanoStructure) -> void:
 		rendering.build_reference_shape_rendering(in_structure)
 	if in_structure is NanoVirtualMotor:
 		rendering.build_virtual_motor_rendering(in_structure)
+	if in_structure is NanoParticleEmitter:
+		rendering.build_particle_emitter_rendering(in_structure)
 	if in_structure is NanoVirtualAnchor:
 		rendering.build_virtual_anchor_rendering(in_structure)
 	var _initialized_structure_context: StructureContext = get_nano_structure_context(in_structure)
@@ -627,7 +629,7 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 				# Anchors only have position
 				structure_context.nano_structure.position_changed.connect(_on_virtual_object_transform_changed.bind(structure_context.get_int_guid()))
 			else:
-				# Shapes and Motors have transforms
+				# Shapes, Motors, and Particle Emitters have transforms
 				structure_context.nano_structure.transform_changed.connect(_on_virtual_object_transform_changed.bind(structure_context.get_int_guid()))
 		_structure_contexts[guid] = structure_context
 		if structure_context.has_selection():
