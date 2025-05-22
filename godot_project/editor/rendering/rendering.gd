@@ -35,6 +35,7 @@ signal representation_changed(new_representation: Representation)
 @onready var _structure_preview: StructurePreview = $StructurePreview
 @onready var _reference_shape_preview: NanoShapeRenderer = $ReferenceShapePreview
 @onready var _virtual_motor_preview: VirtualMotorRenderer = $VirtualMotorPreview
+@onready var _particle_emitter_preview: ParticleEmitterRenderer = $ParticleEmitterPreview
 @onready var _virtual_anchor_preview: VirtualAnchorPreview = $VirtualAnchorPreview
 @onready var _world_environment: WorldEnvironment = $WorldEnvironment
 @onready var _spring_preview: SpringPreview = $SpringPreview
@@ -595,6 +596,7 @@ func update(in_delta: float) -> void:
 
 # # # # # #
 # # Preview api
+#region atom_preview
 func is_atom_preview_visible() -> bool:
 	if not enabled: return false
 	return _atom_preview.is_visible()
@@ -628,8 +630,10 @@ func atom_preview_set_atomic_number(in_atomic_number: int) -> Rendering:
 	if not enabled: return self
 	_atom_preview.set_atomic_number(in_atomic_number)
 	return self
+#endregion
 
 
+#region bond_preview
 func is_bond_preview_visible() -> bool:
 	if not enabled: return false
 	return _ballstick_bond_preview.is_visible()
@@ -658,8 +662,10 @@ func bond_preview_set_order(in_bond_order: int) -> Rendering:
 	if not enabled: return self
 	_ballstick_bond_preview.set_order(in_bond_order)
 	return self
+#endregion
 
 
+#region atom_autopose_preview
 func atom_autopose_preview_is_visible() -> bool:
 	if not enabled: return false
 	return _atom_autopose_preview.is_visible()
@@ -703,8 +709,10 @@ func atom_autopose_preview_set_hovered_candidate(in_candidate: AtomAutoposePrevi
 
 func atom_autopose_get_hovered_candidate_or_null() -> AtomAutoposePreview.AtomCandidate:
 	return _atom_autopose_preview.get_hovered_candidate_or_null()
+#endregion
 
 
+#region structure_preview
 func is_structure_preview_visible() -> bool:
 	if not enabled: return false
 	return _structure_preview.visible
@@ -731,8 +739,10 @@ func structure_preview_set_transform(in_transform: Transform3D) -> Rendering:
 func structure_preview_get_transform() -> Transform3D:
 	if not enabled: return Transform3D()
 	return _structure_preview.get_transform()
+#endregion
 
 
+#region reference_shape_preview
 func is_shape_preview_visible() -> bool:
 	if not enabled: return false
 	return _reference_shape_preview.visible
@@ -755,8 +765,10 @@ func shape_preview_set_nano_shape(in_nano_shape: NanoShape) -> Rendering:
 	assert(in_nano_shape.is_ghost)
 	_reference_shape_preview.build(_workspace_context, in_nano_shape)
 	return self
+#endregion
 
 
+#region virtual_motor_preview
 func is_virtual_motor_preview_visible() -> bool:
 	if not enabled: return false
 	return _virtual_motor_preview.visible
@@ -791,17 +803,63 @@ func virtual_motor_preview_set_rotation(in_rotation: Quaternion) -> Rendering:
 		_virtual_motor_preview.quaternion = in_rotation
 	return self
 
+
 func virtual_motor_preview_get_rotation() -> Quaternion:
 	if not enabled or not is_virtual_motor_preview_visible():
 		return Quaternion()
 	return _virtual_motor_preview.quaternion
 
+
 func virtual_motor_preview_set_parameters(in_motor_parameters: NanoVirtualMotorParameters) -> Rendering:
 	if enabled:
 		_virtual_motor_preview.parameters = in_motor_parameters
 	return self
+#endregion
 
 
+#region particle_emitter_preview
+func is_particle_emitter_preview_visible() -> bool:
+	if not enabled: return false
+	return _particle_emitter_preview.visible
+
+
+func particle_emitter_preview_show() -> Rendering:
+	if enabled:
+		_particle_emitter_preview.show()
+	return self
+
+
+func particle_emitter_preview_hide() -> Rendering:
+	if enabled:
+		_particle_emitter_preview.hide()
+	return self
+
+
+func particle_emitter_preview_set_position(in_position: Vector3) -> Rendering:
+	if enabled:
+		_particle_emitter_preview.global_position = in_position
+	return self
+
+
+func particle_emitter_preview_get_position() -> Vector3:
+	if not enabled or not is_particle_emitter_preview_visible():
+		return Vector3()
+	return _particle_emitter_preview.global_position
+
+
+func particle_emitter_preview_set_rotation(in_rotation: Quaternion) -> Rendering:
+	if enabled:
+		_particle_emitter_preview.quaternion = in_rotation
+	return self
+
+func particle_emitter_preview_get_rotation() -> Quaternion:
+	if not enabled or not is_particle_emitter_preview_visible():
+		return Quaternion()
+	return _particle_emitter_preview.quaternion
+#endregion
+
+
+#region virtual_anchor_preview
 func is_virtual_anchor_preview_visible() -> bool:
 	if not enabled: return false
 	return _virtual_anchor_preview.visible
@@ -839,6 +897,7 @@ func virtual_anchor_preview_set_spring_ends(in_springs: PackedVector3Array) -> R
 		return
 	_spring_preview.update(in_springs)
 	return self
+#endregion
 
 
 func _refresh_outline_color() -> void:
@@ -855,6 +914,7 @@ func _refresh_outline_color() -> void:
 		outline_color = representation_settings.get_theme().get_highlight_color()
 	RenderingServer.global_shader_parameter_set(&"selected_atom_outline_color", outline_color)
 	RenderingServer.global_shader_parameter_set(&"reference_shape_selected_wireframe_color", outline_color)
+
 
 func _refresh_viewport_background() -> void:
 	if not enabled: return
@@ -881,6 +941,7 @@ func _refresh_viewport_background() -> void:
 	_atom_preview.set_transparency(preview_transparency)
 	_ballstick_bond_preview.set_transparency(preview_transparency)
 	_structure_preview.set_transparency(preview_transparency)
+
 
 func spring_preview_hide() -> void:
 	_spring_preview.hide_preview()
