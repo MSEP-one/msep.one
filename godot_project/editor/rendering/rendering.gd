@@ -2,10 +2,11 @@ class_name Rendering extends Node
 ## Responsible for rendering of the nano structures
 ## It's providing all the public api that might be needed for the rendering
 
-const AtomicStructureRendererScn: PackedScene = preload("res://editor/rendering/atomic_structure_renderer/atomic_structure_renderer.tscn")
-const NanoShapeRendererScn: PackedScene = preload("res://editor/rendering/reference_shape_renderer/reference_shape_renderer.tscn")
-const NanoVirtualMotorRendererScn: PackedScene = preload("res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.tscn")
-const NanoVirtualAnchorRendererScn: PackedScene = preload("res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_renderer.tscn")
+const AtomicStructureRendererScn: PackedScene = preload("uid://ddis4g64f3o04")
+const NanoShapeRendererScn: PackedScene = preload("uid://b6snixhbqq57y")
+const NanoVirtualMotorRendererScn: PackedScene = preload("uid://c1cjktftkuj1d")
+const NanoParticleEmitterRendererScn: PackedScene = preload("uid://b0jv0ex0g4qmp")
+const NanoVirtualAnchorRendererScn: PackedScene = preload("uid://btt2fm6ii0xka")
 
 const SELECTION_PREVIEW_LAYER_BIT = 3
 
@@ -26,6 +27,7 @@ signal representation_changed(new_representation: Representation)
 @onready var _atomic_structure_renderers: Node = $AtomicStructureRenderers
 @onready var _reference_shape_renderers: Node = $NanoShapeRenderers
 @onready var _virtual_motor_renderers: Node = $VirtualMotorRenderers
+@onready var _particle_emitter_renderers: Node = $ParticleEmitterRenderers
 @onready var _virtual_anchor_renderers: Node = $VirtualAnchorRenderers
 @onready var _atom_preview: AtomPreview = $AtomPreview
 @onready var _atom_autopose_preview: AtomAutoposePreview = $AtomAutoposePreview
@@ -127,6 +129,14 @@ func build_virtual_motor_rendering(in_motor: NanoVirtualMotor) -> void:
 		motor_renderer.disable_hover()
 
 
+func build_particle_emitter_rendering(in_emitter: NanoParticleEmitter) -> void:
+	if not enabled: return
+	var emitter_renderer: ParticleEmitterRenderer = _get_renderer_for_particle_emitter(in_emitter.get_int_guid())
+	emitter_renderer.build(_workspace_context, in_emitter)
+	if _hover_disabled:
+		emitter_renderer.disable_hover()
+
+
 func build_virtual_anchor_rendering(in_anchor: NanoVirtualAnchor) -> void:
 	if not enabled: return
 	var anchor_renderer: VirtualAnchorRenderer = _get_renderer_for_virtual_anchor(in_anchor.get_int_guid())
@@ -151,25 +161,19 @@ func get_reference_shape_renderer(in_shape_renderer_name: String) -> NanoShapeRe
 func get_rendered_structures() -> PackedInt32Array:
 	var rendered_structures: PackedInt32Array = PackedInt32Array()
 	
-	for structure: Node in _atomic_structure_renderers.get_children():
-		if structure is InstancePlaceholder:
-			continue
-		rendered_structures.append(structure.get_name().to_int())
+	var containers: Array[Node] = [
+		_atomic_structure_renderers,
+		_virtual_motor_renderers,
+		_particle_emitter_renderers,
+		_reference_shape_renderers,
+		_virtual_anchor_renderers,
+	]
 	
-	for structure: Node in _virtual_motor_renderers.get_children():
-		if structure is InstancePlaceholder:
-			continue
-		rendered_structures.append(structure.get_name().to_int())
-	
-	for structure: Node in _reference_shape_renderers.get_children():
-		if structure is InstancePlaceholder:
-			continue
-		rendered_structures.append(structure.get_name().to_int())
-	
-	for structure: Node in _virtual_anchor_renderers.get_children():
-		if structure is InstancePlaceholder:
-			continue
-		rendered_structures.append(structure.get_name().to_int())
+	for renderer_container: Node in containers:
+		for structure: Node in renderer_container.get_children():
+			if structure is InstancePlaceholder:
+				continue
+			rendered_structures.append(structure.get_name().to_int())
 	
 	return rendered_structures
 
@@ -220,6 +224,13 @@ func is_renderer_for_motor_built(in_motor: NanoVirtualMotor) -> bool:
 	return true
 
 
+func is_renderer_for_particle_emitter_build(in_emitter: NanoParticleEmitter) -> bool:
+	if not enabled: return false
+	var structure_renderer_name: String = str(in_emitter.int_guid)
+	if not _particle_emitter_renderers.has_node(structure_renderer_name):
+		return false
+	return true
+
 func is_renderer_for_anchor_built(in_anchor: NanoVirtualAnchor) -> bool:
 	if not enabled: return false
 	var structure_renderer_name: String = str(in_anchor.int_guid)
@@ -235,22 +246,18 @@ func remove(in_structure: NanoStructure) -> void:
 func remove_with_id(in_structure_id: int) -> void:
 	if not enabled: return
 	var structure_renderer_name: String = str(in_structure_id)
-	if _atomic_structure_renderers.has_node(structure_renderer_name):
-		var atomic_structure_renderer: AtomicStructureRenderer = _atomic_structure_renderers.get_node(structure_renderer_name)
-		atomic_structure_renderer.queue_free()
-		atomic_structure_renderer.name = "_in_queue_free_" + atomic_structure_renderer.name
-	if _reference_shape_renderers.has_node(structure_renderer_name):
-		var shape_renderer: NanoShapeRenderer = _reference_shape_renderers.get_node(structure_renderer_name)
-		shape_renderer.queue_free()
-		shape_renderer.name = "_in_queue_free_" + shape_renderer.name
-	if _virtual_motor_renderers.has_node(structure_renderer_name):
-		var motor_renderer: VirtualMotorRenderer = _virtual_motor_renderers.get_node(structure_renderer_name)
-		motor_renderer.queue_free()
-		motor_renderer.name = "_in_queue_free_" + motor_renderer.name
-	if _virtual_anchor_renderers.has_node(structure_renderer_name):
-		var anchor_renderer: VirtualAnchorRenderer = _virtual_anchor_renderers.get_node(structure_renderer_name)
-		anchor_renderer.queue_free()
-		anchor_renderer.name = "_in_queue_free_" + anchor_renderer.name
+	var containers: Array[Node] = [
+		_atomic_structure_renderers,
+		_virtual_motor_renderers,
+		_particle_emitter_renderers,
+		_reference_shape_renderers,
+		_virtual_anchor_renderers,
+	]
+	for renderer_container: Node in containers:
+		if renderer_container.has_node(structure_renderer_name):
+			var atomic_structure_renderer: Node = renderer_container.get_node(structure_renderer_name)
+			atomic_structure_renderer.queue_free()
+			atomic_structure_renderer.name = "_in_queue_free_" + atomic_structure_renderer.name
 
 
 func show_structure(in_structure: AtomicStructure) -> void:
@@ -415,6 +422,20 @@ func _get_renderer_for_virtual_motor(in_structure_id: int) -> VirtualMotorRender
 	return motor_renderer
 
 
+func _get_renderer_for_particle_emitter(in_structure_id: int) -> ParticleEmitterRenderer:
+	if not enabled: return null
+	var emitter_renderer_name: String = str(in_structure_id)
+	var emitter_renderer: ParticleEmitterRenderer
+	var need_to_create_emitter_renderer: bool = not _particle_emitter_renderers.has_node(emitter_renderer_name)
+	if need_to_create_emitter_renderer:
+		emitter_renderer = NanoParticleEmitterRendererScn.instantiate()
+		emitter_renderer.set_name(emitter_renderer_name)
+		_particle_emitter_renderers.add_child(emitter_renderer)
+	else:
+		emitter_renderer = _particle_emitter_renderers.get_node(emitter_renderer_name)
+	return emitter_renderer
+
+
 func _get_renderer_for_virtual_anchor(in_structure_id: int) -> VirtualAnchorRenderer:
 	if not enabled: return null
 	var anchor_renderer_name: String = str(in_structure_id)
@@ -540,6 +561,10 @@ func transform_object_by_external_transform(in_structure: NanoStructure, in_sele
 	elif in_structure is NanoVirtualMotor:
 		var motor_renderer: VirtualMotorRenderer = _get_renderer_for_virtual_motor(in_structure.get_int_guid())
 		motor_renderer.transform_by_external_transform(in_selection_initial_pos, in_initial_nano_struct_transform,
+				in_gizmo_transform)
+	elif in_structure is NanoParticleEmitter:
+		var emitter_renderer: ParticleEmitterRenderer = _get_renderer_for_particle_emitter(in_structure.get_int_guid())
+		emitter_renderer.transform_by_external_transform(in_selection_initial_pos, in_initial_nano_struct_transform,
 				in_gizmo_transform)
 	elif in_structure is NanoVirtualAnchor:
 		var anchor: NanoVirtualAnchor = in_structure as NanoVirtualAnchor
@@ -923,10 +948,12 @@ func create_state_snapshot() -> Dictionary:
 	var renderers_data: Dictionary = _collect_renderer_snapshot_data(_atomic_structure_renderers.get_children())
 	var anchors_data: Dictionary = _collect_renderer_snapshot_data(_virtual_anchor_renderers.get_children())
 	var motors_data: Dictionary = _collect_renderer_snapshot_data(_virtual_motor_renderers.get_children())
+	var emitters_data: Dictionary = _collect_renderer_snapshot_data(_particle_emitter_renderers.get_children())
 	var shapes_data: Dictionary = _collect_renderer_snapshot_data(_reference_shape_renderers.get_children())
 	snapshot["renderers_data"] = renderers_data
 	snapshot["anchors_data"] = anchors_data
 	snapshot["motors_data"] = motors_data
+	snapshot["emitters_data"] = emitters_data
 	snapshot["shapes_data"] = shapes_data
 	return snapshot
 
@@ -996,6 +1023,21 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 			# create new one
 			renderer = _get_renderer_for_virtual_motor(renderer_name.to_int())
 		renderer.apply_state_snapshot(motor_renderer_snapshot)
+	
+	#
+	var emitters_data: Dictionary = in_snapshot["emitters_data"]
+	var emitters_renderers: Dictionary = emitters_data["renderers"]
+	var emitters_renderers_snapshots: Dictionary = emitters_data["renderers_snapshots"]
+	for renderer_name: String in emitters_renderers:
+		var renderer: ParticleEmitterRenderer
+		var emitter_renderer_snapshot: Dictionary = emitters_renderers_snapshots[renderer_name]
+		if is_instance_valid(emitters_renderers[renderer_name]) \
+				and not emitters_renderers[renderer_name].is_queued_for_deletion():
+			renderer = emitters_renderers[renderer_name]
+		else:
+			# create new one
+			renderer = _get_renderer_for_particle_emitter(renderer_name.to_int())
+		renderer.apply_state_snapshot(emitter_renderer_snapshot)
 	
 	#
 	var shapes_data: Dictionary = in_snapshot["shapes_data"]

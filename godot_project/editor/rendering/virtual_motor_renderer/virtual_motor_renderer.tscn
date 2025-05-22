@@ -127,7 +127,7 @@ texture = ExtResource("4_tndce")
 [node name="AnimatePolarity" type="AnimationPlayer" parent="."]
 root_node = NodePath("../LinearPolarity")
 libraries = {
-"": SubResource("AnimationLibrary_xerup")
+&"": SubResource("AnimationLibrary_xerup")
 }
 
 [editable path="motor3D_Gears00"]
