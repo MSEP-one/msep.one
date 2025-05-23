@@ -38,11 +38,11 @@ func enable_on_preview_viewport() -> void:
 	_enabled_on_preview_viewport = true
 
 
-func set_structure(in_structure_context: StructureContext) -> void:
+func set_structure(in_structure: NanoStructure) -> void:
 	if get_viewport() is PreviewViewport3D and not _enabled_on_preview_viewport:
 		# Structure Previews are never shown in preview viewports (used to show selected objects)
 		return
-	if not is_instance_valid(in_structure_context) or not in_structure_context.nano_structure is AtomicStructure:
+	if not is_instance_valid(in_structure) or not in_structure is AtomicStructure:
 		if is_instance_valid(_atomic_structure_renderer):
 			_atomic_structure_renderer.queue_free()
 		return
@@ -57,7 +57,7 @@ func set_structure(in_structure_context: StructureContext) -> void:
 		_preview_structure_context.queue_free()
 	
 	var structure_copy: NanoStructure = NanoMolecularStructure.new()
-	structure_copy.apply_state_snapshot(in_structure_context.nano_structure.create_state_snapshot())
+	structure_copy.apply_state_snapshot(in_structure.create_state_snapshot())
 	_preview_workspace_context = load(WorkspaceContextScn).instantiate()
 	_preview_workspace = Workspace.new()
 	_preview_workspace.add_structure(structure_copy)
@@ -65,7 +65,7 @@ func set_structure(in_structure_context: StructureContext) -> void:
 	_preview_workspace_context.initialize(_preview_workspace)
 	_preview_structure_context = _preview_workspace_context.get_nano_structure_context(structure_copy)
 	
-	var representation_settings: RepresentationSettings = in_structure_context.nano_structure.get_representation_settings()
+	var representation_settings: RepresentationSettings = in_structure.get_representation_settings()
 	_atomic_structure_renderer.build(_preview_structure_context, representation_settings.get_rendering_representation())
 	_atomic_structure_renderer.set_transparency(_transparency)
 	
@@ -95,7 +95,7 @@ func _on_representation_settings_changed(in_representation_settings: Representat
 
 func _on_workspace_context_started_creating_object(workspace_context: WorkspaceContext) -> void:
 	var peek_new_object: Callable = func(in_context: StructureContext) -> bool:
-		set_structure(in_context)
+		set_structure(in_context.nano_structure)
 		return true
 	workspace_context.peek_context_of_object_being_created(peek_new_object)
 

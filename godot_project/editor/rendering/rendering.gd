@@ -590,6 +590,9 @@ func update(in_delta: float) -> void:
 	for renderer in _virtual_motor_renderers.get_children():
 		if renderer is VirtualMotorRenderer:
 			renderer.update(in_delta)
+	for renderer in _particle_emitter_renderers.get_children():
+		if renderer is ParticleEmitterRenderer:
+			renderer.update(in_delta)
 	if is_structure_preview_visible():
 		_structure_preview.update(in_delta)
 
