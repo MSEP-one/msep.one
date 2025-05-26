@@ -118,14 +118,19 @@ func _on_create_from_selection_button_pressed() -> void:
 	template.set_representation_settings(workspace_context.workspace.representation_settings)
 	instance_parameters.set_molecule_template(template)
 	# 3. Create Particle Emitter with configured parameters
-	var emitter := NanoParticleEmitter.new()
-	emitter.set_structure_name("%s %d" % [str(emitter.get_type()), _workspace_context.workspace.get_nmb_of_structures()+1])
-	_workspace_context.start_creating_object(emitter)
-	emitter.set_parameters(instance_parameters)
-	emitter.set_position(center_of_selection)
+	_workspace_context.peek_object_being_created(func(out_emitter: NanoParticleEmitter) -> bool:
+		out_emitter.set_structure_name("%s %d" % [
+			str(out_emitter.get_type()),
+			_workspace_context.workspace.get_nmb_of_structures()+1
+		])
+		out_emitter.set_parameters(instance_parameters)
+		out_emitter.set_position(center_of_selection)
+		return true
+	)
 	var new_context: StructureContext = _workspace_context.finish_creating_object()
 	new_context.set_particle_emitter_selected(true)
 	_workspace_context.snapshot_moment("Create Particle Emitter")
+	_workspace_context.start_creating_object(NanoParticleEmitter.new())
 
 
 func _on_create_from_small_molecules_pressed() -> void:

@@ -182,6 +182,7 @@ class PayloadTopologyReader(PayloadChunkReader):
 		self.bonds: list[tuple[int, int, int]] = []
 		self.molecule_ids: list[int] = []
 		self.motors_forces: list[MotorForce] = []
+		self.emitters: list[ParticleEmitter] = []
 		self.anchors: dict = {}
 		self._openff_molecules: list[Molecule] = []
 		self.payload_to_openff_atom: dict = {}
@@ -229,18 +230,24 @@ class PayloadTopologyReader(PayloadChunkReader):
 		assert(self.seek == len(self.chunk))
 	
 	def add_virtual_object(self, json_object: dict):
-		if json_object["is"] == "shape":
+		type = json_object["is"]
+		if type == "shape":
 			# TODO: handle Shapes
 			logging.warning(f"TODO: Handle shape data: {str(json_object)}")
-		elif json_object["is"] == "motor":
+		elif type == "motor":
 			self.motors_forces.append(MotorForce(json_object, topology, state))
-		elif json_object["is"] == "anchor":
+		elif type == "emitter":
+			self.emitters.append(ParticleEmitter(json_object))
+		elif type == "anchor":
 			anchor_id: int = json_object["anchor_id"]
 			self.anchors[anchor_id] = AnchorPoint(json_object)
-		elif json_object["is"] == "spring":
+		elif type == "spring":
 			anchor_id: int = json_object["anchor_id"]
 			spring = Spring(json_object, topology)
 			self.anchors[anchor_id].springs.append(spring)
+		else:
+			logging.error(f"Unknown virtual object: {type}")
+			logging.warning(json_object)
 	
 	def to_openff_molecules(self) -> list[Molecule]:
 		if len(self._openff_molecules) > 0:
@@ -250,7 +257,6 @@ class PayloadTopologyReader(PayloadChunkReader):
 		atom_to_group_atom: dict = {}
 		group_atom_to_atom: dict = {}
 		mol = Molecule()
-
 		for atoms_in_group in self.find_unconnected_molecules(range(self.atoms_count), self.bonds):
 			mol = Molecule()
 			group = len(molecules)
@@ -727,6 +733,124 @@ class MotorForce:
 		self.stopped = True
 	
 
+
+class ParticleEmitter:
+	def __init__(self, emitter_data: dict) -> None:
+		self.emitter_id: int = emitter_data["emitter_id"]
+		self.molecule_id: int = emitter_data["molecule_id"]
+		pos: list[float] = emitter_data["position"]
+		self.position = Vec3(pos[0], pos[1], pos[2]) * nanometer
+		dir: list[float] = emitter_data["axis_direction"]
+		self.axis_direction: Vec3 = Vec3(dir[0], dir[1], dir[2])
+		self.running: bool = emitter_data["parameters"]["_initial_delay_in_nanoseconds"] <= 0.0
+		self.initial_delay_in_nanoseconds = emitter_data["parameters"]["_initial_delay_in_nanoseconds"]
+		self.instance_rate_time_in_nanoseconds = emitter_data["parameters"]["_instance_rate_time_in_nanoseconds"]
+		self.instance_speed_nanometers_per_picosecond = emitter_data["parameters"]["_instance_speed_nanometers_per_picosecond"]
+		self.molecules_per_instance = emitter_data["parameters"]["_molecules_per_instance"]
+		self.total_instance_count = emitter_data["parameters"]["total_instance_count"]
+		self.spread_angle = emitter_data["parameters"]["_spread_angle"]
+		self.payload_instances_atoms_list: list[list[int]] = emitter_data["atoms_list"]
+		self.openmm_instances_atoms_list: list[list[int]] = emitter_data["atoms_list"]
+		self.atom_groups_per_instance = 1 # this is how many unnconected group of atoms are in the template, in example 2 molecules of water
+		self.instances: list[list[Molecule]] = []
+		self._molecule_forces_cache: dict[int,list] = {}
+		self.time_accum: float = 0.0
+		self.last_instanced_molecule_index: int = -1
+	
+	def setup(self, simulation: Simulation, out_nonbonded_force: NonbondedForce, payload_to_openff_atom: dict):
+		state = simulation.context.getState(getPositions=True, getVelocities=True)
+		positions = state.getPositions()
+		initial_velocities = state.getVelocities()
+		for i in range(len(initial_velocities)):
+			# velocities can be initialized to nan for some reason
+			if math.isnan(initial_velocities[i].x) or math.isnan(initial_velocities[i].y) or math.isnan(initial_velocities[i].z):
+				initial_velocities._value[i] = Vec3(0.0, 0.0, 0.0)
+		for i in range(len(self.payload_instances_atoms_list)):
+			instance_atoms = self.payload_instances_atoms_list[i]
+			instance_openmm_atoms: list[int] = []
+			for payload_atom_id in instance_atoms:
+				atom_id: int = payload_to_openff_atom[payload_atom_id]
+				instance_openmm_atoms.append(atom_id)
+				mass = simulation.system.getParticleMass(atom_id)
+				parameters = out_nonbonded_force.getParticleParameters(atom_id)
+				position = positions[atom_id]
+				velocity = initial_velocities[atom_id]
+				self._molecule_forces_cache[atom_id] = [mass, parameters, position, velocity]
+				out_nonbonded_force.setParticleParameters(atom_id, 0.0, 0.0, 0.0)
+				# Override initial positions, this should prevent force calculations to fail until atoms are enabled
+				positions._value[atom_id] = Vec3(0.0, 0.0, float(atom_id))
+				initial_velocities._value[atom_id] = Vec3(0.0, 0.0, 0.0)
+			self.openmm_instances_atoms_list.append(instance_openmm_atoms)
+		simulation.context.setPositions(positions)
+		simulation.context.setVelocities(initial_velocities)
+
+	def advance(self, simulation: Simulation, out_nonbonded_force, time_step_in_nanoseconds: float):
+		self.time_accum += time_step_in_nanoseconds
+		for i in range(self.last_instanced_molecule_index + 1, self.total_instance_count):
+			spawn_time = self.initial_delay_in_nanoseconds + int(i / self.molecules_per_instance) * self.instance_rate_time_in_nanoseconds
+			if spawn_time > self.time_accum:
+				# not spawned yet
+				return
+			self.enable_instance(i, simulation, out_nonbonded_force)
+
+	def enable_instance(self, instance_index: int, simulation: Simulation, out_nonbonded_force: NonbondedForce):
+		state = simulation.context.getState(getVelocities=True, getPositions=True)
+		velocities = state.getVelocities()
+		current_positions = state.getPositions()
+		new_velocities = velocities.copy()
+		initial_velocity = self._get_random_dir_in_spread() * self.instance_speed_nanometers_per_picosecond
+		for atom_id in self.openmm_instances_atoms_list[instance_index]:
+			mass = self._molecule_forces_cache[atom_id][0]
+			parameters = self._molecule_forces_cache[atom_id][1]
+			position = self._molecule_forces_cache[atom_id][2]
+			original_velocity = self._molecule_forces_cache[atom_id][3]
+			simulation.system.setParticleMass(atom_id, mass)
+			out_nonbonded_force.setParticleParameters(atom_id, parameters[0], parameters[1], parameters[2])
+			current_positions[atom_id] = position
+			TEMPERATURE_CONSERVATION_FACTOR = 0.5
+			new_velocities[atom_id] = (original_velocity * TEMPERATURE_CONSERVATION_FACTOR) + initial_velocity * velocities[atom_id].unit
+		self.last_instanced_molecule_index = max(self.last_instanced_molecule_index, instance_index)
+		simulation.context.setVelocities(new_velocities)
+		simulation.context.setPositions(current_positions)
+
+	def _get_random_dir_in_spread(self) -> Vec3:
+		if self.spread_angle == 0.0:
+			return self.axis_direction
+		
+		import numpy as np
+		from numpy.typing import NDArray
+		v: NDArray[np.float64] = [self.axis_direction.x, self.axis_direction.y, self.axis_direction.z]
+		# Normalize the input vector
+		v = v / np.linalg.norm(v)
+
+		# Generate a random axis perpendicular to v
+		rand_vec: NDArray[np.float64] = np.random.randn(3)
+		axis: NDArray[np.float64] = np.cross(v, rand_vec)
+		axis_norm: float = np.linalg.norm(axis)
+
+		if axis_norm == 0:
+			axis = np.array([1.0, 0.0, 0.0]) if not np.allclose(v, [1.0, 0.0, 0.0]) else np.array([0.0, 1.0, 0.0])
+		else:
+			axis /= axis_norm
+
+		# Random angle between 0 and max_angle_rad
+		angle: float = np.random.uniform(0.0, self.spread_angle)
+
+		# Rodrigues' rotation formula
+		cos_theta: float = np.cos(angle)
+		sin_theta: float = np.sin(angle)
+		cross: NDArray[np.float64] = np.cross(axis, v)
+		dot: float = np.dot(axis, v)
+		rotated: NDArray[np.float64] = (
+			v * cos_theta +
+			cross * sin_theta +
+			axis * dot * (1 - cos_theta)
+		)
+
+		return Vec3(rotated[0], rotated[1], rotated[2])
+
+
+
 class ZmqPublishReporter(object):
 	def __init__(self, simulation_id, publish_scoket, publish_socket_lock, reportInterval):
 		self._simulation_id = simulation_id
@@ -955,6 +1079,7 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 		if bond_force == None:
 			bond_force = HarmonicBondForce()
 			openmm_system.addForce(bond_force)
+		# Springs
 		for anchor_id in topology_payload.anchors:
 			anchor: AnchorPoint = topology_payload.anchors[anchor_id]
 			if len(anchor.springs) == 0:
@@ -971,6 +1096,7 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 					nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
 				# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
 				bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
+		# Locked atoms
 		for i, atom in enumerate(topology_payload.atoms):
 			if atom.is_locked:
 				openff_atom_id = topology_payload.payload_to_openff_atom[i]
@@ -988,6 +1114,7 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 			if atom.is_passivation_atom:
 				openff_atom_id = topology_payload.payload_to_openff_atom[i]
 				nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
+
 		if stop_exists and stop_trigger.is_set():
 			if running_simulations.pop(simulation.simulation_id, None) != None:
 				logging.info(f"Aborted simulation while starting, step #4")
@@ -1047,6 +1174,15 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 
 		thermostat = AndersenThermostat(temperature, 1.0)
 		openmm_system.addForce(thermostat)
+
+		for emitter in topology_payload.emitters:
+			# Initialize ParticleEmitter molecules
+			emitter.setup(simulation, nonbonded_force, topology_payload.payload_to_openff_atom)
+			if emitter.initial_delay_in_nanoseconds == 0:
+				# Adjust initial velocity of any particle emitted in the frame 0
+				for i in range(emitter.molecules_per_instance):
+					emitter.enable_instance(i, simulation, nonbonded_force)
+
 		# Configure publish reporter
 		socket_publish_reporter = ZmqPublishReporter(simulation_id, socket, socket_lock, trj_freq)
 		simulation.reporters.append(socket_publish_reporter)
@@ -1085,7 +1221,7 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 				logging.info(f"Aborted simulation while starting, step #5")
 			return
 		with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
-			executor.submit(thread_simulate, simulation, num_steps, topology_payload.motors_forces, time_step_in_nanoseconds)
+			executor.submit(thread_simulate, simulation, num_steps, topology_payload.motors_forces, topology_payload.emitters, time_step_in_nanoseconds)
 	except Exception as inst:
 			with socket_lock:
 				socket.send_string("err:" + str(simulation_id), zmq.SNDMORE)
@@ -1122,17 +1258,24 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 				# raise inst
 
 
-def thread_simulate(simulation: Simulation, num_steps, motors_forces, time_step_in_nanoseconds):
+def thread_simulate(simulation: Simulation, num_steps, motors_forces, emitters, time_step_in_nanoseconds):
 	stop_trigger: threading.Event = running_simulations.get(simulation.simulation_id, None)
 	stop_exists: bool = stop_trigger != None
+	nonbonded_force: NonbondedForce = None
+	for force in simulation.system.getForces():
+		if isinstance(force, NonbondedForce):
+			nonbonded_force = force
 	for step in range(num_steps):
 		try:
 			if stop_exists and stop_trigger.is_set():
 				if running_simulations.pop(simulation.simulation_id, None) != None:
 					logging.info(f"Aborted simulation on thread while running step #{step}")
 				return
+			for emitter in emitters:
+				emitter.advance(simulation, nonbonded_force, time_step_in_nanoseconds)
 			for motor in motors_forces:
 				motor.advance(simulation, time_step_in_nanoseconds)
+				
 			simulation.step(1)
 		except Exception as inst:
 			environment_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "msep.one")

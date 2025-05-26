@@ -268,6 +268,52 @@ func add_motor(in_motor: NanoVirtualMotor) -> void:
 	_expand_aabb_to(position)
 
 
+func add_emitter(in_emitter: NanoParticleEmitter) -> void:
+	assert(not in_emitter.int_guid in other_objects_data, "Emitter is already registered")
+	other_objects_count += 1
+	# In order to stringify the emitter parameters we convert them to Dictionary
+	var emitter_dict: Dictionary = {}
+	var position: Vector3 = in_emitter.get_transform().origin
+	var axis_direction: Vector3 = in_emitter.get_transform().basis * Vector3.FORWARD
+	emitter_dict[&"is"] = &"emitter"
+	emitter_dict[&"molecule_id"] = in_emitter.int_parent_guid # emitter atoms are added to it's parent group
+	emitter_dict[&"emitter_id"] = in_emitter.int_guid
+	emitter_dict[&"position"] = [position.x, position.y, position.z]
+	emitter_dict[&"axis_direction"] = [axis_direction.x, axis_direction.y, axis_direction.z]
+	emitter_dict[&"parameters"] = {}
+	for prop_info: Dictionary in in_emitter.get_parameters().get_property_list():
+		if not prop_info.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			continue # avoid serializing native class properties
+		if prop_info.name in [
+				&"_molecule",
+				&"_limit_type",
+				&"_stop_emitting_after_count",
+				&"_stop_emitting_after_nanoseconds",
+				&"_instance_rate_time_in_nanoseconds"
+			]:
+			continue # lets give these ones special treatment
+		var value: Variant = in_emitter.get_parameters().get(prop_info.name)
+		emitter_dict.parameters[prop_info.name] = value
+	# let's simplify the code in openmm side, calculating a time limit in here
+	emitter_dict.parameters[&"total_instance_count"] = in_emitter.calculate_total_molecule_instance_count()
+	emitter_dict.parameters[&"_instance_rate_time_in_femtoseconds"] = TimeSpanPicker.unit_to_femtoseconds(
+		in_emitter.get_parameters().get_instance_rate_time_in_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND
+	)
+	var instance_atoms_ids: Array[PackedInt32Array] = in_emitter.get_instance_atoms_ids()
+	var payload_atom_ids: Array[PackedInt32Array] = []
+	# Before sending atoms ids to openmm server we need to remap them to the payload atom ids
+	for instance_atoms: PackedInt32Array in instance_atoms_ids:
+		var remaped_atoms: PackedInt32Array = []
+		for atom_id: int in instance_atoms:
+			var msep_structure_and_atom_id := PackedInt32Array([in_emitter.int_parent_guid, atom_id])
+			var openmm_particle_id: Variant = request_atom_id_to_structure_and_atom_id_map.find_key(msep_structure_and_atom_id)
+			remaped_atoms.push_back(int(openmm_particle_id))
+		payload_atom_ids.push_back(remaped_atoms)
+	emitter_dict[&"atoms_list"] = payload_atom_ids
+	other_objects_data[in_emitter.int_guid] = JSON.stringify(emitter_dict, "\t")
+	_expand_aabb_to(position)
+
+
 func add_springs(in_structure_context: StructureContext, in_springs: PackedInt32Array) -> void:
 	var workspace: Workspace = in_structure_context.workspace_context.workspace
 	var nano_struct: AtomicStructure = in_structure_context.nano_structure as AtomicStructure
@@ -373,6 +419,7 @@ func _create_random_nudge() -> Vector3:
 	var nudge := Vector3(randf_range(-1,1),randf_range(-1,1),randf_range(-1,1)).normalized()
 	nudge *= NUDGE_FIX_DISTANCE
 	return nudge
+
 
 # Returns a list of positions where hydrogens bonded to atoms would preferably be placed
 func _passivate_atom(in_structure: AtomicStructure, in_atom_id: int, in_included_bond_ids: PackedInt32Array) -> PackedVector3Array:

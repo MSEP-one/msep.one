@@ -117,6 +117,22 @@ func add_atom(in_args: Variant = null) -> int:
 	return atom_id
 
 
+## Request to add back a previously removed atom
+## Returns true on success or if atom was already valid
+## and false if anything prevented from revalidating the atom
+func revalidate_atom(in_atom_id: int) -> bool:
+	if _valid_atoms.get(in_atom_id, false):
+		return true
+	if in_atom_id < 0 or in_atom_id >= _atoms.size():
+		push_error("Invalid atom index %d in structure of size %d" % [in_atom_id, _atoms.size()])
+		return false
+	_valid_atoms[in_atom_id] = true
+	_signal_queue_atoms_added.append(in_atom_id)
+	_atoms[in_atom_id].valid = true
+	_invalid_atoms_count -= 1
+	return true
+
+
 ## Request to remove an atom from the structure. Returns true on success and
 ## false if anything prevented from removing the atom
 func remove_atom(in_atom_idx: int) -> bool:
@@ -213,7 +229,8 @@ func atom_set_position(in_atom_idx: int, in_pos: Vector3) -> bool:
 	assert(in_atom_idx > -1 and in_atom_idx < _atoms.size(), "Invalid atom index %d in structure of size %d" % [in_atom_idx, _atoms.size()])
 	if _atoms[in_atom_idx].position != in_pos:
 		_atoms[in_atom_idx].position = in_pos
-		_signal_queue_atoms_moved.append(in_atom_idx)
+		if _atoms[in_atom_idx].valid:
+			_signal_queue_atoms_moved.append(in_atom_idx)
 	return true
 
 

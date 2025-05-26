@@ -82,7 +82,7 @@ func _on_emitter_parameters_changed() -> void:
 	_instance_rate_time_picker.time_span_femtoseconds = TimeSpanPicker.unit_to_femtoseconds(
 			parameters.get_instance_rate_time_in_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
 	_initial_speed_spin_box.set_value_no_signal(parameters.get_instance_speed_nanometers_per_picosecond())
-	_spread_angle_spin_box.set_value_no_signal(parameters.get_spread_angle())
+	_spread_angle_spin_box.set_value_no_signal(parameters.get_spread_angle_degrees())
 	_stop_never_button.set_pressed_no_signal(parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.NEVER)
 	_stop_count_button.set_pressed_no_signal(parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.INSTANCE_COUNT)
 	_stop_time_button.set_pressed_no_signal(parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.TIME)
@@ -128,7 +128,7 @@ func _on_initial_speed_spin_box_value_confirmed(in_value: float) -> void:
 
 func _on_spread_angle_spin_box_value_confirmed(in_value: float) -> void:
 	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
-	parameters.set_spread_angle(in_value)
+	parameters.set_spread_angle_degrees(in_value)
 	_take_snapshot_if_configured(tr(&"Spread Angle"))
 
 
