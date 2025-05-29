@@ -524,8 +524,8 @@ func _clear_selection_on_other_structures(out_context: StructureContext) -> void
 
 func _calculate_drop_distance(in_context: StructureContext, in_camera: Camera3D) -> float:
 	assert(_drag_start_atom_id != AtomicStructure.INVALID_ATOM_ID, "Distance tried to be calculated when a gesture has not been started yet")
-	if is_snap_to_shape_surface_enabled():
-		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse()
+	if is_snap_to_shape_surface_enabled(get_workspace_context()):
+		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse(get_workspace_context())
 		if not is_nan(distance_to_shape_surface):
 			return distance_to_shape_surface
 	

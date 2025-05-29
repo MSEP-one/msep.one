@@ -12,10 +12,6 @@ var _stop_time_button: Button
 var _limit_label: Label
 var _limit_instances_spin_box: SpinBoxSlider
 var _limit_nanoseconds_time_picker: TimeSpanPicker
-var _molecule_preview: AspectRatioContainer
-var _load_molecule_from_selection_button: Button
-var _load_molecule_from_library_button: Button
-
 
 # when not null an snapshot in this workspace will be taken on change from UI
 var _workspace_snapshot_target: WorkspaceContext = null
@@ -35,9 +31,6 @@ func _notification(what: int) -> void:
 		_limit_label = %LimitLabel as Label
 		_limit_instances_spin_box = %LimitInstancesSpinBox as SpinBoxSlider
 		_limit_nanoseconds_time_picker = %LimitNanosecondsTimePicker as TimeSpanPicker
-		_molecule_preview = %MoleculePreview as AspectRatioContainer
-		_load_molecule_from_selection_button = %LoadMoleculeFromSelectionButton as Button
-		_load_molecule_from_library_button = %LoadMoleculeFromLibraryButton as Button
 		_initial_delay_time_picker.time_span_changed.connect(_on_initial_delay_time_picker_time_span_changed)
 		_molecules_per_instance_spin_box.value_confirmed.connect(_on_molecules_per_instance_spin_box_value_confirmed)
 		_instance_rate_time_picker.time_span_changed.connect(_on_instance_rate_time_picker_time_span_changed)
@@ -46,8 +39,6 @@ func _notification(what: int) -> void:
 		_stop_never_button.button_group.pressed.connect(_on_stop_condition_button_group_pressed)
 		_limit_instances_spin_box.value_confirmed.connect(_on_limit_instances_spin_box_value_confirmed)
 		_limit_nanoseconds_time_picker.time_span_changed.connect(_on_limit_nanoseconds_time_picker_time_span_changed)
-		_load_molecule_from_selection_button.pressed.connect(_on_load_molecule_from_selection_button_pressed)
-		_load_molecule_from_library_button.pressed.connect(_on_load_molecule_from_library_button_pressed)
 
 
 func track_parameters(out_emitter_parameters: NanoParticleEmitterParameters) -> void:
@@ -171,16 +162,4 @@ func _on_limit_nanoseconds_time_picker_time_span_changed(
 			time_in_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
 	parameters.set_stop_emitting_after_nanoseconds(time_in_nanoseconds)
 	_take_snapshot_if_configured(tr(&"Time Limit"))
-
-
-func _on_load_molecule_from_selection_button_pressed() -> void:
-	var _parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
-	assert("TODO")
-	_take_snapshot_if_configured(tr(&"Molecule Template"))
-
-
-func _on_load_molecule_from_library_button_pressed() -> void:
-	var _parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
-	assert("TODO")
-	_take_snapshot_if_configured(tr(&"Molecule Template"))
 

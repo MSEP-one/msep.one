@@ -1,9 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://c7itseuxfv2fj"]
+[gd_scene load_steps=5 format=3 uid="uid://c7itseuxfv2fj"]
 
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_74ssd"]
 [ext_resource type="Script" uid="uid://v3smn5bgab3l" path="res://editor/controls/dockers/workspace_docker/shared_controls/particle_emitter_parameters_editor.gd" id="1_f4m0x"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_a8qyp"]
-[ext_resource type="PackedScene" uid="uid://bvcir1rta2mqw" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/3d_preview.tscn" id="3_va07x"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_6vwam"]
 
@@ -174,40 +173,5 @@ layout_mode = 2
 tooltip_text = "Particle emitter will continue creating molecules until this moment in the timeline."
 time_span_femtoseconds = 50.0
 min_value_in_femtoseconds = 0.0
-
-[node name="Label2" type="Label" parent="."]
-layout_mode = 2
-theme_type_variation = &"HeaderMedium"
-text = "Molecule Template"
-
-[node name="PanelContainer2" type="PanelContainer" parent="."]
-layout_mode = 2
-theme_type_variation = &"SubcategoryPanel"
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer2"]
-layout_mode = 2
-
-[node name="MoleculePreview" parent="PanelContainer2/VBoxContainer" instance=ExtResource("3_va07x")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer2/VBoxContainer"]
-layout_mode = 2
-
-[node name="LoadMoleculeFromSelectionButton" type="Button" parent="PanelContainer2/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Create a template from selected atoms and bonds."
-theme_type_variation = &"CrystalButton"
-text = "Set from Selection"
-
-[node name="LoadMoleculeFromLibraryButton" type="Button" parent="PanelContainer2/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Select from the Small Molecules library."
-theme_type_variation = &"CrystalButton"
-text = "Set from Small Molecules"
 
 [editable path="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/InitialDelayTimePicker"]

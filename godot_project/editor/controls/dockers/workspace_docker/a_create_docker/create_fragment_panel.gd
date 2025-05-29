@@ -81,7 +81,7 @@ func _init_fragments_ui() -> void:
 
 
 func _on_fragment_selected(fragment_path: String) -> void:
-	var unpacked_mol_path: String = _unpack_mol_file_and_get_path(fragment_path)
+	var unpacked_mol_path: String = WorkspaceUtils.unpack_mol_file_and_get_path(fragment_path)
 	var absolute_path: String = ProjectSettings.globalize_path(unpacked_mol_path)
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 	assert(is_instance_valid(workspace_context))
@@ -99,26 +99,6 @@ func _on_fragment_selected(fragment_path: String) -> void:
 	mouse_move.position = main_viewport.get_mouse_position()
 	mouse_move.relative = Vector2.ZERO
 	main_viewport.push_input(mouse_move)
-
-
-
-func _unpack_mol_file_and_get_path(fragment_path: String) -> String:
-	assert(fragment_path.begins_with("res://"), "Unexpected file path")
-	var unpacked_path: String = fragment_path.replace("res://", "user://")
-	if FileAccess.file_exists(unpacked_path):
-		# Check if has changed
-		var local_fragment_md5: String = FileAccess.get_md5(fragment_path)
-		var user_fragment_md5: String = FileAccess.get_md5(unpacked_path)
-		if local_fragment_md5 == user_fragment_md5:
-			# file is up to date
-			return unpacked_path
-	var dir_path: String = ProjectSettings.globalize_path(unpacked_path).get_base_dir()
-	DirAccess.make_dir_recursive_absolute(dir_path)
-	var file: FileAccess = FileAccess.open(unpacked_path, FileAccess.WRITE)
-	assert(file != null, "Could not initialize FileAccess on path " + unpacked_path)
-	file.store_buffer(FileAccess.get_file_as_bytes(fragment_path))
-	file.close()
-	return unpacked_path
 
 
 func _update_group_checkbox_visibility() -> void:

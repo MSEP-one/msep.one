@@ -15,7 +15,7 @@ const _LOWLIGHTED_TEMPLATE: String = \
 	set = _set_highlighted
 @export var message: StringName = &"":
 	set = _set_message
-@export_enum("pulse","wave","tornado","shake","fade","rainbow") var effect: String = "shake":
+@export_enum("none","pulse","wave","tornado","shake","fade","rainbow") var effect: String = "shake":
 	set = _set_effect
 @export var effect_affects_message: bool = false:
 	set = _set_effect_affects_message
@@ -73,6 +73,8 @@ func _update_message() -> void:
 			template = _HIGHLIGHTED_TEMPLATE
 		[false, _]:
 			template = _LOWLIGHTED_TEMPLATE
+	if highlighted and effect == "none":
+		template = _LOWLIGHTED_TEMPLATE
 	var arguments: Dictionary = {
 		effect  = self.effect,
 		message = tr(self.message)

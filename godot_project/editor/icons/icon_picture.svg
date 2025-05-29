@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 96 96"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="icon_picture.svg"
+   width="96"
+   height="96"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#848484"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="6.5546876"
+     inkscape:cx="36.15733"
+     inkscape:cy="43.632896"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1"
+     showgrid="false" />
+  <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+  <path
+     id="path1"
+     style="fill:#ffffff;stroke-width:0.1875"
+     d="M 12 6 C 5.3812566 6 0 11.381257 0 18 L 0 78 C 0 84.618743 5.3812566 90 12 90 L 84 90 C 90.618743 90 96 84.618743 96 78 L 96 18 C 96 11.381257 90.618743 6 84 6 L 12 6 z M 17.099609 11.949219 L 78.900391 11.949219 C 84.581488 11.949219 89.199219 16.568903 89.199219 22.25 L 89.199219 73.75 C 89.199219 79.431097 84.581488 84.050781 78.900391 84.050781 L 17.099609 84.050781 C 11.418512 84.050781 6.8007813 79.431097 6.8007812 73.75 L 6.8007812 22.25 C 6.8007812 16.568903 11.418512 11.949219 17.099609 11.949219 z " />
+  <path
+     style="fill:none;stroke:#ffffff;stroke-width:7.937;stroke-dasharray:none;stroke-opacity:1"
+     d="M 5.33969,64.839093 45.463646,53.3969 64.686531,25.47795 92.300357,45.158522"
+     id="path1110"
+     sodipodi:nodetypes="cccc" />
+  <ellipse
+     style="fill:none;stroke:#ffffff;stroke-width:7.937;stroke-dasharray:none;stroke-opacity:1"
+     id="path2665"
+     cx="28.529202"
+     cy="30.359951"
+     rx="11.747318"
+     ry="8.3909416" />
+</svg>

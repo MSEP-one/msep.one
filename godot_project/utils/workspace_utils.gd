@@ -59,6 +59,10 @@ static func move_camera_outside_of_aabb(out_workspace_context: WorkspaceContext,
 	_move_camera_outside_of_aabb(out_workspace_context, aabb)
 
 
+static func unpack_mol_file_and_get_path(fragment_path: String) -> String:
+	return _unpack_mol_file_and_get_path(fragment_path)
+
+
 static func import_file(out_workspace_context: WorkspaceContext, path: String,
 						generate_bonds: bool, add_hydrogens: bool, remove_waters: bool,
 						placement: ImportFileDialog.Placement, create_new_group: bool = true,
@@ -120,6 +124,10 @@ static func can_relax(in_workspace_context: WorkspaceContext, in_selection_only:
 
 static func can_move_selection_to_another_group(in_workspace_context: WorkspaceContext) -> bool:
 	return _can_move_selection_to_another_group(in_workspace_context)
+
+
+static func can_create_particle_emitter_from_selection(in_workspace_context: WorkspaceContext) -> bool:
+	return _can_create_particle_emitter_from_selection(in_workspace_context)
 
 
 static func has_invalid_tetrahedral_structure(in_workspace_context: WorkspaceContext, in_selection_only: bool) -> bool:
@@ -656,6 +664,25 @@ static func _move_camera_outside_of_aabb(out_workspace_context: WorkspaceContext
 		camera.global_position += camera.global_basis.z * move_offset
 
 
+static func _unpack_mol_file_and_get_path(fragment_path: String) -> String:
+	assert(fragment_path.begins_with("res://"), "Unexpected file path")
+	var unpacked_path: String = fragment_path.replace("res://", "user://")
+	if FileAccess.file_exists(unpacked_path):
+		# Check if has changed
+		var local_fragment_md5: String = FileAccess.get_md5(fragment_path)
+		var user_fragment_md5: String = FileAccess.get_md5(unpacked_path)
+		if local_fragment_md5 == user_fragment_md5:
+			# file is up to date
+			return unpacked_path
+	var dir_path: String = ProjectSettings.globalize_path(unpacked_path).get_base_dir()
+	DirAccess.make_dir_recursive_absolute(dir_path)
+	var file: FileAccess = FileAccess.open(unpacked_path, FileAccess.WRITE)
+	assert(file != null, "Could not initialize FileAccess on path " + unpacked_path)
+	file.store_buffer(FileAccess.get_file_as_bytes(fragment_path))
+	file.close()
+	return unpacked_path
+
+
 static func _focus_camera_on_aabb(out_workspace_context: WorkspaceContext, in_focus_aabb: AABB) -> void:
 	assert(out_workspace_context)
 	var camera: Camera3D = out_workspace_context.get_camera()
@@ -1123,6 +1150,41 @@ static func _can_move_selection_to_another_group(in_workspace_context: Workspace
 				# This means molecule is not fully selected
 				return false
 	return true
+
+
+static func _can_create_particle_emitter_from_selection(in_workspace_context: WorkspaceContext) -> bool:
+	var selected_structures: Array[StructureContext] = \
+			in_workspace_context.get_structure_contexts_with_selection()
+	if selected_structures.size() != 1:
+		# More than 1 group selected
+		return false
+	var context: StructureContext = selected_structures[0]
+	if context != in_workspace_context.get_current_structure_context():
+		# Selection is not coming from active group
+		return false
+	var structure: NanoStructure = context.nano_structure
+	var selected_atoms: PackedInt32Array = context.get_selected_atoms()
+	var selected_bonds: PackedInt32Array = context.get_selected_bonds()
+	# 1. Check if all bonds connected to selected atoms are also selected
+	for atom_id in selected_atoms:
+		var atom_bonds: PackedInt32Array = structure.atom_get_bonds(atom_id)
+		if atom_bonds.is_empty():
+			# Atom is unbound, We allow it
+			continue
+		for atom_bond_id in atom_bonds:
+			if not atom_bond_id in selected_bonds:
+				# At least one bond is not selected
+				# This means molecule is not fully selected
+				return false
+	# 2. Check if all atoms connected to selected bonds are also selected
+	for bond_id in selected_bonds:
+		var bond_data: Vector3i = structure.get_bond(bond_id)
+		if not bond_data.x in selected_atoms or not bond_data.y in selected_atoms:
+			# At least one atom is not selected
+			# This means molecule is not fully selected
+			return false
+	return true
+
 
 static func _relax(
 		out_workspace_context: WorkspaceContext,

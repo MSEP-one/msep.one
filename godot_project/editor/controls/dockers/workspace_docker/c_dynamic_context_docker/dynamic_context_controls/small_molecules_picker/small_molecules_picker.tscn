@@ -1,0 +1,62 @@
+[gd_scene load_steps=4 format=3 uid="uid://dp606sfgxdepk"]
+
+[ext_resource type="Script" uid="uid://lea8n76btjpm" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/small_molecules_picker/small_molecules_picker.gd" id="1_dymlm"]
+[ext_resource type="Texture2D" uid="uid://njg8vo87cuus" path="res://editor/icons/icon_picture.svg" id="2_fp4rn"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_of1wl"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.184314, 0.101961, 0.34902, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.730677, 0.685245, 0.830401, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="SmallMoleculesPicker" type="PopupPanel"]
+size = Vector2i(300, 420)
+visible = true
+theme_override_styles/panel = SubResource("StyleBoxFlat_of1wl")
+script = ExtResource("1_dymlm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 290.0
+offset_bottom = 410.0
+
+[node name="SearchLineEdit" type="LineEdit" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Search..."
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+ratio = 2.7794
+
+[node name="PreviewTexture" type="TextureRect" parent="VBoxContainer/PanelContainer/VBoxContainer/AspectRatioContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("2_fp4rn")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SmallMoleculesTree" type="Tree" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
