@@ -54,7 +54,10 @@ func build(in_workspace_context: WorkspaceContext, in_emitter: NanoParticleEmitt
 	_workspace_context = in_workspace_context
 	in_emitter.transform_changed.connect(_on_emitter_transform_changed)
 	in_emitter.visibility_changed.connect(_on_emitter_visibility_changed)
-	_structure_preview.set_structure(in_emitter.get_parameters().get_molecule_template())
+	var template: NanoStructure = in_emitter.get_parameters().get_molecule_template()
+	if not template.get_representation_settings():
+		template.set_representation_settings(in_emitter.get_representation_settings())
+	_structure_preview.set_structure(template)
 	_on_emitter_transform_changed(in_emitter.get_transform())
 	_on_emitter_visibility_changed(in_emitter.get_visible())
 
