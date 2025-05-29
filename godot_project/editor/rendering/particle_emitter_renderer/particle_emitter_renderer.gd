@@ -3,6 +3,8 @@ class_name ParticleEmitterRenderer extends Node3D
 
 var _emitter_id: int
 var _workspace_context: WorkspaceContext
+var _structure_preview: StructurePreview
+
 
 var _materials: Array[ShaderMaterial]
 var _meshes: Array[MeshInstance3D]
@@ -10,6 +12,9 @@ var _meshes: Array[MeshInstance3D]
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
+		_structure_preview = $StructurePreview as StructurePreview
+		# Setting top_level = true will prevent the preview from rotating
+		_structure_preview.top_level = true
 		_seek_materials_recursively($ParticleEmitterModel)
 
 
@@ -47,10 +52,11 @@ func _seek_materials_recursively(out_node: Node) -> void:
 func build(in_workspace_context: WorkspaceContext, in_emitter: NanoParticleEmitter) -> void:
 	_emitter_id = in_emitter.get_int_guid()
 	_workspace_context = in_workspace_context
-	global_transform = in_emitter.get_transform()
 	in_emitter.transform_changed.connect(_on_emitter_transform_changed)
 	in_emitter.visibility_changed.connect(_on_emitter_visibility_changed)
-	self.visible = in_emitter.get_visible()
+	_structure_preview.set_structure(in_emitter.get_parameters().get_molecule_template())
+	_on_emitter_transform_changed(in_emitter.get_transform())
+	_on_emitter_visibility_changed(in_emitter.get_visible())
 
 
 func disable_hover() -> void:
@@ -72,14 +78,21 @@ func transform_by_external_transform(in_selection_initial_pos: Vector3, in_initi
 	var delta_pos: Vector3 = in_initial_nano_struct_transform.origin - in_selection_initial_pos
 	var new_pos: Vector3 = in_external_transform.origin + in_external_transform.basis * delta_pos
 	global_transform = Transform3D(final_rotation.basis.orthonormalized(), new_pos)
+	_structure_preview.global_position = global_transform.origin
 
 
 func _on_emitter_transform_changed(in_transform: Transform3D) -> void:
 	global_transform = in_transform
+	_structure_preview.global_position = in_transform.origin
+
+
+func update(delta: float) -> void:
+	_structure_preview.update(delta)
 
 
 func _on_emitter_visibility_changed(in_visible: bool) -> void:
 	self.visible = in_visible
+	_structure_preview.visible = in_visible
 
 
 func _on_workspace_context_hovered_structure_context_changed(

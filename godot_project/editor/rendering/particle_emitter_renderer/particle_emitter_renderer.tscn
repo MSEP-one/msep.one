@@ -1,10 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://b0jv0ex0g4qmp"]
+[gd_scene load_steps=4 format=3 uid="uid://b0jv0ex0g4qmp"]
 
 [ext_resource type="PackedScene" uid="uid://cn6hp8lf5rmjm" path="res://editor/rendering/particle_emitter_renderer/assets/ParticleEmitterModel.glb" id="1_i0uky"]
 [ext_resource type="Script" uid="uid://e4ldy5p573rs" path="res://editor/rendering/particle_emitter_renderer/particle_emitter_renderer.gd" id="1_ytgeg"]
+[ext_resource type="PackedScene" uid="uid://dtf1gkl710hh8" path="res://editor/rendering/structure_preview/structure_preview.tscn" id="3_e5ftt"]
 
 [node name="ParticleEmitterRenderer" type="Node3D"]
 script = ExtResource("1_ytgeg")
 
 [node name="ParticleEmitterModel" parent="." instance=ExtResource("1_i0uky")]
 transform = Transform3D(0.1, 0, 0, 0, -4.37114e-09, 0.1, 0, -0.1, -4.37114e-09, 0, 0, 0)
+
+[node name="StructurePreview" parent="." instance=ExtResource("3_e5ftt")]
+top_level = true
