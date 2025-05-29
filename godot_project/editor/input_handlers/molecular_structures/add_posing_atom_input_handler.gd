@@ -3,7 +3,7 @@ extends InputHandlerCreateObjectBase
 
 const MAX_MERGE_DISTANCE: float = 0.06
 const MAX_ATOMS_FOR_AUTO_POSING: int = 50
-const MIN_DISTANCE_TO_ATOMS: float = 0.14
+const MIN_DISTANCE_TO_ATOMS: float = 0.135
 const AtomCandidate = AtomAutoposePreview.AtomCandidate
 
 
