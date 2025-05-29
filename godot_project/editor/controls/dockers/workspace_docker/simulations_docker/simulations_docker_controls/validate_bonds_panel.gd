@@ -119,7 +119,7 @@ func _on_only_selected_checkbox_toggled(_enabled: bool) -> void:
 
 
 func _on_invisible_selection_label_meta_clicked(_meta: Variant) -> void:
-	var selected_alert: TreeItem = _workspace_context.get_alert_selected()
+	var selected_alert: int = _workspace_context.get_alert_selected()
 	if selected_alert:
 		_atomic_structure_model_validator.show_hidden_atoms(selected_alert)
 

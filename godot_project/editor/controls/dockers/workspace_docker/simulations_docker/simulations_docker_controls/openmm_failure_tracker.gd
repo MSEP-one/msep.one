@@ -11,9 +11,7 @@ const _TREE_COLUMN_0 = 0
 
 
 var _workspace_context: WorkspaceContext
-var _tree_item_to_error_metadata: Dictionary = {
-#	item<TreeItem> = meta<ErrorMetadata>
-}
+var _alert_id_to_error_metadata: Dictionary[int, ErrorMetadata] = {} # Alert id : Metadata
 
 
 func set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
@@ -47,10 +45,8 @@ func process_relax_failure_alerts(in_request: RelaxRequest) -> void:
 	_process_openmm_errors(in_request.promise, in_request.original_payload)
 
 
-func _on_alert_item_selected(in_item: TreeItem) -> void:
-	if not is_instance_valid(in_item):
-		return
-	var meta: ErrorMetadata = _tree_item_to_error_metadata.get(in_item, null) as ErrorMetadata
+func _on_alert_selected(in_id: int) -> void:
+	var meta: ErrorMetadata = _alert_id_to_error_metadata.get(in_id, null) as ErrorMetadata
 	if meta == null:
 		return
 	meta.on_clicked(_workspace_context)
@@ -108,7 +104,7 @@ func _strip_bbcode(in_text :String) -> String:
 
 
 func _create_invalid_valence_item(in_original_payload: OpenMMPayload, in_openff_to_zmq_atom_id: Dictionary, in_line: String, in_extract_indices_callback: Callable = _extract_indices) -> void:
-	var item: TreeItem = _workspace_context.push_error_alert(in_line, _on_alert_item_selected)
+	var alert_id: int = _workspace_context.push_error_alert(in_line, _on_alert_selected)
 	var openmm_atom_ids: PackedInt32Array = in_extract_indices_callback.call(in_line, in_openff_to_zmq_atom_id)
 	assert(openmm_atom_ids.size() > 0)
 	const FIRST_ATOM = 0
@@ -127,7 +123,7 @@ func _create_invalid_valence_item(in_original_payload: OpenMMPayload, in_openff_
 		assert(structure_id == atom_data[STRUCTURE_ID_DATA])
 		msep_atom_ids.push_back(atom_data[MSEP_ATOM_ID_DATA])
 	
-	_tree_item_to_error_metadata[item] = InvalidValenceMetadata.new(structure_id, msep_atom_ids, [])
+	_alert_id_to_error_metadata[alert_id] = InvalidValenceMetadata.new(structure_id, msep_atom_ids, [])
 
 
 func _extract_indices(in_line: String, in_openff_to_zmq_atom_id: Dictionary) -> PackedInt32Array:
