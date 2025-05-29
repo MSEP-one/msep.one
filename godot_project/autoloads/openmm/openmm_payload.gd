@@ -289,16 +289,12 @@ func add_emitter(in_emitter: NanoParticleEmitter) -> void:
 				&"_limit_type",
 				&"_stop_emitting_after_count",
 				&"_stop_emitting_after_nanoseconds",
-				&"_instance_rate_time_in_nanoseconds"
 			]:
 			continue # lets give these ones special treatment
 		var value: Variant = in_emitter.get_parameters().get(prop_info.name)
 		emitter_dict.parameters[prop_info.name] = value
 	# let's simplify the code in openmm side, calculating a time limit in here
 	emitter_dict.parameters[&"total_instance_count"] = in_emitter.calculate_total_molecule_instance_count()
-	emitter_dict.parameters[&"_instance_rate_time_in_femtoseconds"] = TimeSpanPicker.unit_to_femtoseconds(
-		in_emitter.get_parameters().get_instance_rate_time_in_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND
-	)
 	var instance_atoms_ids: Array[PackedInt32Array] = in_emitter.get_instance_atoms_ids()
 	var payload_atom_ids: Array[PackedInt32Array] = []
 	# Before sending atoms ids to openmm server we need to remap them to the payload atom ids

@@ -149,15 +149,15 @@ func _on_create_from_small_molecules_pressed() -> void:
 	var up_space := int(_create_from_small_molecules.global_position.y)
 	var down_space := int(get_tree().root.size.y - _create_from_small_molecules.get_global_rect().end.y)
 	if down_space >= _small_molecules_picker.size.y:
-		_put_small_molecules_picker_bellow()
+		_put_small_molecules_picker_below()
 	elif up_space >= _small_molecules_picker.size.y:
-		_put_small_molecules_picker_avobe()
+		_put_small_molecules_picker_above()
 	elif up_space > down_space:
 		_small_molecules_picker.size.y = up_space
-		_put_small_molecules_picker_avobe()
+		_put_small_molecules_picker_above()
 	else:
 		_small_molecules_picker.size.y = down_space
-		_put_small_molecules_picker_bellow()
+		_put_small_molecules_picker_below()
 
 	_small_molecules_picker.popup()
 
@@ -199,12 +199,12 @@ func _center_template_on_origin(out_template: AtomicStructure) -> void:
 	out_template.atoms_set_positions(atoms, positions)
 
 
-func _put_small_molecules_picker_avobe() -> void:
+func _put_small_molecules_picker_above() -> void:
 	_small_molecules_picker.position.y = \
 		int(_create_from_small_molecules.global_position.y - _small_molecules_picker.size.y)
 
 
-func _put_small_molecules_picker_bellow() -> void:
+func _put_small_molecules_picker_below() -> void:
 	_small_molecules_picker.position.y = \
 		int(_create_from_small_molecules.get_global_rect().end.y)
 
