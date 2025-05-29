@@ -32,6 +32,7 @@ var _bond_order_and_atom_radius_to_bond_radius: Dictionary = {
 	# bond_order_and_atom_radius<Vector2> : bond_radius<float>
 }
 var _motor_shape_rid: RID # = PhysicsServer3D.sphere_shape_create()
+var _particle_emitter_shape_rid: RID # = PhysicsServer3D.cylinder_shape_create()
 var _anchor_shape_rid: RID # = PhysicsServer3D.sphere_shape_create()
 var _spring_shape_rid: RID # = PhysicsServer3D.box_shape_create()
 var _hydrogens_enabled: bool = true
@@ -122,6 +123,9 @@ func initialize(in_structure_context: StructureContext) -> void:
 	if nano_structure is NanoVirtualMotor:
 		_add_motor(nano_structure as NanoVirtualMotor)
 	
+	if nano_structure is NanoParticleEmitter:
+		_add_particle_emitter(nano_structure)
+	
 	if nano_structure is NanoVirtualAnchor:
 		_add_anchor(nano_structure as NanoVirtualAnchor)
 	
@@ -171,9 +175,15 @@ func _initialize_atom_shapes() -> void:
 
 func _initialize_virtual_objects_shape() -> void:
 	const MOTOR_COLLISION_RADIUS: float = 2.5
+	const EMITTER_SHAPE_DATA: Dictionary = {
+		"radius" : 0.08 * PHYSIC_SPACE_SIZE_FACTOR,
+		"height" : 0.35 * PHYSIC_SPACE_SIZE_FACTOR,
+	}
 	const SPRING_BOX_EXTENTS: Vector3 = Vector3.ONE * 0.5
 	_motor_shape_rid = PhysicsServer3D.sphere_shape_create()
 	PhysicsServer3D.shape_set_data(_motor_shape_rid, MOTOR_COLLISION_RADIUS)
+	_particle_emitter_shape_rid = PhysicsServer3D.cylinder_shape_create()
+	PhysicsServer3D.shape_set_data(_particle_emitter_shape_rid, EMITTER_SHAPE_DATA)
 	_anchor_shape_rid = PhysicsServer3D.sphere_shape_create()
 	PhysicsServer3D.shape_set_data(_anchor_shape_rid, NanoVirtualAnchor.MODEL_SIZE * 0.5 * PHYSIC_SPACE_SIZE_FACTOR)
 	_spring_shape_rid = PhysicsServer3D.box_shape_create()
@@ -473,6 +483,18 @@ func _on_motor_transform_changed(in_transform: Transform3D) -> void:
 	_atom_collision_space.update_collider_transform(VIRTUAL_OBJECT_ID, _calculate_motor_transform(in_transform))
 
 
+func _add_particle_emitter(in_emitter: NanoParticleEmitter) -> void:
+	var transform: Transform3D = _calculate_particle_emitter_transform(in_emitter.get_transform())
+	_atom_collision_space.add_collider(VIRTUAL_OBJECT_ID, _particle_emitter_shape_rid, transform, CollisionLayer.VIRTUAL_OBJECT)
+	if not in_emitter.transform_changed.is_connected(_on_particle_emitter_transform_changed):
+		in_emitter.transform_changed.connect(_on_particle_emitter_transform_changed)
+
+
+func _on_particle_emitter_transform_changed(in_transform: Transform3D) -> void:
+	var transform: Transform3D = _calculate_particle_emitter_transform(in_transform)
+	_atom_collision_space.update_collider_transform(VIRTUAL_OBJECT_ID, transform)
+
+
 func _add_anchor(in_anchor: NanoVirtualAnchor) -> void:
 	var transform: Transform3D = _calculate_anchor_transform(in_anchor.get_position())
 	_atom_collision_space.add_collider(VIRTUAL_OBJECT_ID, _anchor_shape_rid, transform, CollisionLayer.VIRTUAL_OBJECT)
@@ -495,6 +517,17 @@ func _calculate_motor_transform(in_motor_transform: Transform3D) -> Transform3D:
 	const MODEL_OFFSET: Vector3 = Vector3(-0.127, 0.025, 0)
 	var model_offset: Vector3 = in_motor_transform.basis * MODEL_OFFSET
 	new_transform.origin += model_offset
+	new_transform.origin *= PHYSIC_SPACE_SIZE_FACTOR
+	return new_transform
+
+
+func _calculate_particle_emitter_transform(in_emitter_transform: Transform3D) -> Transform3D:
+	# This method provides an offset for the 3D model that matches the one of the renderer
+	# returned transform is already multiplied by PHYSIC_SPACE_SIZE_FACTOR
+	const MODEL_OFFSET: Vector3 = Vector3(0.0, 0.0, 0.122)
+	const MODEL_ROTATION: Quaternion = Quaternion(Vector3.RIGHT, -1.5708) # deg_to_rad(-90)
+	var collider_local_transform := Transform3D(Basis(MODEL_ROTATION), MODEL_OFFSET)
+	var new_transform: = in_emitter_transform * collider_local_transform
 	new_transform.origin *= PHYSIC_SPACE_SIZE_FACTOR
 	return new_transform
 
@@ -626,6 +659,8 @@ func disable_pernamently() -> void:
 	nano_structure.springs_removed.disconnect(_on_nano_structure_springs_removed)
 	if nano_structure is NanoVirtualMotor and nano_structure.transform_changed.is_connected(_on_motor_transform_changed):
 		nano_structure.transform_changed.disconnect(_on_motor_transform_changed)
+	if nano_structure is NanoParticleEmitter and nano_structure.transform_changed.is_connected(_on_particle_emitter_transform_changed):
+		nano_structure.transform_changed.disconnect(_on_particle_emitter_transform_changed)
 	if nano_structure is NanoVirtualAnchor:
 		nano_structure.position_changed.disconnect(_on_anchor_position_changed)
 
@@ -646,6 +681,7 @@ func _clear_physic_space() -> void:
 	_atomic_nmb_to_radius.clear()
 	_bond_order_and_atom_radius_to_bond_radius.clear()
 	_motor_shape_rid = RID()
+	_particle_emitter_shape_rid = RID()
 	_anchor_shape_rid = RID()
 	_spring_shape_rid = RID()
 
@@ -668,6 +704,7 @@ func create_state_snapshot() -> Dictionary:
 		#"_atomic_nmb_to_radius" = _atomic_nmb_to_radius.duplicate(),
 		#"_bond_order_and_atom_radius_to_bond_radius" = _bond_order_and_atom_radius_to_bond_radius.duplicate(),
 		#"_motor_shape_rid" = _motor_shape_rid,
+		#"_particle_emitter_shape_rid" = _particle_emitter_shape_rid,
 		#"_anchor_shape_rid" = _anchor_shape_rid,
 		#"_spring_shape_rid" = _spring_shape_rid,
 		#"_hydrogens_enabled" = _hydrogens_enabled,
