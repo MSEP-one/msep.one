@@ -38,9 +38,9 @@ func calculate_total_molecule_instance_count() -> int:
 			emit_time = configured_time_femtoseconds - _parameters.get_initial_delay_in_nanoseconds()
 		elif _parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.NEVER:
 			emit_time = simulation_time_femtoseconds - _parameters.get_initial_delay_in_nanoseconds()
-		var instance_rante_femtoseconds: float = TimeSpanPicker.unit_to_femtoseconds(
+		var instance_rate_femtoseconds: float = TimeSpanPicker.unit_to_femtoseconds(
 				_parameters.get_instance_rate_time_in_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
-		var instantation_count : int = floori(emit_time / instance_rante_femtoseconds)
+		var instantation_count : int = floori(emit_time / instance_rate_femtoseconds)
 		var total_instance_count: int = instantation_count * _parameters.get_molecules_per_instance()
 		return total_instance_count
 

@@ -1186,6 +1186,17 @@ func has_motors() -> bool:
 	return false
 
 
+func has_valid_particle_emitters() -> bool:
+	for context: StructureContext in _structure_contexts.values():
+		if context.nano_structure is NanoParticleEmitter:
+			var emitter := context.nano_structure as NanoParticleEmitter
+			var parameters: NanoParticleEmitterParameters = emitter.get_parameters()
+			var template: AtomicStructure = null if parameters == null else parameters.get_molecule_template()
+			var atoms_count: int = 0 if template == null else template.get_valid_atoms_count()
+			if atoms_count > 0:
+				return true
+	return false
+
 func get_particle_emitters() -> Array[NanoParticleEmitter]:
 	var emitters: Array[NanoParticleEmitter] = []
 	for context: StructureContext in _structure_contexts.values():

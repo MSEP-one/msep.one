@@ -286,7 +286,7 @@ func _update_controls() -> void:
 func _has_valid_atoms() -> bool:
 	if not is_instance_valid(_workspace_context):
 		return false
-	return _workspace_context.has_valid_atoms()
+	return _workspace_context.has_valid_atoms() or _workspace_context.has_valid_particle_emitters()
 
 
 func _is_simulation_complete() -> bool:
