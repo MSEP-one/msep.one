@@ -80,7 +80,52 @@ func _on_workspace_context_history_changed() -> void:
 
 
 func _on_create_from_selection_button_pressed() -> void:
-	assert(false, "TODO")
+	assert(WorkspaceUtils.can_create_particle_emitter_from_selection(_workspace_context))
+	var base_parameters := _workspace_context.create_object_parameters.get_new_particle_emitter_parameters()
+	# 1. Create emitter parameters from settings
+	var instance_parameters: NanoParticleEmitterParameters = base_parameters.duplicate(true)
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+	var selected_contexts: Array[StructureContext] = workspace_context.get_atomic_structure_contexts_with_selection()
+	# 2. Create molecule template from selection and remove selection
+	var template := AtomicStructure.create()
+	template.start_edit()
+	var context: StructureContext = selected_contexts[0] as StructureContext
+	var center_of_selection: Vector3 = context.get_selection_aabb().get_center()
+	var structure: AtomicStructure = context.nano_structure as AtomicStructure
+	var atoms: PackedInt32Array = context.get_selected_atoms()
+	var bonds: PackedInt32Array = context.get_selected_bonds()
+	# NOTE: start editing source structure to remove atoms and bonds
+	structure.start_edit()
+	var atom_map: Dictionary[int,int] # { original_id = new_id }
+	for atom_id: int in atoms:
+		var element: int = structure.atom_get_atomic_number(atom_id)
+		var pos: Vector3 = structure.atom_get_position(atom_id)
+		# Asiming template is NanoMolecualStructure
+		atom_map[atom_id] = template.add_atom(NanoMolecularStructure.AddAtomParameters.new(element, pos))
+	for bond_id: int in bonds:
+		var bond_data: Vector3i = structure.get_bond(bond_id)
+		var atom1: int = bond_data.x
+		var atom2: int = bond_data.y
+		if atom1 in atoms and atom2 in atoms:
+			var order: int = bond_data.z
+			template.add_bond(atom_map[atom1], atom_map[atom2], order)
+		structure.remove_bond(bond_id)
+	structure.remove_atoms(atoms)
+	structure.end_edit()
+	_center_template_on_origin(template)
+	template.end_edit()
+	template.set_structure_name("Template")
+	template.set_representation_settings(workspace_context.workspace.representation_settings)
+	instance_parameters.set_molecule_template(template)
+	# 3. Create Particle Emitter with configured parameters
+	var emitter := NanoParticleEmitter.new()
+	emitter.set_structure_name("%s %d" % [str(emitter.get_type()), _workspace_context.workspace.get_nmb_of_structures()+1])
+	_workspace_context.start_creating_object(emitter)
+	emitter.set_parameters(instance_parameters)
+	emitter.set_position(center_of_selection)
+	var new_context: StructureContext = _workspace_context.finish_creating_object()
+	new_context.set_particle_emitter_selected(true)
+	_workspace_context.snapshot_moment("Create Particle Emitter")
 
 
 func _on_create_from_small_molecules_pressed() -> void:
@@ -120,6 +165,9 @@ func _on_small_molecules_picker_molecule_selected(in_path: String) -> void:
 	assert(template)
 	template.set_structure_name(in_path.get_file().get_basename())
 	template.set_representation_settings(_workspace_context.workspace.representation_settings)
+	template.start_edit()
+	_center_template_on_origin(template)
+	template.end_edit()
 	var base_parameters := _workspace_context.create_object_parameters.get_new_particle_emitter_parameters()
 	var instance_parameters: NanoParticleEmitterParameters = base_parameters.duplicate(true)
 	var emitter := NanoParticleEmitter.new()
@@ -129,9 +177,21 @@ func _on_small_molecules_picker_molecule_selected(in_path: String) -> void:
 	instance_parameters.set_molecule_template(template)
 	var emitter_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
 	emitter.set_position(emitter_pos)
-	_workspace_context.finish_creating_object()
+	var new_context: StructureContext = _workspace_context.finish_creating_object()
+	new_context.set_particle_emitter_selected(true)
 	_workspace_context.snapshot_moment("Create Particle Emitter")
-	
+
+
+func _center_template_on_origin(out_template: AtomicStructure) -> void:
+	var center: Vector3 = out_template.get_aabb().get_center()
+	if center.is_equal_approx(Vector3.ZERO):
+		return
+	var atoms: PackedInt32Array = out_template.get_valid_atoms()
+	var positions: PackedVector3Array = []
+	for atom_id: int in atoms:
+		var new_pos: Vector3 = out_template.atom_get_position(atom_id) - center
+		positions.push_back(new_pos)
+	out_template.atoms_set_positions(atoms, positions)
 
 
 func _put_small_molecules_picker_avobe() -> void:
