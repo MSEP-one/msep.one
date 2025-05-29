@@ -527,6 +527,8 @@ func seek_simulation(in_time: float) -> void:
 	assert(is_simulating(), "There's not an active simulation")
 	var state: PackedVector3Array = _simulation.find_state(in_time)
 	var payload: OpenMMPayload = _simulation.original_payload
+	for emitter: NanoParticleEmitter in get_particle_emitters():
+		emitter.seek_simulation(in_time)
 	WorkspaceUtils.apply_simulation_state(self, payload, state)
 
 
@@ -536,6 +538,8 @@ func abort_simulation_if_running() -> void:
 	# Revert to original state and dispose
 	OpenMM.request_abort_simulation(_simulation)
 	seek_simulation(0.0)
+	for emitter: NanoParticleEmitter in get_particle_emitters():
+		emitter.destroy_instances()
 	_simulation = null
 	_is_simulation_playback_running = false
 	simulation_finished.emit()
@@ -554,6 +558,8 @@ func end_simulation_if_running() -> void:
 func apply_simulation_if_running() -> void:
 	if !is_simulating():
 		return
+	for emitter: NanoParticleEmitter in get_particle_emitters():
+		emitter.notify_apply_simulation()
 	_history.create_snapshot(tr("Apply Simulation State"))
 	_simulation = null
 	simulation_finished.emit()
@@ -1178,6 +1184,14 @@ func has_motors() -> bool:
 		if context.nano_structure is NanoVirtualMotor:
 			return true
 	return false
+
+
+func get_particle_emitters() -> Array[NanoParticleEmitter]:
+	var emitters: Array[NanoParticleEmitter] = []
+	for context: StructureContext in _structure_contexts.values():
+		if context.nano_structure is NanoParticleEmitter:
+			emitters.push_back(context.nano_structure)
+	return emitters
 
 
 ## Returns false if the structure context is not part of the workspace.

@@ -184,6 +184,14 @@ func add_atom(_in_args: Variant = null) -> int:
 	return INVALID_ATOM_ID
 
 
+## Request to add back a previously removed atom
+## Returns true on success or if atom was already valid
+## and false if anything prevented from revalidating the atom
+func revalidate_atom(_in_atom_idx: int) -> bool:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return INVALID_ATOM_ID
+
+
 ## Adds multiple atoms to the structure, recieves an array of parameters.
 ## Each element in the array is a collection of parameters to create an atom
 ## Returns an array with the ids of the newly created atoms

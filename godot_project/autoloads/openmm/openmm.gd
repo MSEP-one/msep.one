@@ -346,9 +346,15 @@ func _request_start_simulation(
 	const INCLUDE_SPRINGS = true
 	const PASSIVATE_MOLECULES = false
 	const NUDGE_ATOMS_FIX = false
+	# Before creating the payload, prewarm the atoms of particle emitters
+	for emitter: NanoParticleEmitter in in_workspace_context.get_particle_emitters():
+		var parent: NanoStructure = in_workspace_context.workspace.get_parent_structure(emitter)
+		emitter.create_instances(parent)
 	out_simulation_data.original_payload = _create_payload(in_workspace_context, false,
 			INCLUDE_VIRTUAL_OBJECTS, INCLUDE_SPRINGS, LOCK_ATOMS, PASSIVATE_MOLECULES, NUDGE_ATOMS_FIX)
 	out_simulation_data.push_frame(0, out_simulation_data.original_payload.initial_positions)
+	for emitter: NanoParticleEmitter in in_workspace_context.get_particle_emitters():
+		emitter.seek_simulation(0.0)
 	if _PRINT_REQUEST_AND_RESPONSE:
 		print_rich("[color=orange] Header: %s[/color]" % str(out_simulation_data.original_payload.header))
 		print_rich("[color=orange] Topology: %s[/color]" % str(out_simulation_data.original_payload.topology))
@@ -920,6 +926,8 @@ func _create_payload(
 				payload.add_shape(context.nano_structure)
 			elif context.nano_structure is NanoVirtualMotor:
 				payload.add_motor(context.nano_structure)
+			elif context.nano_structure is NanoParticleEmitter:
+				payload.add_emitter(context.nano_structure)
 			elif context.nano_structure is NanoVirtualAnchor:
 				# Anchors are added on demand when adding Springs. Skip
 				continue

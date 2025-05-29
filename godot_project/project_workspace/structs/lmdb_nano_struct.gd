@@ -35,6 +35,12 @@ func add_atom(in_args: Variant = null) -> int:
 	return atom_id
 
 
+func revalidate_atom(_in_atom_idx: int) -> bool:
+	assert(_is_being_edited, "To perform any changes to NanoStructure you need to put it in edit mode by calling start_edit()")
+	assert(false, "Unimplemented")
+	return false
+
+
 func remove_atom(in_atom_id: int) -> bool:
 	assert(_is_being_edited, "To perform any changes to NanoStructure you need to put it in edit mode by calling start_edit()")
 	_lmdb.mark_atom_as_removed(_molecule_id, in_atom_id)

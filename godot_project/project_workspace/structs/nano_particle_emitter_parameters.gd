@@ -95,13 +95,13 @@ func get_instance_speed_nanometers_per_picosecond() ->  float:
 	return _instance_speed_nanometers_per_picosecond
 
 
-func set_spread_angle(in_spread_angle: float) -> void:
-	_spread_angle = in_spread_angle
+func set_spread_angle_degrees(in_spread_angle: float) -> void:
+	_spread_angle = deg_to_rad(in_spread_angle)
 	emit_changed()
 
 
-func get_spread_angle() -> float:
-	return _spread_angle
+func get_spread_angle_degrees() -> float:
+	return rad_to_deg(_spread_angle)
 
 
 func create_state_snapshot() -> Dictionary:
