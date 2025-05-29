@@ -46,6 +46,7 @@ func _ready_deferred() -> void:
 		workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove.bind(workspace_context))
 	_structure_selector_bar.initialize(workspace_context)
 	_mode_selector.initialize(workspace_context)
+	_alerts_panel.initialize(workspace_context)
 
 
 func _on_window_size_changed(in_window: Window) -> void:

@@ -1,7 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://7sq87rc5vdf5"]
+[gd_scene load_steps=8 format=3 uid="uid://7sq87rc5vdf5"]
 
 [ext_resource type="Shader" uid="uid://ccp2v6p310iom" path="res://theme/blurry_panel.gdshader" id="1_15atc"]
 [ext_resource type="Script" uid="uid://cpwk11ttug7vh" path="res://editor/controls/workspace_view/controls/alerts_panel/alerts_panel.gd" id="2_se7m7"]
+[ext_resource type="Texture2D" uid="uid://scba4r5vafpw" path="res://editor/icons/icon_valid_x16.svg" id="3_wnu0n"]
+[ext_resource type="Texture2D" uid="uid://cbig8nto6f3e5" path="res://editor/icons/icon_warning_x16.svg" id="4_uf8kl"]
+[ext_resource type="Texture2D" uid="uid://1whl1wqkpom3" path="res://editor/icons/icon_error_x16.svg" id="5_7is5h"]
+[ext_resource type="Texture2D" uid="uid://j7w8vi2xwru3" path="res://editor/controls/menu_bar/menu_edit/icons/icon_delete.svg" id="6_uf8kl"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tuc5w"]
 shader = ExtResource("1_15atc")
@@ -25,25 +29,58 @@ size_flags_horizontal = 3
 theme_type_variation = &"HeaderSmall"
 text = "Alerts"
 
-[node name="WarningsMaskButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="FixedMaskButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
+focus_mode = 0
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_color = Color(0.396889, 0.396889, 0.396889, 1)
 theme_override_colors/font_pressed_color = Color(0.41171, 0.597145, 1, 1)
 toggle_mode = true
 button_pressed = true
-text = " ⚠3"
+text = "3"
+icon = ExtResource("3_wnu0n")
+flat = true
+
+[node name="WarningsMaskButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.396889, 0.396889, 0.396889, 1)
+theme_override_colors/font_pressed_color = Color(0.41171, 0.597145, 1, 1)
+toggle_mode = true
+button_pressed = true
+text = "3"
+icon = ExtResource("4_uf8kl")
 flat = true
 
 [node name="ErrorsMaskButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
+focus_mode = 0
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_color = Color(0.396889, 0.396889, 0.396889, 1)
 theme_override_colors/font_pressed_color = Color(0.41171, 0.597145, 1, 1)
 toggle_mode = true
-text = "⛔ 1"
+text = "1"
+icon = ExtResource("5_7is5h")
+flat = true
+
+[node name="InvalidMaskButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.396889, 0.396889, 0.396889, 1)
+theme_override_colors/font_pressed_color = Color(0.41171, 0.597145, 1, 1)
+toggle_mode = true
+text = "1"
+icon = ExtResource("6_uf8kl")
 flat = true
 
 [node name="CloseButton" type="Button" parent="VBoxContainer/HBoxContainer"]

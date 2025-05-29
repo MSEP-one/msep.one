@@ -371,7 +371,7 @@ func get_alerts_count() -> int:
 
 
 ## Returns the selected TreeItem of the Alerts panel, if any
-func get_alert_selected() -> TreeItem:
+func get_alert_selected() -> int:
 	return workspace_main_view.get_alerts_panel().get_alert_selected()
 
 
@@ -380,7 +380,7 @@ func get_alert_selected() -> TreeItem:
 func push_warning_alert(
 		in_message: String,
 		in_selected_callback: Callable = Callable(),
-		in_activated_callback: Callable = Callable()) -> TreeItem:
+		in_activated_callback: Callable = Callable()) -> int:
 	return workspace_main_view.get_alerts_panel().add_warning(in_message, in_selected_callback, in_activated_callback)
 
 
@@ -389,7 +389,7 @@ func push_warning_alert(
 func push_error_alert(
 		in_message: String,
 		in_selected_callback: Callable = Callable(),
-		in_activated_callback: Callable = Callable()) -> TreeItem:
+		in_activated_callback: Callable = Callable()) -> int:
 	return workspace_main_view.get_alerts_panel().add_error(in_message, in_selected_callback, in_activated_callback)
 
 
@@ -402,6 +402,14 @@ func show_alerts_panel() -> void:
 ## Clears the list of problems from the Alerts panel and hides the window if visible
 func clear_alerts() -> void:
 	workspace_main_view.get_alerts_panel().clear_and_close()
+
+
+func mark_alert_as_fixed(in_alert_id: int) -> void:
+	workspace_main_view.get_alerts_panel().mark_as_fixed(in_alert_id)
+
+
+func mark_alert_as_invalid(in_alert_id: int) -> void:
+	workspace_main_view.get_alerts_panel().mark_as_invalid(in_alert_id)
 
 
 func start_async_work(

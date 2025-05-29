@@ -13,16 +13,9 @@ const MAX_SHAKE_ITERATIONS: int = 5
 
 
 var _thread: Thread
-var _overlaps: Dictionary = {
-#	overlap_data<OverlapData> = tree_item<TreeItem>
-}
-var _tree_items: Dictionary = {
-#	tree_item<TreeItem> = true<bool>
-}
-
-
+var _overlaps: Dictionary[OverlapData, int] = {} # Overlap data : Alert ID
+var _data: Dictionary[Metadata, int] = {} # Data : Alert ID
 var _workspace_context: WorkspaceContext = null
-var _overlaps_are_fixed: bool = false
 
 
 func set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
@@ -34,7 +27,7 @@ func set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
 
 
 func _on_history_changed() -> void:
-	_update_state_of_tree_items()
+	_update_alerts()
 
 
 func _validate_bonds_in_thread(
@@ -97,7 +90,7 @@ func validate_atomic_model(in_selection_only: bool) -> void:
 	_thread = Thread.new()
 	_thread.start(_validate_bonds_in_thread.bind(_workspace_context.get_visible_structure_contexts(), promise, in_selection_only))
 	
-	_workspace_context.start_async_work(_workspace_context.tr("Validating bonds ..."))
+	_workspace_context.start_async_work(_workspace_context.tr("Validating model ..."))
 	await promise.wait_for_fulfill()
 	_thread.wait_to_finish()
 	_workspace_context.end_async_work()
@@ -105,19 +98,17 @@ func validate_atomic_model(in_selection_only: bool) -> void:
 	
 	var validation_results: Array[Metadata] = promise.get_result()
 	_overlaps.clear()
-	_tree_items.clear()
-	_overlaps_are_fixed = false
+	_data.clear()
 	
 	for metadata: Metadata in validation_results:
-		var item: TreeItem
+		var alert_id: int
 		if metadata.alert_level == Metadata.AlertLevel.WARNING:
-			item = _workspace_context.push_warning_alert(metadata.text, _on_tree_item_selected, _on_tree_item_selected.bind(true))
+			alert_id = _workspace_context.push_warning_alert(metadata.text, _on_alert_selected, _on_alert_selected.bind(true))
 		else:
-			item = _workspace_context.push_error_alert(metadata.text, _on_tree_item_selected, _on_tree_item_selected.bind(true))
-		_tree_items[item] = true
-		item.set_metadata(0, metadata)
+			alert_id = _workspace_context.push_error_alert(metadata.text, _on_alert_selected, _on_alert_selected.bind(true))
+		_data[metadata] = alert_id
 		if metadata is OverlapData:
-			_overlaps[metadata] = item
+			_overlaps[metadata as OverlapData] = alert_id
 	
 	validation_finished.emit(not _overlaps.is_empty())
 
@@ -196,25 +187,21 @@ func fix_overlapping_atoms() -> void:
 		var new_positions: PackedVector3Array = PackedVector3Array(atoms_positions.values())
 		nano_structure.atoms_set_positions(atoms_id, new_positions)
 		
-		# Gray out the tree item for this overlap
-		var item: TreeItem = _overlaps[overlap]
-		var prefix: String = item.get_text(0).substr(0, 2) # This is the warning or error unicode character
-		item.set_text(0, prefix + "(Fixed) " + item.get_text(0))
-		item.set_custom_color(0, COLOR_DELETED)
-		item.set_icon_modulate(0, COLOR_DELETED)
+		# Update the alert for this overlap
 		overlap.is_fixed = true
+		var alert_id: int = _overlaps[overlap]
+		_workspace_context.mark_alert_as_fixed(alert_id)
 
 	for overlap: OverlapData in _overlaps:
 		var nano_structure: NanoStructure = overlap.structure_context.nano_structure
 		if nano_structure.is_being_edited():
 			nano_structure.end_edit()
 	
-	_overlaps_are_fixed = true
 	_workspace_context.snapshot_moment("Fix Overlapping Atoms Errors")
 
 
-func _on_tree_item_selected(in_selected_item: TreeItem, show_hidden: bool = false) -> void:
-	var metadata: Metadata = in_selected_item.get_metadata(0)
+func _on_alert_selected(in_alert_id: int, show_hidden: bool = false) -> void:
+	var metadata: Metadata = _data.find_key(in_alert_id)
 	if not metadata or metadata.has_invalid_atoms():
 		alert_selected.emit(false)
 		return
@@ -296,48 +283,26 @@ func _on_tree_item_selected(in_selected_item: TreeItem, show_hidden: bool = fals
 
 
 func _on_workspace_context_structure_contents_changed(_structure: StructureContext) -> void:
-	ScriptUtils.call_deferred_once(_update_state_of_tree_items)
+	ScriptUtils.call_deferred_once(_update_alerts)
 
 
 func _on_workspace_context_structure_about_to_remove(_in_struct: NanoStructure) -> void:
-	ScriptUtils.call_deferred_once(_update_state_of_tree_items)
+	ScriptUtils.call_deferred_once(_update_alerts)
 
 
-func _update_state_of_tree_items() -> void:
+func _update_alerts() -> void:
 	var is_outdated: bool = false
-	# The tree item may have been freed
-	# because of this we cast it to Variant first to avoid errors
-	for v_item: Variant in _tree_items.keys():
-		if not is_instance_valid(v_item):
-			continue
-		var item := v_item as TreeItem
-		var prefix: String = item.get_text(0).substr(0, 2) # This is the warning or error unicode character
-		var metadata: Metadata = item.get_metadata(0)
-		if metadata.has_invalid_atoms():
+	for data: Metadata in _data:
+		if data.has_invalid_atoms():
 			is_outdated = true
-			item.set_icon(0, DELETED_ICON)
-			item.set_text(0, prefix + "(Deleted) " + metadata.text)
-			item.set_custom_color(0, COLOR_DELETED)
-			item.set_icon_modulate(0, COLOR_DELETED)
-			item.set_selectable(0, false)
-			item.deselect(0)
-		elif metadata is OverlapData and metadata.is_fixed:
-			# Gray out the tree item for this overlap
-			item.set_text(0, prefix + "(Fixed) " + metadata.text)
-			item.set_custom_color(0, COLOR_DELETED)
-			item.set_icon_modulate(0, COLOR_DELETED)
-		else:
-			item.set_icon(0, null)
-			item.set_text(0, prefix + metadata.text)
-			item.clear_custom_color(0)
-			item.set_selectable(0, true)
+			var alert_id: int = _data[data]
+			_workspace_context.mark_alert_as_invalid(alert_id)
 	if is_outdated:
 		results_outdated.emit()
 
 
-func show_hidden_atoms(in_selected_alert: TreeItem) -> void:
-	if in_selected_alert:
-		_on_tree_item_selected(in_selected_alert, true)
+func show_hidden_atoms(in_selected_alert: int) -> void:
+	_on_alert_selected(in_selected_alert, true)
 
 
 class Metadata:
@@ -347,7 +312,8 @@ class Metadata:
 	}
 	var alert_level: AlertLevel = AlertLevel.WARNING
 	var text: String
-	
+	var is_fixed: bool
+
 	func has_invalid_atoms() -> bool:
 		return true
 
@@ -414,8 +380,7 @@ class OverlapData extends Metadata:
 	var atoms_id: PackedInt32Array
 	var structure_context: StructureContext
 	var other_structures: Array # Array[StructureContext]
-	var is_fixed: bool = false
-	
+
 	func _init(in_atoms: Array[AtomData], in_structure_context: StructureContext, 
 			in_other_structures: Array = []) -> void:
 		structure_context = in_structure_context
