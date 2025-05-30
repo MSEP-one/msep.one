@@ -1340,8 +1340,21 @@ func snapshot_moment(in_operation_name: String) -> void:
 		var final_snapshot: Dictionary = _history.create_snapshot(in_operation_name)
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
 		
+		var emitter_states: Dictionary
+		const STATES_WITH_INSTANCES = true
+		var all_emitters: Array[NanoParticleEmitter] = get_particle_emitters()
+		for emitter: NanoParticleEmitter in all_emitters:
+			emitter_states[emitter.int_guid] = emitter.create_state_snapshot(STATES_WITH_INSTANCES)
+		
 		# Go back just before starting the simulation
 		await _history.apply_previous_snapshot()
+		
+		# HACK: Apply the state of emitters will ensure atoms are created before
+		# seek_simulation is called, but seek_simulation update them as corresponds
+		if all_emitters.size() > 0:
+			for emitter: NanoParticleEmitter in get_particle_emitters():
+				emitter.apply_state_snapshot(emitter_states[emitter.int_guid], STATES_WITH_INSTANCES)
+			await get_tree().process_frame
 		
 		# Rewind simulation to the latest point and create a snapshot.
 		# This will drop the user operation (final_snapshot) from history. 

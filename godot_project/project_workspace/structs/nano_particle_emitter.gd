@@ -224,17 +224,40 @@ func is_particle_emitter_within_screen_rect(in_camera: Camera3D, screen_rect: Re
 	return false
 
 
-func create_state_snapshot() -> Dictionary:
+func create_state_snapshot(in_with_instances: bool = false) -> Dictionary:
 	var state_snapshot: Dictionary = super.create_state_snapshot()
 	state_snapshot["script.resource_path"] = get_script().resource_path
 	state_snapshot["_transform"] = _transform
 	state_snapshot["_parameters_snapshot"] = _parameters.create_state_snapshot()
+	if in_with_instances:
+		if _instances_group == null:
+			state_snapshot["_instances_group"] = Workspace.INVALID_STRUCTURE_ID
+			state_snapshot["_instances_group_state"] = {} 
+			state_snapshot["_instances_group_renderer_state"] = {} 
+		else:
+			state_snapshot["_instances_group"] = _instances_group.int_guid
+			state_snapshot["_instances_group_state"] = _instances_group.create_state_snapshot()
+			var workspace_cotext: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+			var rendering: Rendering = workspace_cotext.get_rendering()
+			var renderer := rendering._get_renderer_for_atomic_structure(_instances_group)
+			state_snapshot["_instances_group_renderer_state"] = renderer.create_state_snapshot()
 	return state_snapshot
 
 
-func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
+func apply_state_snapshot(in_state_snapshot: Dictionary, in_with_instances: bool = false) -> void:
 	super.apply_state_snapshot(in_state_snapshot)
 	_transform = in_state_snapshot["_transform"]
 	if _parameters == null:
 		_parameters = NanoParticleEmitterParameters.new()
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters_snapshot"])
+	if in_with_instances:
+		var group_id: int = in_state_snapshot["_instances_group"]
+		if group_id == Workspace.INVALID_STRUCTURE_ID:
+			return
+		_instances_group = MolecularEditorContext.get_current_workspace(). \
+			get_structure_by_int_guid(group_id) as AtomicStructure
+		_instances_group.apply_state_snapshot(in_state_snapshot["_instances_group_state"])
+		var workspace_cotext: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+		var rendering: Rendering = workspace_cotext.get_rendering()
+		var renderer := rendering._get_renderer_for_atomic_structure(_instances_group)
+		renderer.apply_state_snapshot(in_state_snapshot["_instances_group_renderer_state"])
