@@ -65,6 +65,12 @@ func filter(in_text: String) -> void:
 			_items[i].list_index = -1
 
 
+func disable_all_items() -> void:
+	for item: ItemData in _items:
+		item.disabled = true
+		_item_list.set_item_disabled(item.list_index, true)
+
+
 func _update_list_item(in_item_id: int) -> void:
 	assert(in_item_id >= 0 and in_item_id < items_count, "Invalid index %d in range %d" % [in_item_id, items_count])
 	var data: ItemData = _items[in_item_id]
