@@ -30,6 +30,7 @@ func _ready() -> void:
 	_search_bar.text_changed.connect(_on_search_bar_text_changed)
 	_tree.item_selected.connect(_on_tree_item_selected)
 	_tree.item_activated.connect(_on_tree_item_activated)
+	FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
 	hide()
 
 
@@ -269,3 +270,8 @@ func _on_tree_item_activated() -> void:
 		_ring_menu.show_in_desired_position(desired_position, fit_in_rect)
 	
 	hide()
+
+
+func _on_feature_flag_toggled(_path: String, _new_value: bool) -> void:
+	_action_items.clear()
+	_menu_items.clear()

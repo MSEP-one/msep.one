@@ -95,6 +95,7 @@ func _update_menu_bar_path(in_menu: PopupMenu, in_path: String) -> void:
 	var category: VisualMenuCategory = candidates.front()
 	var root_menu_category: VisualMenuCategory = category
 	in_menu.about_to_popup.emit() # Force update
+	category.disable_all_items()
 	var item_id: int = 0
 	var root_category_item_id: int = 0
 	var separator_name: String = ""
