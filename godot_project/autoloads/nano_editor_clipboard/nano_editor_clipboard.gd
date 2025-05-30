@@ -47,6 +47,8 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 				_copy_motor(structure_context, nano_structure, new_content)
 			&"AnchorPoint":
 				_copy_anchor(structure_context, nano_structure, new_content)
+			&"ParticleEmitter":
+				_copy_particle_emitter(structure_context, nano_structure, new_content)
 			_:
 				push_warning("Nano structure type not implemented for copy")
 	var root_group_id: int = -1
@@ -239,6 +241,13 @@ func _copy_motor(
 func _copy_anchor(
 	in_structure_context: StructureContext,
 	in_shape: NanoVirtualAnchor,
+	out_content: Array[Dictionary]) -> void:
+	_copy_structure(in_structure_context, in_shape, out_content)
+
+
+func _copy_particle_emitter(
+	in_structure_context: StructureContext,
+	in_shape: NanoParticleEmitter,
 	out_content: Array[Dictionary]) -> void:
 	_copy_structure(in_structure_context, in_shape, out_content)
 
