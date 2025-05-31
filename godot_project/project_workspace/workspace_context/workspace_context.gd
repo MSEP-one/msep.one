@@ -484,14 +484,6 @@ func peek_object_being_created(in_callback: Callable) -> bool:
 	return in_callback.call(_current_create_object_template)
 
 
-func peek_context_of_object_being_created(in_callback: Callable) -> bool:
-	if !is_creating_object():
-		return false
-	if !in_callback.is_valid():
-		return false
-	return in_callback.call(_current_create_object_structure_context)
-
-
 # # Simulation
 # # # # # #
 

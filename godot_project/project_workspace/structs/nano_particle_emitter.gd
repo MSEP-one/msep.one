@@ -238,3 +238,4 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	if _parameters == null:
 		_parameters = NanoParticleEmitterParameters.new()
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters_snapshot"])
+	transform_changed.emit(_transform)
