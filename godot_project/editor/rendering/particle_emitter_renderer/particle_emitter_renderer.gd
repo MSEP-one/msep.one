@@ -166,6 +166,7 @@ func create_state_snapshot() -> Dictionary:
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_workspace_context = in_snapshot["_workspace_context"]
 	global_transform = in_snapshot["global_transform"]
+	_structure_preview.global_position = global_transform.origin
 	_emitter_id = in_snapshot["_emitter_id"]
 	var emitter: NanoParticleEmitter = _workspace_context.workspace.get_structure_by_int_guid(_emitter_id) as NanoParticleEmitter
 	self.visible = emitter.get_visible()
