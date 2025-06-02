@@ -3,7 +3,7 @@ class_name ParticleEmitterRenderer extends Node3D
 
 var _emitter_id: int
 var _workspace_context: WorkspaceContext
-var _structure_preview: StructurePreview
+var _structure_previews: Array[StructurePreview]
 
 
 var _materials: Array[ShaderMaterial]
@@ -12,9 +12,7 @@ var _meshes: Array[MeshInstance3D]
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
-		_structure_preview = $StructurePreview as StructurePreview
 		# Setting top_level = true will prevent the preview from rotating
-		_structure_preview.top_level = true
 		_seek_materials_recursively($ParticleEmitterModel)
 
 
@@ -54,10 +52,12 @@ func build(in_workspace_context: WorkspaceContext, in_emitter: NanoParticleEmitt
 	_workspace_context = in_workspace_context
 	in_emitter.transform_changed.connect(_on_emitter_transform_changed)
 	in_emitter.visibility_changed.connect(_on_emitter_visibility_changed)
+	var parameters: NanoParticleEmitterParameters = in_emitter.get_parameters()
+	parameters.changed.connect(_on_emitter_parameters_changed.bind(parameters))
 	var template: NanoStructure = in_emitter.get_parameters().get_molecule_template()
 	if not template.get_representation_settings():
 		template.set_representation_settings(in_emitter.get_representation_settings())
-	_structure_preview.set_structure(template)
+	_set_structure_preview_count(in_emitter.get_parameters().get_molecules_per_instance())
 	_on_emitter_transform_changed(in_emitter.get_transform())
 	_on_emitter_visibility_changed(in_emitter.get_visible())
 
@@ -81,21 +81,53 @@ func transform_by_external_transform(in_selection_initial_pos: Vector3, in_initi
 	var delta_pos: Vector3 = in_initial_nano_struct_transform.origin - in_selection_initial_pos
 	var new_pos: Vector3 = in_external_transform.origin + in_external_transform.basis * delta_pos
 	global_transform = Transform3D(final_rotation.basis.orthonormalized(), new_pos)
-	_structure_preview.global_position = global_transform.origin
+	var emitter: NanoParticleEmitter = _workspace_context.workspace.get_structure_by_int_guid(_emitter_id)
+	for i: int in _structure_previews.size():
+		var preview: StructurePreview = _structure_previews[i]
+		preview.global_position = global_transform.origin + emitter.calculate_instance_offset(i)
+
+
+func _set_structure_preview_count(in_count: int) -> void:
+	const STRUCTURE_PREVIEW_SCN: PackedScene = preload("uid://dtf1gkl710hh8")
+	while in_count < _structure_previews.size():
+		var to_delete: StructurePreview = _structure_previews.pop_back()
+		to_delete.queue_free()
+	if in_count > _structure_previews.size():
+		var emitter: NanoParticleEmitter = _workspace_context.workspace.get_structure_by_int_guid(_emitter_id)
+		var template: AtomicStructure = emitter.get_parameters().get_molecule_template()
+		while in_count > _structure_previews.size():
+			var instance: StructurePreview = STRUCTURE_PREVIEW_SCN.instantiate() as StructurePreview
+			var index: int = _structure_previews.size()
+			instance.name = "Instance_%d" % index
+			instance.top_level = true
+			add_child(instance)
+			instance.set_structure(template)
+			instance.global_position = global_position + emitter.calculate_instance_offset(index)
+			instance.visible = self.visible
+			_structure_previews.push_back(instance)
 
 
 func _on_emitter_transform_changed(in_transform: Transform3D) -> void:
 	global_transform = in_transform
-	_structure_preview.global_position = in_transform.origin
+	var emitter: NanoParticleEmitter = _workspace_context.workspace.get_structure_by_int_guid(_emitter_id)
+	for i: int in _structure_previews.size():
+		var preview: StructurePreview = _structure_previews[i]
+		preview.global_position = in_transform.origin + emitter.calculate_instance_offset(i)
 
 
 func update(delta: float) -> void:
-	_structure_preview.update(delta)
+	for preview: StructurePreview in _structure_previews:
+		preview.update(delta)
 
 
 func _on_emitter_visibility_changed(in_visible: bool) -> void:
 	self.visible = in_visible
-	_structure_preview.visible = in_visible
+	for preview: StructurePreview in _structure_previews:
+		preview.visible = in_visible
+
+
+func _on_emitter_parameters_changed(in_parameters: NanoParticleEmitterParameters) -> void:
+	_set_structure_preview_count(in_parameters.get_molecules_per_instance())
 
 
 func _on_workspace_context_hovered_structure_context_changed(
@@ -157,6 +189,7 @@ func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["global_transform"] = global_transform
+	snapshot["visible"] = visible
 	snapshot["material_selected"] = _get_shader_uniform(&"is_selected")
 	snapshot["material_selectable"] = _get_shader_uniform(&"is_selectable")
 	snapshot["_emitter_id"] = _emitter_id
@@ -165,11 +198,11 @@ func create_state_snapshot() -> Dictionary:
 
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_workspace_context = in_snapshot["_workspace_context"]
-	global_transform = in_snapshot["global_transform"]
-	_structure_preview.global_position = global_transform.origin
 	_emitter_id = in_snapshot["_emitter_id"]
-	var emitter: NanoParticleEmitter = _workspace_context.workspace.get_structure_by_int_guid(_emitter_id) as NanoParticleEmitter
-	self.visible = emitter.get_visible()
+	# _on_emitter_transform_changed and _on_emitter_visibility_changed
+	# will take care of the position and visibility of instances
+	_on_emitter_transform_changed(in_snapshot["global_transform"])
+	_on_emitter_visibility_changed(in_snapshot["visible"])
 	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
 	_set_selection_preview_flag(in_snapshot["material_selected"])
 	_set_shader_uniform(&"is_selectable", in_snapshot["material_selectable"])
