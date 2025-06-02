@@ -18,17 +18,15 @@ var _preview_workspace: Workspace
 var _preview_structure_context: StructureContext
 var _enabled_on_preview_viewport: bool = false
 
+
 func _ready() -> void:
 	hide()
-
 	_ready_deferred.call_deferred()
 
 
 func _ready_deferred() -> void:
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
 	assert(workspace_context)
-	workspace_context.started_creating_object.connect(_on_workspace_context_started_creating_object.bind(workspace_context))
-	workspace_context.aborted_creating_object.connect(_on_workspace_context_aborted_creating_object)
 	var representation_settings: RepresentationSettings = workspace_context.workspace.representation_settings
 	representation_settings.changed.connect(_on_representation_settings_changed.bind(representation_settings))
 
@@ -92,14 +90,3 @@ func set_transparency(in_transparency: float) -> void:
 func _on_representation_settings_changed(in_representation_settings: RepresentationSettings) -> void:
 	if is_instance_valid(_atomic_structure_renderer):
 		_atomic_structure_renderer.change_representation(in_representation_settings.get_rendering_representation())
-
-func _on_workspace_context_started_creating_object(workspace_context: WorkspaceContext) -> void:
-	var peek_new_object: Callable = func(in_context: StructureContext) -> bool:
-		set_structure(in_context.nano_structure)
-		return true
-	workspace_context.peek_context_of_object_being_created(peek_new_object)
-
-
-func _on_workspace_context_aborted_creating_object() -> void:
-	if is_instance_valid(_atomic_structure_renderer):
-		_atomic_structure_renderer.queue_free()
