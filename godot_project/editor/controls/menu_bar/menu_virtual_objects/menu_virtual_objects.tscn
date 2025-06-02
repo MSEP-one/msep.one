@@ -1,15 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://bk8h3hla8tqrp"]
+[gd_scene load_steps=7 format=3 uid="uid://bk8h3hla8tqrp"]
 
 [ext_resource type="Texture2D" uid="uid://bfkvb82wyvqq0" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_groups_x16.svg" id="1_4t6op"]
 [ext_resource type="Script" uid="uid://db0okwwkskwnp" path="res://editor/controls/menu_bar/menu_virtual_objects/menu_virtual_objects.gd" id="1_uqyrh"]
 [ext_resource type="Texture2D" uid="uid://bvavld1u82nu1" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_rotary_motor_x16.svg" id="2_3i4gw"]
 [ext_resource type="Texture2D" uid="uid://dmlgge26svgiq" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_linear_motor_x16.svg" id="3_dn7d5"]
 [ext_resource type="Texture2D" uid="uid://dcofsgdplm752" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_spring_x16.svg" id="4_7vc16"]
+[ext_resource type="Texture2D" uid="uid://dgqd0cvd34isw" path="res://editor/icons/icon_particle_emitter_x16.svg" id="5_ke7co"]
 
 [node name="VirtualObjects" type="PopupMenu"]
 size = Vector2i(285, 186)
 visible = true
-item_count = 4
+unfocusable = true
+item_count = 5
 item_0/text = "Groups"
 item_0/icon = ExtResource("1_4t6op")
 item_0/id = 0
@@ -22,4 +24,7 @@ item_2/id = 2
 item_3/text = "Anchors and Springs"
 item_3/icon = ExtResource("4_7vc16")
 item_3/id = 3
+item_4/text = "Particle Emitters"
+item_4/icon = ExtResource("5_ke7co")
+item_4/id = 4
 script = ExtResource("1_uqyrh")
