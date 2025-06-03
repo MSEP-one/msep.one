@@ -1334,8 +1334,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 		
 		var emitter_states: Dictionary
 		const STATES_WITH_INSTANCES = true
-		var all_emitters: Array[NanoParticleEmitter] = get_particle_emitters()
-		for emitter: NanoParticleEmitter in all_emitters:
+		for emitter: NanoParticleEmitter in get_particle_emitters():
 			emitter_states[emitter.int_guid] = emitter.create_state_snapshot(STATES_WITH_INSTANCES)
 		
 		# Go back just before starting the simulation
@@ -1343,9 +1342,12 @@ func snapshot_moment(in_operation_name: String) -> void:
 		
 		# HACK: Apply the state of emitters will ensure atoms are created before
 		# seek_simulation is called, but seek_simulation update them as corresponds
-		if all_emitters.size() > 0:
+		if not emitter_states.is_empty():
 			for emitter: NanoParticleEmitter in get_particle_emitters():
-				emitter.apply_state_snapshot(emitter_states[emitter.int_guid], STATES_WITH_INSTANCES)
+				var previous_state: Dictionary = emitter_states.get(emitter.int_guid, {})
+				if previous_state.is_empty():
+					continue
+				emitter.apply_state_snapshot(previous_state, STATES_WITH_INSTANCES)
 			await get_tree().process_frame
 		
 		# Rewind simulation to the latest point and create a snapshot.
