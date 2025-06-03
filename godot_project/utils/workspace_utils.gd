@@ -349,13 +349,7 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 		return
 	
 	for structure_context: StructureContext in structures_with_selection:
-		if structure_context.is_shape_selected():
-			structure_context.set_shape_selected(false)
-			structure_context.nano_structure.set_visible(false)
-		elif structure_context.is_motor_selected():
-			structure_context.set_motor_selected(false)
-			structure_context.nano_structure.set_visible(false)
-		elif structure_context.is_anchor_selected():
+		if structure_context.is_anchor_selected():
 			var workspace: Workspace = out_workspace_context.workspace
 			var nano_anchor: NanoVirtualAnchor = structure_context.nano_structure as NanoVirtualAnchor
 			var related_structures: PackedInt32Array = nano_anchor.get_related_structures()
@@ -364,6 +358,9 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 				var atomic_structure: AtomicStructure = workspace.get_structure_by_int_guid(spring_structure_id)
 				atomic_structure.set_springs_visibility(springs_to_hide, false)
 			structure_context.set_anchor_selected(false)
+			structure_context.nano_structure.set_visible(false)
+		elif structure_context.is_virtual_object_selected():
+			structure_context.set_virtual_object_selected(false)
 			structure_context.nano_structure.set_visible(false)
 		elif structure_context.nano_structure is AtomicStructure:
 			var selected_atoms: PackedInt32Array = structure_context.get_selected_atoms()
