@@ -71,8 +71,12 @@ func create_instances(out_group: AtomicStructure) -> void:
 		bonds.push_back(template.get_bond(bond_id))
 	# Create as many instances
 	var params: NanoMolecularStructure.AddAtomParameters = null
-	for i in calculate_total_molecule_instance_count():
-		var offset: Vector3 = _calculate_instance_offset(i)
+	var molecules_per_instance: int = _parameters.get_molecules_per_instance()
+	var total_count: int = calculate_total_molecule_instance_count()
+	for i in total_count:
+		var emission_id: int = floori(float(i) / float(molecules_per_instance))
+		var emit_index: int = i - (molecules_per_instance * emission_id)
+		var offset: Vector3 = calculate_instance_offset(emit_index)
 		var instance_atom_map: Dictionary[int, int] = {
 			# old_id = new_id
 		}
@@ -83,7 +87,7 @@ func create_instances(out_group: AtomicStructure) -> void:
 		for atom_idx: int in elements.size():
 			params = NanoMolecularStructure.AddAtomParameters.new(
 				elements[atom_idx],
-				positions[atom_idx] + offset
+				_transform.origin + positions[atom_idx] + offset
 			)
 			var new_atom_id: int = out_group.add_atom(params)
 			instance_atom_map[atom_idx] = new_atom_id
@@ -126,13 +130,13 @@ func seek_simulation(in_time: float) -> void:
 	assert(_instances_group != null, "Attempted to seek simulation when no instances where created")
 	var delay: float = _parameters.get_initial_delay_in_nanoseconds()
 	var rate: float = _parameters.get_instance_rate_time_in_nanoseconds()
-	var molecules_per_instane: int = _parameters.get_molecules_per_instance()
+	var molecules_per_instance: int = _parameters.get_molecules_per_instance()
 	var spawned_before_seek: bool = true
 	_instances_group.start_edit()
 	for instance_idx in _instances_atom_ids.size():
 		if spawned_before_seek:
 			# This is an optimization to stop doing this math after the first match
-			var time: float = delay + rate * floorf(float(instance_idx) / float(molecules_per_instane))
+			var time: float = delay + rate * floorf(float(instance_idx) / float(molecules_per_instance))
 			spawned_before_seek = time <= in_time
 		var first_atom_id: int = _instances_atom_ids[instance_idx][0]
 		if spawned_before_seek:
@@ -158,10 +162,52 @@ func notify_apply_simulation() -> void:
 	_instances_bond_ids = []
 
 
-func _calculate_instance_offset(_in_instance_idx: int) -> Vector3:
+func calculate_instance_offset(in_instance_idx: int) -> Vector3:
 	# TODO: Find the formula to use here...
-	var instance_offset: Vector3 = Vector3.ZERO
-	return _transform.origin + instance_offset
+	var radius: float = _parameters.get_molecule_template().get_aabb().get_longest_axis_size()
+	var grid_spacing: float = 2 * radius * 1.05  # safe margin
+
+	# Generate a deterministic, ordered grid of candidates
+	var radius_guess: int = ceili(float(in_instance_idx + 1) ** (1.0/3.0) * 2.5)  # conservative cube radius
+	var candidates: Array = []
+
+	for x in range(-radius_guess, radius_guess + 1):
+		for y in range(-radius_guess, radius_guess + 1):
+			for z in range(-radius_guess, radius_guess + 1):
+				var offset_coord := Vector3i(x, y, z)
+				var pos: Vector3 = Vector3(offset_coord) * grid_spacing
+				var dist: float = pos.length_squared()
+				candidates.append([dist, offset_coord, pos])
+	
+	var sorter: Callable = func(a: Array, b: Array) -> bool:
+		if a[0] != b[0]:
+			return a[0] < b[0]
+		var a_coord: Vector3i = a[1] as Vector3i
+		var b_coord: Vector3i = b[1] as Vector3i
+		const XYZ = [0, 1, 2]
+		for axis: int in XYZ:
+			if a_coord[axis] == b_coord[axis]:
+				continue
+			return a_coord[axis] < b_coord[axis]
+		return true
+	# Sort by distance, then lexicographically by grid coordinates
+	candidates.sort_custom(sorter)
+
+	# Place spheres up to index in_instance_idx
+	var placed: PackedVector3Array = []
+	for c: Array in candidates:
+		var pos: Vector3 = c[2] as Vector3
+		var valid: bool = true
+		for p: Vector3 in placed:
+			# Candidate is too close to a previously placed molecule
+			if (pos - p).length() < 2 * radius:
+				valid = false
+				break
+		if valid:
+			placed.append(pos)
+			if placed.size() > in_instance_idx:
+				return pos
+	return Vector3.ZERO
 
 
 func get_transform() -> Transform3D:
