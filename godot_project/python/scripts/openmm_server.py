@@ -772,6 +772,7 @@ class ParticleEmitter:
 				atom_id: int = payload_to_openff_atom[payload_atom_id]
 				instance_openmm_atoms.append(atom_id)
 				mass = simulation.system.getParticleMass(atom_id)
+				simulation.system.setParticleMass(atom_id, 0)
 				parameters = out_nonbonded_force.getParticleParameters(atom_id)
 				position = positions[atom_id]
 				velocity = initial_velocities[atom_id]
