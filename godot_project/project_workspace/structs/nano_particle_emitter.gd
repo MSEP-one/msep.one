@@ -16,6 +16,10 @@ const DEFAULT_TRANSFORM = Transform3D(Basis(DEFAULT_ROTATION))
 var _instances_group: AtomicStructure
 var _instances_atom_ids: Array[PackedInt32Array]
 var _instances_bond_ids: Array[PackedInt32Array]
+var _instance_offset_cache_radius: float = -1
+var _instance_offset_cache: Dictionary[int, Vector3]
+var _instance_offset_candidates: Array = []
+var _instance_offset_last_candidate: int = -1
 
 
 func calculate_total_molecule_instance_count() -> int:
@@ -163,50 +167,60 @@ func notify_apply_simulation() -> void:
 
 
 func calculate_instance_offset(in_instance_idx: int) -> Vector3:
-	# TODO: Find the formula to use here...
-	var radius: float = _parameters.get_molecule_template().get_aabb().get_longest_axis_size()
+	var radius: float = _parameters.get_molecule_template().get_aabb().get_longest_axis_size() * 0.5
+	
+	# First let's see if is already been calculated
+	if _instance_offset_cache_radius != radius:
+		_instance_offset_cache_radius = radius
+		_instance_offset_cache.clear()
+		_instance_offset_candidates.clear()
+		_instance_offset_last_candidate = -1
+	if _instance_offset_cache.has(in_instance_idx):
+		return _instance_offset_cache[in_instance_idx]
+	
+	# Not found in the cache, let's calculate and store it
 	var grid_spacing: float = 2 * radius * 1.05  # safe margin
 
 	# Generate a deterministic, ordered grid of candidates
-	var radius_guess: int = ceili(float(in_instance_idx + 1) ** (1.0/3.0) * 2.5)  # conservative cube radius
-	var candidates: Array = []
-
-	for x in range(-radius_guess, radius_guess + 1):
-		for y in range(-radius_guess, radius_guess + 1):
-			for z in range(-radius_guess, radius_guess + 1):
-				var offset_coord := Vector3i(x, y, z)
-				var pos: Vector3 = Vector3(offset_coord) * grid_spacing
-				var dist: float = pos.length_squared()
-				candidates.append([dist, offset_coord, pos])
-	
-	var sorter: Callable = func(a: Array, b: Array) -> bool:
-		if a[0] != b[0]:
-			return a[0] < b[0]
-		var a_coord: Vector3i = a[1] as Vector3i
-		var b_coord: Vector3i = b[1] as Vector3i
-		const XYZ = [0, 1, 2]
-		for axis: int in XYZ:
-			if a_coord[axis] == b_coord[axis]:
-				continue
-			return a_coord[axis] < b_coord[axis]
-		return true
-	# Sort by distance, then lexicographically by grid coordinates
-	candidates.sort_custom(sorter)
+	if _instance_offset_candidates.is_empty():
+		var radius_guess: int = ceili(float(in_instance_idx + 1) ** (1.0/3.0) * 2.5)  # conservative cube radius
+		for x in range(-radius_guess, radius_guess + 1):
+			for y in range(-radius_guess, radius_guess + 1):
+				for z in range(-radius_guess, radius_guess + 1):
+					var offset_coord := Vector3i(x, y, z)
+					var pos: Vector3 = Vector3(offset_coord) * grid_spacing
+					var dist: float = pos.length_squared()
+					_instance_offset_candidates.append([dist, offset_coord, pos])
+		
+		var sorter: Callable = func(a: Array, b: Array) -> bool:
+			if a[0] != b[0]:
+				return a[0] < b[0]
+			var a_coord: Vector3i = a[1] as Vector3i
+			var b_coord: Vector3i = b[1] as Vector3i
+			const XYZ = [0, 1, 2]
+			for axis: int in XYZ:
+				if a_coord[axis] == b_coord[axis]:
+					continue
+				return a_coord[axis] < b_coord[axis]
+			return true
+		# Sort by distance, then lexicographically by grid coordinates
+		_instance_offset_candidates.sort_custom(sorter)
 
 	# Place spheres up to index in_instance_idx
-	var placed: PackedVector3Array = []
-	for c: Array in candidates:
+	for candidate_idx: int in range(_instance_offset_last_candidate + 1, _instance_offset_candidates.size()):
+		_instance_offset_last_candidate = candidate_idx
+		var c: Array = _instance_offset_candidates[candidate_idx]
 		var pos: Vector3 = c[2] as Vector3
 		var valid: bool = true
-		for p: Vector3 in placed:
+		for prev_instance_idx: int in candidate_idx:
 			# Candidate is too close to a previously placed molecule
-			if (pos - p).length() < 2 * radius:
+			var placed_at: Vector3 = _instance_offset_cache[prev_instance_idx]
+			if (pos - placed_at).length() < 2 * radius:
 				valid = false
 				break
 		if valid:
-			placed.append(pos)
-			if placed.size() > in_instance_idx:
-				return pos
+			_instance_offset_cache[in_instance_idx] = pos
+			return pos
 	return Vector3.ZERO
 
 
