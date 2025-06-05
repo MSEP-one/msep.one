@@ -861,7 +861,7 @@ class ZmqPublishReporter(object):
 
 	def describeNextReport(self, simulation):
 		if self._has_error:
-			return 0
+			return (0, False, False, False, False, None)
 		steps = self._reportInterval - simulation.currentStep%self._reportInterval
 		# Returns a touple containing:
 		# - The number of time steps until the next report. We calculate this as (report interval)-(current step)%(report interval). For example, if we want a report every 100 steps and the simulation is currently on step 530, we will return 100-(530%100) = 70.
@@ -901,6 +901,11 @@ class ZmqPublishReporter(object):
 			self._publish_scoket.send(time_buffer, zmq.SNDMORE)
 			if self._has_error:
 				self._publish_scoket.send_string("err")
+				# Abort simulation
+				stop_trigger: threading.Event = running_simulations.get(self._simulation_id, None)
+				if stop_trigger != None and not stop_trigger.is_set():
+					logging.warning(f"Aborted simulation because system failed to calculate particles positions")
+					stop_trigger.set()
 			else:
 				self._publish_scoket.send(positions_buffer)
 
