@@ -54,20 +54,6 @@ func rebuild(in_structure_context: StructureContext) -> void:
 	renderer.rebuild()
 
 
-func snapshot_rebuild(in_structure_context: StructureContext) -> void:
-	if in_structure_context.nano_structure is AtomicStructure:
-		var renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure_context.nano_structure)
-		renderer.snapshot_rebuild(in_structure_context)
-	
-	if in_structure_context.nano_structure is NanoVirtualAnchor:
-		var renderer: VirtualAnchorRenderer = _get_renderer_for_virtual_anchor(in_structure_context.nano_structure.get_int_guid())
-		renderer.snapshot_rebuild(in_structure_context.nano_structure)
-	
-	if in_structure_context.nano_structure is NanoVirtualMotor:
-		var renderer: VirtualMotorRenderer = _get_renderer_for_virtual_motor(in_structure_context.nano_structure.get_int_guid())
-		renderer.snapshot_rebuild(in_structure_context.nano_structure)
-
-
 func initialize(in_workspace_context: WorkspaceContext) -> void:
 	if not enabled: return
 	var _selection_layer_bit_enumerated_from_0: int = SELECTION_PREVIEW_LAYER_BIT - 1

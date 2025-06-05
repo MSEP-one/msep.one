@@ -42,15 +42,6 @@ func rebuild() -> void:
 	_current_representation.show()
 
 
-func snapshot_rebuild(in_structure_context: StructureContext) -> void:
-	_nano_structure_id = in_structure_context.get_int_guid()
-	_current_representation.build(in_structure_context)
-	_current_representation.refresh_all()
-	_current_representation.show()
-	_labels_representation.build(in_structure_context)
-	_springs_representation.build(in_structure_context)
-
-
 func build(in_structure_context: StructureContext, in_representation: Rendering.Representation) -> void:
 	assert(is_instance_valid(in_structure_context.nano_structure), "trying to build renderer based on non existing NanoStructure")
 	assert(not _is_built, "this AtomicStructureRenderer is already built")
