@@ -70,11 +70,6 @@ func update(_in_delta: float) -> void:
 		_rotary_axle.set_instance_shader_parameter(&"distance_to_camera", _rotary_axle.global_position.distance_to(_camera.global_position))
 
 
-func snapshot_rebuild(in_motor: NanoVirtualMotor) -> void:
-	global_transform = in_motor.get_transform()
-	self.visible = in_motor.get_visible()
-
-
 func disable_hover() -> void:
 	# This is used to ensure the hover effect is never used in the 3D preview of the DynamicContextDocker
 	var editor_viewport: SubViewport = get_viewport()
