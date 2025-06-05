@@ -85,11 +85,12 @@ unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "As soon as molecules are created, they will have this initial speed, in the direction of the Particle Emitter. This is necesary to prevent particles from crowding the area.
 See also: Spread Angle"
-max_value = 2.0
+max_value = 20.0
 step = 0.001
 value = 0.5
 allow_greater = true
 suffix = "nm/ps"
+custom_arrow_step = 0.1
 
 [node name="Label3" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
 custom_minimum_size = Vector2(0, 38)

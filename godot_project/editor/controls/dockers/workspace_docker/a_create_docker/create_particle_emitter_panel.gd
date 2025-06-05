@@ -5,6 +5,7 @@ var _particle_emitter_parameters_editor: ParticleEmitterParametersEditor
 var _info_label: InfoLabel
 var _create_from_selection_button: Button
 var _create_from_small_molecules: Button
+var _escape_velocity_warning_label: InfoLabel
 var _small_molecules_picker: SmallMoleculesPicker:
 	get = _get_small_molecules_picker
 
@@ -18,6 +19,7 @@ func _notification(what: int) -> void:
 		_info_label = %InfoLabel as InfoLabel
 		_create_from_selection_button = %CreateFromSelectionButton as Button
 		_create_from_small_molecules = %CreateFromSmallMoleculesButton as Button
+		_escape_velocity_warning_label = %EscapeVelocityWarningLabel as InfoLabel
 		_create_from_selection_button.pressed.connect(_on_create_from_selection_button_pressed)
 		_create_from_small_molecules.pressed.connect(_on_create_from_small_molecules_pressed)
 
@@ -55,6 +57,7 @@ func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
 		var emitter_parameters: NanoParticleEmitterParameters = \
 			in_workspace_context.create_object_parameters.get_new_particle_emitter_parameters()
 		_particle_emitter_parameters_editor.track_parameters(emitter_parameters)
+		emitter_parameters.changed.connect(_on_emitter_parameters_changed)
 		in_workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 		_on_workspace_context_history_changed()
 
@@ -70,13 +73,24 @@ func _get_small_molecules_picker() -> SmallMoleculesPicker:
 	return _small_molecules_picker
 
 
+func _on_emitter_parameters_changed() -> void:
+	_update_ui()
+
+
 func _on_workspace_context_history_changed() -> void:
+	_update_ui()
+
+
+func _update_ui() -> void:
 	if WorkspaceUtils.can_create_particle_emitter_from_selection(_workspace_context):
 		_info_label.highlighted = false
 		_create_from_selection_button.disabled = false
+		_escape_velocity_warning_label.show()
+		_update_escape_velocity_warning()
 	else:
 		_info_label.highlighted = true
 		_create_from_selection_button.disabled = true
+		_escape_velocity_warning_label.hide()
 
 
 func _on_create_from_selection_button_pressed() -> void:
@@ -207,4 +221,18 @@ func _put_small_molecules_picker_above() -> void:
 func _put_small_molecules_picker_below() -> void:
 	_small_molecules_picker.position.y = \
 		int(_create_from_small_molecules.get_global_rect().end.y)
+
+
+func _update_escape_velocity_warning() -> void:
+	var emitter_parameters: NanoParticleEmitterParameters = \
+		_workspace_context.create_object_parameters.get_new_particle_emitter_parameters()
+	
+	var template_aabb: AABB = _workspace_context.get_selection_aabb().abs()
+	if WorkspaceUtils.is_particle_emitter_escape_velocity_safe(
+			_workspace_context, emitter_parameters, template_aabb, Vector3.UP):
+		_escape_velocity_warning_label.hide()
+	else:
+		_escape_velocity_warning_label.message = tr("Initial speed may be not large enough to leave emission space without crowding the space.\nThis could lead to a simulation Failure.\nYou may want to increase the [b]'Initial Speed'[/b] or [b]'Every'[/b] rate to ensure simulation doesn't fail")
+		_escape_velocity_warning_label.show()
+	
 

@@ -7,7 +7,9 @@ signal parameters_changed(in_parameters: NanoParticleEmitterParameters)
 
 const DEFAULT_ROTATION = Quaternion(Vector3.RIGHT, deg_to_rad(90))
 const DEFAULT_TRANSFORM = Transform3D(Basis(DEFAULT_ROTATION))
-
+# Safety margin is an extra space between spawned molecules to ensure the vdW forces
+# of the previous molecule doesn't affect the initial speed of the following molecule
+const INSTANCE_SAFETY_MARGIN = 0.05 # nanometers
 
 @export var _transform := DEFAULT_TRANSFORM
 @export var _parameters: NanoParticleEmitterParameters
@@ -22,30 +24,35 @@ var _instance_offset_candidates: Array = []
 var _instance_offset_last_candidate: int = -1
 
 
-func calculate_total_molecule_instance_count() -> int:
-	if _parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.INSTANCE_COUNT:
-		return _parameters.get_stop_emitting_after_count()
+func get_total_molecule_instance_count() -> int:
+	# Limit is time, be it the entire simulation or some value configured
+	var workspace: Workspace = MolecularEditorContext.get_current_workspace()
+	assert(workspace.has_structure(self), "get_total_molecule_instance_count() can only " +
+		"be called while workspace is being edited!")
+	return calculate_total_molecule_instance_count(_parameters, workspace)
+
+
+static func calculate_total_molecule_instance_count(
+		in_parameters: NanoParticleEmitterParameters, in_workspace: Workspace) -> int:
+	if in_parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.INSTANCE_COUNT:
+		return in_parameters.get_stop_emitting_after_count()
 	else:
-		# Limit is time, be it the entire simulation or some value configured
-		var workspace: Workspace = MolecularEditorContext.get_current_workspace()
-		assert(workspace.has_structure(self), "calculate_total_molecule_instance_count() can only " +
-			"be called while workspace is being edited!")
-		var step_count: int = workspace.simulation_parameters.total_step_count
-		var step_size_femtoseconds: float = workspace.simulation_parameters.step_size_in_femtoseconds
+		var step_count: int = in_workspace.simulation_parameters.total_step_count
+		var step_size_femtoseconds: float = in_workspace.simulation_parameters.step_size_in_femtoseconds
 		var simulation_time_femtoseconds: float = step_count * step_size_femtoseconds
 		var emit_time: float
-		if _parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.TIME:
+		if in_parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.TIME:
 			var configured_time_femtoseconds: float = TimeSpanPicker.unit_to_femtoseconds(
-				_parameters.get_stop_emitting_after_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
+				in_parameters.get_stop_emitting_after_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
 			if configured_time_femtoseconds > simulation_time_femtoseconds:
 				configured_time_femtoseconds = simulation_time_femtoseconds
-			emit_time = configured_time_femtoseconds - _parameters.get_initial_delay_in_nanoseconds()
-		elif _parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.NEVER:
-			emit_time = simulation_time_femtoseconds - _parameters.get_initial_delay_in_nanoseconds()
+			emit_time = configured_time_femtoseconds - in_parameters.get_initial_delay_in_nanoseconds()
+		elif in_parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.NEVER:
+			emit_time = simulation_time_femtoseconds - in_parameters.get_initial_delay_in_nanoseconds()
 		var instance_rate_femtoseconds: float = TimeSpanPicker.unit_to_femtoseconds(
-				_parameters.get_instance_rate_time_in_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
+				in_parameters.get_instance_rate_time_in_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
 		var instantation_count : int = floori(emit_time / instance_rate_femtoseconds)
-		var total_instance_count: int = instantation_count * _parameters.get_molecules_per_instance()
+		var total_instance_count: int = instantation_count * in_parameters.get_molecules_per_instance()
 		return total_instance_count
 
 
@@ -76,7 +83,7 @@ func create_instances(out_group: AtomicStructure) -> void:
 	# Create as many instances
 	var params: NanoMolecularStructure.AddAtomParameters = null
 	var molecules_per_instance: int = _parameters.get_molecules_per_instance()
-	var total_count: int = calculate_total_molecule_instance_count()
+	var total_count: int = get_total_molecule_instance_count()
 	for i in total_count:
 		var emission_id: int = floori(float(i) / float(molecules_per_instance))
 		var emit_index: int = i - (molecules_per_instance * emission_id)
@@ -167,7 +174,7 @@ func notify_apply_simulation() -> void:
 
 
 func calculate_instance_offset(in_instance_idx: int) -> Vector3:
-	var radius: float = _parameters.get_molecule_template().get_aabb().get_longest_axis_size() * 0.5
+	var radius: float = _parameters.get_molecule_template().get_aabb().get_longest_axis_size() * 0.5 + INSTANCE_SAFETY_MARGIN
 	
 	# First let's see if is already been calculated
 	if _instance_offset_cache_radius != radius:
