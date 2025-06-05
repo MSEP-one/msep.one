@@ -397,6 +397,8 @@ func _should_show(ignore_create_mode: bool = false) -> bool:
 		return false
 	if _is_shortcut_pressed():
 		return true
+	if _is_other_shortcut_pressed():
+		return false
 	return _workspace_context.workspace.representation_settings.get_display_auto_posing()
 
 
@@ -408,6 +410,13 @@ func _is_shortcut_pressed() -> bool:
 		not Input.is_key_pressed(KEY_META)
 	)
 
+
+func _is_other_shortcut_pressed() -> bool:
+	return (
+		Input.is_key_pressed(KEY_SHIFT) or
+		Input.is_key_pressed(KEY_CTRL) or
+		Input.is_key_pressed(KEY_META)
+	)
 
 func _is_valid_representation() -> bool:
 	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings

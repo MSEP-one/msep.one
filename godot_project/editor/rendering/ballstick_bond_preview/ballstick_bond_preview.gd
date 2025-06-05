@@ -83,6 +83,10 @@ func _update_preview() -> void:
 	var camera: Camera3D = get_viewport().get_camera_3d()
 	var dir_between_start_and_end: Vector3 = _first_pos.direction_to(_second_pos)
 	var up_vector: Vector3 = dir_between_start_and_end.cross(camera.global_transform.basis.y)
+	if up_vector.length_squared() == 0:
+		# When dir_between_start_and_end is the same as camera's Y axis, cross product will be ZERO
+		# lets use camera's X axis as fallback in this case
+		up_vector = dir_between_start_and_end.cross(camera.global_transform.basis.x)
 	var scale_factor: float = Representation.get_atom_scale_factor(_representation_settings)
 	var first_radius: float = Representation.get_atom_radius(first_data, _representation_settings) * scale_factor
 	var second_radius: float = Representation.get_atom_radius(second_data, _representation_settings) * scale_factor
