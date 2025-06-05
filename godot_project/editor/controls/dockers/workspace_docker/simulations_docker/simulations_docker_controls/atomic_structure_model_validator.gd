@@ -563,14 +563,16 @@ class SpatialHashGridOverlaps extends SpatialHashGrid:
 							overlapping_atoms[other_atom.structure_context] = []
 						overlapping_atoms[other_atom.structure_context].push_back(other_atom)
 						visited[j] = true
-				if overlapping_atoms.size() <= 1:
-					continue
 				# Overlapping atoms might belong to different structures.
 				# Create a new OverlapData per structure to prevent the user from selecting
 				# atoms from different groups at once when clicking on the error.
+				# NOTE: If all atoms happens to be in the same group, then other_structures will
+				# end up being an empty array, creating a unique warning
 				for current_structure: StructureContext in overlapping_atoms:
 					var atoms: Array[AtomData] = []
 					atoms.assign(overlapping_atoms[current_structure])
+					if atoms.size() <= 1:
+						continue
 					var other_structures: Array = overlapping_atoms.keys().duplicate()
 					other_structures.erase(current_structure)
 					var overlap := OverlapData.new(atoms, current_structure, other_structures)
