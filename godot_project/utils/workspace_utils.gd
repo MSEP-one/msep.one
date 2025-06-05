@@ -130,6 +130,16 @@ static func can_create_particle_emitter_from_selection(in_workspace_context: Wor
 	return _can_create_particle_emitter_from_selection(in_workspace_context)
 
 
+static func is_particle_emitter_escape_velocity_safe(
+		in_workspace_context: WorkspaceContext,
+		in_parameters: NanoParticleEmitterParameters,
+		in_template_aabb: AABB,
+		in_direction: Vector3) -> bool:
+	return _is_particle_emitter_escape_velocity_safe(
+		in_workspace_context, in_parameters, in_template_aabb, in_direction
+	)
+
+
 static func has_invalid_tetrahedral_structure(in_workspace_context: WorkspaceContext, in_selection_only: bool) -> bool:
 	assert(can_relax(in_workspace_context, in_selection_only))
 	return _has_bad_tetrahedral_angle(in_workspace_context, in_selection_only)
@@ -1181,6 +1191,117 @@ static func _can_create_particle_emitter_from_selection(in_workspace_context: Wo
 			# This means molecule is not fully selected
 			return false
 	return true
+
+
+static func _is_particle_emitter_escape_velocity_safe(
+		in_workspace_context: WorkspaceContext,
+		in_parameters: NanoParticleEmitterParameters,
+		in_template_aabb: AABB,
+		in_direction: Vector3) -> bool:
+	
+	const PICOSECOND_TO_NANOSECOND = 1000
+	var speed: float = in_parameters.get_instance_speed_nanometers_per_picosecond() * PICOSECOND_TO_NANOSECOND
+	var rate: float = in_parameters.get_instance_rate_time_in_nanoseconds()
+	var distance: float = speed * rate
+	
+	var total_instances: int = NanoParticleEmitter.calculate_total_molecule_instance_count(
+		in_parameters,
+		in_workspace_context.workspace
+	)
+	if not in_template_aabb.has_volume():
+		return true
+	var first_spawn_aabb: AABB = in_template_aabb
+	for i in in_parameters.get_molecules_per_instance():
+		if i >= total_instances:
+			break
+		var instance_aabb: AABB = in_template_aabb
+		instance_aabb.position += _precalculate_particle_emitter_instance_offset(i, in_template_aabb)
+		first_spawn_aabb = first_spawn_aabb.expand(instance_aabb.position)
+		first_spawn_aabb = first_spawn_aabb.expand(instance_aabb.end)
+	# When created, emitters are always pointing UP
+	first_spawn_aabb.position += in_direction * distance
+	
+	var second_spawn_aabb: AABB = in_template_aabb
+	for i in in_parameters.get_molecules_per_instance():
+		if i + in_parameters.get_molecules_per_instance() >= total_instances:
+			break
+		var instance_aabb: AABB = in_template_aabb
+		instance_aabb.position += _precalculate_particle_emitter_instance_offset(i, in_template_aabb)
+		second_spawn_aabb = second_spawn_aabb.expand(instance_aabb.position)
+		second_spawn_aabb = second_spawn_aabb.expand(instance_aabb.end)
+	
+	# Safety margin is an extra space between spawned molecules to ensure the vdW forces
+	# of the previous molecule doesn't affect the initial speed of the following molecule
+	const SPAWN_SAFETY_MARGIN = 0.115 # nanometers
+	first_spawn_aabb = first_spawn_aabb.grow(SPAWN_SAFETY_MARGIN)
+	second_spawn_aabb = second_spawn_aabb.grow(SPAWN_SAFETY_MARGIN)
+	
+	
+	if first_spawn_aabb.intersects(second_spawn_aabb):
+		return false
+	return true
+
+
+static var _instance_offset_cache_radius: float = -1
+static var _instance_offset_cache: Dictionary[int, Vector3]
+static var _instance_offset_candidates: Array = []
+static var _instance_offset_last_candidate: int = -1
+static func _precalculate_particle_emitter_instance_offset(in_instance_idx: int, in_desired_aabb: AABB) -> Vector3:
+	var radius: float = in_desired_aabb.get_longest_axis_size() * 0.5 + NanoParticleEmitter.INSTANCE_SAFETY_MARGIN
+	
+	# First let's see if is already been calculated
+	if _instance_offset_cache_radius != radius:
+		_instance_offset_cache_radius = radius
+		_instance_offset_cache.clear()
+		_instance_offset_candidates.clear()
+		_instance_offset_last_candidate = -1
+	if _instance_offset_cache.has(in_instance_idx):
+		return _instance_offset_cache[in_instance_idx]
+	
+	# Not found in the cache, let's calculate and store it
+	var grid_spacing: float = 2 * radius * 1.05  # safe margin
+
+	# Generate a deterministic, ordered grid of candidates
+	if _instance_offset_candidates.is_empty():
+		var radius_guess: int = ceili(float(in_instance_idx + 1) ** (1.0/3.0) * 2.5)  # conservative cube radius
+		for x in range(-radius_guess, radius_guess + 1):
+			for y in range(-radius_guess, radius_guess + 1):
+				for z in range(-radius_guess, radius_guess + 1):
+					var offset_coord := Vector3i(x, y, z)
+					var pos: Vector3 = Vector3(offset_coord) * grid_spacing
+					var dist: float = pos.length_squared()
+					_instance_offset_candidates.append([dist, offset_coord, pos])
+		
+		var sorter: Callable = func(a: Array, b: Array) -> bool:
+			if a[0] != b[0]:
+				return a[0] < b[0]
+			var a_coord: Vector3i = a[1] as Vector3i
+			var b_coord: Vector3i = b[1] as Vector3i
+			const XYZ = [0, 1, 2]
+			for axis: int in XYZ:
+				if a_coord[axis] == b_coord[axis]:
+					continue
+				return a_coord[axis] < b_coord[axis]
+			return true
+		# Sort by distance, then lexicographically by grid coordinates
+		_instance_offset_candidates.sort_custom(sorter)
+
+	# Place spheres up to index in_instance_idx
+	for candidate_idx: int in range(_instance_offset_last_candidate + 1, _instance_offset_candidates.size()):
+		_instance_offset_last_candidate = candidate_idx
+		var c: Array = _instance_offset_candidates[candidate_idx]
+		var pos: Vector3 = c[2] as Vector3
+		var valid: bool = true
+		for prev_instance_idx: int in candidate_idx:
+			# Candidate is too close to a previously placed molecule
+			var placed_at: Vector3 = _instance_offset_cache[prev_instance_idx]
+			if (pos - placed_at).length() < 2 * radius:
+				valid = false
+				break
+		if valid:
+			_instance_offset_cache[in_instance_idx] = pos
+			return pos
+	return Vector3.ZERO
 
 
 static func _relax(

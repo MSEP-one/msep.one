@@ -15,7 +15,7 @@ enum LimitType {
 @export var _limit_type := LimitType.NEVER
 @export_range(1, 100, 1, "or_greater") var _stop_emitting_after_count: int = 1
 @export var _stop_emitting_after_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(150, TimeSpanPicker.Unit.NANOSECOND)
-@export var _instance_speed_nanometers_per_picosecond: float = 0.5
+@export var _instance_speed_nanometers_per_picosecond: float = 8.0
 @export_range(0, 180, 0.1) var _spread_angle: float = 0
 
 
