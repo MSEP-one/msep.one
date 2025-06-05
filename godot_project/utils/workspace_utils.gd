@@ -369,7 +369,7 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 				atomic_structure.set_springs_visibility(springs_to_hide, false)
 			structure_context.set_anchor_selected(false)
 			structure_context.nano_structure.set_visible(false)
-		elif structure_context.is_virtual_object_selected():
+		elif structure_context.nano_structure.is_virtual_object() and structure_context.is_virtual_object_selected():
 			structure_context.set_virtual_object_selected(false)
 			structure_context.nano_structure.set_visible(false)
 		elif structure_context.nano_structure is AtomicStructure:
