@@ -321,9 +321,12 @@ func apply_state_snapshot(in_state_snapshot: Dictionary, in_with_instances: bool
 		var group_id: int = in_state_snapshot["_instances_group"]
 		if group_id == Workspace.INVALID_STRUCTURE_ID:
 			return
-		_instances_group = MolecularEditorContext.get_current_workspace(). \
-			get_structure_by_int_guid(group_id) as AtomicStructure
+		var group_structure_context: StructureContext = \
+			MolecularEditorContext.get_current_workspace_context().\
+			get_nano_structure_context_from_id(group_id)
+		_instances_group = group_structure_context.nano_structure as AtomicStructure
 		_instances_group.apply_state_snapshot(in_state_snapshot["_instances_group_state"])
+		group_structure_context.get_collision_engine().rebuild(group_structure_context)
 		var workspace_cotext: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 		var rendering: Rendering = workspace_cotext.get_rendering()
 		var renderer := rendering._get_renderer_for_atomic_structure(_instances_group)
