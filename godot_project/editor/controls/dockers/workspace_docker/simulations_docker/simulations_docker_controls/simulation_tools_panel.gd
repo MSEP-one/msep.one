@@ -481,6 +481,8 @@ func _on_button_start_pause_pressed() -> void:
 				alert_dialog.set_detailed_message(new_simulation.start_promise.get_error())
 				Engine.get_main_loop().root.add_child(alert_dialog)
 				_status = Status.INACTIVE
+			elif new_simulation.was_aborted():
+				return
 			else:
 				var report_time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
 						params.step_size_in_femtoseconds,
