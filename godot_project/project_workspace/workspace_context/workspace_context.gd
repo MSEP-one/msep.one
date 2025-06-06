@@ -523,12 +523,12 @@ func is_simulating() -> bool:
 	return _simulation != null
 
 
-func seek_simulation(in_time: float) -> void:
+func seek_simulation(in_frame: float) -> void:
 	assert(is_simulating(), "There's not an active simulation")
-	var state: PackedVector3Array = _simulation.find_state(in_time)
+	var state: PackedVector3Array = _simulation.find_state(in_frame)
 	var payload: OpenMMPayload = _simulation.original_payload
 	for emitter: NanoParticleEmitter in get_particle_emitters():
-		emitter.seek_simulation(in_time)
+		emitter.seek_simulation(in_frame)
 	WorkspaceUtils.apply_simulation_state(self, payload, state)
 
 
