@@ -541,28 +541,37 @@ class SpatialHashGridOverlaps extends SpatialHashGrid:
 	func get_overlaps() -> Array[OverlapData]:
 		var result: Array[OverlapData] = []
 		
+		var visited: Dictionary[Vector2i, bool] = {}
 		for close_atoms: Array[AtomData] in get_user_data_closer_than(MAX_COVALENT_RADIUS):
-			var visited: Dictionary[int, bool] = {}
 			# Scan every pair of atoms within the local group (close_atoms)
 			# Atoms overlaps if the sum of their radii is smaller than the distance between them.
 			for i: int in close_atoms.size() - 1 :
-				if visited.has(i):
+				var atom: AtomData = close_atoms[i]
+				var atom_unique_id := Vector2i(
+					atom.structure_context.int_guid, atom.id
+				)
+				if visited.has(atom_unique_id):
 					# Skip if already included in another overlap
 					continue
 				# Find overlapping atoms and group them by their structure context
 				var overlapping_atoms: Dictionary = {} # StructureContext: Array[AtomData]
-				var atom: AtomData = close_atoms[i]
 				var atom_pos: Vector3 = atom.get_position()
 				overlapping_atoms[atom.structure_context] = [atom]
 				for j: int in range(i + 1, close_atoms.size()):
 					var other_atom: AtomData = close_atoms[j]
+					var other_unique_id := Vector2i(
+						other_atom.structure_context.int_guid, other_atom.id
+					)
+					if visited.has(other_unique_id):
+						# Skip if already included in another overlap
+						continue
 					var other_atom_pos: Vector3 = other_atom.get_position()
 					var min_distance: float = (atom.covalent_radius + other_atom.covalent_radius) * 0.5
 					if atom_pos.distance_squared_to(other_atom_pos) < pow(min_distance, 2.0):
 						if not overlapping_atoms.has(other_atom.structure_context):
 							overlapping_atoms[other_atom.structure_context] = []
 						overlapping_atoms[other_atom.structure_context].push_back(other_atom)
-						visited[j] = true
+						visited[other_unique_id] = true
 				# Overlapping atoms might belong to different structures.
 				# Create a new OverlapData per structure to prevent the user from selecting
 				# atoms from different groups at once when clicking on the error.
