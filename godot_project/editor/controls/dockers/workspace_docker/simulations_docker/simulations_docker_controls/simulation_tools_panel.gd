@@ -319,8 +319,10 @@ func _set_error_playback_active(in_enabled: bool) -> void:
 		_workspace_context.set_simulation_playback_running(in_enabled)
 
 
-func _on_simulation_frame_received(in_time: float, _in_state: Variant) -> void:
-	_simulation_length_nanoseconds = max(in_time, _simulation_length_nanoseconds)
+func _on_simulation_frame_received(in_frame: float, _in_state: Variant) -> void:
+	var time_femtoseconds: float = in_frame * _time_span_picker.time_span_femtoseconds * _spin_box_steps_per_report.value
+	var time_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(time_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
+	_simulation_length_nanoseconds = max(time_nanoseconds, _simulation_length_nanoseconds)
 	if _is_simulation_complete():
 		_button_end.disabled = true
 
@@ -572,8 +574,8 @@ func _on_spin_box_timeline_value_changed(in_value: float) -> void:
 			_error_playback_active = false
 		else:
 			_status = Status.PAUSED
-	var time_in_nanoseconds: float = _playback_unit_to_nanoseconds(_spin_box_timeline.value)
-	_workspace_context.seek_simulation(time_in_nanoseconds)
+	var frame: float = _playback_unit_to_frames(_spin_box_timeline.value)
+	_workspace_context.seek_simulation(frame)
 
 
 func _playback_unit_to_nanoseconds(in_value: float) -> float:
@@ -600,6 +602,27 @@ func _playback_unit_to_nanoseconds(in_value: float) -> float:
 				time_in_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
 		return time_in_nanoseconds
 
+
+func _playback_unit_to_frames(in_value: float) -> float:
+	var unit: int = _option_button_timeline_unit.selected
+	var playback_unit_is_time: bool = TimeSpanPicker.Unit.find_key(unit) != null
+	
+	if playback_unit_is_time:
+		var step_size_in_femtoseconds: float = _time_span_picker.time_span_femtoseconds
+		var time_in_femtoseconds: float = TimeSpanPicker.unit_to_femtoseconds(
+				in_value, unit as TimeSpanPicker.Unit)
+		var advanced_steps: float = time_in_femtoseconds / step_size_in_femtoseconds
+		var advanced_frames: float = floorf(advanced_steps / _spin_box_steps_per_report.value)
+		return advanced_frames
+	else:
+		var advanced_frames: float = 0
+		match unit:
+			SimulationParameters.PlaybackUnit.Steps:
+				var advanced_steps: float = in_value
+				advanced_frames = floorf(advanced_steps / _spin_box_steps_per_report.value)
+			SimulationParameters.PlaybackUnit.Frames:
+				advanced_frames = in_value
+		return advanced_frames
 
 func _nanoseconds_to_playback_unit(in_nanoseconds: float) -> float:
 	var unit: int = _option_button_timeline_unit.selected
