@@ -102,6 +102,7 @@ func _set_structure_preview_count(in_count: int) -> void:
 			instance.top_level = true
 			add_child(instance)
 			instance.set_structure(template)
+			instance.set_auto_update(false)
 			instance.global_position = global_position + emitter.calculate_instance_offset(index)
 			instance.visible = self.visible
 			_structure_previews.push_back(instance)

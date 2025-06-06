@@ -13,6 +13,11 @@ const UNIFORM_ATOM_SCALE: StringName = &"atom_scale"
 var _atomic_structure_renderer: AtomicStructureRenderer = null
 var _transparency: float = DEFAULT_PREVIEW_TRANSPARENCY
 
+## If [code]true[/code], this preview will automatically match the current
+## object create mode. If [code]false[/code], the preview will only be updated
+## by calling [code]set_structure[/code].
+var _auto_update_preview: bool = true 
+
 var _preview_workspace_context: WorkspaceContext
 var _preview_workspace: Workspace
 var _preview_structure_context: StructureContext
@@ -27,6 +32,8 @@ func _ready() -> void:
 func _ready_deferred() -> void:
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
 	assert(workspace_context)
+	workspace_context.started_creating_object.connect(_on_workspace_context_started_creating_object.bind(workspace_context))
+	workspace_context.aborted_creating_object.connect(_on_workspace_context_aborted_creating_object)
 	var representation_settings: RepresentationSettings = workspace_context.workspace.representation_settings
 	representation_settings.changed.connect(_on_representation_settings_changed.bind(representation_settings))
 
@@ -87,6 +94,26 @@ func set_transparency(in_transparency: float) -> void:
 		_atomic_structure_renderer.set_transparency(in_transparency)
 
 
+func set_auto_update(enabled: bool) -> void:
+	_auto_update_preview = enabled
+
+
 func _on_representation_settings_changed(in_representation_settings: RepresentationSettings) -> void:
 	if is_instance_valid(_atomic_structure_renderer):
 		_atomic_structure_renderer.change_representation(in_representation_settings.get_rendering_representation())
+
+
+func _on_workspace_context_started_creating_object(workspace_context: WorkspaceContext) -> void:
+	if not _auto_update_preview:
+		return
+	var peek_new_object: Callable = func(in_context: StructureContext) -> bool:
+		set_structure(in_context.nano_structure)
+		return true
+	workspace_context.peek_context_of_object_being_created(peek_new_object)
+
+
+func _on_workspace_context_aborted_creating_object() -> void:
+	if not _auto_update_preview:
+		return
+	if is_instance_valid(_atomic_structure_renderer):
+		_atomic_structure_renderer.queue_free()
