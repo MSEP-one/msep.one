@@ -82,14 +82,14 @@ func _set_hovered_item(in_item: TreeItem) -> void:
 		else:
 			# Texture was already lazy loaded on a previous hover
 			texture = texture_or_path as Texture2D
-		# 2. Assign texture to preview
-		if texture == null:
-			# No texture, use a generic icon
-			_preview_texture.texture = preload("uid://njg8vo87cuus")
-			_preview_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		else:
-			_preview_texture.texture = texture
-			_preview_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	# 2. Assign texture to preview
+	if texture == null:
+		# No texture, use a generic icon
+		_preview_texture.texture = preload("uid://njg8vo87cuus")
+		_preview_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	else:
+		_preview_texture.texture = texture
+		_preview_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 
 
 func _init_list() -> void:
