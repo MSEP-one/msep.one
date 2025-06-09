@@ -63,8 +63,10 @@ func set_structure(in_structure: NanoStructure) -> void:
 	
 	var structure_copy: NanoStructure = NanoMolecularStructure.new()
 	structure_copy.apply_state_snapshot(in_structure.create_state_snapshot())
+	structure_copy.set_representation_settings(in_structure.get_representation_settings())
 	_preview_workspace_context = load(WorkspaceContextScn).instantiate()
 	_preview_workspace = Workspace.new()
+	_preview_workspace.representation_settings = in_structure.get_representation_settings()
 	_preview_workspace.add_structure(structure_copy)
 	add_child(_preview_workspace_context)
 	_preview_workspace_context.initialize(_preview_workspace)
