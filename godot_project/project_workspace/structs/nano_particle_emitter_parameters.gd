@@ -6,14 +6,15 @@ enum LimitType {
 	INSTANCE_COUNT,
 	TIME
 }
+const DEFAULT_INSTANCE_COUNT_LIMIT = 20
 
 
 @export var _molecule: AtomicStructure
 @export var _initial_delay_in_nanoseconds: float = 0.0
 @export_range(1, 5, 1, "or_greater") var _molecules_per_instance: int = 1
 @export var _instance_rate_time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(50, TimeSpanPicker.Unit.NANOSECOND)
-@export var _limit_type := LimitType.NEVER
-@export_range(1, 100, 1, "or_greater") var _stop_emitting_after_count: int = 1
+@export var _limit_type := LimitType.INSTANCE_COUNT
+@export_range(1, 100, 1, "or_greater") var _stop_emitting_after_count: int = DEFAULT_INSTANCE_COUNT_LIMIT
 @export var _stop_emitting_after_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(150, TimeSpanPicker.Unit.NANOSECOND)
 @export var _instance_speed_nanometers_per_picosecond: float = 8.0
 @export_range(0, 180, 0.1) var _spread_angle: float = 0

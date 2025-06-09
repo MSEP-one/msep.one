@@ -39,6 +39,9 @@ func _notification(what: int) -> void:
 		_stop_never_button.button_group.pressed.connect(_on_stop_condition_button_group_pressed)
 		_limit_instances_spin_box.value_confirmed.connect(_on_limit_instances_spin_box_value_confirmed)
 		_limit_nanoseconds_time_picker.time_span_changed.connect(_on_limit_nanoseconds_time_picker_time_span_changed)
+		FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
+		var use_emmit_count: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_EMITTERS_WITH_EMMIT_COUNT)
+		_on_feature_flag_toggled(FeatureFlagManager.FEATURE_FLAG_EMITTERS_WITH_EMMIT_COUNT, use_emmit_count)
 
 
 func track_parameters(out_emitter_parameters: NanoParticleEmitterParameters) -> void:
@@ -163,3 +166,7 @@ func _on_limit_nanoseconds_time_picker_time_span_changed(
 	parameters.set_stop_emitting_after_nanoseconds(time_in_nanoseconds)
 	_take_snapshot_if_configured(tr(&"Time Limit"))
 
+func _on_feature_flag_toggled(in_path: String, in_new_value: bool) -> void:
+	if in_path == FeatureFlagManager.FEATURE_FLAG_EMITTERS_WITH_EMMIT_COUNT:
+		_molecules_per_instance_spin_box.visible = in_new_value
+		%MoleculesPerInstanceLabel.visible = in_new_value
