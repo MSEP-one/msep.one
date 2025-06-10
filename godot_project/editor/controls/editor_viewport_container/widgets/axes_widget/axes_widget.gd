@@ -220,4 +220,7 @@ func ensure_orthographic_camera_outside_structure() -> void:
 	var workspace_context: WorkspaceContext = _editor_viewport.get_workspace_context()
 	if workspace_context.has_visible_objects():
 		var workspace_aabb: AABB = WorkspaceUtils.get_visible_objects_aabb(workspace_context)
+		if workspace_aabb.get_longest_axis_size() > workspace_context.get_camera().far:
+			# This would affect rendering
+			return
 		WorkspaceUtils.move_camera_outside_of_aabb(workspace_context, workspace_aabb)
