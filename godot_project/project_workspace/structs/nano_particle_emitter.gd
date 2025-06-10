@@ -13,7 +13,7 @@ const INSTANCE_SAFETY_MARGIN = 0.05 # nanometers
 
 @export var _transform := DEFAULT_TRANSFORM
 @export var _parameters: NanoParticleEmitterParameters
-
+var _frame_length_nanoseconds: float
 
 var _instances_group: AtomicStructure
 var _instances_atom_ids: Array[PackedInt32Array]
@@ -84,6 +84,12 @@ func create_instances(out_group: AtomicStructure) -> void:
 	var params: NanoMolecularStructure.AddAtomParameters = null
 	var molecules_per_instance: int = _parameters.get_molecules_per_instance()
 	var total_count: int = get_total_molecule_instance_count()
+	var workspace: Workspace = MolecularEditorContext.get_current_workspace()
+	var step_size_femtoseconds: float = workspace.simulation_parameters.step_size_in_femtoseconds
+	var step_size_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
+		step_size_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
+	var steps_per_report: int = workspace.simulation_parameters.steps_per_report
+	_frame_length_nanoseconds = step_size_nanoseconds * steps_per_report
 	for i in total_count:
 		var emission_id: int = floori(float(i) / float(molecules_per_instance))
 		var emit_index: int = i - (molecules_per_instance * emission_id)
@@ -135,7 +141,7 @@ func get_instance_atoms_ids() -> Array[PackedInt32Array]:
 
 ## This method does not update the position of particles, only takes care of validity of the atoms
 ## Making them visible/invisible, valid/invalid in the workspace
-func seek_simulation(in_time: float) -> void:
+func seek_simulation(in_frame: float) -> void:
 	if _instances_atom_ids.is_empty():
 		return
 	assert(_instances_group != null, "Attempted to seek simulation when no instances where created")
@@ -148,7 +154,8 @@ func seek_simulation(in_time: float) -> void:
 		if spawned_before_seek:
 			# This is an optimization to stop doing this math after the first match
 			var time: float = delay + rate * floorf(float(instance_idx) / float(molecules_per_instance))
-			spawned_before_seek = time <= in_time
+			var frame: float = time / _frame_length_nanoseconds
+			spawned_before_seek = frame < in_frame or is_equal_approx(frame, in_frame)
 		var first_atom_id: int = _instances_atom_ids[instance_idx][0]
 		if spawned_before_seek:
 			if not _instances_group.is_atom_valid(first_atom_id):

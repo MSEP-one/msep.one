@@ -575,23 +575,23 @@ class MotorForce:
 		print(f"Initialized log path: {self.particle_log_file[i]}")
 
 
-	def advance(self, simulation, delta_time_nanoseconds: float):
+	def advance(self, simulation):
 		match self.motor_type:
 			case MotorType.ROTARY:
-				self._advance_rotary(simulation, delta_time_nanoseconds)
+				self._advance_rotary(simulation)
 			case MotorType.LINEAR:
-				self._advance_linear(simulation, delta_time_nanoseconds)
+				self._advance_linear(simulation)
 			case _:
 				logging.error(f"Unknown motor type '{self.motor_type}'!")
 				pass
 	
-	def _advance_rotary(self, simulation, delta_time: float):
+	def _advance_rotary(self, simulation):
 		if self.stopped or len(self.atom_ids) == 0:
 			# Nothing to do here
 			return
-		self.time_accum += delta_time
-		speed: float = self._calculate_speed(delta_time)
-		self.distance_accum += (delta_time * speed) / (2 * PI) # acum distance is in cycles
+		self.time_accum += simulation.time_step_in_nanoseconds
+		speed: float = self._calculate_speed(simulation.time_step_in_nanoseconds)
+		self.distance_accum += (simulation.time_step_in_nanoseconds * speed) / (2 * PI) # acum distance is in cycles
 		
 		self.print_counter = (self.print_counter + 1) % 64 # print every 64 steps
 		if self.print_counter == 0:
@@ -640,16 +640,16 @@ class MotorForce:
 			self.particle_log(i, f"		velocity ({length_Vec3(velocity)}nm/ns) {velocity}")
 		return velocity
 	
-	def _advance_linear(self, simulation, delta_time: float):
+	def _advance_linear(self, simulation):
 		if self.stopped or len(self.atom_ids) == 0:
 			# Nothing to do here
 			return
 		
-		self.time_accum += delta_time
+		self.time_accum += simulation.time_step_in_nanoseconds
 		new_motor_velocity: Vec3 = Vec3(0,0,0) # new motor velocity is the same for all particles linked to the motor
-		speed: float = self._calculate_speed(delta_time)
+		speed: float = self._calculate_speed(simulation.time_step_in_nanoseconds)
 		new_motor_velocity = self.axis_direction * speed * self.polarity * nanometer / nanosecond
-		self.distance_accum += delta_time * speed
+		self.distance_accum += simulation.time_step_in_nanoseconds * speed
 		self.print_counter = (self.print_counter + 1) % 64 # print every 64 steps
 
 		if self.print_counter == 0 or self.stopped:
@@ -758,6 +758,8 @@ class ParticleEmitter:
 		self.last_instanced_molecule_index: int = -1
 	
 	def setup(self, simulation: Simulation, out_nonbonded_force: NonbondedForce, payload_to_openff_atom: dict):
+		# particles emiter should be one step ahead
+		self.time_accum += simulation.time_step_in_nanoseconds
 		state = simulation.context.getState(getPositions=True, getVelocities=True)
 		positions = state.getPositions()
 		initial_velocities = state.getVelocities()
@@ -785,8 +787,8 @@ class ParticleEmitter:
 		simulation.context.setPositions(positions)
 		simulation.context.setVelocities(initial_velocities)
 
-	def advance(self, simulation: Simulation, out_nonbonded_force, time_step_in_nanoseconds: float):
-		self.time_accum += time_step_in_nanoseconds
+	def advance(self, simulation: Simulation, out_nonbonded_force):
+		self.time_accum += simulation.time_step_in_nanoseconds
 		for i in range(self.last_instanced_molecule_index + 1, self.total_instance_count):
 			spawn_time = self.initial_delay_in_nanoseconds + int(i / self.molecules_per_instance) * self.instance_rate_time_in_nanoseconds
 			if spawn_time > self.time_accum:
@@ -874,8 +876,10 @@ class ZmqPublishReporter(object):
 		return (steps, True, False, False, False, None)
 
 	def report(self, simulation, state):
-		time_in_nanoseconds: float = (state.getTime() / femtosecond) / 1000000.0
-		time_buffer:bytes = struct.pack("d", time_in_nanoseconds)
+		simulation.frame += 1
+		#time_in_femtoseconds: float = (state.getTime() / femtosecond)
+		#time_buffer:bytes = struct.pack("d", time_in_femtoseconds)
+		time_buffer:bytes = struct.pack("d", simulation.frame)
 		openff_positions: list[Vec3] = state.getPositions()
 		positions: list[Vec3] = []
 		payload_to_openff_atom = simulation.payload_to_openff_atom
@@ -1168,7 +1172,8 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 			simulation.anchors_count = len(topology_payload.anchors)
 			simulation.payload_to_openff_atom = topology_payload.payload_to_openff_atom
 			simulation.openff_atom_to_payload = topology_payload.openff_atom_to_payload
-			
+			simulation.time_step_in_nanoseconds = time_step_in_nanoseconds
+			simulation.frame = 0
 
 			simulation.context.setPositions(openff_initial_positions)
 			if not math.isnan(simulation.context.getState(getPositions=True).getPositions()[0][0]._value):
@@ -1278,9 +1283,9 @@ def thread_simulate(simulation: Simulation, num_steps, motors_forces, emitters, 
 					logging.info(f"Aborted simulation on thread while running step #{step}")
 				return
 			for emitter in emitters:
-				emitter.advance(simulation, nonbonded_force, time_step_in_nanoseconds)
+				emitter.advance(simulation, nonbonded_force)
 			for motor in motors_forces:
-				motor.advance(simulation, time_step_in_nanoseconds)
+				motor.advance(simulation)
 				
 			simulation.step(1)
 		except Exception as inst:
