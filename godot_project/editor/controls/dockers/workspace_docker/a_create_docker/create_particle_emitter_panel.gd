@@ -95,9 +95,7 @@ func _update_ui() -> void:
 
 func _on_create_from_selection_button_pressed() -> void:
 	assert(WorkspaceUtils.can_create_particle_emitter_from_selection(_workspace_context))
-	var base_parameters := _workspace_context.create_object_parameters.get_new_particle_emitter_parameters()
 	# 1. Create emitter parameters from settings
-	var instance_parameters: NanoParticleEmitterParameters = base_parameters.duplicate(true)
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 	var selected_contexts: Array[StructureContext] = workspace_context.get_atomic_structure_contexts_with_selection()
 	# 2. Create molecule template from selection and remove selection
@@ -130,21 +128,7 @@ func _on_create_from_selection_button_pressed() -> void:
 	template.end_edit()
 	template.set_structure_name("Template")
 	template.set_representation_settings(workspace_context.workspace.representation_settings)
-	instance_parameters.set_molecule_template(template)
-	# 3. Create Particle Emitter with configured parameters
-	_workspace_context.peek_object_being_created(func(out_emitter: NanoParticleEmitter) -> bool:
-		out_emitter.set_structure_name("%s %d" % [
-			str(out_emitter.get_type()),
-			_workspace_context.workspace.get_nmb_of_structures()+1
-		])
-		out_emitter.set_parameters(instance_parameters)
-		out_emitter.set_position(center_of_selection)
-		return true
-	)
-	var new_context: StructureContext = _workspace_context.finish_creating_object()
-	new_context.set_particle_emitter_selected(true)
-	_workspace_context.snapshot_moment("Create Particle Emitter")
-	_workspace_context.start_creating_object(NanoParticleEmitter.new())
+	_create_particle_emitter_from_template(template, center_of_selection)
 
 
 func _on_create_from_small_molecules_pressed() -> void:
@@ -187,18 +171,29 @@ func _on_small_molecules_picker_molecule_selected(in_path: String) -> void:
 	template.start_edit()
 	_center_template_on_origin(template)
 	template.end_edit()
+	var emitter_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
+	_create_particle_emitter_from_template(template, emitter_pos)
+
+
+func _create_particle_emitter_from_template(out_template: AtomicStructure, in_emitter_pos:Vector3) -> void:
 	var base_parameters := _workspace_context.create_object_parameters.get_new_particle_emitter_parameters()
 	var instance_parameters: NanoParticleEmitterParameters = base_parameters.duplicate(true)
-	var emitter := NanoParticleEmitter.new()
-	emitter.set_structure_name("%s %d" % [str(emitter.get_type()), _workspace_context.workspace.get_nmb_of_structures()+1])
-	_workspace_context.start_creating_object(emitter)
-	emitter.set_parameters(instance_parameters)
-	instance_parameters.set_molecule_template(template)
-	var emitter_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
-	emitter.set_position(emitter_pos)
+	instance_parameters.set_molecule_template(out_template)
+	# 3. Create Particle Emitter with configured parameters
+	_workspace_context.peek_object_being_created(func(out_emitter: NanoParticleEmitter) -> bool:
+		out_emitter.set_structure_name("%s %d" % [
+			str(out_emitter.get_type()),
+			_workspace_context.workspace.get_nmb_of_structures()+1
+		])
+		out_emitter.set_parameters(instance_parameters)
+		out_emitter.set_position(in_emitter_pos)
+		return true
+	)
 	var new_context: StructureContext = _workspace_context.finish_creating_object()
+	_workspace_context.clear_all_selection()
 	new_context.set_particle_emitter_selected(true)
 	_workspace_context.snapshot_moment("Create Particle Emitter")
+	_workspace_context.start_creating_object(NanoParticleEmitter.new())
 
 
 func _center_template_on_origin(out_template: AtomicStructure) -> void:
