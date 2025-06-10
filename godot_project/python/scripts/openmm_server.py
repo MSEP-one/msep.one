@@ -955,9 +955,11 @@ class ImportFileResponse():
 		self.bonds = bonds
 
 
-def create_forcefield_for_topology(topology_payload: PayloadTopologyReader) -> ForceField:
+def create_forcefield_for_topology(topology_payload: PayloadTopologyReader, remove_constraints=False) -> ForceField:
 	openff_forcefield_path = os.path.join(os.path.dirname(__file__ ), "offxml", topology_payload.forcefields[0])
 	forcefield = ForceField(openff_forcefield_path)
+	if remove_constraints and "Constraints" in forcefield.registered_parameter_handlers:
+		forcefield.deregister_parameter_handler("Constraints")
 	for i in range(1, len(topology_payload.forcefields)):
 		forcefield_extension_path = os.path.join(os.path.dirname(__file__ ), "offxml_extensions", topology_payload.forcefields[i])
 		with open(forcefield_extension_path, 'r', encoding='utf-8') as f:
@@ -1056,7 +1058,8 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 			return
 		molecules: list[Molecule] = topology_payload.to_openff_molecules()
 		topology = Topology.from_molecules(molecules)
-		forcefield = create_forcefield_for_topology(topology_payload)
+		has_emitters = len(topology_payload.emitters) > 0
+		forcefield = create_forcefield_for_topology(topology_payload, remove_constraints=has_emitters)
 		interchange = Interchange.from_smirnoff(forcefield, topology, charge_from_molecules=molecules)
 		if stop_exists and stop_trigger.is_set():
 			if running_simulations.pop(simulation_id, None) != None:
