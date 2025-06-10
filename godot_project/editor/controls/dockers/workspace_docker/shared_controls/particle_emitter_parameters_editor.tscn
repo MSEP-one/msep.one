@@ -43,7 +43,8 @@ min_value_in_femtoseconds = 0.0
 min_value = 0.0
 value = 0.0
 
-[node name="Label8" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+[node name="MoleculesPerInstanceLabel" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -58,13 +59,13 @@ min_value = 1.0
 max_value = 50.0
 value = 1.0
 allow_greater = true
-suffix = "Molecules"
+suffix = "Molecules per emission"
 
 [node name="Label2" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
-text = " ・ Every"
+text = " ・ Emmit every"
 vertical_alignment = 1
 
 [node name="InstanceRateTimePicker" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("1_74ssd")]
@@ -127,7 +128,7 @@ theme_type_variation = &"StructureSelectorButton"
 toggle_mode = true
 button_pressed = true
 button_group = SubResource("ButtonGroup_6vwam")
-text = "Never"
+text = "End of Sim"
 
 [node name="StopCountButton" type="Button" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/HBoxContainer"]
 unique_name_in_owner = true

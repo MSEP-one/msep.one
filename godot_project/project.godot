@@ -91,6 +91,7 @@ use_lmdb_structure=false
 allow_scale_widgets=false
 allow_create_small_molecules_in_new_group=false
 particle_emitters=false
+particle_emitters_with_emmit_count=false
 
 [file_customization]
 
