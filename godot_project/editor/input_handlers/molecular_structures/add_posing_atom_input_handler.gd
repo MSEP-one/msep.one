@@ -172,6 +172,10 @@ func set_preview_position(_in_position: Vector3) -> void:
 func _update_candidates_if_needed() -> void:
 	if not _candidates_dirty or not _should_show():
 		return
+	_update_candidates()
+
+
+func _update_candidates() -> void:
 	_candidates.clear()
 	
 	var context: StructureContext = _workspace_context.get_current_structure_context()
@@ -486,7 +490,7 @@ func _on_representation_settings_changed() -> void:
 func _on_workspace_context_history_changed() -> void:
 	_atom_grid = null
 	_candidates_dirty = true
-	_update_candidates_if_needed()
+	_update_candidates()
 
 
 func _on_structure_contents_changed(structure_context: StructureContext) -> void:
