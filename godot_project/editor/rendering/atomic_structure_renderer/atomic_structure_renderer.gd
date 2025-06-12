@@ -28,6 +28,7 @@ var _is_label_representation_up_to_date: bool = true
 var _rendering_representation := Rendering.Representation.BALLS_AND_STICKS
 var _nano_structure_id: int = Workspace.INVALID_STRUCTURE_ID
 var _is_built: bool = false
+var _transparency: float = 0.0
 var _up_to_date_representations: Dictionary = {
 #	Rendering.Representation: true
 }
@@ -165,6 +166,7 @@ func change_representation(new_representation: Rendering.Representation) -> void
 	_current_representation.hide()
 	_rendering_representation = new_representation
 	_current_representation = _representation_to_node_map[new_representation]
+	_current_representation.set_transparency(_transparency)
 	var is_representation_up_to_date: bool = _up_to_date_representations.get(_rendering_representation, false)
 	if not is_representation_up_to_date and is_instance_valid(struct_context):
 		_current_representation.build(struct_context)
@@ -456,7 +458,9 @@ func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> vo
 
 
 func set_transparency(in_transparency: float) -> void:
+	_transparency = in_transparency
 	_current_representation.set_transparency(in_transparency)
+	_outdate_non_active_representations()
 
 
 func set_atom_selection_position_delta(in_selection_delta: Vector3) -> void:
