@@ -334,7 +334,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary, in_with_instances: bool
 		_instances_group = group_structure_context.nano_structure as AtomicStructure
 		_instances_group.apply_state_snapshot(in_state_snapshot["_instances_group_state"])
 		group_structure_context.get_collision_engine().rebuild(group_structure_context)
-		var workspace_cotext: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-		var rendering: Rendering = workspace_cotext.get_rendering()
+		var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+		var rendering: Rendering = workspace_context.get_rendering()
 		var renderer := rendering._get_renderer_for_atomic_structure(_instances_group)
 		renderer.apply_state_snapshot(in_state_snapshot["_instances_group_renderer_state"])
