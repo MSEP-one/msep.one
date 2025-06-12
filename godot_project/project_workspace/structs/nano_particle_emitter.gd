@@ -15,6 +15,7 @@ const INSTANCE_SAFETY_MARGIN = 0.05 # nanometers
 @export var _parameters: NanoParticleEmitterParameters
 var _frame_length_nanoseconds: float
 
+var _debug_show_unspawned_instances: bool = false
 var _instances_group: AtomicStructure
 var _instances_atom_ids: Array[PackedInt32Array]
 var _instances_bond_ids: Array[PackedInt32Array]
@@ -22,6 +23,17 @@ var _instance_offset_cache_radius: float = -1
 var _instance_offset_cache: Dictionary[int, Vector3]
 var _instance_offset_candidates: Array = []
 var _instance_offset_last_candidate: int = -1
+
+
+func _init() -> void:
+	_debug_show_unspawned_instances = FeatureFlagManager.get_flag_value(
+		FeatureFlagManager.FEATURE_FLAG_EMITTERS_SHOW_UNSPAWNED_INSTANES
+	)
+	var on_feature_flag_toggled: Callable = func(path: String, new_value: bool) -> void:
+		if path == FeatureFlagManager.FEATURE_FLAG_EMITTERS_SHOW_UNSPAWNED_INSTANES:
+			_debug_show_unspawned_instances = new_value
+	FeatureFlagManager.on_feature_flag_toggled.connect(on_feature_flag_toggled)
+
 
 
 func get_total_molecule_instance_count() -> int:
@@ -157,7 +169,7 @@ func seek_simulation(in_frame: float) -> void:
 			var frame: float = time / _frame_length_nanoseconds
 			spawned_before_seek = frame < in_frame or is_equal_approx(frame, in_frame)
 		var first_atom_id: int = _instances_atom_ids[instance_idx][0]
-		if spawned_before_seek:
+		if _debug_show_unspawned_instances or spawned_before_seek:
 			if not _instances_group.is_atom_valid(first_atom_id):
 				for atom_id in _instances_atom_ids[instance_idx]:
 					_instances_group.revalidate_atom(atom_id)

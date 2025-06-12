@@ -56,7 +56,7 @@ var calculated_aabb := AABB()
 var integrator: String = "verlet"
 var use_constrained_simulation_box: bool = false
 var constrained_simulation_box_size_percentage: float = 125.0
-
+var _extra_ocupied_space: Array[AABB]
 
 func _init(in_workspace: Workspace) -> void:
 	if in_workspace.simulation_settings_advanced_enabled:
@@ -297,6 +297,12 @@ func add_emitter(in_emitter: NanoParticleEmitter) -> void:
 	emitter_dict.parameters[&"total_instance_count"] = in_emitter.get_total_molecule_instance_count()
 	var instance_atoms_ids: Array[PackedInt32Array] = in_emitter.get_instance_atoms_ids()
 	var payload_atom_ids: Array[PackedInt32Array] = []
+	var atom_rest_position_buffer := PackedByteArray()
+	atom_rest_position_buffer.resize(
+		instance_atoms_ids[0].size()                     # numbers of atoms per instance
+		* in_emitter.get_total_molecule_instance_count() # number of instances
+		* POSITION_CHUNK_SIZE
+	)
 	# Before sending atoms ids to openmm server we need to remap them to the payload atom ids
 	for instance_atoms: PackedInt32Array in instance_atoms_ids:
 		var remaped_atoms: PackedInt32Array = []
@@ -305,9 +311,51 @@ func add_emitter(in_emitter: NanoParticleEmitter) -> void:
 			var openmm_particle_id: Variant = request_atom_id_to_structure_and_atom_id_map.find_key(msep_structure_and_atom_id)
 			remaped_atoms.push_back(int(openmm_particle_id))
 		payload_atom_ids.push_back(remaped_atoms)
+	# Calculate resting position for disabled instances
+	# First lets find the size of each individual molecule
+	const SAFE_MARGIN = 1.0
+	var molecule_size: Vector3 = in_emitter.get_parameters().get_molecule_template().get_aabb().grow(SAFE_MARGIN).size
+	var curr_pos := Vector3.ZERO
+	for space: AABB in _extra_ocupied_space:
+		curr_pos.y -= space.size.y
+	var this_space := AABB(curr_pos, molecule_size)
+	var template_atoms: PackedInt32Array = in_emitter.get_parameters().get_molecule_template().get_valid_atoms()
+	var template_atoms_positions: PackedVector3Array = Array(template_atoms).map(
+		in_emitter.get_parameters().get_molecule_template().atom_get_position
+	)
+	var biggest_pos: int = 0
+	for i in in_emitter.get_total_molecule_instance_count():
+		curr_pos = _advance_pos(curr_pos, molecule_size)
+		this_space = this_space.expand(curr_pos + molecule_size)
+		var center_of_space: Vector3 = AABB(curr_pos, molecule_size).get_center()
+		for atom_idx: int in template_atoms.size():
+			var atom_rest_pos: Vector3 = center_of_space + template_atoms_positions[atom_idx]
+			var buffer_pos: int = i * template_atoms.size() * POSITION_CHUNK_SIZE + atom_idx * POSITION_CHUNK_SIZE
+			atom_rest_position_buffer.encode_double(buffer_pos + FLOAT_SIZE * 0, atom_rest_pos.x)
+			atom_rest_position_buffer.encode_double(buffer_pos + FLOAT_SIZE * 1, atom_rest_pos.y)
+			atom_rest_position_buffer.encode_double(buffer_pos + FLOAT_SIZE * 2, atom_rest_pos.z)
+			biggest_pos = max(biggest_pos, buffer_pos + FLOAT_SIZE * 2)
+	_extra_ocupied_space.append(this_space)
 	emitter_dict[&"atoms_list"] = payload_atom_ids
+	emitter_dict[&"atom_rest_position_buffer"] = atom_rest_position_buffer
 	other_objects_data[in_emitter.int_guid] = JSON.stringify(emitter_dict, "\t")
 	_expand_aabb_to(position)
+
+
+func _advance_pos(in_curr_pos: Vector3, in_molecule_size: Vector3) -> Vector3:
+	# Advance in X direction
+	var space := AABB(in_curr_pos + in_molecule_size * Vector3(1, 0, 0), in_molecule_size)
+	if space.end.x > in_molecule_size.x * 10:
+		# reset X and advance Z
+		in_curr_pos.x = 0.0
+		space = AABB(in_curr_pos + in_molecule_size * Vector3(0, 0, 1), in_molecule_size)
+		if space.end.z > in_molecule_size.z * 10:
+			# reset X and Z and advance Y
+			in_curr_pos.x = 0.0; in_curr_pos.z = 0.0
+			space = AABB(in_curr_pos + in_molecule_size * Vector3(0, -1, 0), in_molecule_size)
+	if calculated_aabb.intersects(space):
+		return _advance_pos(space.position, in_molecule_size)
+	return space.position
 
 
 func add_springs(in_structure_context: StructureContext, in_springs: PackedInt32Array) -> void:

@@ -736,6 +736,7 @@ class MotorForce:
 
 class ParticleEmitter:
 	def __init__(self, emitter_data: dict) -> None:
+		import builtins
 		self.emitter_id: int = emitter_data["emitter_id"]
 		self.molecule_id: int = emitter_data["molecule_id"]
 		pos: list[float] = emitter_data["position"]
@@ -751,6 +752,7 @@ class ParticleEmitter:
 		self.spread_angle = emitter_data["parameters"]["_spread_angle"]
 		self.payload_instances_atoms_list: list[list[int]] = emitter_data["atoms_list"]
 		self.openmm_instances_atoms_list: list = []
+		self.atom_rest_position_buffer = builtins.bytes(json.loads(emitter_data["atom_rest_position_buffer"]))
 		self.atom_groups_per_instance = 1 # this is how many unnconected group of atoms are in the template, in example 2 molecules of water
 		self.instances: list[list[Molecule]] = []
 		self._molecule_forces_cache: dict[int,list] = {}
@@ -760,6 +762,7 @@ class ParticleEmitter:
 	def setup(self, simulation: Simulation, payload_to_openff_atom: dict):
 		# particles emiter should be one step ahead
 		self.time_accum += simulation.time_step_in_nanoseconds
+		rest_position_reader = PayloadChunkReader(self.atom_rest_position_buffer)
 		state = simulation.context.getState(getPositions=True, getVelocities=True)
 		forces = SystemForcesCollection(simulation.system)
 		positions = state.getPositions()
@@ -784,7 +787,7 @@ class ParticleEmitter:
 				simulation.system.setParticleMass(atom_id, ABSURDLY_LARGE_MASS)
 				position = positions[atom_id]
 				velocity = initial_velocities[atom_id]
-				positions._value[atom_id] = Vec3(0.0, 0.0, float(atom_id))
+				positions._value[atom_id] = Vec3(rest_position_reader.read_float(), rest_position_reader.read_float(), rest_position_reader.read_float())
 				initial_velocities._value[atom_id] = Vec3(0.0, 0.0, 0.0)
 				# Nonbonded Force
 				nonbonded_parameters = forces.nonbonded_force.getParticleParameters(atom_id)

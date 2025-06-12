@@ -92,6 +92,7 @@ allow_scale_widgets=false
 allow_create_small_molecules_in_new_group=false
 particle_emitters=true
 particle_emitters_with_emmit_count=false
+particle_emitters_show_unspawned_instanes=false
 
 [file_customization]
 
