@@ -750,19 +750,21 @@ class ParticleEmitter:
 		self.total_instance_count = emitter_data["parameters"]["total_instance_count"]
 		self.spread_angle = emitter_data["parameters"]["_spread_angle"]
 		self.payload_instances_atoms_list: list[list[int]] = emitter_data["atoms_list"]
-		self.openmm_instances_atoms_list: list[list[int]] = emitter_data["atoms_list"]
+		self.openmm_instances_atoms_list: list = []
 		self.atom_groups_per_instance = 1 # this is how many unnconected group of atoms are in the template, in example 2 molecules of water
 		self.instances: list[list[Molecule]] = []
 		self._molecule_forces_cache: dict[int,list] = {}
 		self.time_accum: float = 0.0
 		self.last_instanced_molecule_index: int = -1
 	
-	def setup(self, simulation: Simulation, out_nonbonded_force: NonbondedForce, payload_to_openff_atom: dict):
+	def setup(self, simulation: Simulation, payload_to_openff_atom: dict):
 		# particles emiter should be one step ahead
 		self.time_accum += simulation.time_step_in_nanoseconds
 		state = simulation.context.getState(getPositions=True, getVelocities=True)
+		forces = SystemForcesCollection(simulation.system)
 		positions = state.getPositions()
 		initial_velocities = state.getVelocities()
+		bonds_per_atom, angles_per_atom, torsions_per_atom = self._collect_forces_per_atom(simulation)
 		for i in range(len(initial_velocities)):
 			# velocities can be initialized to nan for some reason
 			if math.isnan(initial_velocities[i].x) or math.isnan(initial_velocities[i].y) or math.isnan(initial_velocities[i].z):
@@ -770,48 +772,109 @@ class ParticleEmitter:
 		for i in range(len(self.payload_instances_atoms_list)):
 			instance_atoms = self.payload_instances_atoms_list[i]
 			instance_openmm_atoms: list[int] = []
+			instance_openmm_bonds: list[int] = []
+			instance_openmm_angles: list[int] = []
+			instance_openmm_torsions: list[int] = []
 			for payload_atom_id in instance_atoms:
 				atom_id: int = payload_to_openff_atom[payload_atom_id]
 				instance_openmm_atoms.append(atom_id)
+				# Mass, position, andvelocity
 				mass = simulation.system.getParticleMass(atom_id)
-				simulation.system.setParticleMass(atom_id, 0)
-				parameters = out_nonbonded_force.getParticleParameters(atom_id)
+				ABSURDLY_LARGE_MASS = 9999999999
+				simulation.system.setParticleMass(atom_id, ABSURDLY_LARGE_MASS)
 				position = positions[atom_id]
 				velocity = initial_velocities[atom_id]
-				self._molecule_forces_cache[atom_id] = [mass, parameters, position, velocity]
-				out_nonbonded_force.setParticleParameters(atom_id, 0.0, 0.0, 0.0)
-				# Override initial positions, this should prevent force calculations to fail until atoms are enabled
 				positions._value[atom_id] = Vec3(0.0, 0.0, float(atom_id))
 				initial_velocities._value[atom_id] = Vec3(0.0, 0.0, 0.0)
-			self.openmm_instances_atoms_list.append(instance_openmm_atoms)
+				# Nonbonded Force
+				nonbonded_parameters = forces.nonbonded_force.getParticleParameters(atom_id)
+				forces.nonbonded_force.setParticleParameters(atom_id, 0.0, 0.0, 0.0)
+				# Bond Force
+				for bond_id in bonds_per_atom[atom_id]:
+					instance_openmm_bonds.append(bond_id)
+					bond_parameters = forces.bond_force.getBondParameters(bond_id)
+					DISABLED_K = 0.0
+					forces.bond_force.setBondParameters(bond_id, bond_parameters[0], bond_parameters[1], bond_parameters[2], DISABLED_K)
+					self._molecule_forces_cache[("bond", bond_id)] = bond_parameters
+				# Angle Force
+				for angle_id in angles_per_atom[atom_id]:
+					instance_openmm_angles.append(angle_id)
+					angle_parameters = forces.angle_force.getAngleParameters(angle_id)
+					DISABLED_K = 0.0
+					forces.angle_force.setAngleParameters(angle_id, angle_parameters[0], angle_parameters[1], angle_parameters[2], angle_parameters[3], DISABLED_K)
+					self._molecule_forces_cache[("angle", angle_id)] = angle_parameters
+				# Torsion Force
+				for torsion_id in torsions_per_atom[atom_id]:
+					instance_openmm_torsions.append(torsion_id)
+					torsion_parameters = forces.torsion_force.getTorsionParameters(torsion_id)
+					DISABLED_K = 0.0
+					forces.torsion_force.setTorsionParameters(torsion_id, torsion_parameters[0], torsion_parameters[1], torsion_parameters[2],
+											torsion_parameters[3], torsion_parameters[4], torsion_parameters[5], DISABLED_K)
+					self._molecule_forces_cache[("torsion", torsion_id)] = torsion_parameters
+				self._molecule_forces_cache[atom_id] = [mass, nonbonded_parameters, position, velocity]
+			self.openmm_instances_atoms_list.append((instance_openmm_atoms, instance_openmm_bonds, instance_openmm_angles, instance_openmm_torsions))
+		# Thermostat Force is global, cannot be disabled per particle
+		# the following lines would disable it globally instead
+		#if forces.thermostat_force is not None:
+		#	forces.thermostat_force.setDefaultTemperature(0)
+		#	forces.thermostat_force.setDefaultCollisionFrequency(1 / nanosecond)
 		simulation.context.setPositions(positions)
 		simulation.context.setVelocities(initial_velocities)
 
-	def advance(self, simulation: Simulation, out_nonbonded_force):
+	def _collect_forces_per_atom(self, simulation: Simulation):
+		forces = SystemForcesCollection(simulation.system)
+		bonds_per_atom: dict[int,list[int]] = {}
+		angles_per_atom: dict[int,list[int]] = {}
+		torsions_per_atom: dict[int,list[int]] = {}
+		for a in range(simulation.system.getNumParticles()):
+			bonds_per_atom[a] = []
+			angles_per_atom[a] = []
+			torsions_per_atom[a] = []
+		for bond_id in range(forces.bond_force.getNumBonds()):
+			atom1, _, _, _ = forces.bond_force.getBondParameters(bond_id)
+			bonds_per_atom[atom1].append(bond_id)
+		for angle_id in range(forces.angle_force.getNumAngles()):
+			atom1, _, _, _, _ = forces.angle_force.getAngleParameters(angle_id)
+			angles_per_atom[atom1].append(angle_id)
+		for torsion_id in range(forces.torsion_force.getNumTorsions()):
+			atom1, _, _, _, _, _, _ = forces.torsion_force.getTorsionParameters(torsion_id)
+			torsions_per_atom[atom1].append(torsion_id)
+		return (bonds_per_atom, angles_per_atom, torsions_per_atom)
+
+	def advance(self, simulation: Simulation):
 		self.time_accum += simulation.time_step_in_nanoseconds
 		for i in range(self.last_instanced_molecule_index + 1, self.total_instance_count):
 			spawn_time = self.initial_delay_in_nanoseconds + int(i / self.molecules_per_instance) * self.instance_rate_time_in_nanoseconds
 			if spawn_time > self.time_accum:
 				# not spawned yet
 				return
-			self.enable_instance(i, simulation, out_nonbonded_force)
+			self.enable_instance(i, simulation)
 
-	def enable_instance(self, instance_index: int, simulation: Simulation, out_nonbonded_force: NonbondedForce):
+	def enable_instance(self, instance_index: int, simulation: Simulation):
+		forces = SystemForcesCollection(simulation.system)
 		state = simulation.context.getState(getVelocities=True, getPositions=True)
 		velocities = state.getVelocities()
 		current_positions = state.getPositions()
 		new_velocities = velocities.copy()
 		initial_velocity = self._get_random_dir_in_spread() * self.instance_speed_nanometers_per_picosecond
-		for atom_id in self.openmm_instances_atoms_list[instance_index]:
-			mass = self._molecule_forces_cache[atom_id][0]
-			parameters = self._molecule_forces_cache[atom_id][1]
-			position = self._molecule_forces_cache[atom_id][2]
-			original_velocity = self._molecule_forces_cache[atom_id][3]
+		packed_instance = self.openmm_instances_atoms_list[instance_index]
+		instance_openmm_atoms, instance_openmm_bonds, instance_openmm_angles, instance_openmm_torsions = packed_instance
+		for atom_id in instance_openmm_atoms:
+			mass, parameters, position, original_velocity = self._molecule_forces_cache[atom_id]
 			simulation.system.setParticleMass(atom_id, mass)
-			out_nonbonded_force.setParticleParameters(atom_id, parameters[0], parameters[1], parameters[2])
+			forces.nonbonded_force.setParticleParameters(atom_id, parameters[0], parameters[1], parameters[2])
 			current_positions[atom_id] = position
 			TEMPERATURE_CONSERVATION_FACTOR = 0.5
 			new_velocities[atom_id] = (original_velocity * TEMPERATURE_CONSERVATION_FACTOR) + initial_velocity * velocities[atom_id].unit
+		for bond_id in instance_openmm_bonds:
+			atom1, atom2, length, k = self._molecule_forces_cache[("bond", bond_id)]
+			forces.bond_force.setBondParameters(bond_id, atom1, atom2, length, k)
+		for angle_id in instance_openmm_angles:
+			atom1, atom2, atom3, angle, k = self._molecule_forces_cache[("angle", angle_id)]
+			forces.angle_force.setAngleParameters(angle_id, atom1, atom2, atom3, angle, k)
+		for torsion_id in instance_openmm_torsions:
+			atom1, atom2, atom3, atom4, periodicity, phase, k = self._molecule_forces_cache[("torsion", torsion_id)]
+			forces.torsion_force.setTorsionParameters(torsion_id, atom1, atom2, atom3, atom4, periodicity, phase, k)
 		self.last_instanced_molecule_index = max(self.last_instanced_molecule_index, instance_index)
 		simulation.context.setVelocities(new_velocities)
 		simulation.context.setPositions(current_positions)
@@ -955,6 +1018,28 @@ class ImportFileResponse():
 		self.bonds = bonds
 
 
+class SystemForcesCollection():
+	def __init__(self, system: System):
+		self.nonbonded_force: NonbondedForce = None
+		self.bond_force: HarmonicBondForce = None
+		self.angle_force: HarmonicAngleForce = None
+		self.torsion_force: PeriodicTorsionForce = None
+		self.thermostat_force: AndersenThermostat = None
+		for force in system.getForces():
+			if isinstance(force, HarmonicBondForce):
+				self.bond_force = force
+			elif isinstance(force, NonbondedForce):
+				self.nonbonded_force = force
+			elif isinstance(force, HarmonicAngleForce):
+				self.angle_force = force
+			elif isinstance(force, PeriodicTorsionForce):
+				self.torsion_force = force
+			elif isinstance(force, AndersenThermostat):
+				self.thermostat_force = force
+			else:
+				print(f"Untracked force: {force.getName()}")
+
+
 def create_forcefield_for_topology(topology_payload: PayloadTopologyReader, remove_constraints=False) -> ForceField:
 	openff_forcefield_path = os.path.join(os.path.dirname(__file__ ), "offxml", topology_payload.forcefields[0])
 	forcefield = ForceField(openff_forcefield_path)
@@ -1082,51 +1167,46 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 				Vec3(0, header.periodic_box_size[1], 0),
 				Vec3(0, 0, header.periodic_box_size[2]))
 		# Anchors
-		bond_force: HarmonicBondForce = None
-		nonbonded_force: NonbondedForce = None
-		for force in openmm_system.getForces():
-			if isinstance(force, HarmonicBondForce):
-				bond_force = force
-			if isinstance(force, NonbondedForce):
-				nonbonded_force = force
-		if bond_force == None:
+		forces = SystemForcesCollection(openmm_system)
+		if forces.bond_force == None:
 			bond_force = HarmonicBondForce()
 			openmm_system.addForce(bond_force)
+			forces.bond_force = bond_force
 		# Springs
 		for anchor_id in topology_payload.anchors:
 			anchor: AnchorPoint = topology_payload.anchors[anchor_id]
 			if len(anchor.springs) == 0:
 				continue
 			anchor.openmm_particle_id = openmm_system.addParticle(0.0)
-			if nonbonded_force != None:
-				nonbonded_force.addParticle(0.0, 1.0, 0.0)
+			if forces.nonbonded_force != None:
+				forces.nonbonded_force.addParticle(0.0, 1.0, 0.0)
 			pos = anchor.position
 			openff_initial_positions.append(Vec3(pos[0], pos[1], pos[2]))
 			for spring in anchor.springs:
 				k_constant: float = spring.k_constant
 				equilibrium_length: float = spring.equilibrium_length
-				if nonbonded_force != None:
-					nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
+				if forces.nonbonded_force != None:
+					forces.nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
 				# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
-				bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
+				forces.bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
 		# Locked atoms
 		for i, atom in enumerate(topology_payload.atoms):
 			if atom.is_locked:
 				openff_atom_id = topology_payload.payload_to_openff_atom[i]
 				lock_particle_id = openmm_system.addParticle(0.0)
-				if nonbonded_force != None:
-					nonbonded_force.addParticle(0.0, 1.0, 0.0)
+				if forces.nonbonded_force != None:
+					forces.nonbonded_force.addParticle(0.0, 1.0, 0.0)
 				pos = state_payload.positions[i]
 				openff_initial_positions.append(pos)
 				k_constant: float = 500000.0
 				equilibrium_length: float = 0.0
-				if nonbonded_force != None:
-					nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)
+				if forces.nonbonded_force != None:
+					forces.nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)
 				# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
 				bond_force.addBond(lock_particle_id, openff_atom_id, equilibrium_length, k_constant)
 			if atom.is_passivation_atom:
 				openff_atom_id = topology_payload.payload_to_openff_atom[i]
-				nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
+				forces.nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
 
 		if stop_exists and stop_trigger.is_set():
 			if running_simulations.pop(simulation.simulation_id, None) != None:
@@ -1191,11 +1271,11 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 
 		for emitter in topology_payload.emitters:
 			# Initialize ParticleEmitter molecules
-			emitter.setup(simulation, nonbonded_force, topology_payload.payload_to_openff_atom)
+			emitter.setup(simulation, topology_payload.payload_to_openff_atom)
 			if emitter.initial_delay_in_nanoseconds == 0:
 				# Adjust initial velocity of any particle emitted in the frame 0
 				for i in range(emitter.molecules_per_instance):
-					emitter.enable_instance(i, simulation, nonbonded_force)
+					emitter.enable_instance(i, simulation)
 
 		# Configure publish reporter
 		socket_publish_reporter = ZmqPublishReporter(simulation_id, socket, socket_lock, trj_freq)
@@ -1275,10 +1355,6 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 def thread_simulate(simulation: Simulation, num_steps, motors_forces, emitters, time_step_in_nanoseconds):
 	stop_trigger: threading.Event = running_simulations.get(simulation.simulation_id, None)
 	stop_exists: bool = stop_trigger != None
-	nonbonded_force: NonbondedForce = None
-	for force in simulation.system.getForces():
-		if isinstance(force, NonbondedForce):
-			nonbonded_force = force
 	for step in range(num_steps):
 		try:
 			if stop_exists and stop_trigger.is_set():
@@ -1286,7 +1362,7 @@ def thread_simulate(simulation: Simulation, num_steps, motors_forces, emitters, 
 					logging.info(f"Aborted simulation on thread while running step #{step}")
 				return
 			for emitter in emitters:
-				emitter.advance(simulation, nonbonded_force)
+				emitter.advance(simulation)
 			for motor in motors_forces:
 				motor.advance(simulation)
 				
