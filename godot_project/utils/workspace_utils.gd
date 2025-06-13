@@ -145,6 +145,10 @@ static func has_invalid_tetrahedral_structure(in_workspace_context: WorkspaceCon
 	return _has_bad_tetrahedral_angle(in_workspace_context, in_selection_only)
 
 
+static func has_emitters_affected_by_motors(in_workspace_context: WorkspaceContext) -> bool:
+	return _has_emitters_affected_by_motors(in_workspace_context)
+
+
 static func structure_context_has_drastically_invalid_tetrahedral_structure(in_structure_context: StructureContext, in_atoms: PackedInt32Array) -> bool:
 	if not in_structure_context.nano_structure is AtomicStructure:
 		return false
@@ -164,6 +168,21 @@ static func _has_bad_tetrahedral_angle(in_workspace_context: WorkspaceContext, i
 		else:
 			atom_ids = structure.get_valid_atoms()
 		if _structure_context_has_drastically_invalid_tetrahedral_structure(structure_ctx, atom_ids):
+			return true
+	return false
+
+
+static func _has_emitters_affected_by_motors(in_workspace_context: WorkspaceContext) -> bool:
+	var motors: Array[NanoVirtualMotor] = in_workspace_context.get_motors()
+	var emitters: Array[NanoParticleEmitter] = in_workspace_context.get_particle_emitters()
+	if motors.is_empty() or emitters.is_empty():
+		return false
+	var affected_groups: Dictionary[int, bool] = {}
+	for motor: NanoVirtualMotor in motors:
+		for group_id: int in motor.get_connected_structures():
+			affected_groups[group_id] = true
+	for emitter: NanoParticleEmitter in emitters:
+		if emitter.int_parent_guid in affected_groups.keys():
 			return true
 	return false
 

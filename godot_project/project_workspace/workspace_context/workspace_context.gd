@@ -60,6 +60,7 @@ var ignored_warnings: Dictionary = {
 	invalid_relaxed_tetrahedral_structure = false,
 	abort_simulation = false,
 	end_simulation = false,
+	emitters_affected_by_motors = false,
 }
 
 var visible_object_tree: bool = false:
@@ -1205,6 +1206,15 @@ func has_valid_particle_emitters() -> bool:
 			if atoms_count > 0:
 				return true
 	return false
+
+
+func get_motors() -> Array[NanoVirtualMotor]:
+	var motors: Array[NanoVirtualMotor] = []
+	for context: StructureContext in _structure_contexts.values():
+		if context.nano_structure is NanoVirtualMotor:
+			motors.push_back(context.nano_structure)
+	return motors
+
 
 func get_particle_emitters() -> Array[NanoParticleEmitter]:
 	var emitters: Array[NanoParticleEmitter] = []
