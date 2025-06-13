@@ -433,6 +433,17 @@ func _on_button_start_pause_pressed() -> void:
 	assert(is_instance_valid(_workspace_context), "Invalid workspace context")
 	match _status:
 		Status.INACTIVE:
+			if _workspace_context.ignored_warnings.emitters_affected_by_motors == false:
+				var emitters_affected: bool = WorkspaceUtils.has_emitters_affected_by_motors(_workspace_context)
+				if emitters_affected:
+					var warning_promise: Promise = _workspace_context.show_warning_dialog(
+							tr("One or more particle emitters will be affected by motors,\n" +
+							"overriding their initial velocity and potentially affecting the " +
+							"stability of the System."), tr("Continue"), tr("Cancel") , &"emitters_affected_by_motors", true)
+					await warning_promise.wait_for_fulfill()
+					if warning_promise.get_result() == false:
+						# "Cancel" button selected
+						return
 			assert(!_workspace_context.is_simulating(), "A simulation is already running")
 			
 			_workspace_context.clear_alerts()
