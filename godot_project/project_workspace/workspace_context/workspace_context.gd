@@ -21,6 +21,7 @@ signal atoms_relaxation_started()
 signal atoms_relaxation_finished(error_description_or_empty: String)
 signal simulation_started()
 signal simulation_finished()
+signal about_to_apply_simulation()
 
 signal async_work_started()
 signal async_work_finished()
@@ -1331,6 +1332,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 	
 	# Apply simulation if the operation modified the structure of the project
 	if is_simulating() and not History.is_operation_whitelisted_during_simulation(in_operation_name):
+		about_to_apply_simulation.emit()
 		# We need to split the next snapshot in two separate steps:
 		# + Applying the simulation
 		# + Applying the user operation
