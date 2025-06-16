@@ -170,6 +170,7 @@ func _on_workspace_main_view_ready() -> void:
 	var viewport_container: SubViewportContainer = get_editor_viewport_container()
 	viewport_container.workspace_context = self
 	get_rendering().initialize(self)
+	PeriodicTable.load_schema(workspace.representation_settings.get_color_schema())
 	_weak_workspace.get_ref().structure_added.connect(_on_weak_workspace_structure_added)
 	_weak_workspace.get_ref().structure_about_to_remove.connect(_on_weak_workspace_structure_about_to_remove)
 	_weak_workspace.get_ref().structure_removed.connect(_on_weak_workspace_structure_removed)
