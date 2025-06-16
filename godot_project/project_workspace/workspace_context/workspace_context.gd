@@ -1348,8 +1348,6 @@ func snapshot_moment(in_operation_name: String) -> void:
 		# + Applying the user operation
 		# If we don't, hitting undo will revert the user action and the simulation at the same time.
 		
-		end_simulation_if_running()
-		
 		# Store the final snapshot containing both the applied state and the last action
 		var final_snapshot: Dictionary = _history.create_snapshot(in_operation_name)
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
@@ -1376,6 +1374,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 		# This will drop the user operation (final_snapshot) from history. 
 		seek_simulation(current_simulation_time)
 		apply_simulation_if_running()
+		end_simulation_if_running()
 		
 		# Add the user operation back to the history stack
 		_history.push_and_apply_snapshot(final_snapshot, in_operation_name)
