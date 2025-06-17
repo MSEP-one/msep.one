@@ -4,7 +4,8 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_toon,specular_disabled
 #include "res://editor/rendering/atomic_structure_renderer/representation/outlines.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/selectable.gdshaderinc"
 
-uniform vec4 albedo : source_color;
+uniform vec4 albedo : source_color = vec4(1.0);
+uniform sampler2D albedo_texture: hint_default_white, filter_linear_mipmap_anisotropic;
 uniform float roughness : hint_range(0,1);
 uniform float specular;
 uniform float metallic;
@@ -45,7 +46,8 @@ void vertex() {
 
 void fragment() {
 	// Selectable dimming
-	vec3 dimmed_albedo = apply_selectable_dimming(albedo).rgb;
+	vec4 texture_color = texture(albedo_texture, UV) * color;
+	vec3 dimmed_albedo = apply_selectable_dimming(texture_color).rgb;
 	// An internal error fails to parse this code, so instead i copypasted the code to workaround the issue
 	// ALBEDO = calculate_outline_color(dimmed_albedo, fake_color);
 	float strength = color.a + is_instance_hovered;
