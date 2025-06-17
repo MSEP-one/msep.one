@@ -53,6 +53,9 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 	elif nano_structure is NanoVirtualMotor and structure_context.is_motor_selected():
 		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
 		info["Rotation (degrees)"] = {"": _create_virtual_object_rotation_property(in_info_type, structure_context)}
+	elif nano_structure is NanoParticleEmitter and structure_context.is_particle_emitter_selected():
+		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
+		info["Rotation (degrees)"] = {"": _create_virtual_object_rotation_property(in_info_type, structure_context)}
 	elif nano_structure is NanoVirtualAnchor and structure_context.is_anchor_selected():
 		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
 	# Atom Info by atom type
@@ -303,6 +306,7 @@ class SetVirtualObjectPositionHelper:
 	enum Type {
 		SHAPE,
 		MOTOR,
+		EMITTER,
 		ANCHOR,
 	}
 	
@@ -318,6 +322,9 @@ class SetVirtualObjectPositionHelper:
 		elif out_structure_context.nano_structure is NanoVirtualMotor:
 			_type = Type.MOTOR
 			changed_signal = out_structure_context.nano_structure.transform_changed
+		elif out_structure_context.nano_structure is NanoParticleEmitter:
+			_type = Type.EMITTER
+			changed_signal = out_structure_context.nano_structure.transform_changed
 		elif out_structure_context.nano_structure is NanoVirtualAnchor:
 			_type = Type.ANCHOR
 			changed_signal = out_structure_context.nano_structure.position_changed
@@ -328,9 +335,8 @@ class SetVirtualObjectPositionHelper:
 	
 	func get_position() -> Vector3:
 		match _type:
-			Type.MOTOR:
-				var motor: NanoVirtualMotor = _structure_context.nano_structure as NanoVirtualMotor
-				return motor.get_transform().origin
+			Type.MOTOR, Type.EMITTER:
+				return _structure_context.nano_structure.get_transform().origin
 			Type.ANCHOR, Type.SHAPE:
 				return _structure_context.nano_structure.get_position()
 			_:
@@ -341,11 +347,10 @@ class SetVirtualObjectPositionHelper:
 			Type.SHAPE:
 				var shape: NanoShape = _structure_context.nano_structure as NanoShape
 				shape.set_position(in_new_position)
-			Type.MOTOR:
-				var motor: NanoVirtualMotor = _structure_context.nano_structure as NanoVirtualMotor
-				var transform: Transform3D = motor.get_transform()
+			Type.MOTOR, Type.EMITTER:
+				var transform: Transform3D = _structure_context.nano_structure.get_transform()
 				transform.origin = in_new_position
-				motor.set_transform(transform)
+				_structure_context.nano_structure.set_transform(transform)
 			Type.ANCHOR:
 				var anchor: NanoVirtualAnchor = _structure_context.nano_structure as NanoVirtualAnchor
 				anchor.set_position(in_new_position)
@@ -354,6 +359,7 @@ class SetVirtualObjectPositionHelper:
 		const MESSAGE_PER_TYPE: Dictionary = {
 			Type.SHAPE: "Set Shape Position",
 			Type.MOTOR: "Set Motor Position",
+			Type.EMITTER: "Set Particle Emitter Position",
 			Type.ANCHOR: "Set Anchor Position",
 		}
 		var snapshot_name: String = MESSAGE_PER_TYPE[_type]
@@ -364,6 +370,7 @@ class SetVirtualObjectRotationHelper:
 	enum Type {
 		SHAPE,
 		MOTOR,
+		EMITTER,
 	}
 	
 	var changed_signal: Signal
@@ -376,6 +383,8 @@ class SetVirtualObjectRotationHelper:
 			_type = Type.SHAPE
 		elif out_structure_context.nano_structure is NanoVirtualMotor:
 			_type = Type.MOTOR
+		elif out_structure_context.nano_structure is NanoParticleEmitter:
+			_type = Type.EMITTER
 		else:
 			assert(false, "Unknown type of Virtual Object")
 		changed_signal = out_structure_context.nano_structure.transform_changed
@@ -397,6 +406,11 @@ class SetVirtualObjectRotationHelper:
 			var roll: float = atan2(basis.y.x, basis.x.x)
 			
 			euler = Vector3(yaw, pitch, roll)
+		if _type == Type.EMITTER:
+			# Particle Emitters faces UP instead of FORWARD
+			# because of this we need to revert the "default rotation"
+			basis = NanoParticleEmitter.DEFAULT_TRANSFORM.basis.inverse() * basis
+			euler = basis.get_euler()
 		return Vector3(rad_to_deg(euler.x), rad_to_deg(euler.y), rad_to_deg(euler.z))
 	
 	
@@ -417,6 +431,10 @@ class SetVirtualObjectRotationHelper:
 
 			# Combine rotations: yaw -> pitch -> roll
 			quaternion = pitch_quat * yaw_quat * roll_quat
+		if _type == Type.EMITTER:
+			# Particle Emitters faces UP instead of FORWARD
+			# quaternion is the normal one, but is has a "rotation offset"
+			quaternion = Quaternion(NanoParticleEmitter.DEFAULT_TRANSFORM.basis) * quaternion
 		var transform: Transform3D = _structure_context.nano_structure.get_transform()
 		transform.basis = Basis(quaternion)
 		_structure_context.nano_structure.set_transform(transform)
@@ -426,6 +444,7 @@ class SetVirtualObjectRotationHelper:
 		const MESSAGE_PER_TYPE: Dictionary = {
 			Type.SHAPE: "Set Shape Rotation",
 			Type.MOTOR: "Set Motor Rotation",
+			Type.EMITTER: "Set Particle Emitter Rotation"
 		}
 		var snapshot_name: String = MESSAGE_PER_TYPE[_type]
 		_structure_context.workspace_context.snapshot_moment(snapshot_name)

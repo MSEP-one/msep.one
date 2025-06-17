@@ -59,6 +59,7 @@ func _update_selected_info() -> void:
 	var total_springs_selected: int = 0
 	var total_shapes_selected: int = 0
 	var total_motors_selected: int = 0
+	var total_emitters_selected: int = 0
 	var total_anchors_selected: int = 0
 	var selected_structures: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
 	# 1. First pass only for counting
@@ -71,11 +72,17 @@ func _update_selected_info() -> void:
 			total_shapes_selected += 1
 		elif context.nano_structure is NanoVirtualMotor:
 			total_motors_selected += 1
+		elif context.nano_structure is NanoParticleEmitter:
+			total_emitters_selected += 1
 		elif context.nano_structure is NanoVirtualAnchor:
 			total_anchors_selected += 1
+		else:
+			assert(false, "Untracked nano structure type: %s" % context.nano_structure.get_type())
+			pass
 	# 1.1 Render total counts
 	if total_atoms_selected + total_bonds_selected + total_springs_selected + \
-			total_shapes_selected + total_motors_selected + total_anchors_selected > 0:
+			total_shapes_selected + total_motors_selected + total_emitters_selected + \
+			total_anchors_selected > 0:
 		var item_summary: TreeItem = _tree_info.create_item(root)
 		item_summary.set_text(0, tr(&"Summary"))
 		if total_atoms_selected > 0:
@@ -98,6 +105,10 @@ func _update_selected_info() -> void:
 			var item: TreeItem = _tree_info.create_item(item_summary)
 			item.set_text(0, tr(&"Total Motors count"))
 			item.set_text(1, str(total_motors_selected))
+		if total_emitters_selected > 0:
+			var item: TreeItem = _tree_info.create_item(item_summary)
+			item.set_text(0, tr(&"Total Particle Emitters count"))
+			item.set_text(1, str(total_emitters_selected))
 		if total_anchors_selected > 0:
 			var item: TreeItem = _tree_info.create_item(item_summary)
 			item.set_text(0, tr(&"Total Anchors count"))
