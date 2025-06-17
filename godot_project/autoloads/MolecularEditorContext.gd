@@ -92,25 +92,26 @@ func find_workspace_possessing_structure(in_structure_to_find: NanoStructure) ->
 
 ## Soft loading a workspace will load it from disk but will not immediately activate it
 func soft_load_workspace(in_path: String) -> Workspace:
-	var workspace: Workspace = load(in_path) as Workspace
+	# Ignore the cache when trying to load the workspace to avoid issues with "Save as"
+	# If the workspace at `in_path` is already open, calling load again will
+	# clear its `resource_path`. This needs to be restored after loading. 
+	var open_workspace: Workspace = _find_workspace_with_resource_path(in_path)
+	var workspace: Workspace = ResourceLoader.load(in_path, "", ResourceLoader.CACHE_MODE_IGNORE)
 	if !is_instance_valid(workspace):
+		if is_instance_valid(open_workspace):
+			open_workspace.take_over_path(in_path)
 		return null
-	if _open_workspaces.find(workspace) == -1:
-		apply_workspace_version_fixes(workspace)
-		_open_workspaces.push_back(workspace)
-		workspace_loaded.emit(workspace)
-		return workspace
+	if is_instance_valid(open_workspace):
+		# File is already open in another tab, suggest a new path to prevent
+		# overriding the original.
+		workspace.resource_path = ""
+		workspace.suggested_path = _get_suggested_path(in_path)
+		open_workspace.take_over_path(in_path)
 	
-	var workspace_copy: Workspace = ResourceLoader.load(in_path, "", ResourceLoader.CACHE_MODE_IGNORE)
-	# ResourceLoader.CACHE_MODE_IGNORE ignores cache, but also removes from the cache the object that was
-	# asociated to in_path. This workaround should reasociate the original workspace to the path
-	workspace.take_over_path(in_path)
-	workspace_copy.resource_path = ""
-	workspace_copy.suggested_path = _get_suggested_path(in_path)
-	apply_workspace_version_fixes(workspace_copy)
-	_open_workspaces.push_back(workspace_copy)
-	workspace_loaded.emit(workspace_copy)
-	return workspace_copy
+	apply_workspace_version_fixes(workspace)
+	_open_workspaces.push_back(workspace)
+	workspace_loaded.emit(workspace)
+	return workspace
 
 
 ## During development, the format or data of workspaces can change, and this invalidates old files
