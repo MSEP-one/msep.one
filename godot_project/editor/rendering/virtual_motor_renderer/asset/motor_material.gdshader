@@ -46,7 +46,7 @@ void vertex() {
 
 void fragment() {
 	// Selectable dimming
-	vec4 texture_color = texture(albedo_texture, UV) * color;
+	vec4 texture_color = texture(albedo_texture, UV) * albedo;
 	vec3 dimmed_albedo = apply_selectable_dimming(texture_color).rgb;
 	// An internal error fails to parse this code, so instead i copypasted the code to workaround the issue
 	// ALBEDO = calculate_outline_color(dimmed_albedo, fake_color);
