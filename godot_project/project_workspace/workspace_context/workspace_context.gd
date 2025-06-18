@@ -1344,6 +1344,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 	# Apply simulation if the operation modified the structure of the project
 	if is_simulating() and not History.is_operation_whitelisted_during_simulation(in_operation_name):
 		about_to_apply_simulation.emit()
+		UIBlocker.start_blocking_input_events(self)
 		# We need to split the next snapshot in two separate steps:
 		# + Applying the simulation
 		# + Applying the user operation
@@ -1379,6 +1380,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 		
 		# Add the user operation back to the history stack
 		_history.push_and_apply_snapshot(final_snapshot, in_operation_name)
+		UIBlocker.stop_blocking_input_events(self)
 		return
 	
 	if not is_simulating():
