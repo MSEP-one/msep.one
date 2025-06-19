@@ -1083,46 +1083,40 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 			Vec3(0, header.periodic_box_size[1], 0),
 			Vec3(0, 0, header.periodic_box_size[2]))
 	# Anchors
-	bond_force: HarmonicBondForce = None
-	nonbonded_force: NonbondedForce = None
-	for force in openmm_system.getForces():
-		if isinstance(force, HarmonicBondForce):
-			bond_force = force
-		if isinstance(force, NonbondedForce):
-			nonbonded_force = force
+	forces = SystemForcesCollection(openmm_system)
 	for anchor_id in topology_payload.anchors:
 		anchor: AnchorPoint = topology_payload.anchors[anchor_id]
 		if len(anchor.springs) == 0:
 			continue
 		anchor.openmm_particle_id = openmm_system.addParticle(0.0)
-		if nonbonded_force != None:
-			nonbonded_force.addParticle(0.0, 1.0, 0.0)
+		if forces.nonbonded_force != None:
+			forces.nonbonded_force.addParticle(0.0, 1.0, 0.0)
 		pos = anchor.position
 		openff_initial_positions.append(Vec3(pos[0], pos[1], pos[2]))
 		for spring in anchor.springs:
 			k_constant: float = spring.k_constant
 			equilibrium_length: float = spring.equilibrium_length
-			if nonbonded_force != None:
-				nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
+			if forces.nonbonded_force != None:
+				forces.nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
 			# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
-			bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
+			forces.bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
 	for i, atom in enumerate(topology_payload.atoms):
 		if atom.is_locked:
 			openff_atom_id = topology_payload.payload_to_openff_atom[i]
 			lock_particle_id = openmm_system.addParticle(0.0)
-			if nonbonded_force != None:
-				nonbonded_force.addParticle(0.0, 1.0, 0.0)
+			if forces.nonbonded_force != None:
+				forces.nonbonded_force.addParticle(0.0, 1.0, 0.0)
 			pos = state_payload.positions[i]
 			openff_initial_positions.append(pos)
 			k_constant: float = 500000.0
 			equilibrium_length: float = 0.0
-			if nonbonded_force != None:
-				nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)
+			if forces.nonbonded_force != None:
+				forces.nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)
 			# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
-			bond_force.addBond(lock_particle_id, openff_atom_id, equilibrium_length, k_constant)
+			forces.bond_force.addBond(lock_particle_id, openff_atom_id, equilibrium_length, k_constant)
 		if atom.is_passivation_atom:
 			openff_atom_id = topology_payload.payload_to_openff_atom[i]
-			nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
+			forces.nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
 	integrator: Integrator = None
 	if (not header is None) and header.integrator == "langevin":
 		integrator = LangevinMiddleIntegrator(temperature_in_kelvins*kelvin, 1/picosecond, 0.004*picoseconds)
@@ -1182,9 +1176,8 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 		# Anchors
 		forces = SystemForcesCollection(openmm_system)
 		if forces.bond_force == None:
-			bond_force = HarmonicBondForce()
-			openmm_system.addForce(bond_force)
-			forces.bond_force = bond_force
+			forces.bond_force = HarmonicBondForce()
+			openmm_system.addForce(forces.bond_force)
 		# Springs
 		for anchor_id in topology_payload.anchors:
 			anchor: AnchorPoint = topology_payload.anchors[anchor_id]
@@ -1216,7 +1209,7 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 				if forces.nonbonded_force != None:
 					forces.nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)
 				# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
-				bond_force.addBond(lock_particle_id, openff_atom_id, equilibrium_length, k_constant)
+				forces.bond_force.addBond(lock_particle_id, openff_atom_id, equilibrium_length, k_constant)
 			if atom.is_passivation_atom:
 				openff_atom_id = topology_payload.payload_to_openff_atom[i]
 				forces.nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
