@@ -939,34 +939,44 @@ class ZmqPublishReporter(object):
 		# - Whether the next report will need forces.
 		# - Whether the next report will need energies.
 		# - Whether the positions should be wrapped to the periodic box. If None, it will automatically decide whether to wrap positions based on whether the System uses periodic boundary conditions.
-		return (steps, True, False, False, False, None)
+		return (steps, True, True, False, False, None)
 
 	def report(self, simulation, state):
 		simulation.frame += 1
 		#time_in_femtoseconds: float = (state.getTime() / femtosecond)
 		#time_buffer:bytes = struct.pack("d", time_in_femtoseconds)
 		time_buffer:bytes = struct.pack("d", simulation.frame)
-		openff_positions: list[Vec3] = state.getPositions()
+		
+		MAXIMUM_SPEED_SQUARED = 1e12
+		for vel in state.getVelocities():
+			v = vel._value
+			v_length_squared = v[0] ** 2 + v[1] ** 2 + v[2] ** 2
+			if v_length_squared > MAXIMUM_SPEED_SQUARED:
+				logging.error(f"Aborted simulation because particle velocities exceeded the maximum limit of {MAXIMUM_SPEED_SQUARED ** 0.5} nm/ps")
+				self._has_error = True
+				break
+		
 		positions: list[Vec3] = []
-		payload_to_openff_atom = simulation.payload_to_openff_atom
-	
-		for i in range(simulation.atoms_count):
-			positions.append(openff_positions[payload_to_openff_atom[i]])
-
 		positions_buffer: bytes = b''
-		if len(positions) != simulation.atoms_count:
-			self._has_error = True
-		else:
-			for p, pos in enumerate(positions):
-				if p >= simulation.atoms_count:
-					# This is an anchor position. Skip
-					break
-				for i in range(3):
-					raw = pos[i] / nanometer
-					if math.isnan(raw):
-						self._has_error = True
+		if not self._has_error:
+			openff_positions: list[Vec3] = state.getPositions()
+			payload_to_openff_atom = simulation.payload_to_openff_atom
+			for i in range(simulation.atoms_count):
+				positions.append(openff_positions[payload_to_openff_atom[i]])
+			if len(positions) != simulation.atoms_count:
+				self._has_error = True
+			else:
+				for p, pos in enumerate(positions):
+					if p >= simulation.atoms_count:
+						# This is an anchor position. Skip
 						break
-					positions_buffer += struct.pack("d", raw)
+					for i in range(3):
+						raw = pos[i] / nanometer
+						if math.isnan(raw):
+							self._has_error = True
+							break
+						positions_buffer += struct.pack("d", raw)
+		
 		with self._publish_socket_lock:
 			self._publish_scoket.send_string(str(self._simulation_id), zmq.SNDMORE)
 			self._publish_scoket.send(time_buffer, zmq.SNDMORE)
