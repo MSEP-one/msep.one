@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b3gggkyj2olxa"]
+[gd_scene load_steps=15 format=3 uid="uid://b3gggkyj2olxa"]
 
 [ext_resource type="Script" uid="uid://c7m37bfygxf4g" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_tools_panel.gd" id="1_8vt2h"]
 [ext_resource type="PackedScene" uid="uid://cvtq2ps52eix3" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/temperature_picker.tscn" id="2_kk1ae"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://d1uqi1065c7ba" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/icons/icon_stop.svg" id="9_1gfm6"]
 [ext_resource type="PackedScene" uid="uid://43m5k0qxrqiu" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/openmm_failure_tracker.tscn" id="9_6sv07"]
 [ext_resource type="Script" uid="uid://bedfpdhraymiu" path="res://editor/controls/general/nano_accept_dialog.gd" id="10_84as7"]
+[ext_resource type="Texture2D" uid="uid://0vc3s1b68mgy" path="res://editor/icons/icon_validate_bonds_16px.svg" id="10_oh1f7"]
 
 [sub_resource type="Animation" id="Animation_k5o5r"]
 resource_name = "idle"
@@ -246,6 +247,15 @@ disabled = true
 text = "End Simulation
 "
 icon = ExtResource("9_1gfm6")
+
+[node name="ButtonApply" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+disabled = true
+text = "Apply Simulation
+"
+icon = ExtResource("10_oh1f7")
 
 [node name="ButtonViewAlerts" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true

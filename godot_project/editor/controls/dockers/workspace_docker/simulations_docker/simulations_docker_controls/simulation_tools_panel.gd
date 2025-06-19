@@ -40,6 +40,7 @@ var _label_error_notice: Label = null
 var _label_empty_notice: Label = null
 var _button_revert: Button = null
 var _button_end: Button = null
+var _button_apply: Button = null
 var _button_view_alerts: Button = null
 var _open_mm_failure_tracker: OpenMMFailureTracker = null
 var _motors_warning_dialog: NanoAcceptDialog = null
@@ -110,6 +111,7 @@ func _notification(in_what: int) -> void:
 		_label_empty_notice = %LabelEmptyNotice as Label
 		_button_revert = %ButtonRevert as Button
 		_button_end = %ButtonEnd as Button
+		_button_apply = %ButtonApply as Button
 		_button_view_alerts = %ButtonViewAlerts as Button
 		_open_mm_failure_tracker = %OpenMMFailureTracker as OpenMMFailureTracker
 		_motors_warning_dialog = %MotorsWarningDialog as NanoAcceptDialog
@@ -134,6 +136,7 @@ func _notification(in_what: int) -> void:
 		_option_button_timeline_unit.item_selected.connect(_on_option_button_timeline_unit_item_selected)
 		_button_revert.pressed.connect(_on_button_revert_pressed)
 		_button_end.pressed.connect(_on_button_end_pressed)
+		_button_apply.pressed.connect(_on_button_apply_pressed)
 		_button_view_alerts.pressed.connect(_on_button_view_alerts_pressed)
 		_open_mm_failure_tracker.results_collected.connect(_on_open_mm_failure_tracker_results_collected)
 
@@ -220,6 +223,7 @@ func _update_controls() -> void:
 			_slider_timeline.editable = false
 			_button_revert.disabled = true
 			_button_end.disabled = true
+			_button_apply.disabled = true
 		Status.PREWARMING:
 			_temperature_picker.editable = false
 			_time_span_picker.editable = false
@@ -255,6 +259,7 @@ func _update_controls() -> void:
 			_spin_box_timeline.editable = true
 			_slider_timeline.editable = true
 			_button_revert.disabled = false
+			_button_apply.disabled = false
 		Status.PLAYING:
 			_temperature_picker.editable = false
 			_time_span_picker.editable = false
@@ -269,6 +274,7 @@ func _update_controls() -> void:
 			_spin_box_timeline.editable = true
 			_slider_timeline.editable = true
 			_button_revert.disabled = false
+			_button_apply.disabled = false
 		Status.ERROR:
 			_temperature_picker.editable = false
 			_time_span_picker.editable = false
@@ -288,6 +294,7 @@ func _update_controls() -> void:
 			_spin_box_timeline.editable = true
 			_button_revert.disabled = false
 			_button_end.disabled = true
+			_button_apply.disabled = false
 
 
 func _has_valid_atoms() -> bool:
@@ -717,6 +724,14 @@ func _on_button_end_pressed() -> void:
 	
 	if _status == Status.PLAYING:
 		_status = Status.PAUSED
+
+
+func _on_button_apply_pressed() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
+	
+	_workspace_context.apply_simulation_if_running()
+	_status = Status.INACTIVE
 
 
 func _on_button_view_alerts_pressed() -> void:
