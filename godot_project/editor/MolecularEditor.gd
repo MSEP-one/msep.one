@@ -139,8 +139,14 @@ func show_open_workspace_dialog() -> void:
 
 func show_save_workspace_dialog(in_workspace: Workspace) -> void:
 	save_file_dialog.set_meta(&"__workspace__", weakref(in_workspace))
-	if not in_workspace.suggested_path.is_empty():
-		save_file_dialog.current_path = in_workspace.suggested_path
+	var path: String = in_workspace.suggested_path
+	if path.is_empty():
+		# no suggested dir, fallback to last saved path
+		path = in_workspace.resource_path
+	if not path.is_empty():
+		# configure path in dialog, otherwise will just fallabck to last visited dir
+		save_file_dialog.current_dir = path.get_base_dir()
+		save_file_dialog.current_file = path.get_file()
 	save_file_dialog.popup_centered_ratio(0.5)
 
 
