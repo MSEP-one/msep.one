@@ -176,7 +176,8 @@ func _update_candidates_if_needed() -> void:
 
 
 func _update_candidates() -> void:
-	_candidates.clear()
+	var prev_candidates: Array[AtomCandidate] = _candidates.duplicate()
+	_candidates = []
 	
 	var context: StructureContext = _workspace_context.get_current_structure_context()
 	var total_atoms_selected: int = context.get_selected_atoms().size()
@@ -192,7 +193,10 @@ func _update_candidates() -> void:
 	var structure_candidates: Array[AtomCandidate] = []
 	var hash_grid := SpatialHashGrid.new(MAX_MERGE_DISTANCE)
 	for atom_id in selected_atoms:
-		var candidates_positions: PackedVector3Array = _generate_candidates_for_atom(context, atom_id)
+		var candidates_positions: PackedVector3Array = _generate_candidates_for_atom(
+			context,
+			atom_id,
+			prev_candidates)
 		var free_valences: int = context.nano_structure.atom_get_remaining_valence(atom_id)
 		for pos: Vector3 in candidates_positions:
 			var candidate := AtomCandidate.new()
@@ -202,6 +206,7 @@ func _update_candidates() -> void:
 			candidate.atom_position = pos
 			candidate.total_free_valence = candidate_free_valence
 			structure_candidates.push_back(candidate)
+			prev_candidates.push_back(candidate)
 			hash_grid.add_item(pos, candidate)
 	
 	# Merge close candidates
@@ -247,7 +252,10 @@ func _update_candidates() -> void:
 	_candidates_dirty = false
 
 
-func _generate_candidates_for_atom(in_context: StructureContext, in_atom_id: int) -> PackedVector3Array:
+func _generate_candidates_for_atom(
+		in_context: StructureContext,
+		in_atom_id: int,
+		in_existing_structure_candidates: Array[AtomCandidate]) -> PackedVector3Array:
 	assert(in_context, "Invalid structure context")
 	var nano_structure: NanoStructure = in_context.nano_structure
 	assert(nano_structure, "Invalid structure")
@@ -263,6 +271,19 @@ func _generate_candidates_for_atom(in_context: StructureContext, in_atom_id: int
 		var atom_position: Vector3 = nano_structure.atom_get_position(in_atom_id)
 		var current_atom := HAtomsEmptyValenceDirections.Atom.new(atom_position, element_data.symbol)
 		var known_bonds: PackedInt32Array = nano_structure.atom_get_bonds(in_atom_id)
+		var known_candidates: Array[AtomCandidate] = in_existing_structure_candidates.filter(
+			func (in_candidate: AtomCandidate) -> bool:
+				return in_atom_id in in_candidate.atom_ids
+		)
+		var known_h_atoms: Array[HAtomsEmptyValenceDirections.Atom] = []
+		for bond_id: int in known_bonds:
+			var other_atom_id: int = nano_structure.atom_get_bond_target(in_atom_id, bond_id)
+			var other_atom_pos: Vector3 = nano_structure.atom_get_position(other_atom_id)
+			known_h_atoms.append(HAtomsEmptyValenceDirections.Atom.new(other_atom_pos, "dummy"))
+		for candidate: AtomCandidate in known_candidates:
+			known_h_atoms.append(
+				HAtomsEmptyValenceDirections.Atom.new(candidate.atom_position, "dummy")
+			)
 		current_atom.valence = delta_electrons + known_bonds.size()
 		var directions: PackedVector3Array = []
 		match current_atom.valence:
@@ -276,31 +297,13 @@ func _generate_candidates_for_atom(in_context: StructureContext, in_atom_id: int
 			0:
 				directions = HAtomsEmptyValenceDirections.fill_valence_from_0(current_atom)
 			1:
-				var other_atom_id_1: int = nano_structure.atom_get_bond_target(in_atom_id, known_bonds[0])
-				var other_atom_pos_1: Vector3 = nano_structure.atom_get_position(other_atom_id_1)
-				var known_1 := HAtomsEmptyValenceDirections.Atom.new(other_atom_pos_1, "dummy")
-				var torsion_candidate: HAtomsEmptyValenceDirections.Atom = _find_torsion_candidate(nano_structure,in_atom_id, [other_atom_id_1])
-				directions = HAtomsEmptyValenceDirections.fill_valence_from_1(current_atom, known_1, torsion_candidate)
+				var torsion_candidate: HAtomsEmptyValenceDirections.Atom = _find_torsion_candidate(nano_structure,in_atom_id, known_bonds, in_existing_structure_candidates)
+				directions = HAtomsEmptyValenceDirections.fill_valence_from_1(current_atom, known_h_atoms[0], torsion_candidate)
 			2:
-				var other_atom_id_1: int = nano_structure.atom_get_bond_target(in_atom_id, known_bonds[0])
-				var other_atom_pos_1: Vector3 = nano_structure.atom_get_position(other_atom_id_1)
-				var known_1 := HAtomsEmptyValenceDirections.Atom.new(other_atom_pos_1, "dummy")
-				var other_atom_id_2: int = nano_structure.atom_get_bond_target(in_atom_id, known_bonds[1])
-				var other_atom_pos_2: Vector3 = nano_structure.atom_get_position(other_atom_id_2)
-				var known_2 := HAtomsEmptyValenceDirections.Atom.new(other_atom_pos_2, "dummy")
-				var torsion_candidate: HAtomsEmptyValenceDirections.Atom = _find_torsion_candidate(nano_structure,in_atom_id, [other_atom_id_1, other_atom_id_2])
-				directions = HAtomsEmptyValenceDirections.fill_valence_from_2(current_atom, known_1, known_2, torsion_candidate)
+				var torsion_candidate: HAtomsEmptyValenceDirections.Atom = _find_torsion_candidate(nano_structure,in_atom_id, known_bonds, in_existing_structure_candidates)
+				directions = HAtomsEmptyValenceDirections.fill_valence_from_2(current_atom, known_h_atoms[0], known_h_atoms[1], torsion_candidate)
 			3:
-				var other_atom_id_1: int = nano_structure.atom_get_bond_target(in_atom_id, known_bonds[0])
-				var other_atom_pos_1: Vector3 = nano_structure.atom_get_position(other_atom_id_1)
-				var known_1 := HAtomsEmptyValenceDirections.Atom.new(other_atom_pos_1, "dummy")
-				var other_atom_id_2: int = nano_structure.atom_get_bond_target(in_atom_id, known_bonds[1])
-				var other_atom_pos_2: Vector3 = nano_structure.atom_get_position(other_atom_id_2)
-				var known_2 := HAtomsEmptyValenceDirections.Atom.new(other_atom_pos_2, "dummy")
-				var other_atom_id_3: int = nano_structure.atom_get_bond_target(in_atom_id, known_bonds[2])
-				var other_atom_pos_3: Vector3 = nano_structure.atom_get_position(other_atom_id_3)
-				var known_3 := HAtomsEmptyValenceDirections.Atom.new(other_atom_pos_3, "dummy")
-				directions = HAtomsEmptyValenceDirections.fill_valence_from_3(current_atom, known_1, known_2, known_3)
+				directions = HAtomsEmptyValenceDirections.fill_valence_from_3(current_atom, known_h_atoms[0], known_h_atoms[1], known_h_atoms[2])
 		for dir in directions:
 			var equilibrium_distance: float = _get_equilibrium_distance(atomic_number, _element_selected)
 			var candidate_pos: Vector3 = atom_position + dir * equilibrium_distance
@@ -331,14 +334,28 @@ func _get_stable_charge(in_element_data: ElementData) -> int:
 	return valence - 8
 
 
-func _find_torsion_candidate(nano_structure: NanoStructure, in_atom_id: int, other_atom_ids: PackedInt32Array) -> HAtomsEmptyValenceDirections.Atom:
-	for other_atom_id in other_atom_ids:
+func _find_torsion_candidate(
+		nano_structure: AtomicStructure,
+		in_atom_id: int,
+		in_known_bonds: PackedInt32Array,
+		in_existing_structure_candidates: Array[AtomCandidate]
+	) -> HAtomsEmptyValenceDirections.Atom:
+	var neighbors: PackedInt32Array = []
+	for bond_id: int in in_known_bonds:
+		neighbors.append(nano_structure.atom_get_bond_target(in_atom_id, bond_id))
+	for other_atom_id in neighbors:
 		var bond_ids_of_other: PackedInt32Array = nano_structure.atom_get_bonds(other_atom_id)
 		for bond in bond_ids_of_other:
 			var candidate_id: int = nano_structure.atom_get_bond_target(other_atom_id, bond)
 			if candidate_id != in_atom_id:
 				var candidate_position: Vector3 = nano_structure.atom_get_position(candidate_id)
 				var torsion_candidate := HAtomsEmptyValenceDirections.Atom.new(candidate_position, "dummy")
+				return torsion_candidate
+	# Atoms have no bonds, fallback to existing candidates
+	for candidate: AtomCandidate in in_existing_structure_candidates:
+		for n in neighbors:
+			if n in candidate.atom_ids:
+				var torsion_candidate := HAtomsEmptyValenceDirections.Atom.new(candidate.atom_position, "dummy")
 				return torsion_candidate
 	return null
 
