@@ -18,26 +18,23 @@ enum _warning_message_keys {
 }
 
 var _warning_messages : Dictionary = {
-	_warning_message_keys.NO_WARNING: "",
-	_warning_message_keys.SHORTER_THAN_ATOMIC_RADIUS: "Distance is too short! Atoms will overlap",
-	_warning_message_keys.SHORTER_THAN_EQUILIBRIUM_DISTANCE: "Distance is less than equilibrium distance! Only recommended for bonded atoms",
+	_warning_message_keys.NO_WARNING: "Distance is adequate for [color=green][b]unbonded[/b][/color] atoms",
+	_warning_message_keys.SHORTER_THAN_ATOMIC_RADIUS: "[color=coral]Distance is too short! [b]Atoms will overlap[/b][/color]",
+	_warning_message_keys.SHORTER_THAN_EQUILIBRIUM_DISTANCE: "Distance is adequate for [color=green][b]bonded[/b][/color] atoms",
 }
 
 
 @onready var _element_picker: VBoxContainer = %ElementPicker
 @onready var _tree: Tree = %Tree
-@onready var _button_atomic_radius: Button = $PanelContainerDistance/VBoxContainer/ButtonAtomicRadius
-@onready var _button_contact_radius: Button = $PanelContainerDistance/VBoxContainer/ButtonContactRadius
-@onready var _spinbox_distance: SpinBoxSlider = $PanelContainerDistance/VBoxContainer/SpinBoxSlider
-@onready var _checkbutton_whole_shape: CheckButton = $PanelContainerDistance/VBoxContainer/CheckButtonWholeShape
-@onready var _label_warnings: Label = $PanelContainerDistance/VBoxContainer/Label
+@onready var _reset_distance_button: Button = %ResetDistanceButton as Button
+@onready var _spinbox_distance: SpinBoxSlider = $PanelContainerDistance/VBoxContainer/HBoxContainer/SpinBoxSlider
+@onready var _label_warnings: RichTextLabel = $PanelContainerDistance/VBoxContainer/Label
 @onready var _button_cover: Button = %ButtonCover
 @onready var _button_fill: Button = %ButtonFill
 
 
 func _ready() -> void:
-	_button_atomic_radius.pressed.connect(_on_atomic_radius_button_pressed)
-	_button_contact_radius.pressed.connect(_on_contact_radius_button_pressed)
+	_reset_distance_button.pressed.connect(_on_atomic_radius_button_pressed)
 	_button_cover.pressed.connect(_on_cover_button_pressed)
 	_button_fill.pressed.connect(_on_fill_button_pressed)
 	_element_picker.atom_type_change_requested.connect(_on_element_picker_atom_type_change_requested)
@@ -84,9 +81,7 @@ func _refresh_tree_selection_filters() -> void:
 
 func _refresh_buttons_visibility() -> void:
 	var no_types_selected: bool = _selected_type == NO_ATOM_TYPE_SELECTED
-	_button_atomic_radius.disabled = no_types_selected
-	_button_contact_radius.disabled = no_types_selected
-	_checkbutton_whole_shape.disabled = no_types_selected
+	_reset_distance_button.disabled = no_types_selected
 	
 	if not is_instance_valid(_workspace_context):
 		return
@@ -152,10 +147,6 @@ func _on_atomic_radius_button_pressed() -> void:
 	_spinbox_distance.value = _current_atom_radius * 2.0
 
 
-func _on_contact_radius_button_pressed() -> void:
-	_spinbox_distance.value = _current_contact_radius * 2.0
-
-
 func _on_cover_button_pressed() -> void:
 	var target_element_data: ElementData = PeriodicTable.get_by_atomic_number(_selected_type)
 	
@@ -192,10 +183,10 @@ func _cover_shape_surface(
 	var nano_shape: NanoShape = out_structure_context.nano_structure as NanoShape
 	var target_context: StructureContext = _get_parent_structure_context(out_structure_context)
 	var target_structure: AtomicStructure = target_context.nano_structure
-	
+	const FILL_WHOLE_SHAPE: bool = true
 	var new_atom_positions: PackedVector3Array = \
 		nano_shape.get_shape().get_cover_atoms_positions(
-			in_minimum_distance_between_atoms, _checkbutton_whole_shape.button_pressed
+			in_minimum_distance_between_atoms, FILL_WHOLE_SHAPE
 		)
 	
 	var new_atom_ids: PackedInt32Array = \
@@ -275,10 +266,11 @@ func _fill_shape(
 	
 	# Fill Shape will fallback to Cover Shape
 	# This is because some shapes have no volume and cannot be filled
+	const FILL_WHOLE_SHAPE: bool = true
 	var new_atom_positions: PackedVector3Array = \
-		nano_shape.get_shape().get_fill_atoms_positions(in_minimum_distance_between_atoms, _checkbutton_whole_shape.button_pressed) \
+		nano_shape.get_shape().get_fill_atoms_positions(in_minimum_distance_between_atoms, FILL_WHOLE_SHAPE) \
 		if nano_shape.get_shape().has_method("get_fill_atoms_positions") else \
-		nano_shape.get_shape().get_cover_atoms_positions(in_minimum_distance_between_atoms, _checkbutton_whole_shape.button_pressed)
+		nano_shape.get_shape().get_cover_atoms_positions(in_minimum_distance_between_atoms, FILL_WHOLE_SHAPE)
 	
 	var new_atom_ids: PackedInt32Array = \
 		_create_atoms(new_atom_positions, in_element_number, nano_shape.get_transform(), target_structure)

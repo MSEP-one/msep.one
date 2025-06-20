@@ -47,37 +47,34 @@ theme_type_variation = &"SubcategoryPanel"
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainerDistance"]
 layout_mode = 2
 
-[node name="ButtonAtomicRadius" type="Button" parent="PanelContainerDistance/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainerDistance/VBoxContainer"]
+layout_mode = 2
+
+[node name="ResetDistanceButton" type="Button" parent="PanelContainerDistance/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Atomic Diameter"
+tooltip_text = "Reset to Bond Length"
+text = "⟳"
+flat = true
 
-[node name="ButtonContactRadius" type="Button" parent="PanelContainerDistance/VBoxContainer"]
-unique_name_in_owner = true
+[node name="SpinBoxSlider" parent="PanelContainerDistance/VBoxContainer/HBoxContainer" instance=ExtResource("3_wm30c")]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Equilibrium Distance"
-
-[node name="SpinBoxSlider" parent="PanelContainerDistance/VBoxContainer" instance=ExtResource("3_wm30c")]
-layout_mode = 2
-max_value = 10.0
+max_value = 1.0
 step = 0.005
 allow_greater = true
 suffix = "nm"
 
-[node name="CheckButtonWholeShape" type="CheckButton" parent="PanelContainerDistance/VBoxContainer"]
-layout_mode = 2
-text = "Cover/Fill whole shape"
-
-[node name="Label" type="Label" parent="PanelContainerDistance/VBoxContainer"]
+[node name="Label" type="RichTextLabel" parent="PanelContainerDistance/VBoxContainer"]
 custom_minimum_size = Vector2(128, 2.08165e-12)
 layout_mode = 2
 size_flags_horizontal = 3
+bbcode_enabled = true
 text = "Distance is too short! Atoms will overlap"
+fit_content = true
+scroll_active = false
+autowrap_mode = 2
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
 
 [node name="ButtonCover" type="Button" parent="."]
 unique_name_in_owner = true
