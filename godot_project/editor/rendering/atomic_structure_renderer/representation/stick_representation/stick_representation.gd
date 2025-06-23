@@ -568,8 +568,10 @@ func set_material_overlay(in_material: Material) -> void:
 
 
 static func _calc_up_vect_for_single_bond(in_dir_between_atoms: Vector3) -> Vector3:
-	var not_parallel_dir: Vector3 = Vector3(in_dir_between_atoms.z,in_dir_between_atoms.x, in_dir_between_atoms.y)
-	return in_dir_between_atoms.cross(not_parallel_dir).normalized()
+	var not_parallel_dir: Vector3 = Vector3.RIGHT
+	if abs(in_dir_between_atoms.dot(Vector3.RIGHT)) > 0.5:
+		not_parallel_dir = Vector3.UP
+	return in_dir_between_atoms.cross(not_parallel_dir)
 
 
 static func _calc_up_vector_for_higher_bond(in_first_atom_id: int, in_second_atom_id: int, first_atom_position: Vector3,
