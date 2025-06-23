@@ -48,6 +48,7 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	if not _workspace_context.selection_in_structures_changed.is_connected(_on_workspace_context_selection_in_structures_changed):
 		_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 		_workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
+		_workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 		_refresh_ui()
 	
 	var selected_contexts: Array[StructureContext] = in_workspace_context.get_structure_contexts_with_selection()
@@ -140,6 +141,10 @@ func _on_workspace_context_selection_in_structures_changed(_contexts: Array[Stru
 
 
 func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructure) -> void:
+	ScriptUtils.call_deferred_once(_refresh_buttons_visibility)
+
+
+func _on_workspace_context_history_changed() -> void:
 	ScriptUtils.call_deferred_once(_refresh_buttons_visibility)
 
 
