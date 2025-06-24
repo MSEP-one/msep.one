@@ -59,8 +59,10 @@ flat = true
 
 [node name="SpinBoxSlider" parent="PanelContainerDistance/VBoxContainer/HBoxContainer" instance=ExtResource("3_wm30c")]
 layout_mode = 2
+min_value = 0.05
 max_value = 1.0
 step = 0.005
+value = 0.05
 allow_greater = true
 suffix = "nm"
 
