@@ -3,7 +3,8 @@ extends InputHandlerCreateObjectBase
 
 const MAX_MERGE_DISTANCE: float = 0.06
 const MAX_ATOMS_FOR_AUTO_POSING: int = 50
-const MIN_DISTANCE_TO_ATOMS: float = 0.135
+# H-H bond is 0.075 nm, that is the closest 2 atoms should be
+const MIN_DISTANCE_TO_ATOMS: float = 0.069
 const AtomCandidate = AtomAutoposePreview.AtomCandidate
 
 
@@ -240,13 +241,13 @@ func _update_candidates() -> void:
 			for atom_id: int in atomic_structure.get_valid_atoms():
 				var atom_position: Vector3 = atomic_structure.atom_get_position(atom_id)
 				_atom_grid.add_item(atom_position, atom_id)
-	var index: int = 0
-	while index < _candidates.size():
+	var index: int = _candidates.size() - 1
+	while index >= 0:
 		var candidate: AtomCandidate = _candidates[index]
 		if _atom_grid.has_any_closer_than(candidate.atom_position, MIN_DISTANCE_TO_ATOMS):
 			_candidates.remove_at(index)
 		else:
-			index += 1
+			index -= 1
 	
 	_get_rendering().atom_autopose_preview_set_candidates(_candidates)
 	_candidates_dirty = false
@@ -305,7 +306,7 @@ func _generate_candidates_for_atom(
 			3:
 				directions = HAtomsEmptyValenceDirections.fill_valence_from_3(current_atom, known_h_atoms[0], known_h_atoms[1], known_h_atoms[2])
 		for dir in directions:
-			var equilibrium_distance: float = _get_equilibrium_distance(atomic_number, _element_selected)
+			var equilibrium_distance: float = _get_bond_distance(atomic_number, _element_selected)
 			var candidate_pos: Vector3 = atom_position + dir * equilibrium_distance
 			candidate_positions.push_back(candidate_pos)
 	return candidate_positions
@@ -360,11 +361,11 @@ func _find_torsion_candidate(
 	return null
 
 
-func _get_equilibrium_distance(in_atomic_number_a: int, in_atomic_number_b: int) -> float:
+func _get_bond_distance(in_atomic_number_a: int, in_atomic_number_b: int) -> float:
 	var data_a: ElementData = PeriodicTable.get_by_atomic_number(in_atomic_number_a)
 	var data_b: ElementData = data_a if in_atomic_number_a == in_atomic_number_b else \
 								PeriodicTable.get_by_atomic_number(in_atomic_number_b)
-	var equilibrium_distance: float = (data_a.contact_radius + data_b.contact_radius) * 0.5
+	var equilibrium_distance: float = (data_a.covalent_radius[1] + data_b.covalent_radius[1])
 	return equilibrium_distance
 
 
