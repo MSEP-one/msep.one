@@ -750,6 +750,8 @@ func _on_open_mm_failure_tracker_results_collected() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if not _workspace_context.is_active():
+		return
 	_playback_delta += _spin_box_timeline.step * _playback_speed_picker.get_playback_speed()
 	if _playback_delta >= _spin_box_timeline.step:
 		_spin_box_timeline.set_value(min(_spin_box_timeline.value + _playback_delta, _spin_box_timeline.max_value))
