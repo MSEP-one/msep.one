@@ -166,6 +166,10 @@ func notify_activated() -> void:
 		rendering.apply_theme(workspace.representation_settings.get_theme())
 
 
+func is_active() -> bool:
+	return is_instance_valid(workspace_main_view) and workspace_main_view.is_visible_in_tree()
+
+
 func _on_workspace_main_view_ready() -> void:
 	var viewport_container: SubViewportContainer = get_editor_viewport_container()
 	viewport_container.workspace_context = self
