@@ -241,13 +241,13 @@ func _update_candidates() -> void:
 			for atom_id: int in atomic_structure.get_valid_atoms():
 				var atom_position: Vector3 = atomic_structure.atom_get_position(atom_id)
 				_atom_grid.add_item(atom_position, atom_id)
-	var index: int = _candidates.size() - 1
-	while index >= 0:
+	var index: int = 0
+	while index < _candidates.size():
 		var candidate: AtomCandidate = _candidates[index]
 		if _atom_grid.has_any_closer_than(candidate.atom_position, MIN_DISTANCE_TO_ATOMS):
 			_candidates.remove_at(index)
 		else:
-			index -= 1
+			index += 1
 	
 	_get_rendering().atom_autopose_preview_set_candidates(_candidates)
 	_candidates_dirty = false
