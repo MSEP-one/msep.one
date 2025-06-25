@@ -903,7 +903,7 @@ class ParticleEmitter:
 			axis /= axis_norm
 
 		# Random angle between 0 and max_angle_rad
-		angle: float = np.random.uniform(0.0, self.spread_angle)
+		angle: float = np.random.uniform(0.0, self.spread_angle) * 0.5
 
 		# Rodrigues' rotation formula
 		cos_theta: float = np.cos(angle)
