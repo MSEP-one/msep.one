@@ -12,7 +12,7 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	_workspace_context = in_workspace_context
 	_ring_menu = in_menu
 	super._init(
-		tr("Particle Emitter"),
+		tr("Particle Emitters"),
 		_execute_action,
 		tr("Create a particle emitter that will spawn new molecules at regular intervals.")
 	)
