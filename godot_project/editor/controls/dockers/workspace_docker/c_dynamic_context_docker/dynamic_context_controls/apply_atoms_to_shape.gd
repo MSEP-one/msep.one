@@ -12,14 +12,16 @@ var _current_atom_radius: float = -1.0
 
 
 enum _warning_message_keys { 
+	NO_CONTENT_SELECTED,
 	NO_WARNING,
 	SHORTER_THAN_ATOMIC_RADIUS, 
 	SHORTER_THAN_EQUILIBRIUM_DISTANCE, 
 }
 
 var _warning_messages : Dictionary = {
+	_warning_message_keys.NO_CONTENT_SELECTED: "[color=tomato]Select an atom to fill the shape first[/color]",
 	_warning_message_keys.NO_WARNING: "Distance is adequate for [color=green][b]unbonded[/b][/color] atoms",
-	_warning_message_keys.SHORTER_THAN_ATOMIC_RADIUS: "[color=coral]Distance is too short! [b]Atoms will overlap[/b][/color]",
+	_warning_message_keys.SHORTER_THAN_ATOMIC_RADIUS: "[color=tomato]Distance is too short! [b]Atoms will overlap[/b][/color]",
 	_warning_message_keys.SHORTER_THAN_EQUILIBRIUM_DISTANCE: "Distance is adequate for [color=green][b]bonded[/b][/color] atoms",
 }
 
@@ -83,6 +85,9 @@ func _refresh_tree_selection_filters() -> void:
 func _refresh_buttons_visibility() -> void:
 	var no_types_selected: bool = _selected_type == NO_ATOM_TYPE_SELECTED
 	_reset_distance_button.disabled = no_types_selected
+	_spinbox_distance.editable = not no_types_selected
+	if no_types_selected:
+		_spinbox_distance.value = _spinbox_distance.min_value
 	
 	if not is_instance_valid(_workspace_context):
 		return
@@ -109,7 +114,9 @@ func _refresh_warning_message(in_distance_value: float) -> void:
 	var msg: String = ""
 	var contact_diameter: float = _current_contact_radius * 2.0
 	var atom_diameter: float = _current_atom_radius * 2.0
-	if in_distance_value >= contact_diameter:
+	if _selected_type == NO_ATOM_TYPE_SELECTED:
+		msg = _warning_messages[_warning_message_keys.NO_CONTENT_SELECTED]
+	elif in_distance_value >= contact_diameter:
 		msg = _warning_messages[_warning_message_keys.NO_WARNING]
 	elif in_distance_value >= atom_diameter:
 		msg = _warning_messages[_warning_message_keys.SHORTER_THAN_EQUILIBRIUM_DISTANCE]
