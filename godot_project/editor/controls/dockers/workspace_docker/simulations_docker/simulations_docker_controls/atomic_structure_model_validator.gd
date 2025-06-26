@@ -10,6 +10,8 @@ const COLOR_DELETED: Color = Color.WEB_GRAY
 const DELETED_ICON: Texture2D = preload("res://editor/controls/menu_bar/menu_edit/icons/icon_delete.svg")
 const MAX_COVALENT_RADIUS: float = 0.232
 const MAX_SHAKE_ITERATIONS: int = 5
+# Cell size needs be large enough to hold the biggest atom + some margin of error
+const MAX_HASH_GRID_CELL_SIZE: float = MAX_COVALENT_RADIUS * 3.0
 
 
 var _thread: Thread
@@ -126,76 +128,117 @@ func has_overlapping_atoms() -> bool:
 
 
 func fix_overlapping_atoms() -> void:
+	# Create a hash grid of the whole workspace to avoid moving an overlapping
+	# atom on top of another atom not involved in the original overlap.
+	# This hash grid does not contains the overlapping atoms.
+	var static_atom_grid := SpatialHashGrid.new(MAX_HASH_GRID_CELL_SIZE)
+	for other_context: StructureContext in _workspace_context.get_all_structure_contexts():
+		if not other_context.nano_structure is AtomicStructure:
+			continue
+		var atomic_structure: AtomicStructure = other_context.nano_structure
+		for atom_id: int in atomic_structure.get_valid_atoms():
+			var atom_position: Vector3 = atomic_structure.atom_get_position(atom_id)
+			static_atom_grid.add_item(atom_position, atom_id)
+	
+	var overlap_atom_grid := SpatialHashGrid.new(MAX_HASH_GRID_CELL_SIZE)
 	for overlap: OverlapData in _overlaps:
 		if overlap.is_fixed:
 			continue
-		var nano_structure: NanoStructure = overlap.structure_context.nano_structure
-		if not nano_structure.is_being_edited():
-			nano_structure.start_edit()
+		var nano_structure: AtomicStructure = overlap.structure_context.nano_structure
+		if not is_instance_valid(nano_structure):
+			continue
 		
-			var original_atoms: PackedInt32Array = nano_structure.get_visible_atoms()
-			var original_positions: PackedVector3Array = PackedVector3Array()
-			for original_atom_id: int in original_atoms:
-				original_positions.push_back(nano_structure.atom_get_position(original_atom_id))
-		
-		# Store the atoms positions a small random offset to prevent two atoms having
-		# the exact same coordinates
-		var atoms_positions: Dictionary = {
-			# atom_id<int>: position<Vector3>
-		}
+		# Find the overlap center position.
+		var current_overlap_atoms: Dictionary[int, SpatialHashGrid.Item] = {}
+		var overlap_center: Vector3 = Vector3.ZERO
 		for atom_id in overlap.atoms_id:
 			if not nano_structure.is_atom_valid(atom_id):
-				# atom was deleted after overlaps was validated
+				# Atom was deleted after the validation
 				continue
 			var atom_position: Vector3 = nano_structure.atom_get_position(atom_id)
-			var random_dir: Vector3 = Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5).normalized()
-			atoms_positions[atom_id] = atom_position + random_dir * MAX_COVALENT_RADIUS * 0.15
-		
-		# Relax the atoms positions.
-		# For each atom, find the nearest atom and move away. Repeat up to MAX_SHAKE_ITERATIONS
-		var move_offset: float = MAX_COVALENT_RADIUS * 0.25
-		var max_separation_distance_squared: float = pow(MAX_COVALENT_RADIUS, 2.0)
-		for iteration: int in MAX_SHAKE_ITERATIONS:
-			var atoms_were_moved: bool = false
-			for atom_id: int in atoms_positions:
-				var dir := Vector3.ONE * 99999.0
-				var min_distance := 99999.0
+			overlap_center += atom_position
+			static_atom_grid.remove_item_by_position(atom_position)
+			var item: SpatialHashGrid.Item
+			item = overlap_atom_grid.add_item(atom_position, {"id": atom_id, "data": overlap})
+			current_overlap_atoms[atom_id] = item
 
-				# Find the closest atom
-				for other_atom_id: int in atoms_positions:
-					if atom_id == other_atom_id:
-						continue
-					var diff: Vector3 = atoms_positions[atom_id] - atoms_positions[other_atom_id]
-					var distance: float = diff.length_squared()
-					if distance < min_distance:
-						dir = diff
-						min_distance = distance
-				
-				if min_distance > max_separation_distance_squared:
-					continue # Atom already far enough
-				
-				atoms_positions[atom_id] += dir.normalized() * move_offset
-				atoms_were_moved = true
+		if current_overlap_atoms.is_empty():
+			continue
+		overlap_center /= current_overlap_atoms.size()
+		
+		# Move each overlapping atoms away from the center point, by at least
+		# their atomic radius.
+		for atom_id: int in current_overlap_atoms:
+			var item: SpatialHashGrid.Item = current_overlap_atoms[atom_id]
+			var position: Vector3 = item.position
+			var dir_from_center: Vector3 = overlap_center.direction_to(position)
+			while dir_from_center.is_equal_approx(Vector3.ZERO):
+				# Can be null if the atom is exactly on the center. Use a random direction instead.
+				dir_from_center = Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5).normalized()
+			var atomic_number: int = nano_structure.atom_get_atomic_number(atom_id)
+			var element_data: ElementData = PeriodicTable.get_by_atomic_number(atomic_number)
+			var radius: float = element_data.covalent_radius[1]
+			const DISTANCE_MARGIN: float = 1.1
+			var new_position: Vector3 = overlap_center + dir_from_center * radius * DISTANCE_MARGIN
+			overlap_atom_grid.move_item(item, new_position)
+	
+	# Atoms might still overlap with other overlap groups, or with the rest of
+	# the structure (described in static_atom_grid).
+	# Relax all the overlapping atoms in the same pass.
+	# For each atom, find the nearest atom and move away. Repeat up to MAX_SHAKE_ITERATIONS
+	var multiplier: float = 1.0
+	for iteration: int in MAX_SHAKE_ITERATIONS:
+		var atoms_were_moved: bool = false
+		for item: SpatialHashGrid.Item in overlap_atom_grid.get_all_items():
+			# Find the closest atom
+			var nearby_atoms: Array[SpatialHashGrid.Item] = []
+			nearby_atoms = overlap_atom_grid.get_items_around(item.position)
+			nearby_atoms.append_array(static_atom_grid.get_items_around(item.position))
+			var closest_atom: SpatialHashGrid.Item
+			var min_distance_squared: float = INF
+			var separation_vector: Vector3
+			for candidate_item in nearby_atoms:
+				if item == candidate_item:
+					continue
+				var diff: Vector3 = item.position - candidate_item.position
+				var distance_squared: float = diff.length_squared()
+				if distance_squared < min_distance_squared:
+					separation_vector = diff
+					min_distance_squared = distance_squared
+					closest_atom = candidate_item
+			if not closest_atom:
+				continue
 			
-			if not atoms_were_moved:
-				break # Atoms are no longer overlapping
-			else:
-				move_offset *= 0.75 # Make the next iteration less pronounced
-
-		# Apply the new atoms positions
-		var atoms_id: PackedInt32Array = PackedInt32Array(atoms_positions.keys())
-		var new_positions: PackedVector3Array = PackedVector3Array(atoms_positions.values())
-		nano_structure.atoms_set_positions(atoms_id, new_positions)
+			# Move the atom away from the closest atom
+			var move_offset: float = MAX_COVALENT_RADIUS * 0.25 * multiplier
+			var max_separation_distance_squared: float = pow(MAX_COVALENT_RADIUS, 2.0)
+			if min_distance_squared > max_separation_distance_squared:
+				continue # Atom already far enough
+			var new_position: Vector3 = item.position + separation_vector.normalized() * move_offset
+			overlap_atom_grid.move_item(item, new_position)
+			atoms_were_moved = true
 		
+		if not atoms_were_moved:
+			break # Atoms are no longer overlapping
+		multiplier *= 0.75 # Make the next iteration less pronounced
+
+	# Apply the new positions
+	for item: SpatialHashGrid.Item in overlap_atom_grid.get_all_items():
+		var overlap: OverlapData = item.user_data.get("data")
+		var atom_id: int = item.user_data.get("id")
+		var nano_structure: NanoMolecularStructure = overlap.structure_context.nano_structure
+		if not nano_structure.is_being_edited():
+			nano_structure.start_edit()
+		nano_structure.atom_set_position(atom_id, item.position)
+	
+	for overlap: OverlapData in _overlaps:
+		var nano_structure: NanoMolecularStructure = overlap.structure_context.nano_structure
+		if nano_structure.is_being_edited():
+			nano_structure.end_edit()
 		# Update the alert for this overlap
 		overlap.is_fixed = true
 		var alert_id: int = _overlaps[overlap]
 		_workspace_context.mark_alert_as_fixed(alert_id)
-
-	for overlap: OverlapData in _overlaps:
-		var nano_structure: NanoStructure = overlap.structure_context.nano_structure
-		if nano_structure.is_being_edited():
-			nano_structure.end_edit()
 	
 	_workspace_context.snapshot_moment("Fix Overlapping Atoms Errors")
 
