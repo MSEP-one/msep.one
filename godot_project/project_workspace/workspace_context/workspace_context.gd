@@ -1412,10 +1412,15 @@ func register_snapshotable(in_system: Object) -> void:
 ## snapshot will override the atoms positions from the simulation.
 ## To avoid that, we restore the simulation state after restoring the snapshot.
 func apply_previous_snapshot() -> void:
-	if not History.is_operation_whitelisted_during_simulation(_history.get_undo_name()):
+	var undo_action: String = _history.get_undo_name()
+	if not History.is_operation_whitelisted_during_simulation(undo_action):
 		abort_simulation_if_running()
 	_history.apply_previous_snapshot()
 	if is_simulating():
+		for emitter: NanoParticleEmitter in get_particle_emitters():
+			if not emitter.has_instances():
+				var parent: NanoStructure = workspace.get_parent_structure(emitter)
+				emitter.create_instances(parent)
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
 		seek_simulation(current_simulation_time)
 
@@ -1426,6 +1431,10 @@ func apply_next_snapshot() -> void:
 		abort_simulation_if_running()
 	_history.apply_next_snapshot()
 	if is_simulating():
+		for emitter: NanoParticleEmitter in get_particle_emitters():
+			if not emitter.has_instances():
+				var parent: NanoStructure = workspace.get_parent_structure(emitter)
+				emitter.create_instances(parent)
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
 		seek_simulation(current_simulation_time)
 

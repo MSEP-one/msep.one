@@ -68,6 +68,10 @@ static func calculate_total_molecule_instance_count(
 		return total_instance_count
 
 
+func has_instances() -> bool:
+	return not _instances_atom_ids.is_empty()
+
+
 func create_instances(out_group: AtomicStructure) -> void:
 	assert(_instances_atom_ids.is_empty() and _instances_bond_ids.is_empty() and
 		_instances_group == null, "Attempting to create instances when instances already exists!")
@@ -315,6 +319,9 @@ func create_state_snapshot(in_with_instances: bool = false) -> Dictionary:
 	state_snapshot["script.resource_path"] = get_script().resource_path
 	state_snapshot["_transform"] = _transform
 	state_snapshot["_parameters_snapshot"] = _parameters.create_state_snapshot()
+	state_snapshot["_instances_atom_ids"] = _instances_atom_ids.duplicate(false)
+	state_snapshot["_instances_bond_ids"] = _instances_bond_ids.duplicate(false)
+	state_snapshot["_instances_group_id"] = -1 if _instances_group == null else _instances_group.int_guid
 	if in_with_instances:
 		if _instances_group == null:
 			state_snapshot["_instances_group"] = Workspace.INVALID_STRUCTURE_ID
@@ -336,6 +343,16 @@ func apply_state_snapshot(in_state_snapshot: Dictionary, in_with_instances: bool
 	if _parameters == null:
 		_parameters = NanoParticleEmitterParameters.new()
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters_snapshot"])
+	_instances_atom_ids = in_state_snapshot["_instances_atom_ids"]
+	_instances_bond_ids = in_state_snapshot["_instances_bond_ids"]
+	var instances_group_id: int = in_state_snapshot["_instances_group_id"]
+	if instances_group_id == -1:
+		_instances_group = null
+	else:
+		# Assume undo/redo operation can only happen in active workspace
+		var workspace: Workspace = MolecularEditorContext.get_current_workspace()
+		assert(workspace.has_structure(self), "Not my workspace!")
+		_instances_group = workspace.get_structure_by_int_guid(instances_group_id)
 	if in_with_instances:
 		var group_id: int = in_state_snapshot["_instances_group"]
 		if group_id == Workspace.INVALID_STRUCTURE_ID:
