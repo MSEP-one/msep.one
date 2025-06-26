@@ -19,6 +19,7 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	if autobonder_action_enabled:
 		add_action(RingActionAutoBonder.new(_workspace_context, in_menu))
 	add_action(in_workspace_context.action_add_hydrogens)
+	add_action(in_workspace_context.action_correct_overlapping_atoms)
 	add_action(preload("ring_action_set_atom_locking.gd").new(_workspace_context, in_menu))
 	for element: int in PeriodicTable.NON_METALS:
 		var data: ElementData = PeriodicTable.get_by_atomic_number(element) as ElementData
