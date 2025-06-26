@@ -68,6 +68,8 @@ func filter(in_text: String) -> void:
 func disable_all_items() -> void:
 	for item: ItemData in _items:
 		item.disabled = true
+		if item.is_hidden():
+			continue
 		_item_list.set_item_disabled(item.list_index, true)
 
 
@@ -110,3 +112,6 @@ class ItemData:
 	var visible: bool = true
 	var tooltip: String = ""
 	var on_pressed := Callable()
+	
+	func is_hidden() -> bool:
+		return list_index == -1
