@@ -1,6 +1,8 @@
 class_name NanoMolecularStructure extends AtomicStructure
 
 
+
+
 @export var _atoms: Array[NanoAtomLegacy] = [] : set = _set_atoms
 
 #TODO: should not be needed
@@ -713,18 +715,34 @@ func clear() -> void:
 	atoms_cleared.emit()
 
 
-func get_aabb() -> AABB:
+func get_aabb(in_bounds_type := AABB_BoundsType.AtomsPositions) -> AABB:
 	var aabb: AABB = AABB()
 	if _atoms.is_empty():
 		return aabb
+	var elements_radius: Dictionary[int, float]
 	var is_first: bool = true
 	for atom: NanoAtomLegacy in _atoms:
 		if atom.valid:
+			var atom_aabb := AABB(atom.position, Vector3.ZERO)
+			if in_bounds_type != AABB_BoundsType.AtomsPositions and not atom.atomic_number in elements_radius:
+				var element_data: ElementData = PeriodicTable.get_by_atomic_number(atom.atomic_number)
+				match in_bounds_type:
+					AABB_BoundsType.VisualRadius:
+						elements_radius[atom.atomic_number] = (
+							Representation.get_atom_radius(element_data, get_representation_settings()) \
+							* Representation.get_atom_scale_factor(get_representation_settings())
+						)
+					AABB_BoundsType.CovalentRadius:
+						elements_radius[atom.atomic_number] = element_data.covalent_radius[1]
+					AABB_BoundsType.ContactRadius:
+						elements_radius[atom.atomic_number] = element_data.contact_radius
+			atom_aabb = atom_aabb.grow(elements_radius.get(atom.atomic_number, 0.0)).abs()
 			if is_first:
-				aabb.position = atom.position
+				aabb = atom_aabb
 				is_first = false
 			else:
-				aabb = aabb.expand(atom.position)
+				aabb = aabb.expand(atom_aabb.position)
+				aabb = aabb.expand(atom_aabb.end)
 	return aabb.abs()
 
 

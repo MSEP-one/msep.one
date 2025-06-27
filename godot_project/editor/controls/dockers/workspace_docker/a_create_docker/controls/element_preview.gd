@@ -36,7 +36,8 @@ extends Control
 		if !is_instance_valid(label_render_warning):
 			await ready
 		_update_unknown_vdw_radii_notice()
-
+@export var visible_allow_unknown_element: bool = false
+@export_subgroup("")
 
 @onready var number: Label = %Number
 @onready var symbol: Label = %Symbol
@@ -44,7 +45,10 @@ extends Control
 @onready var mass: Label = %Mass
 @onready var label_render_warning: Label = %LabelRenderWarning
 
-var _atomic_number: int
+# _atomic_number is editor only property, not saved to tscn
+@export_custom(PROPERTY_HINT_RANGE,"0,118,1", PROPERTY_USAGE_EDITOR)
+var _atomic_number: int:
+	set = set_element_number
 var _is_render_radii_known: bool = true
 var _is_vdw_radii_known: bool = true
 var _current_color_schema: PeriodicTable.ColorSchema = PeriodicTable.get_current_color_schema()
@@ -54,7 +58,11 @@ func set_element_number(in_atomic_number: int) -> void:
 	if !is_instance_valid(number):
 		await ready
 	number.text = str(_atomic_number)
-	set_element_data(PeriodicTable.get_by_atomic_number(_atomic_number))
+	if in_atomic_number <= 0:
+		assert(visible_allow_unknown_element)
+		set_element_data(PeriodicTable._unknown_element)
+	else:
+		set_element_data(PeriodicTable.get_by_atomic_number(_atomic_number))
 
 
 func set_element_data(in_data: ElementData) -> void:

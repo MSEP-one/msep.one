@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://c0uyh0jlgutcy" path="res://editor/icons/icon_search.svg" id="3_5b588"]
 
 [node name="ExtendedElementPicker" type="PopupPanel"]
-size = Vector2i(960, 579)
+size = Vector2i(972, 591)
 visible = true
 script = ExtResource("1_rmh0f")
 
@@ -13,10 +13,10 @@ script = ExtResource("1_rmh0f")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 956.0
-offset_bottom = 575.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 962.0
+offset_bottom = 581.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 10

@@ -69,6 +69,7 @@ element = 17
 
 [node name="MoreTypesButton" type="Button" parent="."]
 layout_mode = 2
+theme_type_variation = &"CrystalButton"
 text = "More Types ..."
 
 [node name="ExtendedElementPicker" parent="MoreTypesButton" instance_placeholder="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/extended_element_picker.tscn"]

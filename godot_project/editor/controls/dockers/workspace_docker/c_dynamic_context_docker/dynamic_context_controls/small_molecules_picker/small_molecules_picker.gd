@@ -1,7 +1,7 @@
 class_name SmallMoleculesPicker extends PopupPanel
 
 
-signal molecule_selected(filepath: String)
+signal molecule_selected(filepath: String, preview: Texture2D)
 
 
 const FRAGMENTS_FOLDER: String = "res://chemical_structures/"
@@ -25,6 +25,19 @@ func _notification(what: int) -> void:
 		_small_molecules_tree.mouse_exited.connect(_on_small_molecules_tree_mouse_exited)
 		_init_list()
 		hide()
+
+
+func popup_attached_to_control(in_control: Control) -> void:
+	var screen_size: Vector2 = in_control.get_window().size
+	var popup_separation: int = 4
+	var button_rect: Rect2 = in_control.get_global_rect().grow(popup_separation)
+	var desired_position: Vector2 = button_rect.end - Vector2(button_rect.size.x, 0)
+	if desired_position.x + size.x > screen_size.x:
+		desired_position.x -= (size.x - button_rect.size.x)
+	if desired_position.y + size.y > screen_size.y:
+		desired_position.y -= button_rect.size.y + size.y
+	position = desired_position
+	popup()
 
 
 func _on_search_line_edit_text_changed(in_text: String) -> void:
@@ -52,7 +65,7 @@ func _on_small_molecules_tree_item_selected() -> void:
 	var selected: TreeItem = _small_molecules_tree.get_selected()
 	var path: String = selected.get_meta(META_PATH, String())
 	if not path.is_empty():
-		molecule_selected.emit(path)
+		molecule_selected.emit(path, _preview_texture.texture)
 		hide()
 
 

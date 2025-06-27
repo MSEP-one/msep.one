@@ -32,7 +32,7 @@ const NON_METALS = [1, 6, 7, 8, 9, 14, 15, 16, 17]
 var _elements : Dictionary
 var _elements_by_name : Dictionary
 var _elements_by_symbol : Dictionary
-var _unknown_element := ElementData.new("-1,0,0,,Unknown,,,,,,,,,,,,#FFFFFF,#FFFFFF,#FFFFFF,#000000,0.0")
+var _unknown_element := ElementData.new("-1,0,0,?,Unknown,,,,,,,,,,,,#FFFFFF,#FFFFFF,#FFFFFF,#000000,0.0")
 var _current_color_schema := ColorSchema.MSEP
 
 func _init() -> void:

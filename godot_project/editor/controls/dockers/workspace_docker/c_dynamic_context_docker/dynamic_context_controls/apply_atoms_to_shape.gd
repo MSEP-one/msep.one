@@ -2,13 +2,20 @@ extends DynamicContextControl
 
 
 const DELETE_ICON: Texture2D = preload("res://editor/controls/menu_bar/menu_edit/icons/icon_delete.svg")
-const NO_ATOM_TYPE_SELECTED: int = -1
+const NO_ATOM_TYPE_SELECTED: int = 0
 
 
 var _workspace_context: WorkspaceContext
 var _selected_type: int = NO_ATOM_TYPE_SELECTED
+var _selected_small_molecule: AtomicStructure = null
 var _current_contact_radius: float = -1.0
 var _current_atom_radius: float = -1.0
+
+
+enum ApplyingWhat {
+	ATOMS,
+	SMALL_MOLECULES,
+}
 
 
 enum _warning_message_keys { 
@@ -18,7 +25,12 @@ enum _warning_message_keys {
 	SHORTER_THAN_EQUILIBRIUM_DISTANCE, 
 }
 
-var _warning_messages : Dictionary = {
+var _small_molecules_warning_messages : Dictionary = {
+	_warning_message_keys.NO_CONTENT_SELECTED: "[color=tomato]Select a molecule to fill the shape first[/color]",
+	_warning_message_keys.NO_WARNING: "Distance is additional separation between molecules",
+}
+
+var _atom_warning_messages : Dictionary = {
 	_warning_message_keys.NO_CONTENT_SELECTED: "[color=tomato]Select an atom to fill the shape first[/color]",
 	_warning_message_keys.NO_WARNING: "Distance is adequate for [color=green][b]unbonded[/b][/color] atoms",
 	_warning_message_keys.SHORTER_THAN_ATOMIC_RADIUS: "[color=tomato]Distance is too short! [b]Atoms will overlap[/b][/color]",
@@ -26,8 +38,16 @@ var _warning_messages : Dictionary = {
 }
 
 
-@onready var _element_picker: VBoxContainer = %ElementPicker
+@onready var _apply_atoms_button: Button = %ApplyAtomsButton
+@warning_ignore("unused_private_class_variable")
+@onready var _apply_small_molecules_button: Button = %ApplySmallMoleculesButton
+@onready var _element_preview: AspectRatioContainer = %ElementPreview
+@onready var _small_molecules_preview: TextureRect = %SmallMoleculesPreview
 @onready var _tree: Tree = %Tree
+@onready var _select_popup_menu_button: Button = %SelectPopupMenuButton
+@onready var _small_molecules_picker: SmallMoleculesPicker = %SmallMoleculesPicker
+@onready var _compact_element_picker_popup: CompactElementPickerPopup = %CompactElementPickerPopup
+@onready var _element_picker: ElementPickerBase = _compact_element_picker_popup.get_element_picker()
 @onready var _reset_distance_button: Button = %ResetDistanceButton as Button
 @onready var _spinbox_distance: SpinBoxSlider = $PanelContainerDistance/VBoxContainer/HBoxContainer/SpinBoxSlider
 @onready var _label_warnings: RichTextLabel = $PanelContainerDistance/VBoxContainer/Label
@@ -35,13 +55,23 @@ var _warning_messages : Dictionary = {
 @onready var _button_fill: Button = %ButtonFill
 
 
+var _applying_what: ApplyingWhat:
+	set = _set_apply_type
+
+
 func _ready() -> void:
+	_apply_atoms_button.button_group.pressed.connect(_on_what_to_apply_button_pressed)
 	_reset_distance_button.pressed.connect(_on_atomic_radius_button_pressed)
 	_button_cover.pressed.connect(_on_cover_button_pressed)
 	_button_fill.pressed.connect(_on_fill_button_pressed)
-	_element_picker.atom_type_change_requested.connect(_on_element_picker_atom_type_change_requested)
 	_tree.button_clicked.connect(_on_tree_delete_button_clicked)
+	_element_picker.atom_type_change_requested.connect(_on_element_picker_atom_type_change_requested)
+	_small_molecules_picker.molecule_selected.connect(_on_small_molecules_picker_molecule_selected)
+	_select_popup_menu_button.pressed.connect(_on_select_popup_menu_button_pressed)
 	_spinbox_distance.value_changed.connect(_refresh_warning_message)
+	_element_preview.set_element_number(_selected_type)
+	_small_molecules_preview.texture = preload("uid://njg8vo87cuus")
+	_small_molecules_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_refresh_ui()
 
 
@@ -62,6 +92,28 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	return false
 
 
+func _on_what_to_apply_button_pressed(in_button: BaseButton) -> void:
+	_applying_what = (
+		ApplyingWhat.ATOMS
+		if in_button == _apply_atoms_button
+		else ApplyingWhat.SMALL_MOLECULES
+	)
+
+
+func _set_apply_type(in_what_to_apply: ApplyingWhat) -> void:
+	if in_what_to_apply == _applying_what:
+		return
+	_applying_what = in_what_to_apply
+	_clear_selected_object()
+	match _applying_what:
+		ApplyingWhat.ATOMS:
+			_element_preview.show()
+			_small_molecules_preview.hide()
+		ApplyingWhat.SMALL_MOLECULES:
+			_small_molecules_preview.show()
+			_element_preview.hide()
+
+
 func _refresh_ui() -> void:
 	_refresh_tree_selection_filters()
 	_refresh_buttons_visibility()
@@ -70,20 +122,29 @@ func _refresh_ui() -> void:
 
 func _refresh_tree_selection_filters() -> void:
 	_tree.clear()
-	assert(_selected_type != 0, "Selected Type value is invalid")
 	var atom_type_has_been_selected: bool = _selected_type > NO_ATOM_TYPE_SELECTED
-	_tree.visible = atom_type_has_been_selected
+	var small_molecule_has_been_selected: bool = _selected_small_molecule != null
+	_tree.visible = atom_type_has_been_selected or small_molecule_has_been_selected
 	var root: TreeItem = _tree.create_item()
 	if atom_type_has_been_selected:
 		var tree_item: TreeItem = _tree.create_item(root)
 		var element_data: ElementData = PeriodicTable.get_by_atomic_number(_selected_type)
 		tree_item.set_text(0, element_data.name)
 		tree_item.add_button(0, DELETE_ICON, _selected_type)
+	if small_molecule_has_been_selected:
+		var tree_item: TreeItem = _tree.create_item(root)
+		tree_item.set_text(0, _selected_small_molecule.get_structure_name())
+		# Instance ID of small molecule object is used as ID of delete button
+		tree_item.add_button(0, DELETE_ICON, _selected_small_molecule.get_instance_id())
 	_tree.update_minimum_size()
 
 
 func _refresh_buttons_visibility() -> void:
-	var no_types_selected: bool = _selected_type == NO_ATOM_TYPE_SELECTED
+	var no_types_selected: bool
+	if _applying_what == ApplyingWhat.ATOMS:
+		no_types_selected = _selected_type == NO_ATOM_TYPE_SELECTED
+	elif _applying_what == ApplyingWhat.SMALL_MOLECULES:
+		no_types_selected = _selected_small_molecule == null
 	_reset_distance_button.disabled = no_types_selected
 	_spinbox_distance.editable = not no_types_selected
 	if no_types_selected:
@@ -114,19 +175,30 @@ func _refresh_warning_message(in_distance_value: float) -> void:
 	var msg: String = ""
 	var contact_diameter: float = _current_contact_radius * 2.0
 	var atom_diameter: float = _current_atom_radius * 2.0
-	if _selected_type == NO_ATOM_TYPE_SELECTED:
-		msg = _warning_messages[_warning_message_keys.NO_CONTENT_SELECTED]
-	elif in_distance_value >= contact_diameter:
-		msg = _warning_messages[_warning_message_keys.NO_WARNING]
-	elif in_distance_value >= atom_diameter:
-		msg = _warning_messages[_warning_message_keys.SHORTER_THAN_EQUILIBRIUM_DISTANCE]
-	elif in_distance_value < atom_diameter:
-		msg = _warning_messages[_warning_message_keys.SHORTER_THAN_ATOMIC_RADIUS]
+	if _applying_what == ApplyingWhat.ATOMS:
+		if _selected_type == NO_ATOM_TYPE_SELECTED:
+			msg = _atom_warning_messages[_warning_message_keys.NO_CONTENT_SELECTED]
+		elif in_distance_value >= contact_diameter:
+			msg = _atom_warning_messages[_warning_message_keys.NO_WARNING]
+		elif in_distance_value >= atom_diameter:
+			msg = _atom_warning_messages[_warning_message_keys.SHORTER_THAN_EQUILIBRIUM_DISTANCE]
+		elif in_distance_value < atom_diameter:
+			msg = _atom_warning_messages[_warning_message_keys.SHORTER_THAN_ATOMIC_RADIUS]
+	elif _applying_what == ApplyingWhat.SMALL_MOLECULES:
+		if _selected_small_molecule == null:
+			msg = _small_molecules_warning_messages[_warning_message_keys.NO_CONTENT_SELECTED]
+		else:
+			msg = _small_molecules_warning_messages[_warning_message_keys.NO_WARNING]
+	else:
+		assert(false, "Untracked content type " + ApplyingWhat.find_key(_applying_what))
+		msg = ""
 	_label_warnings.text = tr(msg)
 
 
 func _on_element_picker_atom_type_change_requested(element: int) -> void:
 	_selected_type = element
+	_element_preview.set_element_number(_selected_type)
+	_compact_element_picker_popup.hide()
 	var element_data: ElementData = PeriodicTable.get_by_atomic_number(_selected_type)
 	_current_atom_radius = element_data.get(ElementData.PROPERTY_NAME_RENDER_RADIUS)
 	_current_contact_radius = element_data.get(ElementData.PROPERTY_NAME_CONTACT_RADIUS)
@@ -134,13 +206,45 @@ func _on_element_picker_atom_type_change_requested(element: int) -> void:
 	_refresh_ui()
 
 
-func _on_tree_delete_button_clicked(_item: TreeItem, _column: int, id: int, _mouse_button_index: int) -> void:
-	if _selected_type == id:
-		_selected_type = NO_ATOM_TYPE_SELECTED
-		_current_atom_radius = -1.0
-		_current_contact_radius = -1.0
-		_spinbox_distance.value = 0.0
+func _on_small_molecules_picker_molecule_selected(in_path: String, in_preview: Texture2D) -> void:
+	_small_molecules_preview.texture = in_preview
+	_small_molecules_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	assert(is_instance_valid(_workspace_context))
+	var unpacked_mol_path: String = WorkspaceUtils.unpack_mol_file_and_get_path(in_path)
+	var absolute_path: String = ProjectSettings.globalize_path(unpacked_mol_path)
+	_selected_small_molecule = await WorkspaceUtils.get_nano_structure_from_file(_workspace_context, absolute_path, false, false, false)
+	_selected_small_molecule.set_structure_name(in_path.get_file().get_basename().capitalize())
 	_refresh_ui()
+	
+
+
+func _on_tree_delete_button_clicked(_item: TreeItem, _column: int, id: int, _mouse_button_index: int) -> void:
+	if _applying_what == ApplyingWhat.ATOMS and _selected_type == id:
+		_clear_selected_object()
+	# Instance ID of small molecule object is used as ID of delete button
+	elif _applying_what == ApplyingWhat.SMALL_MOLECULES \
+			and _selected_small_molecule != null \
+			and _selected_small_molecule.get_instance_id() == id:
+		_clear_selected_object()
+
+
+func _clear_selected_object() -> void:
+	_selected_type = NO_ATOM_TYPE_SELECTED
+	_element_preview.set_element_number(_selected_type)
+	_selected_small_molecule = null
+	_small_molecules_preview.texture = preload("uid://njg8vo87cuus")
+	_small_molecules_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_current_atom_radius = -1.0
+	_current_contact_radius = -1.0
+	_spinbox_distance.value = 0.0
+	_refresh_ui()
+
+
+func _on_select_popup_menu_button_pressed() -> void:
+	if _applying_what == ApplyingWhat.ATOMS:
+		_compact_element_picker_popup.popup_attached_to_control(_select_popup_menu_button)
+	else:
+		_small_molecules_picker.popup_attached_to_control(_select_popup_menu_button)
 
 
 func _on_workspace_context_selection_in_structures_changed(_contexts: Array[StructureContext]) -> void:
@@ -160,6 +264,13 @@ func _on_atomic_radius_button_pressed() -> void:
 
 
 func _on_cover_button_pressed() -> void:
+	if _applying_what == ApplyingWhat.ATOMS:
+		_cover_shape_with_atoms()
+	elif _applying_what == ApplyingWhat.SMALL_MOLECULES:
+		_cover_shape_with_molecules()
+
+
+func _cover_shape_with_atoms() -> void:
 	var target_element_data: ElementData = PeriodicTable.get_by_atomic_number(_selected_type)
 	
 	var editable_structure_contexts: Array[StructureContext] = \
@@ -173,9 +284,26 @@ func _on_cover_button_pressed() -> void:
 		var atom_diameter: float = \
 			_get_atom_diameter(target_element_data, nano_shape.get_representation_settings())
 		var minimum_distance_between_atoms: float = max(atom_diameter, _spinbox_distance.value)
-		_cover_shape_surface(minimum_distance_between_atoms, target_element_data.number, structure_context)
+		_cover_shape_surface(minimum_distance_between_atoms, structure_context)
 	
 	_workspace_context.snapshot_moment("Cover shape with atoms")
+
+
+func _cover_shape_with_molecules() -> void:
+	var molecule_aabb: AABB = _selected_small_molecule.get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius)
+	molecule_aabb = molecule_aabb.grow(_spinbox_distance.value)
+	var molecule_diameter: float = molecule_aabb.get_longest_axis_size()
+	
+	var editable_structure_contexts: Array[StructureContext] = \
+		_workspace_context.get_editable_structure_contexts()
+	var selected_shapes_contexts: Array[StructureContext] = \
+		_get_selected_shapes_contexts(editable_structure_contexts)
+	
+	for structure_context: StructureContext in selected_shapes_contexts:
+		assert(structure_context.nano_structure is NanoShape, "Selected context is not a shape!")
+		_cover_shape_surface(molecule_diameter, structure_context)
+	
+	_workspace_context.snapshot_moment("Cover shape with molecules")
 
 
 func _get_selected_shapes_contexts(in_editable_structure_contexts: Array[StructureContext]) -> Array[StructureContext]:
@@ -189,7 +317,6 @@ func _get_selected_shapes_contexts(in_editable_structure_contexts: Array[Structu
 
 func _cover_shape_surface(
 	in_minimum_distance_between_atoms: float, 
-	in_element_number: int, 
 	out_structure_context: StructureContext) -> void:
 	assert(out_structure_context.nano_structure is NanoShape, "Selected context is not a shape!")
 	var nano_shape: NanoShape = out_structure_context.nano_structure as NanoShape
@@ -201,8 +328,11 @@ func _cover_shape_surface(
 			in_minimum_distance_between_atoms, FILL_WHOLE_SHAPE
 		)
 	
-	var new_atom_ids: PackedInt32Array = \
-		_create_atoms(new_atom_positions, in_element_number, nano_shape.get_transform(), target_structure)
+	var new_atom_ids: PackedInt32Array
+	if _applying_what == ApplyingWhat.ATOMS:
+		new_atom_ids = _create_atoms(new_atom_positions, _selected_type, nano_shape.get_transform(), target_structure)
+	elif _applying_what == ApplyingWhat.SMALL_MOLECULES:
+		new_atom_ids = _create_molecules(new_atom_positions, _selected_small_molecule, nano_shape.get_transform(), target_structure)
 	_set_new_selection(new_atom_ids, target_context)
 
 
@@ -238,11 +368,42 @@ func _create_atoms(
 	return new_atom_ids
 
 
+func _create_molecules(
+	in_centroid_positions: PackedVector3Array, 
+	in_template: AtomicStructure, 
+	in_nano_shape_transform: Transform3D,
+	out_target_structure: AtomicStructure) -> PackedInt32Array:
+	out_target_structure.start_edit()
+	var new_atom_ids: PackedInt32Array = []
+	for mol_pos: Vector3 in in_centroid_positions:
+		var mol_instance_atom_map: Dictionary[int, int] = {}
+		for atom_id: int in in_template.get_valid_atoms():
+			var atomic_number: int = in_template.atom_get_atomic_number(atom_id)
+			var atom_pos: Vector3 = mol_pos + in_template.atom_get_position(atom_id)
+			var new_atom_id: int = out_target_structure.add_atom(
+				NanoMolecularStructure.AddAtomParameters.new(
+					atomic_number, in_nano_shape_transform * atom_pos
+				)
+			)
+			mol_instance_atom_map[atom_id] = new_atom_id
+			new_atom_ids.push_back(new_atom_id)
+		for bond_id: int in in_template.get_valid_bonds():
+			var bond_data: Vector3i = in_template.get_bond(bond_id)
+			var atom_a: int = mol_instance_atom_map[bond_data[0]]
+			var atom_b: int = mol_instance_atom_map[bond_data[1]]
+			var bond_order: int = bond_data[2]
+			out_target_structure.add_bond(atom_a, atom_b, bond_order)
+	out_target_structure.end_edit()
+	EditorSfx.create_object()
+	return new_atom_ids
+	
+
+
 func _set_new_selection(
 	in_atom_ids: PackedInt32Array,
 	out_target_context: StructureContext) -> void:
 	if out_target_context == _workspace_context.get_current_structure_context():
-		out_target_context.select_atoms(in_atom_ids)
+		out_target_context.select_atoms_and_get_auto_selected_bonds(in_atom_ids)
 	else:
 		# Handle the case where atoms are added to a subgroup
 		# the entire subgroup should be selected as well
@@ -250,6 +411,13 @@ func _set_new_selection(
 
 
 func _on_fill_button_pressed() -> void:
+	if _applying_what == ApplyingWhat.ATOMS:
+		_fill_shape_with_atoms()
+	elif _applying_what == ApplyingWhat.SMALL_MOLECULES:
+		_fill_shape_with_molecules()
+
+
+func _fill_shape_with_atoms() -> void:
 	var target_element_data: ElementData = PeriodicTable.get_by_atomic_number(_selected_type)
 	var editable_structure_contexts: Array[StructureContext] = \
 		_workspace_context.get_editable_structure_contexts()
@@ -262,14 +430,30 @@ func _on_fill_button_pressed() -> void:
 		var atom_diameter: float = \
 			_get_atom_diameter(target_element_data, nano_shape.get_representation_settings())
 		var minimum_distance_between_atoms: float = max(atom_diameter, _spinbox_distance.value)
-		_fill_shape(minimum_distance_between_atoms, target_element_data.number, structure_context)
+		_fill_shape(minimum_distance_between_atoms, structure_context)
 	
 	_workspace_context.snapshot_moment("Fill shape with atoms")
 
 
+func _fill_shape_with_molecules() -> void:
+	var molecule_aabb: AABB = _selected_small_molecule.get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius)
+	molecule_aabb = molecule_aabb.grow(_spinbox_distance.value)
+	var molecule_diameter: float = molecule_aabb.get_longest_axis_size()
+	
+	var editable_structure_contexts: Array[StructureContext] = \
+		_workspace_context.get_editable_structure_contexts()
+	var selected_shapes_contexts: Array[StructureContext] = \
+		_get_selected_shapes_contexts(editable_structure_contexts)
+	
+	for structure_context: StructureContext in selected_shapes_contexts:
+		assert(structure_context.nano_structure is NanoShape, "Selected context is not a shape!")
+		_fill_shape(molecule_diameter, structure_context)
+	
+	_workspace_context.snapshot_moment("Fill shape with molecules")
+
+
 func _fill_shape(
-	in_minimum_distance_between_atoms: float, 
-	in_element_number: int, 
+	in_minimum_distance_between_atoms: float,
 	out_structure_context: StructureContext) -> void:
 	assert(out_structure_context.nano_structure is NanoShape, "Selected context is not a shape!")
 	var nano_shape: NanoShape = out_structure_context.nano_structure as NanoShape
@@ -284,7 +468,10 @@ func _fill_shape(
 		if nano_shape.get_shape().has_method("get_fill_atoms_positions") else \
 		nano_shape.get_shape().get_cover_atoms_positions(in_minimum_distance_between_atoms, FILL_WHOLE_SHAPE)
 	
-	var new_atom_ids: PackedInt32Array = \
-		_create_atoms(new_atom_positions, in_element_number, nano_shape.get_transform(), target_structure)
+	var new_atom_ids: PackedInt32Array = []
+	if _applying_what == ApplyingWhat.ATOMS:
+		new_atom_ids = _create_atoms(new_atom_positions, _selected_type, nano_shape.get_transform(), target_structure)
+	elif _applying_what == ApplyingWhat.SMALL_MOLECULES:
+		new_atom_ids = _create_molecules(new_atom_positions, _selected_small_molecule, nano_shape.get_transform(), target_structure)
 	
 	_set_new_selection(new_atom_ids, target_context)
