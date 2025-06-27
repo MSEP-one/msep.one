@@ -11,10 +11,12 @@ const Icons: Dictionary = {
 	auto_bonder = preload("res://editor/controls/menu_bar/menu_create/menu_atoms/icons/icon_AutoBonder_16px.svg"),
 	add_hydrogens = preload("res://editor/controls/menu_bar/menu_create/menu_atoms/icons/icon_AddHydrogens_16px.svg"),
 	lock_selected_atoms = preload("res://editor/controls/menu_bar/menu_create/menu_atoms/icons/icon_LockAtoms_16px.svg"),
+	fix_overlapping_atoms = preload("res://editor/icons/icon_fix_overlap_16px.svg"),
 }
 const ID_AUTO_BONDER = 200
 const ID_ADD_HYDROGENS = 201
 const ID_LOCK_UNLOCK_SELECTED_ATOMS = 202
+const ID_CORRECT_OVERLAPPING_ATOMS = 203
 const FEATURE_FLAG_AUTOBONDER_ACTION_ENABLED: StringName = &"feature_flags/autobonder_action_enabled"
 
 var _autobonder_action_enabled: bool = true
@@ -35,6 +37,7 @@ func _ready() -> void:
 	set_item_shortcut(get_item_index(ID_ADD_HYDROGENS), shortcut_add_hydrogens, true)
 	add_icon_item(Icons.lock_selected_atoms, tr("Lock/Unlock Selected Atoms"), ID_LOCK_UNLOCK_SELECTED_ATOMS)
 	set_item_shortcut(get_item_index(ID_LOCK_UNLOCK_SELECTED_ATOMS), shortcut_lock_atoms, true)
+	add_icon_item(Icons.fix_overlapping_atoms, tr("Correct Overlapping Atoms"), ID_CORRECT_OVERLAPPING_ATOMS)
 
 
 func _update_menu() -> void:
@@ -98,7 +101,9 @@ func _on_id_pressed(in_id: int) -> void:
 	elif in_id == ID_LOCK_UNLOCK_SELECTED_ATOMS:
 		request_hide.emit()
 		MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME, &"Lock/Unlock Atoms")
-
+	elif in_id == ID_CORRECT_OVERLAPPING_ATOMS:
+		request_hide.emit()
+		_correct_overlapping_atoms(workspace_context)
 
 func _start_creating_atom(in_workspace_context: WorkspaceContext, in_element_number: int) -> void:
 	in_workspace_context.create_object_parameters.set_new_atom_element(in_element_number)
@@ -112,3 +117,7 @@ func _auto_create_bonds(in_workspace_context: WorkspaceContext) -> void:
 
 func _add_hydrogens(in_workspace_context: WorkspaceContext) -> void:
 	in_workspace_context.action_add_hydrogens.execute()
+
+
+func _correct_overlapping_atoms(in_workspace_context: WorkspaceContext) -> void:
+	in_workspace_context.action_correct_overlapping_atoms.execute()

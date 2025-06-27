@@ -103,6 +103,7 @@ var action_import_from_library: RingActionImportFromLibrary = null
 var action_load_fragment: RingActionLoadFragment = null
 var action_auto_bonder: RingActionAutoBonder = null
 var action_add_hydrogens: RingActionAddHydrogens = null
+var action_correct_overlapping_atoms: RingActionCorrectOverlappingAtoms = null
 var action_invert_selection: RingActionInvertSelection = null
 var action_select_all: RingActionSelectAll = null
 var action_deselect_all: RingActionDeselectAll = null
@@ -194,6 +195,7 @@ func _on_workspace_main_view_ready() -> void:
 	action_add_hydrogens = RingActionAddHydrogens.new(self, ring_menu)
 	action_add_hydrogens.hydrogen_atoms_count_changed.connect(_on_hydrogen_atom_count_change)
 	action_invert_selection = RingActionInvertSelection.new(self, ring_menu)
+	action_correct_overlapping_atoms = RingActionCorrectOverlappingAtoms.new(self, ring_menu)
 	action_select_all = RingActionSelectAll.new(self, ring_menu)
 	action_deselect_all = RingActionDeselectAll.new(self, ring_menu)
 	action_select_by_type = RingActionSelectByType.new(self, ring_menu)
