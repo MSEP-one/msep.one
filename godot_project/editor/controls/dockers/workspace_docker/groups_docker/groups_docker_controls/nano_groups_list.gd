@@ -385,6 +385,8 @@ func _on_workspace_context_current_structure_context_changed(in_structure_contex
 
 func _on_workspace_context_selection_in_structures_changed(in_structure_contexts: Array[StructureContext]) -> void:
 	for context: StructureContext in in_structure_contexts:
+		if not context.nano_structure:
+			continue
 		var item: TreeItem = _get_structure_tree_item_or_null(context.nano_structure.int_guid)
 		if not item:
 			continue
