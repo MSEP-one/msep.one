@@ -47,6 +47,9 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Set Color Override" : true,
 	"Reset Color Override" : true,
 }
+const ACTION_BEGINNING_WITH_WHITELIST_DURING_SIMULATION: Dictionary = {
+	"Representation change to " : true,
+}
 
 const REDUNDANT_ACTION_WHITELIST := {
 	"Apply Simulation State": true,
@@ -308,4 +311,9 @@ static func apply_signal_pack(in_pack: Dictionary, in_signal: Signal, in_target_
 
 
 static func is_operation_whitelisted_during_simulation(in_operation_name: String) -> bool:
-	return ACTION_WHITELIST_DURING_SIMULATION.has(in_operation_name)
+	if ACTION_WHITELIST_DURING_SIMULATION.has(in_operation_name):
+		return true
+	for beginning_with: String in ACTION_BEGINNING_WITH_WHITELIST_DURING_SIMULATION.keys():
+		if in_operation_name.begins_with(beginning_with):
+			return true
+	return false
