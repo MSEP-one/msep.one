@@ -213,9 +213,23 @@ func _on_small_molecules_picker_molecule_selected(in_path: String, in_preview: T
 	var unpacked_mol_path: String = WorkspaceUtils.unpack_mol_file_and_get_path(in_path)
 	var absolute_path: String = ProjectSettings.globalize_path(unpacked_mol_path)
 	_selected_small_molecule = await WorkspaceUtils.get_nano_structure_from_file(_workspace_context, absolute_path, false, false, false)
+	_center_template_on_origin(_selected_small_molecule)
 	_selected_small_molecule.set_structure_name(in_path.get_file().get_basename().capitalize())
 	_refresh_ui()
-	
+
+
+func _center_template_on_origin(out_template: AtomicStructure) -> void:
+	var center: Vector3 = out_template.get_aabb().get_center()
+	if center.is_equal_approx(Vector3.ZERO):
+		return
+	var atoms: PackedInt32Array = out_template.get_valid_atoms()
+	var positions: PackedVector3Array = []
+	for atom_id: int in atoms:
+		var new_pos: Vector3 = out_template.atom_get_position(atom_id) - center
+		positions.push_back(new_pos)
+	out_template.start_edit()
+	out_template.atoms_set_positions(atoms, positions)
+	out_template.end_edit()
 
 
 func _on_tree_delete_button_clicked(_item: TreeItem, _column: int, id: int, _mouse_button_index: int) -> void:
