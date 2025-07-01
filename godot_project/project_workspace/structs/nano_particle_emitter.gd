@@ -16,6 +16,7 @@ const INSTANCE_SAFETY_MARGIN = 0.05 # nanometers
 var _frame_length_nanoseconds: float
 
 var _debug_show_unspawned_instances: bool = false
+var _about_to_apply_simulation: bool = false
 var _instances_group: AtomicStructure
 var _instances_atom_ids: Array[PackedInt32Array]
 var _instances_bond_ids: Array[PackedInt32Array]
@@ -196,6 +197,10 @@ func notify_apply_simulation() -> void:
 	_instances_bond_ids = []
 
 
+func notify_about_to_apply_simulation() -> void:
+	_about_to_apply_simulation = true
+
+
 func calculate_instance_offset(in_instance_idx: int) -> Vector3:
 	var radius: float = _parameters.get_molecule_template().get_aabb().get_longest_axis_size() * 0.5 + INSTANCE_SAFETY_MARGIN
 	
@@ -319,9 +324,16 @@ func create_state_snapshot(in_with_instances: bool = false) -> Dictionary:
 	state_snapshot["script.resource_path"] = get_script().resource_path
 	state_snapshot["_transform"] = _transform
 	state_snapshot["_parameters_snapshot"] = _parameters.create_state_snapshot()
-	state_snapshot["_instances_atom_ids"] = _instances_atom_ids.duplicate(false)
-	state_snapshot["_instances_bond_ids"] = _instances_bond_ids.duplicate(false)
-	state_snapshot["_instances_group_id"] = -1 if _instances_group == null else _instances_group.int_guid
+	if _about_to_apply_simulation:
+		const EMPTY_ARRAY: Array[PackedInt32Array] = []
+		state_snapshot["_instances_atom_ids"] = EMPTY_ARRAY.duplicate(false)
+		state_snapshot["_instances_bond_ids"] = EMPTY_ARRAY.duplicate(false)
+		state_snapshot["_instances_group_id"] = -1
+		_about_to_apply_simulation = false
+	else:
+		state_snapshot["_instances_atom_ids"] = _instances_atom_ids.duplicate(false)
+		state_snapshot["_instances_bond_ids"] = _instances_bond_ids.duplicate(false)
+		state_snapshot["_instances_group_id"] = -1 if _instances_group == null else _instances_group.int_guid
 	if in_with_instances:
 		if _instances_group == null:
 			state_snapshot["_instances_group"] = Workspace.INVALID_STRUCTURE_ID

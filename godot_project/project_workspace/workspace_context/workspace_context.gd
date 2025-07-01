@@ -1360,6 +1360,10 @@ func snapshot_moment(in_operation_name: String) -> void:
 		# + Applying the user operation
 		# If we don't, hitting undo will revert the user action and the simulation at the same time.
 		
+		# Let's tell the emitters to make their next snapshot as if the simulation already ended
+		for emitter: NanoParticleEmitter in get_particle_emitters():
+			emitter.notify_about_to_apply_simulation()
+		
 		# Store the final snapshot containing both the applied state and the last action
 		var final_snapshot: Dictionary = _history.create_snapshot(in_operation_name)
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
