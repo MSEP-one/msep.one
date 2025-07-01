@@ -22,7 +22,6 @@ signal atoms_relaxation_finished(error_description_or_empty: String)
 signal simulation_started()
 signal simulation_finished()
 signal about_to_apply_simulation()
-signal simulation_state_applied()
 
 signal async_work_started()
 signal async_work_finished()
@@ -82,7 +81,6 @@ var _modified_structure_contexts: Dictionary #[int, true]
 var _selection_modified_structure_contexts: Dictionary #[int, true]
 var _simulation: SimulationData = null
 var _is_simulation_playback_running: bool = false
-var _is_applying_simulation_state: bool = false
 var _current_create_object_template: NanoStructure = null
 var _current_create_object_structure_context: StructureContext = null
 var _structure_contexts_holder: NodeHolder
@@ -1345,15 +1343,13 @@ func snapshot_moment(in_operation_name: String) -> void:
 	# workaround for part of the state for this workspace_context being inside ScriptUtils (this will apply that state)
 	get_editable_structure_contexts()
 	
+	# apply overdue signals, ensure snapshots contain up to date state
+	_emit_selection_in_structures_changed()
+	_emit_structure_content_changed()
+	
 	# Apply simulation if the operation modified the structure of the project
 	if is_simulating() and not History.is_operation_whitelisted_during_simulation(in_operation_name):
-		_is_applying_simulation_state = true
 		about_to_apply_simulation.emit()
-		
-		# apply overdue signals, ensure snapshots contain up to date state
-		_emit_selection_in_structures_changed()
-		_emit_structure_content_changed()
-		
 		UIBlocker.start_blocking_input_events(self)
 		# We need to split the next snapshot in two separate steps:
 		# + Applying the simulation
@@ -1391,15 +1387,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 		# Add the user operation back to the history stack
 		_history.push_and_apply_snapshot(final_snapshot, in_operation_name)
 		UIBlocker.stop_blocking_input_events(self)
-
-		_is_applying_simulation_state = false
-		simulation_state_applied.emit()
-
 		return
-	
-	# apply overdue signals, ensure snapshots contain up to date state
-	_emit_selection_in_structures_changed()
-	_emit_structure_content_changed()
 	
 	if not is_simulating():
 		_history.create_snapshot(in_operation_name)
@@ -1414,10 +1402,6 @@ func snapshot_moment(in_operation_name: String) -> void:
 	seek_simulation(0.0)
 	_history.create_snapshot(in_operation_name)
 	seek_simulation(current_simulation_time)
-
-
-func is_applying_simulation_state() -> bool:
-	return _is_applying_simulation_state
 
 
 func register_snapshotable(in_system: Object) -> void:
