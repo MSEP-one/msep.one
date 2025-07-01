@@ -217,7 +217,7 @@ func _ensure_workspace_initialized(out_workspace_context: WorkspaceContext) -> v
 		out_workspace_context.structure_about_to_remove.connect(_on_nano_structure_removed)
 		out_workspace_context.workspace.structure_reparented.connect(_on_workspace_structure_reparented)
 		out_workspace_context.current_structure_context_changed.connect(_on_workspace_context_current_structure_context_changed)
-		out_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed, CONNECT_DEFERRED)
+		out_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 		out_workspace_context.history_snapshot_applied.connect(_on_workspace_context_history_snapshot_applied)
 		_rebuild()
 
@@ -384,10 +384,27 @@ func _on_workspace_context_current_structure_context_changed(in_structure_contex
 
 
 func _on_workspace_context_selection_in_structures_changed(in_structure_contexts: Array[StructureContext]) -> void:
+	# Structure contexts can be added, removed, or recreated
+	# between this moment and the time we can efectively change the selection of the tree item
+	# This is because apply_simulation_state add and remove many groups all at once
+	# To ensure we dont lose track of objects we will reference them by ID
+	var groups_to_update := PackedInt32Array()
 	for context: StructureContext in in_structure_contexts:
-		var item: TreeItem = _get_structure_tree_item_or_null(context.nano_structure.int_guid)
-		if not item:
+		groups_to_update.push_back(context.get_int_guid())
+	if _workspace_context.is_applying_simulation_state():
+		await _workspace_context.simulation_state_applied
+	_update_structure_selection.call_deferred(groups_to_update)
+
+func _update_structure_selection(in_groups_to_update: PackedInt32Array) -> void:
+	for group_id: int in in_groups_to_update:
+		if not _workspace_context.workspace.has_structure_with_int_guid(group_id):
+			# group has been removed
 			continue
+		var nano_structure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(group_id)
+		if not _can_appear_in_tree(nano_structure):
+			continue
+		var context: StructureContext = _workspace_context.get_nano_structure_context(nano_structure)
+		var item: TreeItem = _get_structure_tree_item(group_id)
 		if context.has_atom_selection(true):
 			item.select(_TREE_COLUMN_0)
 		else:
