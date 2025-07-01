@@ -103,13 +103,13 @@ static var instance_counter: int = 0
 @export_group("Advanced Simulation Settings", "simulation_settings_advanced_") # end of "Simulation Settings" group
 
 ## When disabled, the rest of the advanced simulation settings will be ignored and default value will be used
-@export var simulation_settings_advanced_enabled: bool = false
+@export var simulation_settings_advanced_enabled: bool = true
 
 ## Integrator used during simulation/relaxation
 @export var simulation_settings_advanced_integrator: String = "verlet"
 
 ## If false, the simulation will use infinite periodic boxes
-@export var simulation_settings_advanced_use_constrained_simulation_box: bool = false
+@export var simulation_settings_advanced_use_constrained_simulation_box: bool = true
 
 ## When [code]simulation_settings_advanced_use_constrained_simulation_box[/code] is enabled, this value will be used
 ## to calculate periodic box by growing the existing AABB by this percentage
