@@ -1,39 +1,119 @@
-[gd_scene load_steps=4 format=3 uid="uid://ct60a47xpcr5q"]
+[gd_scene load_steps=10 format=3 uid="uid://ct60a47xpcr5q"]
 
 [ext_resource type="Script" uid="uid://do5wwid7ys6tl" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/apply_atoms_to_shape.gd" id="1_1hka1"]
-[ext_resource type="PackedScene" uid="uid://djdtnhc6tuvrh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.tscn" id="2_wxv1h"]
+[ext_resource type="PackedScene" uid="uid://dx1gn0krp0avh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.tscn" id="3_tinpt"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_wm30c"]
+[ext_resource type="PackedScene" uid="uid://dp606sfgxdepk" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/small_molecules_picker/small_molecules_picker.tscn" id="5_twgh8"]
+[ext_resource type="PackedScene" uid="uid://dyadiqebvvyti" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker_popup.tscn" id="6_tinpt"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_yoend"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_17qfi"]
+resource_local_to_scene = true
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.545098, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_bnevn"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_bbcq5"]
+resource_local_to_scene = true
+line_spacing = 0.0
+font_size = 48
+font_color = Color(0, 0, 0, 1)
 
 [node name="ApplyAtomsToShape" type="VBoxContainer"]
 offset_left = 5.0
 offset_top = 5.0
-offset_right = 219.0
-offset_bottom = 375.0
+offset_right = 265.0
+offset_bottom = 455.0
 size_flags_vertical = 0
-theme_override_constants/separation = 20
 script = ExtResource("1_1hka1")
 
-[node name="LabelChooseAtom" type="Label" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
-theme_type_variation = &"HeaderSmall"
-text = "Choose Atom Type"
 
-[node name="PanelContainerElement" type="PanelContainer" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="ApplyAtomsButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_yoend")
+text = "Atoms"
+
+[node name="ApplySmallMoleculesButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_yoend")
+text = "Small Molecules"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 
-[node name="ElementPicker" parent="PanelContainerElement" instance=ExtResource("2_wxv1h")]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="ElementPreview" parent="VBoxContainer/PanelContainer/VBoxContainer" instance=ExtResource("3_tinpt")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
+background_stylebox = SubResource("StyleBoxFlat_17qfi")
+general_label_settings = SubResource("LabelSettings_bnevn")
+symbol_label_settings = SubResource("LabelSettings_bbcq5")
+visible_element_name = false
+visible_mass = false
+visible_allow_unknown_element = true
 
-[node name="Tree" type="Tree" parent="."]
+[node name="SmallMoleculesPreview" type="TextureRect" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 113)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Tree" type="Tree" parent="VBoxContainer/PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 2
 hide_root = true
 scroll_horizontal_enabled = false
 scroll_vertical_enabled = false
+
+[node name="SelectPopupMenuButton" type="Button" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+text = "Select"
+
+[node name="SmallMoleculesPicker" parent="VBoxContainer/PanelContainer/VBoxContainer/SelectPopupMenuButton" instance=ExtResource("5_twgh8")]
+unique_name_in_owner = true
+visible = false
+
+[node name="CompactElementPickerPopup" parent="VBoxContainer/PanelContainer/VBoxContainer/SelectPopupMenuButton" instance=ExtResource("6_tinpt")]
+unique_name_in_owner = true
+visible = false
 
 [node name="LabelDistance" type="Label" parent="."]
 layout_mode = 2
@@ -82,10 +162,12 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
 text = "Cover Surface with Atoms"
 
 [node name="ButtonFill" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
 text = "Fill Shape Volume with Atoms"

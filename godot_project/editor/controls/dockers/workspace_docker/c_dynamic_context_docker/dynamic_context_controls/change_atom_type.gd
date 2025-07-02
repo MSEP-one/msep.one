@@ -8,8 +8,8 @@ const _METADATA_ID_ELEMENT: int = 1
 @onready var _tree: Tree = %Tree
 @onready var _selection_description: Label = %SelectionDescription
 @onready var _button_change_to: Button = %ButtonChangeTo
-@onready var _element_picker_popup: PopupPanel = %ElementPickerPopup
-@onready var _element_picker: VBoxContainer = %ElementPicker
+@onready var _element_picker_popup: CompactElementPickerPopup = %CompactElementPickerPopup
+@onready var _element_picker: CompactElementPicker = _element_picker_popup.get_element_picker()
 
 
 var _workspace_context: WorkspaceContext
@@ -43,17 +43,7 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 
 
 func _on_button_change_to_pressed() -> void:
-	var screen_rect: Rect2i = DisplayServer.screen_get_usable_rect()
-	var desired_position: Vector2 = DisplayServer.window_get_position()
-	var popup_separation: int = 4
-	var button_rect: Rect2 = _button_change_to.get_global_rect().grow(popup_separation)
-	desired_position += button_rect.end - Vector2(button_rect.size.x, 0)
-	if desired_position.x + _element_picker_popup.size.x > screen_rect.size.x:
-		desired_position.x -= (_element_picker_popup.size.x - button_rect.size.x)
-	if desired_position.y + _element_picker_popup.size.y > screen_rect.size.y:
-		desired_position.y -= button_rect.size.y + _element_picker_popup.size.y
-	_element_picker_popup.position = desired_position
-	_element_picker_popup.popup()
+	_element_picker_popup.popup_attached_to_control(_button_change_to)
 
 
 func _on_element_picker_atom_type_change_requested(in_to_element: int) -> void:

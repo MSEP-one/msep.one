@@ -5,6 +5,10 @@ extends ElementPickerBase
 ## Displays a "More types" button that opens the extended element picker popup.
 ## The extended element picker is instantiated on demand the first time "More Types" is clicked
 
+
+signal extended_element_picker_shown
+
+
 @onready var _extended_element_picker_placeholder: InstancePlaceholder = %ExtendedElementPicker
 @onready var _more_types_button: Button = $MoreTypesButton
 var _extended_element_picker: PopupPanel = null
@@ -27,6 +31,7 @@ func _on_more_types_button_pressed() -> void:
 			else:
 				_extended_element_picker.enable_element(atomic_number)
 	_extended_element_picker.popup_centered()
+	extended_element_picker_shown.emit()
 	EditorSfx.mouse_down()
 
 

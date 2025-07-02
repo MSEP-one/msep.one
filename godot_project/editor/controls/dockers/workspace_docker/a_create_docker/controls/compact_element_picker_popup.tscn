@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://dyadiqebvvyti"]
+
+[ext_resource type="Script" uid="uid://ydi0cw2wy2v0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker_popup.gd" id="1_beye0"]
+[ext_resource type="PackedScene" uid="uid://djdtnhc6tuvrh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker.tscn" id="1_ia0ww"]
+
+[node name="CompactElementPickerPopup" type="PopupPanel"]
+size = Vector2i(224, 215)
+visible = true
+script = ExtResource("1_beye0")
+
+[node name="ElementPicker" parent="." instance=ExtResource("1_ia0ww")]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 214.0
+offset_bottom = 205.0

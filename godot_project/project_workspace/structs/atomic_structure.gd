@@ -3,6 +3,14 @@ class_name AtomicStructure extends NanoStructure
 ## Common class representing structure that directy consists of bonds and atoms
 
 
+enum AABB_BoundsType {
+	AtomsPositions, # get_aabb will not grow based on the size of atoms
+	VisualRadius,   # get_aabb will grow based on how big atoms are rendered
+	CovalentRadius, # get_aabb will grow based on each atom's covalent radius
+	ContactRadius,  # get_aabb will grow based on each atom's contact radius
+}
+
+
 signal atoms_visibility_changed(atoms: PackedInt32Array)
 signal bonds_visibility_changed(bonds: PackedInt32Array)
 signal springs_visibility_changed(springs: PackedInt32Array)
@@ -906,6 +914,11 @@ func has_hidden_atoms_bonds_springs_or_motor_links() -> bool:
 
 func get_readable_type() -> String:
 	return get_structure_name()
+
+
+func get_aabb(_in_bounds_type := AABB_BoundsType.AtomsPositions) -> AABB:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return AABB()
 
 
 func create_state_snapshot() -> Dictionary:

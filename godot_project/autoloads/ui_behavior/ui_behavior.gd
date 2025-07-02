@@ -15,6 +15,8 @@ func _on_node_added(node: Node) -> void:
 	if node is LineEdit or node is SpinBox:
 		node.select_all_on_focus = SELECT_ALL_ON_FOCUS
 	if node is LineEdit:
+		if node.text_submitted.is_connected(_on_line_edit_text_submitted):
+			return
 		node.text_submitted.connect(_on_line_edit_text_submitted.bind(node), CONNECT_DEFERRED)
 
 func _on_line_edit_text_submitted(_new_text: String, in_line_edit: LineEdit) -> void:

@@ -160,7 +160,7 @@ func _on_create_from_small_molecules_pressed() -> void:
 	_small_molecules_picker.popup()
 
 
-func _on_small_molecules_picker_molecule_selected(in_path: String) -> void:
+func _on_small_molecules_picker_molecule_selected(in_path: String, _in_preview: Texture2D) -> void:
 	assert(is_instance_valid(_workspace_context))
 	var unpacked_mol_path: String = WorkspaceUtils.unpack_mol_file_and_get_path(in_path)
 	var absolute_path: String = ProjectSettings.globalize_path(unpacked_mol_path)
