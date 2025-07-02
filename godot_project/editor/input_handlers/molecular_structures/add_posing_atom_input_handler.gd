@@ -238,13 +238,22 @@ func _update_candidates() -> void:
 			if not other_context.nano_structure is AtomicStructure:
 				continue
 			var atomic_structure: AtomicStructure = other_context.nano_structure
+			var group_id: int = atomic_structure.int_guid
 			for atom_id: int in atomic_structure.get_valid_atoms():
 				var atom_position: Vector3 = atomic_structure.atom_get_position(atom_id)
-				_atom_grid.add_item(atom_position, atom_id)
+				_atom_grid.add_item(atom_position, Vector2i(group_id, atom_id))
 	var index: int = 0
 	while index < _candidates.size():
 		var candidate: AtomCandidate = _candidates[index]
-		if _atom_grid.has_any_closer_than(candidate.atom_position, MIN_DISTANCE_TO_ATOMS):
+		const Item = SpatialHashGrid.Item
+		var atoms_unique_ids: Array[Vector2i]
+		for linked_atom_id: int in candidate.atom_ids:
+			atoms_unique_ids.append(Vector2i(context.get_int_guid(), linked_atom_id))
+		var exceptions: Array[Item] = _atom_grid.get_all_items().filter(
+			func(item: Item) -> bool:
+				return item.user_data in atoms_unique_ids
+		)
+		if _atom_grid.has_any_closer_than(candidate.atom_position, MIN_DISTANCE_TO_ATOMS, exceptions):
 			_candidates.remove_at(index)
 		else:
 			index += 1
