@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://ddis4g64f3o04"]
+[gd_scene load_steps=10 format=3 uid="uid://ddis4g64f3o04"]
 
 [ext_resource type="Script" uid="uid://dxlkvikghwev2" path="res://editor/rendering/atomic_structure_renderer/atomic_structure_renderer.gd" id="1_pnlci"]
 [ext_resource type="PackedScene" uid="uid://ntegojtqd8oo" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/sphere_representation.tscn" id="2_ycqcw"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dl2t5e87oru8d" path="res://editor/rendering/atomic_structure_renderer/representation/sticks_single_atom_representation/enhanced_sticks_and_single_atom_representation.tscn" id="5_u2onw"]
 [ext_resource type="PackedScene" uid="uid://bbaboa580mxs3" path="res://editor/rendering/atomic_structure_renderer/representation/enhanced_sticks_and_balls_representation/enhanced_sticks_and_balls_representation.tscn" id="7_y8qdu"]
 [ext_resource type="PackedScene" uid="uid://cejbwdiw030yu" path="res://editor/rendering/atomic_structure_renderer/representation/springs_representation/springs_representation.tscn" id="8_qwn80"]
+[ext_resource type="PackedScene" uid="uid://cmvjsknsg462t" path="res://editor/rendering/atomic_structure_renderer/representation/fixed_size_representation/fixed_size_representation.tscn" id="9_pxjqk"]
 
 [node name="AtomicStructureRenderer" type="Node3D"]
 script = ExtResource("1_pnlci")
@@ -28,3 +29,5 @@ editor_description = "Not used at current moment, therefore converted to Instanc
 [node name="EnhancedSticksAndBallsRepresentation" parent="." instance=ExtResource("7_y8qdu")]
 
 [node name="SpringsRepresentation" parent="." instance=ExtResource("8_qwn80")]
+
+[node name="FixedSizeRepresentation" parent="." instance=ExtResource("9_pxjqk")]

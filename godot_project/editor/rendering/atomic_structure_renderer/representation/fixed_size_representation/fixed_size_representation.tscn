@@ -1,0 +1,25 @@
+[gd_scene load_steps=7 format=3 uid="uid://cmvjsknsg462t"]
+
+[ext_resource type="PackedScene" uid="uid://ur0yulwnvafm" path="res://editor/rendering/atomic_structure_renderer/representation/representation.tscn" id="1_ejyep"]
+[ext_resource type="Script" uid="uid://bdr8c58jfspig" path="res://editor/rendering/atomic_structure_renderer/representation/fixed_size_representation/fixed_size_representation.gd" id="2_ai7lh"]
+[ext_resource type="PackedScene" uid="uid://dgdewlc5wq5ri" path="res://utils/segmented_multimesh/segmented_multi_mesh.tscn" id="2_pu55w"]
+[ext_resource type="Material" uid="uid://bkstp8mf2jbk" path="res://editor/rendering/atomic_structure_renderer/representation/fixed_size_representation/assets/multimesh_fixed_size_material.tres" id="4_sjjej"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_ai7lh"]
+radial_segments = 4
+rings = 3
+
+[sub_resource type="MultiMesh" id="MultiMesh_ai7lh"]
+resource_local_to_scene = true
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = SubResource("SphereMesh_ai7lh")
+
+[node name="FixedSizeRepresentation" instance=ExtResource("1_ejyep")]
+script = ExtResource("2_ai7lh")
+
+[node name="SegmentedMultiMesh" parent="." index="0" instance=ExtResource("2_pu55w")]
+multimesh = SubResource("MultiMesh_ai7lh")
+use_custom_data = true
+_material_override = ExtResource("4_sjjej")
