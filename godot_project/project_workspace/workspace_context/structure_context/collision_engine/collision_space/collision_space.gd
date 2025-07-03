@@ -139,10 +139,11 @@ func frustrum_intersection(in_camera: Camera3D, in_rectangle: Rect2i,
 	var font_plate_corner_3: Vector3 = in_camera.project_position(corner_3, 1) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
 	var font_plate_corner_4: Vector3 = in_camera.project_position(corner_4, 1) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
 	
-	var back_plate_corner_1: Vector3 = in_camera.project_position(corner_1, 1000) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
-	var back_plate_corner_2: Vector3 = in_camera.project_position(corner_2, 1000) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
-	var back_plate_corner_3: Vector3 = in_camera.project_position(corner_3, 1000) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
-	var back_plate_corner_4: Vector3 = in_camera.project_position(corner_4, 1000) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	var z_far: float = in_camera.far - in_camera.near
+	var back_plate_corner_1: Vector3 = in_camera.project_position(corner_1, z_far) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	var back_plate_corner_2: Vector3 = in_camera.project_position(corner_2, z_far) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	var back_plate_corner_3: Vector3 = in_camera.project_position(corner_3, z_far) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	var back_plate_corner_4: Vector3 = in_camera.project_position(corner_4, z_far) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
 	
 	var center_pos: Vector3 = (font_plate_corner_1 + font_plate_corner_2 + font_plate_corner_3 + \
 			font_plate_corner_4 + back_plate_corner_1 + back_plate_corner_2 + back_plate_corner_3 + \

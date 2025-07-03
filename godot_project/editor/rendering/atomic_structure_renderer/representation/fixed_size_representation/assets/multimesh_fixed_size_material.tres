@@ -1,0 +1,19 @@
+[gd_resource type="ShaderMaterial" script_class="SphereMaterial" load_steps=3 format=3 uid="uid://bkstp8mf2jbk"]
+
+[ext_resource type="Shader" uid="uid://ba0uphu7wr01g" path="res://editor/rendering/atomic_structure_renderer/representation/fixed_size_representation/assets/multimesh_fixed_size.gdshader" id="1_mahe6"]
+[ext_resource type="Script" uid="uid://b57n5ta4siuok" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_material.gd" id="1_qplja"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_mahe6")
+shader_parameter/selection_delta = Vector3(0, 0, 0)
+shader_parameter/gizmo_origin = Vector3(0, 0, 0)
+shader_parameter/gizmo_rotation = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+shader_parameter/show_hydrogens = 1.0
+shader_parameter/is_selectable = 1.0
+shader_parameter/saturation = 1.0
+shader_parameter/value_correction = 1.0
+shader_parameter/outline_thickness = 0.2
+shader_parameter/is_hovered = 0.0
+shader_parameter/size = 0.014
+script = ExtResource("1_qplja")

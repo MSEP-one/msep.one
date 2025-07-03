@@ -19,6 +19,7 @@ var material_overlay: Material = null: set = set_material_overlay
 @onready var _current_representation: Representation = _representation_to_node_map[_rendering_representation]
 @onready var _labels_representation: LabelsRepresentation = $LabelsRepresentation
 @onready var _springs_representation: SpringsRepresentation = $SpringsRepresentation
+@onready var _fixed_size_representation: FixedSizeRepresentation = $FixedSizeRepresentation
 
 
 var _is_labels_representation_enabled: bool = RepresentationSettings.LABELS_VISIBLE_BY_DEFAULT
@@ -41,6 +42,9 @@ func rebuild() -> void:
 	_current_representation.build(structure_context)
 	_current_representation.refresh_all()
 	_current_representation.show()
+	_fixed_size_representation.build(structure_context)
+	_fixed_size_representation.refresh_all()
+	_fixed_size_representation.show()
 
 
 func build(in_structure_context: StructureContext, in_representation: Rendering.Representation) -> void:
@@ -55,6 +59,7 @@ func build(in_structure_context: StructureContext, in_representation: Rendering.
 	refresh_atom_sizes()
 	_ensure_selectable_property_tracked(in_structure_context)
 	_current_representation.show()
+	_fixed_size_representation.show()
 
 
 func _internal_build() -> void:
@@ -62,6 +67,7 @@ func _internal_build() -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_nano_structure_id)
 	_springs_representation.build(structure_context)
 	_current_representation.build(structure_context)
+	_fixed_size_representation.build(structure_context)
 	_up_to_date_representations[_rendering_representation] = true
 	var nano_structure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_nano_structure_id) as NanoStructure
 	visible = nano_structure.get_visible()
@@ -123,6 +129,7 @@ func _ensure_selectable_property_tracked(in_structure_context: StructureContext)
 func _on_workspace_context_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	_current_representation.handle_editable_structures_changed(in_new_editable_structure_contexts)
 	_springs_representation.handle_editable_structures_changed(in_new_editable_structure_contexts)
+	_fixed_size_representation.handle_editable_structures_changed(in_new_editable_structure_contexts)
 	_outdate_non_active_representations()
 
 
@@ -132,6 +139,8 @@ func _on_workspace_context_hovered_structure_context_changed(
 	_current_representation.handle_hover_structure_changed(in_toplevel_hovered_structure_context,
 			in_hovered_structure_context, in_atom_id, in_bond_id, in_spring_id)
 	_springs_representation.handle_hover_structure_changed(in_toplevel_hovered_structure_context,
+			in_hovered_structure_context, in_atom_id, in_bond_id, in_spring_id)
+	_fixed_size_representation.handle_hover_structure_changed(in_toplevel_hovered_structure_context,
 			in_hovered_structure_context, in_atom_id, in_bond_id, in_spring_id)
 	_outdate_non_active_representations()
 
@@ -191,7 +200,6 @@ func _reset_representation_highlight(in_old_representation: Representation,
 	in_old_representation.lowlight_bonds(selected_bonds)
 	_current_representation.highlight_atoms(selected_atoms, partially_influenced_bonds, PackedInt32Array())
 	_current_representation.highlight_bonds(selected_bonds)
-	
 	if not _is_labels_representation_enabled:
 		return
 	
@@ -229,10 +237,12 @@ func _on_nanostructure_atoms_moved(in_moved_atoms: PackedInt32Array) -> void:
 		_labels_representation.refresh_atoms_positions(in_moved_atoms)
 	
 	_springs_representation.refresh_atoms_positions(in_moved_atoms)
+	_fixed_size_representation.refresh_atoms_positions(in_moved_atoms)
 
 
 func _on_nanostructure_atoms_atomic_number_changed(in_changed_atoms: Array[Vector2i]) -> void:
 	_current_representation.refresh_atoms_atomic_number(in_changed_atoms)
+	_fixed_size_representation.refresh_atoms_atomic_number(in_changed_atoms)
 	if _are_labels_active():
 		_labels_representation.refresh_atoms_atomic_number(in_changed_atoms)
 	_outdate_non_active_representations()
@@ -240,21 +250,25 @@ func _on_nanostructure_atoms_atomic_number_changed(in_changed_atoms: Array[Vecto
 
 func _on_nanostructure_atoms_color_override_changed(in_changed_atoms: PackedInt32Array) -> void:
 	_current_representation.refresh_atoms_color(in_changed_atoms)
+	_fixed_size_representation.refresh_atoms_color(in_changed_atoms)
 
 
 func _on_nanostructure_visibility_changed(new_visibility: bool) -> void:
 	visible = new_visibility
 	if visible:
 		_current_representation.show()
+		_fixed_size_representation.show()
 		if _are_labels_active():
 			_labels_representation.show()
 	else:
 		_current_representation.hide()
 		_labels_representation.hide()
+		_fixed_size_representation.hide()
 
 
 func _on_nanostructure_atoms_visibility_changed(in_atoms_ids: PackedInt32Array) -> void:
 	_current_representation.refresh_atoms_visibility(in_atoms_ids)
+	_fixed_size_representation.refresh_atoms_visibility(in_atoms_ids)
 	if _are_labels_active():
 		_labels_representation.refresh_atoms_visibility(in_atoms_ids)
 	_outdate_non_active_representations()
@@ -271,6 +285,7 @@ func _on_nanostructure_springs_visibility_changed(in_springs_ids: PackedInt32Arr
 
 func _on_nanostructure_atoms_added(in_added_atoms: PackedInt32Array) -> void:
 	_current_representation.add_atoms(in_added_atoms)
+	_fixed_size_representation.add_atoms(in_added_atoms)
 	if _are_labels_active():
 		_labels_representation.add_atoms(in_added_atoms)
 	_outdate_non_active_representations()
@@ -278,6 +293,7 @@ func _on_nanostructure_atoms_added(in_added_atoms: PackedInt32Array) -> void:
 
 func _on_nanostructure_atoms_removed(_in_removed_atoms: PackedInt32Array) -> void:
 	_current_representation.remove_atoms(_in_removed_atoms)
+	_fixed_size_representation.remove_atoms(_in_removed_atoms)
 	if _are_labels_active():
 		_labels_representation.remove_atoms(_in_removed_atoms)
 	_outdate_non_active_representations()
@@ -285,6 +301,7 @@ func _on_nanostructure_atoms_removed(_in_removed_atoms: PackedInt32Array) -> voi
 
 func _on_nanostructure_atoms_cleared() -> void:
 	_current_representation.clear()
+	_fixed_size_representation.clear()
 	if _are_labels_active():
 		_labels_representation.clear()
 	_outdate_non_active_representations()
@@ -340,6 +357,8 @@ func highlight_atoms(in_atoms_ids: Array, new_partially_influenced_bonds: Packed
 			in_bonds_released_from_partial_influence)
 	_springs_representation.highlight_atoms(in_atoms_ids, new_partially_influenced_bonds,
 			in_bonds_released_from_partial_influence)
+	_fixed_size_representation.highlight_atoms(in_atoms_ids, new_partially_influenced_bonds,
+			in_bonds_released_from_partial_influence)
 	if _are_labels_active():
 		_labels_representation.highlight_atoms(in_atoms_ids, new_partially_influenced_bonds,
 			in_bonds_released_from_partial_influence)
@@ -350,6 +369,8 @@ func lowlight_atoms(in_atoms_ids: Array, in_bonds_released_from_partial_influenc
 	_current_representation.lowlight_atoms(in_atoms_ids, in_bonds_released_from_partial_influence,
 			new_partially_influenced_bonds)
 	_springs_representation.lowlight_atoms(in_atoms_ids, in_bonds_released_from_partial_influence,
+			new_partially_influenced_bonds)
+	_fixed_size_representation.lowlight_atoms(in_atoms_ids, in_bonds_released_from_partial_influence,
 			new_partially_influenced_bonds)
 	if _are_labels_active():
 		_labels_representation.lowlight_atoms(in_atoms_ids, in_bonds_released_from_partial_influence,
@@ -420,6 +441,7 @@ func ensure_hydrogens_rendering_off() -> void:
 	_current_representation.hydrogens_rendering_off()
 	_labels_representation.hydrogens_rendering_off()
 	_springs_representation.hydrogens_rendering_off()
+	_fixed_size_representation.hydrogens_rendering_off()
 	_is_hydrogens_representation_enabled = false
 
 
@@ -427,6 +449,7 @@ func ensure_hydrogens_rendering_on() -> void:
 	_current_representation.hydrogens_rendering_on()
 	_labels_representation.hydrogens_rendering_on()
 	_springs_representation.hydrogens_rendering_on()
+	_fixed_size_representation.hydrogens_rendering_on()
 	_is_hydrogens_representation_enabled = true
 
 
@@ -440,7 +463,6 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_springs_representation.apply_theme(in_theme)
 	for representation: Representation in _representation_to_node_map.values():
 		representation.apply_theme(in_theme)
-	
 
 
 func update(delta: float) -> void:
@@ -448,6 +470,7 @@ func update(delta: float) -> void:
 	if _are_labels_active():
 		_labels_representation.update(delta)
 	_springs_representation.update(delta)
+	_fixed_size_representation.update(delta)
 
 
 func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> void:
@@ -467,6 +490,7 @@ func set_atom_selection_position_delta(in_selection_delta: Vector3) -> void:
 	_selection_position_delta = in_selection_delta
 	_current_representation.set_atom_selection_position_delta(in_selection_delta)
 	_springs_representation.set_atom_selection_position_delta(in_selection_delta)
+	_fixed_size_representation.set_atom_selection_position_delta(in_selection_delta)
 	if _are_labels_active():
 		_labels_representation.set_atom_selection_position_delta(in_selection_delta)
 	_outdate_non_active_representations()
@@ -479,6 +503,7 @@ func get_atom_selection_position_delta() -> Vector3:
 func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
 	_current_representation.rotate_atom_selection_around_point(in_point, in_rotation_to_apply)
 	_springs_representation.rotate_atom_selection_around_point(in_point, in_rotation_to_apply)
+	_fixed_size_representation.rotate_atom_selection_around_point(in_point, in_rotation_to_apply)
 	if _are_labels_active():
 		_labels_representation.rotate_atom_selection_around_point(in_point, in_rotation_to_apply)
 	_outdate_non_active_representations()
@@ -511,6 +536,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_current_representation.snapshot"] = _current_representation.create_state_snapshot()
 	snapshot["_springs_representation.snapshot"] = _springs_representation.create_state_snapshot()
 	snapshot["_labels_representation.snapshot"] = _labels_representation.create_state_snapshot()
+	snapshot["_fixed_size_representation.snapshot"] = _fixed_size_representation.create_state_snapshot()
 	return snapshot
 
 
@@ -527,6 +553,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_current_representation.apply_state_snapshot(in_snapshot["_current_representation.snapshot"])
 	_springs_representation.apply_state_snapshot(in_snapshot["_springs_representation.snapshot"])
 	_labels_representation.apply_state_snapshot(in_snapshot["_labels_representation.snapshot"])
+	_fixed_size_representation.apply_state_snapshot(in_snapshot["_fixed_size_representation.snapshot"])
 	var nano_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_nano_structure_id)
 	if not nano_structure.atoms_moved.is_connected(_on_nanostructure_atoms_moved):
 		# This can happen if the AtomicStructureRenderer was destroyed because
@@ -539,3 +566,4 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 		if representation != _rendering_representation:
 			_representation_to_node_map[representation].hide()
 	_current_representation.show()
+	_fixed_size_representation.show()
