@@ -53,8 +53,40 @@ func _on_current_structure_context_changed(in_context: StructureContext) -> void
 
 
 func _on_selected_shape_for_new_objects_changed(in_shape: PrimitiveMesh) -> void:
+	if _ghost_shape.get_shape() != null:
+		_ghost_shape.get_shape().changed.disconnect(_on_tracked_shape_changed)
 	_ghost_shape.set_shape(in_shape)
 	_ghost_shape.set_visible(true)
+	in_shape.changed.connect(_on_tracked_shape_changed)
+	_ensure_shape_fits_in_work_area()
+
+
+func _on_tracked_shape_changed() -> void:
+	_ensure_shape_fits_in_work_area()
+
+
+func _ensure_shape_fits_in_work_area() -> void:
+	# foresee the position of the shape if it was created in middle of the screen
+	const IGNORE_SHAPE_SNAPPING: bool = true
+	var shape_position_and_method: Array = calculate_preview_position_and_method(_workspace_context, IGNORE_SHAPE_SNAPPING)
+	var position := shape_position_and_method[0] as Vector3
+	var method := shape_position_and_method[1] as CreateObjectParameters.CreateDistanceSource
+	if method == CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA:
+		# We should not move the camera if the shape is relative to it
+		return
+	var shape: PrimitiveMesh = _ghost_shape.get_shape()
+	const VIEW_MARGIN: float = 1.0
+	var aabb: AABB = shape.get_aabb().grow(VIEW_MARGIN)
+	aabb.position += position
+	var camera: Camera3D = _workspace_context.get_camera()
+	var inside_frustrum: bool = true
+	for p in 8: # the 8 corners of the AABB
+		if not camera.is_position_in_frustum(aabb.get_endpoint(p)):
+			inside_frustrum = false
+			break
+	if inside_frustrum:
+		return
+	WorkspaceUtils.focus_camera_on_aabb(_workspace_context, aabb)
 
 
 func _on_create_distance_method_changed(_in_new_method: Variant) -> void:

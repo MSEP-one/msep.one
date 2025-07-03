@@ -76,17 +76,21 @@ func update_preview_position() -> void:
 
 
 static func calculate_preview_position(in_workspace_context: WorkspaceContext) -> Vector3:
+	return calculate_preview_position_and_method(in_workspace_context)[0]
+
+## Retuns an Array where [0] is the position and [1] is the CreateObjectParameters.CreateDistanceSource
+static func calculate_preview_position_and_method(in_workspace_context: WorkspaceContext, in_ignore_shape_snap: bool = false) -> Array:
 	var main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
 	var working_area: Control = main_view.get_working_area_rect_control()
 	var screen_center: Vector2 = working_area.get_global_rect().get_center()
 	if BusyIndicator.is_active():
-		return _get_preview_position_to_distance(in_workspace_context, 10000.0, screen_center)
+		return [_get_preview_position_to_distance(in_workspace_context, 10000.0, screen_center), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
 		
 	
-	if is_snap_to_shape_surface_enabled(in_workspace_context):
+	if (not in_ignore_shape_snap) and is_snap_to_shape_surface_enabled(in_workspace_context):
 		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse(in_workspace_context)
 		if not is_nan(distance_to_shape_surface):
-			return _get_preview_position_to_distance(in_workspace_context, distance_to_shape_surface, screen_center)
+			return [_get_preview_position_to_distance(in_workspace_context, distance_to_shape_surface, screen_center), CreateObjectParameters.CreateDistanceSource.SNAPPED_TO_SHAPE]
 			
 	
 	var method: CreateObjectParameters.CreateDistanceMethod = \
@@ -100,7 +104,7 @@ static func calculate_preview_position(in_workspace_context: WorkspaceContext) -
 					in_workspace_context.create_object_parameters.drop_distance,
 					screen_center
 				)
-			return pos
+			return [pos, CreateObjectParameters.CreateDistanceSource.CLOSEST_OBJECT_TO_POINTER]
 		CreateObjectParameters.CreateDistanceMethod.CENTER_OF_SELECTION:
 			var pos := Vector3(NAN, NAN, NAN)
 			if in_workspace_context.has_transformable_selection():
@@ -117,15 +121,15 @@ static func calculate_preview_position(in_workspace_context: WorkspaceContext) -
 					in_workspace_context.create_object_parameters.drop_distance,
 					screen_center
 				)
-			return pos
+			return [pos, CreateObjectParameters.CreateDistanceSource.CENTER_OF_SELECTION]
 		CreateObjectParameters.CreateDistanceMethod.FIXED_DISTANCE_TO_CAMERA:
-			return _get_preview_position_to_distance(
+			return [_get_preview_position_to_distance(
 				in_workspace_context,
 				in_workspace_context.create_object_parameters.drop_distance,
 				screen_center
-			)
+			), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
 	assert(false, "Should never happen")
-	return Vector3()
+	return [Vector3(), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
 
 
 # region: Private
