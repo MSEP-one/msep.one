@@ -19,6 +19,7 @@ func _notification(what: int) -> void:
 		_preview_texture = %PreviewTexture as TextureRect
 		_small_molecules_tree = %SmallMoleculesTree as Tree
 		about_to_popup.connect(_on_about_to_popup)
+		visibility_changed.connect(_on_visibility_changed)
 		_search_line_edit.text_changed.connect(_on_search_line_edit_text_changed)
 		_small_molecules_tree.item_selected.connect(_on_small_molecules_tree_item_selected)
 		_small_molecules_tree.gui_input.connect(_on_small_molecules_tree_gui_input)
@@ -82,6 +83,12 @@ func _on_about_to_popup() -> void:
 	_search_line_edit.clear()
 	_search_line_edit.grab_focus.call_deferred()
 	_small_molecules_tree.deselect_all()
+	UIBlocker.start_blocking_input_events(self)
+
+
+func _on_visibility_changed() -> void:
+	if not visible:
+		UIBlocker.stop_blocking_input_events(self)
 
 
 func _set_hovered_item(in_item: TreeItem) -> void:
