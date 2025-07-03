@@ -1,15 +1,18 @@
-extends Node3D
+class_name WorkspaceCamera extends Node3D
 
 var axes_widget : Control = null
 var no_selection_reference_position: Vector3 = Vector3.ZERO
 
-@onready var _camera: Camera3D = $Camera3D
 @onready var _initial_far_plane: float = _camera.far
 
+var _camera: Camera3D
 
-func _ready() -> void:
-	MolecularEditorContext.msep_editor_settings.changed.connect(_on_editor_settings_changed)
-	_on_editor_settings_changed.call_deferred()
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_SCENE_INSTANTIATED:
+		_camera = $Camera3D as Camera3D
+		_camera.set_script(Tracker)
+		MolecularEditorContext.msep_editor_settings.changed.connect(_on_editor_settings_changed)
+		_on_editor_settings_changed.call_deferred()
 
 
 func _on_editor_settings_changed() -> void:
@@ -40,3 +43,41 @@ func _on_editor_settings_changed() -> void:
 		_camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 		_camera.far = _initial_far_plane
 		_camera.translate_object_local(_move_offset)
+	
+
+
+class Tracker extends Camera3D:
+	signal transform_changed(new_global_transform: Transform3D)
+	signal projection_changed()
+	signal changed()
+	
+	var _last_known_transform := Transform3D()
+	
+	func _init() -> void:
+		set_notify_transform(true)
+		transform_changed.connect(_on_anything_changed.unbind(1))
+		projection_changed.connect(_on_anything_changed)
+	
+	func _enter_tree() -> void:
+		_last_known_transform = global_transform
+	
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_TRANSFORM_CHANGED:
+			if global_transform != _last_known_transform:
+				_last_known_transform = global_transform
+				transform_changed.emit(global_transform)
+	
+	func _set(property: StringName, value: Variant) -> bool:
+		if property in [
+				&"projection",
+				&"far",
+				&"near",
+				&"fov",
+				&"size",
+			]:
+			if get(property) != value:
+				ScriptUtils.call_deferred_once(projection_changed.emit)
+		return false
+	
+	func _on_anything_changed() -> void:
+		changed.emit()

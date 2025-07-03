@@ -8,6 +8,8 @@ var _shape_id: int
 var _workspace_context: WorkspaceContext
 var _nano_shape_primitive_mesh: PrimitiveMesh
 var _hover_enabled: bool = true
+var _cull_back: bool = true:
+	set = _set_cull_back
 
 @onready var shape: MeshInstance3D = $Shape
 @onready var pivot: MeshInstance3D = shape.get_node("Pivot")
@@ -63,15 +65,38 @@ func disable_hover() -> void:
 
 
 func _ready() -> void:
-	MolecularEditorContext.msep_editor_settings.changed.connect(_on_editor_settings_changed)
-	_on_editor_settings_changed.call_deferred()
+	_on_camera_projection_changed.call_deferred()
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	# Cameras in 3DPreviewViewport does not have CameraPropertiesNotifier component
+	if camera is WorkspaceCamera.Tracker:
+		camera.transform_changed.connect(_on_camera_transform_changed)
+		camera.projection_changed.connect(_on_camera_projection_changed)
 
 
-func _on_editor_settings_changed() -> void:
+func _on_camera_transform_changed(in_new_transform: Transform3D) -> void:
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	var cam_local_pos: Vector3 = global_transform.affine_inverse() * in_new_transform.origin
+	if shape.get_aabb().grow(camera.near).has_point(cam_local_pos):
+		_cull_back = false
+	else:
+		_cull_back = true
+
+
+func _on_camera_projection_changed() -> void:
 	if not is_inside_tree():
 		return
 	var camera: Camera3D = get_viewport().get_camera_3d()
 	pivot.scale = Vector3.ONE * _CAMERA_PROJECTION_TO_PIVOT_SCALE[camera.projection]
+
+
+func _set_cull_back(in_culled_back: bool) -> void:
+	_cull_back = in_culled_back
+	if _cull_back:
+		# remove the extra paterial showing the inverted faces
+		shape.material_overlay = null
+	else:
+		# Add the extra material showing the inverted faces
+		shape.material_overlay = preload("uid://cbw6w00wvqx5t")
 
 
 func _exit_tree() -> void:
