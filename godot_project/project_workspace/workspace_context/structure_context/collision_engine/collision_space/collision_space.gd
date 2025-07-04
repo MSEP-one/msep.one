@@ -129,39 +129,51 @@ func frustrum_intersection(in_camera: Camera3D, in_rectangle: Rect2i,
 	box_shape_query.collision_mask = in_collision_mask
 	
 	var convex_shape: ConvexPolygonShape3D = ConvexPolygonShape3D.new()
-	var corner_1: Vector2i = in_rectangle.position
-	var corner_2: Vector2i = Vector2i(in_rectangle.end.x, in_rectangle.position.y)
-	var corner_3: Vector2i = Vector2i(in_rectangle.position.x, in_rectangle.end.y)
-	var corner_4: Vector2i = in_rectangle.end
+	var corner_1: Vector2 = in_rectangle.position
+	var corner_2: Vector2 = Vector2(in_rectangle.end.x, in_rectangle.position.y)
+	var corner_3: Vector2 = Vector2(in_rectangle.position.x, in_rectangle.end.y)
+	var corner_4: Vector2 = in_rectangle.end
 	
-	var font_plate_corner_1: Vector3 = in_camera.project_position(corner_1, 1) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
-	var font_plate_corner_2: Vector3 = in_camera.project_position(corner_2, 1) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
-	var font_plate_corner_3: Vector3 = in_camera.project_position(corner_3, 1) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
-	var font_plate_corner_4: Vector3 = in_camera.project_position(corner_4, 1) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	var z_near: float = in_camera.near
+	var font_plate_corner_1: Vector3 = in_camera.project_position(corner_1, z_near) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	var font_plate_corner_2: Vector3 = in_camera.project_position(corner_2, z_near) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	var font_plate_corner_3: Vector3 = in_camera.project_position(corner_3, z_near) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	var font_plate_corner_4: Vector3 = in_camera.project_position(corner_4, z_near) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
 	
-	var z_far: float = in_camera.far - in_camera.near
+	var z_far: float = in_camera.far
 	var back_plate_corner_1: Vector3 = in_camera.project_position(corner_1, z_far) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
 	var back_plate_corner_2: Vector3 = in_camera.project_position(corner_2, z_far) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
 	var back_plate_corner_3: Vector3 = in_camera.project_position(corner_3, z_far) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
 	var back_plate_corner_4: Vector3 = in_camera.project_position(corner_4, z_far) * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
 	
-	var center_pos: Vector3 = (font_plate_corner_1 + font_plate_corner_2 + font_plate_corner_3 + \
-			font_plate_corner_4 + back_plate_corner_1 + back_plate_corner_2 + back_plate_corner_3 + \
-			back_plate_corner_4) / 8.0
-	
+	var origin: Vector3 = in_camera.global_position * CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+	if in_camera.projection == Camera3D.ProjectionType.PROJECTION_PERSPECTIVE:
+		# floating point presition is very bad with such small numbers, lets round it to the origin of the camera
+		font_plate_corner_1 = origin
+		font_plate_corner_2 = origin
+		font_plate_corner_3 = origin
+		font_plate_corner_4 = origin
+
 	var points: PackedVector3Array = PackedVector3Array()
-	points.append(font_plate_corner_1 - center_pos)
-	points.append(font_plate_corner_2 - center_pos)
-	points.append(font_plate_corner_3 - center_pos)
-	points.append(font_plate_corner_4 - center_pos)
-	points.append(back_plate_corner_1 - center_pos)
-	points.append(back_plate_corner_2 - center_pos)
-	points.append(back_plate_corner_3 - center_pos)
-	points.append(back_plate_corner_4 - center_pos)
+	points.append(font_plate_corner_1 - origin)
+	points.append(back_plate_corner_1 - origin)
+	points.append(font_plate_corner_2 - origin)
+	points.append(back_plate_corner_2 - origin)
+	points.append(font_plate_corner_3 - origin)
+	points.append(back_plate_corner_3 - origin)
+	points.append(font_plate_corner_4 - origin)
+	points.append(back_plate_corner_4 - origin)
 	convex_shape.points = points
+	convex_shape.margin = 0
+	if get_tree().debug_collisions_hint:
+		in_camera.get_node("DebugBoxSelectionArea3D/CollisionShape3D").shape = convex_shape
+		in_camera.get_node("DebugBoxSelectionArea3D").transform = Transform3D(
+			Basis().scaled(Vector3.ONE/CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR),
+			origin / CollisionEngine.PHYSIC_SPACE_SIZE_FACTOR
+		)
 	
 	box_shape_query.shape = convex_shape
-	box_shape_query.transform = Transform3D(Basis(), center_pos)
+	box_shape_query.transform = Transform3D(Basis(), origin)
 	
 	var collisions: Array[Dictionary] = physics_direct_state.intersect_shape(box_shape_query, in_max_nmb_of_results)
 	var result: PackedInt32Array = PackedInt32Array()
