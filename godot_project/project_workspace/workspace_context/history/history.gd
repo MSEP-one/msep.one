@@ -16,6 +16,7 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Box Selection" : true,
 	"Box Deselection" : true,
 	"Select Atom" : true,
+	"Select Atoms" : true,
 	"Select Bond" : true,
 	"Select Shape" : true,
 	"Select Motor" : true,
@@ -24,6 +25,7 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Select Spring" : true,
 	"Select Group" : true,
 	"Deselect Atom" : true,
+	"Deselect Atoms" : true,
 	"Deselect Bond" : true,
 	"Deselect Shape" : true,
 	"Deselect Motor" : true,
@@ -35,8 +37,10 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Select All" : true,
 	"Deselect All" : true,
 	"Select Connected Atoms" : true,
+	"Select Atoms by Type" : true,
 	"Grow Selection" : true,
 	"Shrink Selection" : true,
+	"Invert Selection" : true,
 	"Change Hydrogen Visibility" : true,
 	"Show Bonds" : true,
 	"Hide Bonds" : true,
@@ -44,11 +48,21 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Hide Atom Labels" : true,
 	"Hide Selected Objects" : true,
 	"Show Hidden Objects" : true,
+	"Update Visibility" : true,
 	"Set Color Override" : true,
 	"Reset Color Override" : true,
+	"Theme Changed" : true,
+	"Color Schema Changed" : true,
+	"Change Background Color" : true,
+	"Reset background color" : true,
+	"Change Custom Selection Outline Color" : true,
+	"Set Description" : true,
+	"Set Authors" : true,
+	
 }
 const ACTION_BEGINNING_WITH_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Representation change to " : true,
+	"Group Renamed" : true,
 }
 
 const REDUNDANT_ACTION_WHITELIST := {
