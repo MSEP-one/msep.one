@@ -366,7 +366,7 @@ func add_springs(in_structure_context: StructureContext, in_springs: PackedInt32
 		if nano_struct.atom_is_locked(atom_id):
 			# Ignore springs related to locked atoms
 			continue
-		var msep_structure_and_atom_id: Array = [nano_struct.int_guid, atom_id]
+		var msep_structure_and_atom_id: PackedInt32Array = [nano_struct.int_guid, atom_id]
 		var openmm_particle_id: Variant = request_atom_id_to_structure_and_atom_id_map.find_key(msep_structure_and_atom_id)
 		if typeof(openmm_particle_id) != TYPE_INT:
 			# Atom was not sent to openmm, skip spring
