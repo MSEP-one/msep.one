@@ -237,6 +237,8 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 				_target_atom_id = AtomicStructure.INVALID_ATOM_ID
 				_hide_atom_and_bond_preview()
 				return false
+			workspace_context.set_hovered_structure_context(hit_context,_target_atom_id,
+					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID)
 			assert(is_instance_valid(atomic_structure))
 			atom_id = multi_structure_hit_result.closest_hit_atom_id
 			_target_atom_id = atom_id
