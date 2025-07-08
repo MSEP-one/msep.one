@@ -38,6 +38,13 @@ enum CreateDistanceMethod {
 	FIXED_DISTANCE_TO_CAMERA
 }
 
+enum CreateDistanceSource {
+	CLOSEST_OBJECT_TO_POINTER,
+	CENTER_OF_SELECTION,
+	FIXED_DISTANCE_TO_CAMERA,
+	SNAPPED_TO_SHAPE,
+}
+
 
 enum SimulationType {
 	RELAXATION,
