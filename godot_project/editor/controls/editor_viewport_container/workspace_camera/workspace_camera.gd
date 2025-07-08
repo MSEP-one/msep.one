@@ -11,8 +11,8 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_camera = $Camera3D as Camera3D
 		_camera.set_script(Tracker)
-		MolecularEditorContext.msep_editor_settings.changed.connect(_on_editor_settings_changed)
 	if what == NOTIFICATION_READY:
+		MolecularEditorContext.msep_editor_settings.changed.connect(_on_editor_settings_changed)
 		_on_editor_settings_changed.call_deferred()
 
 
