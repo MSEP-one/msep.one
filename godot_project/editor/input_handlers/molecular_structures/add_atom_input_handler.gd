@@ -127,12 +127,12 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 					var params := AtomicStructure.AddAtomParameters.new(get_workspace_context().create_object_parameters.get_new_atom_element(), atom_pos)
 					_do_create_atom(new_structure_context, params)
 					# UndoRedo should only take care of adding and removing the object from the workspace
-					_ensure_create_mode()
+					_ensure_create_mode(CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
 					_workspace_context.snapshot_moment("Create Molecular Structure")
 				else:
 					var params := AtomicStructure.AddAtomParameters.new(get_workspace_context().create_object_parameters.get_new_atom_element(), atom_pos)
 					var _atom_id: int = _do_create_atom(out_context, params)
-					_ensure_create_mode()
+					_ensure_create_mode(CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
 					_workspace_context.snapshot_moment("Add Atom")
 				return true
 			elif _check_input_event_can_bind(in_input_event) and _check_context_can_bind(out_context, atom_pos):
@@ -189,18 +189,6 @@ func _clear_selection_on_other_structures(out_context: StructureContext) -> void
 	for context in get_workspace_context().get_structure_contexts_with_selection():
 		if context != out_context:
 			context.clear_selection()
-
-
-func _ensure_create_mode() -> void:
-	var workspace_context: WorkspaceContext = get_workspace_context()
-	workspace_context.create_object_parameters.set_create_mode_enabled(true)
-	if workspace_context.create_object_parameters.get_create_mode_type() in [
-				CreateObjectParameters.CreateModeType.CREATE_SHAPES,
-				CreateObjectParameters.CreateModeType.CREATE_FRAGMENT
-			]:
-		workspace_context.create_object_parameters.set_create_mode_type(
-			CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
-		MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME)
 
 
 ## Input handlers will execute _forward_input_* in an order dictated by this parameter
