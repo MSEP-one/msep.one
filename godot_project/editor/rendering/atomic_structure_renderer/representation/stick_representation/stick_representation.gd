@@ -714,20 +714,14 @@ func handle_editable_structures_changed(_in_new_editable_structure_contexts: Arr
 		_update_is_hovered_uniform(false)
 
 
-func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: StructureContext,
+func handle_hover_structure_changed(in_toplevel_hovered_structure_context: StructureContext,
 			in_hovered_structure_context: StructureContext, _in_atom_id: int, in_bond_id: int,
 			_in_spring_id: int) -> void:
-	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
 	var workspace: Workspace = _workspace_context.workspace
-	var is_hovered: bool = in_hovered_structure_context == structure_context
-	var are_structures_valid: bool = is_instance_valid(in_hovered_structure_context) and \
-			is_instance_valid(structure_context) and is_instance_valid(structure_context.nano_structure) \
-			and is_instance_valid(in_hovered_structure_context.nano_structure)
-	if not is_hovered and are_structures_valid:
-		is_hovered = workspace.is_a_ancestor_of_b(in_hovered_structure_context.nano_structure, \
-				structure_context.nano_structure)
-	if is_hovered and in_hovered_structure_context.nano_structure.int_guid == workspace.active_structure_int_guid:
-		is_hovered = false
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
+	var is_hovered: bool = AtomicStructureRenderer.is_atomic_structure_hovered(
+		workspace, in_toplevel_hovered_structure_context, structure_context
+	)
 	_update_is_hovered_uniform(is_hovered)
 	if in_hovered_structure_context != structure_context:
 		in_bond_id = -1 # Hovered bond is not part of this structure, remove roll over if needed

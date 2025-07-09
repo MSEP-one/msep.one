@@ -349,12 +349,9 @@ func handle_hover_structure_changed(in_toplevel_hovered_structure_context: Struc
 			_in_spring_id: int) -> void:
 	var workspace: Workspace = _workspace_context.workspace
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
-	var is_hovered: bool = false
-	if in_toplevel_hovered_structure_context != null:
-		is_hovered = (in_toplevel_hovered_structure_context == structure_context) \
-				or workspace.is_a_ancestor_of_b(in_toplevel_hovered_structure_context.nano_structure, structure_context.nano_structure)
-	if is_hovered and in_hovered_structure_context.nano_structure.int_guid == workspace.active_structure_int_guid:
-		is_hovered = false
+	var is_hovered: bool = AtomicStructureRenderer.is_atomic_structure_hovered(
+		workspace, in_toplevel_hovered_structure_context, structure_context
+	)
 	var hovered_atom_id: int = -1 if in_hovered_structure_context != structure_context else in_atom_id
 	if hovered_atom_id != _hovered_atom_id:
 		_set_hovered_atom_id(hovered_atom_id)

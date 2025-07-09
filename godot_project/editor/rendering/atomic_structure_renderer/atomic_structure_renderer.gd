@@ -567,3 +567,20 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 			_representation_to_node_map[representation].hide()
 	_current_representation.show()
 	_fixed_size_representation.show()
+
+
+## Used in several Representation(s) handle_hover_structure_changed()
+static func is_atomic_structure_hovered(
+		in_workspace: Workspace,
+		in_toplevel_structure_context: StructureContext,
+		in_representation_structure_context: StructureContext) -> bool:
+	var top_structure: AtomicStructure = null
+	if in_toplevel_structure_context != null:
+		top_structure = in_toplevel_structure_context.nano_structure as AtomicStructure
+	if top_structure == null:
+		return false
+	if top_structure == in_representation_structure_context.nano_structure:
+		return true
+	if in_workspace.is_a_ancestor_of_b(top_structure, in_representation_structure_context.nano_structure):
+		return true
+	return false
