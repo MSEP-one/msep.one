@@ -26,8 +26,7 @@ func handles_empty_selection() -> bool:
 ## based on an active NanoStructure. This may depend on the active StructureOperator(s)
 func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	var parameters: CreateObjectParameters = in_structure_context.workspace_context.create_object_parameters
-	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_FRAGMENT \
-			or not parameters.get_create_mode_enabled():
+	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_FRAGMENT:
 		return false
 	
 	var new_structure: NanoStructure = parameters.get_new_structure()
@@ -37,6 +36,13 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 ## VIRTUAL
 ## Adds the current fragment to the workspace on left click.
 func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_structure_context: StructureContext) -> bool:
+	if in_input_event is InputEventKey and _is_create_mode_key_pressed(in_input_event):
+		if _ensure_create_mode(CreateObjectParameters.CreateModeType.CREATE_FRAGMENT):
+			_rendering.structure_preview_show()
+	
+	if not _is_create_mode_enabled():
+		return false
+	
 	if in_input_event is InputEventWithModifiers:
 		update_preview_position()
 		var fragment_transform: Transform3D = _rendering.structure_preview_get_transform()

@@ -84,7 +84,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	
 	if is_shortcut_pressed and _should_show(true):
 		# Auto enable create mode if we're in selection mode but all the other conditions are met
-		_ensure_create_mode()
+		_ensure_create_mode(CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
 	elif not _should_show():
 		rendering.atom_autopose_preview_hide()
 		return false
@@ -151,7 +151,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 			i = 0
 	
 	var _result: Dictionary = _do_create_atom_and_bonds(out_context, params, _hovered_candidate.atom_ids, bonds_order_array)
-	_ensure_create_mode()
+	_ensure_create_mode(CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
 	_workspace_context.snapshot_moment("Add Atom")
 	return true
 
@@ -400,18 +400,6 @@ func _clear_selection_on_other_structures(out_context: StructureContext) -> void
 	for context in get_workspace_context().get_structure_contexts_with_selection():
 		if context != out_context:
 			context.clear_selection()
-
-
-func _ensure_create_mode() -> void:
-	var workspace_context: WorkspaceContext = get_workspace_context()
-	workspace_context.create_object_parameters.set_create_mode_enabled(true)
-	if workspace_context.create_object_parameters.get_create_mode_type() in [
-				CreateObjectParameters.CreateModeType.CREATE_SHAPES,
-				CreateObjectParameters.CreateModeType.CREATE_FRAGMENT
-			]:
-		workspace_context.create_object_parameters.set_create_mode_type(
-			CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
-		MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME)
 
 
 ## Returns true if create mode is ON and the auto posing visualization is enabled.

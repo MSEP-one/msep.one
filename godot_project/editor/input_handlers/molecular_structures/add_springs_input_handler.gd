@@ -79,6 +79,13 @@ func _on_current_structure_context_changed(in_context: StructureContext) -> void
 ## to continue
 func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context: StructureContext) -> bool:
 	var rendering: Rendering = _get_rendering()
+	if in_input_event is InputEventKey and _is_create_mode_key_pressed(in_input_event):
+		if _ensure_create_mode(CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS):
+			rendering.virtual_anchor_preview_show()
+	
+	if not _is_create_mode_enabled():
+		return false
+	
 	var create_mode_enabled: bool = out_context.workspace_context.create_object_parameters.get_create_mode_enabled()
 	
 	if not create_mode_enabled:

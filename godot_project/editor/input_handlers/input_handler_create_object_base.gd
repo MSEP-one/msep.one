@@ -148,6 +148,50 @@ func _on_workspace_context_selection_changed(_in_structure_contexts: Array[Struc
 	_last_center_of_selection = selection_aabb.get_center()
 
 
+func _is_create_mode_key_pressed(in_event: InputEvent) -> bool:
+	if not in_event is InputEventWithModifiers:
+		return false
+	var alt_pressed: bool = in_event.alt_pressed
+	var ctrl_pressed: bool = in_event.ctrl_pressed
+	var shift_pressed: bool = in_event.shift_pressed
+	# Meta key does not work like the rest of the modifiers, so we fallback to Input API
+	var meta_pressed: bool = Input.is_key_pressed(KEY_META)
+	if in_event is InputEventKey:
+		# Key inputs for an XXX button (in example shift) will have the ev.XXX_pressed property
+		# set to false instead of whatever `ev.pressed` is, because of that we need aditional checks
+		# for InputEventKey
+		if in_event.keycode == KEY_ALT:
+			alt_pressed = in_event.pressed
+		if in_event.keycode == KEY_CTRL:
+			ctrl_pressed = in_event.pressed
+		if in_event.keycode == KEY_SHIFT:
+			shift_pressed = in_event.pressed
+		if in_event.keycode == KEY_META:
+			meta_pressed = in_event.pressed
+	return alt_pressed and not (shift_pressed || ctrl_pressed || meta_pressed)
+
+
+func _ensure_create_mode(in_change_to_type: CreateObjectParameters.CreateModeType) -> bool:
+	var workspace_context: WorkspaceContext = get_workspace_context()
+	if workspace_context.create_object_parameters.get_create_mode_enabled():
+		# Already enabled
+		return false
+	workspace_context.create_object_parameters.set_create_mode_enabled(true)
+	if not workspace_context.create_object_parameters.get_create_mode_type() in [
+				in_change_to_type,
+				CreateObjectParameters.CreateModeType.CREATE_CUSTOM,
+				CreateObjectParameters.CreateModeType.CREATE_PARTICLE_EMITTERS,
+			]:
+		workspace_context.create_object_parameters.set_create_mode_type(in_change_to_type)
+		MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME)
+	update_preview_position()
+	return true
+
+
+func _is_create_mode_enabled() -> bool:
+	return get_workspace_context().create_object_parameters.get_create_mode_enabled()
+
+
 func _try_set_preview_position_to_closest_object() -> bool:
 	var pos: Vector3 = _try_get_preview_position_to_closest_object(
 		get_workspace_context(),

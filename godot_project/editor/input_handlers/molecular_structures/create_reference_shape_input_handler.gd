@@ -17,7 +17,6 @@ func handles_empty_selection() -> bool:
 func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	return in_structure_context.nano_structure is NanoShape \
 			and in_structure_context.workspace_context.is_creating_object() \
-			and in_structure_context.workspace_context.create_object_parameters.get_create_mode_enabled() \
 			and in_structure_context.workspace_context.create_object_parameters.get_create_mode_type() == \
 					CreateObjectParameters.CreateModeType.CREATE_SHAPES
 
@@ -114,6 +113,12 @@ func _on_creation_distance_from_camera_factor_changed(_in_distance_factor: float
 ## returns true if the input event was handled, avoiding other input handlers
 ## to continue
 func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_context: StructureContext) -> bool:
+	if in_input_event is InputEventKey and _is_create_mode_key_pressed(in_input_event):
+		if _ensure_create_mode(CreateObjectParameters.CreateModeType.CREATE_SHAPES):
+			_ghost_shape.set_visible(true)
+	
+	if not _is_create_mode_enabled():
+		return false
 	
 	if in_input_event is InputEventMouseMotion:
 		var has_modifiers: bool = input_has_modifiers(in_input_event)
