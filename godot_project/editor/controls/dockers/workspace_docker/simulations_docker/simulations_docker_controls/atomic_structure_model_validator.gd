@@ -452,6 +452,7 @@ class OverlapData extends Metadata:
 				delimiter = ""
 			text += "%d %s%s%s" % [count, element, "s" if count != 1 else "", delimiter]
 			index += 1
+		text += " of group " + structure_context.nano_structure.get_structure_name()
 		if plural:
 			text += " are overlapping"
 		else:
@@ -460,11 +461,11 @@ class OverlapData extends Metadata:
 			0:
 				text += "."
 			1:
-				text += " with group: %s." % [other_structures[0].name.capitalize()]
+				text += " with group: %s." % [other_structures[0].nano_structure.get_structure_name()]
 			_:
 				text += " with groups: "
 				for i in other_structures.size():
-					text += other_structures[i].name.capitalize()
+					text += other_structures[i].nano_structure.get_structure_name()
 					if i < other_structures.size() - 1:
 						text += ", "
 				text += "."
@@ -623,10 +624,13 @@ class SpatialHashGridOverlaps extends SpatialHashGrid:
 				for current_structure: StructureContext in overlapping_atoms:
 					var atoms: Array[AtomData] = []
 					atoms.assign(overlapping_atoms[current_structure])
-					if atoms.size() <= 1:
-						continue
 					var other_structures: Array = overlapping_atoms.keys().duplicate()
 					other_structures.erase(current_structure)
+					var overlap_count: int = atoms.size()
+					for other: StructureContext in other_structures:
+						overlap_count += overlapping_atoms[other].size()
+					if overlap_count <= 1:
+						continue
 					var overlap := OverlapData.new(atoms, current_structure, other_structures)
 					result.push_back(overlap)
 		return result
