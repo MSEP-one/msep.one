@@ -62,6 +62,7 @@ func _set_time_span_in_femtoseconds(in_time: float) -> void:
 
 
 func _on_spin_box_slider_value_confirmed(in_new_value: float) -> void:
+	time_span_femtoseconds = unit_to_femtoseconds(in_new_value, current_unit)
 	time_span_changed.emit(in_new_value, current_unit)
 
 

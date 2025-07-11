@@ -88,6 +88,7 @@ func _set_temperature_in_kelvins(in_temp: float) -> void:
 
 
 func _on_spin_box_slider_value_confirmed(in_new_value: float) -> void:
+	temperature_kelvins = unit_to_kelvin(in_new_value, current_unit)
 	temperature_changed.emit(in_new_value, current_unit)
 
 
