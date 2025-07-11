@@ -157,13 +157,14 @@ class PayloadHeaderReader(PayloadChunkReader):
 		assert(self.seek == len(self.chunk))
 
 class AtomData:
-	def __init__(self, element, hybridization, charge=0, molecule_id=0, is_locked=False, is_passivation_atom=False):
+	def __init__(self, element, hybridization, charge=0, molecule_id=0, is_locked=False, passivated_atom_id=-1):
 		self.element: int = element
 		self.hybridization: int = hybridization
 		self.charge: float = charge
 		self.molecule_id: int = molecule_id
 		self.is_locked: bool = is_locked
-		self.is_passivation_atom: bool = is_passivation_atom
+		self.passivated_atom_id: int = passivated_atom_id
+		self.is_passivation_atom: bool = passivated_atom_id != -1
 	
 	def __str__(self):
 		if self.hybridization == 0:
@@ -221,7 +222,7 @@ class PayloadTopologyReader(PayloadChunkReader):
 			charge = 0
 			locked = False
 			atom_molecule_id = passivation_atom_molecule_id[i]
-			atom = AtomData(element, hybridization, charge, atom_molecule_id, locked, is_passivation_atom=True)
+			atom = AtomData(element, hybridization, charge, atom_molecule_id, locked, passivated_atom_id=passivated_atom_id)
 			self.atoms.append(atom)
 			new_atom_id = len(self.atoms) - 1
 			# Create Bond
@@ -1100,6 +1101,7 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 				forces.nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
 			# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
 			forces.bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
+	nonbonded_exception_map: dict[tuple[int, int], int] = {} # [atoms_pair = exception_index] This is used in case passivation of atoms needs to modify an exception
 	for i, atom in enumerate(topology_payload.atoms):
 		if atom.is_locked:
 			openff_atom_id = topology_payload.payload_to_openff_atom[i]
@@ -1116,7 +1118,28 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 			forces.bond_force.addBond(lock_particle_id, openff_atom_id, equilibrium_length, k_constant)
 		if atom.is_passivation_atom:
 			openff_atom_id = topology_payload.payload_to_openff_atom[i]
+			openff_passivated_atom_id = topology_payload.payload_to_openff_atom[atom.passivated_atom_id]
+			h_params = forces.nonbonded_force.getParticleParameters(openff_atom_id)
 			forces.nonbonded_force.setParticleParameters(openff_atom_id, charge=0.0, sigma=0.0, epsilon=0.0)
+			try:
+				forces.nonbonded_force.addException(openff_passivated_atom_id, openff_atom_id, h_params[0]._value, h_params[1]._value, h_params[2]._value)
+			except Exception as e:
+				if str(e).startswith("NonbondedForce: There is already an exception for particles"):
+					# This means that the exception already exists, and was created by OpenFF
+					# but doesn't behave as having hydrogens created by hand when not passivaiting
+					# We need to update the exception parameters
+					if not nonbonded_exception_map:
+						for exception_index in range(forces.nonbonded_force.getNumExceptions()):
+							exception_params = forces.nonbonded_force.getExceptionParameters(exception_index)
+							atom_pair = [exception_params[0], exception_params[1]]
+							atom_pair.sort()
+							nonbonded_exception_map[tuple(atom_pair)] = exception_index
+					atoms_pair = [openff_passivated_atom_id, openff_atom_id]
+					atoms_pair.sort()
+					exception_index = nonbonded_exception_map[tuple(atoms_pair)]
+					forces.nonbonded_force.setExceptionParameters(exception_index, openff_passivated_atom_id, openff_atom_id, h_params[0]._value, h_params[1]._value, h_params[2]._value)
+				else:
+					raise e
 	integrator: Integrator = None
 	if (not header is None) and header.integrator == "langevin":
 		integrator = LangevinMiddleIntegrator(temperature_in_kelvins*kelvin, 1/picosecond, 0.004*picoseconds)
