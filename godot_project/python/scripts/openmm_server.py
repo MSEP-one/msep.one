@@ -868,7 +868,9 @@ class ParticleEmitter:
 			simulation.system.setParticleMass(atom_id, mass)
 			forces.nonbonded_force.setParticleParameters(atom_id, parameters[0], parameters[1], parameters[2])
 			current_positions[atom_id] = position
-			TEMPERATURE_CONSERVATION_FACTOR = 0.5
+			# FIXME: GPU acceleration sometimes sets initial velocities to an absurdly large value,
+			# because of this is unsafe to mantain this initial velocity, so we set it to 0
+			TEMPERATURE_CONSERVATION_FACTOR = 0.0 # 0.5
 			new_velocities[atom_id] = (original_velocity * TEMPERATURE_CONSERVATION_FACTOR) + initial_velocity * velocities[atom_id].unit
 		for bond_id in instance_openmm_bonds:
 			atom1, atom2, length, k = self._molecule_forces_cache[("bond", bond_id)]
