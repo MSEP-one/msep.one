@@ -96,7 +96,14 @@ func _set_cull_back(in_culled_back: bool) -> void:
 		shape.material_overlay = null
 	else:
 		# Add the extra material showing the inverted faces
-		shape.material_overlay = preload("uid://cbw6w00wvqx5t")
+		shape.material_overlay = _get_material_overlay()
+
+
+static var _material_overlay: Material = null
+static func _get_material_overlay() -> Material:
+	if _material_overlay == null:
+		_material_overlay = load("uid://cbw6w00wvqx5t")
+	return _material_overlay
 
 
 func _exit_tree() -> void:
