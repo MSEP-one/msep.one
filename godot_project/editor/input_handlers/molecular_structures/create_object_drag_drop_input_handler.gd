@@ -66,11 +66,19 @@ func _init(in_context: WorkspaceContext) -> void:
 	super._init(in_context)
 	in_context.current_structure_context_changed.connect(_on_current_structure_context_changed)
 	in_context.register_snapshotable(self)
+	var create_object_parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
+	create_object_parameters.create_mode_enabled_changed.connect(_on_create_object_parameters_create_mode_enabled_changed)
 
 
 func _on_current_structure_context_changed(in_context: StructureContext) -> void:
 	if in_context == null or in_context.nano_structure == null:
 		_gesture_reset()
+
+
+func _on_create_object_parameters_create_mode_enabled_changed(in_enabled: bool) -> void:
+	if not in_enabled:
+		_hide_anchor_and_spring_preview()
+		_hide_atom_and_bond_preview()
 
 
 ## When _handles_state(context, edit_mode) is true this method will be
