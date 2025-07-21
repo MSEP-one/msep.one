@@ -118,9 +118,7 @@ func validate_atomic_model(in_selection_only: bool) -> void:
 ## Returns true if there's at least one valid overlap data
 func has_overlapping_atoms() -> bool:
 	for overlap_data: OverlapData in _overlaps:
-		# If the tree item was deleted, the overlap isn't valid anymore
-		var tree_item: Variant = _overlaps[overlap_data]
-		if not is_instance_valid(tree_item):
+		if overlap_data.is_fixed:
 			continue
 		if not overlap_data.has_invalid_atoms():
 			return true
