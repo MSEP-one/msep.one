@@ -84,8 +84,10 @@ func _ensure_shape_fits_in_work_area() -> void:
 		# We should not move the camera if the shape is relative to it
 		return
 	var shape: PrimitiveMesh = _ghost_shape.get_shape()
-	const VIEW_MARGIN: float = 1.0
+	const VIEW_MARGIN: float = 0.5
 	var aabb: AABB = shape.get_aabb().grow(VIEW_MARGIN)
+	# Ensure pivot of AABB is centered
+	aabb.position = -aabb.size/2.0
 	aabb.position += position
 	var camera: Camera3D = _workspace_context.get_camera()
 	var inside_frustrum: bool = true
