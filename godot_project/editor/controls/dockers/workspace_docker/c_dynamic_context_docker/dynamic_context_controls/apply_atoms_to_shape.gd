@@ -300,6 +300,7 @@ func _cover_shape_with_atoms() -> void:
 		var minimum_distance_between_atoms: float = max(atom_diameter, _spinbox_distance.value)
 		_cover_shape_surface(minimum_distance_between_atoms, structure_context)
 	
+	EditorSfx.create_object()
 	_workspace_context.snapshot_moment("Cover shape with atoms")
 
 
@@ -317,6 +318,7 @@ func _cover_shape_with_molecules() -> void:
 		assert(structure_context.nano_structure is NanoShape, "Selected context is not a shape!")
 		_cover_shape_surface(molecule_diameter, structure_context)
 	
+	EditorSfx.create_object()
 	_workspace_context.snapshot_moment("Cover shape with molecules")
 
 
@@ -378,7 +380,6 @@ func _create_atoms(
 	out_target_structure.start_edit()
 	var new_atom_ids: PackedInt32Array = out_target_structure.add_atoms(add_atom_paramters)
 	out_target_structure.end_edit()
-	EditorSfx.create_object()
 	return new_atom_ids
 
 
@@ -408,7 +409,6 @@ func _create_molecules(
 			var bond_order: int = bond_data[2]
 			out_target_structure.add_bond(atom_a, atom_b, bond_order)
 	out_target_structure.end_edit()
-	EditorSfx.create_object()
 	return new_atom_ids
 	
 
@@ -446,6 +446,7 @@ func _fill_shape_with_atoms() -> void:
 		var minimum_distance_between_atoms: float = max(atom_diameter, _spinbox_distance.value)
 		_fill_shape(minimum_distance_between_atoms, structure_context)
 	
+	EditorSfx.create_object()
 	_workspace_context.snapshot_moment("Fill shape with atoms")
 
 
@@ -463,6 +464,7 @@ func _fill_shape_with_molecules() -> void:
 		assert(structure_context.nano_structure is NanoShape, "Selected context is not a shape!")
 		_fill_shape(molecule_diameter, structure_context)
 	
+	EditorSfx.create_object()
 	_workspace_context.snapshot_moment("Fill shape with molecules")
 
 
