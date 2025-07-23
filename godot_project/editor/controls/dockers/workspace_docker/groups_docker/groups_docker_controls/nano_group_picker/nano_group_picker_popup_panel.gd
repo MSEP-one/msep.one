@@ -25,10 +25,30 @@ func _notification(what: int) -> void:
 		hide()
 
 
+func is_outdated(in_workspace_context: WorkspaceContext) -> bool:
+	var contexts: Array[StructureContext] = in_workspace_context.get_all_structure_contexts()
+	var structures: Array = contexts.map(func(in_ctx: StructureContext) -> NanoStructure:
+		return in_ctx.nano_structure
+	)
+	var groups: Array = structures.filter(_can_contain_children)
+	if groups.size() != _structure_id_to_tree_item.size():
+		return true
+	for structure: NanoStructure in groups:
+		if !is_instance_valid(_structure_id_to_tree_item.get(structure.int_guid, null)):
+			return true
+	return false
+
+
+func clear() -> void:
+	_tree.clear()
+	_structure_id_to_tree_item.clear()
+	selected_id = -1
+
+
 func initialize(in_workspace_context: WorkspaceContext) -> void:
 	_workspace_context = in_workspace_context
 	assert(_structure_id_to_tree_item.is_empty(), "Already initialized")
-	_tree.clear()
+	clear()
 	var root: TreeItem = _tree.create_item(null, _WORKSPACE_GROUP_ID)
 	_structure_id_to_tree_item[_WORKSPACE_GROUP_ID] = root
 	var structures: Array = in_workspace_context.workspace.get_structures()

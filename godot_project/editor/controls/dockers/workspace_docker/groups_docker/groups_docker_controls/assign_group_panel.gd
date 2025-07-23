@@ -57,7 +57,7 @@ func _ensure_workspace_initialized(out_workspace_context: WorkspaceContext) -> v
 		out_workspace_context.structure_added.connect(_on_nano_structure_added)
 		out_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 		out_workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
-		out_workspace_context.history_snapshot_applied.connect(_on_workspace_context_history_snapshot_applied)
+		out_workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 		_update_controls()
 		_update_apply_button_state()
 
@@ -72,7 +72,7 @@ func _on_nano_structure_added(in_nano_structure: NanoStructure) -> void:
 		return
 	var need_to_update_structure_name: bool = \
 			_line_edit_new_structure_name.text == _generate_new_structure_name()
-	_highest_index += 1
+	_highest_index = _workspace_context.workspace.get_nmb_of_structures()
 	if need_to_update_structure_name:
 		_line_edit_new_structure_name.text = _generate_new_structure_name()
 	ScriptUtils.call_deferred_once(_update_controls)
@@ -87,9 +87,18 @@ func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructur
 	ScriptUtils.call_deferred_once(_update_apply_button_state)
 
 
-func _on_workspace_context_history_snapshot_applied() -> void:
+func _on_workspace_context_history_changed() -> void:
 	_update_controls()
 	_update_apply_button_state()
+	_nano_structure_picker_new_structure_parent.rebuild_if_needed(_workspace_context)
+	_nano_structure_picker_assign_existing.rebuild_if_needed(_workspace_context)
+	var was_default_group_name: bool = _line_edit_new_structure_name.text == _generate_new_structure_name()
+	var was_group_added_or_removed: bool =_highest_index != _workspace_context.workspace.get_nmb_of_structures()
+	if was_group_added_or_removed:
+		# Update _highest_index if a group was added or removed by this action
+		_highest_index = _workspace_context.workspace.get_nmb_of_structures()
+		if was_default_group_name:
+			_line_edit_new_structure_name.text = _generate_new_structure_name()
 
 
 func _on_check_box_add_to_new_toggled(in_button_pressed: bool) -> void:
