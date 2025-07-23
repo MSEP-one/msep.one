@@ -30,7 +30,14 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 		return false
 	
 	var new_structure: NanoStructure = parameters.get_new_structure()
-	return new_structure != null and new_structure is AtomicStructure
+	var is_creating_another_object: Callable = func(in_nano_structure: NanoStructure) -> bool:
+			return in_nano_structure != new_structure
+	if new_structure != null and new_structure is AtomicStructure:
+		if !_workspace_context.is_creating_object() \
+			or in_structure_context.workspace_context.peek_object_being_created(is_creating_another_object):
+			_workspace_context.start_creating_object(new_structure)
+		return true
+	return false
 
 
 ## VIRTUAL
