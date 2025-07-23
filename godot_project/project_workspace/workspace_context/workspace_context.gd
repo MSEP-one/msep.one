@@ -354,13 +354,17 @@ func get_current_structure_context() -> StructureContext:
 func set_current_structure_context(in_structure_context: StructureContext) -> void:
 	if in_structure_context.get_int_guid() == _current_structure_context_id:
 		return
-	# Activating an object cancels create mode
-	abort_creating_object()
+	var tmp_template: NanoStructure = _current_create_object_template
+	if tmp_template != null:
+		# Activating an object temporary cancels create mode
+		abort_creating_object()
 	workspace.active_structure_int_guid = in_structure_context.get_int_guid()
 	_current_structure_context_id = in_structure_context.get_int_guid()
 	current_structure_context_changed.emit(in_structure_context)
 	_queue_emit_new_editable_structures()
 	WorkspaceUtils.unselect_inactive_structure_contexts(self)
+	if tmp_template != null:
+		start_creating_object(tmp_template)
 
 
 func pause_inputs(duration: float) -> void:
