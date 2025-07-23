@@ -12,6 +12,8 @@ func _init(in_context: WorkspaceContext) -> void:
 	in_context.create_object_parameters.create_distance_method_changed.connect(_on_creation_distance_changed)
 	in_context.create_object_parameters.creation_distance_from_camera_factor_changed.connect(_on_creation_distance_changed)
 	_rendering = in_context.get_rendering()
+	var create_object_parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
+	create_object_parameters.create_mode_enabled_changed.connect(_on_create_object_parameters_create_mode_enabled_changed)
 
 
 # region virtual
@@ -199,6 +201,11 @@ func _on_current_structure_context_changed(in_context: StructureContext) -> void
 
 func _on_creation_distance_changed(_arg: Variant) -> void:
 	update_preview_position()
+
+
+func _on_create_object_parameters_create_mode_enabled_changed(in_enabled: bool) -> void:
+	if not in_enabled:
+		_hide_preview()
 
 
 func _on_new_structure_changed(in_structure: NanoStructure) -> void:

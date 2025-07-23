@@ -31,6 +31,8 @@ func _init(in_context: WorkspaceContext) -> void:
 	_on_current_structure_context_changed(in_context.get_current_structure_context())
 	_on_creation_distance_from_camera_factor_changed(in_context.create_object_parameters.get_creation_distance_from_camera_factor())
 	_on_selected_shape_for_new_objects_changed(in_context.create_object_parameters.get_selected_shape_for_new_objects())
+	var create_object_parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
+	create_object_parameters.create_mode_enabled_changed.connect(_on_create_object_parameters_create_mode_enabled_changed)
 	var editor_viewport: WorkspaceEditorViewport = get_workspace_context().get_editor_viewport()
 	_rendering = editor_viewport.get_rendering() as Rendering
 	_rendering.shape_preview_set_nano_shape(_ghost_shape)
@@ -63,6 +65,11 @@ func _on_selected_shape_for_new_objects_changed(in_shape: PrimitiveMesh) -> void
 	in_shape.changed.connect(_on_tracked_shape_changed)
 	if should_show:
 		_ensure_shape_fits_in_work_area()
+
+
+func _on_create_object_parameters_create_mode_enabled_changed(in_enabled: bool) -> void:
+	if not in_enabled:
+		_ghost_shape.set_visible(false)
 
 
 func _on_tracked_shape_changed() -> void:

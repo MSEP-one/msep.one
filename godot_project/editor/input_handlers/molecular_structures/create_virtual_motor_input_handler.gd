@@ -37,6 +37,8 @@ func _init(in_context: WorkspaceContext) -> void:
 	_on_creation_distance_from_camera_factor_changed(in_context.create_object_parameters.get_creation_distance_from_camera_factor())
 	_on_selected_virtual_motor_parameters_changed(in_context.create_object_parameters.get_selected_virtual_motor_parameters())
 	_rendering.virtual_motor_preview_set_parameters(_new_motor_parameters)
+	var create_object_parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
+	create_object_parameters.create_mode_enabled_changed.connect(_on_create_object_parameters_create_mode_enabled_changed)
 
 
 func _on_current_structure_context_changed(in_context: StructureContext) -> void:
@@ -50,6 +52,11 @@ func _on_selected_virtual_motor_parameters_changed(in_parameters: NanoVirtualMot
 	_rendering.virtual_motor_preview_set_parameters(in_parameters)
 	update_preview_position()
 	_rendering.virtual_motor_preview_show()
+
+
+func _on_create_object_parameters_create_mode_enabled_changed(in_enabled: bool) -> void:
+	if not in_enabled:
+		_rendering.virtual_motor_preview_hide()
 
 
 func _on_ring_menu_closed() -> void:
