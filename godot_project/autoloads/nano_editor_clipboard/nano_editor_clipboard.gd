@@ -471,7 +471,7 @@ func _paste_atoms_and_bonds_in_structure(
 			)
 		)
 		old_atom_id_to_new_atom_id[atom.origin_id] = old_index_to_new_index[idx]
-		if in_auto_bond_order > -1 and atom.origin_group_id == out_structure.int_guid:
+		if in_auto_bond_order > -1 and atom.origin_group_id == out_structure.int_guid and out_structure.is_atom_valid(atom.origin_id):
 			# Cannot paste bonded atoms to a different structure from where it was originated
 			assert(atom.origin_id > -1, "Bonded paste has been used, but there is no information about the source atom")
 			var valence_left: int = out_structure.atom_get_remaining_valence(atom.origin_id)
