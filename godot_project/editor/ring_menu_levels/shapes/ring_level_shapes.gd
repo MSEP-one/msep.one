@@ -19,8 +19,3 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 		)
 		add_action(action_set_shape)
 	
-	in_menu.state_level_popped.connect(_on_ring_menu_state_level_popped)
-
-func _on_ring_menu_state_level_popped(in_popped_level: RingMenuLevel) -> void:
-	if in_popped_level == self:
-		_workspace_context.abort_creating_object()
