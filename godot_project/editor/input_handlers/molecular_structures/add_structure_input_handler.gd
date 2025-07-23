@@ -195,6 +195,10 @@ func _hide_preview() -> void:
 func _on_current_structure_context_changed(in_context: StructureContext) -> void:
 	if in_context == null or in_context.nano_structure == null:
 		_hide_preview()
+	else:
+		var structure_template: NanoStructure = \
+			in_context.workspace_context.create_object_parameters.get_new_structure()
+		_on_new_structure_changed(structure_template)
 
 
 func _on_creation_distance_changed(_arg: Variant) -> void:
@@ -202,5 +206,8 @@ func _on_creation_distance_changed(_arg: Variant) -> void:
 
 
 func _on_new_structure_changed(in_structure: NanoStructure) -> void:
+	if in_structure == null:
+		_hide_preview()
+		return
 	get_workspace_context().start_creating_object(in_structure)
 	_preview_size = in_structure.get_aabb().size
