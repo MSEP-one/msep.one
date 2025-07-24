@@ -17,6 +17,7 @@ const DEFAULT_INSTANCE_COUNT_LIMIT = 20
 @export_range(1, 100, 1, "or_greater") var _stop_emitting_after_count: int = DEFAULT_INSTANCE_COUNT_LIMIT
 @export var _stop_emitting_after_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(150, TimeSpanPicker.Unit.NANOSECOND)
 @export var _instance_speed_nanometers_per_picosecond: float = 8.0
+@export var _instance_spin_revolutions_per_nanosecond: float = .0
 @export_range(0, 180, 0.1) var _spread_angle: float = 0
 
 
@@ -94,6 +95,15 @@ func set_instance_speed_nanometers_per_picosecond(in_instance_speed_nanometers_p
 
 func get_instance_speed_nanometers_per_picosecond() ->  float:
 	return _instance_speed_nanometers_per_picosecond
+
+
+func set_instance_spin_revolutions_per_nanosecond(in_instance_spin_revolutions_per_nanosecond: float) -> void:
+	_instance_spin_revolutions_per_nanosecond = in_instance_spin_revolutions_per_nanosecond
+	emit_changed()
+
+
+func get_instance_spin_revolutions_per_nanosecond() ->  float:
+	return _instance_spin_revolutions_per_nanosecond
 
 
 func set_spread_angle_degrees(in_spread_angle: float) -> void:

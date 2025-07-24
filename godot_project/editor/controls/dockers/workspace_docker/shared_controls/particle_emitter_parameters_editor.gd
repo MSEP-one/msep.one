@@ -5,6 +5,10 @@ var _initial_delay_time_picker: TimeSpanPicker
 var _molecules_per_instance_spin_box: SpinBoxSlider
 var _instance_rate_time_picker: TimeSpanPicker
 var _initial_speed_spin_box: SpinBoxSlider
+var _spin_speed_spin_box: SpinBoxSlider
+var _spin_direction_label: Label
+var _spin_clockwise_button: Button
+var _spin_counter_clockwise_button: Button
 var _spread_angle_spin_box: SpinBoxSlider
 var _stop_never_button: Button
 var _stop_count_button: Button
@@ -24,6 +28,10 @@ func _notification(what: int) -> void:
 		_molecules_per_instance_spin_box = %MoleculesPerInstanceSpinBox as SpinBoxSlider
 		_instance_rate_time_picker = %InstanceRateTimePicker as TimeSpanPicker
 		_initial_speed_spin_box = %InitialSpeedSpinBox as SpinBoxSlider
+		_spin_speed_spin_box = %SpinSpeedSpinBox as SpinBoxSlider
+		_spin_direction_label = %SpinDirectionLabel as Label
+		_spin_clockwise_button = %SpinClockwiseButton as Button
+		_spin_counter_clockwise_button = %SpinCounterClockwiseButton as Button
 		_spread_angle_spin_box = %SpreadAngleSpinBox as SpinBoxSlider
 		_stop_never_button = %StopNeverButton as Button
 		_stop_count_button = %StopCountButton as Button
@@ -35,6 +43,8 @@ func _notification(what: int) -> void:
 		_molecules_per_instance_spin_box.value_confirmed.connect(_on_molecules_per_instance_spin_box_value_confirmed)
 		_instance_rate_time_picker.time_span_changed.connect(_on_instance_rate_time_picker_time_span_changed)
 		_initial_speed_spin_box.value_confirmed.connect(_on_initial_speed_spin_box_value_confirmed)
+		_spin_speed_spin_box.value_confirmed.connect(_on_spin_speed_spin_box_value_confirmed.unbind(1))
+		_spin_clockwise_button.button_group.pressed.connect(_on_spin_direction_button_group_pressed.unbind(1))
 		_spread_angle_spin_box.value_confirmed.connect(_on_spread_angle_spin_box_value_confirmed)
 		_stop_never_button.button_group.pressed.connect(_on_stop_condition_button_group_pressed)
 		_limit_instances_spin_box.value_confirmed.connect(_on_limit_instances_spin_box_value_confirmed)
@@ -85,6 +95,13 @@ func _on_emitter_parameters_changed() -> void:
 	_instance_rate_time_picker.time_span_femtoseconds = TimeSpanPicker.unit_to_femtoseconds(
 			parameters.get_instance_rate_time_in_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)
 	_initial_speed_spin_box.set_value_no_signal(parameters.get_instance_speed_nanometers_per_picosecond())
+	const NANOSECOND_TO_PICOSECOND: float = 1.0 / 1000.0
+	var spin_speed: float = parameters.get_instance_spin_revolutions_per_nanosecond() * NANOSECOND_TO_PICOSECOND
+	_spin_speed_spin_box.set_value_no_signal(abs(spin_speed))
+	_spin_clockwise_button.set_pressed_no_signal(spin_speed >= 0)
+	_spin_counter_clockwise_button.set_pressed_no_signal(spin_speed < 0)
+	_update_spin_direction_visibility()
+	_update_spin_speed_tooltip()
 	_spread_angle_spin_box.set_value_no_signal(parameters.get_spread_angle_degrees())
 	_stop_never_button.set_pressed_no_signal(parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.NEVER)
 	_stop_count_button.set_pressed_no_signal(parameters.get_limit_type() == NanoParticleEmitterParameters.LimitType.INSTANCE_COUNT)
@@ -127,6 +144,43 @@ func _on_initial_speed_spin_box_value_confirmed(in_value: float) -> void:
 	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
 	parameters.set_instance_speed_nanometers_per_picosecond(in_value)
 	_take_snapshot_if_configured(tr(&"Initial Speed"))
+
+
+func _on_spin_speed_spin_box_value_confirmed() -> void:
+	_update_instance_spin_revolutions_per_nanosecond()
+
+
+func _on_spin_direction_button_group_pressed() -> void:
+	_update_instance_spin_revolutions_per_nanosecond()
+	
+
+func _update_instance_spin_revolutions_per_nanosecond() -> void:
+	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
+	var polarity: float = 1 if _spin_clockwise_button.button_pressed else -1
+	const PICOSECOND_TO_NANOSECOND: float = 1000.0
+	parameters.set_instance_spin_revolutions_per_nanosecond(polarity * _spin_speed_spin_box.value * PICOSECOND_TO_NANOSECOND)
+	_update_spin_speed_tooltip()
+	_update_spin_direction_visibility()
+	_take_snapshot_if_configured(tr(&"Spin Speed"))
+
+
+func _update_spin_direction_visibility() -> void:
+	if is_equal_approx(_spin_speed_spin_box.value, .0):
+		_spin_direction_label.hide()
+		# Hide HBoxContainer containing buttons
+		_spin_clockwise_button.get_parent_control().hide()
+	else:
+		_spin_direction_label.show()
+		# Show HBoxContainer containing buttons
+		_spin_clockwise_button.get_parent_control().show()
+
+
+func _update_spin_speed_tooltip() -> void:
+	var FEMTOSECONDS_PER_PICOSECOND: float = 1000.0
+	_spin_speed_spin_box.tooltip_text = tr("Revolutions per Picosecond:\n" +
+		"This is the number of spins a motor will do per picosecond.\n" +
+		"At %.2f Rev/ps a molecule will (if no external force stops it) complete a spin every %.2f femtoseconds") % \
+		[ _spin_speed_spin_box.value, 1.0 / (_spin_speed_spin_box.value / FEMTOSECONDS_PER_PICOSECOND)]
 
 
 func _on_spread_angle_spin_box_value_confirmed(in_value: float) -> void:

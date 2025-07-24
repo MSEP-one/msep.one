@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://c7itseuxfv2fj"]
+[gd_scene load_steps=6 format=3 uid="uid://c7itseuxfv2fj"]
 
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_74ssd"]
 [ext_resource type="Script" uid="uid://v3smn5bgab3l" path="res://editor/controls/dockers/workspace_docker/shared_controls/particle_emitter_parameters_editor.gd" id="1_f4m0x"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_a8qyp"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_olcwo"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_6vwam"]
 
@@ -92,6 +94,56 @@ value = 0.5
 allow_greater = true
 suffix = "nm/ps"
 custom_arrow_step = 0.1
+
+[node name="Label6" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = " ・ Spin Speed"
+vertical_alignment = 1
+
+[node name="SpinSpeedSpinBox" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor" instance=ExtResource("2_a8qyp")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Revolutions per Pcosecond:
+This is the number of spins a motor will do per picosecond.
+At {0} Rev / ps a molecule will (if no external force stops it) complete a spin every {1} femtoseconds"
+max_value = 15.0
+step = 0.001
+allow_greater = true
+allow_lesser = true
+suffix = "Rev/ps"
+custom_arrow_step = 0.01
+
+[node name="SpinDirectionLabel" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " ・ Spin Direction"
+vertical_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="SpinClockwiseButton" type="Button" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_olcwo")
+text = "Clockwise"
+
+[node name="SpinCounterClockwiseButton" type="Button" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_olcwo")
+text = "Counter Clockwise"
 
 [node name="Label3" type="Label" parent="PanelContainer/VBoxContainer/RotaryMotorParametersEditor"]
 custom_minimum_size = Vector2(0, 38)
