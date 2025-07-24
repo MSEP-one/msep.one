@@ -25,8 +25,17 @@ func initialize(out_workspace_context: WorkspaceContext) -> void:
 		_on_current_structure_context_changed)
 
 
-func rebuild(in_workspace_context: WorkspaceContext) -> void:
-	initialize(in_workspace_context)
+func rebuild_if_needed(in_workspace_context: WorkspaceContext) -> void:
+	if _nano_structure_picker_popup_panel.is_outdated(in_workspace_context):
+		var prev_selected: int = _nano_structure_picker_popup_panel.selected_id
+		_nano_structure_picker_popup_panel.clear()
+		_nano_structure_picker_popup_panel.initialize(in_workspace_context)
+		if in_workspace_context.has_nano_structure_context_id(prev_selected):
+			_nano_structure_picker_popup_panel.selected_id = prev_selected
+		else:
+			_nano_structure_picker_popup_panel.selected_id = \
+				in_workspace_context.get_current_structure_context().get_int_guid()
+		text = _nano_structure_picker_popup_panel.get_selected_structure_name()
 
 
 func _set_selected_id(in_selected_id: int) -> void:
