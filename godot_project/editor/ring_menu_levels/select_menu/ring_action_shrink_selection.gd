@@ -28,6 +28,5 @@ func can_shrink() -> bool:
 
 
 func _execute_action() -> void:
-	_ring_menu.close()
 	if can_shrink():
 		_workspace_context.shrink_selection()

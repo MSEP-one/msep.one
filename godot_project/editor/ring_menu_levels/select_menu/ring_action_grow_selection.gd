@@ -28,6 +28,5 @@ func can_grow_selection() -> bool:
 
 
 func _execute_action() -> void:
-	_ring_menu.close()
 	if can_grow_selection():
 		_workspace_context.grow_selection()
