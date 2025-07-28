@@ -747,6 +747,7 @@ class ParticleEmitter:
 		self.running: bool = emitter_data["parameters"]["_initial_delay_in_nanoseconds"] <= 0.0
 		self.initial_delay_in_nanoseconds = emitter_data["parameters"]["_initial_delay_in_nanoseconds"]
 		self.instance_rate_time_in_nanoseconds = emitter_data["parameters"]["_instance_rate_time_in_nanoseconds"]
+		self.instance_spin_revolutions_per_nanosecond = emitter_data["parameters"]["_instance_spin_revolutions_per_nanosecond"]
 		self.instance_speed_nanometers_per_picosecond = emitter_data["parameters"]["_instance_speed_nanometers_per_picosecond"]
 		self.molecules_per_instance = emitter_data["parameters"]["_molecules_per_instance"]
 		self.total_instance_count = emitter_data["parameters"]["total_instance_count"]
@@ -860,7 +861,8 @@ class ParticleEmitter:
 		velocities = state.getVelocities()
 		current_positions = state.getPositions()
 		new_velocities = velocities.copy()
-		initial_velocity = self._get_random_dir_in_spread() * self.instance_speed_nanometers_per_picosecond
+		spread_dir = self._get_random_dir_in_spread()
+		initial_velocity = spread_dir * self.instance_speed_nanometers_per_picosecond * nanometer / picosecond
 		packed_instance = self.openmm_instances_atoms_list[instance_index]
 		instance_openmm_atoms, instance_openmm_bonds, instance_openmm_angles, instance_openmm_torsions = packed_instance
 		for atom_id in instance_openmm_atoms:
@@ -868,10 +870,12 @@ class ParticleEmitter:
 			simulation.system.setParticleMass(atom_id, mass)
 			forces.nonbonded_force.setParticleParameters(atom_id, parameters[0], parameters[1], parameters[2])
 			current_positions[atom_id] = position
+			# spin_velocity is the tangencial velocity of the particle respect to spread_dir, instance_spin_revolutions_per_nanosecond is in revolutions per nanosecond
+			spin_velocity = Quantity(self._calculate_spin_velocity(position, spread_dir), nanometer / nanosecond)
 			# FIXME: GPU acceleration sometimes sets initial velocities to an absurdly large value,
 			# because of this is unsafe to mantain this initial velocity, so we set it to 0
 			TEMPERATURE_CONSERVATION_FACTOR = 0.0 # 0.5
-			new_velocities[atom_id] = (original_velocity * TEMPERATURE_CONSERVATION_FACTOR) + initial_velocity * velocities[atom_id].unit
+			new_velocities[atom_id] = (original_velocity * TEMPERATURE_CONSERVATION_FACTOR) + initial_velocity + spin_velocity
 		for bond_id in instance_openmm_bonds:
 			atom1, atom2, length, k = self._molecule_forces_cache[("bond", bond_id)]
 			forces.bond_force.setBondParameters(bond_id, atom1, atom2, length, k)
@@ -920,6 +924,21 @@ class ParticleEmitter:
 		)
 
 		return Vec3(rotated[0], rotated[1], rotated[2])
+	
+	def _calculate_spin_velocity(self, atom_position, spread_dir) -> Vec3:
+		if self.instance_spin_revolutions_per_nanosecond == 0.0:
+			# No spin, return zero velocity
+			return Vec3(0.0, 0.0, 0.0)
+		# Calculate the closest distance from the particle to the axis of rotation
+		axis_of_rotation: Vec3 = closest_point_in_rect_to_other(self.position, spread_dir, atom_position)
+		distance_to_axis: float = length_Vec3(atom_position - axis_of_rotation)
+		if distance_to_axis == 0:
+			# The particle is on the axis of rotation, no tangential velocity
+			return Vec3(0.0, 0.0, 0.0)
+		# Calculate the tangential velocity based on the distance and the spin speed
+		move_dir: Vec3 = cross_Vec3(normalize_Vec3(atom_position - axis_of_rotation)._value, spread_dir)
+		spin_velocity: Vec3 = move_dir * distance_to_axis * self.instance_spin_revolutions_per_nanosecond
+		return spin_velocity
 
 
 

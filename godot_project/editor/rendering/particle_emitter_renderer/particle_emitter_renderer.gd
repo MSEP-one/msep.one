@@ -1,6 +1,9 @@
 class_name ParticleEmitterRenderer extends Node3D
 
 
+@export_group("Scene Setup")
+@export var _spin_axle: MeshInstance3D
+
 var _emitter_id: int
 var _workspace_context: WorkspaceContext
 var _structure_previews: Array[StructurePreview]
@@ -57,7 +60,7 @@ func build(in_workspace_context: WorkspaceContext, in_emitter: NanoParticleEmitt
 	var template: NanoStructure = in_emitter.get_parameters().get_molecule_template()
 	if not template.get_representation_settings():
 		template.set_representation_settings(in_emitter.get_representation_settings())
-	_set_structure_preview_count(in_emitter.get_parameters().get_molecules_per_instance())
+	_on_emitter_parameters_changed(parameters)
 	_on_emitter_transform_changed(in_emitter.get_transform())
 	_on_emitter_visibility_changed(in_emitter.get_visible())
 
@@ -129,6 +132,12 @@ func _on_emitter_visibility_changed(in_visible: bool) -> void:
 
 func _on_emitter_parameters_changed(in_parameters: NanoParticleEmitterParameters) -> void:
 	_set_structure_preview_count(in_parameters.get_molecules_per_instance())
+	var spin_speed: float = in_parameters.get_instance_spin_revolutions_per_nanosecond()
+	if is_equal_approx(spin_speed, .0):
+		_spin_axle.hide()
+	else:
+		_spin_axle.show()
+		_spin_axle.scale.x = sign(spin_speed)
 
 
 func _on_workspace_context_hovered_structure_context_changed(
