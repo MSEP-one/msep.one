@@ -57,6 +57,7 @@ func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
 		in_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 		in_workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
 		in_workspace_context.alerts_panel_visibility_changed.connect(_on_workspace_context_alerts_panel_visibility_changed)
+		in_workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 		_atomic_structure_model_validator.set_workspace_context(in_workspace_context)
 		_update_button_run_relaxation_state()
 
@@ -77,6 +78,10 @@ func _on_workspace_context_selection_in_structures_changed(_in_structure_context
 
 
 func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructure) -> void:
+	ScriptUtils.call_deferred_once(_update_button_run_relaxation_state)
+
+
+func _on_workspace_context_history_changed() -> void:
 	ScriptUtils.call_deferred_once(_update_button_run_relaxation_state)
 
 
