@@ -113,6 +113,12 @@ func set_input_forwarding_enabled(in_enabled: bool) -> void:
 	_input_forwarding_enabled = in_enabled
 	if not in_enabled:
 		_viewport_input.notify_input_omitted()
+		_workspace_context.set_hovered_structure_context(
+			null,
+			AtomicStructure.INVALID_ATOM_ID,
+			AtomicStructure.INVALID_BOND_ID,
+			AtomicStructure.INVALID_SPRING_ID
+		)
 
 
 func has_exclusive_input_consumer() -> bool:
