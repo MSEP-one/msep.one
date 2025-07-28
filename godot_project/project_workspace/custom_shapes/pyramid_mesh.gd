@@ -239,7 +239,6 @@ func _get_apothema_length(in_radius: float) -> float:
 
 
 func _get_side_size(in_radius: float) -> float:
-	var sigma: float = (2 * PI) / sides
 	var aphotema: float = _get_apothema_length((in_radius))
 	var base_size_lenght: float = sqrt(in_radius**2 - aphotema**2) * 2
 	return base_size_lenght
