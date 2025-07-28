@@ -29,7 +29,7 @@ func set_atom_scale(new_scale: float) -> CylinderStickMaterial:
 
 func set_selectable(in_is_selectable: bool) -> CylinderStickMaterial:
 	const SELECTABLE = 1.0
-	const NON_SELECTABLE = 1.0
+	const NON_SELECTABLE = 0.0
 	var value_to_apply: float = SELECTABLE if in_is_selectable else NON_SELECTABLE
 	set_shader_parameter(UNIFORM_IS_SELECTABLE, value_to_apply)
 	return self
