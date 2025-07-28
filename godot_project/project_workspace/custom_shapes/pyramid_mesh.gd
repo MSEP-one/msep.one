@@ -177,15 +177,22 @@ func get_cover_atoms_positions(in_minimum_distance_between_atoms: float, in_fill
 			initial_position + Vector3.UP * vertical_atom_idx * vertical_distance_between_atoms
 		var current_max_radius: float = _get_radius(current_height.length())
 		var current_apothema_length: float = _get_apothema_length(current_max_radius)
-		var atoms_in_current_apothema: int = 0
-		atoms_in_current_apothema = \
+		var current_side_size: float = _get_side_size(current_max_radius)
+		var atoms_in_current_apothema: int = \
 			floori(current_apothema_length / in_minimum_distance_between_atoms) + 1 \
 			if current_apothema_length >= minimum_radius else 1
-		if vertical_atom_idx == 0 or vertical_atom_idx == (atoms_in_height - 1):
+		if vertical_atom_idx == 0:
 			result.append(current_height)
 		if atoms_in_current_apothema == 1:
-			# There was room for only one atom, the one in the center
-			# That atom position has just been added to the result
+			if current_side_size >= in_minimum_distance_between_atoms:
+				# There's space for 1 atom in each corner
+				for side_idx: int in sides:
+					var side_corner_pos: Vector3 = \
+						_get_segment(current_max_radius, angular_increment * (side_idx))
+					result.append(current_height + side_corner_pos)
+			else:
+				#only space for one atom in the middle
+				result.append(current_height)
 			continue
 		var distance_between_atoms_in_apothema: float = \
 			NanoMeshUtils.get_inter_atom_distance_in_length(in_minimum_distance_between_atoms, current_apothema_length) \
@@ -195,7 +202,7 @@ func get_cover_atoms_positions(in_minimum_distance_between_atoms: float, in_fill
 				var distance_to_longitudinal_axis: float = \
 					distance_between_atoms_in_apothema * apothema_atom_idx
 				var apothema_ratio: float = distance_to_longitudinal_axis/current_apothema_length
-				var apothema_segment: Vector3 = \
+				var side_corner_pos: Vector3 = \
 					_get_segment(distance_to_longitudinal_axis, angular_increment * (side_idx + 0.5))
 				var current_radial_segment_length: float = current_max_radius * apothema_ratio
 				# Calculate the distance from the apothema to the radial segment using Pithagora's theorem
@@ -210,7 +217,7 @@ func get_cover_atoms_positions(in_minimum_distance_between_atoms: float, in_fill
 				var current_radial_segment: Vector3 = \
 					_get_segment(current_radial_segment_length, angular_increment * side_idx)
 				var current_base_direction: Vector3 = \
-					(apothema_segment - current_radial_segment).normalized()
+					(side_corner_pos - current_radial_segment).normalized()
 				for base_atom_idx: int in atoms_in_base:
 					if vertical_atom_idx == 0 \
 						or apothema_atom_idx == (atoms_in_current_apothema - 1):
@@ -229,6 +236,13 @@ func _get_radius(in_current_height:float) -> float:
 
 func _get_apothema_length(in_radius: float) -> float:
 	return in_radius * cos(PI/float(sides))
+
+
+func _get_side_size(in_radius: float) -> float:
+	var sigma: float = (2 * PI) / sides
+	var aphotema: float = _get_apothema_length((in_radius))
+	var base_size_lenght: float = sqrt(in_radius**2 - aphotema**2) * 2
+	return base_size_lenght
 
 
 func _get_segment(in_length: float, in_rotation: float) -> Vector3:
@@ -258,15 +272,27 @@ func get_fill_atoms_positions(in_minimum_distance_between_atoms: float, in_fill_
 			initial_position + Vector3.UP * vertical_atom_idx * vertical_distance_between_atoms
 		var current_max_radius: float = _get_radius(current_height.length())
 		var current_apothema_length: float = _get_apothema_length(current_max_radius)
+		var current_side_size: float = _get_side_size(current_max_radius)
 		var atoms_in_current_apothema: int = 0
 		atoms_in_current_apothema = \
 			floori(current_apothema_length / in_minimum_distance_between_atoms) + 1 \
 			if current_apothema_length >= minimum_radius else 1
-		result.append(current_height)
 		if atoms_in_current_apothema == 1:
-			# There was room for only one atom, the one in the center
-			# That atom position has just been added to the result
+			if current_side_size >= in_minimum_distance_between_atoms:
+				# There's space for 1 atom in each corner
+				for side_idx: int in sides:
+					var side_corner_pos: Vector3 = \
+						_get_segment(current_max_radius, angular_increment * (side_idx))
+					result.append(current_height + side_corner_pos)
+				if current_max_radius >= in_minimum_distance_between_atoms * 1.5:
+					# There's additional space for one attom in the middle
+					result.append(current_height)
+			else:
+				#only space for one atom in the middle
+				result.append(current_height)
 			continue
+		else:
+			result.append(current_height)
 		var distance_between_atoms_in_apothema: float = \
 			NanoMeshUtils.get_inter_atom_distance_in_length(in_minimum_distance_between_atoms, current_apothema_length) \
 			if in_fill_whole_shape else in_minimum_distance_between_atoms
@@ -275,7 +301,7 @@ func get_fill_atoms_positions(in_minimum_distance_between_atoms: float, in_fill_
 				var distance_to_longitudinal_axis: float = \
 					distance_between_atoms_in_apothema * apothema_atom_idx
 				var apothema_ratio: float = distance_to_longitudinal_axis/current_apothema_length
-				var apothema_segment: Vector3 = \
+				var side_corner_pos: Vector3 = \
 					_get_segment(distance_to_longitudinal_axis, angular_increment * (side_idx + 0.5))
 				var current_radial_segment_length: float = current_max_radius * apothema_ratio
 				# Calculate the distance from the apothema to the radial segment using Pithagora's theorem
@@ -290,7 +316,7 @@ func get_fill_atoms_positions(in_minimum_distance_between_atoms: float, in_fill_
 				var current_radial_segment: Vector3 = \
 					_get_segment(current_radial_segment_length, angular_increment * side_idx)
 				var current_base_direction: Vector3 = \
-					(apothema_segment - current_radial_segment).normalized()
+					(side_corner_pos - current_radial_segment).normalized()
 				for base_atom_idx: int in atoms_in_base:
 					result.append(
 						current_height + current_radial_segment
