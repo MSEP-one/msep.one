@@ -27,6 +27,7 @@ func update(in_atom_positions: PackedVector3Array, new_anchor_position: Vector3 
 		_multimesh.instance_count = nmb_of_springs
 	_multimesh.visible_instance_count = nmb_of_springs
 	
+	var camera_forward: Vector3 = -get_viewport().get_camera_3d().transform.basis[2]
 	for particle_idx: int in nmb_of_springs:
 		var start_pos: Vector3 = in_atom_positions[particle_idx]
 		var direction_to_atom: Vector3 = _anchor_position.direction_to(start_pos)
@@ -35,6 +36,6 @@ func update(in_atom_positions: PackedVector3Array, new_anchor_position: Vector3 
 		var distance: float = start_pos.distance_to(end_pos)
 		var spring_transform := Transform3D(Basis(), start_pos)
 		var spring_scale: Vector3 = Vector3(SpringRenderer.MODEL_THICKNESS, SpringRenderer.MODEL_THICKNESS, distance)
-		spring_transform = spring_transform.looking_at(end_pos).scaled_local(spring_scale)
+		spring_transform = spring_transform.looking_at(end_pos, camera_forward).scaled_local(spring_scale)
 		_multimesh.set_instance_transform(particle_idx, spring_transform)
 
