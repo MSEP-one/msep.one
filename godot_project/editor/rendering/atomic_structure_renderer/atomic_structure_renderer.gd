@@ -57,7 +57,6 @@ func build(in_structure_context: StructureContext, in_representation: Rendering.
 	_internal_build()
 	_refresh_label_visibility_state()
 	refresh_atom_sizes()
-	_ensure_selectable_property_tracked(in_structure_context)
 	_current_representation.show()
 	_fixed_size_representation.show()
 
@@ -105,6 +104,7 @@ func _internal_build() -> void:
 		nano_structure.springs_moved.connect(_on_nanostructure_springs_moved)
 	if not nano_structure.springs_removed.is_connected(_on_nanostructure_springs_removed):
 		nano_structure.springs_removed.connect(_on_nanostructure_springs_removed)
+	_ensure_selectable_property_tracked(structure_context)
 	
 	_is_built = true
 	if _are_labels_active():
