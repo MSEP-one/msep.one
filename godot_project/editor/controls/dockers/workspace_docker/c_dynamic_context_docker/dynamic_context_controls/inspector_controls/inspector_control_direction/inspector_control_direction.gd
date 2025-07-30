@@ -13,7 +13,7 @@ enum Mode {
 var _preview: Control
 var _altitude_spin_box: SpinBoxSlider
 var _azimuth_spin_box: SpinBoxSlider
-
+var _tilt_spin_box: SpinBoxSlider
 
 var _property_changed_signal := Signal()
 var _getter := Callable()
@@ -25,9 +25,11 @@ func _notification(in_what: int) -> void:
 		_preview = %Preview as Control
 		_altitude_spin_box = %AltitudeSpinBox as SpinBoxSlider
 		_azimuth_spin_box = %AzimuthSpinBox as SpinBoxSlider
+		_tilt_spin_box = %TiltSpinBox as SpinBoxSlider
 		_preview.draw.connect(_preview_draw)
 		_altitude_spin_box.value_changed.connect(_on_spin_box_value_changed)
 		_azimuth_spin_box.value_changed.connect(_on_spin_box_value_changed)
+		_tilt_spin_box.value_changed.connect(_on_spin_box_value_changed)
 	elif in_what == NOTIFICATION_READY:
 		if not Engine.is_editor_hint():
 			assert(_getter != Callable(), "Needs to be initalized with setup() before adding to a tree")
@@ -84,17 +86,20 @@ func _preview_draw() -> void:
 	_preview.draw_dashed_line(ORIGIN, azimuth_point, Color.WHITE, -1, 4.0, true)
 	# arc cutting the globe at azimuth
 	var azimuth_dir: Vector2 = Vector2.UP.slerp(Vector2.DOWN, _azimuth_spin_box.value / 180.0)
+	# Altitude arc
 	_preview.draw_set_transform(drawn_rect.get_center(), 0.0, Vector2(azimuth_dir.x, 1.0))
 	_preview.draw_arc(ORIGIN, smaller_size * 0.5, -PI * 0.5, PI * 0.5, int(POINT_COUNT * 0.5), Color.WHITE)
 	# line indicating altitude
-	var altitude_point: Vector2 = (azimuth_point * Vector2(1.0, 0.3)).normalized()
+	var altitude_point: Vector2 = (azimuth_point / Vector2(azimuth_dir.x, 1.0)) * Vector2(1.0, 0.3)
+	altitude_point.x = abs(altitude_point.x)
+	altitude_point = altitude_point.normalized()
 	if _altitude_spin_box.value > 0:
 		altitude_point = altitude_point.slerp(Vector2.UP, _altitude_spin_box.value / 90.0)
 	elif _altitude_spin_box.value < 0:
 		altitude_point = altitude_point.slerp(Vector2.DOWN, abs(_altitude_spin_box.value) / 90.0)
-	altitude_point = altitude_point * smaller_size * 0.5
-	var altitude_dir: Vector2 = altitude_point.normalized()
+	altitude_point = altitude_point.normalized() * smaller_size * 0.5
 	_preview.draw_line(ORIGIN, altitude_point, Color.WHITE, 0.33, true)
+	var altitude_dir: Vector2 = altitude_point.normalized()
 	var arrow_points: PackedVector2Array = [
 		altitude_point + Vector2(altitude_dir.y, -altitude_dir.x * 5.0),
 		altitude_point + Vector2(-altitude_dir.y, altitude_dir.x * 5.0),
@@ -109,9 +114,10 @@ func _on_spin_box_value_changed(_in_value: float) -> void:
 	if _setter != Callable():
 		match mode:
 			Mode.QUATERNION:
-				var azimuth_quat := Quaternion(Vector3.UP, deg_to_rad(_azimuth_spin_box.value))
-				var altitud_quat := Quaternion(Vector3.FORWARD, deg_to_rad(_altitude_spin_box.value))
-				_setter.call(altitud_quat * azimuth_quat)
+				var azimuth_quat := Quaternion(Vector3.UP, -deg_to_rad(_azimuth_spin_box.value))
+				var altitude_quat := Quaternion(Vector3.RIGHT, deg_to_rad(_altitude_spin_box.value))
+				var tilt_quat := Quaternion(Vector3.FORWARD, deg_to_rad(_tilt_spin_box.value))
+				_setter.call(azimuth_quat * altitude_quat * tilt_quat)
 			Mode.NORMAL:
 				var azimuth_dir := Vector3.FORWARD.rotated(Vector3.UP, deg_to_rad(_azimuth_spin_box.value))
 				var normal := azimuth_dir.rotated(azimuth_dir.cross(Vector3.UP), deg_to_rad(_altitude_spin_box.value))
@@ -119,11 +125,16 @@ func _on_spin_box_value_changed(_in_value: float) -> void:
 
 
 func _on_changed_signal_emitted(_ignored_1: Variant = null, _ignored_2: Variant = null, _ignored_3: Variant = null) -> void:
-	var direction := Vector3.FORWARD
+	var direction: Vector3 = Vector3.FORWARD
+	var side: Vector3 = Vector3.RIGHT
+	var tilt: float = 0.0
 	match mode:
 		Mode.QUATERNION:
 			var quaternion: Quaternion = _getter.call() as Quaternion
-			direction = quaternion * Vector3.FORWARD
+			var basis := Basis(quaternion)
+			direction = -basis.z
+			side = basis.x
+			tilt = -basis.get_euler().z
 		Mode.NORMAL:
 			direction = _getter.call() as Vector3
 		_:
@@ -132,7 +143,8 @@ func _on_changed_signal_emitted(_ignored_1: Variant = null, _ignored_2: Variant 
 	var direction_in_horizon_plane: Vector3 = direction
 	direction_in_horizon_plane.y = 0
 	direction_in_horizon_plane = direction_in_horizon_plane.normalized()
-	var altitude: float = direction.signed_angle_to(direction_in_horizon_plane, Vector3.UP)
-	var azimuth: float = direction_in_horizon_plane.signed_angle_to(Vector3.FORWARD, Vector3.RIGHT)
+	var altitude: float = -direction.signed_angle_to(direction_in_horizon_plane, side)
+	var azimuth: float = direction_in_horizon_plane.signed_angle_to(Vector3.FORWARD, Vector3.UP)
 	_azimuth_spin_box.set_value_no_signal(rad_to_deg(azimuth))
 	_altitude_spin_box.set_value_no_signal(rad_to_deg(altitude))
+	_tilt_spin_box.set_value_no_signal(rad_to_deg(tilt))
