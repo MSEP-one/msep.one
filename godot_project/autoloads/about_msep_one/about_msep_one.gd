@@ -13,7 +13,7 @@ signal confirmed()
 var was_closed: bool = false
 
 var _blur_background: ColorRect
-var _label_date_of_build: Label
+var _label_date_of_build: RichTextLabel
 var _button_close: Button
 var _blur_tween: Tween = null
 
@@ -38,16 +38,25 @@ func _notification(in_what: int) -> void:
 			_EXPORT_DATE_SETTING_NAME,
 			_EXPORT_DATE_SETTING_DEFAULT
 		)
-		_label_date_of_build.text = tr(&"Build date: ") + build_date
 		var commit_hash: String = ProjectSettings.get_setting(
 			_EXPORT_COMMIT_SETTING_NAME,
 			_EXPORT_COMMIT_SETTING_DEFAULT
 		)
 		if !commit_hash.is_empty():
 			var short_hash: String = commit_hash.substr(0, 10)
-			_label_date_of_build.text += "." + short_hash
+			build_date += "." + short_hash
+		_label_date_of_build.clear()
+		_label_date_of_build.push_meta(build_date,RichTextLabel.META_UNDERLINE_ALWAYS, tr(&"Copy version to clipboard"))
+		_label_date_of_build.add_text(tr(&"Build date: ") + build_date)
+		_label_date_of_build.pop()
+		_label_date_of_build.meta_clicked.connect(_on_label_date_of_build_meta_clicked)
 		
 		_button_close.pressed.connect(_on_button_close_pressed)
+
+
+func _on_label_date_of_build_meta_clicked(in_meta: Variant) -> void:
+	var build_date: String = in_meta as String
+	DisplayServer.clipboard_set("MSEP.one " + build_date)
 
 
 func _on_button_close_pressed() -> void:

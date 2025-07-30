@@ -100,10 +100,12 @@ Tutorials can be found by navigating to the 'Help' menu and selecting 'Tutorials
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="LabelDateOfBuild" type="Label" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
+[node name="LabelDateOfBuild" type="RichTextLabel" parent="VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Build date: yyyy-mm-dd.git_commit_hash"
+fit_content = true
+scroll_active = false
 horizontal_alignment = 1
 
 [node name="ButtonClose" type="Button" parent="VBoxContainer"]
