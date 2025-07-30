@@ -108,10 +108,12 @@ Ongoing contributions provided by MSEP Foundation, and Prehensile Tales BV
 
 "
 
-[node name="LabelDateOfBuild" type="Label" parent="VBoxContainer/TabContainer/About Us/HBoxContainer/VBoxContainer"]
+[node name="LabelDateOfBuild" type="RichTextLabel" parent="VBoxContainer/TabContainer/About Us/HBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Build date: yyyy-mm-dd.git_commit_hash"
+fit_content = true
+scroll_active = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/TabContainer/About Us/HBoxContainer/VBoxContainer"]
 layout_mode = 2
