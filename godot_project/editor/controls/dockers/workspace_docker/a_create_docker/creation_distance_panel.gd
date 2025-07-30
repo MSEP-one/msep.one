@@ -32,6 +32,8 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 		CreateObjectParameters.CreateModeType.CREATE_SHAPES,
 		CreateObjectParameters.CreateModeType.CREATE_FRAGMENT,
 		CreateObjectParameters.CreateModeType.CREATE_VIRTUAL_MOTORS,
+		CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS,
+		CreateObjectParameters.CreateModeType.CREATE_PARTICLE_EMITTERS,
 	]:
 		return false
 	if !in_workspace_context.create_object_parameters.creation_distance_from_camera_factor_changed.is_connected(_on_creation_distance_from_camera_factor_changed):
