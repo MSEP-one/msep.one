@@ -159,7 +159,7 @@
 			},
 			{
 				"name": "Windows: Edit Msep (Windows)",
-				"type": "cppvsdbg",
+				"type": "cppdbg",
 				"request": "launch",
 				"preLaunchTask": "Windows: Build Godot Editor Debug",
 				"program": "${workspaceFolder:godot}/bin/godot.windows.editor.x86_64.exe",
