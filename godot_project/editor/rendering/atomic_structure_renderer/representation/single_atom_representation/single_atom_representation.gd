@@ -377,6 +377,9 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_segmented_multimesh.set_mesh_override(new_mesh)
 	_segmented_multimesh.set_material_override(_material)
 	_material.copy_state_from(old_material)
+	var is_built: bool = _workspace_context != null
+	if is_built:
+		_update_is_selectable_uniform()
 
 
 func saturate() -> void:
