@@ -901,6 +901,7 @@ func _refresh_outline_color() -> void:
 		outline_color = representation_settings.get_custom_selection_outline_color()
 	else:
 		outline_color = representation_settings.get_theme().get_highlight_color()
+	
 	RenderingServer.global_shader_parameter_set(&"selected_atom_outline_color", outline_color)
 	RenderingServer.global_shader_parameter_set(&"reference_shape_selected_wireframe_color", outline_color)
 

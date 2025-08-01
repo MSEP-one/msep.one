@@ -260,6 +260,13 @@ func handle_editable_structures_changed(in_new_editable_structure_contexts: Arra
 	_spring_renderer.set_global_color(global_color)
 
 
+func _update_is_selectable_uniform() -> void:
+	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
+	var is_editable: bool = structure_context.is_editable()
+	var global_color: Color = Color(COLOR_EDITABLE, 1.0) if is_editable else Color(COLOR_NON_EDITABLE, 1.0)
+	_spring_renderer.set_global_color(global_color)
+
+
 func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: StructureContext,
 			in_hovered_structure_context: StructureContext, _in_atom_id: int, _in_bond_id: int,
 			in_spring_id: int) -> void:
@@ -291,6 +298,9 @@ func refresh_atoms_locking(_in_atoms_ids: PackedInt32Array) -> void:
 
 func apply_theme(in_theme: Theme3D) -> void:
 	_spring_renderer.change_look(in_theme.create_spring_mesh(), in_theme.create_spring_material())
+	var is_built: bool = _workspace_context != null
+	if is_built:
+		_update_is_selectable_uniform()
 
 
 func saturate() -> void:

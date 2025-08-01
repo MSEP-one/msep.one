@@ -387,6 +387,9 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_segmented_multimesh.set_material_override(_material)
 	_material.set_scale_factor(_shader_scale)
 	_material.copy_state_from(old_material)
+	var is_built: bool = _workspace_context != null
+	if is_built:
+		_update_is_selectable_uniform()
 
 
 func create_state_snapshot() -> Dictionary:

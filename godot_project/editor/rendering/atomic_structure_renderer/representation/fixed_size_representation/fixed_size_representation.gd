@@ -15,4 +15,6 @@ func apply_theme(_in_theme: Theme3D) -> void:
 	# Far away atoms will look the same regardless of the theme (but will still
 	# respect the atoms colors). The parent function will override the fixed
 	# size material, so it's not called.
-	pass
+	var is_built: bool = _workspace_context != null
+	if is_built:
+		_update_is_selectable_uniform()

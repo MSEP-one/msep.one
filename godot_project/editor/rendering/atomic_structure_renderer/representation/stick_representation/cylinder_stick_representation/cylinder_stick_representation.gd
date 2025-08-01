@@ -170,3 +170,7 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_material_bond_1.copy_state_from(old_order_1_material)
 	_material_bond_2.copy_state_from(old_order_2_material)
 	_material_bond_3.copy_state_from(old_order_3_material)
+	
+	var is_built: bool = _workspace_context != null
+	if is_built:
+		_update_is_selectable_uniform()
