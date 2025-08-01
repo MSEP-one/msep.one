@@ -30,8 +30,9 @@ void vertex() {
 	
 	// Make the outline mesh visible if the atom is selected
 	is_outline = uv_is_outline(UV);
-	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, 1.0);
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	is_instance_hovered = float_and(is_atom_or_bond_hovered(COLOR.a), float_not(is_preview));
+	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, 1.0, is_preview);
 	
 	// Make the atom face the camera
 	VERTEX = billboard_atom(VERTEX, INV_VIEW_MATRIX);

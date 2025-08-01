@@ -6,7 +6,7 @@
 resource_name = "pipes"
 render_priority = 0
 shader = ExtResource("1_4gb5q")
-shader_parameter/outline_thickness = 0.2
+shader_parameter/outline_thickness = 0.5
 shader_parameter/is_hovered = 0.0
 shader_parameter/is_selectable = 1.0
 shader_parameter/saturation = 1.0

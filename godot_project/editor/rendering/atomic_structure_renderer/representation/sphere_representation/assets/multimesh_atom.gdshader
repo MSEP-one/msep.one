@@ -75,8 +75,9 @@ void vertex() {
 	
 	// Make the outline mesh visible if the atom is selected
 	is_outline = uv_is_outline(UV);
-	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale) * float_not(is_preview);
+	
+	is_instance_hovered = float_and(is_atom_or_bond_hovered(COLOR.a), float_not(is_preview));
+	VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale, is_preview);
 	
 	// Transform the vertex using the billboard rotation
 	vec3 final_vertex = billboard_atom(VERTEX, INV_VIEW_MATRIX);

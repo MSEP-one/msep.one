@@ -23,6 +23,7 @@ global uniform vec4 reference_shape_selected_wireframe_color;
 global uniform vec4 reference_shape_hovered_wireframe_color;
 
 varying vec3 barys;
+varying float is_preview;
 
 
 void vertex() {
@@ -31,18 +32,19 @@ void vertex() {
 	barys[index] = 1.0;
 	
 	//selection preview
-	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
 	VERTEX *= float_or(float_not(is_preview), selected);
 }
 
 
 void fragment() {
 	vec4 color = mix(reference_shape_wireframe_color, reference_shape_selected_wireframe_color, selected);
-	color = mix(color, reference_shape_hovered_wireframe_color, hovered);
+	float use_hover_color = float_and(hovered, float_not(is_preview));
+	color = mix(color, reference_shape_hovered_wireframe_color, use_hover_color);
 	ALBEDO = color.rgb;
 	
 	// Change the wireframe width based on the hover state
-	float wire_width = mix(default_wire_width, hovered_wire_width, hovered);
+	float wire_width = mix(default_wire_width, hovered_wire_width, use_hover_color);
 	
 	// For anti-aliasing purposes
 	float epsilon = fwidth(UV.x * UV.y);

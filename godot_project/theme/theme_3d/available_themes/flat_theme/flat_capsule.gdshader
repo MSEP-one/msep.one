@@ -4,6 +4,7 @@ shader_type spatial;
 
 render_mode skip_vertex_transform,blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx,vertex_lighting; 
 
+#include "res://editor/rendering/atomic_structure_renderer/representation/constants.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/hydrogens.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/outlines.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/selectable.gdshaderinc"
@@ -48,7 +49,7 @@ vec3 _apply_bond_highlight_factor(vec3 color, float is_selected) {
 }
 
 
-vec3 flat_calculate_bond_outline_displacement(vec3 vertex, vec3 normal, vec2 uv, mat4 model_matrix, vec3 camera_position_world, vec4 color) {
+vec3 flat_calculate_bond_outline_displacement(vec3 vertex, vec3 normal, vec2 uv, mat4 model_matrix, vec3 camera_position_world, vec4 color, float is_preview) {
 	float bond_hovered = float_or(is_atom_or_bond_hovered(color.a), is_hovered);
 	float bond_selected = is_atom_or_bond_selected(color.a);
 	float right_active = float_or(float_and(is_first_atom_selected(color.a), is_bond_influence_highlight_enabled), bond_selected);
@@ -98,7 +99,7 @@ void vertex() {
 	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
 	is_outline = uv_is_outline(UV);
 	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
-	VERTEX += flat_calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR) * float_not(is_preview);
+	VERTEX += flat_calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, is_preview);
 	
 	//helper to prevent numerical errors
 	float cap_vertexes_above_local_pos = caps_starts_at_local_z_position - NUMERICAL_PRECISION;
