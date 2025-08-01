@@ -62,6 +62,44 @@ func build(in_structure_context: StructureContext) -> void:
 	apply_theme(representation_settings.get_theme())
 
 
+func build_for_preview(in_nano_structure: NanoStructure) -> void:
+	assert(is_instance_valid(in_nano_structure))
+	_is_preview = true
+	_preview_instance_id = in_nano_structure.get_instance_id()
+	clear()
+	var atoms_ids: PackedInt32Array = in_nano_structure.get_valid_atoms()
+	if atoms_ids.size() < 1:
+		_segmented_multimesh.bake()
+		return
+	
+	var atom_state := Representation.InstanceState.new()
+	for atom_id in atoms_ids:
+		var bonds: PackedInt32Array = in_nano_structure.atom_get_bonds(atom_id)
+		if not bonds.is_empty():
+			continue
+		var atom_position: Vector3 = in_nano_structure.atom_get_position(atom_id)
+		atom_state.is_selected = _highlighted_atoms.get(atom_id, false)
+		atom_state.is_visible = not in_nano_structure.is_atom_hidden_by_user(atom_id)
+		atom_state.is_hydrogen = in_nano_structure.atom_is_hydrogen(atom_id)
+		var color: Color = StickRepresentation.get_bond_color(atom_id, in_nano_structure)
+		color.a = atom_state.to_float()
+		var atom_scale: Vector3 = Vector3.ONE * BASE_SCALE
+		var atom_transform: Transform3D = Transform3D()
+		atom_transform = atom_transform.scaled_local(atom_scale)
+		atom_transform.origin = atom_position
+		_segmented_multimesh.add_particle(atom_id, atom_transform, color, color)
+	_segmented_multimesh.bake()
+	
+	var representation_settings: RepresentationSettings = in_nano_structure.get_representation_settings()
+	apply_theme(representation_settings.get_theme())
+
+
+func _get_related_atomic_structure() -> AtomicStructure:
+	if _is_preview:
+		return instance_from_id(_preview_instance_id)
+	return _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+
+
 func _set_hovered_atom_id(in_hovered_atom_id: int) -> void:
 	var prev_hovered_atom_id: int = _hovered_atom_id
 	_hovered_atom_id = in_hovered_atom_id
@@ -73,6 +111,9 @@ func _set_hovered_atom_id(in_hovered_atom_id: int) -> void:
 
 
 func _update_is_selectable_uniform() -> void:
+	if _is_preview:
+		_material.set_selectable(true)
+		return
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	var is_editable: bool = structure_context.is_editable()
 	_material.set_selectable(is_editable)
@@ -99,7 +140,7 @@ func remove_atoms(in_atoms_ids: PackedInt32Array) -> void:
 func _add_atom(in_atom_id: int) -> void:
 	if _is_bonded_atom(in_atom_id):
 		return
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	var atom_position: Vector3 = related_nanostructure.atom_get_position(in_atom_id)
 	var atom_scale: Vector3 = Vector3.ONE * BASE_SCALE
 	var atom_transform: Transform3D = Transform3D()
@@ -110,7 +151,7 @@ func _add_atom(in_atom_id: int) -> void:
 
 
 func refresh_atoms_positions(in_atoms_ids: PackedInt32Array) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id in in_atoms_ids:
 		if _is_bonded_atom(atom_id):
 			continue
@@ -137,7 +178,7 @@ func refresh_atoms_sizes() -> void:
 
 
 func refresh_atoms_color(in_atoms: PackedInt32Array) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id: int in in_atoms:
 		if not _segmented_multimesh.is_external_id_known(atom_id):
 			continue
@@ -155,7 +196,7 @@ func refresh_atoms_color(in_atoms: PackedInt32Array) -> void:
 
 
 func refresh_atoms_visibility(in_atoms_ids: PackedInt32Array) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id: int in in_atoms_ids:
 		if not _segmented_multimesh.is_external_id_known(atom_id):
 			continue
@@ -168,7 +209,7 @@ func refresh_atoms_visibility(in_atoms_ids: PackedInt32Array) -> void:
 
 
 func refresh_all() -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id: int in related_nanostructure.get_valid_atoms():
 		_refresh_atom(atom_id)
 
@@ -188,7 +229,7 @@ func hide() -> void:
 
 
 func add_bonds(_new_bonds: PackedInt32Array) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for bond_id in _new_bonds:
 		var bond: Vector3i = related_nanostructure.get_bond(bond_id)
 		var first_atom_id: int = bond.x
@@ -201,14 +242,14 @@ func add_bonds(_new_bonds: PackedInt32Array) -> void:
 func _hide_atom(in_atom_id: int) -> void:
 	if not _segmented_multimesh.is_external_id_known(in_atom_id):
 		return
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	var atom_position: Vector3 = related_nanostructure.atom_get_position(in_atom_id)
 	var atom_transform: Transform3D = Transform3D(Basis().scaled(Vector3.ZERO), atom_position)
 	_segmented_multimesh.update_particle(in_atom_id, atom_transform, Color.BLACK)
 
 
 func remove_bonds(_removed_bonds: PackedInt32Array) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for bond_id in _removed_bonds:
 		var bond: Vector3i = related_nanostructure.get_bond(bond_id)
 		var first_atom_id: int = bond.x
@@ -219,7 +260,7 @@ func remove_bonds(_removed_bonds: PackedInt32Array) -> void:
 
 
 func _ensure_atom_rendered(in_atom_id: int) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	if _segmented_multimesh.is_external_id_known(in_atom_id):
 		_refresh_atom(in_atom_id)
 	elif related_nanostructure.is_atom_valid(in_atom_id):
@@ -254,7 +295,7 @@ func highlight_atoms(in_atoms_ids: PackedInt32Array, _new_partially_influenced_b
 func lowlight_atoms(in_atoms_ids: PackedInt32Array,
 			_in_bonds_released_from_partial_influence: PackedInt32Array,
 			_new_partially_influenced_bonds: PackedInt32Array = PackedInt32Array()) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id in in_atoms_ids:
 		_highlighted_atoms[atom_id] = false
 		if _is_bonded_atom(atom_id):
@@ -267,7 +308,7 @@ func _refresh_atom(in_atom_id: int) -> void:
 	if _is_bonded_atom(in_atom_id):
 		return
 	
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	var can_refresh_atom: bool = true
 	if not related_nanostructure.is_atom_valid(in_atom_id):
 		can_refresh_atom = _segmented_multimesh.is_external_id_known(in_atom_id)
@@ -293,7 +334,7 @@ func _refresh_atom(in_atom_id: int) -> void:
 
 
 func _is_bonded_atom(in_atom_id: int) -> bool:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	var bonds: PackedInt32Array = related_nanostructure.atom_get_bonds(in_atom_id)
 	return not bonds.is_empty()
 

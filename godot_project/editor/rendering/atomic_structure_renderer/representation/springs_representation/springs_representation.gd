@@ -30,6 +30,11 @@ func build(in_structure_context: StructureContext) -> void:
 	_spring_renderer.initialize(in_structure_context)
 
 
+func build_for_preview(_in_nano_structure: NanoStructure) -> void:
+	# Previews doesn't use springs
+	pass
+
+
 func add_springs(in_springs: PackedInt32Array) -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	var nano_struct: NanoStructure = structure_context.nano_structure
@@ -261,6 +266,9 @@ func handle_editable_structures_changed(in_new_editable_structure_contexts: Arra
 
 
 func _update_is_selectable_uniform() -> void:
+	if _is_preview:
+		# No springs in structure previews
+		return
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	var is_editable: bool = structure_context.is_editable()
 	var global_color: Color = Color(COLOR_EDITABLE, 1.0) if is_editable else Color(COLOR_NON_EDITABLE, 1.0)

@@ -12,8 +12,17 @@ const SETTING_RADIUS_SOURCE_BALLS_AND_STICKS: StringName = &"msep/rendering/ball
 
 const SCALE_FACTOR_STICKS: float = 0.6
 
+@warning_ignore("unused_private_class_variable")
+var _is_preview: bool = false
+@warning_ignore("unused_private_class_variable")
+var _preview_instance_id: int
 
 func build(_in_structure_context: StructureContext) -> void:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return
+
+
+func build_for_preview(_in_nano_structure: NanoStructure) -> void:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return
 

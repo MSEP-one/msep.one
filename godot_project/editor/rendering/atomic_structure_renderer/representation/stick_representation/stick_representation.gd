@@ -43,7 +43,7 @@ func _initialize() -> void:
 	return
 
 
-func _calculate_bond_transform(_in_bond: Vector3i) -> Transform3D:
+func _calculate_bond_transform(_in_nano_structure: AtomicStructure, _in_bond: Vector3i) -> Transform3D:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return Transform3D()
 
@@ -69,7 +69,7 @@ func build(in_structure_context: StructureContext) -> void:
 			bond_state.is_first_atom_selected = bond_data.x in selected_atoms
 			bond_state.is_second_atom_selected = bond_data.y in selected_atoms
 			bond_state.is_hydrogen = related_nanostructure.atom_is_any_hydrogen([bond_data.x, bond_data.y])
-			_create_bond(bond_id, bond_state)
+			_create_bond(related_nanostructure, bond_id, bond_state)
 	
 	_single_stick_multimesh.bake()
 	_double_stick_multimesh.bake()
@@ -79,9 +79,42 @@ func build(in_structure_context: StructureContext) -> void:
 	apply_theme(representation_settings.get_theme())
 
 
+func build_for_preview(in_nano_structure: NanoStructure) -> void:
+	assert(is_instance_valid(in_nano_structure))
+	_is_preview = true
+	_preview_instance_id = in_nano_structure.get_instance_id()
+	clear()
+	
+	var bonds_ids: PackedInt32Array = in_nano_structure.get_bonds_ids()
+	var bond_state := Representation.InstanceState.new()
+	for bond_id in bonds_ids:
+		if in_nano_structure.is_bond_valid(bond_id):
+			bond_state.is_visible = not in_nano_structure.is_bond_hidden_by_user(bond_id)
+			var bond_data: Vector3i = in_nano_structure.get_bond(bond_id)
+			bond_state.is_hydrogen = in_nano_structure.atom_is_any_hydrogen([bond_data.x, bond_data.y])
+			_create_bond(in_nano_structure, bond_id, bond_state)
+	
+	_single_stick_multimesh.bake()
+	_double_stick_multimesh.bake()
+	_tripple_stick_multimesh.bake()
+	
+	var representation_settings: RepresentationSettings = in_nano_structure.get_representation_settings()
+	apply_theme(representation_settings.get_theme())
+
+
+func _get_related_atomic_structure() -> AtomicStructure:
+	if _is_preview:
+		return instance_from_id(_preview_instance_id)
+	return _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+
+
 func _update_is_selectable_uniform() -> void:
-	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
-	var is_editable: bool = structure_context.is_editable()
+	var is_editable: bool = false
+	if _is_preview:
+		is_editable = true
+	else:
+		var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
+		is_editable = structure_context.is_editable()
 	_material_bond_1.set_selectable(is_editable)
 	_material_bond_2.set_selectable(is_editable)
 	_material_bond_3.set_selectable(is_editable)
@@ -93,21 +126,20 @@ func _update_is_hovered_uniform(in_is_hovered: bool) -> void:
 	_material_bond_3.set_hovered(in_is_hovered)
 
 
-func _create_bond(bond_id: int, in_bond_state: Representation.InstanceState) -> ParticleID:
-	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id) as AtomicStructure
-	var bond: Vector3i = related_structure.get_bond(bond_id)
-	var particle_transform: Transform3D = _calculate_bond_transform(bond)
+func _create_bond(in_nano_structure: AtomicStructure, bond_id: int, in_bond_state: Representation.InstanceState) -> ParticleID:
+	var bond: Vector3i = in_nano_structure.get_bond(bond_id)
+	var particle_transform: Transform3D = _calculate_bond_transform(in_nano_structure, bond)
 	var first_atom_id: int = bond.x
 	var second_atom_id: int = bond.y
 	var bond_order: int =  bond.z
-	var first_atom_type: int = related_structure.atom_get_atomic_number(first_atom_id)
-	var second_atom_type: int = related_structure.atom_get_atomic_number(second_atom_id)
+	var first_atom_type: int = in_nano_structure.atom_get_atomic_number(first_atom_id)
+	var second_atom_type: int = in_nano_structure.atom_get_atomic_number(second_atom_id)
 	var first_atom_periodic_table_data: ElementData = PeriodicTable.get_by_atomic_number(first_atom_type)
 	var second_atom_periodic_table_data: ElementData = PeriodicTable.get_by_atomic_number(second_atom_type)
-	var first_color: Color = StickRepresentation.get_bond_color(first_atom_id, related_structure)
-	var second_color: Color = StickRepresentation.get_bond_color(second_atom_id, related_structure)
-	var first_atom_radius: float = get_atom_radius(first_atom_periodic_table_data, related_structure.get_representation_settings())
-	var second_atom_radius: float = get_atom_radius(second_atom_periodic_table_data, related_structure.get_representation_settings())
+	var first_color: Color = StickRepresentation.get_bond_color(first_atom_id, in_nano_structure)
+	var second_color: Color = StickRepresentation.get_bond_color(second_atom_id, in_nano_structure)
+	var first_atom_radius: float = get_atom_radius(first_atom_periodic_table_data, in_nano_structure.get_representation_settings())
+	var second_atom_radius: float = get_atom_radius(second_atom_periodic_table_data, in_nano_structure.get_representation_settings())
 	var smaller_atom_radius: float = min(first_atom_radius, second_atom_radius)
 	first_color.a = in_bond_state.to_float()
 	second_color.a = smaller_atom_radius
@@ -169,6 +201,8 @@ func highlight_atoms(in_atoms_ids: PackedInt32Array, \
 
 
 func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: PackedInt32Array) -> void:
+	if _is_preview:
+		return
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
 	var related_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
 	for bond_id: int in new_partially_influenced_bonds:
@@ -316,7 +350,7 @@ func remove_atoms(_in_atoms_ids: PackedInt32Array) -> void:
 
 
 func refresh_atoms_positions(in_atoms_ids: PackedInt32Array) -> void:
-	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+	var related_structure: AtomicStructure = _get_related_atomic_structure()
 	var already_served_bonds: Dictionary = {}
 	for atom_id in in_atoms_ids:
 		var atom_bonds: PackedInt32Array = related_structure.atom_get_bonds(atom_id)
@@ -328,7 +362,7 @@ func refresh_atoms_positions(in_atoms_ids: PackedInt32Array) -> void:
 			var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
 			var related_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[particle_id.bond_order]
 			var bond: Vector3i = related_structure.get_bond(bond_id)
-			var bond_transform: Transform3D = _calculate_bond_transform(bond)
+			var bond_transform: Transform3D = _calculate_bond_transform(related_structure, bond)
 			related_multimesh.update_particle_transform(particle_id.bond_id, bond_transform)
 			assert(bond.z == particle_id.bond_order, "Desynchronization between NanoStructure and Representation")
 	
@@ -345,7 +379,7 @@ func refresh_atoms_locking(_in_atoms_ids: PackedInt32Array) -> void:
 
 
 func refresh_atoms_atomic_number(in_atoms_and_atomic_numbers: Array[Vector2i]) -> void:
-	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+	var related_structure: AtomicStructure = _get_related_atomic_structure()
 	var bonds_to_update: Dictionary = {
 		# bond_id<int> = true
 	}
@@ -360,14 +394,14 @@ func refresh_atoms_atomic_number(in_atoms_and_atomic_numbers: Array[Vector2i]) -
 
 
 func refresh_atoms_sizes() -> void:
-	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+	var related_structure: AtomicStructure = _get_related_atomic_structure()
 	_shader_scale_factor = Representation.get_atom_scale_factor(related_structure.get_representation_settings())
 	_apply_scale_factor(_shader_scale_factor)
 	refresh_all()
 
 
 func refresh_atoms_color(in_atoms: PackedInt32Array) -> void:
-	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+	var related_structure: AtomicStructure = _get_related_atomic_structure()
 	var bonds_to_update: Dictionary = {
 		# bond_id<int> = true
 	}
@@ -396,7 +430,7 @@ func refresh_atoms_visibility(_in_atoms_ids: PackedInt32Array) -> void:
 
 
 func refresh_bonds_visibility(in_bonds_ids: PackedInt32Array) -> void:
-	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+	var related_structure: AtomicStructure = _get_related_atomic_structure()
 	for bond_id: int in in_bonds_ids:
 		if not bond_id in _bond_id_to_particle_id:
 			continue
@@ -412,7 +446,7 @@ func refresh_bonds_visibility(in_bonds_ids: PackedInt32Array) -> void:
 
 
 func refresh_all() -> void:
-	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+	var related_structure: AtomicStructure = _get_related_atomic_structure()
 	_refresh_bond_partial_influence_status(related_structure.get_valid_bonds())
 
 
@@ -457,7 +491,7 @@ func add_bonds(new_bonds: PackedInt32Array) -> void:
 		bond_state.is_first_atom_selected = bond_data.x in selected_atoms
 		bond_state.is_second_atom_selected = bond_data.y in selected_atoms
 		bond_state.is_hydrogen = atomic_structure.atom_is_any_hydrogen([bond_data.x, bond_data.y])
-		_create_bond(bond_id, bond_state)
+		_create_bond(atomic_structure, bond_id, bond_state)
 	_single_stick_multimesh.rebuild_if_needed()
 	_double_stick_multimesh.rebuild_if_needed()
 	_tripple_stick_multimesh.rebuild_if_needed()
@@ -504,7 +538,7 @@ func bonds_changed(changed_bonds: PackedInt32Array) -> void:
 			bond_state.is_hydrogen = atomic_structure.atom_is_any_hydrogen([bond.x, bond.y])
 			
 			#
-			_create_bond(bond_id, bond_state)
+			_create_bond(atomic_structure, bond_id, bond_state)
 			
 			#
 			var new_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[new_bond_order]
@@ -557,7 +591,7 @@ func refresh_atomic_numbers_of_bond_atoms(changed_bonds: PackedInt32Array) -> vo
 		bond_state.is_hydrogen = related_structure.atom_is_any_hydrogen([bond.x, bond.y])
 		first_color.a = bond_state.to_float()
 		second_color.a = smaller_atom_radius
-		var particle_transform: Transform3D = _calculate_bond_transform(bond)
+		var particle_transform: Transform3D = _calculate_bond_transform(related_structure, bond)
 		segmented_multimesh.update_particle_transform_and_color(bond_id, particle_transform, first_color, second_color)
 
 
