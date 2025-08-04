@@ -875,7 +875,7 @@ class ParticleEmitter:
 			# FIXME: GPU acceleration sometimes sets initial velocities to an absurdly large value,
 			# because of this is unsafe to mantain this initial velocity, so we set it to 0
 			TEMPERATURE_CONSERVATION_FACTOR = 0.0 # 0.5
-			new_velocities[atom_id] = (original_velocity * TEMPERATURE_CONSERVATION_FACTOR) + initial_velocity + spin_velocity
+			new_velocities[atom_id] = ((original_velocity * TEMPERATURE_CONSERVATION_FACTOR) + initial_velocity + spin_velocity)._value
 		for bond_id in instance_openmm_bonds:
 			atom1, atom2, length, k = self._molecule_forces_cache[("bond", bond_id)]
 			forces.bond_force.setBondParameters(bond_id, atom1, atom2, length, k)
@@ -937,7 +937,7 @@ class ParticleEmitter:
 			return Vec3(0.0, 0.0, 0.0)
 		# Calculate the tangential velocity based on the distance and the spin speed
 		move_dir: Vec3 = cross_Vec3(normalize_Vec3(atom_position - axis_of_rotation)._value, spread_dir)
-		spin_velocity: Vec3 = move_dir * distance_to_axis * self.instance_spin_revolutions_per_nanosecond
+		spin_velocity: Vec3 = move_dir * distance_to_axis * 2.0 * PI * self.instance_spin_revolutions_per_nanosecond
 		return spin_velocity
 
 
@@ -1322,10 +1322,6 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 		for emitter in topology_payload.emitters:
 			# Initialize ParticleEmitter molecules
 			emitter.setup(simulation, topology_payload.payload_to_openff_atom)
-			if emitter.initial_delay_in_nanoseconds == 0:
-				# Adjust initial velocity of any particle emitted in the frame 0
-				for i in range(emitter.molecules_per_instance):
-					emitter.enable_instance(i, simulation)
 
 		# Configure publish reporter
 		socket_publish_reporter = ZmqPublishReporter(simulation_id, socket, socket_lock, trj_freq)
