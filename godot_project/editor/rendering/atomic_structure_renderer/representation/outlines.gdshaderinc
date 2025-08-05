@@ -29,7 +29,7 @@ float uv_is_outline(vec2 uv) {
 
 // Usage:
 // VERTEX += calculate_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR, scale);
-vec3 calculate_outline_displacement(vec3 vertex, vec2 uv, mat4 model_matrix, vec3 camera_position_world, vec4 color, float scale) {
+vec3 calculate_outline_displacement(vec3 vertex, vec2 uv, mat4 model_matrix, vec3 camera_position_world, vec4 color, float scale, float is_preview) {
 	float object_is_selected = is_atom_or_bond_selected(color.a);
 	vec3 model_origin_pos_in_world_space = (model_matrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 	float inverse_scale = 1.0 / length(vec3(model_matrix[0][0], model_matrix[0][1], model_matrix[0][2]));
@@ -38,7 +38,7 @@ vec3 calculate_outline_displacement(vec3 vertex, vec2 uv, mat4 model_matrix, vec
 	float outline_thickness_min = outline_thickness * 0.025;
 	float outline_thickness_max = outline_thickness * 0.12;
 	float outline_displace = clamp(distance_to_camera * outline_thickness*0.001, outline_thickness_min, outline_thickness_max);
-	float should_show_outline = is_atom_or_bond_hovered(color.a);
+	float should_show_outline = float_and(is_atom_or_bond_hovered(color.a), float_not(is_preview));
 	should_show_outline = float_or(should_show_outline, is_hovered);
 	should_show_outline = float_or(object_is_selected, should_show_outline);
 	return uv_is_outline(uv) * mix(-vertex, dir * inverse_scale * outline_displace * (1.0 / scale), should_show_outline);
@@ -46,8 +46,8 @@ vec3 calculate_outline_displacement(vec3 vertex, vec2 uv, mat4 model_matrix, vec
 
 // Usage:
 // VERTEX += calculate_bond_outline_displacement(VERTEX, NORMAL, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, COLOR);
-vec3 calculate_bond_outline_displacement(vec3 vertex, vec3 normal, vec2 uv, mat4 model_matrix, vec3 camera_position_world, vec4 color) {
-	float bond_hovered = float_or(is_atom_or_bond_hovered(color.a), is_hovered);
+vec3 calculate_bond_outline_displacement(vec3 vertex, vec3 normal, vec2 uv, mat4 model_matrix, vec3 camera_position_world, vec4 color, float is_preview) {
+	float bond_hovered = float_and(float_or(is_atom_or_bond_hovered(color.a), is_hovered), float_not(is_preview));
 	float bond_selected = is_atom_or_bond_selected(color.a);
 	float right_active = float_or(float_and(is_first_atom_selected(color.a), is_bond_influence_highlight_enabled), bond_selected);
 	float left_active = float_or(float_and(is_second_atom_selected(color.a), is_bond_influence_highlight_enabled), bond_selected);

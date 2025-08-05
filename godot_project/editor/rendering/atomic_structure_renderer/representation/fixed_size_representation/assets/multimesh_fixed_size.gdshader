@@ -40,7 +40,8 @@ void vertex() {
 	final_vertex *= is_atom_or_bond_visible(COLOR.a);
 	VERTEX = final_vertex;
 
-	is_instance_hovered = is_atom_or_bond_hovered(COLOR.a);
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	is_instance_hovered = float_and(is_atom_or_bond_hovered(COLOR.a), float_not(is_preview));
 	is_outline = 1.0;
 }
 

@@ -37,7 +37,8 @@ void vertex() {
 	
 	is_outline = uv_is_outline(UV);
 	// Not a multimesh, is_instance_hovered is not used
-	is_instance_hovered = is_hovered;
+	float is_preview = _unpack_flag(SELECTION_PREVIEW_VISUAL_LAYER, int(CAMERA_VISIBLE_LAYERS));
+	is_instance_hovered = float_and(is_hovered, float_not(is_preview));
 	const float SCALE = 0.3;
 	color = vec4(albedo.rbg, is_selected + 1.0);
 	VERTEX += _calculate_motor_outline_displacement(VERTEX, UV, MODEL_MATRIX, CAMERA_POSITION_WORLD, SCALE);
