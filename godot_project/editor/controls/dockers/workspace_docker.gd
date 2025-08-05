@@ -8,6 +8,7 @@ var docker_tab_title: String = "":
 
 
 func _ready() -> void:
+	draw.connect(_on_first_draw, CONNECT_ONE_SHOT)
 	var content_template: Dictionary = get_content_template()
 	for category: StringName in content_template.keys():
 		var settings: Dictionary = content_template[category]
@@ -106,8 +107,12 @@ func _get_category_container() -> Container:
 	return null
 
 
-## VIRTUAL: Override if the scroll container is not the direct parent of the category container.
+## VIRTUAL: Override if the scroll container is not the direct parent of the category container
+## or the direct child of the docker.
 func _get_scroll_container() -> ScrollContainer:
+	for child: Node in get_children():
+		if child is ScrollContainer:
+			return child
 	var category_container: Container = _get_category_container()
 	if is_instance_valid(category_container):
 		var parent: Control = category_container.get_parent()
@@ -236,6 +241,13 @@ func set_container(in_new_container: Control) -> void:
 
 func get_container() -> Control:
 	return _container
+
+
+## Docker UIs are dynamic and aren't completely loaded on ready.
+## Reset the scroll bar to the top position the first time it's shown.
+func _on_first_draw() -> void:
+	_get_scroll_container().scroll_vertical = 0
+
 
 
 # Called from MolecularEditorContext.gd
