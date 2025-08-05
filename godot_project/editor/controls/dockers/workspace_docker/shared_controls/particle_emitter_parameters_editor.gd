@@ -178,7 +178,9 @@ func _update_spin_direction_visibility() -> void:
 func _update_spin_speed_tooltip() -> void:
 	var FEMTOSECONDS_PER_PICOSECOND: float = 1000.0
 	_spin_speed_spin_box.tooltip_text = tr("Revolutions per Picosecond:\n" +
-		"This is the number of spins a motor will do per picosecond.\n" +
+		"This is the number of spins a molecule instance will do per picosecond.")
+	if _spin_speed_spin_box.value > 0.0:
+		_spin_speed_spin_box.tooltip_text += "\n" + tr(
 		"At %.2f Rev/ps a molecule will (if no external force stops it) complete a spin every %.2f femtoseconds") % \
 		[ _spin_speed_spin_box.value, 1.0 / (_spin_speed_spin_box.value / FEMTOSECONDS_PER_PICOSECOND)]
 
