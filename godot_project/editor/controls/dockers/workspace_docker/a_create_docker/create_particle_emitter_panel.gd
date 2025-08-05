@@ -98,7 +98,20 @@ func _on_create_from_selection_button_pressed() -> void:
 	# 1. Create emitter parameters from settings
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 	var selected_contexts: Array[StructureContext] = workspace_context.get_atomic_structure_contexts_with_selection()
-	# 2. Create molecule template from selection and remove selection
+	# 2. Validate topology of selection
+	_workspace_context.start_async_work(tr(&"Validating topology"))
+	const SELECTION_ONLY = true
+	const NO_SPRINGS = false
+	const NO_LOCKS = false
+	const NO_PASSIVATION = false
+	var relax_request: RelaxRequest = OpenMM.request_relax(_workspace_context, 0.0, SELECTION_ONLY, NO_SPRINGS, NO_LOCKS, NO_PASSIVATION)
+	await relax_request.promise.wait_for_fulfill()
+	var is_topology_valid: bool = not relax_request.promise.has_error()
+	_workspace_context.end_async_work()
+	if not is_topology_valid:
+		WorkspaceUtils._process_relax_request(relax_request, _workspace_context)
+		return
+	# 3. Create molecule template from selection and remove selection
 	var template := AtomicStructure.create()
 	template.start_edit()
 	var context: StructureContext = selected_contexts[0] as StructureContext
