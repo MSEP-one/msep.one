@@ -515,14 +515,19 @@ func start_simulating(in_simulation_data: SimulationData) -> void:
 
 func get_simulation_boundaries() -> AABB:
 	assert(is_simulating(), "There's not an active simulation")
-	var aabb: AABB = _simulation.original_payload.calculated_aabb
+	var aabb: AABB = _simulation.original_payload.calculated_aabb.abs()
 	if workspace != null:
 		var grow_factor: float = \
 			workspace.simulation_settings_advanced_constrained_simulation_box_size_percentage / 100.0
 		var grown_aabb := AABB()
 		grown_aabb.size = aabb.size * grow_factor
 		grown_aabb.position = aabb.get_center() - (grown_aabb.size * 0.5)
-		aabb = grown_aabb
+		aabb = grown_aabb.abs()
+		var minimum_boundary_size: float = workspace.simulation_settings_advanced_constrained_simulation_minimum_size
+		if aabb.get_shortest_axis_size() < minimum_boundary_size:
+			var center: Vector3 = aabb.get_center()
+			var size: Vector3 = aabb.size.max(Vector3.ONE * minimum_boundary_size)
+			aabb = AABB(center - size / 2.0, size)
 	return aabb
 
 

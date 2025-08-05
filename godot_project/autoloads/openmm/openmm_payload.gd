@@ -91,6 +91,7 @@ func add_structure(structure: AtomicStructure, atom_ids: PackedInt32Array,
 	for atom_id in atom_ids:
 		var is_atom_locked: bool = lock_atoms and structure.atom_is_locked(atom_id)
 		_store_atom_in_byte_array(structure, atom_id, is_atom_locked, original_to_request_atom_id_map)
+	_expand_aabb_to_aabb(structure.get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius))
 
 	for bond_id in bond_ids:
 		_store_bond_in_byte_array(structure, bond_id, original_to_request_atom_id_map)
@@ -194,7 +195,6 @@ func _store_atom_in_byte_array(structure: AtomicStructure, in_atom_id: int,
 	# chunk[8-15]:  position Y
 	# chunk[16-23]: position Z
 	var atom_pos: Vector3 = structure.atom_get_position(in_atom_id)
-	_expand_aabb_to(atom_pos)
 	raw_initial_positions.push_back(atom_pos)
 	if nudge_atoms_fix_enabled and not in_atom_locked:
 		atom_pos += _create_random_nudge()
@@ -242,8 +242,7 @@ func add_shape(in_shape: NanoShape) -> void:
 	shape_dict[&"transform"] = transform
 	other_objects_data[in_shape.int_guid] = JSON.stringify(shape_dict, "\t")
 	var shape_aabb: AABB = in_shape.get_aabb()
-	_expand_aabb_to(shape_aabb.position)
-	_expand_aabb_to(shape_aabb.end)
+	_expand_aabb_to_aabb(shape_aabb)
 
 
 func add_motor(in_motor: NanoVirtualMotor) -> void:
@@ -265,7 +264,7 @@ func add_motor(in_motor: NanoVirtualMotor) -> void:
 		var value: Variant = in_motor.get_parameters().get(prop_info.name)
 		motor_dict.parameters[prop_info.name] = value
 	other_objects_data[in_motor.int_guid] = JSON.stringify(motor_dict, "\t")
-	_expand_aabb_to(position)
+	_expand_aabb_to_aabb(in_motor.get_aabb())
 
 
 func add_emitter(in_emitter: NanoParticleEmitter) -> void:
@@ -314,7 +313,7 @@ func add_emitter(in_emitter: NanoParticleEmitter) -> void:
 	# Calculate resting position for disabled instances
 	# First lets find the size of each individual molecule
 	const SAFE_MARGIN = 1.0
-	var molecule_size: Vector3 = in_emitter.get_parameters().get_molecule_template().get_aabb().grow(SAFE_MARGIN).size
+	var molecule_size: Vector3 = in_emitter.get_parameters().get_molecule_template().get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius).grow(SAFE_MARGIN).size
 	var curr_pos := Vector3.ZERO
 	for space: AABB in _extra_ocupied_space:
 		curr_pos.y -= space.size.y
@@ -339,7 +338,7 @@ func add_emitter(in_emitter: NanoParticleEmitter) -> void:
 	emitter_dict[&"atoms_list"] = payload_atom_ids
 	emitter_dict[&"atom_rest_position_buffer"] = atom_rest_position_buffer
 	other_objects_data[in_emitter.int_guid] = JSON.stringify(emitter_dict, "\t")
-	_expand_aabb_to(position)
+	_expand_aabb_to_aabb(in_emitter.get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius))
 
 
 func _advance_pos(in_curr_pos: Vector3, in_molecule_size: Vector3) -> Vector3:
@@ -402,10 +401,20 @@ func _add_anchor(in_anchor: NanoVirtualAnchor) -> void:
 	anchor_dict[&"anchor_id"] = in_anchor.int_guid
 	anchor_dict[&"position"] = [position.x, position.y, position.z]
 	other_objects_data[in_anchor.int_guid] = JSON.stringify(anchor_dict, "\t")
-	_expand_aabb_to(position)
+	_expand_aabb_to_aabb(in_anchor.get_aabb())
 
 
-func _expand_aabb_to(in_to_point: Vector3) -> void:
+
+func _expand_aabb_to_aabb(in_aabb: AABB) -> void:
+	if calculated_aabb == AABB():
+		calculated_aabb = in_aabb
+	else:
+		in_aabb = in_aabb.abs()
+		_expand_aabb_to_pos(in_aabb.position)
+		_expand_aabb_to_pos(in_aabb.end)
+
+
+func _expand_aabb_to_pos(in_to_point: Vector3) -> void:
 	if calculated_aabb == AABB():
 		calculated_aabb.position = in_to_point
 	else:
