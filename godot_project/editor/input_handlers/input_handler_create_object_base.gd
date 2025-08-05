@@ -98,13 +98,8 @@ static func calculate_preview_position_and_method(in_workspace_context: Workspac
 	match method:
 		CreateObjectParameters.CreateDistanceMethod.CLOSEST_OBJECT_TO_POINTER:
 			var pos: Vector3 = _try_get_preview_position_to_closest_object(in_workspace_context, screen_center)
-			if is_nan(pos.x):
-				pos = _get_preview_position_to_distance(
-					in_workspace_context,
-					in_workspace_context.create_object_parameters.drop_distance,
-					screen_center
-				)
-			return [pos, CreateObjectParameters.CreateDistanceSource.CLOSEST_OBJECT_TO_POINTER]
+			if not is_nan(pos.x):
+				return [pos, CreateObjectParameters.CreateDistanceSource.CLOSEST_OBJECT_TO_POINTER]
 		CreateObjectParameters.CreateDistanceMethod.CENTER_OF_SELECTION:
 			var pos := Vector3(NAN, NAN, NAN)
 			if in_workspace_context.has_transformable_selection():
@@ -115,21 +110,15 @@ static func calculate_preview_position_and_method(in_workspace_context: Workspac
 					center_of_selection,
 					screen_center
 				)
-			if is_nan(pos.x):
-				pos = _get_preview_position_to_distance(
-					in_workspace_context,
-					in_workspace_context.create_object_parameters.drop_distance,
-					screen_center
-				)
-			return [pos, CreateObjectParameters.CreateDistanceSource.CENTER_OF_SELECTION]
-		CreateObjectParameters.CreateDistanceMethod.FIXED_DISTANCE_TO_CAMERA:
-			return [_get_preview_position_to_distance(
-				in_workspace_context,
-				in_workspace_context.create_object_parameters.drop_distance,
-				screen_center
-			), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
-	assert(false, "Should never happen")
-	return [Vector3(), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
+			if not is_nan(pos.x):
+				return [pos, CreateObjectParameters.CreateDistanceSource.CENTER_OF_SELECTION]
+
+	# Method is FIXED_DISTANCE_TO_CAMERA, or the conditions are not met for the other methods.
+	return [_get_preview_position_to_distance(
+		in_workspace_context,
+		in_workspace_context.create_object_parameters.drop_distance,
+		screen_center
+	), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
 
 
 # region: Private
@@ -281,5 +270,3 @@ static func _get_preview_position_to_distance(
 	var camera: Camera3D = in_workspace_context.get_editor_viewport().get_camera_3d()
 	var new_pos3d: Vector3 = camera.project_position(in_screen_pos, in_distance)
 	return new_pos3d
-
-
