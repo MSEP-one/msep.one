@@ -51,23 +51,25 @@ func _init_material_uniforms() -> void:
 
 
 func _update_is_selectable_uniform() -> void:
+	if _is_preview:
+		_capsule_material.set_selectable(true)
+		return
 	var _structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
 	var is_editable: bool = _structure_context.is_editable()
 	_capsule_material.set_selectable(is_editable)
 
 
-func _calculate_bond_transform(in_bond: Vector3i) -> Transform3D:
-	var related_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+func _calculate_bond_transform(in_nano_structure: AtomicStructure, in_bond: Vector3i) -> Transform3D:
 	var bond_order: int = in_bond.z
 	var first_atom_id: int = in_bond.x
 	var second_atom_id: int = in_bond.y
-	var first_atom_position: Vector3 = related_structure.atom_get_position(first_atom_id)
-	var second_atom_position: Vector3 = related_structure.atom_get_position(second_atom_id)
+	var first_atom_position: Vector3 = in_nano_structure.atom_get_position(first_atom_id)
+	var second_atom_position: Vector3 = in_nano_structure.atom_get_position(second_atom_id)
 	var distance_between_atoms: float = first_atom_position.distance_to(second_atom_position)
 	var dir_from_first_to_second: Vector3 = first_atom_position.direction_to(second_atom_position)
 	var up_vector: Vector3 = StickRepresentation._calc_up_vect_for_single_bond(dir_from_first_to_second) if bond_order == 1 else \
 			StickRepresentation._calc_up_vector_for_higher_bond(first_atom_id, second_atom_id, first_atom_position,
-					second_atom_position, related_structure)
+					second_atom_position, in_nano_structure)
 	var particle_position: Vector3 = (first_atom_position + second_atom_position) / 2.0
 	var new_transform: Transform3D = Transform3D(Basis(), particle_position)
 	new_transform = new_transform.looking_at(first_atom_position, up_vector)

@@ -17,6 +17,13 @@ func build(in_structure_context: StructureContext) -> void:
 	if not _stick_rendering_visible:
 		_stick_representation.hide()
 
+func build_for_preview(in_nano_structure: NanoStructure) -> void:
+	_is_preview = true
+	_preview_instance_id = in_nano_structure.get_instance_id()
+	_sphere_representation.build_for_preview(in_nano_structure)
+	_stick_representation.build_for_preview(in_nano_structure)
+	if not _stick_rendering_visible:
+		_stick_representation.hide()
 
 func highlight_atoms(in_atoms_ids: PackedInt32Array, new_partially_influenced_bonds: PackedInt32Array,
 			in_bonds_released_from_partial_influence: PackedInt32Array) -> void:

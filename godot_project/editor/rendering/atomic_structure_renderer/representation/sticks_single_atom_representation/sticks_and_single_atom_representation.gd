@@ -14,7 +14,17 @@ func _notification(in_what: int) -> void:
 func build(in_structure_context: StructureContext) -> void:
 	_single_atom_representation.build(in_structure_context)
 	_stick_representation.build(in_structure_context)
-	
+
+
+func build_for_preview(in_nano_structure: NanoStructure) -> void:
+	_is_preview = true
+	_preview_instance_id = in_nano_structure.get_instance_id()
+	_single_atom_representation.build_for_preview(in_nano_structure)
+	_stick_representation.build_for_preview(in_nano_structure)
+
+
+
+
 
 func highlight_atoms(in_atoms_ids: PackedInt32Array, new_partially_influenced_bonds: PackedInt32Array,
 			in_bonds_released_from_partial_influence: PackedInt32Array) -> void:

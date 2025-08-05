@@ -30,6 +30,11 @@ func build(in_structure_context: StructureContext) -> void:
 	_ensure_material_configured()
 
 
+func build_for_preview(in_nano_structure: NanoStructure) -> void:
+	super.build_for_preview(in_nano_structure)
+	_ensure_material_configured_for_preview(in_nano_structure)
+
+
 func show() -> void:
 	super.show()
 	_ensure_material_configured()
@@ -75,17 +80,37 @@ func _ensure_material_configured() -> void:
 	_material_bond_3.set_gizmo_rotation(Basis())
 
 
-func _calculate_bond_transform(in_bond: Vector3i) -> Transform3D:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+func _ensure_material_configured_for_preview(in_nano_structure: AtomicStructure) -> void:
+	_single_stick_multimesh.set_material_override(_material_bond_1)
+	_double_stick_multimesh.set_material_override(_material_bond_2)
+	_tripple_stick_multimesh.set_material_override(_material_bond_3)
+	_single_stick_multimesh.set_material_instance_uniform(INSTANCE_UNIFORM_BASE_SCALE, 1.0)
+	_double_stick_multimesh.set_material_instance_uniform(INSTANCE_UNIFORM_BASE_SCALE, 0.75)
+	_tripple_stick_multimesh.set_material_instance_uniform(INSTANCE_UNIFORM_BASE_SCALE, 0.55)
+	_material_bond_1.set_gizmo_rotation(Basis())
+	_material_bond_2.set_gizmo_rotation(Basis())
+	_material_bond_3.set_gizmo_rotation(Basis())
+	# refresh_atoms_sizes()
+	_shader_scale_factor = Representation.get_atom_scale_factor(in_nano_structure.get_representation_settings())
+	_apply_scale_factor(_shader_scale_factor)
+	_refresh_bond_partial_influence_status(in_nano_structure.get_valid_bonds())
+	#_update_is_selectable_uniform()
+	var is_editable: bool = true # Preview is always tagged "editable"
+	_material_bond_1.set_selectable(is_editable)
+	_material_bond_2.set_selectable(is_editable)
+	_material_bond_3.set_selectable(is_editable)
+
+
+func _calculate_bond_transform(in_nano_structure: AtomicStructure, in_bond: Vector3i) -> Transform3D:
 	var bond_order: int = in_bond.z
 	var first_atom_id: int = in_bond.x
 	var second_atom_id: int = in_bond.y
-	var first_atom_position: Vector3 = related_nanostructure.atom_get_position(first_atom_id)
-	var second_atom_position: Vector3 = related_nanostructure.atom_get_position(second_atom_id)
+	var first_atom_position: Vector3 = in_nano_structure.atom_get_position(first_atom_id)
+	var second_atom_position: Vector3 = in_nano_structure.atom_get_position(second_atom_id)
 	var dir_from_first_to_second: Vector3 = first_atom_position.direction_to(second_atom_position)
 	var up_vector: Vector3 = StickRepresentation._calc_up_vect_for_single_bond(dir_from_first_to_second) if bond_order == 1 else \
 			StickRepresentation._calc_up_vector_for_higher_bond(first_atom_id, second_atom_id, first_atom_position,
-					second_atom_position, related_nanostructure)
+					second_atom_position, in_nano_structure)
 	var _particle_transform: Transform3D = calculate_transform_for_bond(first_atom_position,
 			second_atom_position, up_vector)
 	return _particle_transform

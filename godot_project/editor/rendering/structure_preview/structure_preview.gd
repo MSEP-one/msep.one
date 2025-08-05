@@ -18,9 +18,7 @@ var _transparency: float = DEFAULT_PREVIEW_TRANSPARENCY
 ## by calling [code]set_structure[/code].
 var _auto_update_preview: bool = true 
 
-var _preview_workspace_context: WorkspaceContext
-var _preview_workspace: Workspace
-var _preview_structure_context: StructureContext
+var _structure: AtomicStructure
 var _enabled_on_preview_viewport: bool = false
 
 
@@ -36,6 +34,8 @@ func _ready_deferred() -> void:
 	workspace_context.aborted_creating_object.connect(_on_workspace_context_aborted_creating_object)
 	var representation_settings: RepresentationSettings = workspace_context.workspace.representation_settings
 	representation_settings.changed.connect(_on_representation_settings_changed.bind(representation_settings))
+	representation_settings.atom_labels_visibility_changed.connect(_on_representation_settings_atom_labels_visibility_changed)
+	representation_settings.bond_visibility_changed.connect(_on_representation_settings_bond_visibility_changed)
 
 
 func enable_on_preview_viewport() -> void:
@@ -56,31 +56,18 @@ func set_structure(in_structure: NanoStructure) -> void:
 	_atomic_structure_renderer = AtomicStructureRendererScn.instantiate() as AtomicStructureRenderer
 	add_child(_atomic_structure_renderer)
 	
-	if is_instance_valid(_preview_workspace_context):
-		_preview_workspace_context.queue_free()
-	if is_instance_valid(_preview_structure_context):
-		_preview_structure_context.queue_free()
-	
-	var structure_copy: NanoStructure = NanoMolecularStructure.new()
-	structure_copy.apply_state_snapshot(in_structure.create_state_snapshot())
-	structure_copy.set_representation_settings(in_structure.get_representation_settings())
-	_preview_workspace_context = load(WorkspaceContextScn).instantiate()
-	_preview_workspace = Workspace.new()
-	_preview_workspace.representation_settings = in_structure.get_representation_settings()
-	_preview_workspace.add_structure(structure_copy)
-	add_child(_preview_workspace_context)
-	_preview_workspace_context.initialize(_preview_workspace)
-	_preview_structure_context = _preview_workspace_context.get_nano_structure_context(structure_copy)
+	_structure = NanoMolecularStructure.new()
+	_structure.apply_state_snapshot(in_structure.create_state_snapshot())
+	_structure.set_representation_settings(in_structure.get_representation_settings())
 	
 	var representation_settings: RepresentationSettings = in_structure.get_representation_settings()
-	_atomic_structure_renderer.build(_preview_structure_context, representation_settings.get_rendering_representation())
+	_atomic_structure_renderer.build_for_preview(_structure, representation_settings.get_rendering_representation())
 	_atomic_structure_renderer.set_transparency(_transparency)
 	
 	var display_labels: bool = representation_settings.get_display_atom_labels()
-	if display_labels:
-		_atomic_structure_renderer.ensure_label_rendering_on()
-	else:
-		_atomic_structure_renderer.ensure_label_rendering_off()
+	var display_bonds: bool = representation_settings.get_display_bonds()
+	_on_representation_settings_atom_labels_visibility_changed(display_labels)
+	_on_representation_settings_bond_visibility_changed(display_bonds)
 	
 	_atomic_structure_renderer.apply_theme(representation_settings.get_theme())
 
@@ -103,6 +90,24 @@ func set_auto_update(enabled: bool) -> void:
 func _on_representation_settings_changed(in_representation_settings: RepresentationSettings) -> void:
 	if is_instance_valid(_atomic_structure_renderer):
 		_atomic_structure_renderer.change_representation(in_representation_settings.get_rendering_representation())
+
+
+func _on_representation_settings_atom_labels_visibility_changed(in_display_labels: bool) -> void:
+	if not is_instance_valid(_atomic_structure_renderer):
+		return
+	if in_display_labels:
+		_atomic_structure_renderer.ensure_label_rendering_on()
+	else:
+		_atomic_structure_renderer.ensure_label_rendering_off()
+
+
+func _on_representation_settings_bond_visibility_changed(in_display_bonds: bool) -> void:
+	if not is_instance_valid(_atomic_structure_renderer):
+		return
+	if in_display_bonds:
+		_atomic_structure_renderer.ensure_bond_rendering_on()
+	else:
+		_atomic_structure_renderer.ensure_bond_rendering_off()
 
 
 func _on_workspace_context_started_creating_object(workspace_context: WorkspaceContext) -> void:

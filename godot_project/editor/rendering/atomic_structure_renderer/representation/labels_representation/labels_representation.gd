@@ -39,7 +39,7 @@ func _notification(in_what: int) -> void:
 
 
 func is_built() -> bool:
-	return _structure_id != Workspace.INVALID_STRUCTURE_ID
+	return _structure_id != Workspace.INVALID_STRUCTURE_ID or _is_preview
 
 
 func build(in_structure_context: StructureContext) -> void:
@@ -85,6 +85,53 @@ func build(in_structure_context: StructureContext) -> void:
 	_segmented_multimesh.bake()
 
 
+func build_for_preview(in_structure: NanoStructure) -> void:
+	assert(is_instance_valid(in_structure))
+	_is_preview = true
+	_preview_instance_id = in_structure.get_instance_id()
+	clear()
+	
+	_segmented_multimesh.set_material_override(_material)
+	
+	refresh_atoms_sizes()
+	
+	var aabb: AABB = AABB()
+	var atoms_ids: PackedInt32Array = in_structure.get_valid_atoms()
+	if atoms_ids.size() < 1:
+		_segmented_multimesh.bake()
+		return
+	
+	aabb.position = in_structure.atom_get_position(atoms_ids[0])
+	var atom_state := Representation.InstanceState.new()
+	for atom_id in atoms_ids:
+		var atom_position: Vector3 = in_structure.atom_get_position(atom_id)
+		var atom_atomic_number: int = in_structure.atom_get_atomic_number(atom_id)
+		var data: ElementData = PeriodicTable.get_by_atomic_number(atom_atomic_number)
+		var additional_color: Color = data.noise_color
+		additional_color.a = data.noise_atlas_id
+		atom_state.is_visible = not in_structure.is_atom_hidden_by_user(atom_id)
+		atom_state.is_locked = in_structure.atom_is_locked(atom_id)
+		if atom_state.is_selected:
+			_highlighted_atoms[atom_id] = true
+		atom_state.is_hydrogen = in_structure.atom_is_hydrogen(atom_id)
+		var atom_transform: Transform3D = Transform3D()
+		atom_transform.origin = atom_position
+		var color: Color = data.color
+		color.g = _atom_number_to_atlas_id_map[data.number]
+		color.b = data.render_radius
+		color.a = atom_state.to_float()
+		
+		_segmented_multimesh.add_particle(atom_id, atom_transform, color, additional_color)
+		aabb = aabb.expand(atom_position)
+	_segmented_multimesh.bake()
+
+
+func _get_related_atomic_structure() -> AtomicStructure:
+	if _is_preview:
+		return instance_from_id(_preview_instance_id)
+	return _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+
+
 func add_atoms(in_atoms_ids: PackedInt32Array) -> void:
 	for atom_id in in_atoms_ids:
 		_add_atom(atom_id)
@@ -121,7 +168,7 @@ func _add_atom(in_atom_id: int) -> void:
 
 
 func refresh_atoms_positions(in_atoms_ids: PackedInt32Array) -> void:
-	var nano_struct: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var nano_struct: NanoStructure = _get_related_atomic_structure()
 	for atom_id in in_atoms_ids:
 		var atom_position: Vector3 = nano_struct.atom_get_position(atom_id)
 		_segmented_multimesh.update_particle_position(atom_id, atom_position)
@@ -144,13 +191,13 @@ func refresh_atoms_atomic_number(in_atoms_and_atomic_numbers: Array[Vector2i]) -
 func refresh_atoms_sizes() -> void:
 	if not is_built():
 		return
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	var scale_factor: float = Representation.get_atom_scale_factor(related_nanostructure.get_representation_settings())
 	_apply_scale_factor(scale_factor)
 
 
 func refresh_atoms_visibility(in_atoms_ids: PackedInt32Array) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id: int in in_atoms_ids:
 		var color: Color = _segmented_multimesh.get_particle_color(atom_id)
 		var additional_color: Color = _segmented_multimesh.get_particle_additional_data(atom_id)
@@ -222,7 +269,7 @@ func highlight_atoms(in_atoms_ids: PackedInt32Array, _new_partially_influenced_b
 func lowlight_atoms(in_atoms_ids: PackedInt32Array, 
 			_in_bonds_released_from_partial_influence: PackedInt32Array,
 			_new_partially_influenced_bonds: PackedInt32Array) -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id in in_atoms_ids:
 		assert(related_nanostructure.is_atom_valid(atom_id), "atempt to lowlight a non existing atom")
 		if not _highlighted_atoms.get(atom_id, false):
@@ -234,7 +281,7 @@ func lowlight_atoms(in_atoms_ids: PackedInt32Array,
 func _refresh_atom(in_atom_id: int, _in_scale_factor: float = BASE_SCALE) -> void:
 	assert(_segmented_multimesh.is_external_id_known(in_atom_id), "Atempt to refresh non existing atom. Ensure
 		this operation is performed at right time in the context of NanoStructure.[start/end]_edit() call.")
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	var atom_position: Vector3 = related_nanostructure.atom_get_position(in_atom_id)
 	var atom_atomic_number: int = related_nanostructure.atom_get_atomic_number(in_atom_id)
 	var data: ElementData = PeriodicTable.get_by_atomic_number(atom_atomic_number)
@@ -283,7 +330,7 @@ func hydrogens_rendering_on() -> void:
 
 
 func refresh_all() -> void:
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id: int in related_nanostructure.get_valid_atoms():
 		_refresh_atom(atom_id)
 

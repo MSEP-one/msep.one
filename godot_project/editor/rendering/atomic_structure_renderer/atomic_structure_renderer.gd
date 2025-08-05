@@ -29,6 +29,7 @@ var _is_label_representation_up_to_date: bool = true
 var _rendering_representation := Rendering.Representation.BALLS_AND_STICKS
 var _nano_structure_id: int = Workspace.INVALID_STRUCTURE_ID
 var _is_built: bool = false
+var _is_preview: bool = false
 var _transparency: float = 0.0
 var _up_to_date_representations: Dictionary = {
 #	Rendering.Representation: true
@@ -44,6 +45,27 @@ func rebuild() -> void:
 	_current_representation.show()
 	_fixed_size_representation.build(structure_context)
 	_fixed_size_representation.refresh_all()
+	_fixed_size_representation.show()
+
+
+func build_for_preview(in_nano_structure: AtomicStructure, in_representation: Rendering.Representation) -> void:
+	# This build method assumes structure will never change, so wont connect to any signal
+	# Preview should never have springs, so we can skil _springs_representation
+	#_springs_representation.build_for_preview(in_nano_structure)
+	_is_preview = true
+	for rep: Rendering.Representation in Rendering.Representation.values():
+		_representation_to_node_map[rep].build_for_preview(in_nano_structure)
+		_up_to_date_representations[rep] = true
+		if rep != in_representation:
+			_representation_to_node_map[rep].hide()
+	_fixed_size_representation.build_for_preview(in_nano_structure)
+	visible = in_nano_structure.get_visible()
+	
+	_is_built = true
+	_labels_representation.build_for_preview(in_nano_structure)
+	_refresh_label_visibility_state()
+	refresh_atom_sizes()
+	_current_representation.show()
 	_fixed_size_representation.show()
 
 
@@ -169,7 +191,6 @@ func desaturate() -> void:
 
 
 func change_representation(new_representation: Rendering.Representation) -> void:
-	var struct_context: StructureContext = _workspace_context.get_structure_context(_nano_structure_id)
 	var old_representation: Representation = _current_representation
 	var old_rendering_representation: Rendering.Representation = _rendering_representation
 	_current_representation.hide()
@@ -177,9 +198,11 @@ func change_representation(new_representation: Rendering.Representation) -> void
 	_current_representation = _representation_to_node_map[new_representation]
 	_current_representation.set_transparency(_transparency)
 	var is_representation_up_to_date: bool = _up_to_date_representations.get(_rendering_representation, false)
-	if not is_representation_up_to_date and is_instance_valid(struct_context):
-		_current_representation.build(struct_context)
-		_up_to_date_representations[_rendering_representation] = true
+	if not is_representation_up_to_date:
+		var struct_context: StructureContext = _workspace_context.get_structure_context(_nano_structure_id)
+		if is_instance_valid(struct_context):
+			_current_representation.build(struct_context)
+			_up_to_date_representations[_rendering_representation] = true
 	
 	_current_representation.refresh_all()
 	_current_representation.show()
@@ -192,6 +215,8 @@ func change_representation(new_representation: Rendering.Representation) -> void
 func _reset_representation_highlight(in_old_representation: Representation,
 			in_old_rendering_representation: Rendering.Representation,
 			in_new_representation: Rendering.Representation) -> void:
+	if _is_preview:
+		return
 	var struct_context: StructureContext = _workspace_context.get_structure_context(_nano_structure_id)
 	var selected_atoms: PackedInt32Array = struct_context.get_selected_atoms()
 	var selected_bonds: PackedInt32Array = struct_context.get_selected_bonds()
@@ -398,6 +423,8 @@ func lowlight_springs(in_springs_to_lowlight: PackedInt32Array) -> void:
 
 
 func _outdate_non_active_representations() -> void:
+	if _is_preview:
+		return
 	for representation: Rendering.Representation in _up_to_date_representations:
 		if _rendering_representation != representation:
 			_up_to_date_representations[representation] = false
