@@ -486,8 +486,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 			var nano_struct_path: String = structure_snapshot["script.resource_path"]
 			var nano_structure: NanoStructure = load(nano_struct_path).new()
 			nano_structure.set_representation_settings(representation_settings)
-			nano_structure.apply_state_snapshot(structure_snapshot)
 			_structures[snapshot_structure_id] = nano_structure
+			nano_structure.apply_state_snapshot(structure_snapshot)
 			continue
 		
 		if _structures.has(snapshot_structure_id):
