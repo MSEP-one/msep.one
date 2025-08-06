@@ -88,7 +88,10 @@ func _set_selected_id(in_selected_id: int) -> void:
 	if in_selected_id < 0:
 		_tree.deselect_all()
 		return
-	assert(_structure_id_to_tree_item.has(in_selected_id), "Cannot Select")
+	var _exists: bool = _workspace_context.workspace.has_structure_with_int_guid(in_selected_id)
+	assert(_exists, "No structure with id %d exists in the workspace" % in_selected_id)
+	assert(_structure_id_to_tree_item.has(in_selected_id), "Cannot Select group %s, not present in the tree" %
+		_workspace_context.get_structure_context(in_selected_id).nano_structure.get_structure_name())
 	var item: TreeItem = _structure_id_to_tree_item[in_selected_id] as TreeItem
 	if not item.is_selected(_TREE_COLUMN_0):
 		item.select(_TREE_COLUMN_0)
