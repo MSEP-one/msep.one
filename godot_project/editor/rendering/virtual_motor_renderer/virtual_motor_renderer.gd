@@ -55,9 +55,14 @@ func build(in_workspace_context: WorkspaceContext, in_motor: NanoVirtualMotor) -
 	_workspace_context = in_workspace_context
 	parameters = in_motor.get_parameters()
 	global_transform = in_motor.get_transform()
-	in_motor.transform_changed.connect(_on_virtual_motor_transform_changed)
-	in_motor.visibility_changed.connect(_on_virtual_motor_visibility_changed)
+	_ensure_motor_signal_connections(in_motor)
 	self.visible = in_motor.get_visible()
+
+
+func _ensure_motor_signal_connections(in_motor: NanoVirtualMotor) -> void:
+	if not in_motor.transform_changed.is_connected(_on_virtual_motor_transform_changed):
+		in_motor.transform_changed.connect(_on_virtual_motor_transform_changed)
+		in_motor.visibility_changed.connect(_on_virtual_motor_visibility_changed)
 
 
 func update(_in_delta: float) -> void:
@@ -221,6 +226,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	var motor: NanoVirtualMotor = _workspace_context.workspace.get_structure_by_int_guid(_motor_id) as NanoVirtualMotor
 	self.visible = motor.get_visible()
 	parameters = motor.get_parameters()
+	_ensure_motor_signal_connections(motor)
 	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
 	_refresh_selection_preview(in_snapshot["material_selected"])
 	_set_shader_uniform(&"is_selectable", in_snapshot["material_selectable"])
