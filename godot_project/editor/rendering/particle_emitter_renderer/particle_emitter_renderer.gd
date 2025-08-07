@@ -5,6 +5,7 @@ class_name ParticleEmitterRenderer extends Node3D
 @export var _spin_axle: MeshInstance3D
 
 var _emitter_id: int
+var _molecule_instance_count: int = 1
 var _workspace_context: WorkspaceContext
 var _structure_previews: Array[StructurePreview]
 
@@ -53,16 +54,30 @@ func _seek_materials_recursively(out_node: Node) -> void:
 func build(in_workspace_context: WorkspaceContext, in_emitter: NanoParticleEmitter) -> void:
 	_emitter_id = in_emitter.get_int_guid()
 	_workspace_context = in_workspace_context
-	in_emitter.transform_changed.connect(_on_emitter_transform_changed)
-	in_emitter.visibility_changed.connect(_on_emitter_visibility_changed)
-	var parameters: NanoParticleEmitterParameters = in_emitter.get_parameters()
-	parameters.changed.connect(_on_emitter_parameters_changed.bind(parameters))
+	
+	_ensure_emitter_signal_connections(in_emitter)
+	
 	var template: NanoStructure = in_emitter.get_parameters().get_molecule_template()
 	if not template.get_representation_settings():
 		template.set_representation_settings(in_emitter.get_representation_settings())
+	var parameters: NanoParticleEmitterParameters = in_emitter.get_parameters()
+	
 	_on_emitter_parameters_changed(parameters)
 	_on_emitter_transform_changed(in_emitter.get_transform())
 	_on_emitter_visibility_changed(in_emitter.get_visible())
+
+
+func _ensure_emitter_signal_connections(in_emitter_or_null: NanoParticleEmitter = null) -> void:
+	if in_emitter_or_null == null:
+		var workspace: Workspace = MolecularEditorContext.get_current_workspace()
+		assert(workspace.has_structure_with_int_guid(_emitter_id), "Particle emitter not present in active workspace")
+		in_emitter_or_null = workspace.get_structure_by_int_guid(_emitter_id) as NanoParticleEmitter
+		assert(in_emitter_or_null != null, "NanoStructure with id %d in current workspace is not a NanoParticleEmitter!")
+	if not in_emitter_or_null.transform_changed.is_connected(_on_emitter_transform_changed):
+		in_emitter_or_null.transform_changed.connect(_on_emitter_transform_changed)
+		in_emitter_or_null.visibility_changed.connect(_on_emitter_visibility_changed)
+		var parameters: NanoParticleEmitterParameters = in_emitter_or_null.get_parameters()
+		parameters.changed.connect(_on_emitter_parameters_changed.bind(parameters))
 
 
 func disable_hover() -> void:
@@ -131,7 +146,8 @@ func _on_emitter_visibility_changed(in_visible: bool) -> void:
 
 
 func _on_emitter_parameters_changed(in_parameters: NanoParticleEmitterParameters) -> void:
-	_set_structure_preview_count(in_parameters.get_molecules_per_instance())
+	_molecule_instance_count = in_parameters.get_molecules_per_instance()
+	_set_structure_preview_count(_molecule_instance_count)
 	var spin_speed: float = in_parameters.get_instance_spin_revolutions_per_nanosecond()
 	if is_equal_approx(spin_speed, .0):
 		_spin_axle.hide()
@@ -198,8 +214,11 @@ func _get_shader_uniform(in_uniform: StringName) -> Variant:
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_workspace_context"] = _workspace_context
+	snapshot["_molecule_instance_count"] = _molecule_instance_count
 	snapshot["global_transform"] = global_transform
 	snapshot["visible"] = visible
+	snapshot["_spin_axle.visible"] = _spin_axle.visible
+	snapshot["_spin_axle.scale"] = _spin_axle.scale
 	snapshot["material_selected"] = _get_shader_uniform(&"is_selected")
 	snapshot["material_selectable"] = _get_shader_uniform(&"is_selectable")
 	snapshot["_emitter_id"] = _emitter_id
@@ -209,10 +228,12 @@ func create_state_snapshot() -> Dictionary:
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_workspace_context = in_snapshot["_workspace_context"]
 	_emitter_id = in_snapshot["_emitter_id"]
-	# _on_emitter_transform_changed and _on_emitter_visibility_changed
-	# will take care of the position and visibility of instances
+	_spin_axle.visible = in_snapshot["_spin_axle.visible"]
+	_spin_axle.scale = in_snapshot["_spin_axle.scale"]
+	_ensure_emitter_signal_connections()
 	_on_emitter_transform_changed(in_snapshot["global_transform"])
 	_on_emitter_visibility_changed(in_snapshot["visible"])
+	_set_structure_preview_count(in_snapshot["_molecule_instance_count"])
 	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
 	_set_selection_preview_flag(in_snapshot["material_selected"])
 	_set_shader_uniform(&"is_selectable", in_snapshot["material_selectable"])
