@@ -214,6 +214,8 @@ func _can_delete_objects(in_context: StructureContext) -> bool:
 			if not in_context.nano_structure is NanoVirtualMotor else in_context.is_motor_selected()
 	var anchor_selected: bool = true \
 			if not in_context.nano_structure is NanoVirtualAnchor else in_context.is_anchor_selected()
+	var emitter_selected: bool = true \
+			if not in_context.nano_structure is NanoParticleEmitter else in_context.is_particle_emitter_selected()
 	
 	var child_structures: Array[NanoStructure] = \
 			in_context.workspace_context.workspace.get_child_structures(in_context.nano_structure)
@@ -222,6 +224,6 @@ func _can_delete_objects(in_context: StructureContext) -> bool:
 		if not _can_delete_objects(child_context):
 			return false
 	
-	if all_atoms_selected and shape_selected and motor_selected and anchor_selected:
+	if all_atoms_selected and shape_selected and motor_selected and anchor_selected and emitter_selected:
 		return true
 	return false
