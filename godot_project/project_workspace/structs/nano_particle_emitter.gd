@@ -361,8 +361,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary, in_with_instances: bool
 	if _parameters == null:
 		_parameters = NanoParticleEmitterParameters.new()
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters_snapshot"])
-	_instances_atom_ids = in_state_snapshot["_instances_atom_ids"]
-	_instances_bond_ids = in_state_snapshot["_instances_bond_ids"]
+	_instances_atom_ids = in_state_snapshot["_instances_atom_ids"].duplicate(false)
+	_instances_bond_ids = in_state_snapshot["_instances_bond_ids"].duplicate(false)
 	var instances_group_id: int = in_state_snapshot["_instances_group_id"]
 	if instances_group_id == -1:
 		_instances_group = null
