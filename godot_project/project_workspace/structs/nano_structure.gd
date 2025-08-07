@@ -147,6 +147,7 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["int_parent_guid"] = int_parent_guid
 	state_snapshot["_structure_name"] = _structure_name
 	state_snapshot["_visible"] = _visible
+	state_snapshot["_representation_settings"] = _representation_settings
 	return state_snapshot
 
 
@@ -157,3 +158,4 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	int_parent_guid = in_state_snapshot["int_parent_guid"]
 	_structure_name = in_state_snapshot["_structure_name"]
 	_visible = in_state_snapshot["_visible"]
+	_representation_settings = in_state_snapshot["_representation_settings"]
