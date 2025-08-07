@@ -1415,9 +1415,11 @@ func snapshot_moment(in_operation_name: String) -> void:
 	# the simulation. When the simulation is stopped, undo / redo won't reapply
 	# positions coming from the simulation this way.
 	var current_simulation_time: float = _simulation.get_last_seeked_time()
+	var temp_current_state: Dictionary = _history.create_snapshot_no_push()
 	seek_simulation(0.0)
 	_history.create_snapshot(in_operation_name)
 	seek_simulation(current_simulation_time)
+	_history.apply_snapshot(temp_current_state)
 
 
 func is_applying_simulation_state() -> bool:

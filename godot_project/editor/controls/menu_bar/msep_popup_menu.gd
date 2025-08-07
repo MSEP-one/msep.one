@@ -46,7 +46,7 @@ func _queue_update_menu() -> void:
 		_set_all_is_disabled(self, true)
 	else:
 		_set_all_is_disabled(self, false)
-		_update_menu()
+		ScriptUtils.call_deferred_once(_update_menu)
 
 
 func _set_all_is_disabled(out_menu:PopupMenu, in_disable: float) -> void:

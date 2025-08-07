@@ -90,14 +90,18 @@ func register_snapshotable(in_system: Object) -> void:
 	_snapshotable_systems.append(in_system)
 
 
-func create_snapshot(in_snapshot_name: String) -> Dictionary:
-	_monitor_redundant_snapshots(in_snapshot_name)
+func create_snapshot_no_push() -> Dictionary:
 	var snapshot: Dictionary = {
 		#"name" : _next_snapshot_name
 	}
 	
 	for snapshotable: Object in _snapshotable_systems:
 		snapshot[snapshotable] = snapshotable.create_state_snapshot()
+	return snapshot
+
+func create_snapshot(in_snapshot_name: String) -> Dictionary:
+	_monitor_redundant_snapshots(in_snapshot_name)
+	var snapshot: Dictionary = create_snapshot_no_push()
 	
 	_add_snapshot_to_stack(snapshot, in_snapshot_name)
 	return snapshot
@@ -139,7 +143,7 @@ func apply_previous_snapshot() -> void:
 		return
 	var undone_snapshot_name: String = _name_stack[_stack_pointer]
 	_stack_pointer -= 1
-	_apply_snapshot(_stack_pointer)
+	_apply_snapshot_from_stack(_stack_pointer)
 	_version -= 1
 	# IMPORTANT: if a method uses call_deferred part of the snapshot, that would make the
 	#            "aplication of the snapshot" incomplete until the next frame.
@@ -162,7 +166,7 @@ func apply_next_snapshot() -> void:
 	if cannot_move_forward:
 		return
 	_stack_pointer += 1
-	_apply_snapshot(_stack_pointer)
+	_apply_snapshot_from_stack(_stack_pointer)
 	var snapshot_name: String = _name_stack[_stack_pointer]
 	_version += 1
 	changed.emit()
@@ -170,10 +174,15 @@ func apply_next_snapshot() -> void:
 	next_snapshot_applied.emit(snapshot_name)
 
 
-func _apply_snapshot(in_stack_index: int) -> void:
+func _apply_snapshot_from_stack(in_stack_index: int) -> void:
 	var snapshot_to_apply: Dictionary = _snapshot_stack[in_stack_index]
 	for snapshotable: Object in snapshot_to_apply:
 		snapshotable.apply_state_snapshot(snapshot_to_apply[snapshotable])
+
+
+func apply_snapshot(in_state_snapshot: Dictionary) -> void:
+	for snapshotable: Object in in_state_snapshot:
+		snapshotable.apply_state_snapshot(in_state_snapshot[snapshotable])
 
 
 func can_redo() -> bool:
