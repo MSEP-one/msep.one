@@ -115,6 +115,8 @@ static var instance_counter: int = 0
 ## to calculate periodic box by growing the existing AABB by this percentage
 @export_range(100.0, 200.0, 1.0, "or_greater") var simulation_settings_advanced_constrained_simulation_box_size_percentage: float = 125.0
 
+@export_range(0.0, 4.0, 0.1, "or_greater") var simulation_settings_advanced_constrained_simulation_minimum_size: float = 1.0
+
 @export_group("", "") # end of "Advanced Simulation Settings" group
 
 ## RandomNumberGenerator is used to create unique IDs, state and seed are stored

@@ -306,10 +306,16 @@ func get_icon() -> Texture2D:
 	return preload("res://editor/icons/MolecularStructure_x28.svg")
 
 
-func get_aabb() -> AABB:
-	var aabb := AABB(_transform.origin, Vector3())
-	aabb = aabb.grow(0.5)
-	return aabb.abs()
+func get_aabb(in_bounds_type := AtomicStructure.AABB_BoundsType.AtomsPositions) -> AABB:
+	if _parameters == null or _parameters.get_molecule_template() == null:
+		var aabb := AABB(_transform.origin, Vector3())
+		aabb = aabb.grow(0.5)
+		return aabb.abs()
+	else:
+		var aabb: AABB = _parameters.get_molecule_template().get_aabb(in_bounds_type)
+		# Move the box relative to particle emitter position
+		aabb.position = _transform.origin - aabb.size / 2.0
+		return aabb
 
 
 func is_particle_emitter_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> bool:

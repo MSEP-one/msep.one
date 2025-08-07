@@ -1,6 +1,11 @@
 extends DynamicContextControl
 
 const _MENU_ITEM_SHOW_USER_FILES: int = 0
+const _MIN_SIZE_LABEL_MODULATE: Dictionary = {
+	true : Color.WHITE,
+	false : Color8(223, 223, 223),
+	&"simulating" : Color8(145, 136, 164),
+}
 
 var _force_field_option_button: OptionButton
 var _advanced_menu_button: MenuButton
@@ -17,6 +22,8 @@ var _integrator_option_button: OptionButton
 var _simulation_box_unconstrained_button: CheckBox
 var _simulation_box_constrained_button: CheckBox
 var _simulation_box_size_slider: SpinBoxSlider
+var _simulation_box_min_size_label: Label
+var _simulation_box_min_size_slider: SpinBoxSlider
 
 
 var _workspace_context: WorkspaceContext
@@ -48,10 +55,13 @@ func _notification(what: int) -> void:
 		_simulation_box_unconstrained_button = %SimulationBoxUnconstrainedButton as CheckBox
 		_simulation_box_constrained_button = %SimulationBoxConstrainedButton as CheckBox
 		_simulation_box_size_slider = %SimulationBoxSizeSlider as SpinBoxSlider
+		_simulation_box_min_size_label = %SimulationBoxMinSizeLabel as Label
+		_simulation_box_min_size_slider = %SimulationBoxMinSizeSlider as SpinBoxSlider
 		_advanced_options_checkbox.toggled.connect(_on_advanced_menu_button_toggled)
 		_integrator_option_button.item_selected.connect(_on_integrator_option_button_item_selected)
 		_simulation_box_unconstrained_button.toggled.connect(_on_simulation_box_unconstrained_button_toggled)
 		_simulation_box_size_slider.value_confirmed.connect(_on_simulation_box_size_slider_value_confirmed)
+		_simulation_box_min_size_slider.value_confirmed.connect(_on_simulation_box_min_size_slider_value_confirmed)
 
 
 func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
@@ -83,6 +93,10 @@ func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
 		var box_size_percentage: float = _workspace_context.workspace.simulation_settings_advanced_constrained_simulation_box_size_percentage
 		_simulation_box_size_slider.set_value_no_signal(box_size_percentage)
 		_simulation_box_size_slider.editable = use_constrained_simulation_box
+		var box_min_size: float = _workspace_context.workspace.simulation_settings_advanced_constrained_simulation_minimum_size
+		_simulation_box_min_size_slider.set_value_no_signal(box_min_size)
+		_simulation_box_min_size_slider.editable = use_constrained_simulation_box
+		_simulation_box_min_size_label.self_modulate = _MIN_SIZE_LABEL_MODULATE[use_constrained_simulation_box]
 		_update_advanced_settings_ui()
 
 
@@ -165,12 +179,20 @@ func _on_simulation_box_unconstrained_button_toggled(_in_pressed: bool) -> void:
 	var use_constrained_simulation_box: bool = _simulation_box_constrained_button.button_pressed
 	_workspace_context.workspace.simulation_settings_advanced_use_constrained_simulation_box = use_constrained_simulation_box
 	_simulation_box_size_slider.editable = use_constrained_simulation_box
+	_simulation_box_min_size_slider.editable = use_constrained_simulation_box
+	_simulation_box_min_size_label.self_modulate = _MIN_SIZE_LABEL_MODULATE[use_constrained_simulation_box]
 
 
 func _on_simulation_box_size_slider_value_confirmed(in_value: float) -> void:
 	if _workspace_context == null or _workspace_context.workspace == null:
 		return
 	_workspace_context.workspace.simulation_settings_advanced_constrained_simulation_box_size_percentage = in_value
+
+
+func _on_simulation_box_min_size_slider_value_confirmed(in_value: float) -> void:
+	if _workspace_context == null or _workspace_context.workspace == null:
+		return
+	_workspace_context.workspace.simulation_settings_advanced_constrained_simulation_minimum_size = in_value
 
 
 func _on_workspace_context_simulation_started() -> void:
@@ -186,6 +208,8 @@ func _on_workspace_context_simulation_started() -> void:
 	_simulation_box_unconstrained_button.disabled = true
 	_simulation_box_constrained_button.disabled = true
 	_simulation_box_size_slider.editable = false
+	_simulation_box_min_size_slider.editable = false
+	_simulation_box_min_size_label.self_modulate = _MIN_SIZE_LABEL_MODULATE[&"simulating"]
 
 
 func _on_workspace_context_simulation_finished() -> void:
@@ -201,6 +225,8 @@ func _on_workspace_context_simulation_finished() -> void:
 	_simulation_box_unconstrained_button.disabled = false
 	_simulation_box_constrained_button.disabled = false
 	_simulation_box_size_slider.editable = _simulation_box_constrained_button.button_pressed
+	_simulation_box_min_size_slider.editable = _simulation_box_constrained_button.button_pressed
+	_simulation_box_min_size_label.self_modulate = _MIN_SIZE_LABEL_MODULATE[_simulation_box_constrained_button.button_pressed]
 
 
 func _update_forcefields_list() -> void:
