@@ -57,12 +57,12 @@ func _on_selected_shape_for_new_objects_changed(in_shape: PrimitiveMesh) -> void
 	if _ghost_shape.get_shape() != null:
 		_ghost_shape.get_shape().changed.disconnect(_on_tracked_shape_changed)
 	_ghost_shape.set_shape(in_shape)
+	_ghost_shape.set_visible(false)
+	in_shape.changed.connect(_on_tracked_shape_changed)
 	var should_show: bool = \
 		get_workspace_context().create_object_parameters.get_create_mode_enabled() \
 		and get_workspace_context().create_object_parameters.get_create_mode_type() == \
 					CreateObjectParameters.CreateModeType.CREATE_SHAPES
-	_ghost_shape.set_visible(should_show)
-	in_shape.changed.connect(_on_tracked_shape_changed)
 	if should_show:
 		_ensure_shape_fits_in_work_area()
 
