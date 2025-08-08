@@ -10,7 +10,7 @@ render_mode unshaded;
 const float COLOR_ADDITIONAL_POWER = 0.05;
 
 uniform float size = 1.0;
-
+uniform float show_distance = 18.0; // Only visible if further than this distance in persective view.
 
 void vertex() {
 	// Fixed Size
@@ -23,12 +23,18 @@ void vertex() {
 		MODELVIEW_MATRIX[0] *= sc;
 		MODELVIEW_MATRIX[1] *= sc;
 		MODELVIEW_MATRIX[2] *= sc;
+		// Hide if the camera size is too small
+		VERTEX *= (h < 1.25) ? 0.0 : 1.0;
 	} else {
 		// Scale by depth.
 		sc = -(MODELVIEW_MATRIX)[3].z * size;
 		MODELVIEW_MATRIX[0] *= sc;
 		MODELVIEW_MATRIX[1] *= sc;
 		MODELVIEW_MATRIX[2] *= sc;
+		// Hide if too close to the camera
+		vec3 center_model_pos = (MODEL_MATRIX * vec4(vec3(0.0), 1.0)).xyz; 
+		float distance_to_camera = length(CAMERA_POSITION_WORLD - center_model_pos);
+		VERTEX *= (distance_to_camera < show_distance) ? 0.0 : 1.0;
 	}
 
 	VERTEX = hide_hydrogen_atoms(VERTEX, COLOR.a);

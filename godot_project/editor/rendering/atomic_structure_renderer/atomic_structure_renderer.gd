@@ -510,6 +510,7 @@ func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> vo
 func set_transparency(in_transparency: float) -> void:
 	_transparency = in_transparency
 	_current_representation.set_transparency(in_transparency)
+	_fixed_size_representation.set_transparency(in_transparency)
 	_outdate_non_active_representations()
 
 
