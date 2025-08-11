@@ -289,7 +289,12 @@ func _generate_candidates_for_atom(
 		for bond_id: int in known_bonds:
 			var other_atom_id: int = nano_structure.atom_get_bond_target(in_atom_id, bond_id)
 			var other_atom_pos: Vector3 = nano_structure.atom_get_position(other_atom_id)
-			known_h_atoms.append(HAtomsEmptyValenceDirections.Atom.new(other_atom_pos, "dummy"))
+			if is_zero_approx(atom_position.distance_squared_to(other_atom_pos)):
+				# Atoms are overlaping, use default direction for SP1 atoms to avoid division by zero errors
+				const SP1_DEFAULT_DIR := Vector3(1, 1, 1.5)
+				known_h_atoms.append(HAtomsEmptyValenceDirections.Atom.new(other_atom_pos + SP1_DEFAULT_DIR, "dummy"))
+			else:
+				known_h_atoms.append(HAtomsEmptyValenceDirections.Atom.new(other_atom_pos, "dummy"))
 		for candidate: AtomCandidate in known_candidates:
 			known_h_atoms.append(
 				HAtomsEmptyValenceDirections.Atom.new(candidate.atom_position, "dummy")
