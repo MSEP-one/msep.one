@@ -458,6 +458,17 @@ func _on_button_start_pause_pressed() -> void:
 					if warning_promise.get_result() == false:
 						# "Cancel" button selected
 						return
+			if _workspace_context.ignored_warnings.emitters_with_unstable_parameters == false:
+				var emitters_unstable: bool = WorkspaceUtils.has_emitters_with_potentially_unstable_parameters(_workspace_context)
+				if emitters_unstable:
+					var warning_promise: Promise = _workspace_context.show_warning_dialog(
+							tr("One or more particle emitters may have insufficient velocities for their initial speeds.\n" +
+							"This may make the simulation unstable.\n" +
+							"Proceed?"), tr("Continue"), tr("Cancel") , &"emitters_with_unstable_parameters", true)
+					await warning_promise.wait_for_fulfill()
+					if warning_promise.get_result() == false:
+						# "Cancel" button selected
+						return
 			assert(!_workspace_context.is_simulating(), "A simulation is already running")
 			
 			_workspace_context.clear_alerts()

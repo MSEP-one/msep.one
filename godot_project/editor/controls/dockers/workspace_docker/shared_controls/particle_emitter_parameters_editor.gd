@@ -87,7 +87,7 @@ func _get_emitter_parameters() -> NanoParticleEmitterParameters:
 
 func _on_emitter_parameters_changed() -> void:
 	var parameters: NanoParticleEmitterParameters = _get_emitter_parameters()
-	assert(parameters != null, "Impossible condition. How can parametters not exists and have changed at the same time?")
+	assert(parameters != null, "Impossible condition. How can parameters not exists and have changed at the same time?")
 	
 	_initial_delay_time_picker.time_span_femtoseconds = TimeSpanPicker.unit_to_femtoseconds(
 			parameters.get_initial_delay_in_nanoseconds(), TimeSpanPicker.Unit.NANOSECOND)

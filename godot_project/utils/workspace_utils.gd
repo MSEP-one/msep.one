@@ -149,6 +149,10 @@ static func has_emitters_affected_by_motors(in_workspace_context: WorkspaceConte
 	return _has_emitters_affected_by_motors(in_workspace_context)
 
 
+static func has_emitters_with_potentially_unstable_parameters(in_workspace_context: WorkspaceContext) -> bool:
+	return _has_emitters_with_potentially_unstable_parameters(in_workspace_context)
+
+
 static func structure_context_has_drastically_invalid_tetrahedral_structure(in_structure_context: StructureContext, in_atoms: PackedInt32Array) -> bool:
 	if not in_structure_context.nano_structure is AtomicStructure:
 		return false
@@ -183,6 +187,20 @@ static func _has_emitters_affected_by_motors(in_workspace_context: WorkspaceCont
 			affected_groups[group_id] = true
 	for emitter: NanoParticleEmitter in emitters:
 		if emitter.int_parent_guid in affected_groups.keys():
+			return true
+	return false
+
+
+static func _has_emitters_with_potentially_unstable_parameters(in_workspace_context: WorkspaceContext) -> bool:
+	var emitters: Array[NanoParticleEmitter] = in_workspace_context.get_particle_emitters()
+	for emitter: NanoParticleEmitter in emitters:
+		var template: AtomicStructure = emitter.get_parameters().get_molecule_template()
+		if template == null:
+			continue
+		var template_aabb: AABB = template.get_aabb().abs()
+		var axis_direction: Vector3 = emitter.get_transform().basis * Vector3.FORWARD
+		if not is_particle_emitter_escape_velocity_safe(
+			in_workspace_context, emitter.get_parameters(), template_aabb, axis_direction):
 			return true
 	return false
 
