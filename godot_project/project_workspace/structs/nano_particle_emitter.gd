@@ -172,7 +172,7 @@ func seek_simulation(in_frame: float) -> void:
 			# This is an optimization to stop doing this math after the first match
 			var time: float = delay + rate * floorf(float(instance_idx) / float(molecules_per_instance))
 			var frame: float = time / _frame_length_nanoseconds
-			spawned_before_seek = frame < in_frame or is_equal_approx(frame, in_frame)
+			spawned_before_seek = frame < in_frame or (in_frame != .0 and is_equal_approx(frame, in_frame))
 		var first_atom_id: int = _instances_atom_ids[instance_idx][0]
 		if _debug_show_unspawned_instances or spawned_before_seek:
 			if not _instances_group.is_atom_valid(first_atom_id):
