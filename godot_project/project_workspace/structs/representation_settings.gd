@@ -4,6 +4,7 @@ class_name RepresentationSettings extends Resource
 signal representation_changed(new_representation: Rendering.Representation)
 signal balls_and_sticks_size_factor_changed(new_factor: float)
 signal balls_and_sticks_size_source_changed(new_source: RepresentationSettings.UserAtomSizeSource)
+signal should_hide_virtual_object_during_simulation_changed(object_type: StringName, should_hide: bool)
 signal bond_visibility_changed(are_visible: bool)
 signal hydrogen_visibility_changed(are_visible: bool)
 signal atom_labels_visibility_changed(are_visible: bool)
@@ -59,6 +60,14 @@ enum UserAtomSizeSource {
 
 
 @export var _color_schema: PeriodicTable.ColorSchema = PeriodicTable.ColorSchema.MSEP
+
+
+@export var _hide_during_simulation: Dictionary[StringName, bool] = {
+	reference_shapes = false,
+	virtual_motor = false,
+	particle_emitters = false,
+	anchors_and_springs = false,
+}
 
 
 func set_balls_and_sticks_size_source(in_size_souce: UserAtomSizeSource) -> void:
@@ -216,6 +225,37 @@ func get_color_schema() -> PeriodicTable.ColorSchema:
 	return _color_schema
 
 
+func set_should_hide_virtual_object_during_simulation(in_type: StringName, in_should_hide: bool) -> void:
+	var key: StringName = _variant_to_virtual_object_key(in_type)
+	if _hide_during_simulation[key] == in_should_hide:
+		return
+	_hide_during_simulation[key] = in_should_hide
+	should_hide_virtual_object_during_simulation_changed.emit(key, in_should_hide)
+
+
+func get_should_hide_virtual_object_during_simulation(in_type: Variant) -> bool:
+	var key: StringName = _variant_to_virtual_object_key(in_type)
+	return _hide_during_simulation[key]
+
+
+func _variant_to_virtual_object_key(in_type: Variant) -> StringName:
+	var SCRIPT_TO_KEY_MAP: Dictionary[Script, StringName] = {
+		NanoShape: &"reference_shapes",
+		NanoVirtualMotor: &"virtual_motor",
+		NanoParticleEmitter: &"particle_emitters",
+		NanoVirtualAnchor: &"anchors_and_springs",
+	}
+	var key := StringName()
+	if typeof(in_type) == TYPE_STRING_NAME:
+		key = in_type
+	elif in_type is Script:
+		key = SCRIPT_TO_KEY_MAP[in_type]
+	else:
+		assert(false, "Unexpected argument in_type with type '" + type_string(typeof(in_type)) + "' and value '" + str(in_type) + "'")
+		pass
+	return key
+
+
 func deep_copy() -> RepresentationSettings:
 	var copy := RepresentationSettings.new()
 	copy._rendering_representation = _rendering_representation
@@ -231,7 +271,7 @@ func deep_copy() -> RepresentationSettings:
 	copy._theme = _theme.duplicate(true)
 	copy._color_schema = _color_schema
 	return copy
-	
+
 
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {
