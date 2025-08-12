@@ -63,7 +63,7 @@ enum UserAtomSizeSource {
 
 
 @export var _hide_during_simulation: Dictionary[StringName, bool] = {
-	reference_shapes = false,
+	reference_shapes = true,
 	virtual_motor = false,
 	particle_emitters = false,
 	anchors_and_springs = false,

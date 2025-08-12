@@ -15,6 +15,11 @@ var _cull_back: bool = true:
 @onready var pivot: MeshInstance3D = shape.get_node("Pivot")
 
 
+var _should_hide_in_simulation: bool = false
+var _is_simulating: bool = false
+var _object_visible: bool = true
+
+
 const _CAMERA_PROJECTION_TO_PIVOT_SCALE: Dictionary = {
 	Camera3D.ProjectionType.PROJECTION_PERSPECTIVE: 0.004,
 	Camera3D.ProjectionType.PROJECTION_ORTHOGONAL: 0.04,
@@ -35,6 +40,7 @@ func build(in_workspace_context: WorkspaceContext, in_shape: NanoShape) -> void:
 	in_shape.transform_changed.connect(_on_reference_shape_transform_changed)
 	in_shape.shape_changed.connect(_on_reference_shape_shape_changed)
 	in_shape.visibility_changed.connect(_on_reference_shape_visibility_changed)
+	_object_visible = in_shape.get_visible()
 	if _nano_shape_primitive_mesh:
 		_nano_shape_primitive_mesh.changed.connect(_on_nano_shape_primitive_mesh_changed)
 	if in_shape.is_ghost:
@@ -51,6 +57,15 @@ func build(in_workspace_context: WorkspaceContext, in_shape: NanoShape) -> void:
 	shape_context.virtual_object_selection_changed.connect(_on_shape_context_virtual_object_selection_changed)
 	_on_shape_context_virtual_object_selection_changed(shape_context.is_shape_selected())
 	workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
+	workspace_context.workspace.representation_settings \
+		.should_hide_virtual_object_during_simulation_changed \
+		.connect(_on_should_hide_virtual_object_during_simulation_changed)
+	workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
+	workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+	_is_simulating = workspace_context.is_simulating()
+	_should_hide_in_simulation = workspace_context.workspace.representation_settings \
+			.get_should_hide_virtual_object_during_simulation(NanoShape)
+	_update_visibility()
 
 
 func disable_hover() -> void:
@@ -169,7 +184,23 @@ func _on_nano_shape_primitive_mesh_changed() -> void:
 
  
 func _on_reference_shape_visibility_changed(in_visibility: bool) -> void:
-	visible = in_visibility
+	_object_visible = in_visibility
+	_update_visibility()
+
+
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	if in_type == &"reference_shapes":
+		_should_hide_in_simulation = in_should_hide
+		_update_visibility()
+
+
+func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
+	_is_simulating = in_is_simulating
+	_update_visibility()
+
+
+func _update_visibility() -> void:
+	visible = _object_visible and ((not _is_simulating) or (not _should_hide_in_simulation))
 
 
 func _on_shape_context_virtual_object_selection_changed(in_is_selected: bool) -> void:
@@ -204,7 +235,8 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["color_unselected"] = color_unselected
 	snapshot["_shape_id"] = _shape_id
 	snapshot["_hover_enabled"] = _hover_enabled
-	snapshot["visible"] = visible
+	snapshot["_object_visible"] = _object_visible
+	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["material_selected"] = shape.get_instance_shader_parameter(&"selected")
 	
 	snapshot["nano_shape.transform_changed"] = History.pack_signal(nano_shape.transform_changed, self)
@@ -222,7 +254,10 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	color_unselected = in_state_snapshot["color_unselected"]
 	_shape_id = in_state_snapshot["_shape_id"]
 	_hover_enabled = in_state_snapshot["_hover_enabled"]
-	visible = in_state_snapshot["visible"]
+	_object_visible = in_state_snapshot["_object_visible"]
+	_should_hide_in_simulation = in_state_snapshot["_should_hide_in_simulation"]
+	# assume _is_simulating is up to date since this is not changed by undo history
+	_update_visibility()
 	shape.set_instance_shader_parameter(&"selected", in_state_snapshot["material_selected"])
 	
 	var shape_context: StructureContext = _workspace_context.get_structure_context(_shape_id)
