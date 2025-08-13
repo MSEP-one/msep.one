@@ -64,7 +64,7 @@ enum UserAtomSizeSource {
 
 @export var _hide_during_simulation: Dictionary[StringName, bool] = {
 	reference_shapes = true,
-	virtual_motor = false,
+	virtual_motors = false,
 	particle_emitters = false,
 	anchors_and_springs = false,
 }
@@ -241,7 +241,7 @@ func get_should_hide_virtual_object_during_simulation(in_type: Variant) -> bool:
 func _variant_to_virtual_object_key(in_type: Variant) -> StringName:
 	var SCRIPT_TO_KEY_MAP: Dictionary[Script, StringName] = {
 		NanoShape: &"reference_shapes",
-		NanoVirtualMotor: &"virtual_motor",
+		NanoVirtualMotor: &"virtual_motors",
 		NanoParticleEmitter: &"particle_emitters",
 		NanoVirtualAnchor: &"anchors_and_springs",
 	}
@@ -288,7 +288,7 @@ func create_state_snapshot() -> Dictionary:
 		"_custom_background_color" : _custom_background_color,
 		"_theme.path" : _theme.resource_path,
 		"_color_schema" : _color_schema,
-		
+		"_hide_during_simulation" : _hide_during_simulation.duplicate(false)
 	}
 	return snapshot
 
@@ -306,3 +306,4 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_custom_background_color = in_state_snapshot["_custom_background_color"]
 	_theme = load(in_state_snapshot["_theme.path"])
 	_color_schema = in_state_snapshot["_color_schema"]
+	_hide_during_simulation = in_state_snapshot["_hide_during_simulation"].duplicate(false)
