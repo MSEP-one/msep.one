@@ -74,7 +74,6 @@ button_pressed = true
 text = "Virtual Motors"
 
 [node name="HideParticleEmittersToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
-visible = false
 layout_mode = 2
 button_pressed = true
 text = "Particle Emitters

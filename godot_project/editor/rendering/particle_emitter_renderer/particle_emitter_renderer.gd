@@ -14,6 +14,11 @@ var _materials: Array[ShaderMaterial]
 var _meshes: Array[MeshInstance3D]
 
 
+var _should_hide_in_simulation: bool = false
+var _is_simulating: bool = false
+var _object_visible: bool = true
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		# Setting top_level = true will prevent the preview from rotating
@@ -78,6 +83,16 @@ func _ensure_emitter_signal_connections(in_emitter_or_null: NanoParticleEmitter 
 		in_emitter_or_null.visibility_changed.connect(_on_emitter_visibility_changed)
 		var parameters: NanoParticleEmitterParameters = in_emitter_or_null.get_parameters()
 		parameters.changed.connect(_on_emitter_parameters_changed.bind(parameters))
+		var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+		workspace_context.workspace.representation_settings \
+			.should_hide_virtual_object_during_simulation_changed \
+			.connect(_on_should_hide_virtual_object_during_simulation_changed)
+		workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
+		workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+		_is_simulating = workspace_context.is_simulating()
+		_should_hide_in_simulation = workspace_context.workspace.representation_settings \
+				.get_should_hide_virtual_object_during_simulation(NanoParticleEmitter)
+		_update_visibility()
 
 
 func disable_hover() -> void:
@@ -140,9 +155,25 @@ func update(delta: float) -> void:
 
 
 func _on_emitter_visibility_changed(in_visible: bool) -> void:
-	self.visible = in_visible
+	_object_visible = in_visible
+	_update_visibility()
+
+
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	if in_type == RepresentationSettings.script_to_virtual_object_key(NanoParticleEmitter):
+		_should_hide_in_simulation = in_should_hide
+		_update_visibility()
+
+
+func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
+	_is_simulating = in_is_simulating
+	_update_visibility()
+
+
+func _update_visibility() -> void:
+	visible = _object_visible and ((not _is_simulating) or (not _should_hide_in_simulation))
 	for preview: StructurePreview in _structure_previews:
-		preview.visible = in_visible
+		preview.visible = visible
 
 
 func _on_emitter_parameters_changed(in_parameters: NanoParticleEmitterParameters) -> void:
@@ -216,7 +247,8 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["_molecule_instance_count"] = _molecule_instance_count
 	snapshot["global_transform"] = global_transform
-	snapshot["visible"] = visible
+	snapshot["_object_visible"] = _object_visible
+	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["_spin_axle.visible"] = _spin_axle.visible
 	snapshot["_spin_axle.scale"] = _spin_axle.scale
 	snapshot["material_selected"] = _get_shader_uniform(&"is_selected")
@@ -232,7 +264,10 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_spin_axle.scale = in_snapshot["_spin_axle.scale"]
 	_ensure_emitter_signal_connections()
 	_on_emitter_transform_changed(in_snapshot["global_transform"])
-	_on_emitter_visibility_changed(in_snapshot["visible"])
+	_object_visible = in_snapshot["_object_visible"]
+	_should_hide_in_simulation = in_snapshot["_should_hide_in_simulation"]
+	# assume _is_simulating is up to date since this is not changed by undo history
+	_update_visibility()
 	_set_structure_preview_count(in_snapshot["_molecule_instance_count"])
 	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
 	_set_selection_preview_flag(in_snapshot["material_selected"])
