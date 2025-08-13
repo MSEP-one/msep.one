@@ -103,7 +103,7 @@ func _on_show_potential_atoms_toggle_toggled(button_pressed: bool) -> void:
 	_workspace_context.workspace.representation_settings.set_display_auto_posing(button_pressed)
 
 
-func _on_hide_hide_simulation_boundaries_toggle_toggled(button_pressed: bool) -> void:
+func _on_hide_simulation_boundaries_toggle_toggled(button_pressed: bool) -> void:
 	_workspace_context.workspace.representation_settings.set_display_simulation_boundaries(not button_pressed)
 
 func _on_hide_virtual_objects_toggle(button_pressed: bool, in_type: StringName) -> void:
