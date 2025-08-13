@@ -214,6 +214,7 @@ func _on_workspace_main_view_ready() -> void:
 	workspace.representation_settings_changed.connect(_on_workspace_representation_settings_changed)
 	workspace.bond_settings_changed.connect(_on_workspace_bond_settings_changed)
 	workspace.representation_settings.hydrogen_visibility_changed.connect(_on_hydrogen_visibility_changed)
+	workspace.representation_settings.should_hide_virtual_object_during_simulation_changed.connect(_on_should_hide_virtual_object_during_simulation_changed)
 	workspace_main_view.get_alerts_panel().visibility_changed.connect(_on_alerts_panel_visibility_changed)
 	
 	_initialize_history.call_deferred()
@@ -227,6 +228,48 @@ func _initialize_history() -> void:
 
 func _on_hydrogen_visibility_changed(_in_is_visible: bool = false) -> void:
 	object_visibility_changed.emit()
+
+
+func _on_should_hide_virtual_object_during_simulation_changed(object_type: StringName, should_hide: bool) -> void:
+	if not should_hide or not is_simulating():
+		return
+	# Deselect objects that are becoming invisible
+	_try_deselect_hidden_virtual_objects_of_type(object_type)
+
+
+func _try_deselect_hidden_virtual_objects() -> bool:
+	if !is_simulating():
+		return false
+	var selection_changed: bool = false
+	var types_to_evaluate: Array[Script] = [
+		NanoShape,
+		NanoVirtualMotor,
+		NanoParticleEmitter,
+		NanoVirtualAnchor,
+	]
+	for type: Script in types_to_evaluate:
+		var type_str: StringName = RepresentationSettings.script_to_virtual_object_key(type)
+		if workspace.representation_settings.get_should_hide_virtual_object_during_simulation(type_str):
+			selection_changed = selection_changed or _try_deselect_hidden_virtual_objects_of_type(type_str)
+	return selection_changed
+
+func _try_deselect_hidden_virtual_objects_of_type(object_type: StringName) -> bool:
+	var selection_changed: bool = false
+	var contexts_with_selection: Array[StructureContext] = get_structure_contexts_with_selection()
+	for ctx: StructureContext in contexts_with_selection:
+		if ctx.nano_structure is AtomicStructure:
+			if RepresentationSettings.virtual_object_key_to_script(object_type) == NanoVirtualAnchor:
+				# Unselect any selected spring
+				var selected_springs: PackedInt32Array = ctx.get_selected_springs()
+				if selected_springs.size() > 0:
+					ctx.deselect_springs(selected_springs)
+					selection_changed = true
+		elif ctx.nano_structure.is_virtual_object() and RepresentationSettings.script_to_virtual_object_key(ctx.nano_structure.get_script()) == object_type:
+			# deselect virtual object
+			if ctx.has_selection():
+				ctx.clear_selection()
+				selection_changed = true
+	return selection_changed
 
 
 func _on_alerts_panel_visibility_changed() -> void:
@@ -511,6 +554,8 @@ func start_simulating(in_simulation_data: SimulationData) -> void:
 	assert(not is_simulating(), "I'm already being simulated, make sure to call " +
 			"abort_simulation_if_running() when you are done with it")
 	_simulation = in_simulation_data
+	if _try_deselect_hidden_virtual_objects():
+		snapshot_moment("Change Selection")
 	simulation_started.emit()
 
 

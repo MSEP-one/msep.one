@@ -239,21 +239,34 @@ func get_should_hide_virtual_object_during_simulation(in_type: Variant) -> bool:
 
 
 func _variant_to_virtual_object_key(in_type: Variant) -> StringName:
+	var key := StringName()
+	if typeof(in_type) == TYPE_STRING_NAME:
+		key = in_type
+	elif in_type is Script:
+		key = script_to_virtual_object_key(in_type)
+	else:
+		assert(false, "Unexpected argument in_type with type '" + type_string(typeof(in_type)) + "' and value '" + str(in_type) + "'")
+		pass
+	return key
+
+static func script_to_virtual_object_key(in_script: Script) -> StringName:
 	var SCRIPT_TO_KEY_MAP: Dictionary[Script, StringName] = {
 		NanoShape: &"reference_shapes",
 		NanoVirtualMotor: &"virtual_motors",
 		NanoParticleEmitter: &"particle_emitters",
 		NanoVirtualAnchor: &"anchors_and_springs",
 	}
-	var key := StringName()
-	if typeof(in_type) == TYPE_STRING_NAME:
-		key = in_type
-	elif in_type is Script:
-		key = SCRIPT_TO_KEY_MAP[in_type]
-	else:
-		assert(false, "Unexpected argument in_type with type '" + type_string(typeof(in_type)) + "' and value '" + str(in_type) + "'")
-		pass
-	return key
+	return SCRIPT_TO_KEY_MAP[in_script]
+
+
+static func virtual_object_key_to_script(in_type: StringName) -> Script:
+	var KEY_TO_SCRIPT_MAP: Dictionary[StringName, Script] = {
+		&"reference_shapes": NanoShape,
+		&"virtual_motors": NanoVirtualMotor,
+		&"particle_emitters": NanoParticleEmitter,
+		&"anchors_and_springs": NanoVirtualAnchor,
+	}
+	return KEY_TO_SCRIPT_MAP[in_type]
 
 
 func deep_copy() -> RepresentationSettings:
