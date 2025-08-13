@@ -46,13 +46,55 @@ layout_mode = 2
 button_pressed = true
 text = "Show Potential Atom Positions"
 
-[node name="ShowSimulationBoundariesToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="Settings/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Hide during Simulations"
+
+[node name="PanelContainer" type="PanelContainer" parent="Settings/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Settings/PanelContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="HideSimulationBoundariesToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 button_pressed = true
-text = "Show Simulation Boundaries"
+text = "Simulation Boundaries"
+
+[node name="HideReferenceShapesToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+button_pressed = true
+text = "Reference Shapes"
+
+[node name="HideVirtualMotorsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+button_pressed = true
+text = "Virtual Motors"
+
+[node name="HideParticleEmittersToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+button_pressed = true
+text = "Particle Emitters
+"
+
+[node name="HideAnchorsAndSpringsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+button_pressed = true
+text = "Anchors and Springs
+"
 
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowBondsToggle" to="." method="_on_show_bonds_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowLabelsToggle" to="." method="_on_show_labels_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowHydrogensToggle" to="." method="_on_show_hydrogens_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowPotentialAtomsToggle" to="." method="_on_show_potential_atoms_toggle_toggled"]
-[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowSimulationBoundariesToggle" to="." method="_on_show_simulation_boundaries_toggle_toggled"]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle" to="." method="_on_hide_simulation_boundaries_toggle_toggled"]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"reference_shapes"]]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle" to="." method="_on_show_hydrogens_toggle_toggled" binds= [&"_on_show_hydrogens_toggle_toggled"]]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"particle_emitters"]]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"anchors_and_springs"]]

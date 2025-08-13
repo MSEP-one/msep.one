@@ -152,6 +152,10 @@ func apply_deselection() -> void:
 
 func _is_virtual_object_within_screen_rect(in_context: StructureContext, in_camera: Camera3D) -> bool:
 	assert(in_context.nano_structure.is_virtual_object())
+	var is_simulating: bool = in_context.workspace_context.is_simulating()
+	if is_simulating and in_context.workspace_context.workspace.representation_settings \
+			.get_should_hide_virtual_object_during_simulation(in_context.nano_structure.get_script()):
+			return false
 	if in_context.nano_structure is NanoShape:
 		return in_context.nano_structure.is_shape_within_screen_rect(in_camera, _rect)
 	if in_context.nano_structure is NanoVirtualMotor:

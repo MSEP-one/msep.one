@@ -35,9 +35,11 @@ var _motor_shape_rid: RID # = PhysicsServer3D.sphere_shape_create()
 var _particle_emitter_shape_rid: RID # = PhysicsServer3D.cylinder_shape_create()
 var _anchor_shape_rid: RID # = PhysicsServer3D.sphere_shape_create()
 var _spring_shape_rid: RID # = PhysicsServer3D.box_shape_create()
+var _virtual_object_type := StringName()
+var _hiding_virtual_object_during_simulation: bool = false
+var _is_simulating: bool = false
 var _hydrogens_enabled: bool = true
 var _is_initialized: bool = false
-
 
 func _notification(in_what: int) -> void:
 	if in_what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -61,6 +63,7 @@ func initialize(in_structure_context: StructureContext) -> void:
 	_structure_context = in_structure_context
 	var nano_structure: NanoStructure = in_structure_context.nano_structure
 	var representation_settings: RepresentationSettings = nano_structure.get_representation_settings()
+	
 	_hydrogens_enabled = representation_settings.get_hydrogens_visible()
 	_refresh_atom_radiuses()
 	_refresh_bond_radiuses()
@@ -122,18 +125,37 @@ func initialize(in_structure_context: StructureContext) -> void:
 	
 	if nano_structure is NanoVirtualMotor:
 		_add_motor(nano_structure as NanoVirtualMotor)
+		_virtual_object_type = &"virtual_motor"
 	
 	if nano_structure is NanoParticleEmitter:
 		_add_particle_emitter(nano_structure)
+		_virtual_object_type = &"particle_emitters"
 	
 	if nano_structure is NanoVirtualAnchor:
 		_add_anchor(nano_structure as NanoVirtualAnchor)
+		_virtual_object_type = &"anchors_and_springs"
+	
+	if not _virtual_object_type.is_empty() and not representation_settings \
+			.should_hide_virtual_object_during_simulation_changed \
+			.is_connected(_on_should_hide_virtual_object_during_simulation_changed):
+		representation_settings.should_hide_virtual_object_during_simulation_changed.connect(_on_should_hide_virtual_object_during_simulation_changed)
+		_hiding_virtual_object_during_simulation = \
+			representation_settings.get_should_hide_virtual_object_during_simulation(_virtual_object_type)
+		in_structure_context.workspace_context.simulation_started.connect(set.bind(&"_is_simulating", true))
+		in_structure_context.workspace_context.simulation_finished.connect(set.bind(&"_is_simulating", false))
+		_is_simulating = in_structure_context.workspace_context.is_simulating()
 	
 	_is_initialized = true
 
 
 func is_initialized() -> bool:
 	return _is_initialized
+
+
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	if in_type == _virtual_object_type:
+		_hiding_virtual_object_during_simulation = in_should_hide
+
 
 
 func _refresh_atom_radiuses() -> void:
@@ -583,6 +605,8 @@ func ray_bond(in_screen_position: Vector2, in_camera: Camera3D) -> int:
 
 
 func ray_virtual_object(in_screen_position: Vector2, in_camera: Camera3D) -> bool:
+	if _is_simulating and _hiding_virtual_object_during_simulation:
+		return false
 	var ray_normal: Vector3 = in_camera.project_ray_normal(in_screen_position)
 	var ray_origin: Vector3 = in_camera.project_ray_origin(in_screen_position) * PHYSIC_SPACE_SIZE_FACTOR
 	var collided_virtual_object_id: int = _atom_collision_space.raycast(ray_origin, ray_normal, CollisionLayer.VIRTUAL_OBJECT)

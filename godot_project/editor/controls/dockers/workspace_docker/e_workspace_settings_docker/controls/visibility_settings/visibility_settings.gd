@@ -5,6 +5,10 @@ var _bonds_toggle: CheckButton
 var _labels_toggle: CheckButton
 var _hydrogens_toggle: CheckButton
 var _simulation_boundaries_toggle: CheckButton
+var _hide_reference_shapes_toggle: CheckButton
+var _hide_virtual_motors_toggle: CheckButton
+var _hide_particle_emitters_toggle: CheckButton
+var _hide_anchors_and_springs_toggle: CheckButton
 
 var _workspace_context: WorkspaceContext = null
 
@@ -14,7 +18,12 @@ func _notification(what: int) -> void:
 		_bonds_toggle = $Settings/PanelContainer/VBoxContainer/ShowBondsToggle
 		_labels_toggle = $Settings/PanelContainer/VBoxContainer/ShowLabelsToggle
 		_hydrogens_toggle = $Settings/PanelContainer/VBoxContainer/ShowHydrogensToggle
-		_simulation_boundaries_toggle = $Settings/PanelContainer/VBoxContainer/ShowSimulationBoundariesToggle
+		_simulation_boundaries_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle
+		_hide_reference_shapes_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle
+		_hide_virtual_motors_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle
+		_hide_particle_emitters_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle
+		_hide_anchors_and_springs_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle
+
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	_workspace_context = in_workspace_context
@@ -32,8 +41,11 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	_bonds_toggle.set_pressed_no_signal(_workspace_context.are_bonds_visualised())
 	_labels_toggle.set_pressed_no_signal(_workspace_context.are_atom_labels_visualised())
 	_hydrogens_toggle.set_pressed_no_signal(_workspace_context.are_hydrogens_visualized())
-	_simulation_boundaries_toggle.set_pressed_no_signal(settings.get_display_simulation_boundaries())
-	
+	_simulation_boundaries_toggle.set_pressed_no_signal(not settings.get_display_simulation_boundaries())
+	_hide_reference_shapes_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoShape))
+	_hide_virtual_motors_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoVirtualMotor))
+	_hide_particle_emitters_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoParticleEmitter))
+	_hide_anchors_and_springs_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor))
 	return true
 
 
@@ -91,5 +103,8 @@ func _on_show_potential_atoms_toggle_toggled(button_pressed: bool) -> void:
 	_workspace_context.workspace.representation_settings.set_display_auto_posing(button_pressed)
 
 
-func _on_show_simulation_boundaries_toggle_toggled(button_pressed: bool) -> void:
-	_workspace_context.workspace.representation_settings.set_display_simulation_boundaries(button_pressed)
+func _on_hide_simulation_boundaries_toggle_toggled(button_pressed: bool) -> void:
+	_workspace_context.workspace.representation_settings.set_display_simulation_boundaries(not button_pressed)
+
+func _on_hide_virtual_objects_toggle(button_pressed: bool, in_type: StringName) -> void:
+	_workspace_context.workspace.representation_settings.set_should_hide_virtual_object_during_simulation(in_type, button_pressed)

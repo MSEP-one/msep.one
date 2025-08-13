@@ -17,8 +17,13 @@ var closest_hit_bond_id: int
 var closest_hit_spring_id: int
 var hit_type: HitType
 
+var _representation_settings: RepresentationSettings
+var _is_simulating: bool
 
 func _init(in_camera: Camera3D, in_screen_position: Vector2, in_query_structures: Array[StructureContext]) -> void:
+	if in_query_structures.size():
+		_representation_settings = in_query_structures[0].workspace_context.workspace.representation_settings
+		_is_simulating = in_query_structures[0].workspace_context.is_simulating()
 	closest_hit_structure_context = null
 	closest_hit_atom_id = AtomicStructure.INVALID_ATOM_ID
 	closest_hit_bond_id = AtomicStructure.INVALID_BOND_ID
@@ -136,6 +141,8 @@ func _calculate_spring_sqr_distance_to_camera(in_struct_context: StructureContex
 			in_camera_pos: Vector3) -> float:
 	if in_spring_id == AtomicStructure.INVALID_SPRING_ID:
 		return INF
+	if _is_simulating and _representation_settings.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor):
+		return INF
 	var nano_structure: NanoStructure = in_struct_context.nano_structure
 	var atom_pos: Vector3 = nano_structure.spring_get_atom_position(in_spring_id)
 	var anchor_pos: Vector3 = nano_structure.spring_get_anchor_position(in_spring_id, in_struct_context)
@@ -145,6 +152,8 @@ func _calculate_spring_sqr_distance_to_camera(in_struct_context: StructureContex
 
 func _calculate_shape_sqr_distance_to_camera(in_camera: Camera3D, in_screen_pos: Vector2,
 			in_context: StructureContext) -> float:
+	if _is_simulating and _representation_settings.get_should_hide_virtual_object_during_simulation(NanoShape):
+		return INF
 	var shape_intersections: PackedVector3Array = _get_ray_hits_shape(in_camera, in_screen_pos, in_context)
 	var is_shape_collision_detected: bool = not shape_intersections.is_empty()
 	if not is_shape_collision_detected:
