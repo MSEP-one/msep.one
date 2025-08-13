@@ -12,6 +12,10 @@ var _transform_handler: TransformHandler
 var _material: SpringMaterial
 
 
+var _should_hide_in_simulation: bool = false
+var _is_simulating: bool = false
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_multimesh = get_node("SegmentedMultiMesh")
@@ -36,7 +40,38 @@ func initialize(in_structure_context: StructureContext) -> void:
 		state.is_selected = in_structure_context.is_spring_selected(spring_id)
 		state.is_hydrogen = nano_struct.atom_get_atomic_number(atom_id) == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
 		add_spring(spring_id, atom_pos, anchor_pos, state.to_float())
+	var workspace_context: WorkspaceContext = in_structure_context.workspace_context
+	workspace_context.workspace.representation_settings \
+		.should_hide_virtual_object_during_simulation_changed \
+		.connect(_on_should_hide_virtual_object_during_simulation_changed)
+	workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
+	workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+	_is_simulating = workspace_context.is_simulating()
+	_should_hide_in_simulation = workspace_context.workspace.representation_settings \
+			.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor)
+	_update_visibility()
 	_multimesh.bake()
+
+
+
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	if in_type == RepresentationSettings.script_to_virtual_object_key(NanoVirtualAnchor):
+		_should_hide_in_simulation = in_should_hide
+		_update_visibility()
+
+
+func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
+	_is_simulating = in_is_simulating
+	_update_visibility()
+
+
+func _update_visibility() -> void:
+	var should_show: bool = (not _is_simulating) or (not _should_hide_in_simulation)
+	if should_show:
+		_multimesh.show()
+	else:
+		_multimesh.hide()
+
 
 
 func add_spring(in_spring_id: int, in_position_begin: Vector3, in_position_end: Vector3,
@@ -131,6 +166,7 @@ func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["_structure_id"] = _structure_id
+	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["_transform_handler.snapshot"] = _transform_handler.create_state_snapshot()
 	snapshot["_multimesh.snapshot"] = _multimesh.create_state_snapshot()
 	return snapshot
@@ -140,6 +176,10 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_workspace_context = in_snapshot["_workspace_context"]
 	_structure_id = in_snapshot["_structure_id"]
 	_multimesh.apply_state_snapshot(in_snapshot["_multimesh.snapshot"])
+	# Override visibility of multimesh if needed
+	_should_hide_in_simulation = in_snapshot["_should_hide_in_simulation"]
+	# assume _is_simulating is up to date since this is not changed by undo history
+	_update_visibility()
 	_transform_handler.apply_state_snapshot(in_snapshot["_transform_handler.snapshot"])
 
 
