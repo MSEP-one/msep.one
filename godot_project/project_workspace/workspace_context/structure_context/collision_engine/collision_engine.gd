@@ -125,15 +125,15 @@ func initialize(in_structure_context: StructureContext) -> void:
 	
 	if nano_structure is NanoVirtualMotor:
 		_add_motor(nano_structure as NanoVirtualMotor)
-		_virtual_object_type = &"virtual_motors"
 	
 	if nano_structure is NanoParticleEmitter:
 		_add_particle_emitter(nano_structure)
-		_virtual_object_type = &"particle_emitters"
 	
 	if nano_structure is NanoVirtualAnchor:
 		_add_anchor(nano_structure as NanoVirtualAnchor)
-		_virtual_object_type = &"anchors_and_springs"
+	
+	if nano_structure.is_virtual_object():
+		_virtual_object_type = RepresentationSettings.script_to_virtual_object_key(nano_structure.get_script())
 	
 	if not _virtual_object_type.is_empty() and not representation_settings \
 			.should_hide_virtual_object_during_simulation_changed \
