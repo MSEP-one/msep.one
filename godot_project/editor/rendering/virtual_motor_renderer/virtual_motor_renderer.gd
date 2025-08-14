@@ -16,6 +16,10 @@ var _materials: Array[ShaderMaterial]
 var _animate_polarity: AnimationPlayer
 var _camera: Camera3D
 
+var _should_hide_in_simulation: bool = false
+var _is_simulating: bool = false
+var _object_visible: bool = true
+
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -56,7 +60,15 @@ func build(in_workspace_context: WorkspaceContext, in_motor: NanoVirtualMotor) -
 	parameters = in_motor.get_parameters()
 	global_transform = in_motor.get_transform()
 	_ensure_motor_signal_connections(in_motor)
-	self.visible = in_motor.get_visible()
+	_workspace_context.workspace.representation_settings \
+		.should_hide_virtual_object_during_simulation_changed \
+		.connect(_on_should_hide_virtual_object_during_simulation_changed)
+	_workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
+	_workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+	_is_simulating = _workspace_context.is_simulating()
+	_should_hide_in_simulation = _workspace_context.workspace.representation_settings \
+			.get_should_hide_virtual_object_during_simulation(NanoVirtualMotor)
+	_update_visibility()
 
 
 func _ensure_motor_signal_connections(in_motor: NanoVirtualMotor) -> void:
@@ -137,8 +149,24 @@ func _on_virtual_motor_transform_changed(in_transform: Transform3D) -> void:
 	global_transform = in_transform
 
 
-func _on_virtual_motor_visibility_changed(in_visible: bool) -> void:
-	self.visible = in_visible
+func _on_virtual_motor_visibility_changed(in_visibility: bool) -> void:
+	_object_visible = in_visibility
+	_update_visibility()
+
+
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	if in_type == RepresentationSettings.script_to_virtual_object_key(NanoVirtualMotor):
+		_should_hide_in_simulation = in_should_hide
+		_update_visibility()
+
+
+func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
+	_is_simulating = in_is_simulating
+	_update_visibility()
+
+
+func _update_visibility() -> void:
+	visible = _object_visible and ((not _is_simulating) or (not _should_hide_in_simulation))
 
 
 func _enter_tree() -> void:
@@ -216,6 +244,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["material_selected"] = _get_shader_uniform(&"is_selected")
 	snapshot["material_selectable"] = _get_shader_uniform(&"is_selectable")
 	snapshot["_motor_id"] = _motor_id
+	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	return snapshot
 
 
@@ -224,7 +253,10 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	global_transform = in_snapshot["global_transform"]
 	_motor_id = in_snapshot["_motor_id"]
 	var motor: NanoVirtualMotor = _workspace_context.workspace.get_structure_by_int_guid(_motor_id) as NanoVirtualMotor
-	self.visible = motor.get_visible()
+	_object_visible =  motor.get_visible()
+	_should_hide_in_simulation = in_snapshot["_should_hide_in_simulation"]
+	# assume _is_simulating is up to date since this is not changed by undo history
+	_update_visibility()
 	parameters = motor.get_parameters()
 	_ensure_motor_signal_connections(motor)
 	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])

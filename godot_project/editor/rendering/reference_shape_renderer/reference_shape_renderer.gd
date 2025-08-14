@@ -189,7 +189,7 @@ func _on_reference_shape_visibility_changed(in_visibility: bool) -> void:
 
 
 func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
-	if in_type == &"reference_shapes":
+	if in_type == RepresentationSettings.script_to_virtual_object_key(NanoShape):
 		_should_hide_in_simulation = in_should_hide
 		_update_visibility()
 
