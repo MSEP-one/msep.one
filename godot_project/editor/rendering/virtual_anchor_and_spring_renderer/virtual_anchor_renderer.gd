@@ -6,6 +6,11 @@ var _is_built: bool = false
 var _workspace_context: WorkspaceContext
 
 
+var _should_hide_in_simulation: bool = false
+var _is_simulating: bool = false
+var _object_visible: bool = true
+
+
 func build(in_workspace_context: WorkspaceContext, in_anchor: NanoVirtualAnchor) -> void:
 	assert(not _is_built, "Renderer can only by built once")
 	_is_built = true
@@ -13,8 +18,17 @@ func build(in_workspace_context: WorkspaceContext, in_anchor: NanoVirtualAnchor)
 	_workspace_context = in_workspace_context
 	in_anchor.position_changed.connect(_on_virtual_anchor_position_changed)
 	in_anchor.visibility_changed.connect(_on_virtual_anchor_visibility_changed)
+	in_workspace_context.workspace.representation_settings \
+		.should_hide_virtual_object_during_simulation_changed \
+		.connect(_on_should_hide_virtual_object_during_simulation_changed)
+	in_workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
+	in_workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+	_object_visible = in_anchor.get_visible()
+	_is_simulating = in_workspace_context.is_simulating()
+	_should_hide_in_simulation = in_workspace_context.workspace.representation_settings \
+			.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor)
+	_update_visibility()
 	global_position = in_anchor.get_position()
-	self.visible = in_anchor.get_visible()
 
 
 func disable_hover() -> void:
@@ -42,8 +56,24 @@ func _on_virtual_anchor_position_changed(in_position: Vector3) -> void:
 	global_transform.origin = in_position
 
 
-func _on_virtual_anchor_visibility_changed(in_visible: bool) -> void:
-	self.visible = in_visible
+func _on_virtual_anchor_visibility_changed(in_visibility: bool) -> void:
+	_object_visible = in_visibility
+	_update_visibility()
+
+
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	if in_type == RepresentationSettings.script_to_virtual_object_key(NanoVirtualAnchor):
+		_should_hide_in_simulation = in_should_hide
+		_update_visibility()
+
+
+func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
+	_is_simulating = in_is_simulating
+	_update_visibility()
+
+
+func _update_visibility() -> void:
+	visible = _object_visible and ((not _is_simulating) or (not _should_hide_in_simulation))
 
 
 func _enter_tree() -> void:
@@ -115,7 +145,8 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["_anchor_id"] = _anchor_id
 	snapshot["_is_built"] = _is_built
-	snapshot["visible"] = visible
+	snapshot["_object_visible"] = _object_visible
+	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["material_selected"] = _get_shader_uniform(&"is_selected")
 	snapshot["material_selectable"] = _get_shader_uniform(&"is_selectable")
 	snapshot["global_transform"] = global_transform
@@ -126,7 +157,10 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_workspace_context = in_snapshot["_workspace_context"]
 	_anchor_id = in_snapshot["_anchor_id"]
 	_is_built = in_snapshot["_is_built"]
-	visible = in_snapshot["visible"]
+	_object_visible = in_snapshot["_object_visible"]
+	_should_hide_in_simulation = in_snapshot["_should_hide_in_simulation"]
+	# assume _is_simulating is up to date since this is not changed by undo history
+	_update_visibility()
 	_set_shader_uniform(&"is_selected", in_snapshot["material_selected"])
 	_set_shader_uniform(&"is_selectable", in_snapshot["material_selectable"])
 	global_transform = in_snapshot["global_transform"]

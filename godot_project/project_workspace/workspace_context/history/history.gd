@@ -70,6 +70,12 @@ const REDUNDANT_ACTION_WHITELIST := {
 	"Apply Simulation State": true,
 }
 
+const REDUNDANT_ACTION_PAIRS := {
+	# LAST_ACTION : PREVIOUS_ACTION
+	"Change Selection" : "Relaxation Done",
+}
+
+
 var _workspace_context: WorkspaceContext
 var _snapshotable_systems: Array[Object]
 var _snapshot_stack: Array[Dictionary]
@@ -237,6 +243,8 @@ func _monitor_redundant_snapshots(in_snapshot_name: String) -> void:
 	var is_redundant_action_whitelisted: bool = \
 			REDUNDANT_ACTION_WHITELIST.has(in_snapshot_name) or \
 			REDUNDANT_ACTION_WHITELIST.has(_last_snapshot_name)
+	is_redundant_action_whitelisted = is_redundant_action_whitelisted or \
+		REDUNDANT_ACTION_PAIRS.get(in_snapshot_name, "") == _last_snapshot_name
 	if is_redundant_action_whitelisted and in_snapshot_name != _last_snapshot_name:
 		return
 	push_error("Possibly redundant snapshot detected. previous: ", _last_snapshot_name,

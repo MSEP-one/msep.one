@@ -66,7 +66,7 @@ enum UserAtomSizeSource {
 	reference_shapes = true,
 	virtual_motors = true,
 	particle_emitters = true,
-	anchors_and_springs = false,
+	anchors_and_springs = true,
 }
 
 

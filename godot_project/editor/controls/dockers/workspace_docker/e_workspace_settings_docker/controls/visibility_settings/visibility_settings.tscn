@@ -80,7 +80,6 @@ text = "Particle Emitters
 "
 
 [node name="HideAnchorsAndSpringsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
-visible = false
 layout_mode = 2
 button_pressed = true
 text = "Anchors and Springs
