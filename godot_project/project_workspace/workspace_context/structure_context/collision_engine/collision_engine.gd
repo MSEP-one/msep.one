@@ -125,7 +125,7 @@ func initialize(in_structure_context: StructureContext) -> void:
 	
 	if nano_structure is NanoVirtualMotor:
 		_add_motor(nano_structure as NanoVirtualMotor)
-		_virtual_object_type = &"virtual_motor"
+		_virtual_object_type = &"virtual_motors"
 	
 	if nano_structure is NanoParticleEmitter:
 		_add_particle_emitter(nano_structure)

@@ -94,6 +94,6 @@ text = "Anchors and Springs
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowPotentialAtomsToggle" to="." method="_on_show_potential_atoms_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle" to="." method="_on_hide_simulation_boundaries_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"reference_shapes"]]
-[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"virtual_motor"]]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"virtual_motors"]]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"particle_emitters"]]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"anchors_and_springs"]]

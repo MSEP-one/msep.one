@@ -63,6 +63,7 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 const ACTION_BEGINNING_WITH_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Representation change to " : true,
 	"Group Renamed" : true,
+	"Set visibility during simulation of" : true,
 }
 
 const REDUNDANT_ACTION_WHITELIST := {

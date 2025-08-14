@@ -37,16 +37,26 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		settings.hydrogen_visibility_changed.connect(_on_hydrogen_visibility_changed)
 	if not settings.atom_labels_visibility_changed.is_connected(_on_atom_labels_visibility_changed):
 		settings.atom_labels_visibility_changed.connect(_on_atom_labels_visibility_changed)
-		
+	if not in_workspace_context.history_changed.is_connected(_on_workspace_context_history_changed):
+		in_workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 	_bonds_toggle.set_pressed_no_signal(_workspace_context.are_bonds_visualised())
 	_labels_toggle.set_pressed_no_signal(_workspace_context.are_atom_labels_visualised())
 	_hydrogens_toggle.set_pressed_no_signal(_workspace_context.are_hydrogens_visualized())
 	_hide_simulation_boundaries_toggle.set_pressed_no_signal(not settings.get_display_simulation_boundaries())
+	_update_visibility_during_representation_toggles()
+	return true
+
+
+func _on_workspace_context_history_changed() -> void:
+	_update_visibility_during_representation_toggles()
+
+
+func _update_visibility_during_representation_toggles() -> void:
+	var settings: RepresentationSettings = _workspace_context.workspace.representation_settings
 	_hide_reference_shapes_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoShape))
 	_hide_virtual_motors_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoVirtualMotor))
 	_hide_particle_emitters_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoParticleEmitter))
 	_hide_anchors_and_springs_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor))
-	return true
 
 
 func _on_workspace_representation_settings_changed() -> void:
@@ -108,3 +118,4 @@ func _on_hide_simulation_boundaries_toggle_toggled(button_pressed: bool) -> void
 
 func _on_hide_virtual_objects_toggle(button_pressed: bool, in_type: StringName) -> void:
 	_workspace_context.workspace.representation_settings.set_should_hide_virtual_object_during_simulation(in_type, button_pressed)
+	_workspace_context.snapshot_moment("Set visibility during simulation of " + in_type.capitalize() + " to "+ ("OFF" if button_pressed else "ON"))
