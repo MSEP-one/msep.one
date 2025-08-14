@@ -149,6 +149,9 @@ func refresh_springs_visibility(in_springs_ids: PackedInt32Array) -> void:
 	var nano_struct: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id)
 	for spring_id: int in in_springs_ids:
 		var is_visible: bool = nano_struct.spring_is_visible(spring_id)
+		var anchor_id: int = nano_struct.spring_get_anchor_id(spring_id)
+		var anchor: NanoVirtualAnchor = _workspace_context.workspace.get_structure_by_int_guid(anchor_id)
+		is_visible = is_visible and anchor.get_visible()
 		if is_visible:
 			_spring_renderer.show_spring(spring_id)
 		else:
