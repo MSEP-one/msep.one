@@ -31,6 +31,11 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		in_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 		in_workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
 	
+	var rendering: Rendering = in_workspace_context.get_rendering()
+	if not rendering.representation_changed.is_connected(_on_rendering_representation_changed):
+		rendering.representation_changed.connect(_on_rendering_representation_changed)
+	_update_availability(rendering.get_default_representation())
+	
 	var selected_contexts: Array[StructureContext] =  \
 			in_workspace_context.get_structure_contexts_with_selection()
 	for context in selected_contexts:
@@ -46,6 +51,17 @@ func _on_workspace_context_selection_in_structures_changed(_structure_context: A
 
 func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructure) -> void:
 	ScriptUtils.call_deferred_once(_update_selection_description)
+
+
+func _on_rendering_representation_changed(in_representation: Rendering.Representation) -> void:
+	_update_availability(in_representation)
+
+
+func _update_availability(in_representation: Rendering.Representation) -> void:
+	var can_be_edited_by_user: bool = in_representation != Rendering.Representation.STICKS
+	_button_single.disabled = not can_be_edited_by_user
+	_button_double.disabled = not can_be_edited_by_user
+	_button_triple.disabled = not can_be_edited_by_user
 
 
 func _update_selection_description() -> void:
