@@ -198,10 +198,10 @@ func _auto_create_bonds(out_atoms: Array[PdbAtom]):
 			var atom1: HBAUtilityClass.Atom = autobonder_atoms.find_key(pdb_atoms.get(min_atom_id, null))
 			var atom2: HBAUtilityClass.Atom = autobonder_atoms.find_key(pdb_atoms.get(max_atom_id, null))
 			if atom1 == null:
-				atom2.unspecified_bond_count += 1
+				atom2.unspecified_valence_count += 1
 				continue
 			elif atom2 == null:
-				atom1.unspecified_bond_count += 1
+				atom1.unspecified_valence_count += 1
 				continue
 			var bond := HBAUtilityClass.Bond.new(
 				atom1, atom2
