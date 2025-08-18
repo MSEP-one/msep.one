@@ -1,7 +1,7 @@
 // NOTE: Shader automatically converted from Godot Engine 4.2.3.rc's StandardMaterial3D.
 
 shader_type spatial;
-render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_lambert,specular_schlick_ggx,vertex_lighting;
+render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx;
 
 #include "res://editor/rendering/atomic_structure_renderer/representation/gizmo_transform_delta.gdshaderinc"
 #include "res://editor/rendering/atomic_structure_renderer/representation/hydrogens.gdshaderinc"

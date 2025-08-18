@@ -1,7 +1,7 @@
 [gd_resource type="ShaderMaterial" script_class="SphereMaterial" load_steps=3 format=3 uid="uid://de1fv07tsv5fc"]
 
-[ext_resource type="Shader" path="res://theme/theme_3d/available_themes/flat_theme/flat_ball.gdshader" id="1_g308v"]
-[ext_resource type="Script" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_material.gd" id="1_s66ow"]
+[ext_resource type="Shader" uid="uid://isroc06j7ay0" path="res://theme/theme_3d/available_themes/flat_theme/flat_ball.gdshader" id="1_g308v"]
+[ext_resource type="Script" uid="uid://b57n5ta4siuok" path="res://editor/rendering/atomic_structure_renderer/representation/sphere_representation/assets/sphere_material.gd" id="1_s66ow"]
 
 [resource]
 render_priority = 0
@@ -13,18 +13,15 @@ shader_parameter/show_hydrogens = 1.0
 shader_parameter/outline_thickness = 0.6
 shader_parameter/is_hovered = 0.0
 shader_parameter/is_selectable = 1.0
+shader_parameter/saturation = 1.0
+shader_parameter/value_correction = 1.0
 shader_parameter/albedo = Color(1, 1, 1, 1)
-shader_parameter/point_size = 1.0
 shader_parameter/roughness = 0.0
-shader_parameter/metallic_texture_channel = null
+shader_parameter/metallic_texture_channel = Vector4(0, 0, 0, 0)
 shader_parameter/specular = 0.0
 shader_parameter/metallic = 0.0
 shader_parameter/uv1_scale = Vector3(1, 1, 1)
 shader_parameter/uv1_offset = Vector3(0, 0, 0)
-shader_parameter/uv2_scale = Vector3(1, 1, 1)
-shader_parameter/uv2_offset = Vector3(0, 0, 0)
-shader_parameter/camera_up_vector = Vector3(0, 0, 0)
-shader_parameter/camera_right_vector = Vector3(0, 0, 0)
 shader_parameter/scale = 0.3
 shader_parameter/flat_saturation = 0.75
 shader_parameter/flat_outline_selection_thickness = 0.6
