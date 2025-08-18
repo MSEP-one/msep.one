@@ -89,6 +89,10 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 		rendering.atom_autopose_preview_hide()
 		return false
 	
+	if _is_flush_all_candidates_shortcut(in_input_event):
+		_flush_all_candidates()
+		return true
+	
 	update_preview_position()
 	_update_candidates_if_needed()
 	rendering.atom_autopose_preview_show()
@@ -168,6 +172,80 @@ func forward_inputs_when_exclusive_consumer() -> bool:
 
 func set_preview_position(_in_position: Vector3) -> void:
 	_update_candidates_if_needed()
+
+
+func _is_flush_all_candidates_shortcut(in_input_event: InputEvent) -> bool:
+	return in_input_event.is_action_pressed(&"flush_atom_candidates")
+
+
+func _flush_all_candidates() -> void:
+	if _candidates.is_empty():
+		return
+	var preview_atomic_number: int = get_workspace_context().create_object_parameters.get_new_atom_element()
+	var cannot_create_because_hydrogen: bool = not _workspace_context.are_hydrogens_visualized() \
+			and preview_atomic_number == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
+	if cannot_create_because_hydrogen:
+		return
+	var current_structure: AtomicStructure = null
+	var current_context: StructureContext = null
+	var edited_structures: Dictionary[AtomicStructure, bool] = {}
+	var new_atoms_and_bonds: Dictionary = {
+		# structure_context<StructureContext>: {
+		#	"atom_ids": ids<PackedInt32Array>,
+		#	"bond_ids": ids<PackedInt32Array>,
+		#}
+	}
+	for candidate: AtomCandidate in _candidates:
+		if current_structure == null or candidate.structrure_id != current_structure.int_guid:
+			current_context = _workspace_context.get_structure_context(candidate.structrure_id)
+			current_structure = current_context.nano_structure as AtomicStructure
+			assert(current_structure != null)
+			if edited_structures.get(current_structure, false) == false:
+				edited_structures[current_structure] = true
+				current_structure.start_edit()
+				new_atoms_and_bonds[current_context] = {
+					atom_ids = PackedInt32Array(),
+					bond_ids = PackedInt32Array(),
+				}
+		var atom_pos: Vector3 = candidate.atom_position
+		var element_to_create: int = _element_selected
+		var params := AtomicStructure.AddAtomParameters.new(element_to_create, atom_pos)
+		
+		# Ensure the new bonds don't exceed the free valence on the existing atoms.
+		# Ex: If a carbon (valence 4) already have 3 bonds but a bond order 2 is
+		# selected, the new bond order must go down to 1.
+		# Repeat for all atoms connected to the candidate.
+		var new_bond_order: int = _workspace_context.create_object_parameters.get_new_bond_order()
+		var bonds_order_array: PackedInt32Array = []
+		var total_valence: int = 0
+		for i: int in candidate.atom_ids.size():
+			var free_valences: int = candidate.atom_free_valence[i]
+			var final_bond_order: int = min(new_bond_order, free_valences)
+			bonds_order_array.push_back(final_bond_order)
+			total_valence += final_bond_order
+		
+		# In case of a merged candidate, the new atom might result with more connections than
+		# allowed. In that case the new bonds order are decreased until the configuration is valid.
+		var i: int = 0
+		while total_valence > candidate.total_free_valence:
+			bonds_order_array[i] -= 1
+			total_valence -= 1
+			i += 1
+			if i >= bonds_order_array.size():
+				i = 0
+		
+		const FROM_FLUSH_COMMAND: bool = true
+		var result: Dictionary = _do_create_atom_and_bonds(current_context, params, candidate.atom_ids, bonds_order_array, FROM_FLUSH_COMMAND)
+		new_atoms_and_bonds[current_context].atom_ids.append(result.new_atom_id)
+		new_atoms_and_bonds[current_context].bond_ids.append_array(result.new_bond_ids)
+	for context: StructureContext in new_atoms_and_bonds.keys():
+		context.nano_structure.end_edit()
+		context.set_atom_selection(new_atoms_and_bonds[context].atom_ids)
+		context.set_bond_selection(new_atoms_and_bonds[context].bond_ids)
+	EditorSfx.create_object()
+	_ensure_create_mode(CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
+	_workspace_context.snapshot_moment("Add Atoms and Bonds")
+	_update_candidates()
 
 
 func _update_candidates_if_needed() -> void:
@@ -384,9 +462,10 @@ func _get_bond_distance(in_atomic_number_a: int, in_atomic_number_b: int) -> flo
 
 
 func _do_create_atom_and_bonds(out_context: StructureContext, in_atom_params: AtomicStructure.AddAtomParameters,
-			in_bind_to_ids: PackedInt32Array, in_bonds_order: PackedInt32Array) -> Dictionary:
+			in_bind_to_ids: PackedInt32Array, in_bonds_order: PackedInt32Array, in_from_flush_command: bool = false) -> Dictionary:
 	assert(in_bind_to_ids.size() == in_bonds_order.size(), "The provided bonds order don't match the atoms list")
-	out_context.nano_structure.start_edit()
+	if not in_from_flush_command:
+		out_context.nano_structure.start_edit()
 	var new_atom_id: int = out_context.nano_structure.add_atom(in_atom_params)
 	var new_bond_ids: PackedInt32Array = []
 	for i: int in in_bind_to_ids.size():
@@ -394,10 +473,11 @@ func _do_create_atom_and_bonds(out_context: StructureContext, in_atom_params: At
 		var bond_order: int = in_bonds_order[i]
 		var new_bond_id: int = out_context.nano_structure.add_bond(atom_to_bind, new_atom_id, bond_order)
 		new_bond_ids.push_back(new_bond_id)
-	out_context.nano_structure.end_edit()
-	out_context.select_atoms([new_atom_id])
-	out_context.select_bonds(new_bond_ids)
-	EditorSfx.create_object()
+	if not in_from_flush_command:
+		out_context.nano_structure.end_edit()
+		out_context.select_atoms([new_atom_id])
+		out_context.select_bonds(new_bond_ids)
+		EditorSfx.create_object()
 	return {"new_atom_id": new_atom_id, "new_bond_ids": new_bond_ids}
 
 
