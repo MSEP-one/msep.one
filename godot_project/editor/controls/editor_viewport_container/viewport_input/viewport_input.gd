@@ -148,7 +148,9 @@ func _recursive_load_input_handlers(in_scan_path: String, in_recursive: bool = t
 		else:
 			if file_name.get_extension() in ["gd", "gdc"]:
 				var script: Script = load(full_path) as Script
-				if is_instance_valid(script) and not script in [InputHandlerBase, InputHandlerCreateObjectBase]:
+				if is_instance_valid(script) and not (
+						script.resource_path.contains((InputHandlerBase as Script).resource_path)
+						or script.resource_path.contains((InputHandlerCreateObjectBase as Script).resource_path)):
 					var s: Script = script
 					while s.get_base_script():
 						if s.get_base_script() == InputHandlerBase:
