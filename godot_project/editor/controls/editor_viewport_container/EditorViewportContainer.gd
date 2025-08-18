@@ -109,6 +109,10 @@ func bottom_bar_update_distance(in_message_text: String, in_distance: float) -> 
 	_message_bar.update_distance(in_message_text, in_distance)
 
 
+func bottom_bar_update_angle(in_message_text: String, in_angle: float) -> void:
+	_message_bar.update_angle(in_message_text, in_angle)
+
+
 func _on_show_transform_rotation_message(_in_dir_vec: Vector3, _in_degrees: float, \
 		_in_degrees_formatted_string: String) -> void:
 	if !is_visible_in_tree():

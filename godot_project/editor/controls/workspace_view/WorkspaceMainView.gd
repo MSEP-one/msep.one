@@ -166,3 +166,6 @@ func get_camera_orthogonal_size() -> float:
 
 func bottom_bar_update_distance(in_message_text: String, in_distance: float) -> void:
 	editor_viewport_container.bottom_bar_update_distance(in_message_text, in_distance)
+
+func bottom_bar_update_angle(in_message_text: String, in_angle: float) -> void:
+	editor_viewport_container.bottom_bar_update_angle(in_message_text, in_angle)
