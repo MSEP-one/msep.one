@@ -35,7 +35,7 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 
 
 func handle_inputs_end() -> void:
-	_show_preview()
+	_hide_preview()
 
 
 func handle_inputs_resume() -> void:
