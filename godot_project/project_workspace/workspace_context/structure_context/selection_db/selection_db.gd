@@ -261,10 +261,6 @@ func invert_selection() -> void:
 		var inverted_bonds: PackedInt32Array = nano_structure.get_visible_bonds()
 		inverted_bonds.sort()
 		var selected_bonds: PackedInt32Array = get_selected_bonds()
-		var partially_selected_bonds: PackedInt32Array = get_bonds_partially_influenced_by_selection()
-		# This is a bit faster than append_array (Tested on small sample size).
-		for part_sel_bond in partially_selected_bonds:
-			selected_bonds.push_back(part_sel_bond)
 		selected_bonds.sort()
 		
 		last_removed_index = 0
