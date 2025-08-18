@@ -40,13 +40,15 @@ static func generate_bonds_for_structure(out_context: StructureContext, in_selec
 				continue
 			var other_atom_id: int = nano_structure.atom_get_bond_target(atom_id, bond_id)
 			if !atoms.has(other_atom_id):
-				atom_id_to_heuristic_atom[atom_id].unspecified_bond_count += 1
+				var bond_order: int = nano_structure.get_bond(bond_id).z
+				atom_id_to_heuristic_atom[atom_id].unspecified_valence_count += bond_order
 				# Target atom is not selected, skip
 				continue
 			var atom1: HeuristicBondAssignmentUtility.Atom = autobonder_atoms.find_key(atom_id)
 			var atom2: HeuristicBondAssignmentUtility.Atom = autobonder_atoms.find_key(other_atom_id)
+			var bond_order: int = nano_structure.get_bond(bond_id).z
 			var bond := HeuristicBondAssignmentUtility.Bond.new(
-				atom1, atom2
+				atom1, atom2, bond_order
 			)
 			autobonder_bonds[bond] = bond_id
 			in_bonds.push_back(bond)

@@ -47,18 +47,20 @@ extends Node
 class Atom:
 	var position: Vector3
 	var atom_type: String
-	var unspecified_bond_count: int
+	var unspecified_valence_count: int
 	
-	func _init(in_position: Vector3, in_atom_type: String, in_unspecified_bond_count: int = 0) -> void:
+	func _init(in_position: Vector3, in_atom_type: String, in_unspecified_valence_count: int = 0) -> void:
 		self.position = in_position
 		self.atom_type = in_atom_type
-		self.unspecified_bond_count = in_unspecified_bond_count
+		self.unspecified_valence_count = in_unspecified_valence_count
 
 class Bond:
 	var atoms: Array[Atom]
+	var order: int = 1
 	
-	func _init(atom1: Atom, atom2: Atom) -> void:
+	func _init(atom1: Atom, atom2: Atom, bond_order: int = 1) -> void:
 		self.atoms = [atom1, atom2]
+		self.order = bond_order
 
 	func other_atom(atom: Atom) -> Atom:
 		return self.atoms[1] if atom == self.atoms[0] else self.atoms[0]
@@ -67,10 +69,12 @@ class AtomicNode:
 	var atom: Atom
 	var bonds: Array[Bond]
 	var links: Array[Link]
-	var bonds_count: int:
+	var bonds_order_sum: int:
 		get:
-			return len(bonds) + atom.unspecified_bond_count
-	
+			var total_order := atom.unspecified_valence_count
+			for bond in bonds:
+				total_order += bond.order
+			return total_order
 	func _init(in_atom: Atom, in_bonds: Array[Bond], in_links: Array[Link]) -> void:
 		self.atom = in_atom
 		self.bonds = in_bonds
@@ -380,8 +384,9 @@ func check_max_bond_number_violation(link0: Link, nodes: Dictionary) -> bool:
 	var atom2: Atom = link0.bond.atoms [1]
 	var node1: AtomicNode = nodes[atom1]
 	var node2: AtomicNode = nodes[atom2]
-
-	if node1.bonds_count >= MAX_BOND_NUMBERS[atom1.atom_type] or node2.bonds_count >= MAX_BOND_NUMBERS[atom2.atom_type]:
+	var link_order: int = link0.bond.order
+	if node1.bonds_order_sum + link_order > MAX_BOND_NUMBERS[atom1.atom_type] \
+			or node2.bonds_order_sum + link_order > MAX_BOND_NUMBERS[atom2.atom_type]:
 		return true
 	return false
 
