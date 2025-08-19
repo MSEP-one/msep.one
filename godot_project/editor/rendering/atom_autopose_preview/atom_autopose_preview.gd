@@ -97,12 +97,17 @@ func _draw() -> void:
 			_camera.size > MAX_ORTHOGRAPHIC_CAMERA_SIZE:
 		return
 	
+	var viewport: WorkspaceEditorViewport = get_viewport()
+	var workspace_context: WorkspaceContext = viewport.get_workspace_context()
+	if MolecularEditorContext.get_current_workspace_context() != workspace_context:
+		# another workspce in use
+		return
+	
 	# If control is being drawn we assume candidates belongs to the current workspace context
 	var font: Font = get_theme_font(&"default_font")
 	_camera = get_viewport().get_camera_3d()
 	var camera_up_vector: Vector3 = _camera.basis.y
 	var curr_atom_data: ElementData = PeriodicTable.get_by_atomic_number(_new_atomic_number)
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
 	var rendering: Rendering = workspace_context.get_rendering()
 	var context: StructureContext = null
 	var atomic_structure: AtomicStructure = null
