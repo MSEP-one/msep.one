@@ -34,7 +34,6 @@ func _on_apply_button_pressed() -> void:
 func _on_default_button_pressed() -> void:
 	_color_picker.color = DEFAULT_COLOR
 	_selected_color = _color_picker.color
-	color_selected.emit(_selected_color)
 	
 	default_pressed.emit()
 	hide()
