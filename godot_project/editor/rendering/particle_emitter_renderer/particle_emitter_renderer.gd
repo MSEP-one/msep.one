@@ -83,8 +83,9 @@ func _ensure_emitter_signal_connections(in_emitter_or_null: NanoParticleEmitter 
 		in_emitter_or_null.visibility_changed.connect(_on_emitter_visibility_changed)
 		var parameters: NanoParticleEmitterParameters = in_emitter_or_null.get_parameters()
 		parameters.changed.connect(_on_emitter_parameters_changed.bind(parameters))
-		var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-		workspace_context.workspace.representation_settings \
+		var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(in_emitter_or_null)
+		var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
+		workspace.representation_settings \
 			.should_hide_virtual_object_during_simulation_changed \
 			.connect(_on_should_hide_virtual_object_during_simulation_changed)
 		workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
