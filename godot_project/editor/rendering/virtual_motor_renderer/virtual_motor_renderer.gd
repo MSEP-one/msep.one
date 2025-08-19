@@ -66,6 +66,7 @@ func build(in_workspace_context: WorkspaceContext, in_motor: NanoVirtualMotor) -
 	_workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
 	_workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
 	_is_simulating = _workspace_context.is_simulating()
+	_object_visible = in_motor.get_visible()
 	_should_hide_in_simulation = _workspace_context.workspace.representation_settings \
 			.get_should_hide_virtual_object_during_simulation(NanoVirtualMotor)
 	_update_visibility()
