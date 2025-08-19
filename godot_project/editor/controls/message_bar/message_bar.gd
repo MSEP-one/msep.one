@@ -64,6 +64,14 @@ func update_distance(in_message_text: String, in_distance: float) -> void:
 		_label_distance.text = in_message_text + " " + distance + " nm"
 
 
+func update_angle(in_message_text: String, in_angle: float) -> void:
+	if in_message_text.is_empty():
+		_label_distance.text = ""
+	else:
+		var angle: String = "%.2f" % in_angle
+		_label_distance.text = in_message_text + " " + angle + "º"
+
+
 func _can_show(in_text: String, in_priority: int) -> bool:
 	if in_text.is_empty() or in_priority < _last_message_priority:
 		return false

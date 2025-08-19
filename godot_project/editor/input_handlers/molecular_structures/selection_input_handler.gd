@@ -170,8 +170,90 @@ func _update_distance_message(in_workspace_context: WorkspaceContext, in_positio
 	var should_show_distance: bool = are_positions_valid and is_anything_selected and not is_equal_approx(distance, 0.0)
 	if should_show_distance:
 		MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "Distance to selection center: ", distance)
-	else:
-		MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "", 0.0)
+		return
+	# Fallback to atom selection
+	var selected_contexts: Array[StructureContext] = in_workspace_context.get_structure_contexts_with_selection()
+	if selected_contexts.size() == 1 \
+			and selected_contexts[0].get_selected_atoms().size() == 2:
+		var atom_ids: PackedInt32Array = selected_contexts[0].get_selected_atoms()
+		var atomic_structure := selected_contexts[0].nano_structure as AtomicStructure
+		var pos1: Vector3 = atomic_structure.atom_get_position(atom_ids[0])
+		var pos2: Vector3 = atomic_structure.atom_get_position(atom_ids[1])
+		distance = pos1.distance_to(pos2)
+		MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "Distance between selected atoms: ", distance)
+		return
+	# Check if can show angle between 3 selected atoms
+	if selected_contexts.size() == 1 \
+			and selected_contexts[0].get_selected_atoms().size() == 3:
+		var atom_ids: PackedInt32Array = selected_contexts[0].get_selected_atoms()
+		var find_angle_result: Dictionary = _check_can_show_angle(selected_contexts[0].nano_structure, atom_ids)
+		if find_angle_result.has_bond_angle:
+			var atomic_structure := selected_contexts[0].nano_structure as AtomicStructure
+			var pos1: Vector3 = atomic_structure.atom_get_position(find_angle_result.median_atom_id)
+			var pos2: Vector3 = atomic_structure.atom_get_position(find_angle_result.other_atoms[0])
+			var pos3: Vector3 = atomic_structure.atom_get_position(find_angle_result.other_atoms[1])
+			# check for overlapping atoms
+			var can_show_angle:bool = not(
+				is_zero_approx(pos1.distance_squared_to(pos2)) 
+				or is_zero_approx(pos1.distance_squared_to(pos3))
+			)
+			if can_show_angle:
+				var dir1: Vector3 = pos1.direction_to(pos2)
+				var dir2: Vector3 = pos1.direction_to(pos3)
+				var angle: float = rad_to_deg(dir1.angle_to(dir2))
+				MolecularEditorContext.bottom_bar_update_angle(in_workspace_context, "Angle between selected atoms: ", angle)
+				return
+	# Nothing to show
+	MolecularEditorContext.bottom_bar_update_distance(in_workspace_context, "", 0.0)
+
+
+func _check_can_show_angle(in_atomic_structure: AtomicStructure, atom_ids: PackedInt32Array) -> Dictionary:
+	assert(in_atomic_structure)
+	assert(atom_ids.size() == 3)
+	atom_ids.sort()
+	var result: Dictionary = {
+		has_bond_angle = false,
+		median_atom_id = -1,
+		other_atoms = [],
+	}
+	# check for overlapping atoms:
+	var bond_ids: Dictionary[int, Array] = {
+		atom_ids[0]: in_atomic_structure.atom_get_bonds(atom_ids[0]),
+		atom_ids[1]: in_atomic_structure.atom_get_bonds(atom_ids[1]),
+		atom_ids[2]: in_atomic_structure.atom_get_bonds(atom_ids[2]),
+	}
+	var pair1 := Vector2i(atom_ids[0], atom_ids[1])
+	var pair2 := Vector2i(atom_ids[0], atom_ids[2])
+	var pair3 := Vector2i(atom_ids[1], atom_ids[2])
+	var bond_id_pairs: Dictionary[Vector2i, Array] = {
+		pair1: bond_ids[atom_ids[0]].filter(bond_ids[atom_ids[1]].has),
+		pair2: bond_ids[atom_ids[0]].filter(bond_ids[atom_ids[2]].has),
+		pair3: bond_ids[atom_ids[1]].filter(bond_ids[atom_ids[2]].has),
+	}
+	var common_bonds_count: int = (
+		bond_id_pairs[pair1].size() +
+		bond_id_pairs[pair2].size() +
+		bond_id_pairs[pair3].size()
+	)
+	result.has_bond_angle = common_bonds_count == 2
+	if not result.has_bond_angle:
+		return result
+	var common_bonds: Array = []
+	common_bonds.append_array(bond_id_pairs[pair1])
+	common_bonds.append_array(bond_id_pairs[pair2])
+	common_bonds.append_array(bond_id_pairs[pair3])
+	if bond_ids[atom_ids[0]].filter(common_bonds.has).size() == 2:
+		# atom_ids[0] is the median
+		result.median_atom_id = atom_ids[0]
+	elif bond_ids[atom_ids[1]].filter(common_bonds.has).size() == 2:
+		# atom_ids[1] is the median
+		result.median_atom_id = atom_ids[1]
+	elif bond_ids[atom_ids[2]].filter(common_bonds.has).size() == 2:
+		# atom_ids[2] is the median
+		result.median_atom_id = atom_ids[2]
+	result.other_atoms = Array(atom_ids.duplicate())
+	result.other_atoms.erase(result.median_atom_id)
+	return result
 
 
 func _is_near_press_down_pos(in_input_event: InputEventMouseButton) -> bool:

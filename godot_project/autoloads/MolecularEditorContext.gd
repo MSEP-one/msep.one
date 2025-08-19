@@ -367,6 +367,10 @@ func bottom_bar_update_distance(in_workspace_context: WorkspaceContext, in_dista
 	view.bottom_bar_update_distance(in_distance_description, in_distance)
 
 
+func bottom_bar_update_angle(in_workspace_context: WorkspaceContext, in_angle_description: String, in_angle: float) -> void:
+	var view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	view.bottom_bar_update_angle(in_angle_description, in_angle)
+
 func _init() -> void:
 	if FileAccess.file_exists(MSEPSettings.SETTINGS_RESOURCE_PATH):
 		msep_editor_settings = ResourceLoader.load(MSEPSettings.SETTINGS_RESOURCE_PATH)
