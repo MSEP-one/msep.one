@@ -458,6 +458,27 @@ func _on_button_start_pause_pressed() -> void:
 					if warning_promise.get_result() == false:
 						# "Cancel" button selected
 						return
+			if WorkspaceUtils.has_overlapping_emitters(_workspace_context, true):
+				var warning_promise: Promise = _workspace_context.show_warning_dialog(
+						tr("One or more particle emitters are overlapping.\n" +
+							"This may lead to a failure during a Molecular Dynamics simulation.\n" +
+							"Additionally, at least one particle emitter is hidden. Making particle emitters visible may help in addressing this issue."),
+						tr("Continue"), tr("Cancel"))
+				await warning_promise.wait_for_fulfill()
+				if warning_promise.get_result() == false:
+					# "Cancel" button selected
+					return
+			elif _workspace_context.ignored_warnings.overlapping_emitters_in_simulation == false:
+				var has_overlapping_emitters: bool = WorkspaceUtils.has_overlapping_emitters(_workspace_context, false)
+				if has_overlapping_emitters:
+					var warning_promise: Promise = _workspace_context.show_warning_dialog(
+						tr("One or more particle emitters are overlapping.\n" +
+							"This may lead to a failure during a Molecular Dynamics simulation."),
+						tr("Continue"), tr("Cancel"), &"overlapping_emitters_in_simulation", true)
+					await warning_promise.wait_for_fulfill()
+					if warning_promise.get_result() == false:
+						# "Cancel" button selected
+						return
 			if _workspace_context.ignored_warnings.emitters_with_unstable_parameters == false:
 				var emitters_unstable: bool = WorkspaceUtils.has_emitters_with_potentially_unstable_parameters(_workspace_context)
 				if emitters_unstable:

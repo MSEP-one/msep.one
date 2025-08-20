@@ -63,6 +63,7 @@ var ignored_warnings: Dictionary = {
 	end_simulation = false,
 	emitters_affected_by_motors = false,
 	emitters_with_unstable_parameters = false,
+	overlapping_emitters_in_simulation = false,
 }
 
 var visible_object_tree: bool = false:
