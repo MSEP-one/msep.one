@@ -322,6 +322,9 @@ func _change_page(in_new_page: int, in_button_animation_type: ButtonAnimationTyp
 		should_be_disabled = should_be_disabled or not is_available
 	
 		var activation_delay: float = 0.0
+		if in_button_animation_type == ButtonAnimationType.NONE:
+			button.setup_no_animation(icon, btn_name, btn_tooltip)
+		
 		if in_button_animation_type == ButtonAnimationType.POP:
 			var btn_delay: float =  0.03 + button_idx * 0.02
 			button.popup(btn_delay, icon, btn_name, btn_tooltip)

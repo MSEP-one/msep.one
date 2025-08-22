@@ -25,9 +25,11 @@ var _disable_delayer: Timer
 var _enable_delayer: Timer
 
 var _is_enabled: bool = true
+var _is_hovered: bool = false
 var _current_icon: RingMenuIcon
 var _current_icon_name: String
-var _current_icon_tooltip: String
+var _current_icon_tooltip: String:
+	set = _set_current_icon_tooltip
 
 
 func _notification(in_what: int) -> void:
@@ -99,6 +101,7 @@ func _on_mouse_detector_mouse_entered() -> void:
 	if is_instance_valid(_current_icon):
 		_current_icon.focus_in()
 	hovered.emit(_current_icon_name, _current_icon_tooltip, _is_enabled)
+	_is_hovered = true
 	if _is_enabled:
 		_focus_animator.play("highlight")
 		focused.emit(_current_icon_name, _current_icon_tooltip)
@@ -108,9 +111,16 @@ func _on_mouse_detector_mouse_exited() -> void:
 	if not is_instance_valid(_current_icon):
 		return
 	_current_icon.focus_out()
+	_is_hovered = false
 	if _focus_animator.assigned_animation == "highlight":
 		_focus_animator.queue("lowlight")
 	unfocused.emit(_current_icon_name)
+
+
+func _set_current_icon_tooltip(in_tooptip: String) -> void:
+	_current_icon_tooltip = in_tooptip
+	if _is_hovered:
+		hovered.emit(_current_icon_name, _current_icon_tooltip, _is_enabled)
 
 
 func _on_mouse_detector_press_in() -> void:
@@ -141,6 +151,32 @@ func is_mouse_hovering() -> bool:
 
 func get_icon_name() -> String:
 	return _current_icon_name
+
+
+func setup_no_animation(in_icon: RingMenuIcon, in_name: String, in_tooltip: String) -> void:
+	if is_instance_valid(in_icon):
+		assert(not in_icon.is_inside_tree(), "Icon is already in the tree")
+		assert(in_icon.has_method("press_in"), "Icon needs to implement `press_in()` method")
+		assert(in_icon.has_method("press_out"), "Icon needs to implement `press_out()` method")
+		assert(in_icon.has_method("fade_in"), "Icon needs to implement `fade_in()` method")
+		assert(in_icon.has_method("fade_out_and_queue_free"), "Icon needs to implement fade_out_and_queue_free()` method")
+	
+	_current_icon = null
+	_current_icon_name = in_name
+	_current_icon_tooltip = in_tooltip
+	for icon in _icon_holder.get_children():
+		icon.queue_free()
+		icon.hide()
+	if is_instance_valid(in_icon):
+		_icon_holder.add_child(in_icon)
+		_current_icon = in_icon
+	show()
+	
+	if _current_icon == null:
+		disable(0.0)
+	else:
+		_button_visual.active()
+		_btn_frame.active()
 
 
 func popup(in_delay_time: float, in_icon: RingMenuIcon, in_name: String, in_tooltip: String) -> void:
