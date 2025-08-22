@@ -39,9 +39,9 @@ func _init() -> void:
 
 func get_total_molecule_instance_count() -> int:
 	# Limit is time, be it the entire simulation or some value configured
-	var workspace: Workspace = MolecularEditorContext.get_current_workspace()
-	assert(workspace.has_structure(self), "get_total_molecule_instance_count() can only " +
-		"be called while workspace is being edited!")
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	assert(workspace != null, "get_total_molecule_instance_count() can only " +
+		"be called when present in a workspace")
 	return calculate_total_molecule_instance_count(_parameters, workspace)
 
 
@@ -101,7 +101,7 @@ func create_instances(out_group: AtomicStructure) -> void:
 	var params: NanoMolecularStructure.AddAtomParameters = null
 	var molecules_per_instance: int = _parameters.get_molecules_per_instance()
 	var total_count: int = get_total_molecule_instance_count()
-	var workspace: Workspace = MolecularEditorContext.get_current_workspace()
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
 	var step_size_femtoseconds: float = workspace.simulation_parameters.step_size_in_femtoseconds
 	var step_size_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
 		step_size_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
@@ -348,7 +348,8 @@ func create_state_snapshot(in_with_instances: bool = false) -> Dictionary:
 		else:
 			state_snapshot["_instances_group"] = _instances_group.int_guid
 			state_snapshot["_instances_group_state"] = _instances_group.create_state_snapshot()
-			var workspace_cotext: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+			var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+			var workspace_cotext: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
 			var rendering: Rendering = workspace_cotext.get_rendering()
 			var renderer := rendering._get_renderer_for_atomic_structure(_instances_group)
 			state_snapshot["_instances_group_renderer_state"] = renderer.create_state_snapshot()
@@ -364,24 +365,22 @@ func apply_state_snapshot(in_state_snapshot: Dictionary, in_with_instances: bool
 	_instances_atom_ids = in_state_snapshot["_instances_atom_ids"].duplicate(false)
 	_instances_bond_ids = in_state_snapshot["_instances_bond_ids"].duplicate(false)
 	var instances_group_id: int = in_state_snapshot["_instances_group_id"]
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
 	if instances_group_id == -1:
 		_instances_group = null
 	else:
-		# Assume undo/redo operation can only happen in active workspace
-		var workspace: Workspace = MolecularEditorContext.get_current_workspace()
-		assert(workspace.has_structure(self), "Not my workspace!")
+		assert(workspace != null, "Workspace not found!")
 		_instances_group = workspace.get_structure_by_int_guid(instances_group_id)
 	if in_with_instances:
 		var group_id: int = in_state_snapshot["_instances_group"]
 		if group_id == Workspace.INVALID_STRUCTURE_ID:
 			return
+		var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
 		var group_structure_context: StructureContext = \
-			MolecularEditorContext.get_current_workspace_context().\
-			get_nano_structure_context_from_id(group_id)
+			workspace_context.get_nano_structure_context_from_id(group_id)
 		_instances_group = group_structure_context.nano_structure as AtomicStructure
 		_instances_group.apply_state_snapshot(in_state_snapshot["_instances_group_state"])
 		group_structure_context.get_collision_engine().rebuild(group_structure_context)
-		var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 		var rendering: Rendering = workspace_context.get_rendering()
 		var renderer := rendering._get_renderer_for_atomic_structure(_instances_group)
 		renderer.apply_state_snapshot(in_state_snapshot["_instances_group_renderer_state"])

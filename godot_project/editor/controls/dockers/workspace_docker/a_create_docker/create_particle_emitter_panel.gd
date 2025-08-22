@@ -96,8 +96,7 @@ func _update_ui() -> void:
 func _on_create_from_selection_button_pressed() -> void:
 	assert(WorkspaceUtils.can_create_particle_emitter_from_selection(_workspace_context))
 	# 1. Create emitter parameters from settings
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	var selected_contexts: Array[StructureContext] = workspace_context.get_atomic_structure_contexts_with_selection()
+	var selected_contexts: Array[StructureContext] = _workspace_context.get_atomic_structure_contexts_with_selection()
 	# 2. Validate topology of selection
 	_workspace_context.start_async_work(tr(&"Validating topology"))
 	const SELECTION_ONLY = true
@@ -140,7 +139,7 @@ func _on_create_from_selection_button_pressed() -> void:
 	_center_template_on_origin(template)
 	template.end_edit()
 	template.set_structure_name("Template")
-	template.set_representation_settings(workspace_context.workspace.representation_settings)
+	template.set_representation_settings(_workspace_context.workspace.representation_settings)
 	_create_particle_emitter_from_template(template, center_of_selection)
 
 

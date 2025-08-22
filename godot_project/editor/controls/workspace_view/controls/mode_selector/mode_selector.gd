@@ -5,6 +5,7 @@ extends Control
 @onready var _create_mode_button: Button = %CreateModeButton
 @onready var _select_mode_button: Button = %SelectModeButton
 
+var _workspace_context: WorkspaceContext = null
 
 func _ready() -> void:
 	_create_mode_button.toggled.connect(_on_create_mode_button_toggled)
@@ -14,6 +15,7 @@ func _ready() -> void:
 func initialize(in_workspace_context: WorkspaceContext) -> void:
 	if in_workspace_context == null:
 		return
+	_workspace_context = in_workspace_context
 	var create_object_parameters: CreateObjectParameters = in_workspace_context.create_object_parameters as CreateObjectParameters
 	assert(create_object_parameters != null, "Workspace Context should always have CreateObjectParameters component")
 	_set_create_mode_enabled(create_object_parameters.get_create_mode_enabled())
@@ -29,10 +31,8 @@ func _set_create_mode_enabled(in_enabled: bool) -> void:
 
 
 func _on_create_mode_button_toggled(enabled: bool) -> void:
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	workspace_context.create_object_parameters.set_create_mode_enabled(enabled)
+	_workspace_context.create_object_parameters.set_create_mode_enabled(enabled)
 
 
 func _on_select_mode_button_toggled(enabled: bool) -> void:
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	workspace_context.create_object_parameters.set_create_mode_enabled(not enabled)
+	_workspace_context.create_object_parameters.set_create_mode_enabled(not enabled)

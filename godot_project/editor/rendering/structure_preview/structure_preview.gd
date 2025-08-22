@@ -28,7 +28,12 @@ func _ready() -> void:
 
 
 func _ready_deferred() -> void:
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
+	var editor_viewport: WorkspaceEditorViewport = get_viewport() as WorkspaceEditorViewport
+	if editor_viewport == null:
+		# This viewport is for preview in WorkspaceDockers
+		# no need for preview
+		return
+	var workspace_context: WorkspaceContext = editor_viewport.get_workspace_context()
 	assert(workspace_context)
 	workspace_context.started_creating_object.connect(_on_workspace_context_started_creating_object.bind(workspace_context))
 	workspace_context.aborted_creating_object.connect(_on_workspace_context_aborted_creating_object)

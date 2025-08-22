@@ -609,7 +609,7 @@ static func _calc_up_vect_for_single_bond(in_dir_between_atoms: Vector3) -> Vect
 
 
 static func _calc_up_vector_for_higher_bond(in_first_atom_id: int, in_second_atom_id: int, first_atom_position: Vector3,
-			second_atom_position: Vector3, in_nanostructure: NanoStructure) -> Vector3:
+			second_atom_position: Vector3, in_nanostructure: NanoStructure, in_camera: Camera3D) -> Vector3:
 
 	var third_atom_id: int = _find_atom_connected_to_first_but_not_second(in_first_atom_id, in_second_atom_id,
 			in_nanostructure)
@@ -621,9 +621,8 @@ static func _calc_up_vector_for_higher_bond(in_first_atom_id: int, in_second_ato
 	if third_atom_id == -1:
 		# there is no way to determine proper up vector, we need at least three points for that, let's do our best
 		# while working around it
-		var camera: Camera3D = MolecularEditorContext.get_current_workspace_context().get_editor_viewport().get_camera_3d()
-		if camera != null:
-			return -camera.global_transform.basis.z
+		if in_camera != null:
+			return -in_camera.global_transform.basis.z
 		else:
 			var direction_between_atoms: Vector3 = first_atom_position.direction_to(second_atom_position)
 			var up_vect: Vector3 = direction_between_atoms.cross(Vector3(0, 0, 1))
@@ -675,7 +674,7 @@ func _calculate_partial_selection_transform(in_bond: Vector3i, in_rotation_point
 	var dir_from_first_to_second: Vector3 = first_atom_new_pos.direction_to(second_atom_new_pos)
 	var up_vector: Vector3 = StickRepresentation._calc_up_vect_for_single_bond(dir_from_first_to_second) if bond_order == 1 else \
 			StickRepresentation._calc_up_vector_for_higher_bond(first_atom_id, second_atom_id, first_atom_new_pos,
-					second_atom_new_pos, related_structure)
+					second_atom_new_pos, related_structure, get_viewport().get_camera_3d())
 	var _particle_transform: Transform3D = calculate_transform_for_bond(first_atom_new_pos,
 			second_atom_new_pos, up_vector)
 	return _particle_transform
@@ -706,7 +705,7 @@ func _calculate_partial_selection_translation(in_bond: Vector3i, in_delta_transl
 	var dir_from_first_to_second: Vector3 = first_atom_new_pos.direction_to(second_atom_new_pos)
 	var up_vector: Vector3 = StickRepresentation._calc_up_vect_for_single_bond(dir_from_first_to_second) if bond_order == 1 else \
 			StickRepresentation._calc_up_vector_for_higher_bond(first_atom_id, second_atom_id, first_atom_new_pos,
-					second_atom_new_pos, related_structure)
+					second_atom_new_pos, related_structure, get_viewport().get_camera_3d())
 	var _particle_transform: Transform3D = calculate_transform_for_bond(first_atom_new_pos,
 			second_atom_new_pos, up_vector)
 	return _particle_transform

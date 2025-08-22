@@ -74,6 +74,9 @@ func build(in_workspace_context: WorkspaceContext, in_emitter: NanoParticleEmitt
 
 func _ensure_emitter_signal_connections(in_emitter_or_null: NanoParticleEmitter = null) -> void:
 	if in_emitter_or_null == null:
+		# This assumes workspace is active.
+		# Should only be happening because of undo/redo from apply_state_snapshot()
+		# If asserts ever happens check if this callback is comming from a different source
 		var workspace: Workspace = MolecularEditorContext.get_current_workspace()
 		assert(workspace.has_structure_with_int_guid(_emitter_id), "Particle emitter not present in active workspace")
 		in_emitter_or_null = workspace.get_structure_by_int_guid(_emitter_id) as NanoParticleEmitter

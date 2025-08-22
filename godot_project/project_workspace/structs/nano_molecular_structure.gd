@@ -452,7 +452,8 @@ func spring_create(in_anchor_id: int, in_atom_id: int, in_spring_constant_force:
 	_springs[_highest_spring_id] = NanoSpring.create(in_anchor_id, in_atom_id, in_spring_constant_force,
 			is_equilibrium_length_automatic, in_equilibrium_manual_length)
 	_signal_queue_springs_added.append(_highest_spring_id)
-	var anchor: NanoVirtualAnchor = MolecularEditorContext.get_current_workspace().get_structure_by_int_guid(in_anchor_id)
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(in_anchor_id)
 	_springs[_highest_spring_id].anchor_is_visible = anchor.get_visible()
 	anchor.handle_spring_added(self, _highest_spring_id)
 	if not anchor.position_changed.is_connected(_on_anchor_position_change):
@@ -507,7 +508,8 @@ func spring_invalidate(in_spring_id: int) -> void:
 	_invalid_springs[in_spring_id] = _springs[in_spring_id]
 	_springs.erase(in_spring_id)
 	_signal_queue_springs_moved.erase(in_spring_id)
-	var anchor: NanoVirtualAnchor = MolecularEditorContext.get_current_workspace().get_structure_by_int_guid(anchor_id)
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id)
 	anchor.handle_spring_removed(self, in_spring_id)
 	
 	var is_still_linked_to_anchor: bool = anchor.is_structure_related(int_guid)
@@ -527,7 +529,8 @@ func spring_revalidate(in_spring_id: int) -> void:
 	
 	var revalidated_spring: NanoSpring = _springs[in_spring_id]
 	var related_anchor_id: int = revalidated_spring.target_anchor
-	var anchor: NanoVirtualAnchor = MolecularEditorContext.get_current_workspace().get_structure_by_int_guid(related_anchor_id)
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(related_anchor_id)
 	anchor.handle_spring_added(self, in_spring_id)
 	if not anchor.position_changed.is_connected(_on_anchor_position_change):
 		anchor.position_changed.connect(_on_anchor_position_change.bind(anchor))

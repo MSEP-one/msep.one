@@ -208,7 +208,8 @@ func select_connected(in_show_hidden_objects: bool = false) -> AtomSelectionResu
 		return AtomSelectionResult.new(false, PackedInt32Array(), PackedInt32Array(), PackedInt32Array())
 	
 	if should_show_hydrogens or not hidden_atoms_to_show.is_empty():
-		var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+		var editor_viewport: WorkspaceEditorViewport = get_viewport()
+		var workspace_context: WorkspaceContext = editor_viewport.get_workspace_context()
 		if should_show_hydrogens:
 			related_structure.enable_hydrogens_visibility()
 		if not hidden_atoms_to_show.is_empty():

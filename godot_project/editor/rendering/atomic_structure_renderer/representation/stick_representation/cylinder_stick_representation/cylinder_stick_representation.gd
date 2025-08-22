@@ -110,7 +110,7 @@ func _calculate_bond_transform(in_nano_structure: AtomicStructure, in_bond: Vect
 	var dir_from_first_to_second: Vector3 = first_atom_position.direction_to(second_atom_position)
 	var up_vector: Vector3 = StickRepresentation._calc_up_vect_for_single_bond(dir_from_first_to_second) if bond_order == 1 else \
 			StickRepresentation._calc_up_vector_for_higher_bond(first_atom_id, second_atom_id, first_atom_position,
-					second_atom_position, in_nano_structure)
+					second_atom_position, in_nano_structure, get_viewport().get_camera_3d())
 	var _particle_transform: Transform3D = calculate_transform_for_bond(first_atom_position,
 			second_atom_position, up_vector)
 	return _particle_transform

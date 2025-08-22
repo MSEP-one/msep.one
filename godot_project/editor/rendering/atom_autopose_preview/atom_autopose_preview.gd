@@ -72,7 +72,8 @@ func _process(_delta: float) -> void:
 	if MolecularEditorContext.is_homepage_active():
 		return
 	# Redraw if the selection is being moved
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context() as WorkspaceContext
+	var editor_viewport: WorkspaceEditorViewport = get_viewport()
+	var workspace_context: WorkspaceContext = editor_viewport.get_workspace_context()
 	var rendering: Rendering = workspace_context.get_rendering()
 	var context: StructureContext = workspace_context.get_current_structure_context()
 	var structure: NanoStructure = context.nano_structure

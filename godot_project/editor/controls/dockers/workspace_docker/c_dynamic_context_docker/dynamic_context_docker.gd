@@ -163,9 +163,8 @@ func _update_internal(in_workspace_context: WorkspaceContext) -> void:
 
 
 func _update_docker_visibility() -> void:
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(MolecularEditorContext.get_current_workspace())
-	if is_instance_valid(workspace_context):
-		_update_visibility(should_show(workspace_context))
+	if is_instance_valid(_workspace_context):
+		_update_visibility(should_show(_workspace_context))
 
 
 func get_unique_docker_name() -> StringName:
