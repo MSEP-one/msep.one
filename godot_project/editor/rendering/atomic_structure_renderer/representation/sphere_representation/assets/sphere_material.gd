@@ -42,6 +42,11 @@ func set_scale_factor(new_scale_factor: float) -> SphereMaterial:
 	return self
 
 
+func set_outline_thickness(new_thickness: float) -> SphereMaterial:
+	set_shader_parameter(UNIFORM_OUTLINE_THICKNESS, new_thickness)
+	return self
+
+
 func update_gizmo(in_gizmo_origin: Vector3, in_gizmo_rotation: Basis) -> void:
 	set_shader_parameter(UNIFORM_GIZMO_ORIGIN, in_gizmo_origin)
 	set_shader_parameter(UNIFORM_GIZMO_ROTATION, in_gizmo_rotation)

@@ -39,6 +39,8 @@ func build(in_structure_context: StructureContext) -> void:
 	var representation_settings: RepresentationSettings = related_nanostructure.get_representation_settings()
 	var scale_factor: float = Representation.get_atom_scale_factor(representation_settings)
 	_apply_scale_factor(scale_factor)
+	var outline_thickness: float = Representation.get_outline_thickness(representation_settings)
+	_material.set_outline_thickness(outline_thickness)
 
 	var aabb: AABB = AABB()
 	var atoms_ids: PackedInt32Array = related_nanostructure.get_valid_atoms()
@@ -230,6 +232,8 @@ func refresh_atoms_sizes(in_update_atoms_radii: bool = false) -> void:
 	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	var scale_factor: float = Representation.get_atom_scale_factor(related_nanostructure.get_representation_settings())
 	_apply_scale_factor(scale_factor)
+	var outline_thickness: float = Representation.get_outline_thickness(related_nanostructure.get_representation_settings())
+	_material.set_outline_thickness(outline_thickness)
 	
 	if in_update_atoms_radii:
 		# The actual atom radius is stored in each particle transform, we need to modify all of them
@@ -293,6 +297,8 @@ func show() -> void:
 	_segmented_multimesh.show()
 	var scale_factor: float = Representation.get_atom_scale_factor(related_nanostructure.get_representation_settings())
 	_apply_scale_factor(scale_factor)
+	var outline_thickness: float = Representation.get_outline_thickness(related_nanostructure.get_representation_settings())
+	_material.set_outline_thickness(outline_thickness)
 	_update_is_selectable_uniform()
 
 
