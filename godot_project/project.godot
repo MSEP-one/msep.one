@@ -345,6 +345,9 @@ simulation/relaxation_animation_time=0.5
 clipboard/paste_offset_direction/x=0.0
 clipboard/paste_offset_direction/y=0.0
 clipboard/paste_offset_direction/z=0.0
+rendering/van_der_waals/outline_thickness=0.8
+rendering/mechanical_simulation/outline_thickness=0.8
+rendering/balls_and_sticks/outline_thickness=0.3
 
 [network]
 

@@ -10,6 +10,10 @@ const SETTING_RADIUS_SOURCE_VAN_DER_WAALS: StringName = &"msep/rendering/van_der
 const SETTING_RADIUS_SOURCE_MECHANICAL_SIMULATION: StringName = &"msep/rendering/mechanical_simulation/radius_source"
 const SETTING_RADIUS_SOURCE_BALLS_AND_STICKS: StringName = &"msep/rendering/balls_and_sticks/radius_source"
 
+const SETTING_OUTLINE_THICKNESS_VAN_DER_WAALS: StringName = &"msep/rendering/van_der_waals/outline_thickness"
+const SETTING_OUTLINE_THICKNESS_MECHANICAL_SIMULATION: StringName = &"msep/rendering/mechanical_simulation/outline_thickness"
+const SETTING_OUTLINE_THICKNESS_BALLS_AND_STICKS: StringName = &"msep/rendering/balls_and_sticks/outline_thickness"
+
 const SCALE_FACTOR_STICKS: float = 0.6
 
 @warning_ignore("unused_private_class_variable")
@@ -223,6 +227,19 @@ static func get_atom_scale_factor(in_representation_settings: RepresentationSett
 			if in_representation_settings != null:
 				return in_representation_settings.get_balls_and_sticks_size_factor()
 			return ProjectSettings.get_setting(SETTING_SCALE_FACTOR_BALLS_AND_STICKS, 0.3)
+
+
+static func get_outline_thickness(in_representation_settings: RepresentationSettings) -> float:
+	var representation := Rendering.Representation.BALLS_AND_STICKS
+	if in_representation_settings != null:
+		representation = in_representation_settings.get_rendering_representation()
+	match representation:
+		Rendering.Representation.VAN_DER_WAALS_SPHERES:
+			return ProjectSettings.get_setting(SETTING_OUTLINE_THICKNESS_VAN_DER_WAALS, 0.8)
+		Rendering.Representation.MECHANICAL_SIMULATION:
+			return ProjectSettings.get_setting(SETTING_OUTLINE_THICKNESS_MECHANICAL_SIMULATION, 0.8)
+		Rendering.Representation.BALLS_AND_STICKS, _:
+			return ProjectSettings.get_setting(SETTING_OUTLINE_THICKNESS_BALLS_AND_STICKS, 0.3)
 
 
 static func get_atom_radius(in_data: ElementData, in_representation_settings: RepresentationSettings) -> float:
