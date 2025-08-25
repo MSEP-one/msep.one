@@ -253,7 +253,8 @@ func _apply_selection_transform() -> void:
 		var previous_positions: PackedVector3Array = []
 		var target_positions: PackedVector3Array = []
 		var nmb_of_moved_atoms: int = 0
-		var remote_atom_transforms: Array = _structure_context_2_initial_atom_selection_positions[context.get_int_guid()]
+		var remote_atom_transforms: Array[AtomPosition] = []
+		remote_atom_transforms.assign(_structure_context_2_initial_atom_selection_positions[context.get_int_guid()])
 		for atom_transform: AtomPosition in remote_atom_transforms:
 			var atom_id: int = atom_transform.atom_id
 			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
