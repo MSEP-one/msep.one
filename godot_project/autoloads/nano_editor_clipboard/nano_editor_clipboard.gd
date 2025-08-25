@@ -98,10 +98,12 @@ func _copy_selected_atoms(
 		var color_override: Variant = null
 		if in_structure.has_color_override(atom_id):
 			color_override = in_structure.get_color_override(atom_id)
+		var atom_is_locked: bool = in_structure.atom_is_locked(atom_id)
 		var atom: ClipboardAtom = ClipboardAtom.new(
 			local_to_camera_position, 
 			in_structure.atom_get_atomic_number(atom_id),
 			color_override,
+			atom_is_locked,
 			atom_id,
 			in_structure.int_guid
 		)
@@ -463,6 +465,7 @@ func _paste_atoms_and_bonds_in_structure(
 	if not out_pasted_atoms.has(in_entity_data.group_id):
 		out_pasted_atoms[in_entity_data.group_id] = {}
 	var old_atom_id_to_new_atom_id: Dictionary = out_pasted_atoms[in_entity_data.group_id]
+	var atoms_to_lock: PackedInt32Array = []
 	for idx in range(clipboard_atoms.size()):
 		var atom: ClipboardAtom = clipboard_atoms[idx]
 		old_index_to_new_index[idx] = out_structure.add_atom(
@@ -485,9 +488,13 @@ func _paste_atoms_and_bonds_in_structure(
 			if not colors_to_atom_list.has(atom.color_override):
 				colors_to_atom_list[atom.color_override] = PackedInt32Array()
 			colors_to_atom_list[atom.color_override].append(old_index_to_new_index[idx])
+		if atom.is_locked:
+			atoms_to_lock.push_back(old_index_to_new_index[idx])
 		new_atoms.append(old_index_to_new_index[idx])
 	for color: Color in colors_to_atom_list.keys():
 		out_structure.set_color_override(colors_to_atom_list[color], color)
+	if not atoms_to_lock.is_empty():
+		out_structure.atoms_set_locked(atoms_to_lock, true)
 	for bond in clipboard_bonds:
 		var new_bond_id: int = out_structure.add_bond(
 			old_index_to_new_index[bond.atom_index_a], 
@@ -706,10 +713,12 @@ class ClipboardAtom:
 	var atomic_number: int = -1
 	var has_color_override: bool = false
 	var color_override: Color = Color.BLACK
+	var is_locked: bool = false
 	var origin_id: int
 	var origin_group_id: int
 	
-	func _init(in_position: Vector3, in_atomic_number: int, in_color_override: Variant = null,
+	func _init(in_position: Vector3, in_atomic_number: int,
+			in_color_override: Variant = null, in_is_locked: bool = false,
 			in_originating_from_atom: int = AtomicStructure.INVALID_ATOM_ID,
 			in_origination_from_group: int = Workspace.INVALID_STRUCTURE_ID) -> void:
 		position = in_position
@@ -719,6 +728,7 @@ class ClipboardAtom:
 		if typeof(in_color_override) == TYPE_COLOR:
 			has_color_override = true
 			color_override = in_color_override
+		is_locked = in_is_locked
 
 
 class ClipboardBond:
