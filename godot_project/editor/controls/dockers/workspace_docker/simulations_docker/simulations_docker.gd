@@ -121,6 +121,6 @@ func _on_current_structure_context_changed(in_structure_context: StructureContex
 
 
 func _on_structure_context_selection_changed() -> void:
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+	var workspace_context := _weak_workspace_context.get_ref() as WorkspaceContext
 	if is_instance_valid(workspace_context):
 		_update_visibility(should_show(workspace_context))

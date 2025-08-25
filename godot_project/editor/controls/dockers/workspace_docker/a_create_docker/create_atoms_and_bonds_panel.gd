@@ -5,11 +5,13 @@ extends DynamicContextControl
 @onready var bond_picker: Container = %BondPicker
 @onready var element_picker: Control = %ElementPicker
 
+var _workspace_context: WorkspaceContext = null
 
 func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	var structure_context: StructureContext = in_workspace_context.get_current_structure_context()
 	if !is_instance_valid(structure_context) || !is_instance_valid(structure_context.nano_structure):
 		return false
+	_workspace_context = in_workspace_context
 	if in_workspace_context.create_object_parameters.get_create_mode_type() \
 			!= CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS:
 		return false
@@ -31,19 +33,18 @@ func _ready() -> void:
 
 
 func _on_bond_order_change_requested(in_order: int) -> void:
-	var workspace: Workspace = MolecularEditorContext.get_current_workspace()
-	if workspace == null:
+	if _workspace_context == null or _workspace_context.workspace == null:
 		return
+	var workspace: Workspace = _workspace_context.workspace
 	var context: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
 	context.create_object_parameters.set_new_bond_order(in_order)
 	EditorSfx.mouse_down()
 
 
 func _on_atom_type_change_requested(in_element: int) -> void:
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	if workspace_context == null:
+	if _workspace_context == null:
 		return
-	workspace_context.create_object_parameters.set_new_atom_element(in_element)
+	_workspace_context.create_object_parameters.set_new_atom_element(in_element)
 	EditorSfx.mouse_down()
 
 

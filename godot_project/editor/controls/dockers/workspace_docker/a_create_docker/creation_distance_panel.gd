@@ -73,9 +73,10 @@ func _on_snap_to_shape_surface_toggled(enabled: bool) -> void:
 
 
 func _on_creation_distance_value_changed(in_new_distance: float) -> void:
-	var workspace: Workspace = MolecularEditorContext.get_current_workspace()
-	if workspace == null:
+	var workspace_context: WorkspaceContext = _weak_workspace_context.get_ref() as WorkspaceContext
+	if workspace_context == null or workspace_context.workspace == null:
 		return
+	var workspace: Workspace = workspace_context.workspace
 	var delta: float = creation_distance.max_value - creation_distance.min_value
 	var factor: float = (in_new_distance - creation_distance.min_value) / delta
 	var context: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
@@ -89,8 +90,8 @@ func _on_create_distance_method_changed(in_new_method: CreateObjectParameters.Cr
 
 
 func _on_creation_distance_from_camera_factor_changed(_in_factor: float) -> void:
-	var context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	if creation_distance.value == context.create_object_parameters.drop_distance:
+	var context: WorkspaceContext = _weak_workspace_context.get_ref() as WorkspaceContext
+	if context == null or creation_distance.value == context.create_object_parameters.drop_distance:
 		return
 	creation_distance.value = context.create_object_parameters.drop_distance
 

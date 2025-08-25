@@ -218,9 +218,9 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 		Editor_Utils.get_editor().prompt_error_msg(tr(&"Failed to save file {0} with error '{1}'").format([path, error_string(err)]))
 		return
 	in_workspace.resource_path = in_path
-	var current_workspace_context: WorkspaceContext = get_current_workspace_context()
-	assert(is_instance_valid(current_workspace_context), "Invalid workspace context")
-	current_workspace_context.mark_saved()
+	var context: WorkspaceContext = get_workspace_context(in_workspace)
+	assert(is_instance_valid(context), "Invalid workspace context")
+	context.mark_saved()
 	workspace_saved.emit(in_workspace)
 	_update_window_title()
 

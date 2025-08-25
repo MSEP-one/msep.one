@@ -38,8 +38,7 @@ func _update_panel_state() -> void:
 	_no_selection_label.self_modulate.a = 0.0
 	_auto_create_bonds_button.disabled = false
 	var has_selected_atoms: bool = false
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	for structure: StructureContext in workspace_context.get_visible_structure_contexts():
+	for structure: StructureContext in _workspace_context.get_visible_structure_contexts():
 		if structure.get_selected_atoms().size() > 0:
 			has_selected_atoms = true
 			break

@@ -15,8 +15,10 @@ var _fragment_map: Dictionary = {
 @onready var _no_search_result_found: Label = %NoSearchResultFound
 @onready var _group_check_box: CheckBox = %GroupCheckBox
 
+var _workspace_context: WorkspaceContext = null
 
 func should_show(in_workspace_context: WorkspaceContext) -> bool:
+	_workspace_context = in_workspace_context
 	var structure_context: StructureContext = in_workspace_context.get_current_structure_context()
 	if !is_instance_valid(structure_context) || !is_instance_valid(structure_context.nano_structure):
 		return false
@@ -83,11 +85,10 @@ func _init_fragments_ui() -> void:
 func _on_fragment_selected(fragment_path: String) -> void:
 	var unpacked_mol_path: String = WorkspaceUtils.unpack_mol_file_and_get_path(fragment_path)
 	var absolute_path: String = ProjectSettings.globalize_path(unpacked_mol_path)
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	assert(is_instance_valid(workspace_context))
-	var structure: NanoStructure = await WorkspaceUtils.get_nano_structure_from_file(workspace_context, absolute_path, false, false, false)
+	assert(is_instance_valid(_workspace_context))
+	var structure: NanoStructure = await WorkspaceUtils.get_nano_structure_from_file(_workspace_context, absolute_path, false, false, false)
 	structure.set_structure_name(fragment_path.get_file().get_basename())
-	workspace_context.create_object_parameters.set_new_structure(structure)
+	_workspace_context.create_object_parameters.set_new_structure(structure)
 	# HACK: for responsivemes, we will "fake" a mouse movement to ensure preview of the molecule will
 	# reappear in the desired position only if the mouse is hovering the viewport
 	if BusyIndicator.visible:
