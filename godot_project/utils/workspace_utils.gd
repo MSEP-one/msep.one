@@ -51,6 +51,11 @@ static func get_selected_objects_aabb(out_workspace_context: WorkspaceContext) -
 	return _get_selected_objects_aabb(out_workspace_context)
 
 
+## Returns an AABB containing the object, and centered in world origin
+static func get_created_object_aabb(workspace_context: WorkspaceContext) -> AABB:
+	return _get_created_object_aabb(workspace_context)
+
+
 static func focus_camera_on_aabb(out_workspace_context: WorkspaceContext, in_focus_aabb: AABB) -> void:
 	_focus_camera_on_aabb(out_workspace_context, in_focus_aabb)
 
@@ -700,6 +705,24 @@ static func _get_selected_objects_aabb(out_workspace_context: WorkspaceContext) 
 		aabb = aabb.merge(selected_objects_aabbs.pop_back())
 	return aabb
 
+
+static func _get_created_object_aabb(workspace_context: WorkspaceContext) -> AABB:
+	var create_parameters: CreateObjectParameters = workspace_context.create_object_parameters
+	var size := Vector3()
+	match workspace_context.create_object_parameters.get_create_mode_type():
+		CreateObjectParameters.CreateModeType.CREATE_SHAPES:
+			size = create_parameters.get_selected_shape_for_new_objects().get_aabb().abs().size
+		CreateObjectParameters.CreateModeType.CREATE_FRAGMENT:
+			var new_structure: AtomicStructure = create_parameters.get_new_structure() as AtomicStructure
+			if new_structure != null:
+				size = new_structure.get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius).size
+		CreateObjectParameters.CreateModeType.CREATE_VIRTUAL_MOTORS:
+			size = Vector3.ONE
+		CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS:
+			size = Vector3.ONE
+		_:
+			pass
+	return AABB(-size/2.0, size)
 
 static func _move_camera_outside_of_aabb(out_workspace_context: WorkspaceContext, aabb: AABB) -> void:
 	var camera: Camera3D = out_workspace_context.get_camera()
