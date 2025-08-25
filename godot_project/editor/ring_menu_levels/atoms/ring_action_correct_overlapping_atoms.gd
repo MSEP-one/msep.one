@@ -18,11 +18,16 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 			_execute_action,
 			tr("Move overlapping atoms away from each other.")
 	)
+	with_validation(_can_correct_atoms)
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
 		_model_validator.queue_free()
+
+
+func _can_correct_atoms() -> bool:
+	return _workspace_context.has_valid_atoms()
 
 
 func get_icon() -> RingMenuIcon:
