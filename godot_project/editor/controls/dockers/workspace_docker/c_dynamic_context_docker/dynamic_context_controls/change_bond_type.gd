@@ -33,49 +33,45 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	
 	var rendering: Rendering = in_workspace_context.get_rendering()
 	if not rendering.representation_changed.is_connected(_on_rendering_representation_changed):
-		rendering.representation_changed.connect(_on_rendering_representation_changed)
-	_update_availability(rendering.get_default_representation())
+		rendering.representation_changed.connect(_on_rendering_representation_changed.unbind(1))
+	_update_availability()
 	
 	var selected_contexts: Array[StructureContext] =  \
 			in_workspace_context.get_structure_contexts_with_selection()
 	for context in selected_contexts:
 		if context.get_selected_bonds().size() > 0:
-			_update_selection_description()
+			_update_availability()
 			return true
 	return false
 
 
 func _on_workspace_context_selection_in_structures_changed(_structure_context: Array[StructureContext]) -> void:
-	ScriptUtils.call_deferred_once(_update_selection_description)
+	ScriptUtils.call_deferred_once(_update_availability)
 
 
 func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructure) -> void:
-	ScriptUtils.call_deferred_once(_update_selection_description)
+	ScriptUtils.call_deferred_once(_update_availability)
 
 
-func _on_rendering_representation_changed(in_representation: Rendering.Representation) -> void:
-	_update_availability(in_representation)
+func _on_rendering_representation_changed() -> void:
+	ScriptUtils.call_deferred_once(_update_availability)
 
 
-func _update_availability(in_representation: Rendering.Representation) -> void:
-	var can_be_edited_by_user: bool = in_representation != Rendering.Representation.STICKS
+func _update_availability() -> void:
+	var representation: Rendering.Representation = _workspace_context.workspace.representation_settings.get_rendering_representation()
+	var representation_allows_editing: bool = representation != Rendering.Representation.STICKS
+	var selected_count: int = _get_count_selected()
+	var can_be_edited_by_user: bool = selected_count > 0 and representation_allows_editing
 	_button_single.disabled = not can_be_edited_by_user
 	_button_double.disabled = not can_be_edited_by_user
 	_button_triple.disabled = not can_be_edited_by_user
-
-
-func _update_selection_description() -> void:
-	var selected_count: int = _get_count_selected()
-	if selected_count == 0:
+	
+	if not representation_allows_editing:
+		_label_describe_change.text = tr(&"Cannot change bond order in Sticks representation")
+	elif selected_count == 0:
 		_label_describe_change.text = tr(&"No Bonds selected")
-		_button_single.disabled = true
-		_button_double.disabled = true
-		_button_triple.disabled = true
 	else:
 		_label_describe_change.text = tr(&"Change {0} selected Bonds to...").format([selected_count])
-		_button_single.disabled = false
-		_button_double.disabled = false
-		_button_triple.disabled = false
 
 
 func _get_count_selected() -> int:
