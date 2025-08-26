@@ -47,7 +47,7 @@ func _set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
 		workspace_context.selection_in_structures_changed.disconnect(
 				_on_workspace_context_selection_in_structures_changed)
 		workspace_context.structure_removed.disconnect(
-			_on_workspace_context_structure_about_to_remove)
+			_on_workspace_context_structure_removed)
 		workspace_context.hydrogen_atoms_count_corrected.disconnect(
 				_on_object_hydrogen_atoms_count_change)
 		workspace_context.bonds_auto_created.disconnect(
@@ -67,8 +67,8 @@ func _set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
 	editor_viewport._workspace_context = in_workspace_context
 	workspace_context.selection_in_structures_changed.connect(
 			_on_workspace_context_selection_in_structures_changed)
-	workspace_context.structure_about_to_remove.connect(
-		_on_workspace_context_structure_about_to_remove)
+	workspace_context.structure_removed.connect(
+		_on_workspace_context_structure_removed)
 	workspace_context.hydrogen_atoms_count_corrected.connect(
 			_on_object_hydrogen_atoms_count_change)
 	workspace_context.bonds_auto_created.connect(
@@ -148,7 +148,7 @@ func _on_workspace_context_selection_in_structures_changed(_in_structure_context
 	_message_bar.show_message(_create_selection_description_message())
 
 
-func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructure) -> void:
+func _on_workspace_context_structure_removed(_in_structure: NanoStructure) -> void:
 	_message_bar.show_message(_create_selection_description_message())
 
 
