@@ -83,6 +83,17 @@ func _on_id_pressed(in_id: int) -> void:
 		ID_FOCUS_ON_SELECTED_OBJECTS:
 			assert(workspace_context)
 			var focus_aabb: AABB = WorkspaceUtils.get_selected_objects_aabb(workspace_context)
+			var create_params: CreateObjectParameters = workspace_context.create_object_parameters
+			var create_distance_is_fixed: bool = \
+				create_params.get_create_distance_method() == \
+				CreateObjectParameters.CreateDistanceMethod.FIXED_DISTANCE_TO_CAMERA
+			if create_params.get_create_mode_enabled() and not create_distance_is_fixed:
+				var created_object_aabb: AABB = WorkspaceUtils.get_created_object_aabb(workspace_context)
+				if created_object_aabb != AABB():
+					# center the template AABB in the center of selection
+					created_object_aabb.position = focus_aabb.get_center() - created_object_aabb.size / 2
+					focus_aabb = focus_aabb.expand(created_object_aabb.position)
+					focus_aabb = focus_aabb.expand(created_object_aabb.end)
 			WorkspaceUtils.focus_camera_on_aabb(workspace_context, focus_aabb)
 		ID_HIDE_SELECTED_OBJECTS:
 			assert(workspace_context)
