@@ -158,6 +158,10 @@ static func has_emitters_with_potentially_unstable_parameters(in_workspace_conte
 	return _has_emitters_with_potentially_unstable_parameters(in_workspace_context)
 
 
+static func has_overlapping_emitters(in_workspace_context: WorkspaceContext, in_search_for_hidden: bool) -> bool:
+	return _has_overlapping_emitters(in_workspace_context, in_search_for_hidden)
+
+
 static func structure_context_has_drastically_invalid_tetrahedral_structure(in_structure_context: StructureContext, in_atoms: PackedInt32Array) -> bool:
 	if not in_structure_context.nano_structure is AtomicStructure:
 		return false
@@ -207,6 +211,25 @@ static func _has_emitters_with_potentially_unstable_parameters(in_workspace_cont
 		if not is_particle_emitter_escape_velocity_safe(
 			in_workspace_context, emitter.get_parameters(), template_aabb, axis_direction):
 			return true
+	return false
+
+
+static func _has_overlapping_emitters(in_workspace_context: WorkspaceContext, in_search_for_hidden: bool) -> bool:
+	var emitters: Array[NanoParticleEmitter] = in_workspace_context.get_particle_emitters()
+	for i in emitters.size() - 1:
+		var i_emitter: NanoParticleEmitter = emitters[i]
+		var i_aabb: AABB = i_emitter.get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius)
+		var i_hidden: bool = not i_emitter.get_visible()
+		for j in range(i + 1, emitters.size()):
+			var j_emitter: NanoParticleEmitter = emitters[j]
+			var j_aabb: AABB = j_emitter.get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius)
+			if i_aabb.intersects(j_aabb):
+				if in_search_for_hidden:
+					var j_hidden: bool = not j_emitter.get_visible()
+					if i_hidden or j_hidden:
+						return true
+				else:
+					return true
 	return false
 
 
