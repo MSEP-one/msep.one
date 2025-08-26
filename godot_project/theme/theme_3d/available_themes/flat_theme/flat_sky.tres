@@ -1,6 +1,6 @@
 [gd_resource type="Sky" load_steps=4 format=3 uid="uid://de517fks0rnhe"]
 
-[ext_resource type="Shader" path="res://editor/rendering/resources/environment_background.gdshader" id="1_j2qsi"]
+[ext_resource type="Shader" uid="uid://2s0iviyb0pld" path="res://editor/rendering/resources/environment_background.gdshader" id="1_j2qsi"]
 [ext_resource type="Texture2D" uid="uid://bgborgp5aeeml" path="res://editor/rendering/resources/white.png" id="2_u5ywq"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_yy4h6"]
