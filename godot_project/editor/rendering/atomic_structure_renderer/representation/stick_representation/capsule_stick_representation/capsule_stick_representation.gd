@@ -65,15 +65,12 @@ func _calculate_bond_transform(in_nano_structure: AtomicStructure, in_bond: Vect
 	var second_atom_id: int = in_bond.y
 	var first_atom_position: Vector3 = in_nano_structure.atom_get_position(first_atom_id)
 	var second_atom_position: Vector3 = in_nano_structure.atom_get_position(second_atom_id)
-	var distance_between_atoms: float = first_atom_position.distance_to(second_atom_position)
 	var dir_from_first_to_second: Vector3 = first_atom_position.direction_to(second_atom_position)
 	var up_vector: Vector3 = StickRepresentation._calc_up_vect_for_single_bond(dir_from_first_to_second) if bond_order == 1 else \
 			StickRepresentation._calc_up_vector_for_higher_bond(first_atom_id, second_atom_id, first_atom_position,
 					second_atom_position, in_nano_structure, get_viewport().get_camera_3d())
-	var particle_position: Vector3 = (first_atom_position + second_atom_position) / 2.0
-	var new_transform: Transform3D = Transform3D(Basis(), particle_position)
-	new_transform = new_transform.looking_at(first_atom_position, up_vector)
-	new_transform = new_transform.scaled_local(Vector3(1, 1, distance_between_atoms))
+	var new_transform: Transform3D = calculate_transform_for_bond(first_atom_position,
+			second_atom_position, up_vector)
 	return new_transform
 
 

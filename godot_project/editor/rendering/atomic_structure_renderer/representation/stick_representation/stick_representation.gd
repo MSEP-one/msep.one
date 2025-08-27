@@ -714,7 +714,9 @@ func _calculate_partial_selection_translation(in_bond: Vector3i, in_delta_transl
 static func calculate_transform_for_bond(in_first_pos: Vector3, in_sec_pos: Vector3,
 			in_up_vector: Vector3) -> Transform3D:
 	var particle_position: Vector3 = (in_first_pos + in_sec_pos) / 2.0
-	var length: float = in_first_pos.distance_to(in_sec_pos)
+	# Zero length bonds cause rendering issues. A length 0.025 makes the
+	# capsule stick looks like a sphere when two atoms are at the same place.
+	var length: float = max(0.025, in_first_pos.distance_to(in_sec_pos))
 	var particle_transform: Transform3D = Transform3D(Basis(), particle_position)
 	if particle_transform.origin.distance_squared_to(in_first_pos) > 0.0001:
 		particle_transform = particle_transform.looking_at(in_first_pos, in_up_vector)
