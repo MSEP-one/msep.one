@@ -314,7 +314,7 @@ func add_emitter(in_emitter: NanoParticleEmitter) -> void:
 	# First lets find the size of each individual molecule
 	const SAFE_MARGIN = 1.0
 	var molecule_size: Vector3 = in_emitter.get_parameters().get_molecule_template().get_aabb(AtomicStructure.AABB_BoundsType.ContactRadius).grow(SAFE_MARGIN).size
-	var curr_pos := Vector3.ZERO
+	var curr_pos := Vector3(0, calculated_aabb.end.y + molecule_size.y, 0)
 	for space: AABB in _extra_ocupied_space:
 		curr_pos.y -= space.size.y
 	var this_space := AABB(curr_pos, molecule_size)
