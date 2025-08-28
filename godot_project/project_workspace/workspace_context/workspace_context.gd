@@ -594,6 +594,10 @@ func is_simulating() -> bool:
 	return _simulation != null
 
 
+func get_simulation_id() -> int:
+	return -1 if _simulation == null else _simulation.get_instance_id()
+
+
 func seek_simulation(in_frame: float) -> void:
 	assert(is_simulating(), "There's not an active simulation")
 	var state: PackedVector3Array = _simulation.find_state(in_frame)
@@ -1469,7 +1473,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 	var current_simulation_time: float = _simulation.get_last_seeked_time()
 	var temp_current_state: Dictionary = _history.create_snapshot_no_push()
 	seek_simulation(0.0)
-	_history.create_snapshot(in_operation_name)
+	_history.create_snapshot(in_operation_name, get_simulation_id(), temp_current_state)
 	seek_simulation(current_simulation_time)
 	_history.apply_snapshot(temp_current_state)
 

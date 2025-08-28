@@ -106,9 +106,13 @@ func create_snapshot_no_push() -> Dictionary:
 		snapshot[snapshotable] = snapshotable.create_state_snapshot()
 	return snapshot
 
-func create_snapshot(in_snapshot_name: String) -> Dictionary:
+func create_snapshot(in_snapshot_name: String, in_simulation_id: int = -1, in_snapshot_during_simulation: Dictionary = {}) -> Dictionary:
 	_monitor_redundant_snapshots(in_snapshot_name)
 	var snapshot: Dictionary = create_snapshot_no_push()
+	
+	if in_simulation_id != -1:
+		in_snapshot_during_simulation["simulation_id"] = in_simulation_id
+		snapshot["simulation"] = in_snapshot_during_simulation
 	
 	_add_snapshot_to_stack(snapshot, in_snapshot_name)
 	return snapshot
@@ -182,14 +186,18 @@ func apply_next_snapshot() -> void:
 
 
 func _apply_snapshot_from_stack(in_stack_index: int) -> void:
-	var snapshot_to_apply: Dictionary = _snapshot_stack[in_stack_index]
-	for snapshotable: Object in snapshot_to_apply:
-		snapshotable.apply_state_snapshot(snapshot_to_apply[snapshotable])
+	apply_snapshot(_snapshot_stack[in_stack_index])
 
 
 func apply_snapshot(in_state_snapshot: Dictionary) -> void:
-	for snapshotable: Object in in_state_snapshot:
-		snapshotable.apply_state_snapshot(in_state_snapshot[snapshotable])
+	var snapshot_to_apply: Dictionary = in_state_snapshot
+	if _workspace_context.is_simulating() and in_state_snapshot.get("simulation", {}).get("simulation_id", -1) == _workspace_context.get_simulation_id():
+		snapshot_to_apply = in_state_snapshot["simulation"]
+	var snapshotables: Array = snapshot_to_apply.keys()
+	snapshotables.erase("simulation")
+	snapshotables.erase("simulation_id")
+	for snapshotable: Object in snapshotables:
+		snapshotable.apply_state_snapshot(snapshot_to_apply[snapshotable])
 
 
 func can_redo() -> bool:
