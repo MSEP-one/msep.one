@@ -703,11 +703,15 @@ static func _get_visible_objects_aabb(out_workspace_context: WorkspaceContext) -
 	var visible_objects_aabbs: Array[AABB] = []
 	var visible_structure_contexts: Array[StructureContext] = out_workspace_context.get_visible_structure_contexts()
 	for context in visible_structure_contexts:
-		var aabb: AABB = context.nano_structure.get_aabb().abs()
-		if aabb == AABB():
-			# structure is empty
+		if context.is_empty():
 			continue
-		visible_objects_aabbs.push_back(context.nano_structure.get_aabb().abs())
+		var aabb: AABB
+		if context.nano_structure is AtomicStructure:
+			var atomic_structure: AtomicStructure = context.nano_structure
+			aabb = atomic_structure.get_aabb(AtomicStructure.AABB_BoundsType.VisualRadius).abs()
+		else:
+			aabb = context.nano_structure.get_aabb().abs()
+		visible_objects_aabbs.push_back(aabb)
 	assert(visible_objects_aabbs.size() > 0)
 	
 	var aabb: AABB = visible_objects_aabbs.pop_back()

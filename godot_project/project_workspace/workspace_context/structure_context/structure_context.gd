@@ -257,6 +257,12 @@ func has_atom_selection(include_children: bool = true) -> bool:
 	return false
 
 
+func is_empty() -> bool:
+	if nano_structure is AtomicStructure:
+		return nano_structure.get_valid_atoms_count() == 0
+	return false
+
+
 func is_empty_but_has_subgroups() -> bool:
 	return nano_structure is AtomicStructure and \
 			nano_structure.get_valid_atoms_count() == 0 and \
