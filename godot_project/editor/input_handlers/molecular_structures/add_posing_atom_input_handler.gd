@@ -1,7 +1,7 @@
 extends InputHandlerCreateObjectBase
 
 
-const MAX_MERGE_DISTANCE: float = 0.06
+const MAX_MERGE_DISTANCE: float = 0.069
 const MAX_ATOMS_FOR_AUTO_POSING: int = 50
 # H-H bond is 0.075 nm, that is the closest 2 atoms should be
 const MIN_DISTANCE_TO_ATOMS: float = 0.069
@@ -9,6 +9,7 @@ const AtomCandidate = AtomAutoposePreview.AtomCandidate
 
 
 var _candidates_dirty: bool = true
+var _filter_join_candidates: bool = false
 var _element_selected: int = -1
 var _candidates: Array[AtomCandidate] = []
 var _hovered_candidate: AtomCandidate
@@ -80,7 +81,12 @@ func _on_current_structure_context_changed(in_context: StructureContext) -> void
 ## to continue
 func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context: StructureContext) -> bool:
 	var rendering: Rendering = out_context.workspace_context.get_rendering()
-	var is_shortcut_pressed: bool = _check_input_event_can_bind(in_input_event)
+	var is_shortcut_pressed: bool = _check_input_event_can_bind(in_input_event, false)
+	if in_input_event is InputEventWithModifiers:
+		var filter_candidates: bool = _check_input_event_can_bind(in_input_event, true)
+		if filter_candidates != _filter_join_candidates:
+			_filter_join_candidates = filter_candidates
+			_candidates_dirty = true
 	
 	if is_shortcut_pressed and _should_show(true):
 		# Auto enable create mode if we're in selection mode but all the other conditions are met
@@ -309,6 +315,11 @@ func _update_candidates() -> void:
 	
 	_candidates.append_array(structure_candidates)
 	
+	if _filter_join_candidates:
+		var is_join_candidate: Callable = func(in_candidate: AtomCandidate) -> bool:
+			return in_candidate.atom_ids.size() > 1
+		_candidates = _candidates.filter(is_join_candidate)
+	
 	# Filter candidates colliding with existing atoms
 	if not _atom_grid:
 		_atom_grid = SpatialHashGrid.new(MIN_DISTANCE_TO_ATOMS)
@@ -510,7 +521,6 @@ func _is_shortcut_pressed() -> bool:
 	return (
 		Input.is_key_pressed(KEY_ALT) and
 		not Input.is_key_pressed(KEY_SHIFT) and
-		not Input.is_key_pressed(KEY_CTRL) and
 		not Input.is_key_pressed(KEY_META)
 	)
 
@@ -607,7 +617,7 @@ func _on_workspace_context_atoms_relaxation_finished(_error: String) -> void:
 		_show_preview()
 
 
-func _check_input_event_can_bind(in_event: InputEvent) -> bool:
+func _check_input_event_can_bind(in_event: InputEvent, in_only_join_candidates: bool) -> bool:
 	if not in_event is InputEventWithModifiers:
 		return false
 	var alt_pressed: bool = in_event.alt_pressed
@@ -627,7 +637,9 @@ func _check_input_event_can_bind(in_event: InputEvent) -> bool:
 			shift_pressed = in_event.pressed
 		if in_event.keycode == KEY_META:
 			meta_pressed = in_event.pressed
-	return alt_pressed and not (shift_pressed || ctrl_pressed || meta_pressed)
+	if in_only_join_candidates:
+		return alt_pressed and ctrl_pressed and not (shift_pressed || meta_pressed)
+	return alt_pressed and not (shift_pressed || meta_pressed)
 
 
 func _hide_preview() -> void:
