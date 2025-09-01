@@ -4,6 +4,7 @@ extends SelectionInputHandlerBase
 const MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED = 20 * 20
 
 
+var _select_connected_queued_at: int = 0
 var _press_down_position: Vector2 = Vector2(-100, -100)
 
 
@@ -41,6 +42,9 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		if _activate_selection_logic(in_camera, in_input_event.position, editable_structures):
 			_workspace_context.snapshot_moment("Change Selection")
 			return true
+		# Selection logic needs to happen on mouse release
+		# because of that we give a window of 200 msec for releasing the mouse after double click
+		_select_connected_queued_at = Time.get_ticks_msec()
 	
 	if is_left_mouse_button_event:
 		if in_input_event.is_pressed():
@@ -62,13 +66,17 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 	var editable_structures: Array[StructureContext] = workspace_context.get_editable_structure_contexts()
 	if in_input_event.is_action_pressed(&"unselect", false, true) or \
 		_user_is_unselecting_on_mac_pressed(in_input_event, false, true):
-		var input_consumed: bool = _screen_deselection_logic(in_camera, in_input_event.position, editable_structures)
+		var input_consumed: bool = _select_connected_selection_logic(in_camera, in_input_event.position, editable_structures, false, true)
+		if input_consumed == false:
+			input_consumed = _screen_deselection_logic(in_camera, in_input_event.position, editable_structures)
 		if input_consumed and !get_workspace_context().has_selection():
 			# Selection was cleared, DynamicContextDocker is no longer relevant
 			MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME)
 		return input_consumed
 	elif in_input_event.is_action_pressed(&"multiselect", false, true) or _user_is_selecting_on_mac_pressed(in_input_event, false, true):
-		var input_consumed: bool = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, true)
+		var input_consumed: bool = _select_connected_selection_logic(in_camera, in_input_event.position, editable_structures, true)
+		if input_consumed == false:
+			input_consumed = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, true)
 		if input_consumed:
 			if !get_workspace_context().has_selection():
 				# Selection was cleared, DynamicContextDocker is no longer relevant
@@ -103,7 +111,9 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		if rendering.is_virtual_anchor_preview_visible():
 			# Virtual Anchor and/or Spring is being created, avoid changing selection
 			return false
-		var input_consumed: bool = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, false)
+		var input_consumed: bool = _select_connected_selection_logic(in_camera, in_input_event.position, editable_structures, false)
+		if input_consumed == false:
+			input_consumed = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, false)
 		if input_consumed:
 			if !get_workspace_context().has_selection():
 				if MolecularEditorContext.is_workspace_docker_active(DynamicContextDocker.UNIQUE_DOCKER_NAME):
@@ -281,6 +291,70 @@ func _activate_selection_logic(
 				return false
 			get_workspace_context().change_current_structure_context(affected_context)
 			return true
+	return false
+
+
+func _select_connected_selection_logic(
+			in_camera: Camera3D,
+			in_screen_position: Vector2,
+			out_editable_structures: Array[StructureContext],
+			in_is_multiselect: bool,
+			in_is_deselect: bool = false) -> bool:
+	if Time.get_ticks_msec() - _select_connected_queued_at > 200 or out_editable_structures.is_empty():
+		return false
+	
+	var multi_structure_hit_result := MultiStructureHitResult.new(in_camera, in_screen_position, out_editable_structures)
+	if multi_structure_hit_result.did_hit():
+		# perform selection
+		var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
+		if hit_context != get_workspace_context().get_current_structure_context():
+			return false
+		if multi_structure_hit_result.hit_type != MultiStructureHitResult.HitType.HIT_ATOM:
+			# Bonds doesn't count
+			return false
+		var hit_atom: int = multi_structure_hit_result.closest_hit_atom_id
+		var result: Dictionary[StringName, PackedInt32Array] = \
+				hit_context.find_atoms_and_bonds_connected_to(hit_atom)
+		var atoms: PackedInt32Array = result.atoms
+		var bonds: PackedInt32Array = result.bonds
+		var selected_atoms: PackedInt32Array = hit_context.get_selected_atoms()
+		var selected_bonds: PackedInt32Array = hit_context.get_selected_bonds()
+		var int_in_array: Callable = func (id: int, array: PackedInt32Array) -> bool:
+			return id in array
+		# Case 1: deselect connected
+		if in_is_deselect:
+			var any_selected: int = (
+				Array(atoms).any(int_in_array.bind(selected_atoms))
+				and
+				Array(bonds).any(int_in_array.bind(selected_bonds))
+			)
+			if any_selected:
+				hit_context.deselect_atoms(atoms)
+				hit_context.deselect_bonds(bonds)
+				return true
+			return false
+		# When double clicking an atom and holding shift, the first click will deselect the atom
+		# This is why this condition excludes it
+		var atoms_without_clicked := Array(atoms.duplicate())
+		atoms_without_clicked.erase(hit_atom)
+		var all_except_clicked_selected: int = (
+			atoms_without_clicked.all(int_in_array.bind(selected_atoms))
+			and
+			Array(bonds).all(int_in_array.bind(selected_bonds))
+		)
+		# Case 2: if all is selected, deselect it, no matter keyboard shortcuts
+		if all_except_clicked_selected:
+			hit_context.deselect_atoms(atoms)
+			hit_context.deselect_bonds(bonds)
+			return true
+		# Case 3: if not multiselection, deselect all before selecting atoms and bonds
+		if not in_is_multiselect:
+			hit_context.deselect_atoms(selected_atoms)
+			hit_context.deselect_bonds(selected_bonds)
+		# Case 4 (and second part of 3): select connected atoms and bonds
+		hit_context.select_atoms(atoms)
+		hit_context.select_bonds(bonds)
+		return true
 	return false
 
 
