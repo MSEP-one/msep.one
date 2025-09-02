@@ -331,6 +331,12 @@ func select_connected(in_show_hidden_objects: bool = false) -> void:
 	return _selection_db.select_connected(in_show_hidden_objects)
 
 
+func find_atoms_and_bonds_connected_to(in_atom_id: int) -> Dictionary[StringName, PackedInt32Array]:
+	if not nano_structure is AtomicStructure:
+		return {}
+	return nano_structure.find_atoms_and_bonds_connected_to(in_atom_id)
+
+
 func can_grow_selection() -> bool:
 	if _selection_db.has_cached_selection_set():
 		return true

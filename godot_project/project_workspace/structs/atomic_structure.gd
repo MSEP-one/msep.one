@@ -655,6 +655,33 @@ func atom_has_motor_link(_in_atom_id: int) -> bool:
 	return false
 
 
+## Returns a Dictionary with all atoms and bonds linked by bonds to in_atom_id.
+## You can access to each list with the members &"atoms" and &"bonds"
+func find_atoms_and_bonds_connected_to(in_atom_id: int) -> Dictionary[StringName, PackedInt32Array]:
+	var visited_atoms: Dictionary[int, bool] = {}
+	var visited_bonds: Dictionary[int, bool] = {}
+	# new_findings is a dctionary to automatically remove duplicates if 2 atoms
+	# have bonds to the same atom in the same look
+	var new_findings: Dictionary[int, bool] = { in_atom_id : true }
+	while not new_findings.is_empty():
+		var atoms_to_watch := PackedInt32Array(new_findings.keys())
+		new_findings = {}
+		for atom_id: int in atoms_to_watch:
+			visited_atoms[atom_id] = true
+			var atom_bonds: PackedInt32Array = atom_get_bonds(atom_id)
+			for bond_id: int in atom_bonds:
+				visited_bonds[bond_id] = true
+				var other_atom_id: int = atom_get_bond_target(atom_id, bond_id)
+				if visited_atoms.get(other_atom_id, false) == true:
+					continue
+				new_findings[other_atom_id] = true
+	var result: Dictionary[StringName, PackedInt32Array] = {
+		&"atoms": PackedInt32Array(visited_atoms.keys()),
+		&"bonds": PackedInt32Array(visited_bonds.keys()),
+	}
+	return result
+
+
 ## Returns the int_guid of the NanoVirtualMotor connected to [code]in_atom_id[/code] or 0 if not linked
 func motor_link_get_motor_id(_in_atom_id: int) -> int:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
