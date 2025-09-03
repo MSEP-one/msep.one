@@ -8,6 +8,7 @@ signal request_hide
 @export var shortcut_hide_selected_objects: Shortcut
 @export var shortcut_show_hidden_objects: Shortcut
 
+@onready var camera_submenu: NanoPopupMenu = $Camera
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -35,6 +36,7 @@ func _ready() -> void:
 func _update_menu() -> void:
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 	_update_for_context(workspace_context)
+	camera_submenu._update_menu()
 
 
 func _update_for_context(in_context: WorkspaceContext) -> void:

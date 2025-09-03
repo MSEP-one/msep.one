@@ -2,9 +2,9 @@ extends NanoPopupMenu
 
 signal request_hide
 
-@onready var atoms: PopupMenu = $Atoms
-@onready var shapes: PopupMenu = $Shapes
-@onready var virtual_objects: PopupMenu = $VirtualObjects
+@onready var atoms: NanoPopupMenu = $Atoms
+@onready var shapes: NanoPopupMenu = $Shapes
+@onready var virtual_objects: NanoPopupMenu = $VirtualObjects
 
 const ID_CREATE_SMALL_MOLECULES = 1
 
@@ -17,7 +17,9 @@ func _ready() -> void:
 	add_submenu_item("Virtual Objects", virtual_objects.name)
 
 func _update_menu() -> void:
-	pass
+	atoms._update_menu()
+	shapes._update_menu()
+	virtual_objects._update_menu()
 
 func _on_id_pressed(in_id: int) -> void:
 	if in_id == ID_CREATE_SMALL_MOLECULES:
