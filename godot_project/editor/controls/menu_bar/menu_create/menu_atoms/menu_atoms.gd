@@ -75,11 +75,10 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 		set_item_disabled(get_item_index(ID_AUTO_BONDER), true)
 
 	# Validate Add Hydrogens
+	set_item_disabled(get_item_index(ID_ADD_HYDROGENS), true)
 	for context in in_context.get_visible_structure_contexts():
 		if context.nano_structure is AtomicStructure and context.nano_structure.get_valid_atoms_count() > 0:
 			set_item_disabled(get_item_index(ID_ADD_HYDROGENS), false)
-			return
-	set_item_disabled(get_item_index(ID_ADD_HYDROGENS), true)
 	
 	# Validate Lock/Unlock atoms
 	var has_selection: bool = in_context.is_any_atom_selected()
