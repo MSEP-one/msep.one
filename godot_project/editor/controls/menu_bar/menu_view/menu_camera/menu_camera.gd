@@ -27,6 +27,8 @@ func _update_menu() -> void:
 func _update_for_context(in_context: WorkspaceContext) -> void:
 	var has_context: bool = is_instance_valid(in_context)
 	set_item_disabled(get_item_index(ID_CAPTURE_CAMERA_IMAGE), !has_context)
+	set_item_disabled(get_item_index(ID_CAMERA_PROJECTION), !has_context)
+	set_item_disabled(get_item_index(ID_EDIT_CAMERA), !has_context)
 	if has_context:
 		var has_visible_objects: bool = in_context.get_visible_structure_contexts().size() > 0
 		set_item_disabled(get_item_index(ID_CAPTURE_CAMERA_IMAGE), !has_visible_objects)

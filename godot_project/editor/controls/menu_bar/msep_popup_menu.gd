@@ -3,6 +3,7 @@ class_name NanoPopupMenu extends PopupMenu
 
 func _init() -> void:
 	hide()
+	MolecularEditorContext.homepage_activated.connect(_on_workspace_activated.bind(null))
 	MolecularEditorContext.workspace_activated.connect(_on_workspace_activated)
 	about_to_popup.connect(_on_about_to_popup)
 	popup_hide.connect(_on_popup_hide)
