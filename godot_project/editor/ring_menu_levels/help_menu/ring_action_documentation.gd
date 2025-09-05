@@ -24,6 +24,11 @@ func get_icon() -> RingMenuIcon:
 
 
 func _execute_action() -> void:
+	RingActionOpenDocumentation.open_documentation()
+	_ring_menu.close()
+
+
+static func open_documentation() -> void:
 	if not FileAccess.file_exists(DOCUMENTATION_PATH_SOURCE):
 		printerr("Trying to open documentation, but I cannot find the source file")
 		return
@@ -34,10 +39,9 @@ func _execute_action() -> void:
 		FileUtils.copy_file_from_to(DOCUMENTATION_PATH_SOURCE, destination_documentation_path)
 	
 	OS.shell_open(ProjectSettings.globalize_path(destination_documentation_path))
-	_ring_menu.close()
 
 
-func _need_to_refresh_user_file(in_user_file_path: String) -> bool:
+static func _need_to_refresh_user_file(in_user_file_path: String) -> bool:
 	if not FileAccess.file_exists(in_user_file_path):
 		return true
 	

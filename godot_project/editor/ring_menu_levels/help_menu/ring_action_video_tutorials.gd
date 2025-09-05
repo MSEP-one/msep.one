@@ -8,14 +8,11 @@ const VIDEO_TUTORIALS_FOLDER_PATH: String = "res://documentation/video_tutorials
 
 var _workspace_context: WorkspaceContext = null
 var _ring_menu: NanoRingMenu = null
-var _tutorials_dialog: VideoTutorialsDialog = null
 
 
 func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> void:
 	_workspace_context = in_workspace_context
 	_ring_menu = in_menu
-	var molecular_editor: MolecularEditor = Editor_Utils.get_editor()
-	_tutorials_dialog = molecular_editor.video_tutorials_dialog
 	super._init(
 		tr("Video Tutorials"),
 		_execute_action,
@@ -28,5 +25,9 @@ func get_icon() -> RingMenuIcon:
 
 
 func _execute_action() -> void:
+	RingActionVideoTutorials.open_video_tutorials_dialog()
 	_ring_menu.close()
-	_tutorials_dialog.popup_centered_ratio(0.5)
+
+static func open_video_tutorials_dialog() -> void:
+	var molecular_editor: MolecularEditor = Editor_Utils.get_editor()
+	molecular_editor.video_tutorials_dialog.popup_centered_ratio(0.5)
