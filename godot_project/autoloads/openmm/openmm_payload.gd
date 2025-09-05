@@ -544,6 +544,8 @@ func _calculate_remaining_valence(in_structure: AtomicStructure, in_atom_id: int
 	var valence_left: int = data.valence
 	if data.number > 5:
 		valence_left = 8 - valence_left
+	else:
+		valence_left = 2 - valence_left
 	valence_left -= used_valence
 	return valence_left
 
