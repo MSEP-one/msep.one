@@ -14,6 +14,7 @@ var _element_selected: int = -1
 var _candidates: Array[AtomCandidate] = []
 var _hovered_candidate: AtomCandidate
 var _atom_grid: SpatialHashGrid
+var _is_mac: bool = OS.get_name().to_lower() in ["macos", "ios"]
 
 # region virtual
 
@@ -617,11 +618,12 @@ func _on_workspace_context_atoms_relaxation_finished(_error: String) -> void:
 		_show_preview()
 
 
-func _check_input_event_can_bind(in_event: InputEvent, in_only_join_candidates: bool) -> bool:
-	if not in_event is InputEventWithModifiers:
+func _check_input_event_can_bind(in_event: InputEventWithModifiers, in_only_join_candidates: bool) -> bool:
+	if in_event == null:
+		# casting to InputEventWithModifiers failed
 		return false
 	var alt_pressed: bool = in_event.alt_pressed
-	var ctrl_pressed: bool = in_event.ctrl_pressed
+	var ctrl_pressed: bool = in_event.is_command_or_control_pressed()
 	var shift_pressed: bool = in_event.shift_pressed
 	# Meta key does not work like the rest of the modifiers, so we fallback to Input API
 	var meta_pressed: bool = Input.is_key_pressed(KEY_META)
@@ -631,7 +633,9 @@ func _check_input_event_can_bind(in_event: InputEvent, in_only_join_candidates: 
 		# for InputEventKey
 		if in_event.keycode == KEY_ALT:
 			alt_pressed = in_event.pressed
-		if in_event.keycode == KEY_CTRL:
+		if _is_mac and in_event.keycode == KEY_META:
+			ctrl_pressed = in_event.pressed
+		if (not _is_mac) and in_event.keycode == KEY_CTRL:
 			ctrl_pressed = in_event.pressed
 		if in_event.keycode == KEY_SHIFT:
 			shift_pressed = in_event.pressed
