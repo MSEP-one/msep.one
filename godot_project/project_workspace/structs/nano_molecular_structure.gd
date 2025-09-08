@@ -146,9 +146,14 @@ func remove_atom(in_atom_idx: int) -> bool:
 	for bond_id in bonds_ids:
 		remove_bond(bond_id)
 	_valid_atoms.erase(in_atom_idx)
-	_signal_queue_atoms_removed.append(in_atom_idx)
 	_atoms[in_atom_idx].valid = false
 	_invalid_atoms_count += 1
+	var index: int = _signal_queue_atoms_added.find(in_atom_idx)
+	if index > -1:
+		# Atom was created and removed during the same batch, ignore.
+		_signal_queue_atoms_added.remove_at(index)
+	else:
+		_signal_queue_atoms_removed.append(in_atom_idx)
 	return true
 
 
@@ -370,7 +375,12 @@ func remove_bond(in_bond_id: int) -> void:
 	atom_b.invalid_bonds_ids.push_back(in_bond_id)
 	_bonds[in_bond_id].z *= -1
 	_invalid_bonds_count += 1
-	_signal_queue_bonds_removed.append(in_bond_id)
+	var index: int = _signal_queue_bonds_created.find(in_bond_id)
+	if index > -1:
+		# Bond was created and removed during the same batch, ignore.
+		_signal_queue_bonds_created.remove_at(index)
+	else:
+		_signal_queue_bonds_removed.append(in_bond_id)
 
 
 ## Request to set a previously removed bond as valid again in the structure.
@@ -693,7 +703,7 @@ func motor_links_count() -> int:
 
 func _set_connected_motor(in_motor_id: int) -> void:
 	if !_initialized:
-		#during initialization do not emmit signals
+		#during initialization do not emit signals
 		connected_motor = in_motor_id
 		return
 	# disabled since we are now working on snapshots, this probably should not have any setter anymore

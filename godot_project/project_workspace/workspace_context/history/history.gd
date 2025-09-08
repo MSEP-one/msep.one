@@ -106,6 +106,7 @@ func create_snapshot_no_push() -> Dictionary:
 		snapshot[snapshotable] = snapshotable.create_state_snapshot()
 	return snapshot
 
+
 func create_snapshot(in_snapshot_name: String, in_simulation_id: int = -1, in_snapshot_during_simulation: Dictionary = {}) -> Dictionary:
 	_monitor_redundant_snapshots(in_snapshot_name)
 	var snapshot: Dictionary = create_snapshot_no_push()

@@ -1,5 +1,11 @@
 class_name NanoParticleEmitter extends NanoStructure
 
+## Creates particles over time during a simulation
+##
+## Due to how openMM works, every particles that should be emitted are created
+## and added to the structure in advance, but they are marked as invalid until
+## it's time (for each particle) to be emitted.
+
 
 signal transform_changed(new_transform: Transform3D)
 signal parameters_changed(in_parameters: NanoParticleEmitterParameters)
@@ -12,11 +18,10 @@ const DEFAULT_TRANSFORM = Transform3D(Basis(DEFAULT_ROTATION))
 const INSTANCE_SAFETY_MARGIN = 0.05 # nanometers
 
 @export var _transform := DEFAULT_TRANSFORM
-@export var _parameters: NanoParticleEmitterParameters
-var _frame_length_nanoseconds: float
+@export var _parameters: NanoParticleEmitterParameters: set = set_parameters
 
+var _frame_length_nanoseconds: float
 var _debug_show_unspawned_instances: bool = false
-var _about_to_apply_simulation: bool = false
 var _instances_group: AtomicStructure
 var _instances_atom_ids: Array[PackedInt32Array]
 var _instances_bond_ids: Array[PackedInt32Array]
@@ -24,17 +29,36 @@ var _instance_offset_cache_radius: float = -1
 var _instance_offset_cache: Dictionary[int, Vector3]
 var _instance_offset_candidates: Array = []
 var _instance_offset_last_candidate: int = -1
+var _instances_reference_transform: Transform3D
+
+# Atoms positions before a simulation starts and moves them away
+var _instances_original_positions: Dictionary[int, Vector3] = {}
 
 
 func _init() -> void:
 	_debug_show_unspawned_instances = FeatureFlagManager.get_flag_value(
-		FeatureFlagManager.FEATURE_FLAG_EMITTERS_SHOW_UNSPAWNED_INSTANES
+		FeatureFlagManager.FEATURE_FLAG_EMITTERS_SHOW_UNSPAWNED_INSTANCES
 	)
 	var on_feature_flag_toggled: Callable = func(path: String, new_value: bool) -> void:
-		if path == FeatureFlagManager.FEATURE_FLAG_EMITTERS_SHOW_UNSPAWNED_INSTANES:
+		if path == FeatureFlagManager.FEATURE_FLAG_EMITTERS_SHOW_UNSPAWNED_INSTANCES:
 			_debug_show_unspawned_instances = new_value
 	FeatureFlagManager.on_feature_flag_toggled.connect(on_feature_flag_toggled)
 
+
+func notify_added_to_workspace(in_workspace_context: WorkspaceContext) -> void:
+	var workspace: Workspace = in_workspace_context.workspace
+	if not workspace.structure_reparented.is_connected(_on_structure_reparented):
+		workspace.structure_reparented.connect(_on_structure_reparented)
+	if not workspace.structure_about_to_remove.is_connected(_on_structure_about_to_remove):
+		workspace.structure_about_to_remove.connect(_on_structure_about_to_remove)
+	if not workspace.simulation_parameters.changed.is_connected(_on_parameters_changed):
+		workspace.simulation_parameters.changed.connect(_on_parameters_changed)
+	if not in_workspace_context.about_to_apply_simulation.is_connected(_on_about_to_apply_simulation):
+		in_workspace_context.about_to_apply_simulation.connect(_on_about_to_apply_simulation)
+
+	_instances_group = workspace.get_structure_by_int_guid(int_parent_guid)
+	_instances_reference_transform = _transform
+	ensure_instances_exists()
 
 
 func get_total_molecule_instance_count() -> int:
@@ -69,18 +93,39 @@ static func calculate_total_molecule_instance_count(
 		return total_instance_count
 
 
-func has_instances() -> bool:
-	return not _instances_atom_ids.is_empty()
-
-
-func create_instances(out_group: AtomicStructure) -> void:
-	assert(_instances_atom_ids.is_empty() and _instances_bond_ids.is_empty() and
-		_instances_group == null, "Attempting to create instances when instances already exists!")
-	assert(out_group != null)
+## Count how many instances are currently tracked by this emitter, and either add the missing
+## ones, or remove the extra instances. Called when:
+## + Creating the particle emitter
+## + The parameters have been modified (changing the total expected particle count)
+## + A simulation is applied
+func ensure_instances_exists() -> void:
+	assert(_instances_group, "Structure is not initialized yet")
 	var template: AtomicStructure = _parameters.get_molecule_template()
 	if template == null:
 		return
-	_instances_group = out_group
+	
+	# If molecules_per_instance changed, discard the current instances and recreate everything
+	var molecules_per_instance: int = _parameters.get_molecules_per_instance()
+	var expected_atoms_count_per_instance: int = template.get_valid_atoms_count() * molecules_per_instance
+	if not _instances_atom_ids.is_empty():
+		var first_instance: PackedInt32Array = _instances_atom_ids[0]
+		if expected_atoms_count_per_instance != first_instance.size():
+			# TODO: There's currently no way to remove an invalid atom, so they just stay in memory for now
+			_instances_atom_ids.clear()
+			_instances_bond_ids.clear()
+	
+	var total_count: int = get_total_molecule_instance_count()
+	var current_count: int = _instances_atom_ids.size()
+	if current_count == total_count:
+		return
+	
+	if current_count > total_count:
+		# Too many instances, delete the extra ones.
+		_instances_atom_ids.resize(total_count)
+		_instances_bond_ids.resize(total_count)
+		_update_instances_original_positions() # Could be optimized
+		return
+	
 	_instances_group.start_edit()
 	# collect template data
 	var template_atoms: PackedInt32Array = template.get_valid_atoms()
@@ -99,15 +144,13 @@ func create_instances(out_group: AtomicStructure) -> void:
 		bonds.push_back(template.get_bond(bond_id))
 	# Create as many instances
 	var params: NanoMolecularStructure.AddAtomParameters = null
-	var molecules_per_instance: int = _parameters.get_molecules_per_instance()
-	var total_count: int = get_total_molecule_instance_count()
 	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
 	var step_size_femtoseconds: float = workspace.simulation_parameters.step_size_in_femtoseconds
 	var step_size_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
 		step_size_femtoseconds, TimeSpanPicker.Unit.NANOSECOND)
 	var steps_per_report: int = workspace.simulation_parameters.steps_per_report
 	_frame_length_nanoseconds = step_size_nanoseconds * steps_per_report
-	for i in total_count:
+	for i in total_count - current_count:
 		var emission_id: int = floori(float(i) / float(molecules_per_instance))
 		var emit_index: int = i - (molecules_per_instance * emission_id)
 		var offset: Vector3 = calculate_instance_offset(emit_index)
@@ -123,33 +166,45 @@ func create_instances(out_group: AtomicStructure) -> void:
 				elements[atom_idx],
 				_transform.origin + positions[atom_idx] + offset
 			)
-			var new_atom_id: int = out_group.add_atom(params)
+			var new_atom_id: int = _instances_group.add_atom(params)
 			instance_atom_map[atom_idx] = new_atom_id
 			this_instance_atoms.push_back(new_atom_id)
+			_instances_original_positions[new_atom_id] = params.position
 		for bond_idx: int in bonds.size():
 			var atom1: int = instance_atom_map[bonds[bond_idx].x]
 			var atom2: int = instance_atom_map[bonds[bond_idx].y]
 			var bond_order: int = bonds[bond_idx].z
-			var new_bond_id: int = out_group.add_bond(atom1, atom2, bond_order)
+			var new_bond_id: int = _instances_group.add_bond(atom1, atom2, bond_order)
 			this_instance_bonds.push_back(new_bond_id)
-	_instances_group.end_edit()
-
-
-func destroy_instances() -> void:
-	if _instances_atom_ids.is_empty() or _instances_group == null:
-		return
-	_instances_group.start_edit()
-	for instance_idx in _instances_atom_ids.size():
-		var first_atom_id: int = _instances_atom_ids[instance_idx][0]
-		if _instances_group.is_atom_valid(first_atom_id):
-			for bond_id in _instances_bond_ids[instance_idx]:
-				_instances_group.remove_bond(bond_id)
-			for atom_id in _instances_atom_ids[instance_idx]:
+	
+	# Mark all atoms as invalid
+	# TODO: this could use a specific API instead of relying on the current implementation details
+	for instance: PackedInt32Array in _instances_atom_ids:
+		for atom_id: int in instance:
+			if _instances_group.is_atom_valid(atom_id):
 				_instances_group.remove_atom(atom_id)
+	for instance: PackedInt32Array in _instances_bond_ids:
+		for bond_id: int in instance:
+			if _instances_group.is_bond_valid(bond_id):
+				_instances_group.remove_bond(bond_id)
 	_instances_group.end_edit()
-	_instances_group = null
-	_instances_atom_ids = []
-	_instances_bond_ids = []
+
+
+## Called just before starting a simulation.
+## Makes all instances visible, otherwise they will be ignored for the simulation.
+func revalidate_all_instances() -> void:
+	var expected_instance_count: int = get_total_molecule_instance_count()
+	var current_instance_count: int = _instances_atom_ids.size()
+	assert(expected_instance_count == current_instance_count, "Emitter instances are outdated")
+	
+	_instances_group.start_edit()
+	for instance: PackedInt32Array in _instances_atom_ids:
+		for atom_id: int in instance:
+			_instances_group.revalidate_atom(atom_id)
+	for instance: PackedInt32Array in _instances_bond_ids:
+		for bond_id: int in instance:
+			_instances_group.revalidate_bond(bond_id)
+	_instances_group.end_edit()
 
 
 func get_instance_atoms_ids() -> Array[PackedInt32Array]:
@@ -187,18 +242,6 @@ func seek_simulation(in_frame: float) -> void:
 				for atom_id in _instances_atom_ids[instance_idx]:
 					_instances_group.remove_atom(atom_id)
 	_instances_group.end_edit()
-
-
-func notify_apply_simulation() -> void:
-	# When simulation is applyed, any atom that was create in instance should remain
-	# in the group and stop beign tracked by particle emitter
-	_instances_group = null
-	_instances_atom_ids = []
-	_instances_bond_ids = []
-
-
-func notify_about_to_apply_simulation() -> void:
-	_about_to_apply_simulation = true
 
 
 func calculate_instance_offset(in_instance_idx: int) -> Vector3:
@@ -268,6 +311,23 @@ func set_transform(new_transform: Transform3D) -> void:
 		return
 	_transform = new_transform
 	transform_changed.emit(new_transform)
+	
+	# If the emitter moved, the existing instances must be moved too or they will be emitted
+	# from the wrong place. 
+	if not _transform.is_equal_approx(_instances_reference_transform):
+		_instances_original_positions.clear()
+		var reference_inverse: Transform3D = _instances_reference_transform.affine_inverse()
+		_instances_group.start_edit()
+		for instance: PackedInt32Array in _instances_atom_ids:
+			for atom_id: int in instance:
+				if _instances_group.is_atom_valid(atom_id):
+					continue # Don't move instances already emitted.
+				var local_pos: Vector3 = reference_inverse * _instances_group.atom_get_position(atom_id)
+				var new_pos: Vector3 = _transform * local_pos
+				_instances_group.atom_set_position(atom_id, new_pos)
+				_instances_original_positions[atom_id] = new_pos
+		_instances_group.end_edit()
+	_instances_reference_transform = _transform
 
 
 func set_position(new_position: Vector3) -> void:
@@ -284,7 +344,10 @@ func get_position() -> Vector3:
 func set_parameters(new_parameters: NanoParticleEmitterParameters) -> void:
 	if new_parameters == _parameters:
 		return
+	if _parameters and _parameters.changed.is_connected(_on_parameters_changed):
+		_parameters.changed.disconnect(_on_parameters_changed)
 	_parameters = new_parameters
+	_parameters.changed.connect(_on_parameters_changed)
 	parameters_changed.emit(_parameters)
 
 
@@ -325,62 +388,133 @@ func is_particle_emitter_within_screen_rect(in_camera: Camera3D, screen_rect: Re
 	return false
 
 
-func create_state_snapshot(in_with_instances: bool = false) -> Dictionary:
+func create_state_snapshot() -> Dictionary:
 	var state_snapshot: Dictionary = super.create_state_snapshot()
 	state_snapshot["script.resource_path"] = get_script().resource_path
 	state_snapshot["_transform"] = _transform
+	state_snapshot["_instances_reference_transform"] = _instances_reference_transform
 	state_snapshot["_parameters_snapshot"] = _parameters.create_state_snapshot()
-	if _about_to_apply_simulation:
-		const EMPTY_ARRAY: Array[PackedInt32Array] = []
-		state_snapshot["_instances_atom_ids"] = EMPTY_ARRAY.duplicate(false)
-		state_snapshot["_instances_bond_ids"] = EMPTY_ARRAY.duplicate(false)
-		state_snapshot["_instances_group_id"] = -1
-		_about_to_apply_simulation = false
-	else:
-		state_snapshot["_instances_atom_ids"] = _instances_atom_ids.duplicate(false)
-		state_snapshot["_instances_bond_ids"] = _instances_bond_ids.duplicate(false)
-		state_snapshot["_instances_group_id"] = -1 if _instances_group == null else _instances_group.int_guid
-	if in_with_instances:
-		if _instances_group == null:
-			state_snapshot["_instances_group"] = Workspace.INVALID_STRUCTURE_ID
-			state_snapshot["_instances_group_state"] = {} 
-			state_snapshot["_instances_group_renderer_state"] = {} 
-		else:
-			state_snapshot["_instances_group"] = _instances_group.int_guid
-			state_snapshot["_instances_group_state"] = _instances_group.create_state_snapshot()
-			var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
-			var workspace_cotext: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
-			var rendering: Rendering = workspace_cotext.get_rendering()
-			var renderer := rendering._get_renderer_for_atomic_structure(_instances_group)
-			state_snapshot["_instances_group_renderer_state"] = renderer.create_state_snapshot()
+	state_snapshot["_instances_atom_ids"] = _instances_atom_ids.duplicate(false)
+	state_snapshot["_instances_bond_ids"] = _instances_bond_ids.duplicate(false)
+	state_snapshot["_instances_group_id"] = -1 if _instances_group == null else _instances_group.int_guid
+	state_snapshot["_instances_original_positions"] = _instances_original_positions.duplicate(false)
+	state_snapshot["_frame_length_nanoseconds"] = _frame_length_nanoseconds
+	
 	return state_snapshot
 
 
-func apply_state_snapshot(in_state_snapshot: Dictionary, in_with_instances: bool = false) -> void:
+func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	super.apply_state_snapshot(in_state_snapshot)
 	_transform = in_state_snapshot["_transform"]
+	_instances_reference_transform = in_state_snapshot["_instances_reference_transform"]
 	if _parameters == null:
 		_parameters = NanoParticleEmitterParameters.new()
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters_snapshot"])
 	_instances_atom_ids = in_state_snapshot["_instances_atom_ids"].duplicate(false)
 	_instances_bond_ids = in_state_snapshot["_instances_bond_ids"].duplicate(false)
-	var instances_group_id: int = in_state_snapshot["_instances_group_id"]
+	_instances_original_positions = in_state_snapshot["_instances_original_positions"].duplicate(false)
+	_frame_length_nanoseconds = in_state_snapshot["_frame_length_nanoseconds"]
 	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	assert(workspace != null, "Workspace not found!")
+	var instances_group_id: int = in_state_snapshot["_instances_group_id"]
 	if instances_group_id == -1:
 		_instances_group = null
 	else:
-		assert(workspace != null, "Workspace not found!")
 		_instances_group = workspace.get_structure_by_int_guid(instances_group_id)
-	if in_with_instances:
-		var group_id: int = in_state_snapshot["_instances_group"]
-		if group_id == Workspace.INVALID_STRUCTURE_ID:
-			return
-		var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
-		var group_structure_context: StructureContext = \
-			workspace_context.get_nano_structure_context_from_id(group_id)
-		_instances_group = group_structure_context.nano_structure as AtomicStructure
-		_instances_group.apply_state_snapshot(in_state_snapshot["_instances_group_state"])
-		group_structure_context.get_collision_engine().rebuild(group_structure_context)
-		var rendering: Rendering = workspace_context.get_rendering()
-		var renderer := rendering._get_renderer_for_atomic_structure(_instances_group)
-		renderer.apply_state_snapshot(in_state_snapshot["_instances_group_renderer_state"])
+	
+	# If the emitter was deleted during a simulation and restored, the instances it tracks
+	# could be already emitted, or moved away by openMM, and needs to be updated.
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
+	if not workspace_context.is_simulating():
+		_stop_tracking_emitted_instances()
+		_reset_hidden_instances_positions()
+		ensure_instances_exists()
+
+
+func _stop_tracking_emitted_instances() -> void:
+	var instance_id: int = 0
+	while instance_id < _instances_atom_ids.size():
+		var first_atom_id: int = _instances_atom_ids[instance_id][0]
+		if _instances_group.is_atom_valid(first_atom_id):
+			# Instance was emitted, it's no longer handled by this emitter.
+			var instance: PackedInt32Array = _instances_atom_ids[instance_id]
+			for atom_id in instance:
+				_instances_original_positions.erase(atom_id)
+			_instances_atom_ids.remove_at(instance_id)
+			_instances_bond_ids.remove_at(instance_id)
+		else:
+			# Instance was not emitted yet
+			instance_id += 1
+
+
+func _update_instances_original_positions() -> void:
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
+	assert(not workspace_context.is_simulating(), "Calling this during a simulation will yield invalid positions.")
+	
+	_instances_original_positions.clear()
+	for instance in _instances_atom_ids:
+		for atom_id in instance:
+			_instances_original_positions[atom_id] = _instances_group.atom_get_position(atom_id)
+
+
+## Hidden instances are moved away before the simulation starts.
+## This reposition them to their initial position.
+func _reset_hidden_instances_positions() -> void:
+	if _instances_original_positions.is_empty():
+		return
+	_instances_group.start_edit()
+	for instance in _instances_atom_ids:
+		for atom_id in instance:
+			_instances_group.atom_set_position(atom_id, _instances_original_positions[atom_id])
+	_instances_group.end_edit()
+
+
+## Called when either the particle parameters or the simulation parameters are modified
+func _on_parameters_changed() -> void:
+	ensure_instances_exists()
+
+
+func _on_structure_reparented(in_structure: NanoStructure, in_new_parent: NanoStructure) -> void:
+	if in_structure != self or in_new_parent == _instances_group:
+		return
+	
+	_instances_atom_ids.clear()
+	_instances_bond_ids.clear()
+	_instances_group = in_new_parent
+	ensure_instances_exists()
+
+
+## When a simulation is applied, any atom that was emitted should remain
+## in the group and stop being tracked by this particle emitter. The other
+## atoms (still marked as invalid) should stay there.
+## This must happen before the snapshot is created.
+func _on_about_to_apply_simulation() -> void:
+	_stop_tracking_emitted_instances()
+	_reset_hidden_instances_positions()
+	if MolecularEditorContext.find_workspace_possessing_structure(self): # Check if necessary
+		ensure_instances_exists()
+
+
+func _on_structure_about_to_remove(in_structure: NanoStructure) -> void:
+	if in_structure != self:
+		return
+	
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(workspace)
+	if workspace.structure_reparented.is_connected(_on_structure_reparented):
+		workspace.structure_reparented.disconnect(_on_structure_reparented)
+	if workspace.structure_about_to_remove.is_connected(_on_structure_about_to_remove):
+		workspace.structure_about_to_remove.disconnect(_on_structure_about_to_remove)
+	if workspace.simulation_parameters.changed.is_connected(_on_parameters_changed):
+		workspace.simulation_parameters.changed.disconnect(_on_parameters_changed)
+	if workspace_context.about_to_apply_simulation.is_connected(_on_about_to_apply_simulation):
+		workspace_context.about_to_apply_simulation.disconnect(_on_about_to_apply_simulation)
+
+	# If the emitter is deleted because of a user action, update the molecular
+	# structure state before the snapshot is created.
+	# Ignore if the emitter is removed because of undo / redo (as the state is
+	# already contained in the snapshot)
+	if not workspace_context.is_applying_snapshot():
+		_stop_tracking_emitted_instances()
+		_reset_hidden_instances_positions()

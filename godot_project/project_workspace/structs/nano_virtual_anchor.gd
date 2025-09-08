@@ -17,8 +17,9 @@ var _linked_nano_structures: Dictionary = {
 	# nano_structure_id<int> : connected_springs<Dictionary> {spring_id<int> : true}
 }
 
+
 # Meant to be called from WorkspaceContext when am Anchor is added to the workspace
-func initialize(in_workspace_context: WorkspaceContext) -> void:
+func notify_added_to_workspace(in_workspace_context: WorkspaceContext) -> void:
 	assert(is_instance_valid(in_workspace_context), "Invalid WorkspaceContext")
 	_workspace_context = in_workspace_context
 
@@ -124,4 +125,3 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	
 	# Deffering this call should not be needed when Renderer will implement snapshoting
 	History.apply_signal_snapshot_to_object.call_deferred(self, in_state_snapshot["signals"])
-

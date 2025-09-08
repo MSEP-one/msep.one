@@ -45,6 +45,12 @@ var _parent_guid: StringName
 var _representation_settings: WeakRef = weakref(null) #WeakRef[RepresentationSettings]
 
 
+## Virtual
+## Called when the workspace is ready.
+func notify_added_to_workspace(_workspace_context: WorkspaceContext) -> void:
+	pass
+
+
 func set_representation_settings(_in_representation_settings: RepresentationSettings) -> void:
 	_representation_settings = weakref(_in_representation_settings)
 
