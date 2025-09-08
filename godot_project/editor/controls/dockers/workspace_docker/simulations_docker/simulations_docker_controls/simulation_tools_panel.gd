@@ -71,6 +71,7 @@ func _ensure_workspace_initialized(out_workspace_context: WorkspaceContext) -> v
 		_workspace_context = out_workspace_context
 		out_workspace_context.about_to_apply_simulation.connect(_on_workspace_context_about_to_apply_simulation)
 		out_workspace_context.alerts_panel_visibility_changed.connect(_on_workspace_context_alerts_panel_visibility_changed)
+		out_workspace_context.tree_exiting.connect(_on_workspace_closed)
 		_open_mm_failure_tracker.set_workspace_context(out_workspace_context)
 		# Initialize UI
 		var params: SimulationParameters = out_workspace_context.workspace.simulation_parameters
@@ -149,6 +150,11 @@ func _on_workspace_context_about_to_apply_simulation() -> void:
 
 func _on_workspace_context_alerts_panel_visibility_changed(in_is_visible: bool) -> void:
 	_button_view_alerts.visible = (not in_is_visible) and _workspace_context.has_alerts()
+
+
+func _on_workspace_closed() -> void:
+	# Dont process any ongoing simulation anymore
+	set_physics_process(false)
 
 
 func _set_status(in_status: Status) -> void:
