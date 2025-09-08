@@ -35,6 +35,9 @@ func _update_menu() -> void:
 				add_icon_item(data[&"icon"], data[&"text"], id)
 			else:
 				remove_item(get_item_index(id))
+	var has_context: bool = MolecularEditorContext.get_current_workspace() != null
+	for i in item_count:
+		set_item_disabled(i, not has_context)
 
 
 func _on_id_pressed(in_id: int) -> void:
