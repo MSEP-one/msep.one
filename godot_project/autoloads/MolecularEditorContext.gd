@@ -170,7 +170,7 @@ func load_and_activate_workspace(in_path: String) -> void:
 		return
 	var workspace_context: WorkspaceContext = get_workspace_context(workspace)
 	workspace_context.set_camera_global_transform(workspace.camera_transform)
-	# Needs to call_deferred to be executed after msep_editor_settings.changed is emmited
+	# Needs to call_deferred to be executed after msep_editor_settings.changed is emitted
 	workspace_context.set_camera_orthogonal_size.call_deferred(workspace.camera_orthogonal_size)
 	var active_structure_id: int = workspace.active_structure_int_guid
 	var active_structure: NanoStructure = workspace.get_structure_by_int_guid(active_structure_id)

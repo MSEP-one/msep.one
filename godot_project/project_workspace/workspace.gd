@@ -162,7 +162,7 @@ var _id: int
 
 
 func _init() -> void:
-	# prevent changed and representation_settings_changed signals from being emmited
+	# prevent changed and representation_settings_changed signals from being emitted
 	# when executing _set_representation_settings
 	set_block_signals(true)
 	_set_representation_settings(representation_settings)
@@ -479,6 +479,7 @@ func create_state_snapshot() -> Dictionary:
 
 
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(self)
 	var structure_state: Dictionary = in_snapshot["structures_snapshot"]
 	for snapshot_structure_id: int in structure_state:
 		var structure_snapshot: Dictionary = structure_state[snapshot_structure_id]
@@ -490,6 +491,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 			nano_structure.set_representation_settings(representation_settings)
 			_structures[snapshot_structure_id] = nano_structure
 			nano_structure.apply_state_snapshot(structure_snapshot)
+			nano_structure.notify_added_to_workspace(workspace_context)
 			continue
 		
 		if _structures.has(snapshot_structure_id):
@@ -500,6 +502,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 			continue
 		
 		var structure: NanoStructure = _structures[structure_id]
+		structure_about_to_remove.emit(structure)
 		MolecularEditorContext.get_workspace_context(self).get_rendering().remove(structure)
 		_structures.erase(structure_id)
 	

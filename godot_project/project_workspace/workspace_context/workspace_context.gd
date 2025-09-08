@@ -85,6 +85,7 @@ var _selection_modified_structure_contexts: Dictionary #[int, true]
 var _simulation: SimulationData = null
 var _is_simulation_playback_running: bool = false
 var _is_applying_simulation_state: bool = false
+var _is_applying_snapshot: bool = false
 var _current_create_object_template: NanoStructure = null
 var _current_create_object_structure_context: StructureContext = null
 var _structure_contexts_holder: NodeHolder
@@ -305,8 +306,7 @@ func add_nano_structure(in_structure: NanoStructure) -> void:
 	var rendering: Rendering = get_editor_viewport().get_rendering()
 	assert(rendering, "Received structure_added signal before workspace " +
 						"viewport UI was initialized")
-	if in_structure is NanoVirtualAnchor:
-		in_structure.initialize(self)
+	in_structure.notify_added_to_workspace(self)
 	var structure_context: StructureContext = get_nano_structure_context(in_structure)
 	if in_structure is AtomicStructure and not get_editor_viewport().get_rendering().is_renderer_for_atomic_structure_built(in_structure):
 		var current_representation: Rendering.Representation = workspace.representation_settings.get_rendering_representation()
@@ -613,8 +613,6 @@ func abort_simulation_if_running() -> void:
 	# Revert to original state and dispose
 	OpenMM.request_abort_simulation(_simulation)
 	seek_simulation(0.0)
-	for emitter: NanoParticleEmitter in get_particle_emitters():
-		emitter.destroy_instances()
 	_simulation = null
 	_is_simulation_playback_running = false
 	simulation_finished.emit()
@@ -633,11 +631,12 @@ func end_simulation_if_running() -> void:
 func apply_simulation_if_running() -> void:
 	if !is_simulating():
 		return
-	for emitter: NanoParticleEmitter in get_particle_emitters():
-		emitter.notify_apply_simulation()
-	_history.create_snapshot(tr("Apply Simulation State"))
+	OpenMM.request_abort_simulation(_simulation)
+	about_to_apply_simulation.emit()
 	_simulation = null
 	simulation_finished.emit()
+	_history.create_snapshot(tr("Apply Simulation State"))
+
 
 # # /Simulation
 # # # # # #
@@ -1366,6 +1365,7 @@ func create_state_snapshot() -> Dictionary:
 
 
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
+	_is_applying_snapshot = true
 	workspace.apply_state_snapshot(in_snapshot["workspace"])
 	_editable_structure_contexts_ids = in_snapshot["_editable_structure_contexts_ids"].duplicate()
 	
@@ -1393,6 +1393,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_current_structure_context_id = in_snapshot["_current_structure_context_id"]
 	
 	get_rendering().apply_state_snapshot(in_snapshot["rendering_snapshot"])
+	_is_applying_snapshot = false
 
 
 # # # # #
@@ -1404,57 +1405,43 @@ func snapshot_moment(in_operation_name: String) -> void:
 	# Apply simulation if the operation modified the structure of the project
 	if is_simulating() and not History.is_operation_whitelisted_during_simulation(in_operation_name):
 		_is_applying_simulation_state = true
-		about_to_apply_simulation.emit()
 		
 		# apply overdue signals, ensure snapshots contain up to date state
 		_emit_selection_in_structures_changed()
 		_emit_structure_content_changed()
 		
+		# Special case if the user only applied the simulation, a single snapshot is enough.
+		if in_operation_name == tr("Apply Simulation State"):
+			apply_simulation_if_running()
+			_is_applying_simulation_state = false
+			simulation_state_applied.emit()
+			return
+		
 		UIBlocker.start_blocking_input_events(self)
-		# We need to split the next snapshot in two separate steps:
+		# We need to split the next snapshot in two separate undo/redo steps:
 		# + Applying the simulation
 		# + Applying the user operation
 		# If we don't, hitting undo will revert the user action and the simulation at the same time.
 		
-		# Let's tell the emitters to make their next snapshot as if the simulation already ended
-		for emitter: NanoParticleEmitter in get_particle_emitters():
-			emitter.notify_about_to_apply_simulation()
-		
 		# Store the final snapshot containing both the applied state and the last action
+		about_to_apply_simulation.emit()
 		var final_snapshot: Dictionary = _history.create_snapshot(in_operation_name)
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
-		
-		var emitter_states: Dictionary
-		const STATES_WITH_INSTANCES = true
-		for emitter: NanoParticleEmitter in get_particle_emitters():
-			emitter_states[emitter.int_guid] = emitter.create_state_snapshot(STATES_WITH_INSTANCES)
 		
 		# Go back just before starting the simulation
 		await _history.apply_previous_snapshot()
 		
-		# HACK: Apply the state of emitters will ensure atoms are created before
-		# seek_simulation is called, but seek_simulation update them as corresponds
-		if not emitter_states.is_empty():
-			for emitter: NanoParticleEmitter in get_particle_emitters():
-				var previous_state: Dictionary = emitter_states.get(emitter.int_guid, {})
-				if previous_state.is_empty():
-					continue
-				emitter.apply_state_snapshot(previous_state, STATES_WITH_INSTANCES)
-			await get_tree().process_frame
-		
 		# Rewind simulation to the latest point and create a snapshot.
-		# This will drop the user operation (final_snapshot) from history. 
+		# This will drop the user operation (final_snapshot) from history.
 		seek_simulation(current_simulation_time)
 		apply_simulation_if_running()
-		end_simulation_if_running()
-		
+	
 		# Add the user operation back to the history stack
 		_history.push_and_apply_snapshot(final_snapshot, in_operation_name)
+		
 		UIBlocker.stop_blocking_input_events(self)
-
 		_is_applying_simulation_state = false
 		simulation_state_applied.emit()
-
 		return
 	
 	# apply overdue signals, ensure snapshots contain up to date state
@@ -1482,6 +1469,10 @@ func is_applying_simulation_state() -> bool:
 	return _is_applying_simulation_state
 
 
+func is_applying_snapshot() -> bool:
+	return _is_applying_snapshot
+
+
 func register_snapshotable(in_system: Object) -> void:
 	_history.register_snapshotable(in_system)
 
@@ -1497,10 +1488,6 @@ func apply_previous_snapshot() -> void:
 		abort_simulation_if_running()
 	_history.apply_previous_snapshot()
 	if is_simulating():
-		for emitter: NanoParticleEmitter in get_particle_emitters():
-			if not emitter.has_instances():
-				var parent: NanoStructure = workspace.get_parent_structure(emitter)
-				emitter.create_instances(parent)
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
 		seek_simulation(current_simulation_time)
 
@@ -1511,10 +1498,6 @@ func apply_next_snapshot() -> void:
 		abort_simulation_if_running()
 	_history.apply_next_snapshot()
 	if is_simulating():
-		for emitter: NanoParticleEmitter in get_particle_emitters():
-			if not emitter.has_instances():
-				var parent: NanoStructure = workspace.get_parent_structure(emitter)
-				emitter.create_instances(parent)
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
 		seek_simulation(current_simulation_time)
 

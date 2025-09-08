@@ -348,8 +348,7 @@ func _request_start_simulation(
 	const NUDGE_ATOMS_FIX = false
 	# Before creating the payload, prewarm the atoms of particle emitters
 	for emitter: NanoParticleEmitter in in_workspace_context.get_particle_emitters():
-		var parent: NanoStructure = in_workspace_context.workspace.get_parent_structure(emitter)
-		emitter.create_instances(parent)
+		emitter.revalidate_all_instances()
 	out_simulation_data.original_payload = _create_payload(in_workspace_context, false,
 			INCLUDE_VIRTUAL_OBJECTS, INCLUDE_SPRINGS, LOCK_ATOMS, PASSIVATE_MOLECULES, NUDGE_ATOMS_FIX)
 	out_simulation_data.push_frame(0, out_simulation_data.original_payload.initial_positions)
