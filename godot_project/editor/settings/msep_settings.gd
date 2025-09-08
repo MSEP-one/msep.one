@@ -28,6 +28,8 @@ var _ui_sfx_bus_index: int =  AudioServer.get_bus_index(&"Ui Sfx")
 	set = set_editor_camera_orthographic_projection_enabled
 @export var editor_max_undo_count: int = 128:
 	set = set_editor_max_undo_count
+@export var editor_max_atom_candidates: int = 50:
+	set = set_editor_max_atom_candidates
 @export var custom_background_color: Color:
 	set = set_custom_background_color
 @export var custom_background_color_enabled: bool = false:
@@ -72,6 +74,11 @@ func set_editor_sfx_volume_db(in_value_db: float) -> void:
 
 func set_editor_max_undo_count(in_value: int) -> void:
 	editor_max_undo_count = in_value
+	changed.emit()
+
+
+func set_editor_max_atom_candidates(in_value: int) -> void:
+	editor_max_atom_candidates = in_value
 	changed.emit()
 
 

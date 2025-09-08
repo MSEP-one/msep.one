@@ -2,7 +2,6 @@ extends InputHandlerCreateObjectBase
 
 
 const MAX_MERGE_DISTANCE: float = 0.069
-const MAX_ATOMS_FOR_AUTO_POSING: int = 50
 # H-H bond is 0.075 nm, that is the closest 2 atoms should be
 const MIN_DISTANCE_TO_ATOMS: float = 0.069
 const AtomCandidate = AtomAutoposePreview.AtomCandidate
@@ -69,6 +68,7 @@ func _init(in_context: WorkspaceContext) -> void:
 	_workspace_context.simulation_finished.connect(_on_workspace_context_simulation_started_or_finished)
 	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
 	representation_settings.changed.connect(_on_representation_settings_changed)
+	MolecularEditorContext.msep_editor_settings.changed.connect(_on_editor_settings_changed)
 
 
 func _on_current_structure_context_changed(in_context: StructureContext) -> void:
@@ -267,10 +267,11 @@ func _update_candidates() -> void:
 	
 	var context: StructureContext = _workspace_context.get_current_structure_context()
 	var total_atoms_selected: int = context.get_selected_atoms().size()
-	if total_atoms_selected > MAX_ATOMS_FOR_AUTO_POSING:
+	var max_candidates: int = MolecularEditorContext.msep_editor_settings.editor_max_atom_candidates
+	if total_atoms_selected > max_candidates:
 		_get_rendering().atom_autopose_preview_set_candidates(_candidates)
 		_workspace_context.get_editor_viewport_container().show_warning_in_message_bar(\
-			"Selecting over 50 atoms hides Potential Atom Position. Select fewer to enable this feature.")
+			"Selecting over %d atoms hides Potential Atom Position. Select fewer atoms or increase the limit in the Workspace Settings to enable this feature." % max_candidates)
 		return
 	
 	var candidate_data: ElementData = PeriodicTable.get_by_atomic_number(_element_selected)
@@ -616,6 +617,10 @@ func _on_workspace_context_atom_relaxation_started() -> void:
 func _on_workspace_context_atoms_relaxation_finished(_error: String) -> void:
 	if _should_show():
 		_show_preview()
+
+
+func _on_editor_settings_changed() -> void:
+	_candidates_dirty = true
 
 
 func _check_input_event_can_bind(in_event: InputEventWithModifiers, in_only_join_candidates: bool) -> bool:
