@@ -90,6 +90,14 @@ func find_workspace_possessing_structure(in_structure_to_find: NanoStructure) ->
 	return null
 
 
+func find_workspaces_possessing_structure_id(in_structure_id_to_find: int) -> Array[Workspace]:
+	var workspaces: Array[Workspace] = get_open_workspaces()
+	workspaces = workspaces.filter(func(in_workspace: Workspace) -> bool:
+		return in_workspace.has_structure_with_int_guid(in_structure_id_to_find)
+	)
+	return workspaces
+
+
 ## Soft loading a workspace will load it from disk but will not immediately activate it
 func soft_load_workspace(in_path: String) -> Workspace:
 	# Ignore the cache when trying to load the workspace to avoid issues with "Save as"

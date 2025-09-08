@@ -3,7 +3,8 @@ class_name OpenMMFailureTracker extends Node
 signal results_collected()
 
 enum ErrorType {
-	INVALID_VALENCE
+	INVALID_VALENCE,
+	UNKNOWN_VDW,
 }
 
 
@@ -88,6 +89,9 @@ func _process_openmm_errors(in_promise: Promise, in_original_payload: OpenMMPayl
 			_create_invalid_valence_item(in_original_payload, openff_to_zmq_atom_id, line, _extract_greater_valence_indices)
 	elif error.begins_with("Invalid position for"):
 		_workspace_context.push_error_alert(error)
+	elif error.begins_with("TopologyKey with atom indices "):
+		var header: String = error.split("\n")[0]
+		_create_unknown_vdw_items(in_original_payload, openff_to_zmq_atom_id, header)
 	elif error == OpenMM.OPENMM_CRASH_MESSAGE:
 		pass
 	else:
@@ -124,6 +128,49 @@ func _create_invalid_valence_item(in_original_payload: OpenMMPayload, in_openff_
 		msep_atom_ids.push_back(atom_data[MSEP_ATOM_ID_DATA])
 	
 	_alert_id_to_error_metadata[alert_id] = InvalidValenceMetadata.new(structure_id, msep_atom_ids, [])
+
+
+func _create_unknown_vdw_items(in_original_payload: OpenMMPayload, in_openff_to_zmq_atom_id: Dictionary, in_line: String, in_extract_indices_callback: Callable = _extract_indices) -> void:
+	var openmm_atom_ids: PackedInt32Array = in_extract_indices_callback.call(in_line, in_openff_to_zmq_atom_id)
+	assert(openmm_atom_ids.size() > 0)
+	const FIRST_ATOM = 0
+	const STRUCTURE_ID_DATA = 0
+	const MSEP_ATOM_ID_DATA = 1
+	var data_map: Dictionary[int, PackedInt32Array] = in_original_payload.request_atom_id_to_structure_and_atom_id_map
+	# {	request_atom_id: int = [structure_int_guid: int, atom_id: int] }
+	var structure_id: int = data_map[openmm_atom_ids[FIRST_ATOM]][STRUCTURE_ID_DATA]
+	var workspaces: Array[Workspace] = MolecularEditorContext.find_workspaces_possessing_structure_id(structure_id)
+	assert(workspaces.size() > 0)
+	var workspace: Workspace = workspaces[0]
+	if workspaces.size() > 1:
+		# More than 1 workspace shares strusture ID, likely because the same file was open more than once.
+		# Let's try to fallback to active workspace
+		var active: Workspace = MolecularEditorContext.get_current_workspace()
+		assert(active in workspaces)
+		workspace = active
+	var structure: AtomicStructure = workspace.get_structure_by_int_guid(structure_id)
+	assert(structure, "Workspace contains structure with id %d, but seems to not be an AtomicStructure")
+	var msep_atom_ids_per_element: Dictionary[int, PackedInt32Array]
+	for openmm_id: int in openmm_atom_ids:
+		if in_original_payload.passivate_molecules and openmm_id >= in_original_payload.atoms_count:
+			# Error related to a ghost hydrogen added for passivation
+			continue
+		assert(openmm_id in data_map, "Unknown atom id %d" % openmm_id)
+		var atom_data: Array = data_map[openmm_id]
+		assert(structure_id == atom_data[STRUCTURE_ID_DATA])
+		var msep_atom_id: int = atom_data[MSEP_ATOM_ID_DATA]
+		var atomic_number: int = structure.atom_get_atomic_number(msep_atom_id)
+		if not atomic_number in msep_atom_ids_per_element.keys():
+			msep_atom_ids_per_element[atomic_number] = PackedInt32Array()
+		msep_atom_ids_per_element[atomic_number].push_back(msep_atom_id)
+	for atomic_number: int in msep_atom_ids_per_element.keys():
+		var atom_ids: PackedInt32Array = msep_atom_ids_per_element[atomic_number]
+		var symbol: String = PeriodicTable.get_by_atomic_number(atomic_number).symbol
+		var count: int = atom_ids.size()
+		var error_desc: String = "OpenFF has unknown Van der Waals parameters for %d particle(s) of element %s"
+		error_desc = error_desc % [count, symbol]
+		var alert_id: int = _workspace_context.push_error_alert(error_desc, _on_alert_selected)
+		_alert_id_to_error_metadata[alert_id] = UnknownVdWParametterMetadata.new(structure_id, atom_ids)
 
 
 func _extract_indices(in_line: String, in_openff_to_zmq_atom_id: Dictionary) -> PackedInt32Array:
@@ -184,6 +231,31 @@ class InvalidValenceMetadata extends ErrorMetadata:
 			context.clear_selection()
 		
 		structure_context.select_atoms_and_get_auto_selected_bonds(selection)
+
+		var focus_aabb: AABB = WorkspaceUtils.get_selected_objects_aabb(out_workspace_context)
+		WorkspaceUtils.focus_camera_on_aabb(out_workspace_context, focus_aabb)
+		out_workspace_context.snapshot_moment("Select Atoms")
+
+class UnknownVdWParametterMetadata extends ErrorMetadata:
+	func _init(
+			in_structure_id: int,
+			in_atom_ids: PackedInt32Array) -> void:
+		type = ErrorType.UNKNOWN_VDW
+		structure_int_guid = in_structure_id
+		atom_ids = in_atom_ids
+	
+	func on_clicked(out_workspace_context: WorkspaceContext) -> void:
+		var selection: PackedInt32Array = atom_ids
+		
+		var structure: NanoStructure = out_workspace_context.workspace.get_structure_by_int_guid(structure_int_guid)
+		assert(structure != null)
+		var structure_context: StructureContext = out_workspace_context.get_nano_structure_context(structure)
+		if structure_context != out_workspace_context.get_current_structure_context():
+			out_workspace_context.change_current_structure_context(structure_context)
+		for context in out_workspace_context.get_structure_contexts_with_selection():
+			context.clear_selection()
+		
+		structure_context.select_atoms(selection)
 
 		var focus_aabb: AABB = WorkspaceUtils.get_selected_objects_aabb(out_workspace_context)
 		WorkspaceUtils.focus_camera_on_aabb(out_workspace_context, focus_aabb)
