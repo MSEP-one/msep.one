@@ -138,4 +138,3 @@ shortcut_hide_selected_objects = SubResource("Shortcut_suqnu")
 shortcut_show_hidden_objects = SubResource("Shortcut_hp7en")
 
 [node name="Camera" parent="." instance=ExtResource("21_qnyh1")]
-unfocusable = true

@@ -59,7 +59,6 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 		set_item_disabled(get_item_index(ID_SHOW_HIDDEN_OBJECTS), !has_hidden_objects)
 		set_item_disabled(get_item_index(ID_OVERRIDE_DEFAULT_COLORS), !in_context.is_any_atom_selected())
 		
-		
 		var current_representation: int = in_context.workspace.representation_settings.get_rendering_representation()
 		set_item_disabled(get_item_index(ID_REPRESENTATION_VAN_DER_WAALS), \
 			Rendering.Representation.VAN_DER_WAALS_SPHERES == current_representation)
@@ -71,12 +70,21 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 			Rendering.Representation.ENHANCED_STICKS == current_representation)
 		set_item_disabled(get_item_index(ID_REPRESENTATION_BALLS_AND_STICKS), \
 			Rendering.Representation.BALLS_AND_STICKS == current_representation)
+	else:
+		for i: int in item_count:
+			if is_item_separator(i) or get_item_submenu_node(i) != null:
+				continue
+			if get_item_id(i) in [ID_TOGGLE_FEATURE_FLAGS_MANAGER, ID_SHOW_ALGORITHM_TWEAKS]:
+				continue
+			set_item_disabled(i, true)
 	set_item_checked(get_item_index(ID_TOGGLE_OBJECT_TREE_VIEW), visible_object_tree)
 
 
 func _on_id_pressed(in_id: int) -> void:
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	var representation_settings: RepresentationSettings = workspace_context.workspace.representation_settings
+	var representation_settings: RepresentationSettings = null
+	if workspace_context != null:
+		representation_settings = workspace_context.workspace.representation_settings
 	match in_id:
 		ID_FOCUS_ON_VISIBLE_OBJECTS:
 			assert(workspace_context)
