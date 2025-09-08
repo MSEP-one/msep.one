@@ -16,10 +16,19 @@ func _ready() -> void:
 	add_submenu_item(tr("Shapes"), shapes.name)
 	add_submenu_item("Virtual Objects", virtual_objects.name)
 
+
 func _update_menu() -> void:
 	atoms._update_menu()
 	shapes._update_menu()
 	virtual_objects._update_menu()
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+	_update_for_context(workspace_context)
+
+
+func _update_for_context(in_context: WorkspaceContext) -> void:
+	var has_context: bool = is_instance_valid(in_context)
+	set_item_disabled(get_item_index(ID_CREATE_SMALL_MOLECULES), !has_context)
+
 
 func _on_id_pressed(in_id: int) -> void:
 	if in_id == ID_CREATE_SMALL_MOLECULES:
