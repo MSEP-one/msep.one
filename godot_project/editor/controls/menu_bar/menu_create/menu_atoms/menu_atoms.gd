@@ -60,6 +60,7 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 			set_item_disabled(get_item_index(ID_AUTO_BONDER), true)
 		set_item_disabled(get_item_index(ID_ADD_HYDROGENS), true)
 		set_item_disabled(get_item_index(ID_LOCK_UNLOCK_SELECTED_ATOMS), true)
+		set_item_disabled(get_item_index(ID_CORRECT_OVERLAPPING_ATOMS), true)
 		return
 	
 	# Validate Auto Bonder
@@ -83,6 +84,10 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 	# Validate Lock/Unlock atoms
 	var has_selection: bool = in_context.is_any_atom_selected()
 	set_item_disabled(get_item_index(ID_LOCK_UNLOCK_SELECTED_ATOMS), not has_selection)
+	
+	# Validate Correct Overlapping Atoms
+	var has_valid_atoms: bool = in_context.has_valid_atoms()
+	set_item_disabled(get_item_index(ID_CORRECT_OVERLAPPING_ATOMS), not has_valid_atoms)
 
 
 func _on_id_pressed(in_id: int) -> void:
