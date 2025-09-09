@@ -144,8 +144,9 @@ func _notification(what: int) -> void:
 	
 	if what == NOTIFICATION_PREDELETE:
 		create_object_parameters = null
-		if is_simulating():
+		if is_simulating() and  is_instance_valid(OpenMM):
 			# Let OpenMM know it doesn't need to process this simulation anymore
+			# OpenMM could be invalid when closing the entire app during simulation
 			OpenMM.request_abort_simulation(_simulation)
 		if is_instance_valid(workspace_main_view):
 			if not workspace_main_view.is_inside_tree():
