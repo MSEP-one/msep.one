@@ -49,7 +49,7 @@ text = "Show Potential Atom Positions"
 [node name="Title" type="Label" parent="Settings/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
-text = "Hide during Simulations"
+text = "Hide During Simulations"
 
 [node name="PanelContainer" type="PanelContainer" parent="Settings/PanelContainer/VBoxContainer"]
 layout_mode = 2
