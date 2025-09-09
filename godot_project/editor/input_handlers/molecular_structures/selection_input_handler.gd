@@ -331,6 +331,7 @@ func _select_connected_selection_logic(
 			if any_selected:
 				hit_context.deselect_atoms(atoms)
 				hit_context.deselect_bonds(bonds)
+				_workspace_context.snapshot_moment("Change Selection")
 				return true
 			return false
 		# When double clicking an atom and holding shift, the first click will deselect the atom
@@ -346,6 +347,7 @@ func _select_connected_selection_logic(
 		if all_except_clicked_selected:
 			hit_context.deselect_atoms(atoms)
 			hit_context.deselect_bonds(bonds)
+			_workspace_context.snapshot_moment("Change Selection")
 			return true
 		# Case 3: if not multiselection, deselect all before selecting atoms and bonds
 		if not in_is_multiselect:
@@ -354,6 +356,7 @@ func _select_connected_selection_logic(
 		# Case 4 (and second part of 3): select connected atoms and bonds
 		hit_context.select_atoms(atoms)
 		hit_context.select_bonds(bonds)
+		_workspace_context.snapshot_moment("Change Selection")
 		return true
 	return false
 
