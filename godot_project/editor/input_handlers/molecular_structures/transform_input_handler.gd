@@ -371,7 +371,8 @@ func _on_workspace_context_atoms_relaxation_finished(error: String) -> void:
 	GizmoRoot.selected_node.global_position = _init_initial_positions_and_determine_center()
 	await GizmoRoot.get_tree().process_frame
 	_set_tracking_transforms(true)
-	GizmoRoot.enable_gizmo()
+	if _workspace_context.has_transformable_selection():
+		GizmoRoot.enable_gizmo()
 
 
 func _on_workspace_context_atom_relaxation_started() -> void:
