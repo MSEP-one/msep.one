@@ -41,6 +41,10 @@ static func get_msep_version(in_include_features: bool = true) -> String:
 	return msep_version
 
 
+static func is_mac() -> bool:
+	return OS.get_name().to_lower() in ["macos", "ios"]
+
+
 static func _collect_godot_features() -> String:
 	var godot_features: PackedStringArray = []
 	var all_features: Array[String] = [
