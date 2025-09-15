@@ -896,6 +896,8 @@ static func _import_xyz_file(out_workspace_context: WorkspaceContext, path: Stri
 	if not xyz_structure:
 		Editor_Utils.get_editor().prompt_error_msg("Cannot load file: " + path)
 		return
+	# Unlink structure from file path, otherwise workspace saver will try to reference it by path
+	xyz_structure.set_path_cache("")
 	
 	# Add structure to current workspace
 	var aabb := xyz_structure.get_aabb()
