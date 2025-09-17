@@ -15,6 +15,10 @@ func _process(_in_delta : float) -> void:
 	_position_orientation_wrapper()
 
 
+func snap_to_rotation(in_rotation : Vector3) -> void:
+	_draw_orientation_widget.snap_to_rotation(in_rotation)
+
+
 func is_snap_active() -> bool:
 	return _draw_orientation_widget.snap_is_active
 

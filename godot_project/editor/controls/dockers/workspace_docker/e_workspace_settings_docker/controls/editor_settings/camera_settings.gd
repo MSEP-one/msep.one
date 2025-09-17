@@ -19,6 +19,7 @@ func _ready() -> void:
 	invert_camera_orbit_y_check_button.toggled.connect(_on_toggle_invert_orbit_y)
 	perspective_button.toggled.connect(_on_perspective_button_toggled)
 	orthographic_button.toggled.connect(_on_orthographic_button_toggled)
+	MolecularEditorContext.msep_editor_settings.changed.connect(_on_msep_editor_settings_changed)
 
 
 func should_show(_in_workspace_context: WorkspaceContext)-> bool:
@@ -47,3 +48,9 @@ func _on_orthographic_button_toggled(in_enabled: bool) -> void:
 	if not in_enabled:
 		return
 	MolecularEditorContext.msep_editor_settings.editor_camera_orthographic_projection_enabled = true
+
+func _on_msep_editor_settings_changed() -> void:
+	# Camera projection can change with keyboard shortcuts:
+	var is_orthographic: bool = MolecularEditorContext.msep_editor_settings.editor_camera_orthographic_projection_enabled
+	orthographic_button.set_pressed_no_signal(is_orthographic)
+	perspective_button.set_pressed_no_signal(not is_orthographic)

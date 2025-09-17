@@ -168,6 +168,23 @@ func _finish_orientation_snap(_orientation_widget: Node3D) -> void:
 func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 		_in_context: StructureContext) -> bool:
 	
+	if in_input_event is InputEventKey:
+		if in_input_event.is_action_pressed(&"camera_toggle_projection", false, true):
+			MolecularEditorContext.msep_editor_settings.editor_camera_orthographic_projection_enabled = \
+				not MolecularEditorContext.msep_editor_settings.editor_camera_orthographic_projection_enabled
+			return true
+		const KEYBOARD_SHORTCUTS: Dictionary[StringName, Vector3] = {
+			&"camera_snap_front": Vector3(.0, 0, .0),
+			&"camera_snap_back": Vector3(.0, PI, .0),
+			&"camera_snap_right": Vector3(.0, PI * .5, .0),
+			&"camera_snap_left": Vector3(.0, PI * -.5, .0),
+			&"camera_snap_top":  Vector3(PI * -.5, .0, .0),
+			&"camera_snap_bottom": Vector3(PI * .5, .0, .0),
+		}
+		for action: StringName in KEYBOARD_SHORTCUTS.keys():
+			if in_input_event.is_action_pressed(action, false, true):
+				_snap_to_rotation(KEYBOARD_SHORTCUTS[action])
+				return true
 	_detect_which_modifiers_are_being_held_down()
 	
 	_pending_scroll_return = _shift_key_is_held_down
@@ -421,6 +438,11 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, \
 		return true
 	
 	return false
+
+
+func _snap_to_rotation(in_rotation: Vector3) -> void:
+	var vp_container: SubViewportContainer = _workspace_context.get_editor_viewport_container()
+	vp_container.snap_to_rotation(in_rotation)
 
 
 func disable_orbiting_on_up_down_keyboard_only_input() -> void:
