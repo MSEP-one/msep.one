@@ -12,6 +12,9 @@ extends Node
 @export var delete_object_sounds: Array[AudioStream]
 
 
+var _last_sfx: float = 0.0
+
+
 func rollover() -> void:
 	_play_random($rollover, rollover_sounds)
 
@@ -64,6 +67,10 @@ func _play_random(player: AudioStreamPlayer, library: Array[AudioStream]) -> voi
 	if library.size() == 0:
 		push_error("No stream source specified for sfx of type %s" % player.name)
 		return
+	if Time.get_unix_time_from_system() - _last_sfx < 0.1:
+		# Dont repeat SFXs
+		return
+	_last_sfx = Time.get_unix_time_from_system()
 	var s: AudioStream = library[randi() % library.size()]
 	player.stream = s
 	player.play()
