@@ -63,6 +63,14 @@ func _notification(what: int) -> void:
 				_wait_before_close_dlg = prompt_error_msg(tr(&"Please wait for the current operation to complete before closing the application."))
 				BusyIndicator.visibility_changed.connect(_wait_before_close_dlg.queue_free, CONNECT_DEFERRED)
 			return
+		if video_tutorials_dialog.visible:
+			# Tutorials are open, close them
+			video_tutorials_dialog.get_video_player().hide()
+			video_tutorials_dialog.hide()
+			var context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+			if context != null:
+				context.get_editor_viewport_container().show_warning_in_message_bar(tr(&"Tutorial window closed"))
+			return
 		var open_workspaces: Array[Workspace] = MolecularEditorContext.get_open_workspaces()
 		var is_unsaved: Callable = func(in_workspace: Workspace) -> bool:
 			var context: WorkspaceContext = MolecularEditorContext.get_workspace_context(in_workspace) as WorkspaceContext
