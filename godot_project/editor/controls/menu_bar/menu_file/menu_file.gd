@@ -9,8 +9,7 @@ enum {
 	POPUP_ID_SAVE_WORKSPACE_AS = 3,
 	POPUP_ID_IMPORT_PDB = 4,
 	POPUP_ID_IMPORT_FROM_LIBRARY = 5,
-	POPUP_ID_LOAD_FRAGMENT = 6,
-	POPUP_ID_CLOSE_WORKSPACE = 7,
+	POPUP_ID_CLOSE_WORKSPACE = 6,
 	POPUP_ID_EXPORT_FILE = 9,
 }
 
@@ -65,7 +64,6 @@ func _ready() -> void:
 func _update_menu() -> void:
 	var has_workspace: bool = MolecularEditorContext.get_current_workspace_context() != null
 	set_item_disabled(get_item_index(POPUP_ID_IMPORT_FROM_LIBRARY), !has_workspace)
-	set_item_disabled(get_item_index(POPUP_ID_LOAD_FRAGMENT), !has_workspace)
 	var can_save: bool = MolecularEditorContext.get_current_workspace() != null
 	set_item_disabled(get_item_index(POPUP_ID_SAVE_WORKSPACE), !can_save)
 	set_item_disabled(get_item_index(POPUP_ID_SAVE_WORKSPACE_AS), !can_save)
@@ -110,7 +108,3 @@ func _on_id_pressed(id: int) -> void:
 			if workspace == null:
 				return
 			MolecularEditorContext.request_close_workspace(workspace)
-		POPUP_ID_LOAD_FRAGMENT:
-			var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-			if workspace_context != null:
-				workspace_context.action_load_fragment.execute()
