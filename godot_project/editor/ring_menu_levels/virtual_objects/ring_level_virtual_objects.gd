@@ -22,3 +22,4 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 		add_action(RingActionCreateAnchorsAndSprings.new(in_workspace_context, in_menu))
 	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_PARTICLE_EMITTERS):
 		add_action(RingActionCreateParticleEmitters.new(in_workspace_context, in_menu))
+	add_action(RingActionAddShapes.new(_workspace_context, in_menu))
