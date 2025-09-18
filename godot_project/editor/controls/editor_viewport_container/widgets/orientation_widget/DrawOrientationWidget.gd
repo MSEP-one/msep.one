@@ -246,7 +246,7 @@ func _calculate_screen_offset(in_orbit_radius: float) -> Vector3:
 	return center_of_viewport3D - center_of_rect3D
 
 
-func _calculate_snap(in_rotation : Vector3) -> void:
+func snap_to_rotation(in_rotation : Vector3) -> void:
 	if !MolecularEditorContext.get_current_workspace_context().has_visible_objects():
 		return
 	
@@ -276,14 +276,14 @@ func _calculate_axis_snap(in_axis_char: String, in_non_inverted_rotation: Vector
 		in_inverted_rotation: Vector3) -> void:
 	if axis_depths[colliding_axis_index][4]:
 		if _determine_axis_overlap(in_axis_char, true, axis_depths[colliding_axis_index][1]):
-			_calculate_snap(in_non_inverted_rotation)
+			snap_to_rotation(in_non_inverted_rotation)
 		else:
-			_calculate_snap(in_inverted_rotation)
+			snap_to_rotation(in_inverted_rotation)
 	else:
 		if _determine_axis_overlap(in_axis_char, false, axis_depths[colliding_axis_index][1]):
-			_calculate_snap(in_inverted_rotation)
+			snap_to_rotation(in_inverted_rotation)
 		else:
-			_calculate_snap(in_non_inverted_rotation)
+			snap_to_rotation(in_non_inverted_rotation)
 
 
 func manage_mouse_click(in_input_event: InputEvent) -> void:

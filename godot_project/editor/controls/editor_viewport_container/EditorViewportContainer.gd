@@ -40,6 +40,10 @@ func _ready() -> void:
 	GizmoRoot.rotation_ended.connect(_on_transform_rotation_ended)
 
 
+func snap_to_rotation(in_rotation : Vector3) -> void:
+	_orientation_widget.snap_to_rotation(in_rotation)
+
+
 func _set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
 	if workspace_context == in_workspace_context:
 		return
