@@ -29,12 +29,14 @@ func handle_inputs_end() -> void:
 
 
 func handle_inputs_resume() -> void:
-	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
+	var workspace_context: WorkspaceContext = get_workspace_context()
+	var structure_context: StructureContext = workspace_context.get_current_structure_context()
+	var parameters: CreateObjectParameters = workspace_context.create_object_parameters
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS \
 			or not parameters.get_create_mode_enabled():
 		return
 	update_preview_position()
-	var can_bind: bool = (
+	var input_can_bind: bool = (
 		Input.is_key_pressed(KEY_SHIFT) and
 		(not Input.is_key_pressed(KEY_ALT)) and
 		(not Input.is_key_pressed(KEY_CTRL)) and
@@ -42,7 +44,8 @@ func handle_inputs_resume() -> void:
 	)
 	var rendering: Rendering = _get_rendering()
 	rendering.atom_preview_show()
-	if can_bind:
+	var atom_pos: Vector3 = rendering.atom_preview_get_position()
+	if input_can_bind and _check_context_can_bind(structure_context, atom_pos):
 		rendering.bond_preview_show()
 
 
@@ -59,6 +62,7 @@ func _init(in_context: WorkspaceContext) -> void:
 	in_context.create_object_parameters.creation_distance_from_camera_factor_changed.connect(_on_creation_distance_from_camera_factor_changed)
 	var editor_viewport: WorkspaceEditorViewport = get_workspace_context().get_editor_viewport()
 	editor_viewport.get_ring_menu().closed.connect(_on_ring_menu_closed)
+
 
 func _on_current_structure_context_changed(in_context: StructureContext) -> void:
 	if in_context == null or in_context.nano_structure == null:
