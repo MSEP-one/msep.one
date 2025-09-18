@@ -1,27 +1,31 @@
-[gd_scene load_steps=6 format=3 uid="uid://c7ah6aa0h076n"]
+[gd_scene load_steps=7 format=3 uid="uid://c7ah6aa0h076n"]
 
 [ext_resource type="Script" uid="uid://ddro7il1rikpk" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/axes_widget.gd" id="1_issv1"]
 [ext_resource type="Script" uid="uid://d0s5mh34jat6h" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/DrawAxesWidget.gd" id="2_3ag08"]
 [ext_resource type="Texture2D" uid="uid://cn248qbofp1wv" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Default.svg" id="3_lv0lt"]
 [ext_resource type="Texture2D" uid="uid://duw21ccv8bsy8" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Hover.svg" id="4_b5lwk"]
 [ext_resource type="Texture2D" uid="uid://cf7es81gfbfcr" path="res://editor/controls/editor_viewport_container/widgets/axes_widget/svg/UI_CamGizmo_Cam_Pressed.svg" id="5_2tbtw"]
+[ext_resource type="PackedScene" uid="uid://dmus5xq8oki7v" path="res://editor/controls/editor_viewport_container/widgets/roll_widget/roll_handle.tscn" id="6_nmmgn"]
 
-[node name="AxesWidget" type="MarginContainer"]
+[node name="AxesWidget" type="Control"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 100)
+layout_mode = 3
+anchors_preset = 0
 offset_right = 100.0
 offset_bottom = 100.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 0
-theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 0
 script = ExtResource("2_3ag08")
 
 [node name="OrbitHandle" type="TextureRect" parent="."]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_lv0lt")
 expand_mode = 3
@@ -58,6 +62,9 @@ metadata/_edit_lock_ = true
 
 [node name="AxesWidget3D" type="Node3D" parent="."]
 script = ExtResource("1_issv1")
+
+[node name="RollHandle" parent="." instance=ExtResource("6_nmmgn")]
+layout_mode = 1
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
