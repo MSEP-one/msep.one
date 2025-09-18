@@ -161,7 +161,6 @@ func remove_atom(in_atom_idx: int) -> bool:
 ## Returns wether or not an atom has been removed from the structure
 func is_atom_valid(in_atom_idx: int) -> bool:
 	if in_atom_idx < 0 || in_atom_idx >= _atoms.size():
-		push_error("Invalid atom index %d in structure of size %d" % [in_atom_idx, _atoms.size()])
 		return false
 	return _atoms[in_atom_idx].valid
 
@@ -413,7 +412,6 @@ func revalidate_bond(in_bond_id: int) -> bool:
 ## Returns wether or not a bond has been removed from the structure
 func is_bond_valid(in_bond_id: int) -> bool:
 	if in_bond_id < 0 || in_bond_id >= _bonds.size():
-		push_error("Invalid bond id %d in structure of size %d" % [in_bond_id, _bonds.size()])
 		return false
 	return _bonds[in_bond_id].z > 0
 
