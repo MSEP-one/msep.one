@@ -3,7 +3,7 @@ class_name CollisionEngine extends Node
 
 # PhysicEngine is not prepared for working on such small scale,
 # this const is used to rescale the physic space to something more suitable
-const PHYSIC_SPACE_SIZE_FACTOR: float = 20.0
+const PHYSIC_SPACE_SIZE_FACTOR: float = 2000.0
 
 const _BOND_COLLISION_DATA_TRANSFORM: int = 0
 const _BOND_COLLISION_DATA_SHAPE_HALF_SIZE: int = 1
