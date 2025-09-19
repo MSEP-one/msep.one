@@ -19,6 +19,8 @@ var _transparency: float = DEFAULT_PREVIEW_TRANSPARENCY
 var _auto_update_preview: bool = true 
 
 var _structure: AtomicStructure
+var _original_atoms_positions: Dictionary [int, Vector3]
+var _current_basis: Basis = NanoParticleEmitter.DEFAULT_TRANSFORM.basis
 var _enabled_on_preview_viewport: bool = false
 
 
@@ -64,6 +66,9 @@ func set_structure(in_structure: NanoStructure) -> void:
 	_structure = NanoMolecularStructure.new()
 	_structure.apply_state_snapshot(in_structure.create_state_snapshot())
 	_structure.set_representation_settings(in_structure.get_representation_settings())
+	_original_atoms_positions = {}
+	for atom_id: int in _structure.get_valid_atoms():
+		_original_atoms_positions[atom_id] = _structure.atom_get_position(atom_id)
 	
 	var representation_settings: RepresentationSettings = in_structure.get_representation_settings()
 	_atomic_structure_renderer.build_for_preview(_structure, representation_settings.get_rendering_representation())
@@ -75,6 +80,23 @@ func set_structure(in_structure: NanoStructure) -> void:
 	_on_representation_settings_bond_visibility_changed(display_bonds)
 	
 	_atomic_structure_renderer.apply_theme(representation_settings.get_theme())
+
+
+func set_preview_transform(in_transform: Transform3D) -> void:
+	# Renderer does not support applying a rotation to the entire Node
+	# Instead the rotation needs to be applied to each individual atom
+	global_position = in_transform.origin
+	if _current_basis != in_transform.basis:
+		_structure.start_edit()
+		var basis_to_apply: Basis = in_transform.basis * NanoParticleEmitter.DEFAULT_TRANSFORM.basis.inverse()
+		for atom_id: int in _original_atoms_positions.keys():
+			var atom_pos: Vector3 = _original_atoms_positions[atom_id]
+			atom_pos = basis_to_apply * atom_pos
+			_structure.atom_set_position(atom_id, atom_pos)
+		_structure.end_edit()
+		_current_basis = in_transform.basis
+		var representation_settings: RepresentationSettings = _structure.get_representation_settings()
+		_atomic_structure_renderer.build_for_preview(_structure, representation_settings.get_rendering_representation())
 
 
 func update(in_delta: float) -> void:

@@ -121,7 +121,7 @@ func transform_by_external_transform(in_selection_initial_pos: Vector3, in_initi
 	var emitter: NanoParticleEmitter = _workspace_context.workspace.get_structure_by_int_guid(_emitter_id)
 	for i: int in _structure_previews.size():
 		var preview: StructurePreview = _structure_previews[i]
-		preview.global_position = global_transform.origin + emitter.calculate_instance_offset(i)
+		preview.set_preview_transform(global_transform.translated(emitter.calculate_instance_offset(i)))
 
 
 func _set_structure_preview_count(in_count: int) -> void:
@@ -140,7 +140,7 @@ func _set_structure_preview_count(in_count: int) -> void:
 			add_child(instance)
 			instance.set_structure(template)
 			instance.set_auto_update(false)
-			instance.global_position = global_position + emitter.calculate_instance_offset(index)
+			instance.set_preview_transform(global_transform.translated(emitter.calculate_instance_offset(index)))
 			instance.visible = self.visible
 			_structure_previews.push_back(instance)
 
@@ -150,7 +150,7 @@ func _on_emitter_transform_changed(in_transform: Transform3D) -> void:
 	var emitter: NanoParticleEmitter = _workspace_context.workspace.get_structure_by_int_guid(_emitter_id)
 	for i: int in _structure_previews.size():
 		var preview: StructurePreview = _structure_previews[i]
-		preview.global_position = in_transform.origin + emitter.calculate_instance_offset(i)
+		preview.set_preview_transform(in_transform.translated(emitter.calculate_instance_offset(i)))
 
 
 func update(delta: float) -> void:
