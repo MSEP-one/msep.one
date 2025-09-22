@@ -115,6 +115,19 @@ func soft_load_workspace(in_path: String) -> Workspace:
 		workspace.resource_path = ""
 		workspace.suggested_path = _get_suggested_path(in_path)
 		open_workspace.take_over_path(in_path)
+	elif workspace.get_structures().size() == 0 or workspace.active_structure_int_guid == Workspace.INVALID_STRUCTURE_ID:
+		# Failed to load workspace file. most lileky because file was created with an older version of the applicaiton
+		var last_version: String = "unknown"
+		if workspace.msep_version_history.size():
+			last_version = workspace.msep_version_history.values()[-1]
+		if last_version != Editor_Utils.get_msep_version():
+			Editor_Utils.get_editor().prompt_error_msg(tr(
+				StringName(
+					"Failed to load workspace file. It seems to be saved with an older version of MSEP.\n"+
+					"· Saved with version: %s\n" +
+					"· Current MSEP version: %s"
+				)) % [last_version, Editor_Utils.get_msep_version()])
+		return null
 	
 	apply_workspace_version_fixes(workspace)
 	_open_workspaces.push_back(workspace)
@@ -173,8 +186,10 @@ func _get_new_workspace_name(in_path: String) -> String:
 func load_and_activate_workspace(in_path: String) -> void:
 	var workspace: Workspace = soft_load_workspace(in_path)
 	if not is_instance_valid(workspace):
-		Editor_Utils.get_editor().prompt_error_msg(("Cannot load file '%s'\n" % in_path) +
-			"ensure write permissions are granted and file is not corrupted.")
+		# soft_load_workspace can show it's own error prompt
+		if not Editor_Utils.get_editor().is_error_prompt_open():
+			Editor_Utils.get_editor().prompt_error_msg(("Cannot load file '%s'\n" % in_path) +
+				"ensure write permissions are granted and file is not corrupted.")
 		return
 	var workspace_context: WorkspaceContext = get_workspace_context(workspace)
 	workspace_context.set_camera_global_transform(workspace.camera_transform)
