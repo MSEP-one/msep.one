@@ -38,20 +38,7 @@ func _ready() -> void:
 func _update_menu() -> void:
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 	# 1. Undo/Redo
-	var can_undo: bool = is_instance_valid(workspace_context) and workspace_context.can_undo()
-	var can_redo: bool = is_instance_valid(workspace_context) and workspace_context.can_redo()
-	set_item_disabled(ID_UNDO, !can_undo)
-	set_item_disabled(ID_REDO, !can_redo)
-	if is_instance_valid(workspace_context):
-		var undo_description: String = workspace_context.get_undo_name()
-		undo_description = undo_description if undo_description.is_empty() else "'" + undo_description + "'"
-		var redo_description: String = workspace_context.get_redo_name()
-		redo_description = redo_description if redo_description.is_empty() else "'" + redo_description + "'"
-		set_item_text(ID_UNDO, "Undo " + undo_description)
-		set_item_text(ID_REDO, "Redo " + redo_description)
-	else:
-		set_item_text(ID_UNDO, tr("Undo"))
-		set_item_text(ID_REDO, tr("Redo"))
+	_update_undo_redo_items(workspace_context)
 	set_item_disabled(ID_DELETE, !_can_delete())
 	# 2. Copy
 	var can_copy: bool = is_instance_valid(workspace_context) \
@@ -68,6 +55,23 @@ func _update_menu() -> void:
 	set_item_disabled(ID_BONDED_PASTE, !can_paste)
 
 
+func _update_undo_redo_items(in_workspace_context: WorkspaceContext) -> void:
+	var can_undo: bool = is_instance_valid(in_workspace_context) and in_workspace_context.can_undo()
+	var can_redo: bool = is_instance_valid(in_workspace_context) and in_workspace_context.can_redo()
+	set_item_disabled(ID_UNDO, !can_undo)
+	set_item_disabled(ID_REDO, !can_redo)
+	if is_instance_valid(in_workspace_context):
+		var undo_description: String = in_workspace_context.get_undo_name()
+		undo_description = undo_description if undo_description.is_empty() else "'" + undo_description + "'"
+		var redo_description: String = in_workspace_context.get_redo_name()
+		redo_description = redo_description if redo_description.is_empty() else "'" + redo_description + "'"
+		set_item_text(ID_UNDO, "Undo " + undo_description)
+		set_item_text(ID_REDO, "Redo " + redo_description)
+	else:
+		set_item_text(ID_UNDO, tr("Undo"))
+		set_item_text(ID_REDO, tr("Redo"))
+
+
 func _on_id_pressed(in_id: int) -> void:
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 	if !is_instance_valid(workspace_context):
@@ -75,8 +79,10 @@ func _on_id_pressed(in_id: int) -> void:
 	match in_id:
 		ID_UNDO:
 			workspace_context.action_undo.execute()
+			_update_undo_redo_items(workspace_context)
 		ID_REDO:
 			workspace_context.action_redo.execute()
+			_update_undo_redo_items(workspace_context)
 		ID_DELETE:
 			workspace_context.action_delete.execute()
 		ID_COPY:
