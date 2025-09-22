@@ -157,6 +157,14 @@ func create_category(in_id: StringName,
 func has_category(in_id: StringName) -> bool:
 	return _categories.has(in_id)
 
+
+func ensure_category_expanded(in_id: StringName) -> void:
+	var category: Category = _categories[in_id] as Category
+	if category.container_type != Category.ContainerType.COLLAPSABLE_CATEGORY_CONTAINER:
+		return
+	category.category_control.expanded = true
+
+
 func highlight_category(in_id: StringName) -> void:
 	assert(_categories.has(in_id))
 	var category: Category = _categories[in_id] as Category
