@@ -167,6 +167,7 @@ func _refresh_target_list() -> void:
 	if per_element_count.keys().size() == 1:
 		# All selected atoms are of the same size
 		_setup_tree_item(item_all, per_element_count.keys()[0], total)
+		item_all.set_checked(0, true)
 		_update_selection_description()
 		var last_item_rect: Rect2 = _tree.get_item_area_rect(item_all)
 		_tree.custom_minimum_size.y = last_item_rect.end.y + MARGINS_OFFSET
