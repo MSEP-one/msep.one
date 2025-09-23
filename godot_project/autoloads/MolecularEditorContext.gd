@@ -310,6 +310,7 @@ func request_workspace_docker_focus(in_docker_unique_name: StringName, in_catego
 	if in_category_name == StringName():
 		return
 	# Wait one frame to allow controls update their visibility
+	docker.ensure_category_expanded(in_category_name)
 	await get_tree().process_frame
 	assert(docker.has_category(in_category_name), "Missing category '%s' in docker with unique name '%s'" %
 		[in_category_name, in_docker_unique_name])
