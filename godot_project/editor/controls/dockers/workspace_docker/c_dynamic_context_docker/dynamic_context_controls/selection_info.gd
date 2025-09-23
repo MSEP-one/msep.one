@@ -28,13 +28,13 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	assert(in_workspace_context != null)
 	if _workspace_context == null:
 		_workspace_context = in_workspace_context
-		in_workspace_context.history_snapshot_applied.connect(_on_workspace_context_history_snapshot_applied)
+		in_workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 		in_workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 		in_workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
 	return in_workspace_context.get_structure_contexts_with_selection().size() > 0
 
 
-func _on_workspace_context_history_snapshot_applied() -> void:
+func _on_workspace_context_history_changed() -> void:
 	ScriptUtils.call_deferred_once(_update_selected_info)
 
 
