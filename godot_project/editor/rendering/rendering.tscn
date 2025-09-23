@@ -20,6 +20,7 @@ resource_local_to_scene = true
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
+cull_mode = 2
 shading_mode = 0
 albedo_color = Color(0.168627, 0.172549, 0.580392, 1)
 albedo_texture = ExtResource("9_ey5dj")
