@@ -311,8 +311,9 @@ func request_workspace_docker_focus(in_docker_unique_name: StringName, in_catego
 		return
 	# Wait one frame to allow controls update their visibility
 	await get_tree().process_frame
-	if docker.has_category(in_category_name):
-		docker.highlight_category(in_category_name)
+	assert(docker.has_category(in_category_name), "Missing category '%s' in docker with unique name '%s'" %
+		[in_category_name, in_docker_unique_name])
+	docker.highlight_category(in_category_name)
 
 
 func close_workspace_no_prompt(in_workspace: Workspace) -> void:

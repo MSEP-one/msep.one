@@ -57,7 +57,7 @@ func _on_id_pressed(in_id: int) -> void:
 		ID_DESELECT_ALL:
 			workspace_context.deselect_all()
 		ID_SELECT_BY_TYPE:
-			MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME, &"Select Atoms by Type")
+			MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME, &"Find Visible Atoms by Type")
 		ID_SELECT_CONNECTED:
 			workspace_context.select_connected()
 		ID_GROW_SELECTION:
