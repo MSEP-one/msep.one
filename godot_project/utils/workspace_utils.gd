@@ -507,23 +507,34 @@ static func _select_by_type(out_workspace_context: WorkspaceContext, types: Pack
 
 static func _select_connected(out_workspace_context: WorkspaceContext, in_show_hidden_objects: bool) -> void:
 	var all_structures: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_selection()
+	var selection_changed: bool = false
 	for struct_context in all_structures:
-		struct_context.select_connected(in_show_hidden_objects)
-	out_workspace_context.snapshot_moment("Select Connected Atoms")
+		var result: AtomSelection.AtomSelectionResult = struct_context.select_connected(in_show_hidden_objects)
+		selection_changed = selection_changed or result.selection_changed
+	if selection_changed:
+		out_workspace_context.snapshot_moment("Select Connected Atoms")
 
 
 static func _grow_selection(out_workspace_context: WorkspaceContext) -> void:
 	var all_structures: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_selection()
+	var selection_changed: bool = false
 	for struct_context in all_structures:
-		struct_context.grow_selection()
-	out_workspace_context.snapshot_moment("Grow Selection")
+		if struct_context.can_grow_selection():
+			struct_context.grow_selection()
+			selection_changed = true
+	if selection_changed:
+		out_workspace_context.snapshot_moment("Grow Selection")
 
 
 static func _shrink_selection(out_workspace_context: WorkspaceContext) -> void:
 	var all_structures: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_selection()
+	var selection_changed: bool = false
 	for struct_context in all_structures:
-		struct_context.shrink_selection()
-	out_workspace_context.snapshot_moment("Shrink Selection")
+		if struct_context.has_cached_selection_set():
+			struct_context.shrink_selection()
+			selection_changed = true
+	if selection_changed:
+		out_workspace_context.snapshot_moment("Shrink Selection")
 
 
 static func _move_selection_to_new_structure(out_workspace_context: WorkspaceContext, in_parent_structure_id: int, in_new_group_name: String) -> void:

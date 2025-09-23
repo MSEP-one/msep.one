@@ -327,7 +327,7 @@ func select_by_type(types_to_select: PackedInt32Array) -> void:
 	return _selection_db.select_by_type(types_to_select)
 
 
-func select_connected(in_show_hidden_objects: bool = false) -> void: 
+func select_connected(in_show_hidden_objects: bool = false) -> AtomSelection.AtomSelectionResult: 
 	return _selection_db.select_connected(in_show_hidden_objects)
 
 
