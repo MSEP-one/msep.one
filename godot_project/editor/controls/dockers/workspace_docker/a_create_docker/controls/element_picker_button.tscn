@@ -46,6 +46,7 @@ offset_right = 64.0
 offset_bottom = 64.0
 focus_mode = 0
 script = ExtResource("1_0cxmc")
+element = 1
 
 [node name="ElementPreview" parent="." instance=ExtResource("1_tws4x")]
 unique_name_in_owner = true

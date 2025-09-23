@@ -26,6 +26,7 @@ layout_mode = 2
 [node name="H" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+element = 1
 
 [node name="C" parent="ButtonsContainer" instance=ExtResource("2_vt21c")]
 custom_minimum_size = Vector2(48, 48)

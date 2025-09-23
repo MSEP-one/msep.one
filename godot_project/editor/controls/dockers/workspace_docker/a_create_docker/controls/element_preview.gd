@@ -73,6 +73,7 @@ func set_element_data(in_data: ElementData) -> void:
 		symbol.text = "?"
 		element_name.text = "Unknown"
 		mass.text = "0.0"
+		tooltip_text = "?: Unknown"
 		background_stylebox.bg_color = Color.BLACK
 		general_label_settings.font_color = Color.WHITE
 		symbol_label_settings.font_color = Color.WHITE
@@ -80,6 +81,7 @@ func set_element_data(in_data: ElementData) -> void:
 	else:
 		symbol.text = in_data.symbol
 		element_name.text = in_data.name
+		tooltip_text = "%s: %s" % [in_data.symbol, in_data.name]
 		mass.text = str(in_data.mass)
 		background_stylebox.bg_color = in_data.color
 		general_label_settings.font_color = in_data.font_color

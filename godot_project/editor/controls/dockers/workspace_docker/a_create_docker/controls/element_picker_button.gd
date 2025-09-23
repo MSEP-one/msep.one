@@ -4,7 +4,7 @@ class_name ElementPickerButton extends Button
 const COLOR_DISABLE: Color = Color(0.4,0.4,0.4, 1.0)
 const COLOR_ENABLE: Color = Color(1.0, 1.0, 1.0, 1.0)
 
-@export var element: int = 1:
+@export var element: int:
 	set(v):
 		element = v
 		if !is_instance_valid(_element_preview):
