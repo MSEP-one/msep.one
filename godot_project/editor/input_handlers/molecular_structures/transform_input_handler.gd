@@ -31,7 +31,6 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	return true
 
 
-# TODO: handle selection changed
 func _init(in_context: WorkspaceContext) -> void:
 	super(in_context)
 	if !_helper.transform_changed.is_connected(_on_helper_transform_changed):
@@ -151,12 +150,15 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_context:
 			var just_grabbed: bool = in_input_event.is_pressed()
 			if just_grabbed:
 				_is_grabbed = true
+				_stop_exclusivity = false
 				_prepare_gizmo_for_structures([in_context])
 			
 			var just_released: bool = not in_input_event.is_pressed() and _is_grabbed
 			if just_released:
 				_is_grabbed = false
+				_stop_exclusivity = true
 				_apply_selection_transform()
+			
 		return true
 	
 	_previous_frame_grab_mode = GizmoRoot.grab_mode
