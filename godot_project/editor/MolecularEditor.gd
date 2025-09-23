@@ -223,6 +223,13 @@ func save_editor_layout(in_layout_settings: EditorLayoutSettings, in_name: Strin
 	ResourceSaver.save(in_layout_settings, path)
 
 
+func is_error_prompt_open() -> bool:
+	for child in BusyIndicator.get_children():
+		if (not child.is_queued_for_deletion()) and  child is AcceptDialog and child.visible:
+			return true
+	return false
+
+
 func prompt_error_msg(in_error_msg: String) -> AcceptDialog:
 	var dlg := AcceptDialog.new()
 	dlg.size.x = Engine.get_main_loop().root.size.x * 0.4
