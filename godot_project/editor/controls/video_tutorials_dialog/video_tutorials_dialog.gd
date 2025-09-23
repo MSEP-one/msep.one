@@ -23,6 +23,10 @@ func _ready() -> void:
 	_update_item_list()
 
 
+func get_video_player() -> VideoPlayer:
+	return _video_player
+
+
 func _update_item_list() -> void:
 	_item_list.clear()
 	_videos.clear()
