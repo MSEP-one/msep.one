@@ -189,11 +189,12 @@ func select_by_type(types_to_select: PackedInt32Array) -> void:
 	_process_atom_selection_result(result)
 
 
-func select_connected(in_show_hidden_objects: bool) -> void:
+func select_connected(in_show_hidden_objects: bool) -> AtomSelection.AtomSelectionResult:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
 	assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 	var result: AtomSelection.AtomSelectionResult = _atom_selection.select_connected(in_show_hidden_objects)
 	_process_atom_selection_result(result)
+	return result
 
 
 func can_grow_selection() -> bool:
