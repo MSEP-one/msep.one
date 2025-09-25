@@ -36,6 +36,12 @@ text = "Selection only"
 unique_name_in_owner = true
 layout_mode = 2
 button_group = SubResource("ButtonGroup_cya10")
+text = "All visible"
+
+[node name="OptionAll" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_group = SubResource("ButtonGroup_cya10")
 text = "All molecules"
 
 [node name="TemperaturePicker" parent="PanelContainer/VBoxContainer" instance=ExtResource("2_k633u")]

@@ -121,10 +121,14 @@ static func apply_simulation_state(
 	_apply_simulation_state(out_workspace_context, in_payload, in_positions)
 
 
-static func can_relax(in_workspace_context: WorkspaceContext, in_selection_only: bool) -> bool:
-	if in_selection_only:
-		return _can_relax_selection(in_workspace_context)
-	return _can_relax_all(in_workspace_context)
+static func can_relax(in_workspace_context: WorkspaceContext, in_atom_set: AtomicStructure.AtomSet) -> bool:
+	match in_atom_set:
+		AtomicStructure.AtomSet.SELECTED_ONLY:
+			return _can_relax_selection(in_workspace_context)
+		AtomicStructure.AtomSet.ALL_VISIBLE:
+			return _can_relax_all_visible(in_workspace_context)
+		AtomicStructure.AtomSet.ALL, _:
+			return _can_relax_all(in_workspace_context)
 
 
 static func can_move_selection_to_another_group(in_workspace_context: WorkspaceContext) -> bool:
@@ -145,9 +149,9 @@ static func is_particle_emitter_escape_velocity_safe(
 	)
 
 
-static func has_invalid_tetrahedral_structure(in_workspace_context: WorkspaceContext, in_selection_only: bool) -> bool:
-	assert(can_relax(in_workspace_context, in_selection_only))
-	return _has_bad_tetrahedral_angle(in_workspace_context, in_selection_only)
+static func has_invalid_tetrahedral_structure(in_workspace_context: WorkspaceContext, in_atom_set: AtomicStructure.AtomSet) -> bool:
+	assert(can_relax(in_workspace_context, in_atom_set))
+	return _has_bad_tetrahedral_angle(in_workspace_context, in_atom_set)
 
 
 static func has_emitters_affected_by_motors(in_workspace_context: WorkspaceContext) -> bool:
@@ -168,15 +172,19 @@ static func structure_context_has_drastically_invalid_tetrahedral_structure(in_s
 	return _structure_context_has_drastically_invalid_tetrahedral_structure(in_structure_context, in_atoms)
 
 
-static func _has_bad_tetrahedral_angle(in_workspace_context: WorkspaceContext, in_selection_only: bool) -> bool:
-	var structure_contexts: Array[StructureContext] = in_workspace_context.get_visible_structure_contexts()
+static func _has_bad_tetrahedral_angle(in_workspace_context: WorkspaceContext, in_atom_set: AtomicStructure.AtomSet) -> bool:
+	var structure_contexts: Array[StructureContext]
+	if in_atom_set == AtomicStructure.AtomSet.ALL:
+		structure_contexts = in_workspace_context.get_all_structure_contexts()
+	else:
+		in_workspace_context.get_visible_structure_contexts()
 	for structure_ctx: StructureContext in structure_contexts:
 		var structure: AtomicStructure = structure_ctx.nano_structure as AtomicStructure
 		if not is_instance_valid(structure):
 			# not atomic structure, is a virtual object
 			continue
 		var atom_ids: PackedInt32Array = []
-		if in_selection_only:
+		if in_atom_set == AtomicStructure.AtomSet.SELECTED_ONLY:
 			atom_ids = structure_ctx.get_selected_atoms()
 		else:
 			atom_ids = structure.get_valid_atoms()
@@ -263,7 +271,7 @@ static func _structure_context_has_drastically_invalid_tetrahedral_structure(
 
 static func collect_drastically_invalid_tetrahedral_structure(
 		in_visible_strucutre_contexts: Array[StructureContext],
-		in_selection_only: bool) -> Array[Dictionary]:
+		in_atom_set: AtomicStructure.AtomSet) -> Array[Dictionary]:
 	var out_bad_tetrahedral_groups: Array[Dictionary] = [
 	#	{
 	#		structure_context = StructureContext
@@ -277,10 +285,14 @@ static func collect_drastically_invalid_tetrahedral_structure(
 			# not atomic structure, is a virtual object
 			continue
 		var atom_ids: PackedInt32Array = []
-		if in_selection_only:
-			atom_ids = structure_ctx.get_selected_atoms()
-		else:
-			atom_ids = structure.get_valid_atoms()
+		match in_atom_set:
+			AtomicStructure.AtomSet.SELECTED_ONLY:
+				atom_ids = structure_ctx.get_selected_atoms()
+			AtomicStructure.AtomSet.ALL_VISIBLE:
+				if structure.get_visible():
+					atom_ids = structure.get_visible_atoms()
+			AtomicStructure.AtomSet.ALL:
+				atom_ids = structure.get_valid_atoms()
 		_collect_drastically_invalid_tetrahedral_structure(structure_ctx, atom_ids, out_bad_tetrahedral_groups)
 	return out_bad_tetrahedral_groups
 
@@ -332,7 +344,7 @@ static func _find_plane_normal_away_from_atom(in_plane: Plane, in_atom_pos: Vect
 
 
 static func collect_invalid_bond_angles(in_visible_strucutre_contexts: Array[StructureContext],
-		in_selection_only: bool) -> Array[Dictionary]:
+		in_atom_set: AtomicStructure.AtomSet) -> Array[Dictionary]:
 	var out_invalid_angle_atom_groups: Array[Dictionary] = [
 	#	{
 	#		type = StringName [ &"sp1" | &"sp2" | &"sp3" ]
@@ -343,14 +355,14 @@ static func collect_invalid_bond_angles(in_visible_strucutre_contexts: Array[Str
 	]
 	for context: StructureContext in in_visible_strucutre_contexts:
 		if context.nano_structure is AtomicStructure:
-			_collect_invalid_bond_angles_atom_groups(context, in_selection_only, out_invalid_angle_atom_groups)
+			_collect_invalid_bond_angles_atom_groups(context, in_atom_set, out_invalid_angle_atom_groups)
 	return out_invalid_angle_atom_groups
 
 
 static func _collect_invalid_bond_angles_atom_groups(
-		in_structure_context: StructureContext, in_selection_only: bool,
+		in_structure_context: StructureContext, in_atom_set: AtomicStructure.AtomSet,
 		out_invalid_angle_atom_groups: Array[Dictionary]) -> void:
-	var structure: NanoStructure = in_structure_context.nano_structure
+	var structure: AtomicStructure = in_structure_context.nano_structure
 	var atom_ids: PackedInt32Array = []
 	const GROUP_TYPES_FROM_BOND_COUNT: Dictionary = {
 		2 : &"sp1",
@@ -367,10 +379,13 @@ static func _collect_invalid_bond_angles_atom_groups(
 		sp2 = 170.0,
 		sp3 = 170.0,
 	}
-	if in_selection_only:
-		atom_ids = in_structure_context.get_selected_atoms()
-	else:
-		atom_ids = structure.get_valid_atoms()
+	match in_atom_set:
+		AtomicStructure.AtomSet.SELECTED_ONLY:
+			atom_ids = in_structure_context.get_selected_atoms()
+		AtomicStructure.AtomSet.ALL_VISIBLE:
+			atom_ids = structure.get_visible_atoms()
+		AtomicStructure.AtomSet.ALL:
+			atom_ids = structure.get_valid_atoms()
 	for atom_id: int in atom_ids:
 		var bond_ids: PackedInt32Array = structure.atom_get_bonds(atom_id)
 		if not bond_ids.size() in GROUP_TYPES_FROM_BOND_COUNT.keys():
@@ -408,9 +423,9 @@ static func _collect_invalid_bond_angles_atom_groups(
 
 
 static func relax(out_workspace_context: WorkspaceContext, in_temperature_in_kelvins: float,
-			in_selection_only: bool,in_include_springs: bool, in_lock_atoms: bool,
-			in_passivate_molecules: bool) -> RelaxRequest:
-	return _relax(out_workspace_context, in_temperature_in_kelvins, in_selection_only, in_include_springs,
+			atom_set: AtomicStructure.AtomSet, in_include_springs: bool,
+			in_lock_atoms: bool, in_passivate_molecules: bool) -> RelaxRequest:
+	return _relax(out_workspace_context, in_temperature_in_kelvins, atom_set, in_include_springs,
 		in_lock_atoms, in_passivate_molecules, true)
 
 
@@ -1206,7 +1221,7 @@ static func _can_relax_selection(in_workspace_context: WorkspaceContext) -> bool
 	return false
 
 
-static func _can_relax_all(in_workspace_context: WorkspaceContext) -> bool:
+static func _can_relax_all_visible(in_workspace_context: WorkspaceContext) -> bool:
 	var visible_structures: Array[StructureContext] = \
 			in_workspace_context.get_visible_structure_contexts()
 	for context in visible_structures:
@@ -1214,6 +1229,17 @@ static func _can_relax_all(in_workspace_context: WorkspaceContext) -> bool:
 			continue
 		if context.nano_structure.get_valid_atoms_count() > 0:
 			# At least 1 visible atom
+			return true
+	return false
+
+
+static func _can_relax_all(in_workspace_context: WorkspaceContext) -> bool:
+	var visible_structures: Array[StructureContext] = \
+			in_workspace_context.get_all_structure_contexts()
+	for context in visible_structures:
+		if not context.nano_structure is AtomicStructure:
+			continue
+		if context.nano_structure.get_valid_atoms_count() > 0:
 			return true
 	return false
 
@@ -1396,13 +1422,13 @@ static func _precalculate_particle_emitter_instance_offset(in_instance_idx: int,
 static func _relax(
 		out_workspace_context: WorkspaceContext,
 		in_temperature_in_kelvins: float,
-		in_selection_only: bool,
+		in_atom_set: AtomicStructure.AtomSet,
 		in_include_springs: bool,
 		in_lock_atoms: bool,
 		in_passivate_molecules: bool,
 		in_animate: bool) -> RelaxRequest:
 	var request: RelaxRequest = OpenMM.request_relax(out_workspace_context,
-			in_temperature_in_kelvins, in_selection_only, in_include_springs, in_lock_atoms, in_passivate_molecules)
+			in_temperature_in_kelvins, in_atom_set, in_include_springs, in_lock_atoms, in_passivate_molecules)
 	_process_relax_request(request, out_workspace_context, in_animate)
 	return request
 
@@ -1416,11 +1442,11 @@ static func _retry_relax(
 			out_relax_request.original_payload.raw_initial_positions)
 	# 2. repeat relax request
 	var temperature_in_kelvins: float = out_relax_request.temperature_in_kelvins
-	var selection_only: bool = out_relax_request.selection_only
+	var atom_set: AtomicStructure.AtomSet = out_relax_request.atom_set
 	var include_springs: bool = out_relax_request.include_springs
 	var lock_atoms: bool = out_relax_request.lock_atoms
 	var passivate_molecules: bool = out_relax_request.passivate_molecules
-	var request: RelaxRequest = OpenMM.request_relax(out_workspace_context, temperature_in_kelvins, selection_only, include_springs, lock_atoms, passivate_molecules)
+	var request: RelaxRequest = OpenMM.request_relax(out_workspace_context, temperature_in_kelvins, atom_set, include_springs, lock_atoms, passivate_molecules)
 	out_relax_request.retried = true
 	out_relax_request.notify_retry(request)
 	_process_relax_request(request, out_workspace_context, true)
@@ -1494,7 +1520,7 @@ static func _do_tween_atom_positions(
 
 
 static func _validate_relax_result(out_workspace_context: WorkspaceContext, in_relax_request: RelaxRequest) -> void:
-	in_relax_request.bad_tetrahedral_bonds_detected = has_invalid_tetrahedral_structure(out_workspace_context, in_relax_request.selection_only)
+	in_relax_request.bad_tetrahedral_bonds_detected = has_invalid_tetrahedral_structure(out_workspace_context, in_relax_request.atom_set)
 	if out_workspace_context.ignored_warnings.invalid_relaxed_tetrahedral_structure:
 		# Warning was disabled, skip
 		return

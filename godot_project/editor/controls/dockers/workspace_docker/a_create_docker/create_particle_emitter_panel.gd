@@ -99,7 +99,7 @@ func _on_create_from_selection_button_pressed() -> void:
 	var selected_contexts: Array[StructureContext] = _workspace_context.get_atomic_structure_contexts_with_selection()
 	# 2. Validate topology of selection
 	_workspace_context.start_async_work(tr(&"Validating topology"))
-	const SELECTION_ONLY = true
+	const SELECTION_ONLY = AtomicStructure.AtomSet.SELECTED_ONLY
 	const NO_SPRINGS = false
 	const NO_LOCKS = false
 	const NO_PASSIVATION = false
@@ -242,4 +242,3 @@ func _update_escape_velocity_warning() -> void:
 		_escape_velocity_warning_label.message = tr("Initial speed may be not large enough to leave emission space without crowding the space.\nThis could lead to a simulation Failure.\nYou may want to increase the [b]'Initial Speed'[/b] or [b]'Every'[/b] rate to ensure simulation doesn't fail")
 		_escape_velocity_warning_label.show()
 	
-

@@ -10,6 +10,11 @@ enum AABB_BoundsType {
 	ContactRadius,  # get_aabb will grow based on each atom's contact radius
 }
 
+enum AtomSet {
+	SELECTED_ONLY,
+	ALL_VISIBLE,
+	ALL,
+}
 
 signal atoms_visibility_changed(atoms: PackedInt32Array)
 signal bonds_visibility_changed(bonds: PackedInt32Array)
@@ -36,9 +41,6 @@ const INVALID_ATOM_ID = -1
 const INVALID_ATOMIC_NUMBER = -1
 const INVALID_BOND_ID = -1
 const INVALID_SPRING_ID = -1
-
-
-
 
 
 @export var connected_motor: int = 0: set = _set_connected_motor

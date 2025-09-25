@@ -10,6 +10,7 @@ const MAX_RELAX_ITERATIONS: int = 5
 
 @onready var _only_selected_checkbox: CheckBox = %OnlySelectedCheckBox
 @onready var _all_visible_check_box: CheckBox = %AllVisibleCheckBox
+@onready var _all_check_box: CheckBox = %AllCheckBox
 @onready var _invisible_selection_label: InfoLabel = %InvisibleSelectionLabel
 @onready var _no_selection_label: InfoLabel = %NoSelectionLabel
 @onready var _outdated_results_label: InfoLabel = %OutdatedResultsLabel
@@ -77,10 +78,17 @@ func _update_panel_state() -> void:
 	_fix_overlapping_atoms_button.visible = has_overlaps
 
 
+func _get_atom_set() -> AtomicStructure.AtomSet:
+	if _only_selected_checkbox.button_pressed:
+		return AtomicStructure.AtomSet.SELECTED_ONLY
+	if _all_visible_check_box.button_pressed:
+		return AtomicStructure.AtomSet.ALL_VISIBLE
+	return AtomicStructure.AtomSet.ALL
+
+
 func _on_validate_button_pressed() -> void:
 	_workspace_context.clear_alerts()
-	var selection_only: bool = _only_selected_checkbox.button_pressed
-	_atomic_structure_model_validator.validate_atomic_model(selection_only)
+	_atomic_structure_model_validator.validate_atomic_model(_get_atom_set())
 
 
 func _on_button_view_alerts_pressed() -> void:
@@ -93,12 +101,13 @@ func _on_fix_overlapping_atoms_button_pressed() -> void:
 	_fix_overlapping_atoms_button.hide()
 
 
-func _on_create_object_parameters_validate_bonds_requested(in_selection_only: bool) -> void:
+func _on_create_object_parameters_validate_bonds_requested(in_atom_set: AtomicStructure.AtomSet) -> void:
 	# Validating bonds was requested from another UI, we ensure this UI is visible and proceed with validation
 	_workspace_context.create_object_parameters.set_simulation_type(
 			CreateObjectParameters.SimulationType.VALIDATION)
-	_only_selected_checkbox.set_pressed_no_signal(in_selection_only)
-	_all_visible_check_box.set_pressed_no_signal(not in_selection_only)
+	_only_selected_checkbox.set_pressed_no_signal(in_atom_set == AtomicStructure.AtomSet.SELECTED_ONLY)
+	_all_visible_check_box.set_pressed_no_signal(in_atom_set == AtomicStructure.AtomSet.ALL_VISIBLE)
+	_all_check_box.set_pressed_no_signal(in_atom_set == AtomicStructure.AtomSet.ALL)
 	if ScriptUtils.is_callable_queued(_update_panel_state):
 		ScriptUtils.flush_now(_update_panel_state)
 	else:

@@ -33,22 +33,29 @@ func _on_history_changed() -> void:
 
 
 func _validate_bonds_in_thread(
-		in_visible_structure_contexts: Array[StructureContext],
+		in_structure_contexts: Array[StructureContext],
 		out_promise: Promise,
-		in_selection_only: bool) -> void:
+		in_atom_set: AtomicStructure.AtomSet) -> void:
 	var validation_results: Array[Metadata] = []
 	var spatial_hash_grid: SpatialHashGridOverlaps = SpatialHashGridOverlaps.new(MAX_COVALENT_RADIUS)
 	
-	for structure_context: StructureContext in in_visible_structure_contexts:
+	for structure_context: StructureContext in in_structure_contexts:
 		if not structure_context.nano_structure is AtomicStructure:
 			continue
 		var atomic_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
 		var ignored_springs: Array[Metadata] = []
 		var atoms: PackedInt32Array
-		if in_selection_only:
-			atoms = structure_context.get_selected_atoms()
-		else:
-			atoms = atomic_structure.get_visible_atoms()
+		match in_atom_set:
+			AtomicStructure.AtomSet.SELECTED_ONLY:
+				atoms = structure_context.get_selected_atoms()
+			AtomicStructure.AtomSet.ALL_VISIBLE:
+				if atomic_structure.get_visible():
+					atoms = atomic_structure.get_visible_atoms()
+			AtomicStructure.AtomSet.ALL:
+				atoms = atomic_structure.get_valid_atoms()
+		
+		if atoms.is_empty():
+			continue
 		
 		for atom_id: int in atoms:
 			var atom_data: AtomData = AtomData.new(atom_id, structure_context)
@@ -69,14 +76,14 @@ func _validate_bonds_in_thread(
 	validation_results.append_array(spatial_hash_grid.get_overlaps())
 	
 	var drastically_bad_sp3_groups: Array[Dictionary] = WorkspaceUtils.collect_drastically_invalid_tetrahedral_structure(
-		in_visible_structure_contexts, in_selection_only)
+		in_structure_contexts, in_atom_set)
 	
 	for group: Dictionary in drastically_bad_sp3_groups:
 		var bad_bond_angle_data := DrasticSp3Data.new(group.atoms_ids, group.bond_ids, group.structure_context)
 		validation_results.append(bad_bond_angle_data)
 	
 	var bad_bond_angles_groups: Array[Dictionary] = WorkspaceUtils.collect_invalid_bond_angles(
-		in_visible_structure_contexts, in_selection_only)
+		in_structure_contexts, in_atom_set)
 	
 	for group: Dictionary in bad_bond_angles_groups:
 		var bad_bond_angle_data := InvalidSp123Data.new(group.type, group.atoms_ids, group.bond_ids, group.structure_context)
@@ -85,12 +92,12 @@ func _validate_bonds_in_thread(
 	out_promise.fulfill.bind(validation_results).call_deferred()
 
 
-func validate_atomic_model(in_selection_only: bool) -> void:
+func validate_atomic_model(atom_set: AtomicStructure.AtomSet) -> void:
 	if _thread and _thread.is_alive():
 		return
 	var promise: Promise = Promise.new()
 	_thread = Thread.new()
-	_thread.start(_validate_bonds_in_thread.bind(_workspace_context.get_visible_structure_contexts(), promise, in_selection_only))
+	_thread.start(_validate_bonds_in_thread.bind(_workspace_context.get_all_structure_contexts(), promise, atom_set))
 	
 	_workspace_context.start_async_work(_workspace_context.tr("Validating model ..."))
 	await promise.wait_for_fulfill()

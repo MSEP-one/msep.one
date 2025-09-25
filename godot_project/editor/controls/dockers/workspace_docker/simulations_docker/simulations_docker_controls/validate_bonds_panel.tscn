@@ -37,6 +37,12 @@ layout_mode = 2
 button_group = SubResource("ButtonGroup_olgfw")
 text = "All visible atoms"
 
+[node name="AllCheckBox" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_group = SubResource("ButtonGroup_olgfw")
+text = "All atoms"
+
 [node name="FixOverlappingAtomsButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
