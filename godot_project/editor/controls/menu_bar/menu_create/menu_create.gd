@@ -3,7 +3,6 @@ extends NanoPopupMenu
 signal request_hide
 
 @onready var atoms: NanoPopupMenu = $Atoms
-@onready var shapes: NanoPopupMenu = $Shapes
 @onready var virtual_objects: NanoPopupMenu = $VirtualObjects
 
 const ID_CREATE_SMALL_MOLECULES = 1
@@ -13,13 +12,11 @@ func _ready() -> void:
 	add_submenu_item(tr("Atoms"), atoms.name)
 	var small_molecules_icon: Texture2D = preload("res://editor/controls/menu_bar/menu_create/menu_atoms/icons/icon_AutoBonder_16px.svg")
 	add_icon_item(small_molecules_icon, tr("Small Molecules"), ID_CREATE_SMALL_MOLECULES)
-	add_submenu_item(tr("Shapes"), shapes.name)
 	add_submenu_item("Virtual Objects", virtual_objects.name)
 
 
 func _update_menu() -> void:
 	atoms._update_menu()
-	shapes._update_menu()
 	virtual_objects._update_menu()
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 	_update_for_context(workspace_context)
