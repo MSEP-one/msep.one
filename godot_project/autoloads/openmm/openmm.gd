@@ -251,11 +251,11 @@ func relaunch_openmm_server() -> void:
 func request_relax(
 		in_workspace_context: WorkspaceContext,
 		in_temperature_in_kelvins: float,
-		in_selection_only: bool,
+		in_atom_set: AtomicStructure.AtomSet,
 		in_include_springs: bool,
 		in_lock_atoms: bool,
 		in_passivate_molecules: bool) -> RelaxRequest:
-	return _request_relax(in_workspace_context, in_temperature_in_kelvins, in_selection_only,
+	return _request_relax(in_workspace_context, in_temperature_in_kelvins, in_atom_set,
 		in_include_springs, in_lock_atoms, in_passivate_molecules)
 
 
@@ -302,7 +302,7 @@ func request_quit_server() -> void:
 func _request_relax(
 		in_workspace_context: WorkspaceContext,
 		in_temperature_in_kelvins: float,
-		in_selection_only: bool,
+		in_atom_set: AtomicStructure.AtomSet,
 		in_include_springs: bool,
 		in_lock_atoms: bool,
 		in_passivate_molecules: bool) -> RelaxRequest:
@@ -313,7 +313,7 @@ func _request_relax(
 		
 	const DONT_INCLUDE_VIRTUAL_OBJECTS: bool = false
 	const NUDGE_ATOMS_FIX: bool = true
-	var payload: OpenMMPayload = _create_payload(in_workspace_context , in_selection_only,
+	var payload: OpenMMPayload = _create_payload(in_workspace_context , in_atom_set,
 			DONT_INCLUDE_VIRTUAL_OBJECTS, in_include_springs, in_lock_atoms, in_passivate_molecules, NUDGE_ATOMS_FIX)
 	if _PRINT_REQUEST_AND_RESPONSE:
 		print_rich("[color=orange] Header: %s[/color]" % str(payload.header))
@@ -321,7 +321,7 @@ func _request_relax(
 		print_rich("[color=orange] Shapes: %s[/color]" % str(payload.shapes_data))
 		print_rich("[color=orange] Motors: %s[/color]" % str(payload.motors_data))
 		print_rich("[color=orange] State: %s[/color]" % str(payload.state))
-	var relax_request := RelaxRequest.new(in_temperature_in_kelvins, in_selection_only, in_include_springs, in_lock_atoms, in_passivate_molecules)
+	var relax_request := RelaxRequest.new(in_temperature_in_kelvins, in_atom_set, in_include_springs, in_lock_atoms, in_passivate_molecules)
 	relax_request.original_payload = payload
 	if _subscription_thread == null:
 		_subscription_thread = Thread.new()
@@ -342,6 +342,7 @@ func _request_start_simulation(
 		_bus_thread.start(_launch_openmm_server_in_thread.bind(utils.globalize_path("user://python")))
 	
 	const INCLUDE_VIRTUAL_OBJECTS = true
+	const ATOM_SET = AtomicStructure.AtomSet.ALL
 	const LOCK_ATOMS = true
 	const INCLUDE_SPRINGS = true
 	const PASSIVATE_MOLECULES = false
@@ -349,7 +350,7 @@ func _request_start_simulation(
 	# Before creating the payload, prewarm the atoms of particle emitters
 	for emitter: NanoParticleEmitter in in_workspace_context.get_particle_emitters():
 		emitter.revalidate_all_instances()
-	out_simulation_data.original_payload = _create_payload(in_workspace_context, false,
+	out_simulation_data.original_payload = _create_payload(in_workspace_context, ATOM_SET,
 			INCLUDE_VIRTUAL_OBJECTS, INCLUDE_SPRINGS, LOCK_ATOMS, PASSIVATE_MOLECULES, NUDGE_ATOMS_FIX)
 	out_simulation_data.push_frame(0, out_simulation_data.original_payload.initial_positions)
 	for emitter: NanoParticleEmitter in in_workspace_context.get_particle_emitters():
@@ -409,7 +410,7 @@ func _request_export(
 	in_workspace_context: WorkspaceContext,
 	out_promise: Promise) -> void:
 	
-	const SELECTION_ONLY: bool = false
+	const SELECTION_ONLY: AtomicStructure.AtomSet = AtomicStructure.AtomSet.ALL
 	const INCLUDE_VIRTUAL_OBJECTS: bool = false
 	const INCLUDE_SPRINGS: bool = false
 	const LOCK_ATOMS: bool = false
@@ -873,7 +874,7 @@ func _dispose_thread_when_done(out_promise: Promise, out_thread: Thread) -> void
 
 func _create_payload(
 			in_workspace_context: WorkspaceContext,
-			in_selection_only: bool,
+			in_atom_set: AtomicStructure.AtomSet,
 			in_virtual_objects: bool,
 			in_include_springs: bool,
 			in_lock_atoms: bool,
@@ -881,8 +882,11 @@ func _create_payload(
 			in_nudge_atoms_fix: bool = false) -> OpenMMPayload:
 	var structure_contexts: Array[StructureContext] = in_workspace_context.get_all_structure_contexts()
 	var virtual_object_contexts: Array[StructureContext] = structure_contexts.filter(_is_virtual_object_context)
-	if in_selection_only:
-		structure_contexts = structure_contexts.filter(_has_selected_atoms)
+	match in_atom_set:
+		AtomicStructure.AtomSet.SELECTED_ONLY:
+			structure_contexts = structure_contexts.filter(_has_selected_atoms)
+		AtomicStructure.AtomSet.ALL_VISIBLE:
+			structure_contexts = structure_contexts.filter(_has_visible_atoms)
 	var payload: OpenMMPayload = OpenMMPayload.new(in_workspace_context.workspace)
 	payload.nudge_atoms_fix_enabled = in_nudge_atoms_fix
 	payload.lock_atoms = in_lock_atoms
@@ -891,14 +895,18 @@ func _create_payload(
 	var extension: String = in_workspace_context.workspace.simulation_settings_forcefield_extension
 	if not extension.is_empty():
 		payload.forcefield_files.push_back(extension)
+	var partial_set: bool = in_atom_set != AtomicStructure.AtomSet.ALL
 	for context: StructureContext in structure_contexts:
 		var structure: NanoStructure = context.nano_structure
 		if structure is AtomicStructure:
 			var atom_ids: PackedInt32Array = context.nano_structure.get_valid_atoms()
 			var bond_ids: PackedInt32Array = context.nano_structure.get_valid_bonds()
 			var springs_ids: PackedInt32Array = context.nano_structure.springs_get_all()
-			if in_selection_only:
-				atom_ids = context.get_selected_atoms()
+			if partial_set:
+				if in_atom_set == AtomicStructure.AtomSet.SELECTED_ONLY:
+					atom_ids = context.get_selected_atoms()
+				elif in_atom_set == AtomicStructure.AtomSet.ALL_VISIBLE:
+					atom_ids = structure.get_visible_atoms()
 				# Ignore selected bonds, instead we will find existing bonds between selected atoms
 				var all_bonds_ids: PackedInt32Array = bond_ids
 				bond_ids = []
@@ -913,7 +921,7 @@ func _create_payload(
 					# Only add the spring if the atom is also selected
 					if structure.spring_get_atom_id(spring_id) in atom_ids:
 						springs_ids.push_back(spring_id)
-			var is_partially_selected: bool = in_selection_only and not context.is_fully_selected()
+			var is_partially_selected: bool = atom_ids.size() != structure.get_valid_atoms_count()
 			payload.add_structure(structure, atom_ids, bond_ids, is_partially_selected)
 		
 			if in_include_springs:
@@ -938,7 +946,10 @@ func _has_selected_atoms(in_structure_context: StructureContext) -> bool:
 
 
 func _has_visible_atoms(in_structure_context: StructureContext) -> bool:
-	return in_structure_context.nano_structure.get_valid_atoms().size() > 0
+	var structure: AtomicStructure = in_structure_context.nano_structure
+	if not structure:
+		return false
+	return structure.get_visible() and structure.get_visible_atoms().size() > 0
 
 
 func _is_virtual_object_context(in_structure_context: StructureContext) -> bool:

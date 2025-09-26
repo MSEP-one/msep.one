@@ -36,5 +36,5 @@ func get_icon() -> RingMenuIcon:
 
 func _execute_action() -> void:
 	_ring_menu.close()
-	await _model_validator.validate_atomic_model(false)
+	await _model_validator.validate_atomic_model(AtomicStructure.AtomSet.ALL)
 	_model_validator.fix_overlapping_atoms()

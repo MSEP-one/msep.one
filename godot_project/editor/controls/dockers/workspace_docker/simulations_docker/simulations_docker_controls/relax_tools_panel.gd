@@ -90,7 +90,7 @@ func _on_workspace_context_alerts_panel_visibility_changed(in_is_visible: bool) 
 
 
 func _update_button_run_relaxation_state() -> void:
-	var can_relax: bool = WorkspaceUtils.can_relax(_workspace_context, _is_relax_selection_only_selected())
+	var can_relax: bool = WorkspaceUtils.can_relax(_workspace_context, _get_atom_set())
 	_button_run_relaxation.disabled = not can_relax
 
 
@@ -100,31 +100,37 @@ func _on_option_group_pressed(_in_button: BaseButton) -> void:
 
 func _on_button_run_relaxation_pressed() -> void:
 	var temperature_in_kelvins: float = _temperature_picker.temperature_kelvins
-	var selection_only: bool = _is_relax_selection_only_selected()
+	var atom_set: AtomicStructure.AtomSet = _get_atom_set()
 	var request: RelaxRequest = null
-	if WorkspaceUtils.can_relax(_workspace_context, selection_only):
+	if WorkspaceUtils.can_relax(_workspace_context, atom_set):
 		if not _workspace_context.ignored_warnings.invalid_tetrahedral_structure:
-			var found_bad_angle: bool = WorkspaceUtils.has_invalid_tetrahedral_structure(_workspace_context, selection_only)
+			var found_bad_angle: bool = WorkspaceUtils.has_invalid_tetrahedral_structure(_workspace_context, atom_set)
 			if found_bad_angle:
 				var warning_promise: Promise = _workspace_context.show_warning_dialog(
 						tr("This model has incorrect tetrahedral bonds. Run \"Validation\" to identify the issues."), tr("Run Validation"), tr("Continue Relaxation"), &"invalid_tetrahedral_structure")
 				await warning_promise.wait_for_fulfill()
 				if warning_promise.get_result() == true:
 					# "Run Validation" button selected
-					_workspace_context.create_object_parameters.request_validate_bonds(selection_only)
+					_workspace_context.create_object_parameters.request_validate_bonds(atom_set)
 					return
 		var include_springs: bool = _check_box_include_springs.button_pressed
 		var lock_atoms: bool = _check_box_maintain_locks.button_pressed
 		var passivate_molecules: bool = _check_box_passivate_molecules.button_pressed
-		request = WorkspaceUtils.relax(_workspace_context, temperature_in_kelvins, selection_only, include_springs, lock_atoms, passivate_molecules)
+		request = WorkspaceUtils.relax(_workspace_context, temperature_in_kelvins, atom_set, include_springs, lock_atoms, passivate_molecules)
 	if is_instance_valid(request) and is_instance_valid(request.promise):
 		_workspace_context.clear_alerts()
 		_open_mm_failure_tracker.track_openmm_relax_request(request)
 
 
-func _is_relax_selection_only_selected() -> bool:
+func _get_atom_set() -> AtomicStructure.AtomSet:
 	assert(_option_group != null, "Option ButtonGroup is null, was this function called too early?")
-	return _option_group.get_pressed_button() == _option_selection_only
+	match _option_group.get_pressed_button():
+		_option_selection_only:
+			return AtomicStructure.AtomSet.SELECTED_ONLY
+		_option_all_visible:
+			return AtomicStructure.AtomSet.ALL_VISIBLE
+		_:
+			return AtomicStructure.AtomSet.ALL
 
 
 func _on_button_view_alerts_pressed() -> void:
@@ -133,8 +139,12 @@ func _on_button_view_alerts_pressed() -> void:
 
 
 func _on_open_mm_failure_tracker_results_collected() -> void:
-	var selection_only: bool = _option_selection_only.button_pressed
-	_atomic_structure_model_validator.validate_atomic_model(selection_only)
+	var atom_set: AtomicStructure.AtomSet
+	if _option_selection_only.button_pressed:
+		atom_set = AtomicStructure.AtomSet.SELECTED_ONLY
+	else:
+		atom_set = AtomicStructure.AtomSet.ALL_VISIBLE
+	_atomic_structure_model_validator.validate_atomic_model(atom_set)
 	ScriptUtils.call_deferred_once(_update_view_alerts_button)
 
 

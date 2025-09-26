@@ -18,7 +18,7 @@ signal spring_constant_force_changed(force: float)
 signal spring_equilibrium_length_is_auto_changed(is_auto: bool)
 signal spring_equilibrium_manual_length_changed(manual_length: float)
 # validate_bonds_requested signal is used as intermediator between relax_tools_panel and validate_bonds_panel
-signal validate_bonds_requested(selection_only: bool)
+signal validate_bonds_requested(atom_set: AtomicStructure.AtomSet)
 
 
 enum CreateModeType {
@@ -93,8 +93,10 @@ var _default_shape: int = 0
 
 static var _tmp_nano_shape := NanoShape.new()
 
-func request_validate_bonds(in_selection_only: bool) -> void:
-	validate_bonds_requested.emit(in_selection_only)
+
+func request_validate_bonds(in_atom_set: AtomicStructure.AtomSet) -> void:
+	validate_bonds_requested.emit(in_atom_set)
+
 
 func _get_property_list() -> Array[Dictionary]:
 	var custom_props: Array[Dictionary] = []

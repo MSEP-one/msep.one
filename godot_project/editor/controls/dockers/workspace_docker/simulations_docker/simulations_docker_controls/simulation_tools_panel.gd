@@ -516,7 +516,7 @@ func _on_button_start_pause_pressed() -> void:
 			params.steps_per_report = int(_spin_box_steps_per_report.value)
 			params.total_step_count = int(_spin_box_steps_per_report.value) * int(_spin_box_report_count.value)
 			
-			if _relax_before_sim_button.button_pressed and WorkspaceUtils.can_relax(_workspace_context, false):
+			if _relax_before_sim_button.button_pressed and WorkspaceUtils.can_relax(_workspace_context, AtomicStructure.AtomSet.ALL):
 				# Disabling the button is not necesary at all
 				# I am doing this to catch any case in the future where promise returned by
 				# _relax_before_simulation() is leaking in the future without being fulfilled under
@@ -575,7 +575,8 @@ func _on_button_start_pause_pressed() -> void:
 
 func _relax_before_simulation() -> Promise:
 	var promise: Promise = Promise.new()
-	var request: RelaxRequest = WorkspaceUtils.relax(_workspace_context, _temperature_picker.temperature_kelvins, false, true, true, false)
+	const ATOM_SET = AtomicStructure.AtomSet.ALL
+	var request: RelaxRequest = WorkspaceUtils.relax(_workspace_context, _temperature_picker.temperature_kelvins, ATOM_SET, true, true, false)
 	_track_relax_request(promise, request)
 	return promise
 
