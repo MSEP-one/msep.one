@@ -1,7 +1,9 @@
 extends Control
 
+
 @onready var _camera: Camera3D = _find_editor_viewport_camera_3d()
 @onready var _radius: float = min(size.x, size.y) / 2.0 - 3.0
+
 
 var _hovered: bool = false
 var _rolling: bool = false
@@ -13,7 +15,12 @@ var _start_transform: Transform3D
 func _ready() -> void:
 	assert(get_parent().has_method("get_orbit_pivot_position"),
 		"Node hierarchy changed, this node is no longer child of AxesWidget, or method was remored/renamed")
-	pass
+	resized.connect(_on_resized)
+
+
+func _on_resized() -> void:
+	_radius = min(size.x, size.y) / 2.0 - 3.0
+	queue_redraw()
 
 
 func _has_point(point: Vector2) -> bool:
