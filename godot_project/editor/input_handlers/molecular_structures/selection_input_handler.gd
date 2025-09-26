@@ -7,6 +7,9 @@ const MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED = 20 * 20
 var _select_connected_queued_at: int = 0
 var _press_down_position: Vector2 = Vector2(-100, -100)
 
+func _init(in_context: WorkspaceContext) -> void:
+	super._init(in_context)
+	in_context.history_changed.connect(_on_workspace_context_history_changed)
 
 func handles_empty_selection() -> bool:
 	return true
@@ -171,8 +174,17 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 	return false
 
 
+func _on_workspace_context_history_changed() -> void:
+	_update_distance_message(_workspace_context, _last_position_1, _last_position_2)
+
+
+# _last_position_1 and 2 are used for re-updating distance on undo/redo and changes
+var _last_position_1 := Vector3(INF, INF, INF)
+var _last_position_2 := Vector3(INF, INF, INF)
 func _update_distance_message(in_workspace_context: WorkspaceContext, in_position_one: Vector3,
 			in_position_two: Vector3) -> void:
+	_last_position_1 = in_position_one
+	_last_position_2 = in_position_two
 	var are_positions_valid: bool = not in_position_one.is_equal_approx(Vector3(INF, INF, INF)) and \
 			not in_position_two.is_equal_approx(Vector3(INF, INF, INF))
 	var distance: float = in_position_one.distance_to(in_position_two)
