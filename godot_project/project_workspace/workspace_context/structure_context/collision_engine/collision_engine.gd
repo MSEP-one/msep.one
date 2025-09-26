@@ -196,14 +196,14 @@ func _initialize_atom_shapes() -> void:
 
 
 func _initialize_virtual_objects_shape() -> void:
-	const MOTOR_COLLISION_RADIUS: float = 2.5
+	const MOTOR_COLLISION_RADIUS: float = 0.125
 	const EMITTER_SHAPE_DATA: Dictionary = {
 		"radius" : 0.08 * PHYSIC_SPACE_SIZE_FACTOR,
 		"height" : 0.35 * PHYSIC_SPACE_SIZE_FACTOR,
 	}
 	const SPRING_BOX_EXTENTS: Vector3 = Vector3.ONE * 0.5
 	_motor_shape_rid = PhysicsServer3D.sphere_shape_create()
-	PhysicsServer3D.shape_set_data(_motor_shape_rid, MOTOR_COLLISION_RADIUS)
+	PhysicsServer3D.shape_set_data(_motor_shape_rid, MOTOR_COLLISION_RADIUS * PHYSIC_SPACE_SIZE_FACTOR)
 	_particle_emitter_shape_rid = PhysicsServer3D.cylinder_shape_create()
 	PhysicsServer3D.shape_set_data(_particle_emitter_shape_rid, EMITTER_SHAPE_DATA)
 	_anchor_shape_rid = PhysicsServer3D.sphere_shape_create()
