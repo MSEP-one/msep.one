@@ -82,7 +82,7 @@ func _on_current_structure_context_changed(in_context: StructureContext) -> void
 ## to continue
 func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context: StructureContext) -> bool:
 	var rendering: Rendering = out_context.workspace_context.get_rendering()
-	var is_shortcut_pressed: bool = _check_input_event_can_bind(in_input_event, false)
+	var is_shortcut_pressed: bool = _check_input_event_can_bind(in_input_event as InputEventWithModifiers, false)
 	if in_input_event is InputEventWithModifiers:
 		var filter_candidates: bool = _check_input_event_can_bind(in_input_event, true)
 		if filter_candidates != _filter_join_candidates:
