@@ -12,6 +12,11 @@ enum {
 	ID_PARTICLE_EMITTERS = 4,
 }
 
+@onready var shapes: NanoPopupMenu = $Shapes
+
+func _ready() -> void:
+	add_submenu_item(tr("Shapes"), shapes.name)
+
 var feature_flag_items: Dictionary = {
 	ID_SPRINGS: {
 		&"flag": FeatureFlagManager.FEATURE_FLAG_VIRTUAL_SPRINGS,
@@ -26,6 +31,7 @@ var feature_flag_items: Dictionary = {
 }
 
 func _update_menu() -> void:
+	shapes._update_menu()
 	for id: int in feature_flag_items:
 		var data: Dictionary = feature_flag_items[id]
 		var flag_enabled: bool = FeatureFlagManager.get_flag_value(data[&"flag"])
