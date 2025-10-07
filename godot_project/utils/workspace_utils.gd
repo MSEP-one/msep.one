@@ -106,6 +106,10 @@ static func open_screen_capture_dialog(in_workspace_context: WorkspaceContext) -
 	_open_screen_capture_dialog(in_workspace_context)
 
 
+static func open_record_simulation_video_dialog(in_workspace_context: WorkspaceContext) -> void:
+	_open_record_simulation_video_dialog(in_workspace_context)
+
+
 static func open_camera_position_dialog() -> void:
 	Editor_Utils.get_editor().camera_position_dialog.popup_centered()
 
@@ -1220,6 +1224,12 @@ static func _extract_embedded_thumbnail(in_filepath: String) -> Texture2D:
 			img.load_png_from_buffer(buffer)
 			return ImageTexture.create_from_image(img)
 	return null
+
+
+static func _open_record_simulation_video_dialog(in_workspace_context: WorkspaceContext) -> void:
+	assert(in_workspace_context and in_workspace_context.is_simulating())
+	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	workspace_main_view.record_simulation_video_dialog.popup_centered_ratio(0.8)
 
 
 static func _open_quick_search_dialog(in_workspace_context: WorkspaceContext) -> void:

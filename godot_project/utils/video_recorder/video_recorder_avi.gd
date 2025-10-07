@@ -24,6 +24,29 @@ func _init(in_filename: String, in_resolution: Vector2i, in_fps: int = 30) -> vo
 	_write_begin()
 
 
+static func get_file_format_filters() -> PackedStringArray:
+	return ["*.avi ; FMPEG encoded video (AVI)"]
+
+
+func is_running() -> bool:
+	return is_instance_valid(_w)
+
+
+func is_converting() -> bool:
+	return false
+
+
+func abort() -> void:
+	if _w == null:
+		return
+	var f: FileAccess = _w.get_file_access()
+	f.close()
+	var err: Error = DirAccess.remove_absolute(_filename)
+	if err != OK:
+		push_error("Failed to delete ", _filename, " with error ", error_string(err))
+	_w = null
+
+
 func has_error() -> bool:
 	return not _error.is_empty()
 

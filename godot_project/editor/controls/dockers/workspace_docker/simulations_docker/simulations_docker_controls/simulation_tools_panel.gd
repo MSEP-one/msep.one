@@ -345,6 +345,7 @@ func _on_simulation_frame_received(in_frame: float, _in_state: Variant) -> void:
 	_simulation_length_nanoseconds = max(time_nanoseconds, _simulation_length_nanoseconds)
 	if _is_simulation_complete():
 		_button_end.disabled = true
+		_workspace_context.simulation_background_processing_completed.emit()
 
 
 func _on_simulation_invalid_state_received() -> void:

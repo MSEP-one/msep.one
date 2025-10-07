@@ -33,6 +33,17 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/simulation_tools_panel.tscn"
 			]
 		},
+	&"Save Simulation as video":
+		{
+			header = true,
+			scroll = false,
+			collapse = false,
+			start_collapsed = false,
+			stretch_ratio = 0.0,
+			controls = [
+				"res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/record_simulation_panel.tscn"
+			]
+		},
 	&"Validate Model":
 		{
 			header = true,

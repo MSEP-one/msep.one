@@ -57,6 +57,10 @@ func push_frame(in_time: float, in_positions: PackedVector3Array) -> void:
 	frame_received.emit(in_time, in_positions)
 
 
+func get_frame_count() -> int:
+	return frames.size()
+
+
 func abort() -> void:
 	_status = Status.ABORTED
 

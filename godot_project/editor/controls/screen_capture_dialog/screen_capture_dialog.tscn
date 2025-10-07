@@ -22,10 +22,10 @@ shader_parameter/color_a = Color(0.286275, 0.356863, 0.388235, 1)
 shader_parameter/color_b = Color(0.721569, 0.721569, 0.721569, 1)
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_6t0hr"]
-viewport_path = NodePath("HBoxContainer/PreviewControls/SubViewportPreview")
+viewport_path = NodePath("VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview")
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_jrfyc"]
-viewport_path = NodePath("HBoxContainer/PreviewControls/SubViewportPreview")
+viewport_path = NodePath("VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview")
 
 [node name="ScreenCaptureDialog" type="ConfirmationDialog"]
 title = "Capture Camera Image"
@@ -36,38 +36,48 @@ ok_button_text = "Save As..."
 dialog_hide_on_ok = false
 script = ExtResource("1_607do")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 1268.0
 offset_bottom = 653.0
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="SettingsControls" type="VBoxContainer" parent="HBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
+horizontal_scroll_mode = 0
 
-[node name="LabelCaptureSize" type="Label" parent="HBoxContainer/SettingsControls"]
+[node name="SettingsControls" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LabelCaptureSize" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls"]
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "Base Size"
 
-[node name="PanelContainerCaptureSize" type="PanelContainer" parent="HBoxContainer/SettingsControls"]
+[node name="PanelContainerCaptureSize" type="PanelContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls"]
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 
-[node name="GridContainer" type="GridContainer" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize"]
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize"]
 layout_mode = 2
 columns = 2
 
-[node name="Label" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
 layout_mode = 2
 text = "Size Preset"
 
-[node name="OptionButtonSizePreset" type="OptionButton" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
+[node name="OptionButtonSizePreset" type="OptionButton" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-item_count = 9
 selected = 0
+item_count = 9
 popup/item_0/text = "Match editor size"
 popup/item_0/id = 0
 popup/item_1/text = "Custom"
@@ -87,179 +97,179 @@ popup/item_7/id = 7
 popup/item_8/text = "8k"
 popup/item_8/id = 8
 
-[node name="Label2" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
 layout_mode = 2
 text = "Width"
 
-[node name="SpinBoxSliderWidth" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer" instance=ExtResource("1_y3r51")]
+[node name="SpinBoxSliderWidth" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize/GridContainer" instance=ExtResource("1_y3r51")]
 unique_name_in_owner = true
 layout_mode = 2
 min_value = 640.0
 max_value = 7680.0
 value = 1024.0
 
-[node name="Label3" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
+[node name="Label3" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize/GridContainer"]
 layout_mode = 2
 text = "Height"
 
-[node name="SpinBoxSliderHeight" parent="HBoxContainer/SettingsControls/PanelContainerCaptureSize/GridContainer" instance=ExtResource("1_y3r51")]
+[node name="SpinBoxSliderHeight" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize/GridContainer" instance=ExtResource("1_y3r51")]
 unique_name_in_owner = true
 layout_mode = 2
 min_value = 480.0
 max_value = 4320.0
 value = 768.0
 
-[node name="HBoxContainerCrop" type="HBoxContainer" parent="HBoxContainer/SettingsControls"]
+[node name="HBoxContainerCrop" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls"]
 layout_mode = 2
 
-[node name="CheckButtonCrop" type="CheckButton" parent="HBoxContainer/SettingsControls/HBoxContainerCrop"]
+[node name="CheckButtonCrop" type="CheckButton" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/HBoxContainerCrop"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 
-[node name="LabelCrop" type="Label" parent="HBoxContainer/SettingsControls/HBoxContainerCrop"]
+[node name="LabelCrop" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/HBoxContainerCrop"]
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "Crop"
 
-[node name="PanelContainerCrop" type="PanelContainer" parent="HBoxContainer/SettingsControls"]
+[node name="PanelContainerCrop" type="PanelContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 
-[node name="GridContainer" type="GridContainer" parent="HBoxContainer/SettingsControls/PanelContainerCrop"]
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop"]
 layout_mode = 2
 columns = 2
 
-[node name="LabelHOffset" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer"]
+[node name="LabelHOffset" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer"]
 layout_mode = 2
 text = "H Offset
 "
 
-[node name="SpinBoxSliderHOffset" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
+[node name="SpinBoxSliderHOffset" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 7680.0
 allow_greater = true
 
-[node name="LabelVOffset" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer"]
+[node name="LabelVOffset" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer"]
 layout_mode = 2
 text = "V Offset
 "
 
-[node name="SpinBoxSliderVOffset" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
+[node name="SpinBoxSliderVOffset" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 4320.0
 allow_greater = true
 
-[node name="LabelWidth" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer"]
+[node name="LabelWidth" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer"]
 layout_mode = 2
 text = "Width"
 
-[node name="SpinBoxSliderCropWidth" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
+[node name="SpinBoxSliderCropWidth" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
 unique_name_in_owner = true
 layout_mode = 2
 min_value = 1.0
 max_value = 7680.0
 value = 1024.0
 
-[node name="Label3" type="Label" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer"]
+[node name="Label3" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer"]
 layout_mode = 2
 text = "Height"
 
-[node name="SpinBoxSliderCropHeight" parent="HBoxContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
+[node name="SpinBoxSliderCropHeight" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer" instance=ExtResource("1_y3r51")]
 unique_name_in_owner = true
 layout_mode = 2
 min_value = 1.0
 max_value = 4320.0
 value = 768.0
 
-[node name="LabelBackground" type="Label" parent="HBoxContainer/SettingsControls"]
+[node name="LabelBackground" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls"]
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "Background"
 
-[node name="PanelContainerBackground" type="PanelContainer" parent="HBoxContainer/SettingsControls"]
+[node name="PanelContainerBackground" type="PanelContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls"]
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 
-[node name="HBoxContainer" type="VBoxContainer" parent="HBoxContainer/SettingsControls/PanelContainerBackground"]
+[node name="HBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground"]
 layout_mode = 2
 
-[node name="RadioBackgroundEnvironment" type="CheckBox" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
+[node name="RadioBackgroundEnvironment" type="CheckBox" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
 button_group = SubResource("ButtonGroup_r5oqb")
 text = "Environment"
 
-[node name="RadioBackgroundTransparent" type="CheckBox" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
+[node name="RadioBackgroundTransparent" type="CheckBox" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 button_group = SubResource("ButtonGroup_r5oqb")
 text = "Transparent
 "
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer"]
 layout_mode = 2
 
-[node name="RadioBackgroundColor" type="CheckBox" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer/HBoxContainer"]
+[node name="RadioBackgroundColor" type="CheckBox" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 button_group = SubResource("ButtonGroup_r5oqb")
 text = "Color"
 
-[node name="ColorPickerButtonBackgroundColor" type="ColorPickerButton" parent="HBoxContainer/SettingsControls/PanelContainerBackground/HBoxContainer/HBoxContainer"]
+[node name="ColorPickerButtonBackgroundColor" type="ColorPickerButton" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 color = Color(0.627451, 0.627451, 0.627451, 1)
 
-[node name="PreviewControls" type="VBoxContainer" parent="HBoxContainer"]
+[node name="PreviewControls" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SubViewportPreview" type="SubViewport" parent="HBoxContainer/PreviewControls"]
+[node name="SubViewportPreview" type="SubViewport" parent="VBoxContainer/HBoxContainer/PreviewControls"]
 unique_name_in_owner = true
 msaa_3d = 3
 size = Vector2i(1024, 768)
 render_target_update_mode = 1
 
-[node name="PreviewCamera3D" type="Camera3D" parent="HBoxContainer/PreviewControls/SubViewportPreview"]
+[node name="PreviewCamera3D" type="Camera3D" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview"]
 transform = Transform3D(1, 0, 0, 0, 0.956814, 0.290702, 0, -0.290702, 0.956814, 0, 1.18089, 2.38742)
 cull_mask = 1047553
 current = true
 
-[node name="EditorOnlySample" parent="HBoxContainer/PreviewControls/SubViewportPreview" instance_placeholder="res://editor/controls/screen_capture_dialog/editor_only_sample.tscn"]
+[node name="EditorOnlySample" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview" instance_placeholder="res://editor/controls/screen_capture_dialog/editor_only_sample.tscn"]
 
-[node name="PreviewWorldEnvironment" type="WorldEnvironment" parent="HBoxContainer/PreviewControls/SubViewportPreview"]
+[node name="PreviewWorldEnvironment" type="WorldEnvironment" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview"]
 unique_name_in_owner = true
 environment = SubResource("Environment_0h3d7")
 
-[node name="Label" type="Label" parent="HBoxContainer/PreviewControls"]
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/PreviewControls"]
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "Preview"
 
-[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/PreviewControls"]
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer/PreviewControls"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_type_variation = &"SubcategoryPanel"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/PreviewControls/PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label4" type="Label" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="Label4" type="Label" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "Scale"
 
-[node name="ButtonFit" type="Button" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="ButtonFit" type="Button" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
@@ -268,7 +278,7 @@ button_pressed = true
 button_group = SubResource("ButtonGroup_k3x4w")
 text = "Fit"
 
-[node name="Button1to1" type="Button" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="Button1to1" type="Button" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
@@ -276,12 +286,12 @@ toggle_mode = true
 button_group = SubResource("ButtonGroup_k3x4w")
 text = "1 : 1"
 
-[node name="CheckboardTexture" type="ColorRect" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer"]
+[node name="CheckboardTexture" type="ColorRect" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer"]
 material = SubResource("ShaderMaterial_d71vx")
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="SwitchPreviewScale" type="TabContainer" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture"]
+[node name="SwitchPreviewScale" type="TabContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -291,13 +301,15 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
 theme_type_variation = &"EmptyStyle"
+current_tab = 0
 tabs_visible = false
 
-[node name="ScrollContainer2" type="MarginContainer" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale"]
+[node name="ScrollContainer2" type="MarginContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale"]
 layout_mode = 2
 size_flags_vertical = 3
+metadata/_tab_index = 0
 
-[node name="TextureRectCapturePreviewFit" type="TextureRect" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale/ScrollContainer2"]
+[node name="TextureRectCapturePreviewFit" type="TextureRect" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale/ScrollContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 texture = SubResource("ViewportTexture_6t0hr")
@@ -305,12 +317,13 @@ expand_mode = 1
 stretch_mode = 5
 script = ExtResource("4_q6wua")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale"]
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale"]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
+metadata/_tab_index = 1
 
-[node name="TextureRectCapturePreviewUnscaled" type="TextureRect" parent="HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale/ScrollContainer"]
+[node name="TextureRectCapturePreviewUnscaled" type="TextureRect" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 texture = SubResource("ViewportTexture_jrfyc")
@@ -320,7 +333,6 @@ script = ExtResource("4_q6wua")
 unique_name_in_owner = true
 initial_position = 2
 size = Vector2i(700, 500)
-ok_button_text = "Save"
 access = 2
 filters = PackedStringArray("*.png ; Image files (PNG)")
 script = ExtResource("5_gts1f")

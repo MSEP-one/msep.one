@@ -33,6 +33,8 @@ const SIZE_PRESETS_MAP: Dictionary = {
 const _DEFAULT_ENVIRONMENT: Environment = preload("res://editor/rendering/resources/world_environment.tres")
 const _AUTOGEN_FILE_NAME_META: StringName = &"___autogen_filename___"
 
+signal crop_settings_changed()
+
 var _is_about_to_popup: bool = false
 
 # Size Settings
@@ -73,6 +75,9 @@ var prev_size_preset: SizePresets = SizePresets.RES_MATCH_EDITOR
 var high_resolution_rendering_confirmed: bool = false
 var workspace_snapshot: Dictionary
 
+# Note: this is overriden in RecordSimulationVideoDialog subclass
+var _update_mode: SubViewport.UpdateMode = SubViewport.UPDATE_ONCE
+
 
 func _init() -> void:
 	hide()
@@ -107,6 +112,11 @@ func _notification(what: int) -> void:
 		_save_file_dialog = %SaveFileDialog
 		_resolution_confirmation = %ResolutionConfirmationDialog
 		
+		if _check_button_crop.toggled.is_connected(_on_crop_toggle_change):
+			# _notification(NOTIFICATION_SCENE_INSTANTIATED) is running a second time,
+			# This happens when a scene is inherited
+			# skip second execution
+			return
 		for preview in _texture_rects_capture_preview:
 			preview.crop_rect_changed.connect(_on_texture_rect_capture_preview_crop_rect_changed)
 		_check_button_crop.toggled.connect(_on_crop_toggle_change)
@@ -223,7 +233,7 @@ func _on_option_button_size_preset_item_selected(in_id: int) -> void:
 			_option_button_size_preset.select(prev_size_preset)
 	
 	prev_size_preset = in_id as SizePresets
-	_sub_viewport_preview.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_sub_viewport_preview.render_target_update_mode = _update_mode
 	if in_id == SizePresets.RES_CUSTOM:
 		_spin_box_slider_width.editable = true
 		_spin_box_slider_height.editable = true
@@ -265,7 +275,7 @@ func _on_spin_box_slider_width_value_changed(in_width: int) -> void:
 			return
 	
 	_sub_viewport_preview.size.x = in_width
-	_sub_viewport_preview.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_sub_viewport_preview.render_target_update_mode = _update_mode
 
 
 func _on_spin_box_slider_height_value_changed(in_height: int) -> void:
@@ -285,7 +295,7 @@ func _on_spin_box_slider_height_value_changed(in_height: int) -> void:
 		high_resolution_rendering_confirmed = true
 	
 	_sub_viewport_preview.size.y = in_height
-	_sub_viewport_preview.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_sub_viewport_preview.render_target_update_mode = _update_mode
 
 
 func _on_button_group_preview_scale_pressed(in_button: Button) -> void:
@@ -296,7 +306,7 @@ func _on_button_group_preview_scale_pressed(in_button: Button) -> void:
 			_switch_preview_scale.current_tab = _PREVIEW_SCALE_EXPAND
 		_:
 			assert(false, "Unknown button was added to _button_group_preview_scale")
-	_sub_viewport_preview.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_sub_viewport_preview.render_target_update_mode = _update_mode
 
 
 func _on_button_group_preview_background_pressed(_in_button: Button) -> void:
@@ -319,7 +329,7 @@ func _update_preview_background() -> void:
 			_sub_viewport_preview.transparent_bg = false
 			_environment_custom_color.background_color = _color_picker_button_background_color.color
 			_preview_camera_3d.environment = _environment_custom_color
-	_sub_viewport_preview.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_sub_viewport_preview.render_target_update_mode = _update_mode
 
 
 func _on_texture_rect_capture_preview_crop_rect_changed(in_rect: Rect2) -> void:
@@ -333,28 +343,33 @@ func _on_crop_toggle_change(in_new_value: bool) -> void:
 	for preview in _texture_rects_capture_preview:
 		preview.crop_enabled = in_new_value
 	_panel_container_crop.visible = in_new_value
+	crop_settings_changed.emit()
 
 
 func _on_spin_box_slider_h_offset_value_changed(in_new_value: float) -> void:
 	for preview in _texture_rects_capture_preview:
 		preview.crop_h_offset = in_new_value
 		_spin_box_slider_crop_width.max_value = preview.texture.get_size().x - in_new_value
+	crop_settings_changed.emit()
 
 
 func _on_spin_box_slider_v_offset_value_changed(in_new_value: float) -> void:
 	for preview in _texture_rects_capture_preview:
 		preview.crop_v_offset = in_new_value
 		_spin_box_slider_crop_height.max_value = preview.texture.get_size().y - in_new_value
+	crop_settings_changed.emit()
 
 
 func _on_spin_box_slider_crop_width_value_changed(in_new_value: float) -> void:
 	for preview in _texture_rects_capture_preview:
 		preview.crop_width = in_new_value
+	crop_settings_changed.emit()
 
 
 func _on_spin_box_slider_crop_height_value_changed(in_new_value: float) -> void:
 	for preview in _texture_rects_capture_preview:
 		preview.crop_height = in_new_value
+	crop_settings_changed.emit()
 
 
 func _on_save_file_dialog_file_selected(in_path: String) -> void:

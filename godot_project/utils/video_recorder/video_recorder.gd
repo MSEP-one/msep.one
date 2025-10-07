@@ -2,6 +2,22 @@
 class_name VideoRecorder extends RefCounted
 
 
+static func get_file_format_filters() -> PackedStringArray:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return []
+
+func is_running() -> bool:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return false
+
+func is_converting() -> bool:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return false
+
+func abort() -> void:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return
+
 func has_error() -> bool:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return false
