@@ -196,11 +196,42 @@ func _on_category_control_draw(category_control: Control, overlay: Control) -> v
 	var flip_flop_frame_index: int = Time.get_ticks_msec() / 100
 	var should_draw: bool = flip_flop_frame_index % 2 == 1
 	if should_draw:
+		_ensure_visible(category_control)
 		var rect_pos: Vector2 = category_control.global_position - global_position
 		rect_pos.x -= get_theme_constant(&"margin_left")
 		rect_pos.y -= get_theme_constant(&"margin_top")
 		var rect_size: Vector2 = category_control.size
 		overlay.draw_rect(Rect2(rect_pos, rect_size).grow(4), Color.YELLOW, false, 2)
+
+
+func _ensure_visible(in_control: Control) -> void:
+	# This method is a slightly modified version of ScrollContainer.ensure_control_visible(in_control)
+	var scroll: ScrollContainer = _get_scroll_container()
+	var v_scroll: ScrollBar = scroll.get_v_scroll_bar()
+	var h_scroll: ScrollBar = scroll.get_h_scroll_bar()
+	if not scroll.is_ancestor_of(in_control):
+		push_error("Must be an ancestor of the control.")
+		return
+
+	var other_in_this: Transform2D = scroll.get_global_transform().affine_inverse() * in_control.get_global_transform()
+	var scroll_size: Vector2 = scroll.get_size()
+	var other_rect: Rect2 = other_in_this * (Rect2(Vector2.ZERO, in_control.get_size()))
+
+	var side_margin: float = v_scroll.size.x if v_scroll.visible else 0.0
+	var bottom_margin: float = h_scroll.size.y if h_scroll.visible else 0.0
+
+	var diff_x: int = max(
+		min(other_rect.position.x - (side_margin if is_layout_rtl() else 0.0), 0.0),
+		other_rect.position.x + other_rect.size.x - scroll_size.x + (0.0 if is_layout_rtl() else side_margin)
+	)
+
+	var diff_y: int = max(
+		min(other_rect.position.y, 0.0),
+		other_rect.position.y + other_rect.size.y - scroll_size.y + bottom_margin
+	)
+
+	scroll.scroll_horizontal += diff_x
+	scroll.scroll_vertical += diff_y
 
 
 func add_control_to_category(in_category_id: StringName, in_control: DynamicContextControl) -> bool:
