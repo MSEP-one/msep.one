@@ -33,6 +33,7 @@ func _ready() -> void:
 	_atomic_structure_model_validator.validation_finished.connect(_on_atomic_structure_model_validator_validation_finished)
 	_atomic_structure_model_validator.alert_selected.connect(_on_atomic_structure_model_validator_alert_selected)
 	_atomic_structure_model_validator.results_outdated.connect(_on_atomic_structure_model_validator_results_outdated)
+	_outdated_results_label.hide()
 
 
 func should_show(in_workspace_context: WorkspaceContext) -> bool:
