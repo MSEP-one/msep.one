@@ -333,8 +333,8 @@ func _update_preview_background() -> void:
 
 
 func _on_texture_rect_capture_preview_crop_rect_changed(in_rect: Rect2) -> void:
-	_spin_box_slider_crop_width.value = in_rect.size.x
-	_spin_box_slider_crop_height.value = in_rect.size.y
+	_spin_box_slider_crop_width.value = snapped(in_rect.size.x, _spin_box_slider_crop_width.step)
+	_spin_box_slider_crop_height.value = snapped(in_rect.size.y, _spin_box_slider_crop_height.step)
 	_spin_box_slider_h_offset.value = in_rect.position.x
 	_spin_box_slider_v_offset.value = in_rect.position.y
 
