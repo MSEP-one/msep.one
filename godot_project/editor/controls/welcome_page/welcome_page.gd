@@ -1,17 +1,18 @@
 extends Control
 
-const MespHomeSettings = preload("res://editor/controls/welcome_page/MespHomeSettings.gd")
+const MsepHomeSettings: Script = preload("uid://x5mbp5sdep3e")
+const LoadRecentBtnScene: PackedScene = preload("uid://dcasl2w72vcie")
 const SETTINGS_FOLDER = "user://editor/"
 const SETTINGS_FILE   = "home_settings.res"
 const MAX_KNOWN_WORKSPACES_SHOWN: int = 4
 
 const FEATURE_FLAG_NEW_PROJECT_ON_STARTUP = "feature_flags/new_workspace_on_startup"
 
-@onready var new_workspace: LinkButton = %NewWorkspace
-@onready var load_workspace_from_disk: LinkButton = %LoadWorkspaceFromDisk
-@onready var known_workspaces_box: VBoxContainer = %KnownWorkspacesBox
+@onready var new_workspace: Button = %NewWorkspace
+@onready var load_workspace_from_disk: Button = %LoadWorkspaceFromDisk
+@onready var known_workspaces_box: HFlowContainer = %KnownWorkspacesBox
 
-var _settings: MespHomeSettings
+var _settings: MsepHomeSettings
 var _first_run: bool = true
 
 func _ready() -> void:
@@ -25,6 +26,8 @@ func _update_workspaces_list() -> void:
 	if !is_visible_in_tree():
 		return
 	for child in known_workspaces_box.get_children():
+		if child in [new_workspace, load_workspace_from_disk]:
+			continue
 		child.queue_free()
 	var d: DirAccess = DirAccess.open("user://")
 	var workspace_to_activate: Workspace = null
@@ -34,17 +37,13 @@ func _update_workspaces_list() -> void:
 			break
 		if not d.file_exists(workspace):
 			continue
-		var link := LinkButton.new()
-		link.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		link.text = tr("Open '%s'" % [workspace])
-		link.tooltip_text = tr("Open and activate %s" % [workspace])
-		link.pressed.connect(_on_open_workspace_by_path.bind(workspace))
-		known_workspaces_box.add_child(link)
-		link_count += 1
+		var btn: Button = LoadRecentBtnScene.instantiate()
+		btn.set_workspace_path(workspace)
+		btn.pressed.connect(_on_open_workspace_by_path.bind(workspace))
+		known_workspaces_box.add_child(btn)
 		var should_open: bool = _settings.autoload_open_workspaces and _settings.open_workspaces.find(workspace) != -1
 		if should_open:
-			link.text = tr("Go to '%s'" % [workspace.get_basename()])
-			link.tooltip_text = tr("Activate %s" % [workspace])
+			btn.setup_for_activation()
 			var w: Workspace = MolecularEditorContext.soft_load_workspace(workspace)
 			if workspace_to_activate == null:
 				# First workspace in the list should be the last one active
@@ -62,6 +61,8 @@ func _update_workspaces_list() -> void:
 			if not opening_workspace:
 				MolecularEditorContext.create_workspace()
 	_first_run = false
+	known_workspaces_box.move_child(load_workspace_from_disk, known_workspaces_box.get_child_count() - 1)
+	known_workspaces_box.move_child(new_workspace, known_workspaces_box.get_child_count() - 1)
 
 func _ensure_settings_exists() -> void:
 	var d: DirAccess = DirAccess.open("user://")
@@ -71,16 +72,16 @@ func _ensure_settings_exists() -> void:
 	if d.file_exists(SETTINGS_FOLDER.path_join(SETTINGS_FILE)):
 		_load_settings()
 	else:
-		_settings = MespHomeSettings.new()
+		_settings = MsepHomeSettings.new()
 		_save_settings()
 	if !_settings.changed.is_connected(_save_settings):
 		_settings.changed.connect(_save_settings)
 
 func _load_settings() -> void:
-	_settings = load(SETTINGS_FOLDER.path_join(SETTINGS_FILE)) as MespHomeSettings
+	_settings = load(SETTINGS_FOLDER.path_join(SETTINGS_FILE)) as MsepHomeSettings
 	if !is_instance_valid(_settings):
 		# File got corrupted?
-		_settings = MespHomeSettings.new()
+		_settings = MsepHomeSettings.new()
 		_save_settings()
 
 func _save_settings() -> void:

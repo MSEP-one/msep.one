@@ -1,0 +1,172 @@
+[gd_scene load_steps=9 format=3 uid="uid://dnppynbygr3na"]
+
+[ext_resource type="Script" uid="uid://brc5dgewcso0y" path="res://editor/controls/welcome_page/welcome_page.gd" id="1_h6th3"]
+[ext_resource type="PackedScene" uid="uid://dcasl2w72vcie" path="res://editor/controls/welcome_page/controls/load_recent_button.tscn" id="2_b1dtx"]
+[ext_resource type="Texture2D" uid="uid://bjnbq8rtp2gy5" path="res://editor/controls/menu_bar/menu_file/icons/icon_new_workspace.svg" id="3_f3hfv"]
+[ext_resource type="Texture2D" uid="uid://c3cwjs4djvms5" path="res://editor/controls/menu_bar/menu_file/icons/icon_load_workspace.svg" id="3_id6tf"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i26yn"]
+bg_color = Color(0.333333, 0.203922, 0.596078, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7md78"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_id6tf"]
+bg_color = Color(0.572038, 0, 0.138905, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8wk80"]
+bg_color = Color(1, 1, 1, 0.341176)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[node name="WelcomePage" type="Panel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_i26yn")
+script = ExtResource("1_h6th3")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="MarginContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="MainContainer" type="VBoxContainer" parent="ScrollContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="RichTextLabel" type="RichTextLabel" parent="ScrollContainer/HBoxContainer/MainContainer"]
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+bbcode_enabled = true
+text = "[font_size=70]Welcome to MSEP.one[/font_size]
+[font_size=49]The Molecular Systems Engineering Platform[/font_size]"
+scroll_active = false
+shortcut_keys_enabled = false
+
+[node name="LinksContainer" type="MarginContainer" parent="ScrollContainer/HBoxContainer/MainContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer"]
+layout_mode = 2
+
+[node name="KnownWorkspacesBox" type="HFlowContainer" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+
+[node name="NewWorkspace" type="Button" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(426, 240)
+layout_mode = 2
+tooltip_text = "Create a new workspace"
+theme_override_styles/focus = SubResource("StyleBoxFlat_7md78")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxFlat_id6tf")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_id6tf")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/hover = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/normal = SubResource("StyleBoxFlat_8wk80")
+icon = ExtResource("3_f3hfv")
+icon_alignment = 1
+
+[node name="Label" type="Label" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox/NewWorkspace"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -43.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"HeaderLarge"
+text = "New Workspace"
+autowrap_mode = 1
+text_overrun_behavior = 3
+
+[node name="LoadRecentButton" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox" instance=ExtResource("2_b1dtx")]
+layout_mode = 2
+
+[node name="LoadRecentButton2" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox" instance=ExtResource("2_b1dtx")]
+layout_mode = 2
+
+[node name="LoadRecentButton3" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox" instance=ExtResource("2_b1dtx")]
+layout_mode = 2
+
+[node name="LoadRecentButton4" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox" instance=ExtResource("2_b1dtx")]
+layout_mode = 2
+
+[node name="LoadWorkspaceFromDisk" type="Button" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(426, 240)
+layout_mode = 2
+tooltip_text = "Load a workspace file from the filesystem"
+theme_override_styles/focus = SubResource("StyleBoxFlat_7md78")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxFlat_id6tf")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_id6tf")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/hover = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_8wk80")
+theme_override_styles/normal = SubResource("StyleBoxFlat_8wk80")
+icon = ExtResource("3_id6tf")
+icon_alignment = 1
+
+[node name="Label" type="Label" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox/LoadWorkspaceFromDisk"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -43.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"HeaderLarge"
+text = "Load from Disk"
+autowrap_mode = 1
+text_overrun_behavior = 3
