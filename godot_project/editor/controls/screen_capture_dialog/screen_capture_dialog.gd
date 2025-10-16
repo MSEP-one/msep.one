@@ -19,6 +19,7 @@ enum {
 	_PREVIEW_SCALE_EXPAND = 1
 }
 
+const PROJECT_THUMBNAIL_SIZE: SizePresets = SizePresets.RES_HD
 
 const SIZE_PRESETS_MAP: Dictionary = {
 	SizePresets.RES_LD: Vector2i(854, 480),
@@ -152,6 +153,26 @@ func _on_about_to_popup() -> void:
 	workspace_snapshot = workspace_context.create_state_snapshot()
 	workspace_context.clear_all_selection()
 	_is_about_to_popup = false
+
+
+func generate_thumbnail() -> Image:
+	_on_about_to_popup()
+	var _prev_options: Array = [
+		_sub_viewport_preview.size, # in case resolution was custom
+		_radio_background_environment.button_group.get_pressed_button(),
+	]
+	_sub_viewport_preview.size = SIZE_PRESETS_MAP[PROJECT_THUMBNAIL_SIZE]
+	_radio_background_environment.button_pressed = true
+	_update_preview_background()
+	visible = true
+	RenderingServer.force_draw(false)
+	var image: Image = _sub_viewport_preview.get_texture().get_image()
+	visible = false
+	# Revert dialog options to original value
+	_sub_viewport_preview.size = _prev_options[0]
+	_prev_options[1].button_pressed = true
+	_update_preview_background()
+	return image
 
 
 func _set_remote_camera(in_camera_3d: Camera3D) -> void:

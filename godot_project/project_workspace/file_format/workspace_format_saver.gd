@@ -12,6 +12,7 @@ func _get_recognized_extensions(resource: Resource) -> PackedStringArray:
 func _save(resource: Resource, path: String, flags: int) -> Error:
 	_update_msep_vertsion_history(resource)
 	_update_simulation_forcefield_hashes(resource)
+	_embed_thumbnail_if_needed(resource)
 	var tmp_path: String = path + ".tres"
 	var result: Error = ResourceSaver.save(resource, tmp_path, flags)
 	if result == OK:
@@ -33,3 +34,9 @@ func _update_simulation_forcefield_hashes(out_workspace: Workspace) -> void:
 	out_workspace.simulation_settings_msep_extensions_md5 = OpenMMUtils.hash_forcefield_extension(
 		out_workspace.simulation_settings_forcefield_extension
 	)
+
+func _embed_thumbnail_if_needed(resource: Workspace) -> void:
+	if resource.has_thumbnail() and resource.is_last_thumbnail_user_generated:
+		return
+	var thumbnail: Image = WorkspaceUtils.generate_thumbnail(resource)
+	resource.set_thumbnail(thumbnail, false)
