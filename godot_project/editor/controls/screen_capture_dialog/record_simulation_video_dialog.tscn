@@ -26,6 +26,20 @@ script = ExtResource("2_vnntt")
 [node name="VBoxContainer" parent="." index="3"]
 offset_bottom = 678.0
 
+[node name="SpinBoxSliderWidth" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize/GridContainer" index="3"]
+step = 2.0
+
+[node name="SpinBoxSliderHeight" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCaptureSize/GridContainer" index="5"]
+step = 2.0
+
+[node name="SpinBoxSliderCropWidth" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer" index="5"]
+min_value = 2.0
+step = 2.0
+
+[node name="SpinBoxSliderCropHeight" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerCrop/GridContainer" index="7"]
+min_value = 2.0
+step = 2.0
+
 [node name="RadioBackgroundEnvironment" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer" index="0"]
 button_group = SubResource("ButtonGroup_fxhsi")
 
