@@ -27,6 +27,7 @@ signal simulation_background_processing_completed()
 signal simulation_finished()
 signal about_to_apply_simulation()
 signal simulation_state_applied()
+signal pause_simulation_playback_requested()
 
 signal async_work_started()
 signal async_work_finished()
@@ -623,6 +624,10 @@ func seek_simulation(in_frame: float) -> void:
 	for emitter: NanoParticleEmitter in get_particle_emitters():
 		emitter.seek_simulation(in_frame)
 	WorkspaceUtils.apply_simulation_state(self, payload, state)
+
+
+func request_pause_simulation_playback() -> void:
+	pause_simulation_playback_requested.emit()
 
 
 func abort_simulation_if_running() -> void:

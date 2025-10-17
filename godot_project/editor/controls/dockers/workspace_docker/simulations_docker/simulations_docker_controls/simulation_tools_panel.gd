@@ -71,6 +71,7 @@ func _ensure_workspace_initialized(out_workspace_context: WorkspaceContext) -> v
 		_workspace_context = out_workspace_context
 		out_workspace_context.about_to_apply_simulation.connect(_on_workspace_context_about_to_apply_simulation)
 		out_workspace_context.alerts_panel_visibility_changed.connect(_on_workspace_context_alerts_panel_visibility_changed)
+		out_workspace_context.pause_simulation_playback_requested.connect(_on_pause_simulation_playback_requested)
 		out_workspace_context.tree_exiting.connect(_on_workspace_closed)
 		_open_mm_failure_tracker.set_workspace_context(out_workspace_context)
 		# Initialize UI
@@ -145,6 +146,11 @@ func _notification(in_what: int) -> void:
 func _on_workspace_context_about_to_apply_simulation() -> void:
 	if _status == Status.PLAYING:
 		# This ensures _physics_process won't try to seek simulation
+		_status = Status.PAUSED
+
+
+func _on_pause_simulation_playback_requested() -> void:
+	if _status == Status.PLAYING:
 		_status = Status.PAUSED
 
 

@@ -1228,6 +1228,7 @@ static func _extract_embedded_thumbnail(in_filepath: String) -> Texture2D:
 
 static func _open_record_simulation_video_dialog(in_workspace_context: WorkspaceContext) -> void:
 	assert(in_workspace_context and in_workspace_context.is_simulating())
+	in_workspace_context.request_pause_simulation_playback()
 	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
 	workspace_main_view.record_simulation_video_dialog.popup_centered_ratio(0.8)
 
