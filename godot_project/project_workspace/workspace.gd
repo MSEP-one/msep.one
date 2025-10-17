@@ -495,6 +495,9 @@ func create_state_snapshot() -> Dictionary:
 		structures_snapshot[structure_id] = structure_snapshot
 	
 	var snapshot: Dictionary = {
+		"_thumbnail" : _thumbnail.duplicate(),
+		"is_last_thumbnail_user_generated" : is_last_thumbnail_user_generated,
+		"_thumbnail_cache" : _thumbnail_cache,
 		"structures_snapshot" : structures_snapshot,
 		"representation_settings" : representation_settings.create_state_snapshot(),
 		"simulation_parameters" : simulation_parameters.create_state_snapshot(),
@@ -538,6 +541,9 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 		MolecularEditorContext.get_workspace_context(self).get_rendering().remove(structure)
 		_structures.erase(structure_id)
 	
+	_thumbnail = in_snapshot["_thumbnail"] 
+	is_last_thumbnail_user_generated = in_snapshot["is_last_thumbnail_user_generated"]
+	_thumbnail_cache = in_snapshot["_thumbnail_cache"]
 	representation_settings.apply_state_snapshot(in_snapshot["representation_settings"])
 	simulation_parameters.apply_state_snapshot(in_snapshot["simulation_parameters"])
 	msep_version_history = in_snapshot["msep_version_history"].duplicate()
