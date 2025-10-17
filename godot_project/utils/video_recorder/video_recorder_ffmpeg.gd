@@ -6,6 +6,7 @@ var _resolution: Vector2i
 var _fps: int = 30
 var _error: String = ""
 var _pipe: FileAccess
+var _err_pipe: FileAccess
 var _pid: int
 var _converting: bool = false
 var _preset: String = "fast"
@@ -72,12 +73,23 @@ func get_error() -> String:
 	return _error
 
 
+func _flush_pipes() -> void:
+	if _err_pipe.get_length() > 0:
+		_error = _err_pipe.get_as_text()
+		print_verbose("ffmpeg error: ", _error)
+	if _pipe.get_length() > 0:
+		print_verbose("ffmpeg output: ", _pipe.get_as_text())
+
+
 func add_frame(in_image: Image) -> void:
+	_flush_pipes()
 	_write_frame(in_image)
+
 
 func finish() -> void:
 	_write_end()
 	_converting = true
+
 
 func _start_in_thread() -> void:
 	var arguments: PackedStringArray = [
@@ -100,14 +112,8 @@ func _start_in_thread() -> void:
 	var pipe: Dictionary = OS.execute_with_pipe(_cmd, arguments, true)
 	_pipe = pipe.stdio
 	_pid = pipe.pid
-	var stderr: FileAccess = pipe.stderr
-	_error = stderr.get_as_text()
-	if has_error():
-		push_error(_error)
-		_pipe.close()
-		stderr.close()
-	else:
-		print_verbose("Started recording ", _filename)
+	_err_pipe = pipe.stderr
+	print_verbose("Started recording ", _filename)
 
 
 func _write_frame(in_image: Image) -> void:
@@ -118,6 +124,7 @@ func _write_frame(in_image: Image) -> void:
 		in_image.resize(_resolution.x, _resolution.y, Image.INTERPOLATE_BILINEAR)
 	var buffer: PackedByteArray = in_image.get_data()
 	_pipe.store_buffer(buffer)
+
 
 func _write_end() -> void:
 	_pipe.close()
