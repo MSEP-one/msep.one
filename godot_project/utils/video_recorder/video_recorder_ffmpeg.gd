@@ -58,11 +58,19 @@ func abort() -> void:
 	if not is_running():
 		return
 	OS.kill(_pid)
-	while is_running():
+	_dispose_video_file(_pid, _filename)
+
+static func _dispose_video_file(child_pid: int, filename: String) -> void:
+	while OS.is_process_running(child_pid):
 		await Engine.get_main_loop().process_frame
-	var err: Error = DirAccess.remove_absolute(_filename)
+	var err: Error = ERR_FILE_NOT_FOUND
+	var i := 0
+	while err != OK and i < 10:
+		err = DirAccess.remove_absolute(filename)
+		i += 1
+		await Engine.get_main_loop().physics_frame
 	if err != OK:
-		push_error("Failed to delete ", _filename, " with error '", error_string(err), "'")
+		push_error("Failed to delete ", filename, " with error '", error_string(err), "'")
 
 
 func has_error() -> bool:

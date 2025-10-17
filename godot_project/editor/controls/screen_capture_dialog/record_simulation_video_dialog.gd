@@ -68,10 +68,17 @@ func _notification(what: int) -> void:
 		_time_slider.value_changed.connect(_on_time_slider_value_changed)
 		_stop_button.pressed.connect(_on_stop_button_pressed)
 		_abort_button.pressed.connect(_abort_button_pressed)
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if _is_baking == true:
-			return
-		hide()
+
+
+# OVERRIDE
+func _on_visibility_changed() -> void:
+	if !visible and _is_baking == true:
+		# prevent the window from hiding
+		set_deferred(&"visible", true)
+		DisplayServer.beep()
+		return
+	else:
+		super._on_visibility_changed()
 
 
 # OVERRIDE
