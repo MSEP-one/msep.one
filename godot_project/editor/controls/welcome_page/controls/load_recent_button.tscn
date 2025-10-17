@@ -1,0 +1,248 @@
+[gd_scene load_steps=10 format=3 uid="uid://dcasl2w72vcie"]
+
+[ext_resource type="Script" uid="uid://buqvdlrrcsus2" path="res://editor/controls/welcome_page/controls/load_recent_button.gd" id="1_7md78"]
+[ext_resource type="Texture2D" uid="uid://bpkx70rl1xv4t" path="res://editor/controls/welcome_page/controls/default_background.png" id="1_uewrw"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7md78"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fiiay"]
+bg_color = Color(1, 1, 1, 0.27451)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xxo6i"]
+bg_color = Color(0.572038, 0, 0.138905, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="Animation" id="Animation_oljpt"]
+resource_name = "hover"
+length = 0.5
+step = 0.0333
+capture_included = true
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ThumbnailTextureRect:offset_left")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"update": 2,
+"values": [-60.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ThumbnailTextureRect:offset_top")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"update": 2,
+"values": [-60.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ThumbnailTextureRect:offset_right")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"update": 2,
+"values": [60.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ThumbnailTextureRect:offset_bottom")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"update": 2,
+"values": [60.0]
+}
+
+[sub_resource type="Animation" id="Animation_3kum8"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ThumbnailTextureRect:offset_left")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ThumbnailTextureRect:offset_top")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ThumbnailTextureRect:offset_right")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ThumbnailTextureRect:offset_bottom")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_i8qi2"]
+resource_name = "normal"
+length = 0.5
+step = 0.0333
+capture_included = true
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ThumbnailTextureRect:offset_left")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"update": 2,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ThumbnailTextureRect:offset_top")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"update": 2,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ThumbnailTextureRect:offset_right")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"update": 2,
+"values": [0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ThumbnailTextureRect:offset_bottom")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"update": 2,
+"values": [0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_snnr5"]
+_data = {
+&"RESET": SubResource("Animation_3kum8"),
+&"hover": SubResource("Animation_oljpt"),
+&"normal": SubResource("Animation_i8qi2")
+}
+
+[node name="LoadRecentButton" type="Button"]
+clip_children = 1
+custom_minimum_size = Vector2(426, 240)
+theme_override_styles/focus = SubResource("StyleBoxFlat_7md78")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxFlat_fiiay")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_fiiay")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxFlat_xxo6i")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_xxo6i")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxFlat_xxo6i")
+theme_override_styles/hover = SubResource("StyleBoxFlat_xxo6i")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxFlat_xxo6i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_xxo6i")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_xxo6i")
+theme_override_styles/normal = SubResource("StyleBoxFlat_xxo6i")
+script = ExtResource("1_7md78")
+
+[node name="ThumbnailTextureRect" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_uewrw")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WorkspaceNameLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -43.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"HeaderLarge"
+text = "Workspace Name-Workspace Name-Workspace Name"
+autowrap_mode = 1
+text_overrun_behavior = 3
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries = {
+&"": SubResource("AnimationLibrary_snnr5")
+}
+speed_scale = 3.0
