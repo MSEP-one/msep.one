@@ -110,6 +110,14 @@ static func open_camera_position_dialog() -> void:
 	Editor_Utils.get_editor().camera_position_dialog.popup_centered()
 
 
+static func generate_thumbnail(in_workspace: Workspace) -> Image:
+	return _generate_thumbnail(in_workspace)
+
+
+static func extract_embedded_thumbnail(in_filepath: String) -> Texture2D:
+	return _extract_embedded_thumbnail(in_filepath)
+
+
 static func open_quick_search_dialog(in_workspace_context: WorkspaceContext) -> void:
 	_open_quick_search_dialog(in_workspace_context)
 
@@ -1187,6 +1195,31 @@ static func _open_screen_capture_dialog(in_workspace_context: WorkspaceContext) 
 	assert(in_workspace_context)
 	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
 	workspace_main_view.screen_capture_dialog.popup_centered_ratio(0.5)
+
+
+static func _generate_thumbnail(in_workspace: Workspace) -> Image:
+	var context: WorkspaceContext = MolecularEditorContext.get_workspace_context(in_workspace)
+	if context == null:
+		push_error("Cannot generate thumbnail for a project without context")
+		return null
+	var workspace_main_view: WorkspaceMainView = context.workspace_main_view
+	return workspace_main_view.screen_capture_dialog.generate_thumbnail()
+
+
+static func _extract_embedded_thumbnail(in_filepath: String) -> Texture2D:
+	var f := FileAccess.open(in_filepath, FileAccess.READ)
+	if f == null:
+		return null
+	while f.is_open() and not f.eof_reached():
+		var line: String = f.get_line()
+		if line.begins_with("_thumbnail = "):
+			f.close()
+			var str_var: String = line.substr("_thumbnail = ".length())
+			var buffer: PackedByteArray = str_to_var(str_var)
+			var img := Image.new()
+			img.load_png_from_buffer(buffer)
+			return ImageTexture.create_from_image(img)
+	return null
 
 
 static func _open_quick_search_dialog(in_workspace_context: WorkspaceContext) -> void:

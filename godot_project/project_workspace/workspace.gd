@@ -15,6 +15,9 @@ const MAX_SIGNED_32_BIT_INT = 2147483647
 static var instance_counter: int = 0
 
 
+@export_storage var _thumbnail: PackedByteArray = []
+@export_storage var is_last_thumbnail_user_generated: bool = false
+
 @export var _structures: Dictionary = {
 	# ID<int> : NanoStructure
 }
@@ -161,6 +164,9 @@ var _main_structure_int_guid: int = 0
 var _id: int
 
 
+var _thumbnail_cache: Texture2D = null
+
+
 func _init() -> void:
 	# prevent changed and representation_settings_changed signals from being emitted
 	# when executing _set_representation_settings
@@ -182,6 +188,32 @@ func post_load() -> void:
 		var structure: NanoStructure = _structures[structure_id]
 		if structure.int_parent_guid == INVALID_STRUCTURE_ID:
 			_main_structure_int_guid = structure_id
+
+
+func has_thumbnail() -> bool:
+	return not _thumbnail.is_empty()
+
+
+func get_thumbnail() -> Texture2D:
+	if not has_thumbnail():
+		return null
+	if _thumbnail_cache == null:
+		var img := Image.new()
+		img.load_png_from_buffer(_thumbnail)
+		_thumbnail_cache = ImageTexture.create_from_image(img)
+	return _thumbnail_cache
+
+
+func set_thumbnail(in_image: Image, in_is_user_generated: bool = false) -> void:
+	assert(is_last_thumbnail_user_generated == false or in_is_user_generated == true,
+		"Once a user generates a thumbnail it should never be replaced by an automatic thumbnail")
+	if in_image == null:
+		_thumbnail = []
+		_thumbnail_cache = null
+		return
+	_thumbnail = in_image.save_png_to_buffer()
+	is_last_thumbnail_user_generated = in_is_user_generated
+	_thumbnail_cache = ImageTexture.create_from_image(in_image)
 
 
 func get_nmb_of_structures() -> int:
