@@ -73,8 +73,13 @@ static func fetch_functions_from_script_content(in_source_code: String) -> Array
 		if line.strip_edges().begins_with("#"):
 			continue
 		if line.begins_with("func "):
-			var func_name: String = line.split(" ")[1].split("(")[0]
+			var func_name: String = line.get_slice(" ", 1).get_slice("(", 0)
 			var func_desc := FunctionDescription.new(func_name)
+			functions.append(func_desc)
+		if line.begins_with("static func "):
+			var func_name: String = line.get_slice(" ", 2).get_slice("(", 0)
+			var func_desc := FunctionDescription.new(func_name)
+			func_desc.is_static = true
 			functions.append(func_desc)
 		if line.find("ABSTRACT_FUNCTION_MSG") > -1:
 			functions.back().is_abstract = true
@@ -237,6 +242,7 @@ class ClassDescription:
 class FunctionDescription:
 	var function_name: String
 	var is_abstract: bool = false
+	var is_static: bool = false
 	
 	func _init(in_name: String) -> void:
 		function_name = in_name

@@ -1,0 +1,289 @@
+[gd_scene load_steps=11 format=3 uid="uid://dmiufmrvro7me"]
+
+[ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="1_fq33m"]
+[ext_resource type="Script" uid="uid://clhsgmheddras" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.gd" id="2_vnntt"]
+[ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="3_fxhsi"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_3apb5"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="5_affvo"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_fxhsi"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_vnntt"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_0eixy"]
+viewport_path = NodePath("VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_fxhsi"]
+viewport_path = NodePath("VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fxhsi"]
+bg_color = Color(0.333333, 0.203922, 0.596078, 1)
+
+[node name="RecordSimulationVideoDialog" instance=ExtResource("1_fq33m")]
+size = Vector2i(1278, 725)
+script = ExtResource("2_vnntt")
+
+[node name="VBoxContainer" parent="." index="3"]
+offset_bottom = 678.0
+
+[node name="RadioBackgroundEnvironment" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer" index="0"]
+button_group = SubResource("ButtonGroup_fxhsi")
+
+[node name="RadioBackgroundTransparent" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer" index="1"]
+visible = false
+button_group = SubResource("ButtonGroup_fxhsi")
+
+[node name="RadioBackgroundColor" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerBackground/HBoxContainer/HBoxContainer" index="0"]
+button_group = SubResource("ButtonGroup_fxhsi")
+
+[node name="LabelTimeStamp" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls" index="6"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Time"
+
+[node name="PanelContainerTimeStamp" type="PanelContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls" index="7"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="HBoxContainer" type="GridContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp" index="0"]
+layout_mode = 2
+columns = 2
+
+[node name="Label3" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="0"]
+layout_mode = 2
+text = "Scale"
+
+[node name="TimeScalePicker" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="1" instance=ExtResource("3_fxhsi")]
+unique_name_in_owner = true
+layout_mode = 2
+time_span_femtoseconds = 100.0
+min_value_in_femtoseconds = 25.0
+
+[node name="SpinBoxSlider" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer/TimeScalePicker" index="0"]
+custom_minimum_size = Vector2(80, 0)
+value = 100.0
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer/TimeScalePicker" index="2"]
+layout_mode = 2
+text = "per second"
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="2"]
+layout_mode = 2
+text = "Visible"
+
+[node name="TimeVisibleButton" type="CheckButton" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="3"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="4"]
+layout_mode = 2
+text = "Position"
+
+[node name="TimePositionOptionButton" type="OptionButton" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="5"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 2
+item_count = 4
+popup/item_0/text = "Top Left"
+popup/item_0/id = 0
+popup/item_1/text = "Top Right"
+popup/item_1/id = 1
+popup/item_2/text = "Bottom Left"
+popup/item_2/id = 2
+popup/item_3/text = "Bottom Right"
+popup/item_3/id = 3
+
+[node name="Label4" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="6"]
+layout_mode = 2
+text = "Font Size"
+
+[node name="TimeLabelFontSizeSpinbox" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="7" instance=ExtResource("4_3apb5")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 12.0
+max_value = 142.0
+step = 2.0
+value = 24.0
+allow_greater = true
+suffix = " px"
+select_all_on_focus = true
+
+[node name="LabelAdvanced" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls" index="8"]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Advanced Video Settings"
+
+[node name="PanelContainerAdvanced" type="PanelContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls" index="9"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerAdvanced" index="0"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerAdvanced/GridContainer" index="0"]
+layout_mode = 2
+text = "Framerate"
+
+[node name="FramerateSpinBox" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerAdvanced/GridContainer" index="1" instance=ExtResource("4_3apb5")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 20.0
+max_value = 120.0
+value = 30.0
+suffix = "fps"
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerAdvanced/GridContainer" index="2"]
+layout_mode = 2
+text = "Quality Preset"
+
+[node name="QualityPresetOptionButton" type="OptionButton" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerAdvanced/GridContainer" index="3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "The preset controls the encoding speed vs. compression efficiency trade-off.
+Slower presets → better compression (smaller files, higher quality) but use much more CPU."
+selected = 0
+item_count = 1
+popup/item_0/text = "fast"
+popup/item_0/id = 0
+
+[node name="Label3" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerAdvanced/GridContainer" index="4"]
+layout_mode = 2
+text = "CRF"
+
+[node name="CrfSpinBox" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerAdvanced/GridContainer" index="5" instance=ExtResource("4_3apb5")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "CRF (Constant Rate Factor) controls output quality vs. bitrate (file size).
+Lower = better quality (and larger file)
+Higher = worse quality (and smaller file)"
+max_value = 51.0
+value = 17.0
+
+[node name="SubViewportPreview" parent="VBoxContainer/HBoxContainer/PreviewControls" index="0"]
+render_target_update_mode = 4
+
+[node name="CanvasLayer" type="CanvasLayer" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview" index="3"]
+
+[node name="CropRectControl" type="MarginContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview/CanvasLayer" index="0"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="TimeLabel" type="Label" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview/CanvasLayer/CropRectControl" index="0"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_font_sizes/font_size = 24
+text = "0.25 fs"
+
+[node name="ButtonFit" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer" index="1"]
+button_group = SubResource("ButtonGroup_vnntt")
+
+[node name="Button1to1" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer" index="2"]
+button_group = SubResource("ButtonGroup_vnntt")
+
+[node name="TextureRectCapturePreviewFit" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale/ScrollContainer2" index="0"]
+texture = SubResource("ViewportTexture_0eixy")
+
+[node name="TextureRectCapturePreviewUnscaled" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/CheckboardTexture/SwitchPreviewScale/ScrollContainer" index="0"]
+texture = SubResource("ViewportTexture_fxhsi")
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer" index="2"]
+layout_mode = 2
+
+[node name="VideoTimeElapsedLabel" type="Label" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer2" index="0"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "00:00 / 00:00"
+horizontal_alignment = 2
+
+[node name="TimeSlider" type="HSlider" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer2" index="1"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FfmpegInfoLabel" parent="VBoxContainer" index="1" instance=ExtResource("5_affvo")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] ffmpeg not detected in your system. The only supported format is [b]avi[/b][/center]"
+message = &"ffmpeg not detected in your system. The only supported format is [b]avi[/b]"
+
+[node name="RecordingOverlay" type="CanvasLayer" parent="." index="6"]
+unique_name_in_owner = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="RecordingOverlay" index="0"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_lock_ = true
+
+[node name="InputBlocker" type="Control" parent="RecordingOverlay/VBoxContainer" index="0"]
+layout_mode = 2
+size_flags_vertical = 3
+metadata/_edit_lock_ = true
+
+[node name="PanelContainer" type="PanelContainer" parent="RecordingOverlay/VBoxContainer" index="1"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_fxhsi")
+
+[node name="MarginContainer" type="MarginContainer" parent="RecordingOverlay/VBoxContainer/PanelContainer" index="0"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="RecordingOverlay/VBoxContainer/PanelContainer/MarginContainer" index="0"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ProgressBar" type="ProgressBar" parent="RecordingOverlay/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer" index="0"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 23)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+show_percentage = false
+
+[node name="ProgressLabel" type="Label" parent="RecordingOverlay/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer/ProgressBar" index="0"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Processing: 0%"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StopButton" type="Button" parent="RecordingOverlay/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer" index="1"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+text = "Stop"
+
+[node name="AbortButton" type="Button" parent="RecordingOverlay/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer" index="2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+text = "Abort
+"
+
+[editable path="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer/TimeScalePicker"]

@@ -7,6 +7,7 @@ var editor_dockers: Dictionary #[StringName,WorkspaceDocker]
 @onready var editor_viewport_container: SubViewportContainer = %EditorViewportContainer
 @onready var workspace_tools_container: Control = %WorkspaceToolsContainer
 @onready var screen_capture_dialog: ConfirmationDialog = $ScreenCaptureDialog
+@onready var record_simulation_video_dialog: ConfirmationDialog = $RecordSimulationVideoDialog
 @onready var quick_search_dialog: QuickSearchDialog = $QuickSearchDialog
 @onready var _rendering_properties_editor_placeholder: InstancePlaceholder = $RenderingPropertiesEditorPlaceholder
 @onready var _rendering_properties_editor: RenderingPropertiesEditor

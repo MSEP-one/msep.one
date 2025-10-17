@@ -6,7 +6,11 @@ var _resolution: Vector2i
 var _fps: int = 30
 var _error: String = ""
 var _pipe: FileAccess
+var _err_pipe: FileAccess
 var _pid: int
+var _converting: bool = false
+var _preset: String = "fast"
+var _crf: int = 17
 #var _thread: Thread
 #var _queue: Array[Image]
 
@@ -19,7 +23,7 @@ static func is_available() -> bool:
 	return a >= 0
 
 
-func _init(in_filename: String, in_resolution: Vector2i, in_fps: int = 30) -> void:
+func _init(in_filename: String, in_resolution: Vector2i, in_fps: int = 30, in_preset: String = "fast", in_crf: int = 17) -> void:
 	if not is_available():
 		_error = "FFMPEG not installed in the system"
 		push_error(_error)
@@ -28,26 +32,64 @@ func _init(in_filename: String, in_resolution: Vector2i, in_fps: int = 30) -> vo
 	_filename = in_filename
 	_resolution = in_resolution
 	_fps = in_fps
+	_preset = in_preset
+	_crf = in_crf
 	#_thread = Thread.new()
 	#_thread.start(_start_in_thread)
 	_start_in_thread()
 
-func has_error() -> bool:
-	return not _error.is_empty()
+
+static func get_file_format_filters() -> PackedStringArray:
+	return [
+		"*.mp4 ; MPEG-4 Part 14 (MP4)",
+		"*.avi ; FMPEG encoded video (AVI)",
+	]
 
 
 func is_running() -> bool:
 	return _pid != 0 and OS.is_process_running(_pid)
 
+
+func is_converting() -> bool:
+	return _converting
+
+
+func abort() -> void:
+	if not is_running():
+		return
+	OS.kill(_pid)
+	while is_running():
+		await Engine.get_main_loop().process_frame
+	var err: Error = DirAccess.remove_absolute(_filename)
+	if err != OK:
+		push_error("Failed to delete ", _filename, " with error '", error_string(err), "'")
+
+
+func has_error() -> bool:
+	return not _error.is_empty()
+
+
 func get_error() -> String:
 	return _error
 
 
+func _flush_pipes() -> void:
+	if _err_pipe.get_length() > 0:
+		_error = _err_pipe.get_as_text()
+		print_verbose("ffmpeg error: ", _error)
+	if _pipe.get_length() > 0:
+		print_verbose("ffmpeg output: ", _pipe.get_as_text())
+
+
 func add_frame(in_image: Image) -> void:
+	_flush_pipes()
 	_write_frame(in_image)
+
 
 func finish() -> void:
 	_write_end()
+	_converting = true
+
 
 func _start_in_thread() -> void:
 	var arguments: PackedStringArray = [
@@ -59,8 +101,8 @@ func _start_in_thread() -> void:
 		"-i", "pipe:0",
 		"-c:v", "libx264",
 		"-pix_fmt", "yuv420p",
-		"-preset", "veryfast",
-		"-crf", "23",
+		"-preset", _preset,
+		"-crf", str(_crf),
 		"-movflags", "+faststart",
 		"-an",
 		_filename
@@ -69,14 +111,9 @@ func _start_in_thread() -> void:
 	print_verbose(_cmd, " ", " ".join(arguments))
 	var pipe: Dictionary = OS.execute_with_pipe(_cmd, arguments, true)
 	_pipe = pipe.stdio
-	var stderr: FileAccess = pipe.stderr
-	_error = stderr.get_as_text()
-	if has_error():
-		push_error(_error)
-		_pipe.close()
-		stderr.close()
-	else:
-		print_verbose("Started recording ", _filename)
+	_pid = pipe.pid
+	_err_pipe = pipe.stderr
+	print_verbose("Started recording ", _filename)
 
 
 func _write_frame(in_image: Image) -> void:
@@ -87,6 +124,7 @@ func _write_frame(in_image: Image) -> void:
 		in_image.resize(_resolution.x, _resolution.y, Image.INTERPOLATE_BILINEAR)
 	var buffer: PackedByteArray = in_image.get_data()
 	_pipe.store_buffer(buffer)
+
 
 func _write_end() -> void:
 	_pipe.close()

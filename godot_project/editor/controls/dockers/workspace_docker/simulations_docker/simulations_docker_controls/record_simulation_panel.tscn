@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://cw518ntcacqov"]
+
+[ext_resource type="Script" uid="uid://uk6mxqxgh8u2" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/record_simulation_panel.gd" id="1_deovl"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_54c1v"]
+
+[node name="RecordSimulationPanel" type="VBoxContainer"]
+offset_right = 500.0
+offset_bottom = 20.0
+script = ExtResource("1_deovl")
+
+[node name="InfoLabel" parent="." instance=ExtResource("2_54c1v")]
+layout_mode = 2
+text = "[center]ℹ Wait until simulation finishes to start recording it[/center]"
+message = &"Wait until simulation finishes to start recording it"
+effect = "none"
+
+[node name="SaveVideoButton" type="Button" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CrystalButton"
+disabled = true
+text = "Save simulation as video ..."

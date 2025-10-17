@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://bg20l6fpgvscg"]
+[gd_scene load_steps=22 format=3 uid="uid://bg20l6fpgvscg"]
 
 [ext_resource type="Script" uid="uid://caui0yo0weeow" path="res://editor/controls/workspace_view/WorkspaceMainView.gd" id="1_q2ex0"]
 [ext_resource type="PackedScene" uid="uid://dd2x0k2b74ok" path="res://editor/controls/editor_viewport_container/EditorViewportContainer.tscn" id="2_36m7k"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://xwpxdq78nse1" path="res://editor/controls/workspace_view/controls/toggle_ring_menu_button.tscn" id="9_e0lvo"]
 [ext_resource type="PackedScene" uid="uid://dxpjkn3lni0jn" path="res://editor/controls/quick_search_dialog/quick_search_dialog.tscn" id="9_u2qg1"]
 [ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="11_gkd3d"]
+[ext_resource type="PackedScene" uid="uid://dmiufmrvro7me" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.tscn" id="13_i5wbk"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_wc8in"]
 device = -1
@@ -154,6 +155,9 @@ offset_bottom = -24.0
 grow_vertical = 0
 
 [node name="ScreenCaptureDialog" parent="." instance=ExtResource("11_gkd3d")]
+visible = false
+
+[node name="RecordSimulationVideoDialog" parent="." instance=ExtResource("13_i5wbk")]
 visible = false
 
 [node name="QuickSearchDialog" parent="." instance=ExtResource("9_u2qg1")]

@@ -19,7 +19,11 @@ signal aborted_creating_object()
 signal object_tree_visibility_changed()
 signal atoms_relaxation_started()
 signal atoms_relaxation_finished(error_description_or_empty: String)
+# When simulaiton starts
 signal simulation_started()
+# When last frame of simulation is received, or user stops simulation without aborting it
+signal simulation_background_processing_completed()
+# When user discards simulation
 signal simulation_finished()
 signal about_to_apply_simulation()
 signal simulation_state_applied()
@@ -601,6 +605,17 @@ func get_simulation_id() -> int:
 	return -1 if _simulation == null else _simulation.get_instance_id()
 
 
+func get_simulation_current_frame() -> int:
+	assert(is_simulating())
+	# Currently, "time" of the simulation data corresponds to the frame index
+	return int(_simulation.get_last_seeked_time())
+
+
+func get_simulation_frame_count() -> int:
+	assert(is_simulating())
+	return _simulation.get_frame_count()
+
+
 func seek_simulation(in_frame: float) -> void:
 	assert(is_simulating(), "There's not an active simulation")
 	var state: PackedVector3Array = _simulation.find_state(in_frame)
@@ -627,6 +642,7 @@ func end_simulation_if_running() -> void:
 	if !is_simulating():
 		return
 	OpenMM.request_abort_simulation(_simulation)
+	simulation_background_processing_completed.emit()
 
 
 ## This method is automatically called when any code attempts
