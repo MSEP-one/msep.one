@@ -139,6 +139,7 @@ func _add_snapshot_to_stack(in_snapshot: Dictionary, in_snapshot_name: String) -
 	var max_undo_count: int = MolecularEditorContext.msep_editor_settings.editor_max_undo_count
 	while _snapshot_stack.size() > max_undo_count:
 		_snapshot_stack.pop_front()
+		_name_stack.pop_front()
 		_stack_pointer -= 1
 	
 	_version += 1
