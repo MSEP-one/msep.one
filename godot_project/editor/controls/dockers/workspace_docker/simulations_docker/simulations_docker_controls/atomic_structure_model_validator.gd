@@ -23,13 +23,14 @@ var _workspace_context: WorkspaceContext = null
 func set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
 	assert(not is_instance_valid(_workspace_context), "Already initialized")
 	_workspace_context = in_workspace_context
-	in_workspace_context.structure_contents_changed.connect(_on_workspace_context_structure_contents_changed)
-	in_workspace_context.structure_about_to_remove.connect(_on_workspace_context_structure_about_to_remove)
 	in_workspace_context.history_changed.connect(_on_history_changed)
 
 
 func _on_history_changed() -> void:
-	_update_alerts()
+	var last_action: String = _workspace_context.get_last_snapshot_name()
+	if not History.is_operation_whitelisted_during_simulation(last_action):
+		_update_alerts()
+		results_outdated.emit()
 
 
 func _validate_bonds_in_thread(
@@ -330,23 +331,11 @@ func _on_alert_selected(in_alert_id: int, show_hidden: bool = false) -> void:
 	_workspace_context.snapshot_moment("Select Atoms")
 
 
-func _on_workspace_context_structure_contents_changed(_structure: StructureContext) -> void:
-	ScriptUtils.call_deferred_once(_update_alerts)
-
-
-func _on_workspace_context_structure_about_to_remove(_in_struct: NanoStructure) -> void:
-	ScriptUtils.call_deferred_once(_update_alerts)
-
-
 func _update_alerts() -> void:
-	var is_outdated: bool = false
 	for data: Metadata in _data:
 		if data.has_invalid_atoms():
-			is_outdated = true
 			var alert_id: int = _data[data]
 			_workspace_context.mark_alert_as_invalid(alert_id)
-	if is_outdated:
-		results_outdated.emit()
 
 
 func show_hidden_atoms(in_selected_alert: int) -> void:

@@ -189,6 +189,7 @@ func apply_next_snapshot() -> void:
 
 func _apply_snapshot_from_stack(in_stack_index: int) -> void:
 	apply_snapshot(_snapshot_stack[in_stack_index])
+	_last_snapshot_name = _name_stack[in_stack_index]
 
 
 func apply_snapshot(in_state_snapshot: Dictionary) -> void:
@@ -233,6 +234,10 @@ func get_redo_name() -> String:
 
 func get_version() -> int:
 	return _version
+
+
+func get_last_snapshot_name() -> String:
+	return _last_snapshot_name
 
 
 func _validate_extern_snapshot(in_snapshot: Dictionary) -> bool:
