@@ -1526,6 +1526,10 @@ func apply_next_snapshot() -> void:
 		seek_simulation(current_simulation_time)
 
 
+func get_last_snapshot_name() -> String:
+	return _history.get_last_snapshot_name()
+
+
 func get_undo_name() -> String:
 	return _history.get_undo_name()
 
