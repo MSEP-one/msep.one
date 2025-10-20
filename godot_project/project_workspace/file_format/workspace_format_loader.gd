@@ -42,4 +42,11 @@ func _load(path: String, _original_path: String, _use_sub_threads: bool, cache_m
 		if workspace != null:
 			workspace.take_over_path(path)
 	d.remove(tmp_path)
+	if workspace._file_format_version < Workspace.get_most_recent_file_format_version():
+		push_warning("This workspace file was written with an older file format version: ",
+			Workspace.FileFormatVersion.find_key(workspace._file_format_version))
+	elif workspace._file_format_version > Workspace.get_most_recent_file_format_version():
+		push_error("This workspace file was written with an newer file format version: ",
+			workspace._file_format_version)
+		
 	return workspace
