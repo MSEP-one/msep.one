@@ -528,6 +528,8 @@ func _is_shortcut_pressed() -> bool:
 
 
 func _is_other_shortcut_pressed() -> bool:
+	if _filter_join_candidates:
+		return Input.is_key_pressed(KEY_SHIFT)
 	return (
 		Input.is_key_pressed(KEY_SHIFT) or
 		Input.is_key_pressed(KEY_CTRL) or
@@ -631,7 +633,7 @@ func _check_input_event_can_bind(in_event: InputEventWithModifiers, in_only_join
 	var ctrl_pressed: bool = in_event.is_command_or_control_pressed()
 	var shift_pressed: bool = in_event.shift_pressed
 	# Meta key does not work like the rest of the modifiers, so we fallback to Input API
-	var meta_pressed: bool = Input.is_key_pressed(KEY_META)
+	var meta_pressed: bool = false if _is_mac else Input.is_key_pressed(KEY_META)
 	if in_event is InputEventKey:
 		# Key inputs for an XXX button (in example shift) will have the ev.XXX_pressed property
 		# set to false instead of whatever `ev.pressed` is, because of that we need aditional checks
@@ -645,8 +647,10 @@ func _check_input_event_can_bind(in_event: InputEventWithModifiers, in_only_join
 		if in_event.keycode == KEY_SHIFT:
 			shift_pressed = in_event.pressed
 		if in_event.keycode == KEY_META:
-			meta_pressed = in_event.pressed
+			meta_pressed = false if _is_mac else in_event.pressed
 	if in_only_join_candidates:
+		if alt_pressed and ctrl_pressed and not (shift_pressed || meta_pressed):
+			pass
 		return alt_pressed and ctrl_pressed and not (shift_pressed || meta_pressed)
 	return alt_pressed and not (shift_pressed || meta_pressed)
 
