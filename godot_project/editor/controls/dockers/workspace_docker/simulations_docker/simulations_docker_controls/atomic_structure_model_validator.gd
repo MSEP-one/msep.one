@@ -18,6 +18,7 @@ var _thread: Thread
 var _overlaps: Dictionary[OverlapData, int] = {} # Overlap data : Alert ID
 var _data: Dictionary[Metadata, int] = {} # Data : Alert ID
 var _workspace_context: WorkspaceContext = null
+var _last_validation_frame: int = -1
 
 
 func set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
@@ -27,6 +28,8 @@ func set_workspace_context(in_workspace_context: WorkspaceContext) -> void:
 
 
 func _on_history_changed() -> void:
+	if _last_validation_frame < 0:
+		return
 	var last_action: String = _workspace_context.get_last_snapshot_name()
 	if not History.is_operation_whitelisted_during_simulation(last_action):
 		_update_alerts()
@@ -96,6 +99,7 @@ func _validate_bonds_in_thread(
 func validate_atomic_model(atom_set: AtomicStructure.AtomSet) -> void:
 	if _thread and _thread.is_alive():
 		return
+	_last_validation_frame = Engine.get_process_frames()
 	var promise: Promise = Promise.new()
 	_thread = Thread.new()
 	_thread.start(_validate_bonds_in_thread.bind(_workspace_context.get_all_structure_contexts(), promise, atom_set))
