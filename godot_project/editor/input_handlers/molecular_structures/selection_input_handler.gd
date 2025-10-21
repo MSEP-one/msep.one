@@ -76,7 +76,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 			# Selection was cleared, DynamicContextDocker is no longer relevant
 			MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME)
 		return input_consumed
-	elif in_input_event.is_action_pressed(&"multiselect", false, true) or _user_is_selecting_on_mac_pressed(in_input_event, false, true):
+	elif in_input_event.is_action_pressed(&"multiselect", false, true):
 		var input_consumed: bool = _select_connected_selection_logic(in_camera, in_input_event.position, editable_structures, true)
 		if input_consumed == false:
 			input_consumed = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, true)
