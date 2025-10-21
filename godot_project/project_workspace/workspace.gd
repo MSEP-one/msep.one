@@ -12,8 +12,18 @@ const INVALID_STRUCTURE_ID := 0
 const INVALID_OBJECT_INDEX = -1
 const MAX_SIGNED_32_BIT_INT = 2147483647
 
+enum FileFormatVersion {
+	FORMAT_UNDEFINED = 0,
+	FORMAT_1,
+}
+
 static var instance_counter: int = 0
 
+
+@warning_ignore("unused_private_class_variable")
+@export_storage var _file_format_version := FileFormatVersion.FORMAT_UNDEFINED
+static func get_most_recent_file_format_version() -> FileFormatVersion:
+	return FileFormatVersion.values().back()
 
 @export_storage var _thumbnail: PackedByteArray = []
 @export_storage var is_last_thumbnail_user_generated: bool = false

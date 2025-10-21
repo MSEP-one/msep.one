@@ -11,6 +11,7 @@ func _get_recognized_extensions(resource: Resource) -> PackedStringArray:
 
 func _save(resource: Resource, path: String, flags: int) -> Error:
 	_update_msep_vertsion_history(resource)
+	_update_file_format_version(resource)
 	_update_simulation_forcefield_hashes(resource)
 	_embed_thumbnail_if_needed(resource)
 	var tmp_path: String = path + ".tres"
@@ -25,6 +26,10 @@ func _save(resource: Resource, path: String, flags: int) -> Error:
 func _update_msep_vertsion_history(out_workspace: Workspace) -> void:
 	var timestamp: String = Time.get_datetime_string_from_system()
 	out_workspace.msep_version_history[timestamp] = Editor_Utils.get_msep_version()
+
+
+func _update_file_format_version(out_workspace: Workspace) -> void:
+	out_workspace._file_format_version = Workspace.get_most_recent_file_format_version()
 
 
 func _update_simulation_forcefield_hashes(out_workspace: Workspace) -> void:
