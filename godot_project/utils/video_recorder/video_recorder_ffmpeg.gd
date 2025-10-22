@@ -16,9 +16,24 @@ var _crf: int = 17
 
 # Note: These behaves as constants, but cannot be constants because of OS.get_name() access
 static var _is_windows: bool = OS.get_name().to_lower() == "windows"
-static var _cmd: String = "ffmpeg.exe" if _is_windows else "ffmpeg"
+static var _cmd: String:
+	get():
+		if _cmd.is_empty():
+			if _is_windows:
+				_cmd = "ffmpeg.exe"
+			else:
+				var out := Array()
+				var exit_code: int = OS.execute("bash", ["-l", "-c", "which ffmpeg"], out)
+				_cmd = "" if exit_code != 0 else str(out[0]).rstrip("\n")
+				if _cmd.is_empty():
+					# bash could not find the path, MacOS could be using zsh
+					exit_code = OS.execute("zsh", ["-l", "-c", "which ffmpeg"], out)
+					_cmd = "" if exit_code != 0 else str(out[0]).rstrip("\n")
+		return _cmd
 
 static func is_available() -> bool:
+	if _cmd.is_empty():
+		return false
 	var a: int = OS.execute(_cmd, [])
 	return a >= 0
 
