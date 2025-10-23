@@ -102,6 +102,7 @@ folder_colors={
 "res://chemical_structures/": "gray",
 "res://editor/": "green",
 "res://editor_tool_scripts/": "pink",
+"res://ffmpeg/": "orange",
 "res://project_workspace/": "yellow",
 "res://python/": "orange",
 "res://template_library_files/": "gray",

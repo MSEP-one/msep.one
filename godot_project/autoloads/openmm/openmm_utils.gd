@@ -151,10 +151,16 @@ func find_missing_files() -> Array[String]:
 	if platform == "macos":
 		if OS.has_feature("arm64"):
 			arch= "arm64"
-	var filename: String = "env_%s_%s.tar.gz" % [platform, arch]
+	var sufix: String = "%s_%s.tar.gz" % [platform, arch]
 	var files_to_check: Array[String] = [
-		"res://python/conda/" + filename
+		"res://python/conda/env_" + sufix
 	]
+	if platform == "macos":
+		# ffmpeg is a universal fat binary
+		arch= "universal"
+	sufix = "%s_%s.tar.gz" % [platform, arch]
+	files_to_check.append("res://ffmpeg/ffmpeg_" + sufix)
+	
 	files_to_check.append_array(_get_additional_scripts_list())
 	for file in files_to_check:
 		if !FileAccess.file_exists(file):
@@ -163,7 +169,7 @@ func find_missing_files() -> Array[String]:
 
 
 func install_environment() -> void:
-	assert(needs_install_or_update(), "Environment is already installed, this is not necesary")
+	assert(needs_install_or_update("environment"), "Environment is already installed, this is not necesary")
 	var env_md5_path: String = msep_environment_path.path_join("environment_md5")
 	var platform: String = OS.get_name().to_lower()
 	var arch: String = "x86_64"
@@ -192,7 +198,37 @@ func install_environment() -> void:
 	file.store_string(md5)
 	file.close()
 	
-	_notify_environment_installed.call_deferred()
+
+
+
+func install_ffmpeg() -> void:
+	assert(needs_install_or_update("ffmpeg"), "ffmpeg is already installed, this is not necesary")
+	var ffmpeg_md5_path: String = msep_environment_path.path_join("ffmpeg_md5")
+	var platform: String = OS.get_name().to_lower()
+	var arch: String = "x86_64"
+	# Detect platform
+	if platform == "macos":
+		arch= "universal"
+	var filename: String = "ffmpeg_%s_%s.tar.gz" % [platform, arch]
+	# 1. Create the directory to extract the environment
+	var dir: DirAccess = DirAccess.open("user://")
+	if !dir.dir_exists(msep_environment_path):
+		DirAccess.make_dir_recursive_absolute(msep_environment_path)
+	var pre_pck_filepath: String = "res://ffmpeg/%s" % filename
+	var pck_filepath: String = ProjectSettings.globalize_path("user://%s" % filename)
+	# 2. Copy the packed environment, to unzip it
+	_install_file_from_res(pre_pck_filepath, pck_filepath, true, false)
+	var args: PackedStringArray = ["xzvf",  pck_filepath, "-C", msep_environment_path]
+	var stdout: Array = []
+	var result: int = OS.execute("tar", args, stdout, true)
+	if result != OK:
+		push_warning("Extraction of the environment was not clean, TAR error code %d\n%s" % [ result, "\n".join(stdout) ])
+	DirAccess.remove_absolute(pck_filepath)
+	# 3. Write version file indicating the last installed environment
+	var file: FileAccess = FileAccess.open(ffmpeg_md5_path, FileAccess.WRITE)
+	var md5: String = FileAccess.get_md5(pre_pck_filepath)
+	file.store_string(md5)
+	file.close()
 
 
 func install_additional_scripts(out_backed_up_files := PackedStringArray()) -> void:
@@ -205,18 +241,28 @@ func install_additional_scripts(out_backed_up_files := PackedStringArray()) -> v
 			assert(result == OK, "Could not set executable permissions to file %s" % [abs_destination] )
 
 
-func needs_install_or_update() -> bool:
-	var old_md5_path: String = msep_environment_path.path_join("environment_md5")
+func needs_install_or_update(in_target: String) -> bool:
+	assert(in_target in ["environment", "ffmpeg"], "Unexpected target '%s'" % in_target)
+	var old_md5_path: String = msep_environment_path.path_join(in_target + "_md5")
 	if not FileAccess.file_exists(old_md5_path):
 		return true
 	var platform: String = OS.get_name().to_lower()
 	var arch: String = "x86_64"
 	# Detect platform
 	if platform == "macos":
-		if OS.has_feature("arm64"):
+		if in_target == "ffmpeg":
+			arch = "universal"
+		elif OS.has_feature("arm64"):
 			arch= "arm64"
-	var filename: String = "env_%s_%s.tar.gz" % [platform, arch]
-	var pck_filepath: String = "res://python/conda/%s" % filename
+	var filename: String
+	var pck_filepath: String
+	match in_target:
+		"environment":
+			filename = "env_%s_%s.tar.gz" % [platform, arch]
+			pck_filepath = "res://python/conda/%s" % filename
+		"ffmpeg":
+			filename = "ffmpeg_%s_%s.tar.gz" % [platform, arch]
+			pck_filepath = "res://ffmpeg/%s" % filename
 	var pack_md5: String = FileAccess.get_md5(pck_filepath)
 	var old_md5: String = FileAccess.get_file_as_string(old_md5_path)
 	if pack_md5.is_empty():
@@ -289,7 +335,7 @@ func _get_additional_scripts_list() -> Array[String]:
 	return scripts_paths
 
 
-func _notify_environment_installed() -> void:
+func notify_environment_installed() -> void:
 	environment_installed.emit()
 
 
@@ -304,5 +350,3 @@ static func globalize_path(path: String) -> String:
 		# This is *not* identical to using `ProjectSettings.globalize_path()` with a `res://` path,
 		# but is close enough in spirit.
 		return OS.get_executable_path().get_base_dir().path_join(path.replace("res://", ""))
-
-

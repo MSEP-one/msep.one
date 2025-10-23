@@ -141,6 +141,7 @@ func _ready() -> void:
 				"quit":
 					get_tree().auto_accept_quit = true
 					get_tree().quit()
+					return
 				_:
 					push_error("Unexpected action: " + action)
 					dlg.queue_free()
@@ -149,9 +150,17 @@ func _ready() -> void:
 		get_tree().root.add_child.call_deferred(dlg)
 		dlg.popup_centered.call_deferred()
 		await dlg.tree_exited
-	if utils.needs_install_or_update():
+	var install_env: bool = utils.needs_install_or_update("environment")
+	var install_ffmpeg: bool = utils.needs_install_or_update("ffmpeg")
+	if install_env or install_ffmpeg:
 		extract_thread = Thread.new()
-		extract_thread.start(utils.install_environment)
+		extract_thread.start(func() -> void:
+			if install_env:
+				utils.install_environment()
+			if install_ffmpeg:
+				utils.install_ffmpeg()
+			utils.notify_environment_installed.call_deferred()
+		)
 		InitialInfoScreen.confirmed.connect(BusyIndicator.activate.bind(tr("Running First Time Setup")))
 		await utils.environment_installed
 		MolecularEditorContext.show_first_run_message()
