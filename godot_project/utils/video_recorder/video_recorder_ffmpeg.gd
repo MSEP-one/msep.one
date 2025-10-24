@@ -14,9 +14,8 @@ var _crf: int = 17
 #var _thread: Thread
 #var _queue: Array[Image]
 
-# Note: These behaves as constants, but cannot be constants because of OS.get_name() access
-static var _is_windows: bool = OS.get_name().to_lower() == "windows"
-static var _cmd: String = "ffmpeg.exe" if _is_windows else "ffmpeg"
+# Note: These behaves as constants, but cannot be constants because of ProjectSettings.globalize_path() access
+static var _cmd: String = ProjectSettings.globalize_path("user://msep.one/ffmpeg")
 
 static func is_available() -> bool:
 	var a: int = OS.execute(_cmd, [])

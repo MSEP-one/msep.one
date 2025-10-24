@@ -20,3 +20,7 @@
 	path = modules/lmdb/thirdparty/capnproto
 	url = git@github.com:MSEP-one/capnproto.git
 	branch = master
+[submodule "godot_project/ffmpeg"]
+	path = godot_project/ffmpeg
+	url = git@github.com:MSEP-one/msep-ffmpeg-static.git
+        branch = main
