@@ -229,6 +229,13 @@ func install_ffmpeg() -> void:
 	var md5: String = FileAccess.get_md5(pre_pck_filepath)
 	file.store_string(md5)
 	file.close()
+	# 4. Add execute permissions on Linux
+	if platform == "linux":
+		var executable_path: String = ProjectSettings.globalize_path("user://msep.one/ffmpeg")
+		var flags: int = 493 # Same as chmod 755, see FileAccess.UnixPermissionFlags
+		var err := FileAccess.set_unix_permissions(executable_path, flags)
+		if err != OK:
+			push_warning("Could not change ffmpeg permissions. Error: ", err)
 
 
 func install_additional_scripts(out_backed_up_files := PackedStringArray()) -> void:
