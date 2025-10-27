@@ -18,8 +18,7 @@ var _crf: int = 17
 static var _cmd: String = ProjectSettings.globalize_path("user://msep.one/ffmpeg")
 
 static func is_available() -> bool:
-	var a: int = OS.execute(_cmd, [])
-	return a >= 0
+	return FileAccess.file_exists(_cmd)
 
 
 func _init(in_filename: String, in_resolution: Vector2i, in_fps: int = 30, in_preset: String = "fast", in_crf: int = 17) -> void:
@@ -41,7 +40,6 @@ func _init(in_filename: String, in_resolution: Vector2i, in_fps: int = 30, in_pr
 static func get_file_format_filters() -> PackedStringArray:
 	return [
 		"*.mp4 ; MPEG-4 Part 14 (MP4)",
-		"*.avi ; FMPEG encoded video (AVI)",
 	]
 
 

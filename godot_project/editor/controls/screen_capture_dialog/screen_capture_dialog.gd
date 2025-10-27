@@ -141,6 +141,9 @@ func _ready() -> void:
 	_color_picker_button_background_color.color_changed.connect(_on_color_picker_button_background_color_color_changed)
 	_save_file_dialog.file_selected.connect(_on_save_file_dialog_file_selected)
 	_save_file_dialog.current_path = OS.get_system_dir(OS.SYSTEM_DIR_PICTURES).path_join("")
+	# Some theme tweaks
+	get_ok_button().theme_type_variation = &"CrystalButton"
+	get_cancel_button().theme_type_variation = &"CrystalButton"
 
 
 func _on_window_input(in_event: InputEvent) -> void:

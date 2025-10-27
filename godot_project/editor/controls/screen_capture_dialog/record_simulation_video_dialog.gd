@@ -15,8 +15,6 @@ var _time_label: Label
 var _video_time_elapsed_label: Label
 var _time_slider: HSlider
 
-var _ffmpeg_info_label: InfoLabel
-
 var _recording_overlay: CanvasLayer
 var _stop_button: Button
 var _abort_button: Button
@@ -52,8 +50,6 @@ func _notification(what: int) -> void:
 		_video_time_elapsed_label = %VideoTimeElapsedLabel as Label
 		_time_slider = %TimeSlider as HSlider
 		
-		_ffmpeg_info_label = %FfmpegInfoLabel as InfoLabel
-		
 		_recording_overlay = %RecordingOverlay as CanvasLayer
 		_stop_button = %StopButton as Button
 		_abort_button = %AbortButton as Button
@@ -85,10 +81,6 @@ func _on_visibility_changed() -> void:
 func _on_about_to_popup() -> void:
 	super._on_about_to_popup()
 	_workspace_context = MolecularEditorContext.get_current_workspace_context()
-	var ffmpeg_available: bool = VideoRecorderFFMPEG.is_available()
-	_ffmpeg_info_label.visible = not ffmpeg_available
-	_quality_preset_option_button.disabled = not ffmpeg_available
-	_crf_spin_box.editable = ffmpeg_available
 	_setup_save_file_dialog()
 	_setup_time_slider()
 	_setup_quality_preset_option_button()
@@ -102,8 +94,7 @@ func _on_confirmed() -> void:
 	if _save_file_dialog.current_file.is_empty():
 		var date_time: String = Time.get_datetime_string_from_system()
 		date_time = date_time.replace(":", "-")
-		var extension: String = "mp4" if VideoRecorderFFMPEG.is_available() else "avi"
-		_save_file_dialog.current_file = "capture_%s.%s" % [date_time, extension]
+		_save_file_dialog.current_file = "capture_%s.mp4" % [date_time]
 		_save_file_dialog.set_meta(_AUTOGEN_FILE_NAME_META, _save_file_dialog.current_file)
 	_save_file_dialog.popup_centered_ratio()
 
@@ -151,10 +142,8 @@ func _abort_button_pressed() -> void:
 
 
 func _setup_save_file_dialog() -> void:
-	if VideoRecorderFFMPEG.is_available():
-		_save_file_dialog.filters = VideoRecorderFFMPEG.get_file_format_filters()
-	else:
-		_save_file_dialog.filters = VideoRecorderAVI.get_file_format_filters()
+	assert(VideoRecorderFFMPEG.is_available(), "ffmpeg failed to install")
+	_save_file_dialog.filters = VideoRecorderFFMPEG.get_file_format_filters()
 
 
 func _setup_time_slider() -> void:
@@ -269,14 +258,11 @@ func _bake_video(in_filepath: String) -> void:
 	if _check_button_crop.button_pressed:
 		resolution.x = int(_spin_box_slider_crop_width.value)
 		resolution.y = int(_spin_box_slider_crop_height.value)
-	if in_filepath.get_extension().to_lower() == "avi":
-		_recorder = VideoRecorderAVI.new(in_filepath, resolution, int(_framerate_spin_box.value))
-	else:
-		assert(VideoRecorderFFMPEG.is_available(), "Cannot record videos of %s format without ffmpeg installed in the system")
-		var quality_preset: String = _quality_preset_option_button.text
-		var constant_rate_factor: int = int(_crf_spin_box.value)
-		_recorder = VideoRecorderFFMPEG.new(in_filepath, resolution, int(_framerate_spin_box.value),
-			quality_preset, constant_rate_factor)
+	assert(VideoRecorderFFMPEG.is_available(), "Cannot record videos of %s format without ffmpeg installed in the system")
+	var quality_preset: String = _quality_preset_option_button.text
+	var constant_rate_factor: int = int(_crf_spin_box.value)
+	_recorder = VideoRecorderFFMPEG.new(in_filepath, resolution, int(_framerate_spin_box.value),
+		quality_preset, constant_rate_factor)
 	
 	var femtoseconds_per_video_second: float = _time_scale_picker.time_span_femtoseconds
 	var femtoseconds_per_video_frame: float = femtoseconds_per_video_second / _framerate_spin_box.value
