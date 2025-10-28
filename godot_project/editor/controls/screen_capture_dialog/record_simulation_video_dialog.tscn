@@ -1,10 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://dmiufmrvro7me"]
+[gd_scene load_steps=10 format=3 uid="uid://dmiufmrvro7me"]
 
 [ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="1_fq33m"]
 [ext_resource type="Script" uid="uid://clhsgmheddras" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.gd" id="2_vnntt"]
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="3_fxhsi"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_3apb5"]
-[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="5_affvo"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_fxhsi"]
 
@@ -226,12 +225,6 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="FfmpegInfoLabel" parent="VBoxContainer" index="1" instance=ExtResource("5_affvo")]
-unique_name_in_owner = true
-layout_mode = 2
-text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] ffmpeg not detected in your system. The only supported format is [b]avi[/b][/center]"
-message = &"ffmpeg not detected in your system. The only supported format is [b]avi[/b]"
 
 [node name="RecordingOverlay" type="CanvasLayer" parent="." index="6"]
 unique_name_in_owner = true
