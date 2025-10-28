@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ck1wtu17kypvi"]
+
+[ext_resource type="Script" uid="uid://d30g4nmhwsurt" path="res://autoloads/msep_online/msep_online_authenticator.gd" id="1_1yiov"]
+
+[node name="MsepOnlineAuthenticator" type="Node"]
+script = ExtResource("1_1yiov")
