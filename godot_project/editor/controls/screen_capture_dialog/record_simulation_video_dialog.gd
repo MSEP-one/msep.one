@@ -290,8 +290,11 @@ func _bake_video(in_filepath: String) -> void:
 		var simulation_frame: int = int(_simulation_elapsed_time_femtoseconds / femtoseconds_per_simulation_frame)
 		# This will in cause the simulation to be updated
 		_time_slider.value = simulation_frame
-		# ensure rendered
+		# HACK: Label.queue_redraw() waits until the end of the frame, so RenderingServer.force_redraw
+		# will still show the old text unless we ensure it's execution
 		await get_tree().process_frame
+		# ensure rendered
+		RenderingServer.force_draw()
 		var capture_image: Image = _sub_viewport_preview.get_texture().get_image()
 		if _check_button_crop.button_pressed:
 			capture_image = capture_image.get_region(Rect2i(
@@ -302,8 +305,6 @@ func _bake_video(in_filepath: String) -> void:
 			))
 		_recorder.add_frame(capture_image)
 		_update_progress()
-		# ensure encoded
-		await get_tree().process_frame
 		_simulation_elapsed_time_femtoseconds += femtoseconds_per_video_frame
 	if _aborted:
 		_recorder = null

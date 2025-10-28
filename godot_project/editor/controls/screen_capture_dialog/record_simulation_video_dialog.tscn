@@ -180,9 +180,7 @@ value = 17.0
 [node name="SubViewportPreview" parent="VBoxContainer/HBoxContainer/PreviewControls" index="0"]
 render_target_update_mode = 4
 
-[node name="CanvasLayer" type="CanvasLayer" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview" index="3"]
-
-[node name="CropRectControl" type="MarginContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview/CanvasLayer" index="0"]
+[node name="CropRectControl" type="MarginContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview" index="3"]
 unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
@@ -194,7 +192,7 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="TimeLabel" type="Label" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview/CanvasLayer/CropRectControl" index="0"]
+[node name="TimeLabel" type="Label" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview/CropRectControl" index="0"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
