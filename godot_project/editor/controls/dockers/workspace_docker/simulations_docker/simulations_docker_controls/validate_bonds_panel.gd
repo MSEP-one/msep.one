@@ -55,6 +55,7 @@ func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
 		in_workspace_context.create_object_parameters.validate_bonds_requested.connect(_on_create_object_parameters_validate_bonds_requested)
 		in_workspace_context.alerts_panel_visibility_changed.connect(_on_workspace_context_alerts_panel_visibility_changed)
 		_atomic_structure_model_validator.set_workspace_context(in_workspace_context)
+		_workspace_context.register_snapshotable(self)
 		ScriptUtils.call_deferred_once(_update_panel_state)
 
 
@@ -140,6 +141,7 @@ func _on_atomic_structure_model_validator_validation_finished(in_found_overlaps:
 	if _workspace_context.has_alerts():
 		_workspace_context.show_alerts_panel()
 	ScriptUtils.call_deferred_once(_update_view_alerts_button)
+	_workspace_context.snapshot_moment("Validate Model")
 
 
 func _on_atomic_structure_model_validator_alert_selected(in_has_invisible_atoms: bool) -> void:
@@ -154,3 +156,13 @@ func _update_view_alerts_button() -> void:
 	var alerts_count: int = _workspace_context.get_alerts_count()
 	_button_view_alerts.visible = (not _workspace_context.is_alerts_panel_visible()) and alerts_count > 0
 	_button_view_alerts.text = tr_n(&"View %d alert", &"View %d alerts", alerts_count) % alerts_count
+
+
+func create_state_snapshot() -> Dictionary:
+	return {
+		"outdated_results" : _outdated_results_label.visible,
+	}
+
+
+func apply_state_snapshot(in_snapshot: Dictionary) -> void:
+	_outdated_results_label.visible = in_snapshot["outdated_results"]
