@@ -80,8 +80,9 @@ var _workspace_context: WorkspaceContext
 var _snapshotable_systems: Array[Object]
 var _snapshot_stack: Array[Dictionary]
 var _name_stack: Array[String] = []
+var _version_stack: Array[int] = []
 var _stack_pointer: int = -1
-var _version: int
+var _highest_version: int = -1
 var _last_snapshot_taken_at_frame: int = Engine.get_frames_drawn() - 1
 var _last_snapshot_name: String = ""
 
@@ -131,18 +132,21 @@ func _add_snapshot_to_stack(in_snapshot: Dictionary, in_snapshot_name: String) -
 	if need_to_drop_stack:
 		_snapshot_stack.resize(_stack_pointer + 1)
 		_name_stack.resize(_stack_pointer + 1)
+		_version_stack.resize(_stack_pointer + 1)
 	
+	_highest_version += 1
 	_snapshot_stack.append(in_snapshot)
 	_name_stack.append(in_snapshot_name)
+	_version_stack.append(_highest_version)
 	_stack_pointer = _snapshot_stack.size() - 1
 	
 	var max_undo_count: int = MolecularEditorContext.msep_editor_settings.editor_max_undo_count
 	while _snapshot_stack.size() > max_undo_count:
 		_snapshot_stack.pop_front()
 		_name_stack.pop_front()
+		_version_stack.pop_front()
 		_stack_pointer -= 1
 	
-	_version += 1
 	_last_snapshot_taken_at_frame = Engine.get_frames_drawn()
 	_last_snapshot_name = in_snapshot_name
 	changed.emit()
@@ -157,7 +161,6 @@ func apply_previous_snapshot() -> void:
 	var undone_snapshot_name: String = _name_stack[_stack_pointer]
 	_stack_pointer -= 1
 	_apply_snapshot_from_stack(_stack_pointer)
-	_version -= 1
 	# IMPORTANT: if a method uses call_deferred part of the snapshot, that would make the
 	#            "aplication of the snapshot" incomplete until the next frame.
 	#            I have confirmed this happens at least when the snapshot is creating a new group,
@@ -174,6 +177,7 @@ func _wait_one_frame() -> void:
 	await Engine.get_main_loop().process_frame
 	viewport.gui_disable_input = false
 
+
 func apply_next_snapshot() -> void:
 	var cannot_move_forward: bool = _stack_pointer >= (_snapshot_stack.size() - 1)
 	if cannot_move_forward:
@@ -181,7 +185,6 @@ func apply_next_snapshot() -> void:
 	_stack_pointer += 1
 	_apply_snapshot_from_stack(_stack_pointer)
 	var snapshot_name: String = _name_stack[_stack_pointer]
-	_version += 1
 	changed.emit()
 	snapshot_applied.emit()
 	next_snapshot_applied.emit(snapshot_name)
@@ -233,7 +236,7 @@ func get_redo_name() -> String:
 
 
 func get_version() -> int:
-	return _version
+	return _version_stack[_stack_pointer]
 
 
 func get_last_snapshot_name() -> String:
