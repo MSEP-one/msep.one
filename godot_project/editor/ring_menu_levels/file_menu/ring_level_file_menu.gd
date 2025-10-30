@@ -21,4 +21,6 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	add_action(_workspace_context.action_import_file)
 	add_action(_workspace_context.action_import_from_library)
 	add_action(_workspace_context.action_load_fragment)
+	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_MSEP_ONLINE):
+		add_action(RingActionCommunityMenu.new(_workspace_context, in_menu))
 	
