@@ -12,6 +12,9 @@
 [sub_resource type="Environment" id="Environment_0h3d7"]
 background_mode = 1
 background_color = Color(0.627451, 0.627451, 0.627451, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.22
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_k3x4w"]
 
