@@ -9,6 +9,7 @@ var editor_dockers: Dictionary #[StringName,WorkspaceDocker]
 @onready var screen_capture_dialog: ConfirmationDialog = $ScreenCaptureDialog
 @onready var record_simulation_video_dialog: ConfirmationDialog = $RecordSimulationVideoDialog
 @onready var quick_search_dialog: QuickSearchDialog = $QuickSearchDialog
+@onready var share_project_dialog: ShareProjectDialog = $ShareProjectDialog
 @onready var _rendering_properties_editor_placeholder: InstancePlaceholder = $RenderingPropertiesEditorPlaceholder
 @onready var _rendering_properties_editor: RenderingPropertiesEditor
 @onready var _structure_selector_bar: Control = %StructureSelectorBar

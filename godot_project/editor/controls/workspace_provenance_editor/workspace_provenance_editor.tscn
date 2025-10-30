@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdfc2pbl8jql6"]
+
+[ext_resource type="Script" uid="uid://ciw8elr5oc23h" path="res://editor/controls/workspace_provenance_editor/workspace_provenance_editor.gd" id="1_olnkw"]
+
+[node name="WorkspaceProvenanceEditor" type="VBoxContainer"]
+script = ExtResource("1_olnkw")
+
+[node name="Label" type="Label" parent="."]
+self_modulate = Color(0.676692, 0.676692, 0.676692, 1)
+layout_mode = 2
+text = "Provenance lists other projects included in this file"
+
+[node name="ProvenanceTree" type="Tree" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+size_flags_vertical = 3
+columns = 3
+column_titles_visible = true
+hide_root = true
+select_mode = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 1
+tooltip_text = "Enter the Url to the specific project and version to be referenced. If a project url is entered, it will be assumed the most recent version should be referenced."
+mouse_filter = 0
+text = "ℹ️"
+vertical_alignment = 1
+
+[node name="NewProvenanceUrlLineEdit" type="LineEdit" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "url to external project version"
+
+[node name="AddProvenanceButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+text = "Add"

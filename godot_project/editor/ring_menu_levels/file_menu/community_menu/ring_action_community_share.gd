@@ -27,7 +27,16 @@ func _is_authenticated() -> bool:
 
 func _execute_action() -> void:
 	_ring_menu.close()
-	DisplayServer.dialog_show.call_deferred(
-		"Unimplemented",
-		"Unimplemented option: PROJECT SHARE",
-		["OK"], Callable())
+	if _workspace_context.workspace.resource_path.is_empty() or not _workspace_context.workspace.suggested_path.is_empty():
+		# File has not been saved
+		var promise: Promise = _workspace_context.show_warning_dialog(
+			tr(&"Project needs to be saved before it can be shared"),
+			tr(&"Save"),
+			tr(&"Cancel")
+		)
+		await promise.wait_for_fulfill()
+		if promise.get_result():
+			# Save
+			Editor_Utils.get_editor().show_save_workspace_dialog(_workspace_context.workspace)
+		return
+	WorkspaceUtils.open_share_project_dialog(_workspace_context)
