@@ -11,6 +11,7 @@ signal workspace_closed(workspace: Workspace)
 
 
 var msep_editor_settings: MSEPSettings = null
+var authenticator: MsepOnlineAuthenticator
 
 var _clipboard: NanoEditorClipboard
 
@@ -36,6 +37,7 @@ var _workspace_name_pattern: RegEx = RegEx.create_from_string("\\w+[ |_](\\d{1,3
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_open_contexts_holder = get_node("WorkspaceContextsHolder")
+		authenticator = %MsepOnlineAuthenticator
 	if what == NOTIFICATION_PREDELETE:
 		if msep_editor_settings != null:
 			msep_editor_settings.save_settings()
