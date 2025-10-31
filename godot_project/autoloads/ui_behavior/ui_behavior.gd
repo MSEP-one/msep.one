@@ -18,6 +18,16 @@ func _on_node_added(node: Node) -> void:
 		if node.text_submitted.is_connected(_on_line_edit_text_submitted):
 			return
 		node.text_submitted.connect(_on_line_edit_text_submitted.bind(node), CONNECT_DEFERRED)
+	if node is AcceptDialog:
+		var child_count: int = node.get_child_count(true)
+		var buttons_container: HBoxContainer
+		for i in range(child_count-1, -1, -1):
+			if node.get_child(i, true) is HBoxContainer:
+				buttons_container = node.get_child(i, true)
+				break
+		for child in buttons_container.get_children(true):
+			if child is Button:
+				child.theme_type_variation = &"CrystalButton"
 
 func _on_line_edit_text_submitted(_new_text: String, in_line_edit: LineEdit) -> void:
 	# unfocus the line edit
