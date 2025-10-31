@@ -9,6 +9,9 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xxtey"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_l0q03"]
+font = ExtResource("3_o6xol")
+
 [sub_resource type="Gradient" id="Gradient_giqgo"]
 interpolation_mode = 2
 offsets = PackedFloat32Array(0.914438, 0.962567, 1)
@@ -16,13 +19,12 @@ colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_rio0a"]
 gradient = SubResource("Gradient_giqgo")
+width = 50
+height = 50
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 metadata/_snap_enabled = true
-
-[sub_resource type="LabelSettings" id="LabelSettings_l0q03"]
-font = ExtResource("3_o6xol")
 
 [node name="OnlineWidget" type="HBoxContainer"]
 offset_right = 126.0
@@ -67,12 +69,21 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_xxtey")
 [node name="HBoxContainer" type="HBoxContainer" parent="SignedInContainer"]
 layout_mode = 2
 
+[node name="Username" type="Label" parent="SignedInContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "MSEP.one"
+label_settings = SubResource("LabelSettings_l0q03")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="AvatarMaskTextureRect" type="TextureRect" parent="SignedInContainer/HBoxContainer"]
 unique_name_in_owner = true
 self_modulate = Color(0.429787, 0.71, 0.2556, 1)
 clip_children = 2
 layout_mode = 2
 texture = SubResource("GradientTexture2D_rio0a")
+stretch_mode = 5
 
 [node name="AvatarTextureRect" type="TextureRect" parent="SignedInContainer/HBoxContainer/AvatarMaskTextureRect"]
 unique_name_in_owner = true
@@ -96,14 +107,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "MO"
-label_settings = SubResource("LabelSettings_l0q03")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Username" type="Label" parent="SignedInContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "MSEP.one"
 label_settings = SubResource("LabelSettings_l0q03")
 horizontal_alignment = 1
 vertical_alignment = 1
