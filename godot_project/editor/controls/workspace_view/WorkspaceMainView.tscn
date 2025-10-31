@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://bg20l6fpgvscg"]
+[gd_scene load_steps=23 format=3 uid="uid://bg20l6fpgvscg"]
 
 [ext_resource type="Script" uid="uid://caui0yo0weeow" path="res://editor/controls/workspace_view/WorkspaceMainView.gd" id="1_q2ex0"]
 [ext_resource type="PackedScene" uid="uid://dd2x0k2b74ok" path="res://editor/controls/editor_viewport_container/EditorViewportContainer.tscn" id="2_36m7k"]
@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://dxpjkn3lni0jn" path="res://editor/controls/quick_search_dialog/quick_search_dialog.tscn" id="9_u2qg1"]
 [ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="11_gkd3d"]
 [ext_resource type="PackedScene" uid="uid://dmiufmrvro7me" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.tscn" id="13_i5wbk"]
+[ext_resource type="PackedScene" uid="uid://chpep07gpvb5s" path="res://editor/controls/online_widget/online_widget.tscn" id="18_y2kpq"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_wc8in"]
 device = -1
@@ -142,6 +143,7 @@ grow_vertical = 0
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/margin_top = 64
 
 [node name="RenderingPropertiesEditorPlaceholder" parent="." instance_placeholder="res://editor/rendering/rendering_properties_editor/rendering_properties_editor.tscn"]
 layout_mode = 1
@@ -177,19 +179,25 @@ icon_hidden = ExtResource("7_8eb42")
 icon_visible = ExtResource("8_k8mv1")
 dock_area_path = NodePath("../EditorViewportContainer/MainSplit/DockAreaLeft")
 
-[node name="ToggleDockAreaVisibilityButtonRight" parent="." instance=ExtResource("6_t7ym2")]
-unique_name_in_owner = true
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 1
-anchors_preset = -1
+anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -42.0
-offset_top = 6.0
-offset_right = 0.0
-offset_bottom = 42.0
+offset_left = -40.0
+offset_bottom = 40.0
 grow_horizontal = 0
+
+[node name="OnlineWidget" parent="HBoxContainer" instance=ExtResource("18_y2kpq")]
+layout_mode = 2
+
+[node name="ToggleDockAreaVisibilityButtonRight" parent="HBoxContainer" instance=ExtResource("6_t7ym2")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
 shortcut = SubResource("Shortcut_runyk")
 icon = ExtResource("7_8eb42")
 icon_hidden = ExtResource("8_k8mv1")
 icon_visible = ExtResource("7_8eb42")
-dock_area_path = NodePath("../EditorViewportContainer/MainSplit/SecondarySplit/DockAreaRight")
+dock_area_path = NodePath("../../EditorViewportContainer/MainSplit/SecondarySplit/DockAreaRight")

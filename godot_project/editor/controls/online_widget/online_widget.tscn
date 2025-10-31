@@ -1,0 +1,122 @@
+[gd_scene load_steps=10 format=3 uid="uid://chpep07gpvb5s"]
+
+[ext_resource type="Texture2D" uid="uid://bkyecov3vw7t6" path="res://editor/icons/sign_in_x32.svg" id="1_7xxye"]
+[ext_resource type="Script" uid="uid://wcpawkkl8am1" path="res://editor/controls/online_widget/online_widget.gd" id="1_o6xol"]
+[ext_resource type="Texture2D" uid="uid://dxwe1l16msnkc" path="res://icon.png" id="2_ohamc"]
+[ext_resource type="FontFile" uid="uid://mw18m2voq6sc" path="res://theme/noto_sans/NotoSansNagMundari-Bold.ttf" id="3_o6xol"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_42oor"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xxtey"]
+
+[sub_resource type="Gradient" id="Gradient_giqgo"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0.914438, 0.962567, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_rio0a"]
+gradient = SubResource("Gradient_giqgo")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+metadata/_snap_enabled = true
+
+[sub_resource type="LabelSettings" id="LabelSettings_l0q03"]
+font = ExtResource("3_o6xol")
+
+[node name="OnlineWidget" type="HBoxContainer"]
+offset_right = 126.0
+offset_bottom = 32.0
+alignment = 2
+script = ExtResource("1_o6xol")
+
+[node name="SignInContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_42oor")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SignInContainer"]
+layout_mode = 2
+
+[node name="Label" type="RichTextLabel" parent="SignInContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+bbcode_enabled = true
+text = "[u]Sign In[/u]"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="TextureRect" type="TextureRect" parent="SignInContainer/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("1_7xxye")
+stretch_mode = 5
+
+[node name="SignInButton" type="Button" parent="SignInContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+flat = true
+
+[node name="SignedInContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_xxtey")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SignedInContainer"]
+layout_mode = 2
+
+[node name="AvatarMaskTextureRect" type="TextureRect" parent="SignedInContainer/HBoxContainer"]
+unique_name_in_owner = true
+self_modulate = Color(0.429787, 0.71, 0.2556, 1)
+clip_children = 2
+layout_mode = 2
+texture = SubResource("GradientTexture2D_rio0a")
+
+[node name="AvatarTextureRect" type="TextureRect" parent="SignedInContainer/HBoxContainer/AvatarMaskTextureRect"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_ohamc")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Capitals" type="Label" parent="SignedInContainer/HBoxContainer/AvatarMaskTextureRect"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "MO"
+label_settings = SubResource("LabelSettings_l0q03")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Username" type="Label" parent="SignedInContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "MSEP.one"
+label_settings = SubResource("LabelSettings_l0q03")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="UserMenuButton" type="MenuButton" parent="SignedInContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 4
+popup/item_0/text = "[Username]"
+popup/item_0/id = 0
+popup/item_1/text = "Projects"
+popup/item_1/id = 1
+popup/item_2/text = "⚙️ Edit Profile"
+popup/item_2/id = 2
+popup/item_3/text = "Sign out"
+popup/item_3/id = 3
