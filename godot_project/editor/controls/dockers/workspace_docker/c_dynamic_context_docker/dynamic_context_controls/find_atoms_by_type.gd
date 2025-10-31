@@ -106,6 +106,8 @@ func _on_groups_tree_item_selected() -> void:
 	var types := PackedInt32Array(_selected_types.keys())
 	_workspace_context.clear_all_selection()
 	structure_context.select_by_type(types)
+	var selection_aabb: AABB = WorkspaceUtils.get_selected_objects_aabb(_workspace_context)
+	WorkspaceUtils.focus_camera_on_aabb(_workspace_context, selection_aabb)
 	_workspace_context.snapshot_moment("Select Atom")
 
 
