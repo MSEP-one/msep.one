@@ -43,6 +43,8 @@ func _on_ring_menu_closed() -> void:
 	if get_workspace_context().create_object_parameters.get_create_mode_type() == \
 			CreateObjectParameters.CreateModeType.CREATE_SHAPES \
 			and get_workspace_context().create_object_parameters.get_create_mode_enabled():
+		if DisplayServer.window_get_active_popup() != DisplayServer.MAIN_WINDOW_ID:
+			return
 		update_preview_position()
 		_rendering.shape_preview_show()
 
