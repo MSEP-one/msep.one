@@ -132,8 +132,12 @@ static func fill_valence_from_1(atom0: Atom, atom1: Atom, atomT: Atom = null) ->
 	if valence <= 1:
 		return []
 	
-	if geometry == "sp1":  # Case 1+1 sp1: bond direction aligned with the given bond (= -bond_direction)
-		return [-bond_direction]
+	if geometry == "sp1":  # Case 1+1 sp1: bond angle is 104.5, is roughly the angle of water molecules
+		var pivot: Vector3 = Vector3.ONE.normalized()
+		if abs(Vector3.ONE.dot(bond_direction)) > 0.8:
+			pivot = Vector3(1,0,-1).normalized()
+		pivot = pivot.normalized()
+		return [bond_direction.rotated(pivot, deg_to_rad(104.5))]
 
 	var torsion_reference: Vector3 = HAtomsEmptyValenceDirections._torsion_reference_direction(atom0, atom1, atomT)
 	var bond_angle: float = deg_to_rad(120) if geometry == "sp2" else deg_to_rad(109.5)
