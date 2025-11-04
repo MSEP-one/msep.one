@@ -933,8 +933,9 @@ func _refresh_viewport_background() -> void:
 	_structure_preview.set_transparency(preview_transparency)
 
 
-func spring_preview_hide() -> void:
+func spring_preview_hide() -> Rendering:
 	_spring_preview.hide_preview()
+	return self
 
 
 func _on_workspace_context_simulation_started() -> void:
