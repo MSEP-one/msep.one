@@ -14,6 +14,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Relax":
 		{
+			icon = "🧘🏻‍♀️",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -24,6 +25,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Molecular Dynamics Simulation":
 		{
+			icon = "💻",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -35,6 +37,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Save Simulation as video":
 		{
+			icon = "🎥",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -46,6 +49,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Validate Model":
 		{
+			icon = "🧐",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -57,6 +61,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Settings":
 		{
+			icon = "🛠️",
 			header = true,
 			scroll = false,
 			collapse = false,

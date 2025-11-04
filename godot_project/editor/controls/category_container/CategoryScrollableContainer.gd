@@ -21,17 +21,21 @@ var expanded: bool = false:
 
 @export
 var title: String:
-	get:
-		if is_instance_valid(expand_collapse_button):
-			return expand_collapse_button.text
-		return _title
 	set(v):
-		_title = v
-		if is_instance_valid(expand_collapse_button):
-			expand_collapse_button.text = v
-var _title: String = "Title"
+		title = v
+		if is_instance_valid(title_label):
+			title_label.text = v
+@export var category_icon: Texture2D = null:
+	set(v):
+		category_icon = v
+		if is_instance_valid(icon_texture_rect):
+			icon_texture_rect.texture = v
+			icon_texture_rect.visible = v != null
+
 
 @onready var expand_collapse_button: Button = %ExpandCollapseButton
+@onready var icon_texture_rect: TextureRect = %IconTextureRect
+@onready var title_label: Label = %TitleLabel
 @onready var scroll_container: ScrollContainer = %ScrollContainer
 @onready var main_container: VBoxContainer = %MainContainer
 @onready var internal_childs: Array = [
@@ -41,7 +45,9 @@ var _title: String = "Title"
 var _tween: Tween
 
 func _ready() -> void:
-	expand_collapse_button.text = _title
+	expand_collapse_button.text = title
+	icon_texture_rect.texture = category_icon
+	icon_texture_rect.visible = category_icon != null
 	expand_collapse_button.pressed.connect(_on_expand_collapse_button_pressed)
 	child_entered_tree.connect(_on_child_entered_tree)
 	if expanded:

@@ -15,6 +15,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Assign Group to Selection":
 		{
+			icon = "🙋🏻‍♂️",
 			header = true,
 			scroll = false,
 			collapse = true,
