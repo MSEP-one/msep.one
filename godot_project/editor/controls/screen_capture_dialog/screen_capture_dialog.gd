@@ -179,6 +179,8 @@ func generate_thumbnail() -> Image:
 	_sub_viewport_preview.size = SIZE_PRESETS_MAP[PROJECT_THUMBNAIL_SIZE]
 	_radio_background_environment.button_pressed = true
 	_update_preview_background()
+	# NOTE: setting visible to true can print an error if another modal window is open,
+	# but this still fulfills the purpose of making the viewport redraw
 	visible = true
 	RenderingServer.force_draw(false)
 	var image: Image = _sub_viewport_preview.get_texture().get_image()
