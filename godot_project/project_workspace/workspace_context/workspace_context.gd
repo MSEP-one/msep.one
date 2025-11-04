@@ -420,6 +420,10 @@ func pause_inputs(duration: float) -> void:
 	get_editor_viewport().pause_inputs(duration)
 
 
+func get_alerts_panel() -> AlertsPanel:
+	return workspace_main_view.get_alerts_panel()
+
+
 ## Returns true if there's at least 1 alert
 func has_alerts() -> bool:
 	return get_alerts_count() > 0
@@ -1126,7 +1130,7 @@ func get_selection_aabb() -> AABB:
 
 # # Viewport and Input
 # # # # # #
-func get_editor_viewport_container() -> SubViewportContainer:
+func get_editor_viewport_container() -> EditorViewportContainer:
 	if is_instance_valid(workspace_main_view):
 		return workspace_main_view.editor_viewport_container
 	return null

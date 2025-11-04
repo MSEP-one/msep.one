@@ -4,7 +4,7 @@ var editor_dockers: Dictionary #[StringName,WorkspaceDocker]
 
 @onready var dock_area_left: Control = %DockAreaLeft
 @onready var dock_area_right: Control = %DockAreaRight
-@onready var editor_viewport_container: SubViewportContainer = %EditorViewportContainer
+@onready var editor_viewport_container: EditorViewportContainer = %EditorViewportContainer
 @onready var workspace_tools_container: Control = %WorkspaceToolsContainer
 @onready var screen_capture_dialog: ConfirmationDialog = $ScreenCaptureDialog
 @onready var record_simulation_video_dialog: ConfirmationDialog = $RecordSimulationVideoDialog

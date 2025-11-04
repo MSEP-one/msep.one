@@ -1,4 +1,5 @@
-extends Control
+class_name EditorViewportContainer
+extends SubViewportContainer
 
 var rendering: Rendering
 var editor_viewport: WorkspaceEditorViewport
@@ -103,6 +104,10 @@ func get_ring_menu() -> NanoRingMenu:
 
 func get_camera_widget() -> CameraWidget:
 	return _camera_widget
+
+
+func show_info_in_message_bar(in_message: String) -> void:
+	_message_bar.show_message(in_message)
 
 
 func show_warning_in_message_bar(in_message: String) -> void:
