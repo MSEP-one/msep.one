@@ -165,6 +165,10 @@ func get_rendered_structures() -> PackedInt32Array:
 	return rendered_structures
 
 
+func get_environment() -> Environment:
+	return _world_environment.environment
+
+
 func set_atomic_structure_material_overlay(in_structure: AtomicStructure, in_material_overlay: Material) -> void:
 	if not enabled: return
 	var structure_renderer_name: String = str(in_structure.int_guid)

@@ -30,7 +30,6 @@ const SIZE_PRESETS_MAP: Dictionary = {
 	SizePresets.RES_6K: Vector2i(6144, 3160),
 	SizePresets.RES_8K: Vector2i(8192, 4320)
 }
-const _DEFAULT_ENVIRONMENT: Environment = preload("res://editor/rendering/resources/world_environment.tres")
 const _AUTOGEN_FILE_NAME_META: StringName = &"___autogen_filename___"
 
 signal crop_settings_changed()
@@ -78,6 +77,7 @@ var structures_with_selection: Array[StructureContext]
 
 # Note: this is overriden in RecordSimulationVideoDialog subclass
 var _update_mode: SubViewport.UpdateMode = SubViewport.UPDATE_ONCE
+var _workspace_environment: Environment
 
 
 func _init() -> void:
@@ -160,6 +160,8 @@ func _on_about_to_popup() -> void:
 	assert(workspace_context != null)
 	var workspace_viewport: WorkspaceEditorViewport = workspace_context.get_editor_viewport()
 	_sub_viewport_preview.world_3d = workspace_viewport.find_world_3d()
+	_workspace_environment = workspace_context.get_rendering().get_environment()
+	_update_preview_background()
 	var workspace_camera_3d: Camera3D = workspace_viewport.get_camera_3d()
 	_set_remote_camera(workspace_camera_3d)
 	_on_option_button_size_preset_item_selected(_option_button_size_preset.get_selected_id())
@@ -328,7 +330,7 @@ func _update_preview_background() -> void:
 	match _button_group_preview_background.get_pressed_button():
 		_radio_background_environment:
 			_sub_viewport_preview.transparent_bg = false
-			_preview_camera_3d.environment = _DEFAULT_ENVIRONMENT
+			_preview_camera_3d.environment = _workspace_environment
 		_radio_background_transparent:
 			_sub_viewport_preview.transparent_bg = true
 			_preview_camera_3d.environment = null
