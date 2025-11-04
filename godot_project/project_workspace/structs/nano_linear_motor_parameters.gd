@@ -10,15 +10,37 @@ enum Polarity {
 @export var polarity: Polarity = Polarity.FORWARD:
 	set = _set_polarity
 
+
 var _state_snapshot_dirty: bool = true
 var _state_snapshot: Dictionary = {}
+
 
 func _init() -> void:
 	motor_type = Type.LINEAR
 	changed.connect(_on_self_changed)
 
+
 func _on_self_changed() -> void:
 	_state_snapshot_dirty = true
+
+
+func get_tooltip_text() -> String:
+	var tooltip: String = ""
+	var polarity_name: StringName = NanoLinearMotorParameters.Polarity.find_key(polarity)
+	tooltip += tr("Top Speed: %.1f nm/fs\n") % (top_speed_in_nanometers_by_nanoseconds / 1000000.0)
+	tooltip += tr(polarity_name.capitalize()) + "\n"
+	var with_cycle: bool = cycle_type != NanoLinearMotorParameters.CycleType.CONTINUOUS
+	if with_cycle and cycle_swap_polarity:
+		tooltip += tr("With Cycle alternating polarity\n")
+	elif with_cycle:
+		tooltip += tr("With Cycle\n")
+	if with_cycle and cycle_eventually_stops:
+		tooltip += tr_n(
+			"Stops after %d cycle\n",
+			"Stops after %d cycles\n",
+			cycle_stop_after_n_cycles
+		) % cycle_stop_after_n_cycles
+	return tooltip
 
 
 func _get_motor_type() -> Type:

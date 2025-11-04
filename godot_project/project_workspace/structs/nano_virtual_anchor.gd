@@ -70,6 +70,13 @@ func get_related_springs(in_nano_structure_id: int) -> PackedInt32Array:
 	return PackedInt32Array(_linked_nano_structures[in_nano_structure_id].keys() as Array[int])
 
 
+func get_total_springs_count() -> int:
+	var total: int = 0
+	for structure_id: int in _linked_nano_structures.keys():
+		total += _linked_nano_structures[structure_id].size()
+	return total
+
+
 ## Structure types needs to return a valid type name to be considered valid
 func get_type() -> StringName:
 	return &"AnchorPoint"
@@ -77,6 +84,15 @@ func get_type() -> StringName:
 
 func get_readable_type() -> String:
 	return "Anchor"
+
+
+func get_tooltip_text() -> String:
+	var tooltip: String = ""
+	tooltip += get_readable_type() + "\n"
+	tooltip += tr("Position: %s\n") % str(_position)
+	if _linked_nano_structures.size():
+		tooltip += tr("%d Springs in %d Groups\n") % [get_total_springs_count(), _linked_nano_structures.size()]
+	return tooltip
 
 
 ## Returns a texture to represent the structure in the UI, it can be a predefined

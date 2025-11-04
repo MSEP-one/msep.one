@@ -38,6 +38,13 @@ func get_readable_type() -> String:
 	return "Virtual Motor"
 
 
+func get_tooltip_text() -> String:
+	var tooltip: String = ""
+	tooltip += get_readable_type() + "\n"
+	tooltip += _parameters.get_tooltip_text()
+	return tooltip
+
+
 ## Returns a texture to represent the structure in the UI, it can be a predefined
 ## icon or a thumbnail of the actual structure
 func get_icon() -> Texture2D:

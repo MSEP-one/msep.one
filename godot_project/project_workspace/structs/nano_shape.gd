@@ -31,6 +31,17 @@ func get_readable_type() -> String:
 	return str(get_type())
 
 
+func get_tooltip_text() -> String:
+	var tooltip: String = ""
+	tooltip += tr("Shape: %s\n") % get_readable_type()
+	var properties: Dictionary = NanoShapeUtils.get_reference_shape_properties(_shape)
+	for property_name: StringName in properties.keys():
+		var prop: NanoShapeUtils.ShapeProperty = properties[property_name]
+		var value: Variant = prop.get_value()
+		tooltip += "%s: %s\n" % [tr(property_name), str(value)]
+	return tooltip
+
+
 func get_transform() -> Transform3D:
 	return _transform
 
