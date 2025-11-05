@@ -589,6 +589,20 @@ func update(in_delta: float) -> void:
 
 # # # # # #
 # # Preview api
+
+func hide_all_previews() -> Rendering:
+	return \
+		atom_preview_hide() \
+		.bond_preview_hide() \
+		.atom_autopose_preview_hide() \
+		.structure_preview_hide() \
+		.shape_preview_hide() \
+		.virtual_motor_preview_hide() \
+		.particle_emitter_preview_hide() \
+		.virtual_anchor_preview_hide() \
+		.spring_preview_hide()
+
+
 #region atom_preview
 func is_atom_preview_visible() -> bool:
 	if not enabled: return false
