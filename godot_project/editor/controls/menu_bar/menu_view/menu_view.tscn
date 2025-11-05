@@ -23,8 +23,8 @@
 
 [sub_resource type="InputEventKey" id="InputEventKey_dap46"]
 device = -1
-command_or_control_autoremap = true
 shift_pressed = true
+ctrl_pressed = true
 keycode = 32
 
 [sub_resource type="Shortcut" id="Shortcut_2fwj8"]
@@ -32,7 +32,7 @@ events = [SubResource("InputEventKey_dap46")]
 
 [sub_resource type="InputEventKey" id="InputEventKey_trvs4"]
 device = -1
-command_or_control_autoremap = true
+ctrl_pressed = true
 keycode = 32
 unicode = 32
 
