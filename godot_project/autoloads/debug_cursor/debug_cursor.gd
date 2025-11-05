@@ -2,7 +2,7 @@ extends Window
 
 @export var color_pressed := Color.CORNFLOWER_BLUE
 @export var color_released := Color.SEASHELL
-@export var offset := Vector2i.ZERO
+@export var offset := Vector2.ZERO
 
 @onready var shift: Panel = %Shift
 @onready var mouse_left_button: Panel = %MouseLeftButton
@@ -31,7 +31,7 @@ func _on_feature_flag_toggled(path: String, new_value: bool) -> void:
 func _process(_delta: float) -> void:
 	if !visible:
 		return
-	position = DisplayServer.mouse_get_position() + offset
+	position = get_tree().root.get_mouse_position() + offset
 	var state: int = DisplayServer.mouse_get_button_state()
 	
 	mouse_left_button.self_modulate = color_pressed if state & MOUSE_BUTTON_MASK_LEFT else color_released
