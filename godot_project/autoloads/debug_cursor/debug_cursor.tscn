@@ -55,6 +55,7 @@ anti_aliasing = false
 background_mode = 1
 
 [node name="debug_cursor" type="Window"]
+transparent_bg = true
 size = Vector2i(100, 97)
 visible = false
 borderless = true
@@ -63,10 +64,10 @@ transparent = true
 unfocusable = true
 mouse_passthrough = true
 script = ExtResource("1_qstc1")
-offset = Vector2i(1, 1)
+offset = Vector2(0, 5)
 
 [node name="Control" type="VBoxContainer" parent="."]
-anchors_preset = -1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 1.0
@@ -75,6 +76,7 @@ offset_right = -1.0
 offset_bottom = -1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="W" type="Panel" parent="Control"]
 unique_name_in_owner = true
@@ -82,6 +84,7 @@ custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_rf5nt")
 
 [node name="Label" type="Label" parent="Control/W"]
@@ -99,6 +102,7 @@ vertical_alignment = 1
 [node name="HBoxContainer2" type="HBoxContainer" parent="Control"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="A" type="Panel" parent="Control/HBoxContainer2"]
 unique_name_in_owner = true
@@ -106,6 +110,7 @@ custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_rf5nt")
 
 [node name="Label" type="Label" parent="Control/HBoxContainer2/A"]
@@ -126,6 +131,7 @@ custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_rf5nt")
 
 [node name="Label" type="Label" parent="Control/HBoxContainer2/S"]
@@ -146,6 +152,7 @@ custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_rf5nt")
 
 [node name="Label" type="Label" parent="Control/HBoxContainer2/D"]
@@ -163,6 +170,7 @@ vertical_alignment = 1
 [node name="HBoxContainer" type="HBoxContainer" parent="Control"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="Shift" type="Panel" parent="Control/HBoxContainer"]
 unique_name_in_owner = true
@@ -170,6 +178,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_rf5nt")
 
 [node name="Label" type="Label" parent="Control/HBoxContainer/Shift"]
@@ -188,6 +197,7 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_constants/separation = 0
 alignment = 1
 
@@ -195,6 +205,7 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 5
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_constants/separation = 0
 
 [node name="MouseLeftButton" type="Panel" parent="Control/HBoxContainer/VBoxContainer/HBoxContainer"]
@@ -202,12 +213,14 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v8yw3")
 
 [node name="MouseMiddleButton" type="Panel" parent="Control/HBoxContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_in2jm")
 
 [node name="MouseRightButton" type="Panel" parent="Control/HBoxContainer/VBoxContainer/HBoxContainer"]
@@ -215,6 +228,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_bun2i")
 
 [node name="Panel" type="Panel" parent="Control/HBoxContainer/VBoxContainer"]
@@ -222,18 +236,21 @@ layout_mode = 2
 size_flags_horizontal = 5
 size_flags_vertical = 3
 size_flags_stretch_ratio = 2.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8a36d")
 
 [node name="VBoxContainer2" type="HBoxContainer" parent="Control"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="Ctrl" type="Panel" parent="Control/VBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_rf5nt")
 
 [node name="Label" type="Label" parent="Control/VBoxContainer2/Ctrl"]
@@ -253,6 +270,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_rf5nt")
 
 [node name="Label" type="Label" parent="Control/VBoxContainer2/Alt"]
