@@ -158,6 +158,7 @@ func _on_about_to_popup() -> void:
 	_is_about_to_popup = true
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
 	assert(workspace_context != null)
+	workspace_context.get_rendering().hide_all_previews()
 	var workspace_viewport: WorkspaceEditorViewport = workspace_context.get_editor_viewport()
 	_sub_viewport_preview.world_3d = workspace_viewport.find_world_3d()
 	_workspace_environment = workspace_context.get_rendering().get_environment()
