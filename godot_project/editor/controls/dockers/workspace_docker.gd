@@ -12,9 +12,11 @@ func _ready() -> void:
 	var content_template: Dictionary = get_content_template()
 	for category: StringName in content_template.keys():
 		var settings: Dictionary = content_template[category]
+		var icon_or_path: String = settings.get(&"icon", "") as String
 		if !has_category(category):
-			var category_created: bool = create_category(category, settings.header, settings.collapse,
-					settings.start_collapsed, settings.scroll, settings.get(&"stretch_ratio", 1))
+			var category_created: bool = create_category(category, settings.header,
+					icon_or_path, settings.collapse, settings.start_collapsed,
+					settings.scroll, settings.get(&"stretch_ratio", 1))
 			assert(category_created)
 		for control_path: String in settings.controls:
 			var control: DynamicContextControl = load(control_path).instantiate() as DynamicContextControl
@@ -134,6 +136,7 @@ func _get_scroll_container() -> ScrollContainer:
 ## @Returns: true if category is created or already existed, false if could not be created
 func create_category(in_id: StringName,
 					in_with_header: bool = true,
+					in_icon_or_path := String(),
 					in_can_collapse: bool = false,
 					in_start_collapsed: bool = false,
 					in_can_scroll: bool = false,
@@ -148,7 +151,7 @@ func create_category(in_id: StringName,
 	if has_category(in_id):
 		push_warning("Category '%s' already exists, and cannot be modified" % str(in_id))
 		return true
-	var category := Category.new(in_id, in_with_header, in_can_collapse, in_start_collapsed, in_can_scroll, in_stretch_ratio)
+	var category := Category.new(in_id, in_icon_or_path, in_with_header, in_can_collapse, in_start_collapsed, in_can_scroll, in_stretch_ratio)
 	category_container.add_child(category.category_control)
 	_categories[in_id] = category
 	return true
@@ -357,6 +360,7 @@ func get_content_template() -> Dictionary:
 var _categories: Dictionary#[StringName,Category]
 class Category:
 	var id: StringName
+	var icon: Texture2D
 	var visible_name: String
 	var has_header: bool = true
 	var can_collapse: bool = false
@@ -374,13 +378,19 @@ class Category:
 	}
 	var container_type: ContainerType = Category.ContainerType.VBOX
 	func _init(in_id: StringName,
-					in_with_header: bool = true,
-					in_can_collapse: bool = false,
-					in_start_collapsed: bool = false,
-					in_can_scroll: bool = false,
-					in_stretch_ratio: float = 1) -> void:
+				in_icon_or_path := String(),
+				in_with_header: bool = true,
+				in_can_collapse: bool = false,
+				in_start_collapsed: bool = false,
+				in_can_scroll: bool = false,
+				in_stretch_ratio: float = 1) -> void:
 		id = in_id
 		visible_name = tr(str(in_id))
+		if in_icon_or_path.is_absolute_path():
+			icon = load(in_icon_or_path)
+		else:
+			# Assume emoji or empty
+			visible_name = in_icon_or_path + visible_name
 		has_header = in_with_header
 		can_collapse = in_can_collapse
 		can_scroll = in_can_scroll
@@ -418,6 +428,7 @@ class Category:
 				category_control.expanded = !in_start_collapsed
 				category_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 				category_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				category_control.category_icon = icon
 				category_control.title = visible_name
 			Category.ContainerType.COLLAPSABLE_CATEGORY_CONTAINER:
 				category_control = preload("res://editor/controls/category_container/CategoryContainer.tscn").instantiate()
@@ -427,6 +438,7 @@ class Category:
 				category_control.expanded = !in_start_collapsed
 				category_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 				category_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				category_control.category_icon = icon
 				category_control.title = visible_name
 			Category.ContainerType.UNCOLLAPSABLE_CATEGORY_CONTAINER:
 				category_control = preload("res://editor/controls/category_container/CategoryContainerUnexpandable.tscn").instantiate()
@@ -434,6 +446,7 @@ class Category:
 				container = category_control.get_node_or_null("%MainContainer")
 				assert(container)
 				category_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				category_control.category_icon = icon
 				category_control.title = visible_name
 		category_control.size_flags_stretch_ratio = stretch_ratio
 

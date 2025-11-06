@@ -17,6 +17,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Apply Atoms to Shapes":
 		{
+			icon = "🧊",
 			header = true,
 			scroll = false,
 			collapse = true,
@@ -28,6 +29,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Change Atom Type":
 		{
+			icon = "uid://cp4gklso5sdq6",
 			header = true,
 			scroll = false,
 			collapse = true,
@@ -39,6 +41,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Change Bond Type":
 		{
+			icon = "⌬",
 			header = true,
 			scroll = false,
 			collapse = true,
@@ -50,6 +53,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Find Visible Atoms by Type":
 		{
+			icon = "🔍",
 			header = true,
 			scroll = false,
 			collapse = true,
@@ -61,6 +65,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Lock/Unlock Atoms":
 		{
+			icon = "🔒",
 			header = true,
 			scroll = false,
 			collapse = true,
@@ -72,6 +77,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Override Default Colors":
 		{
+			icon = "🖌️",
 			header = true,
 			scroll = false,
 			collapse = true,
@@ -83,6 +89,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Edit Motors Parameters":
 		{
+			icon = "⚙️",
 			header = true,
 			scroll = false, # will use Tree control scroll instead
 			collapse = false,
@@ -94,6 +101,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Edit Particle Emitter":
 		{
+			icon = "💨",
 			header = true,
 			scroll = false, # will use Tree control scroll instead
 			collapse = false,
@@ -105,6 +113,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Edit Springs Parameters":
 		{
+			icon = "uid://c6xwehqjb6pml",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -116,6 +125,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Connect Object to Motor":
 		{
+			icon = "⚙️🔗",
 			header = true,
 			scroll = false, # will use Tree control scroll instead
 			collapse = false,
@@ -127,6 +137,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 		},
 	&"Selection Information":
 		{
+			icon = "💁🏼",
 			header = true,
 			scroll = false, # will use Tree control scroll instead
 			collapse = true,

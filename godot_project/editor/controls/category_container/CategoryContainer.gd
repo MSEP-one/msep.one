@@ -15,21 +15,33 @@ extends VBoxContainer
 		else:
 			_collapse(true)
 
+@export var category_icon: Texture2D = null:
+	set(v):
+		category_icon = v
+		if is_instance_valid(_icon_texture_rect):
+			_icon_texture_rect.texture = v
+			_icon_texture_rect.visible = v != null
+
+
 @export var title: String:
 	set(v):
 		title = v
 		if is_instance_valid(_expand_collapse_button):
-			_expand_collapse_button.text = v
+			_title_label.text = v
 
 var _tween: Tween
 
 @onready var _expand_collapse_button: Button = %ExpandCollapseButton
+@onready var _icon_texture_rect: TextureRect = %IconTextureRect
+@onready var _title_label: Label = %TitleLabel
 @onready var _scroll_container: ScrollContainer = %ScrollContainer
 @onready var _main_container: VBoxContainer = %MainContainer
 
 
 func _ready() -> void:
-	_expand_collapse_button.text = title
+	_title_label.text = title
+	_icon_texture_rect.texture = category_icon
+	_icon_texture_rect.visible = category_icon != null
 	_expand_collapse_button.pressed.connect(_on_expand_collapse_button_pressed)
 	_main_container.resized.connect(_on_main_container_resized)
 	if expanded:

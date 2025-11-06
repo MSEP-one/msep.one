@@ -4,6 +4,7 @@ const UNIQUE_DOCKER_NAME: StringName = &"__WorkspaceSettingsDocker__"
 const _WORKSPACE_SETTINGS_CONTROLS: Dictionary = {
 	&"General Settings":
 		{
+			icon = "📑",
 			header = true,
 			scroll = false,
 			collapse = true,
@@ -14,6 +15,7 @@ const _WORKSPACE_SETTINGS_CONTROLS: Dictionary = {
 		},
 	&"Representation Settings":
 		{
+			icon = "👀",
 			header = true,
 			scroll = false,
 			collapse = true,
@@ -26,6 +28,7 @@ const _WORKSPACE_SETTINGS_CONTROLS: Dictionary = {
 		},
 	&"MSEP Settings":
 		{
+			icon = "uid://7igpkmuemi14",
 			header = true,
 			scroll = false,
 			collapse = true,

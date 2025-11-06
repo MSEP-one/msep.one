@@ -15,6 +15,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 		},
 	&"Atoms and Bonds Parameters":
 		{
+			icon = "uid://df8has67xkedj",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -25,6 +26,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 		},
 	&"Auto-Create Bonds":
 		{
+			icon = "⛓️",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -35,6 +37,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 		},
 	&"Reference Shape Parameters":
 		{
+			icon = "uid://bu3hv2dxrwecn",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -45,6 +48,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 		},
 	&"Small Molecules":
 		{
+			icon = "🧬",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -55,6 +59,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 		},
 	&"Virtual Motors":
 		{
+			icon = "⚙️",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -65,6 +70,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 		},
 	&"Particle Emitters":
 		{
+			icon = "💨",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -75,6 +81,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 		},
 	&"Virtual Springs":
 		{
+			icon = "uid://c6xwehqjb6pml",
 			header = true,
 			scroll = false,
 			collapse = false,
@@ -85,6 +92,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 		},
 	&"Creation Distance":
 		{
+			icon = "📏",
 			header = true,
 			scroll = false,
 			collapse = false,
