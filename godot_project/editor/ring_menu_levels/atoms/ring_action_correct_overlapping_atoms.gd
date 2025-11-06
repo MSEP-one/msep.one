@@ -36,5 +36,15 @@ func get_icon() -> RingMenuIcon:
 
 func _execute_action() -> void:
 	_ring_menu.close()
+	_workspace_context.clear_alerts()
+	var editor_viewport_container: EditorViewportContainer = _workspace_context.get_editor_viewport_container()
 	await _model_validator.validate_atomic_model(AtomicStructure.AtomSet.ALL)
-	_model_validator.fix_overlapping_atoms()
+	if _model_validator.has_overlapping_atoms():
+		_model_validator.fix_overlapping_atoms()
+		_workspace_context.show_alerts_panel()
+		var alerts_panel: AlertsPanel = _workspace_context.get_alerts_panel()
+		alerts_panel.toggle_all(false)
+		alerts_panel.toggle_fixed(true)
+		editor_viewport_container.show_info_in_message_bar(tr("Fixed overlapping atoms. See the alerts panel for details."))
+	else:
+		editor_viewport_container.show_info_in_message_bar(tr("No overlapping atoms found."))

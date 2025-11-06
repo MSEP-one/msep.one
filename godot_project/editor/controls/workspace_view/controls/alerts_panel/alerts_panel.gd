@@ -115,6 +115,33 @@ func mark_as_invalid(in_alert_id: int) -> void:
 	_update_mask_buttons()
 
 
+func toggle_all(in_enabled: bool) -> void:
+	toggle_fixed(in_enabled)
+	toggle_warnings(in_enabled)
+	toggle_errors(in_enabled)
+	toggle_invalid(in_enabled)
+
+
+func toggle_fixed(in_enabled: bool) -> void:
+	_fixed_mask_button.button_pressed = in_enabled
+	_on_fixed_mask_button_toggled(in_enabled)
+
+
+func toggle_warnings(in_enabled: bool) -> void:
+	_warnings_mask_button.button_pressed = in_enabled
+	_on_warnings_mask_button_toggled(in_enabled)
+
+
+func toggle_errors(in_enabled: bool) -> void:
+	_errors_mask_button.button_pressed = in_enabled
+	_on_errors_mask_button_toggled(in_enabled)
+
+
+func toggle_invalid(in_enabled: bool) -> void:
+	_invalid_mask_button.button_pressed = in_enabled
+	_on_invalid_mask_button_toggled(in_enabled)
+
+
 func create_state_snapshot() -> Dictionary:
 	var copy: Dictionary = {}
 	for alert_id: int in _data:
