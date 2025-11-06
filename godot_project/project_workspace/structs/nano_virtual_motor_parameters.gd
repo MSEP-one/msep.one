@@ -48,6 +48,11 @@ var motor_type: Type = Type.UNKNOWN:
 	set = _set_cycle_stop_after_n_cycles
 
 
+func get_tooltip_text() -> String:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return String()
+
+
 func _get_motor_type() -> Type:
 	assert(false, "Implement in subclass")
 	return Type.UNKNOWN

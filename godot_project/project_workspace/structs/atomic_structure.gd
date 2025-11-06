@@ -945,6 +945,11 @@ func get_readable_type() -> String:
 	return get_structure_name()
 
 
+func get_tooltip_text() -> String:
+	# Atoms and bonds are handled separatedly
+	return String()
+
+
 func get_aabb(_in_bounds_type := AABB_BoundsType.AtomsPositions) -> AABB:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return AABB()

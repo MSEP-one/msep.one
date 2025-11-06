@@ -74,6 +74,11 @@ func get_readable_type() -> String:
 	return StringName()
 
 
+func get_tooltip_text() -> String:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return String()
+
+
 func set_structure_name(new_name: String) -> void:
 	if _structure_name == new_name:
 		return

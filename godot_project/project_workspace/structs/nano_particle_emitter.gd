@@ -363,6 +363,33 @@ func get_readable_type() -> String:
 	return "Particle Emitter"
 
 
+func get_tooltip_text() -> String:
+	var tooltip: String = ""
+	tooltip += get_readable_type() + "\n"
+	tooltip += tr("Position: %s\n") % str(_transform.origin)
+	tooltip += tr("Direction: %s\n") % str(_transform.basis * Vector3.FORWARD)
+	if _parameters.get_spread_angle_degrees() > 0:
+		tooltip += tr("Spread: %.2fº\n") % _parameters.get_spread_angle_degrees()
+	if _parameters.get_initial_delay_in_nanoseconds() > 0:
+		tooltip += tr("Delay: %.2fns\n") % _parameters.get_initial_delay_in_nanoseconds()
+	match _parameters.get_limit_type():
+		NanoParticleEmitterParameters.LimitType.NEVER:
+			# Nothing to do
+			pass
+		NanoParticleEmitterParameters.LimitType.INSTANCE_COUNT:
+			tooltip += tr_n(
+				"Stop after %d instance",
+				"Stop after %d instances",
+				_parameters.get_stop_emitting_after_count()
+			) % _parameters.get_stop_emitting_after_count()
+		NanoParticleEmitterParameters.LimitType.TIME:
+			tooltip += tr("Stop after %.2f nanoseconds") % _parameters.get_stop_emitting_after_nanoseconds()
+		_:
+			push_error("Unexpected limit type ", _parameters._limit_type)
+			pass
+	return tooltip
+
+
 ## Returns a texture to represent the structure in the UI, it can be a predefined
 ## icon or a thumbnail of the actual structure
 func get_icon() -> Texture2D:

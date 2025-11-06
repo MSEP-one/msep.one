@@ -39,7 +39,7 @@ func _notification(what: int) -> void:
 
 func _ready_deferred() -> void:
 	var viewport: WorkspaceEditorViewport = editor_viewport_container.editor_viewport
-	var workspace_context: WorkspaceContext = editor_viewport_container.workspace_context
+	var workspace_context: WorkspaceContext = get_workspace_context()
 	var ring_menu: NanoRingMenu = null if viewport == null else viewport.get_ring_menu()
 	ring_menu.set_context(NanoRingMenu.CONTEXT_MAIN)
 	if workspace_context != null and not workspace_context.selection_in_structures_changed.is_connected(_on_workspace_context_selection_in_structures_changed):
@@ -130,6 +130,10 @@ func _add_docker(in_node: WorkspaceDocker, in_resource_path: NodePath) -> void:
 			# Located in the right area
 			dock_area_right.add_dock(in_node, dock_area)
 		editor_dockers[unique_name] = in_node
+
+
+func get_workspace_context() -> WorkspaceContext:
+	return editor_viewport_container.workspace_context
 
 
 func get_box_selection() -> BoxSelection:
