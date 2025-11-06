@@ -171,9 +171,11 @@ func _on_parameters_changed() -> void:
 		_linear_distance_spin_box.set_value_no_signal(parameters.cycle_distance_limit)
 	else:
 		_rotary_distance_spin_box.set_value_no_signal(parameters.cycle_distance_limit)
+	_time_span_picker_pause_time.time_span_femtoseconds = parameters.cycle_pause_time_in_femtoseconds
 	_stop_after_check_box.set_pressed_no_signal(parameters.cycle_eventually_stops)
 	_stop_after_spin_box.editable = parameters.cycle_eventually_stops
 	_stop_after_spin_box.set_value_no_signal(parameters.cycle_stop_after_n_cycles)
+	_check_button_swap_polarity.set_pressed_no_signal(parameters.cycle_swap_polarity)
 	ScriptUtils.call_deferred_once(_update_stop_cycles_suffix)
 	ScriptUtils.call_deferred_once(_update_controls_visibility)
 

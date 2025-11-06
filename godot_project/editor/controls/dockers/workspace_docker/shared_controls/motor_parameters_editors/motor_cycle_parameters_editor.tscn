@@ -609,5 +609,5 @@ text = "・ Swap polarity between cycles"
 
 [node name="StateAnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_1v0wx")
+&"": SubResource("AnimationLibrary_1v0wx")
 }
