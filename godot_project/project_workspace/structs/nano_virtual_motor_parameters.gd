@@ -44,8 +44,9 @@ var motor_type: Type = Type.UNKNOWN:
 	set = _set_cycle_swap_polarity
 @export var cycle_eventually_stops: bool = false:
 	set = _set_cycle_eventually_stops
-@export var cycle_stop_after_n_cycles: int = 0:
+@export var cycle_stop_after_n_cycles: int = 1:
 	set = _set_cycle_stop_after_n_cycles
+
 
 func _get_motor_type() -> Type:
 	assert(false, "Implement in subclass")
