@@ -42,6 +42,17 @@ func get_tooltip_text() -> String:
 	var tooltip: String = ""
 	tooltip += get_readable_type() + "\n"
 	tooltip += _parameters.get_tooltip_text()
+	var connected: PackedInt32Array = get_connected_structures()
+	if connected.size() == 0:
+		tooltip += tr("Not connected to any group\n")
+	else:
+		tooltip += tr("Connected to:\n")
+		# NOTE: This code assumes only the currently active workspace an have a hovered anchor
+		var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+		assert(workspace_context != null and workspace_context.workspace.has_structure(self))
+		for structure_id: int in connected:
+			var structure: NanoStructure = workspace_context.get_structure_context(structure_id).nano_structure
+			tooltip += tr("- %s\n") % structure.get_structure_name()
 	return tooltip
 
 

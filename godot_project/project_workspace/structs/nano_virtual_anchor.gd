@@ -91,7 +91,34 @@ func get_tooltip_text() -> String:
 	tooltip += get_readable_type() + "\n"
 	tooltip += tr("Position: %s\n") % str(_position)
 	if _linked_nano_structures.size():
-		tooltip += tr("%d Springs in %d Groups\n") % [get_total_springs_count(), _linked_nano_structures.size()]
+		tooltip += tr("%d Springs in %d Groups:\n") % [get_total_springs_count(), _linked_nano_structures.size()]
+		# NOTE: This code assumes only the currently active workspace an have a hovered anchor
+		var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+		assert(workspace_context != null and workspace_context.workspace.has_structure(self))
+		for structure_id: int in get_related_structures():
+			var structure: AtomicStructure = workspace_context.get_structure_context(structure_id).nano_structure
+			var all_hidden_springs: PackedInt32Array = structure.springs_get_hidden()
+			var structure_springs: PackedInt32Array = get_related_springs(structure_id)
+			var filter_hidden: Callable = func(spring: int) -> bool:
+				return spring in all_hidden_springs
+			var hidden_springs: PackedInt32Array = Array(structure_springs).filter(filter_hidden)
+			if structure_springs.size() == hidden_springs.size() and hidden_springs.size() > 0:
+				tooltip += tr_n(
+					"- %s: %d hidden spring\n",
+					"- %s: %d hidden springs\n",
+					hidden_springs.size()
+				) % [structure.get_structure_name(), hidden_springs.size()]
+			elif hidden_springs.size() > 0:
+				# Note: structure_springs.size() cannot be 1 or less, so is safe to assume plural
+				tooltip += tr(
+					"- %s: %d springs (%d hidden)\n"
+				) % [structure.get_structure_name(), structure_springs.size(), hidden_springs.size()]
+			else:
+				tooltip += tr_n(
+					"- %s: %d spring\n",
+					"- %s: %d springs\n",
+					structure_springs.size()
+				) % [structure.get_structure_name(), structure_springs.size()]
 	return tooltip
 
 
