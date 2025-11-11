@@ -343,6 +343,13 @@ func set_axes_to_translation() -> void:
 	mouse_hover_detected.scale_axis = false
 
 
+func set_translation_limits(in_limits: AABB) -> void:
+	hg.limit_translation_range = in_limits
+
+
+func get_translation_limits() -> AABB:
+	return hg.limit_translation_range
+
 func set_axes_to_scale() -> void:
 	if transform_mode == TransformMode.LOCAL:
 		remove_translation_axes()

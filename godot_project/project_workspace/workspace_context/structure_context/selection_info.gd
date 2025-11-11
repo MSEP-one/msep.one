@@ -293,7 +293,11 @@ class SetNanostructureAtomPositionHelper:
 	func set_position(in_new_position: Vector3) -> void:
 		var nano_structure: NanoStructure = _structure_context.nano_structure
 		nano_structure.start_edit()
-		nano_structure.atom_set_position(_atom_id, in_new_position)
+		const LIMIT: float = 3000
+		var limit_start := Vector3(-LIMIT, -LIMIT, -LIMIT)
+		var limit_end := Vector3(LIMIT, LIMIT, LIMIT)
+		var clamped: Vector3 = in_new_position.clamp(limit_start, limit_end)
+		nano_structure.atom_set_position(_atom_id, clamped)
 		nano_structure.end_edit()
 	
 	

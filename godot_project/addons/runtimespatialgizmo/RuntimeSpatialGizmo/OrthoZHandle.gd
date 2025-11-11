@@ -150,6 +150,6 @@ func move_on_camera_local_z_axis() -> void:
 		# moved too far.
 		if distance_from_screen > MIN_DISTANCE_FROM_SCREEN && \
 		distance_from_screen < camera.far * MAX_DISTANCE_FROM_SCREEN_FACTOR:
-			selected_node.global_position = new_position
+			selected_node.global_position = gizmo.apply_translation_limit(new_position)
 	else:
 		_z_direction = (camera.global_position - selected_node.global_position).normalized()

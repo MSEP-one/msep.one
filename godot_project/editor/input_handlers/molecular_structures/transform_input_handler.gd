@@ -440,6 +440,14 @@ func _force_gizmo_update() -> void:
 		_selection_initial_position = _init_initial_positions_and_determine_center()
 		_helper.global_transform.basis = Basis()
 		_helper.global_position = _selection_initial_position
+		# Calculate transform limits to not exceed the maximum range
+		var selection_size: Vector3 = _workspace_context.get_selection_aabb().size.abs()
+		const LIMIT: float = 3000
+		var limit_start := Vector3(-LIMIT, -LIMIT, -LIMIT) + selection_size
+		var limit_end := Vector3(LIMIT, LIMIT, LIMIT) - selection_size
+		var limit_box := AABB(limit_start, Vector3.ZERO)
+		limit_box = limit_box.expand(limit_end)
+		GizmoRoot.set_translation_limits(limit_box)
 	if not is_exclusive_input_consumer():
 		if get_workspace_context().get_editor_viewport().has_exclusive_input_consumer():
 			GizmoRoot.disable_gizmo()
@@ -464,7 +472,7 @@ func create_state_snapshot() -> Dictionary:
 		"_structure_context_2_initial_atom_selection_positions" = _structure_context_2_initial_atom_selection_positions.duplicate(),
 		"_structure_context_2_initial_object_transforms" = _structure_context_2_initial_object_transforms.duplicate(),
 		"_selection_initial_position" = _selection_initial_position,
-		"_is_grabbed" = _is_grabbed
+		"_is_grabbed" = _is_grabbed,
 	}
 	return snapshot
 

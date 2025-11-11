@@ -312,7 +312,8 @@ func place_on_plane() -> void:
 		var distance: float = global_offset.length()
 		var dir: Vector3 = global_offset.normalized()
 		var projection_factor: float = vec_dir.dot(dir)
-		selected_node.global_position = grab_initial_position + vec_dir * distance * projection_factor
+		selected_node.global_position = gizmo.apply_translation_limit(
+			grab_initial_position + vec_dir * distance * projection_factor)
 
 
 func place_ortho() -> void:
@@ -323,7 +324,8 @@ func place_ortho() -> void:
 		placement_position = Vector2(placement_position.x, selection_position2D.y)
 	elif colliding_axis.name == "Y":
 		placement_position = Vector2(selection_position2D.x, placement_position.y)
-	selected_node.global_position = camera.project_position(placement_position, grab_distance)
+	selected_node.global_position = gizmo.apply_translation_limit(
+		camera.project_position(placement_position, grab_distance))
 
 
 func _process(_delta: float) -> void:

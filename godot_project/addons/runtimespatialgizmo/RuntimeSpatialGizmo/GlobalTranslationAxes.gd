@@ -304,7 +304,8 @@ func place_on_plane() -> void:
 		var distance: float = global_offset.length()
 		var dir: Vector3 = global_offset.normalized()
 		var projection_factor: float = vec_dir.dot(dir)
-		selected_node.global_position = grab_initial_position + vec_dir * distance * projection_factor
+		selected_node.global_position = gizmo.apply_translation_limit(
+			grab_initial_position + vec_dir * distance * projection_factor)
 
 
 func _process(_delta: float) -> void:

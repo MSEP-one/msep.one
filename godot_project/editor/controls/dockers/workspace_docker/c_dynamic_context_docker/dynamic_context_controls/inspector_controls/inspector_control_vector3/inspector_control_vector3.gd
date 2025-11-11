@@ -48,6 +48,8 @@ func _on_value_changed(_ignored_arg: float) -> void:
 		_ignore_signal_during_setter = true
 		_setter.call(new_value)
 		_ignore_signal_during_setter = false
+		if _getter.call() != new_value:
+			_on_changed_signal_emitted()
 
 
 func setup(in_getter: Callable, in_setter: Callable = Callable(), in_property_changed_signal: Signal = Signal()) -> void:

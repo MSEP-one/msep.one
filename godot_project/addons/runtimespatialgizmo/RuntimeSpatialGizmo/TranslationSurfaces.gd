@@ -214,7 +214,7 @@ func place_on_plane() -> void:
 	var ray_to: Vector3 = camera.project_position(mouse_position - grab_offset, RAY_LENGTH)
 	var intersect_position = current_plane.intersects_ray(ray_from, ray_to - ray_from)
 	if intersect_position != null:
-		selected_node.global_position = intersect_position
+		selected_node.global_position = gizmo.apply_translation_limit(intersect_position)
 
 
 func _process(_delta: float) -> void:

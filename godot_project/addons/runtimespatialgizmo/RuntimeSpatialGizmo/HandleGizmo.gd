@@ -22,6 +22,9 @@ var viewport_size_factor : float = 1.0
 ## Should the translation axis be guarded against sudden jumps.
 ## If this is disabled gizmo will behave like Godot editor's gizmo.
 @export var limit_axis_range: bool = true
+## Set this value to control how far away from the origin of the world can selected object be
+## default value of AABB() means no limit is applied
+@export var limit_translation_range := AABB()
 ## Enable this if you want it be possible to center drag the gizmo only
 ## if the center circle is clicked, otherwise center drag will behave like
 ## in Godot editor gizmo.
@@ -208,6 +211,12 @@ func process_gizmo_input(event: InputEvent):
 	for behavior in behavior_handlers:
 		if behavior.is_inside_tree():
 			behavior.gizmo_input(event)
+
+
+func apply_translation_limit(in_position: Vector3) -> Vector3:
+	if limit_translation_range == AABB() or limit_translation_range.has_point(in_position):
+		return in_position
+	return in_position.clamp(limit_translation_range.position, limit_translation_range.end)
 
 
 func _ready() -> void:
