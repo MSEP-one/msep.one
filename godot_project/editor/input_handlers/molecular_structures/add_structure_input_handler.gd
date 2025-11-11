@@ -57,7 +57,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_structur
 		var fragment_transform: Transform3D = _rendering.structure_preview_get_transform()
 		if fragment_transform == null:
 			return false # Ray normal is parallel to the PLANE_XY
-		if input_has_modifiers(in_input_event):
+		if input_has_modifiers(in_input_event) or _workspace_context.has_hovered_object():
 			_rendering.structure_preview_hide()
 			return false
 		_rendering.structure_preview_show()

@@ -103,6 +103,9 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 			_update_springs_end_candidates()
 			update_preview_position()
 			rendering.virtual_anchor_preview_show()
+		elif _workspace_context.has_hovered_object():
+			_render_candidates = false
+			rendering.virtual_anchor_preview_hide()
 		else:
 			_render_candidates = false
 			_update_springs_end_candidates()
