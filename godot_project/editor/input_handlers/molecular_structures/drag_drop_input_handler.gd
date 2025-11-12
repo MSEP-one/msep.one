@@ -72,7 +72,10 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, _in_context
 			_has_box_selection_started = false
 			_box_selection.apply_selection()
 			_workspace_context.snapshot_moment("Change Selection")
-			if !workspace_context.has_selection():
+			if MolecularEditorContext.is_workspace_docker_area_hidden_by_user(DynamicContextDocker.UNIQUE_DOCKER_NAME):
+				# Do not make dockers visible when are hidden by user
+				pass
+			elif !workspace_context.has_selection():
 				# Selection was cleared, DynamicContextDocker is no longer relevant
 				if get_workspace_context().is_simulating():
 					MolecularEditorContext.request_workspace_docker_focus(SimulationsDocker.UNIQUE_DOCKER_NAME)

@@ -81,6 +81,17 @@ func get_default_docker_area() -> int:
 	return DOCK_AREA_DEFAULT
 
 
+func get_dock_area_or_null() -> DockArea:
+	var parent: Node = get_parent()
+	while parent != null:
+		if parent is DockArea or parent is Window:
+			break
+		parent = parent.get_parent()
+	if parent is DockArea:
+		return parent
+	return null
+
+
 func ensure_docker_area_visible() -> void:
 	var parent: Node = get_parent()
 	while parent != null:

@@ -290,6 +290,21 @@ func is_workspace_docker_active(in_docker_unique_name: StringName) -> bool:
 	return docker.is_visible_in_tree()
 
 
+func is_workspace_docker_area_hidden_by_user(in_docker_unique_name: StringName) -> bool:
+	var workspace_context: WorkspaceContext = get_current_workspace_context()
+	if workspace_context == null:
+		return false
+	var view: WorkspaceMainView = workspace_context.workspace_main_view
+	if not in_docker_unique_name in view.editor_dockers.keys():
+		push_error("Docker with unique name %s doesn't exists!" % in_docker_unique_name)
+		return false
+	var docker: WorkspaceDocker = view.editor_dockers.get(in_docker_unique_name, null) as WorkspaceDocker
+	var dock_area: DockArea = docker.get_dock_area_or_null()
+	if dock_area:
+		return dock_area.user_hidden
+	return false
+
+
 func request_workspace_docker_focus(in_docker_unique_name: StringName, in_category_name := StringName()) -> void:
 	var workspace_context: WorkspaceContext = get_current_workspace_context()
 	if workspace_context == null:
