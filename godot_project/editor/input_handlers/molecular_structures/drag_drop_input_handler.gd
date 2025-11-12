@@ -84,7 +84,8 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, _in_context
 			elif MolecularEditorContext.is_workspace_docker_active(GroupsDocker.UNIQUE_DOCKER_NAME):
 				# User is managing groups, dont bother him/her
 				pass
-			else:
+			elif MolecularEditorContext.msep_editor_settings.selection_tab_policy == \
+						MSEPSettings.SelectionTabPolicy.FOCUS_TAB_ON_SELECTION_CHANGE:
 				MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME)
 		_is_mouse_down = false
 		return false

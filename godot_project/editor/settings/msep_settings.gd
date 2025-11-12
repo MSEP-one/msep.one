@@ -3,6 +3,11 @@ class_name MSEPSettings
 
 const SETTINGS_RESOURCE_PATH = "user://editor/msep_settings.tres"
 
+enum SelectionTabPolicy {
+	FOCUS_TAB_ON_SELECTION_CHANGE = 0,
+	STAY_IN_FOCUSED_TAB_ON_SELECTION_CHANGE = 1,
+}
+
 enum OpenMMLoggingReporters {
 	PDBxReporter       = 1 << 0,
 	PDBReporter        = 1 << 1,
@@ -40,6 +45,8 @@ var _ui_sfx_bus_index: int =  AudioServer.get_bus_index(&"Ui Sfx")
 	set = set_custom_selection_outline_color_enabled
 @export var ui_widget_scale: float = 1.0:
 	set = set_ui_widget_scale
+@export var selection_tab_policy := SelectionTabPolicy.FOCUS_TAB_ON_SELECTION_CHANGE:
+	set = set_selection_tab_policy
 @export var openmm_server_allow_modified_script: bool = false:
 	set = set_openmm_server_allow_modified_script
 @export var is_simulation_logging_enabled: bool = false:
@@ -104,6 +111,11 @@ func set_custom_selection_outline_color_enabled(enabled: bool) -> void:
 
 func set_ui_widget_scale(in_value: float) -> void:
 	ui_widget_scale = in_value
+	changed.emit()
+
+
+func set_selection_tab_policy(in_policy: SelectionTabPolicy) -> void:
+	selection_tab_policy = in_policy
 	changed.emit()
 
 
