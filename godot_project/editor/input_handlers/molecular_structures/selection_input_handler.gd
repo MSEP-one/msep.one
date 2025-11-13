@@ -93,7 +93,8 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 			elif MolecularEditorContext.is_workspace_docker_active(GroupsDocker.UNIQUE_DOCKER_NAME):
 				# User is managing groups, dont bother him/her
 				pass
-			else:
+			elif MolecularEditorContext.msep_editor_settings.selection_tab_policy == \
+						MSEPSettings.SelectionTabPolicy.FOCUS_TAB_ON_SELECTION_CHANGE:
 				MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME)
 		return input_consumed
 	
@@ -128,7 +129,8 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 				if MolecularEditorContext.is_workspace_docker_active(DynamicContextDocker.UNIQUE_DOCKER_NAME):
 					# DynamicContextDocker docker is no longer relevant, switch to another docker if the selection docker is active
 					MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME)
-			else:
+			elif MolecularEditorContext.msep_editor_settings.selection_tab_policy == \
+						MSEPSettings.SelectionTabPolicy.FOCUS_TAB_ON_SELECTION_CHANGE:
 				MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME)
 		return input_consumed
 	
