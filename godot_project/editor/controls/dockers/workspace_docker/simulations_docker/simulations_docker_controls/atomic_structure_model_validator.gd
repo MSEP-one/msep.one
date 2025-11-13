@@ -182,10 +182,9 @@ func fix_overlapping_atoms() -> void:
 		for atom_id: int in current_overlap_atoms:
 			var item: SpatialHashGrid.Item = current_overlap_atoms[atom_id]
 			var position: Vector3 = item.position
+			while position.is_equal_approx(overlap_center):
+				position = item.position + Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5)
 			var dir_from_center: Vector3 = overlap_center.direction_to(position)
-			while dir_from_center.is_equal_approx(Vector3.ZERO):
-				# Can be null if the atom is exactly on the center. Use a random direction instead.
-				dir_from_center = Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5).normalized()
 			var atomic_number: int = nano_structure.atom_get_atomic_number(atom_id)
 			var element_data: ElementData = PeriodicTable.get_by_atomic_number(atomic_number)
 			var radius: float = element_data.covalent_radius[1]
