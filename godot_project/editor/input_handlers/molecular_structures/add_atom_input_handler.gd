@@ -95,7 +95,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 			rendering.bond_preview_show()
 			rendering.atom_preview_set_position(atom_pos)
 			rendering.atom_preview_show()
-		elif has_modifiers or not create_mode_enabled:
+		elif has_modifiers or not create_mode_enabled or _workspace_context.has_hovered_object():
 			rendering.atom_preview_hide()
 			rendering.bond_preview_hide()
 		else:

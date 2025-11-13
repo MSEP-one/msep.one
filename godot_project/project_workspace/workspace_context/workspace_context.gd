@@ -1186,6 +1186,10 @@ func set_hovered_structure_context(in_structure_context: StructureContext, in_at
 			_hovered_atom_id, _hovered_bond_id, _hovered_spring_id)
 
 
+func has_hovered_object() -> bool:
+	return _hovered_structure_context != null
+
+
 func change_current_structure_context(out_new_current_structure_context: StructureContext) -> void:
 	var nano_structure: NanoStructure = out_new_current_structure_context.nano_structure
 	if not nano_structure.get_visible():
