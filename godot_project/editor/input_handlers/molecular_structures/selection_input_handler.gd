@@ -81,7 +81,10 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		if input_consumed == false:
 			input_consumed = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, true)
 		if input_consumed:
-			if !get_workspace_context().has_selection():
+			if MolecularEditorContext.is_workspace_docker_area_hidden_by_user(DynamicContextDocker.UNIQUE_DOCKER_NAME):
+				# Do not make dockers visible when are hidden by user
+				pass
+			elif !get_workspace_context().has_selection():
 				# Selection was cleared, DynamicContextDocker is no longer relevant
 				if get_workspace_context().is_simulating():
 					MolecularEditorContext.request_workspace_docker_focus(SimulationsDocker.UNIQUE_DOCKER_NAME)
@@ -118,7 +121,10 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		if input_consumed == false:
 			input_consumed = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, false)
 		if input_consumed:
-			if !get_workspace_context().has_selection():
+			if MolecularEditorContext.is_workspace_docker_area_hidden_by_user(DynamicContextDocker.UNIQUE_DOCKER_NAME):
+				# Do not make dockers visible when are hidden by user
+				pass
+			elif !get_workspace_context().has_selection():
 				if MolecularEditorContext.is_workspace_docker_active(DynamicContextDocker.UNIQUE_DOCKER_NAME):
 					# DynamicContextDocker docker is no longer relevant, switch to another docker if the selection docker is active
 					MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME)
