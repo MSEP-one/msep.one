@@ -41,6 +41,7 @@ BusyIndicator="*res://autoloads/busy_indicator/busy_indicator.tscn"
 UserInterfaceBehavior="*res://autoloads/ui_behavior/ui_behavior.gd"
 InitialInfoScreen="*res://autoloads/initial_info_screen/initial_info_screen.tscn"
 UIBlocker="*res://autoloads/ui_blocker/ui_blocker.tscn"
+DnaBuilder="*res://utils/DnaBuilder.gd"
 
 [debug]
 

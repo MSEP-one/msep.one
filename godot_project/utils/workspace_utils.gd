@@ -979,7 +979,8 @@ static func _import_file(out_workspace_context: WorkspaceContext, path: String,
 	var promise: Promise = OpenMM.request_import(path, generate_bonds, add_hydrogens, remove_waters)
 	
 	var friendly_name: String = path.get_file().get_basename().capitalize()
-	out_workspace_context.start_async_work(out_workspace_context.tr(&"Importing {0}").format([friendly_name]))
+	if out_workspace_context != null:
+		out_workspace_context.start_async_work(out_workspace_context.tr(&"Importing {0}").format([friendly_name]))
 	await promise.wait_for_fulfill()
 	if promise.has_error() && path.get_extension().to_lower() == "pdb":
 			print_debug("OpenMM Server failed to load PDB file, will fallback to builtin method")
@@ -989,13 +990,15 @@ static func _import_file(out_workspace_context: WorkspaceContext, path: String,
 			if _import_thread != null:
 				_import_thread.wait_to_finish()
 				_import_thread = null
-	out_workspace_context.end_async_work()
+	if out_workspace_context != null:
+		out_workspace_context.end_async_work()
 	if promise.has_error():
-		var alert_dialog : AcceptDialog = OpenmmWarningDialog.instantiate()
-		alert_dialog.set_short_message(out_workspace_context.tr(&"Unable to import the selected File. Maybe the content is invalid."))
-		alert_dialog.set_detailed_message(promise.get_error())
-		Engine.get_main_loop().root.add_child(alert_dialog)
-		return
+		if out_workspace_context != null:
+			var alert_dialog : AcceptDialog = OpenmmWarningDialog.instantiate()
+			alert_dialog.set_short_message(out_workspace_context.tr(&"Unable to import the selected File. Maybe the content is invalid."))
+			alert_dialog.set_detailed_message(promise.get_error())
+			Engine.get_main_loop().root.add_child(alert_dialog)
+		return null
 	var import_file_result: OpenMMClass.ImportFileResult = promise.get_result() as OpenMMClass.ImportFileResult
 	return import_file_result
 
