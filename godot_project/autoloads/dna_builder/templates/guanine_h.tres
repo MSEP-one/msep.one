@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=4]
+
+[ext_resource type="Script" path="res://autoloads/dna_builder/templates/packed_molecule.gd" id="1_ki88c"]
+
+[resource]
+script = ExtResource("1_ki88c")
+atoms = PackedVector4Array(0.0821072, 0.219837, -0.000270196, 7, 0.191301, 0.141551, -0.0025202, 6, 0.151952, 0.00603988, -0.0030602, 7, 0.0125983, 0.00331978, -0.000850196, 6, -0.0303244, 0.137078, 0.000759804, 6, -0.0711223, -0.108582, -0.000550196, 7, -0.202174, -0.0814355, 0.0038598, 6, -0.171789, 0.168163, 0.0037098, 6, -0.255583, 0.0493885, 0.0043998, 7, -0.231304, 0.274172, 0.0053798, 8, -0.291444, -0.19117, 0.0187998, 7, 0.294458, 0.177743, -0.0037402, 1, -0.354716, 0.0604168, 0.0086498, 1, -0.248181, -0.27972, 0.0043498, 1, -0.374815, -0.181281, -0.0347902, 1)
+bonds = Array[Vector3i]([Vector3i(0, 1, 2), Vector3i(0, 4, 1), Vector3i(1, 2, 1), Vector3i(1, 11, 1), Vector3i(2, 3, 1), Vector3i(3, 4, 2), Vector3i(3, 5, 1), Vector3i(4, 7, 1), Vector3i(5, 6, 2), Vector3i(6, 8, 1), Vector3i(6, 10, 1), Vector3i(7, 8, 1), Vector3i(7, 9, 2), Vector3i(8, 12, 1), Vector3i(10, 13, 1), Vector3i(10, 14, 1)])
+base_to_backbone_atom_id = 2
+next_backbone_atom_id = -1
+previous_backbone_atom_id = -1

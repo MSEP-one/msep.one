@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=2 format=4 uid="uid://crfm57l8kav7a"]
+
+[ext_resource type="Script" uid="uid://8g2sevldq0c2" path="res://autoloads/dna_builder/templates/packed_molecule.gd" id="1_e37pt"]
+
+[resource]
+script = ExtResource("1_e37pt")
+atoms = PackedVector4Array(0.0835323, -0.119541, -0.00421986, 6, 0.144329, 0.00142915, -0.000139854, 6, 0.0705006, 0.120513, 0.00802014, 7, -0.0718098, 0.11867, 0.0124302, 6, -0.136915, -0.00716633, 0.00841014, 7, -0.0633595, -0.129764, 2.01454e-05, 6, -0.134522, 0.2237, 0.0194902, 8, 0.161544, -0.245326, -0.0132498, 6, -0.130677, -0.231476, -0.00273986, 8)
+bonds = Array[Vector3i]([Vector3i(0, 1, 2), Vector3i(0, 5, 1), Vector3i(0, 7, 1), Vector3i(1, 2, 1), Vector3i(2, 3, 1), Vector3i(3, 4, 1), Vector3i(3, 6, 2), Vector3i(4, 5, 1), Vector3i(5, 8, 2)])
+base_to_backbone_atom_id = 2
+backbone_to_backbone_atom_id = -1

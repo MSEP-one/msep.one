@@ -57,6 +57,17 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/a_create_docker/create_fragment_panel.tscn"
 			]
 		},
+	&"DNA Chain":
+		{
+			icon = "🧬",
+			header = true,
+			scroll = false,
+			collapse = false,
+			start_collapsed = false,
+			controls = [
+				"res://editor/controls/dockers/workspace_docker/a_create_docker/create_dna_panel.tscn"
+			]
+		},
 	&"Virtual Motors":
 		{
 			icon = "⚙️",

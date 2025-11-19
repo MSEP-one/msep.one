@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3 uid="uid://bh7tqk06xo73r"]
+
+[ext_resource type="Script" uid="uid://d15l3cmsx87m4" path="res://autoloads/dna_builder/dev_tool/dna_builder_dev_tool.gd" id="1_k33ev"]
+
+[node name="DnaBuilderDevTool" type="VBoxContainer"]
+offset_left = 39.0
+offset_top = 120.0
+offset_right = 235.0
+offset_bottom = 221.0
+theme_override_constants/separation = 8
+script = ExtResource("1_k33ev")
+
+[node name="TemplateFilename" type="OptionButton" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 6
+popup/item_0/text = "backbone0"
+popup/item_0/id = 0
+popup/item_1/text = "backbone1"
+popup/item_1/id = 1
+popup/item_2/text = "adenine"
+popup/item_2/id = 2
+popup/item_3/text = "thymine"
+popup/item_3/id = 3
+popup/item_4/text = "guanine"
+popup/item_4/id = 4
+popup/item_5/text = "cytosine"
+popup/item_5/id = 5
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Flip"
+
+[node name="FlipX" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+toggle_mode = true
+text = "X"
+
+[node name="FlipY" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+toggle_mode = true
+text = "Y"
+
+[node name="FlipZ" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+toggle_mode = true
+text = "Z"
+
+[node name="DumpTemplateButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "DUMP TEMPLATE"
