@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3 uid="uid://qwxweev3tdf8"]
+
+[ext_resource type="Script" uid="uid://dkaufhlxrp25m" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/dna_sequence_text_edit.gd" id="1_0520e"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0520e"]
+content_margin_left = 6.0
+content_margin_top = 2.0
+content_margin_right = 6.0
+content_margin_bottom = 2.0
+bg_color = Color(0.862745, 0.0784314, 0.235294, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="DnaSequenceTextEdit" type="TextEdit"]
+offset_right = 176.0
+offset_bottom = 77.0
+theme_override_constants/line_spacing = 18
+theme_override_font_sizes/font_size = 16
+emoji_menu_enabled = false
+wrap_mode = 1
+autowrap_mode = 1
+scroll_fit_content_height = true
+script = ExtResource("1_0520e")
+
+[node name="ClipboardErrorLabel" type="Label" parent="."]
+unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0)
+top_level = true
+layout_mode = 0
+offset_right = 120.0
+offset_bottom = 14.0
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_0520e")
+text = "Invalid clipboard content"
