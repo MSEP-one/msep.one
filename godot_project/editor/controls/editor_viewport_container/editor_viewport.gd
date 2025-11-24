@@ -16,6 +16,10 @@ const INPUT_EVENT_ACTIONS_WHITELIST: Array[StringName] = [
 	&"toggle_ring_menu"
 ]
 
+const INPUT_KEYS_WHITELIST: Array[Key] = [
+	KEY_ALT
+]
+
 ## Returns the WorkspaceContext associated to the active workspace
 ## Any node inside this viewport can access to it with the following code
 ## [code]
@@ -141,10 +145,13 @@ func forward_viewport_input(event: InputEvent) -> void:
 		return
 	if not _input_forwarding_enabled:
 		var is_whitelisted: bool = false
-		for action in INPUT_EVENT_ACTIONS_WHITELIST:
-			if event.is_action(action):
-				is_whitelisted = true
-				break
+		if event is InputEventKey and event.keycode in INPUT_KEYS_WHITELIST:
+			is_whitelisted = true
+		else:
+			for action in INPUT_EVENT_ACTIONS_WHITELIST:
+				if event.is_action(action):
+					is_whitelisted = true
+					break
 		if not is_whitelisted:
 			return
 	_viewport_input.forward_viewport_input(event, self, _get_structure_context())
