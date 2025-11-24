@@ -6,10 +6,15 @@ var DNA_BASES_OFFSET: float = 0.6
 const DNA_COMPLEMENT: Dictionary[String, String] = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
 
 class Parameters:
+	enum StrandPolicy {
+		A,
+		B,
+		DOUBLE
+	}
 	var bases_per_turn: float = 10.0
 	var rise_nanometers: float = 0.34
 	var dna_radius_nanometers: float = 1.0
-	var double_strands: bool = true
+	var strand_policy:= StrandPolicy.DOUBLE
 	var include_hydrogens: bool = true
 
 var _base_templates: Dictionary[String, PackedMolecule] = {}
@@ -26,10 +31,15 @@ func is_dev_tool_enabled() -> bool:
 ##   in_parameters: a DnaBuilder.Parameters object, or null for default
 func build_dna_structure(in_sequence: String, in_params := Parameters.new()) -> AtomicStructure:
 	var structure := AtomicStructure.create()
-	var strand_count: int = 2 if in_params.double_strands else 1
+	var STRANDS_TO_CREATE: Dictionary[Parameters.StrandPolicy, PackedInt32Array] = {
+		Parameters.StrandPolicy.A      : [0],
+		Parameters.StrandPolicy.B      : [1],
+		Parameters.StrandPolicy.DOUBLE : [0, 1],
+	}
+	var strands: PackedInt32Array = STRANDS_TO_CREATE[in_params.strand_policy]
 	
 	structure.start_edit()
-	for strand in strand_count:
+	for strand in strands:
 		_create_strand(structure, in_sequence.to_upper(), in_params, strand)
 	structure.end_edit()
 	

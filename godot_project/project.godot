@@ -121,6 +121,7 @@ import/blender/enabled=false
 [gui]
 
 theme/custom="res://theme/theme.tres"
+theme/default_font_multichannel_signed_distance_field=true
 
 [input]
 
