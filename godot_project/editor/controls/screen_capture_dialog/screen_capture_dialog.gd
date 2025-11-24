@@ -184,10 +184,12 @@ func generate_thumbnail() -> Image:
 	_update_preview_background()
 	# NOTE: setting visible to true can print an error if another modal window is open,
 	# but this still fulfills the purpose of making the viewport redraw
+	exclusive = false
 	visible = true
 	RenderingServer.force_draw(false)
 	var image: Image = _sub_viewport_preview.get_texture().get_image()
 	visible = false
+	exclusive = true
 	# Revert dialog options to original value
 	_sub_viewport_preview.size = _prev_options[0]
 	_prev_options[1].button_pressed = true

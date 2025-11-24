@@ -34,6 +34,8 @@ const FEATURE_FLAG_LMDB_STRUCTURE = &"feature_flags/use_lmdb_structure"
 const FEATURE_FLAGS_ALLOW_SCALE_WIDGETS = &"feature_flags/allow_scale_widgets"
 const FEATURE_FLAGS_ALLOW_CREATE_SMALL_MOLECULES_IN_NEW_GROUP = &"feature_flags/allow_create_small_molecules_in_new_group"
 const FEATURE_FLAGS_MSEP_ONLINE = &"feature_flags/msep_online"
+const FEATURE_FLAGS_DNA_BUILDER = &"feature_flags/dna_builder"
+const FEATURE_FLAGS_DNA_BUILDER_DEV_TOOL = &"feature_flags/dna_builder_dev_tool"
 
 var irritating_bg: Texture = preload("res://autoloads/feature_flag_manager/assets/seamless_floral_background.png")
 var slightly_less_irritating_bg: Texture = preload("res://autoloads/feature_flag_manager/assets/seamless_flamingo_background.png")

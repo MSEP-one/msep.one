@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://c0dwgaxyh2nrh"]
+
+[ext_resource type="Script" uid="uid://v2x27sgwcoer" path="res://autoloads/dna_builder/DnaBuilder.gd" id="1_w6oev"]
+[ext_resource type="PackedScene" uid="uid://bh7tqk06xo73r" path="res://autoloads/dna_builder/dev_tool/dna_builder_dev_tool.tscn" id="2_vb5el"]
+
+[node name="DnaBuilder" type="CanvasLayer"]
+script = ExtResource("1_w6oev")
+
+[node name="DnaBuilderDevTool" parent="." instance=ExtResource("2_vb5el")]

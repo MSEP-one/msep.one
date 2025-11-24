@@ -41,7 +41,7 @@ BusyIndicator="*res://autoloads/busy_indicator/busy_indicator.tscn"
 UserInterfaceBehavior="*res://autoloads/ui_behavior/ui_behavior.gd"
 InitialInfoScreen="*res://autoloads/initial_info_screen/initial_info_screen.tscn"
 UIBlocker="*res://autoloads/ui_blocker/ui_blocker.tscn"
-DnaBuilder="*res://utils/DnaBuilder.gd"
+DnaBuilder="*res://autoloads/dna_builder/DnaBuilder.tscn"
 
 [debug]
 
@@ -95,6 +95,8 @@ particle_emitters=true
 particle_emitters_show_unspawned_instanes=false
 particle_emitters_with_emit_count=false
 msep_online=false
+dna_builder=false
+dna_builder_dev_tool=false
 
 [file_customization]
 

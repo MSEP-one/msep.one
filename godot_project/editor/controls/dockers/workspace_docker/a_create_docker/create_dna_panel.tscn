@@ -1,0 +1,92 @@
+[gd_scene load_steps=3 format=3 uid="uid://dmnib7j4ygl8j"]
+
+[ext_resource type="Script" uid="uid://d3sfr458tscsd" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_dna_panel.gd" id="1_m000l"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_y5jvm"]
+
+[node name="CreateDnaPanel" type="MarginContainer"]
+offset_right = 462.0
+offset_bottom = 268.0
+script = ExtResource("1_m000l")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Sequence"
+
+[node name="SequenceTextEdit" type="TextEdit" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "ATGC"
+emoji_menu_enabled = false
+middle_mouse_paste_enabled = false
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+layout_mode = 2
+text = "DNA Radius"
+
+[node name="DnaRadiusSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("2_y5jvm")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.5
+max_value = 1.5
+step = 0.01
+value = 1.0
+allow_greater = true
+suffix = "nm"
+custom_arrow_step = 0.1
+
+[node name="DevToolLabel" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.498039, 0.313726, 1)
+text = "Bases Offset"
+
+[node name="OffsetSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("2_y5jvm")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "This is a DEV TOOL, should never be visible on release"
+min_value = 0.5
+max_value = 1.5
+step = 0.01
+value = 1.0
+allow_greater = true
+suffix = "nm"
+custom_arrow_step = 0.1
+
+[node name="DoubleStrandCheckButton" type="CheckButton" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Double Strand"
+
+[node name="IncludeHydrogensCheckButton" type="CheckButton" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Include Hydrogens"
+
+[node name="CreateButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CrystalButton"
+text = "Create Sequence as New Group"

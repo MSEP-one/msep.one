@@ -25,6 +25,7 @@ enum CreateModeType {
 	CREATE_ATOMS_AND_BONDS     = 0,
 	CREATE_SHAPES              = 1,
 	CREATE_FRAGMENT            = 2,
+	CREATE_DNA_CHAIN           = 6,
 	CREATE_VIRTUAL_MOTORS      = 3,
 	CREATE_PARTICLE_EMITTERS   = 4,
 	CREATE_ANCHORS_AND_SPRINGS = 5,
