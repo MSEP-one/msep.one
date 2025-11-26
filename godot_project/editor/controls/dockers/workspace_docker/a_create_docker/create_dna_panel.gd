@@ -39,16 +39,16 @@ func _notification(what: int) -> void:
 		_strand_double_button = %StrandDoubleButton as Button
 		_include_hydrogens_check_button = %IncludeHydrogensCheckButton as CheckButton
 		_create_button = %CreateButton as Button
-		var default_params := DnaBuilder.Parameters.new()
+		var default_params := DnaStructureParameters.new()
 		_dna_radius_spin_box_slider.value = default_params.dna_radius_nanometers
 		_bases_per_turn_spin_box_slider.value = default_params.bases_per_turn
 		_rise_nanometers_spin_box_slider.value = default_params.rise_nanometers
 		match default_params.strand_policy:
-			DnaBuilder.Parameters.StrandPolicy.A:
+			DnaStructure.StrandPolicy.A:
 				_strand_a_button.button_pressed = true
-			DnaBuilder.Parameters.StrandPolicy.B:
+			DnaStructure.StrandPolicy.B:
 				_strand_b_button.button_pressed = true
-			DnaBuilder.Parameters.StrandPolicy.DOUBLE:
+			DnaStructure.StrandPolicy.DOUBLE:
 				_strand_double_button.button_pressed = true
 		_include_hydrogens_check_button.button_pressed = default_params.include_hydrogens
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
@@ -65,18 +65,18 @@ func _on_feature_flag_toggled() -> void:
 
 
 func _on_create_button_pressed() -> void:
-	var params := DnaBuilder.Parameters.new()
+	var params := DnaStructureParameters.new()
 	params.dna_radius_nanometers = _dna_radius_spin_box_slider.value
 	params.bases_per_turn = _bases_per_turn_spin_box_slider.value
 	params.rise_nanometers = _rise_nanometers_spin_box_slider.value
 	var strand_button: Button = _strand_a_button.button_group.get_pressed_button()
 	match strand_button:
 		_strand_a_button:
-			params.strand_policy = DnaBuilder.Parameters.StrandPolicy.A
+			params.strand_policy = DnaStructure.StrandPolicy.A
 		_strand_b_button:
-			params.strand_policy = DnaBuilder.Parameters.StrandPolicy.B
+			params.strand_policy = DnaStructure.StrandPolicy.B
 		_strand_double_button:
-			params.strand_policy = DnaBuilder.Parameters.StrandPolicy.DOUBLE
+			params.strand_policy = DnaStructure.StrandPolicy.DOUBLE
 		_:
 			push_error("Invalid strand polocy_button: ",
 				"<null>" if strand_button == null else str(get_path_to(strand_button)))
