@@ -1,0 +1,298 @@
+class_name DnaStructure extends NanoStructure
+
+signal bases_count_changed(new_count: int)
+signal sequence_changed(new_sequence: String)
+signal path_changed()
+
+
+enum Strand {
+	A = 1,
+	B = 2,
+}
+const StrandPolicy = DnaStructureParameters.StrandPolicy
+
+@export var _curve: Curve3D
+@export var _twists_offset_radians: float
+@export var _sequence: String
+@export var _parameters: DnaStructureParameters
+
+var _base_transform_cache: Dictionary[int, Transform3D]
+
+var _is_being_edited: bool = false
+var _last_sequence: String = ""
+var _last_bases_cout: int = 0
+var _signal_queue_path_changed: bool = false
+
+
+static func create(out_parameters: DnaStructureParameters, in_sequence: String = "") -> DnaStructure:
+	var instance := DnaStructure.new()
+	instance._parameters = out_parameters.duplicate(true)
+	instance._sequence = in_sequence
+	return instance
+
+
+func _init() -> void:
+	if _curve == null:
+		# Newly created object
+		_curve = Curve3D.new()
+	_curve.changed.connect(_on_curve_changed)
+
+#region: Edit tracking
+func start_edit() -> void:
+	assert(not _is_being_edited, "I'm already being edited, make sure to call end_edit() when you are done with edits")
+	_is_being_edited = true
+	_last_bases_cout = _sequence.length()
+	_last_sequence = _sequence
+	return
+
+
+func is_being_edited() -> bool:
+	return _is_being_edited
+
+
+func end_edit() -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	_is_being_edited = false
+	
+	var has_changed: bool = (
+		_last_bases_cout != _sequence.length()
+		or _last_sequence != _sequence
+		)
+	if has_changed:
+		if _signal_queue_path_changed:
+			path_changed.emit()
+			_signal_queue_path_changed = false
+		# Emmit count changed signal before actual sequence
+		if _last_bases_cout != _sequence.length():
+			var count: = _sequence.length()
+			bases_count_changed.emit(count)
+			_last_bases_cout = _sequence.length()
+		if _last_sequence != _sequence:
+			sequence_changed.emit(_sequence)
+			_last_sequence = _sequence
+		emit_changed()
+#endregion: Edit tracking
+
+
+#region: Path
+func _on_curve_changed() -> void:
+	_signal_queue_path_changed = true
+	_base_transform_cache.clear()
+	_adjust_sequence_to_path_length()
+
+
+func insert_control_point(position: Vector3, in_index: int = -1) -> void:
+	assert(_is_being_edited)
+	_curve.add_point(position, Vector3.ZERO, Vector3.ZERO, in_index)
+	var index: int = in_index if in_index > -1 else _curve.point_count - 1
+	_recalculate_curve_in_out(index - 1)
+	_recalculate_curve_in_out(index)
+	_recalculate_curve_in_out(index + 1)
+
+
+func remove_control_point(in_index: int) -> void:
+	assert(_is_being_edited)
+	_curve.remove_point(in_index)
+	if in_index > 0:
+		_recalculate_curve_in_out(in_index - 1)
+	if in_index < _curve.point_count:
+		_recalculate_curve_in_out(in_index)
+
+
+func set_control_point_position(in_index: int, int_position: Vector3) -> void:
+	assert(_is_being_edited)
+	_curve.set_point_position(in_index, int_position)
+	_recalculate_curve_in_out(in_index - 1)
+	_recalculate_curve_in_out(in_index)
+	_recalculate_curve_in_out(in_index + 1)
+
+
+func get_path_length() -> float:
+	# This is obtained from the Path3D
+	return _curve.get_baked_length()
+
+
+func create_path3d() -> Path3D:
+	var path := Path3D.new()
+	path.curve = _curve
+	return path
+
+
+func get_base_transform(in_strand: Strand, in_base_index: int) -> Transform3D:
+	var cache_index: int = in_base_index * (-1 if in_strand == Strand.B else 1)
+	if not cache_index in _base_transform_cache:
+		var at_pos: float = in_base_index * _parameters.rise_nanometers
+		var y_dir := Vector3.ZERO
+		var z_dir := Vector3.ZERO
+		var path_pos: Vector3
+		var points: PackedVector3Array
+		if at_pos > _curve.get_baked_length():
+			# Sequence is longer than the curve, continue in a straight length
+			var last_pos: Vector3 = points[-1]
+			z_dir = points[-2].direction_to(last_pos)
+			var remaining_distance: float = at_pos - _curve.get_baked_length()
+			path_pos = last_pos + z_dir * remaining_distance
+			y_dir = _curve.get_baked_up_vectors()[-1]
+		else:
+			# position is along the curve
+			var advance: float = 0
+			var point_idx: int = 0
+			while advance < at_pos:
+				advance += points[point_idx].distance_to(points[point_idx + 1])
+				point_idx += 1
+			# TODO: Adjust path pos interpolating points[point_idx - 1] to points[point_idx]
+			path_pos = points[point_idx - 1]
+			z_dir = points[point_idx - 1].direction_to(points[point_idx])
+			y_dir = _curve.get_baked_up_vectors()[point_idx]
+		y_dir = y_dir.rotated(z_dir, get_base_twist_rad(in_strand, in_base_index))
+		var x_dir: Vector3 = y_dir.cross(z_dir)
+		var basis := Basis(x_dir, y_dir, z_dir)
+		var offset_dir: Vector3 = x_dir * (-1 if in_strand == Strand.B else 1)
+		var base_offset: float = _parameters.dna_radius_nanometers - DnaBuilder.DNA_BASES_OFFSET
+		var final_pos: Vector3 = path_pos + offset_dir * base_offset
+		_base_transform_cache[cache_index] = Transform3D(basis, final_pos)
+	return _base_transform_cache[cache_index]
+
+
+func get_backbone_transform(in_strand: Strand, in_base_index: int) -> Transform3D:
+	var transform: Transform3D = get_base_transform(in_strand, in_base_index)
+	var backbone_offset_dir: Vector3 = transform.basis.x
+	if in_strand == Strand.B:
+		backbone_offset_dir *= -1
+	transform.origin += backbone_offset_dir * DnaBuilder.DNA_BASES_OFFSET
+	return transform
+
+
+func get_base_twist_rad(in_strand: Strand, in_base_index: int) -> float:
+	var rad_per_base: float = deg_to_rad(360) / _parameters.bases_per_turn
+	var angle: float = (rad_per_base * in_base_index) + _twists_offset_radians
+	if in_strand == Strand.B:
+		angle += deg_to_rad(180)
+	return angle
+
+
+func _recalculate_curve_in_out(in_index: int) -> void:
+	if _curve.point_count < 2:
+		# Not enough points for this operation
+		return
+	if in_index < 0 or in_index >= _curve.point_count:
+		# Index out of range. no change needed.
+		return
+	if in_index == 0:
+		var p0: Vector3 = _curve.get_point_position(0)
+		var p1: Vector3 = _curve.get_point_position(1)
+		var dist: float = p0.distance_to(p1) / 4.0
+		var dir: Vector3 = p0.direction_to(p1)
+		_curve.set_point_out(0, dir * dist)
+	elif in_index >= _curve.point_count - 1:
+		var p1: Vector3 = _curve.get_point_position(in_index)
+		var p0: Vector3 = _curve.get_point_position(in_index - 1)
+		var dist: float = p0.distance_to(p1) / 4.0
+		var dir: Vector3 = p1.direction_to(p0)
+		_curve.set_point_in(0, dir * dist)
+	else:
+		var p1: Vector3 = _curve.get_point_position(in_index + 1)
+		var p0: Vector3 = _curve.get_point_position(in_index - 1)
+		var dist: float = p0.distance_to(p1) / 8.0
+		var dir: Vector3 = p0.direction_to(p1)
+		_curve.set_point_in(0, -dir * dist)
+		_curve.set_point_out(0, dir * dist)
+#endregion: Path
+
+
+#region: Sequence
+func set_sequence(in_sequence: String) -> void:
+	assert(_is_being_edited)
+	if _sequence != in_sequence:
+		_sequence = in_sequence
+		_adjust_sequence_to_path_length()
+
+
+func get_sequence() -> String:
+	return _sequence
+
+
+func _adjust_sequence_to_path_length() -> void:
+	var expected_sequence_length: int = floori(get_path_length() / _parameters.rise_nanometers)
+	if expected_sequence_length == _sequence.length():
+		return
+	# Remove only X'es at the end of the sequence
+	var modified_sequence: String = _sequence.rstrip("X")
+	if modified_sequence.length() < expected_sequence_length:
+		modified_sequence += "X".repeat(expected_sequence_length - modified_sequence.length())
+	# IMPORTANT: This comparison avoids unnecesary COW changes to _sequence
+	if modified_sequence != _sequence:
+		_sequence = modified_sequence
+#endregion: Sequence
+
+func get_type() -> StringName:
+	return &"DnaStructure"
+
+
+func get_readable_type() -> String:
+	return "DNA Structure"
+
+
+func get_tooltip_text() -> String:
+	var length: float = _sequence.length()
+	var sufix: String = "bp" if _parameters.strand_policy == StrandPolicy.DOUBLE else "b"
+	if length >= 1000000:
+		length = length / 1000000
+		sufix = "M" + sufix
+	elif length > 1000:
+		length = length / 1000
+		sufix = "K" + sufix
+	return "%.3f %s" % [length, sufix]
+
+
+func get_icon() -> Texture2D:
+	return null
+
+
+func get_aabb() -> AABB:
+	if _curve.point_count == 0:
+		return AABB()
+	var aabb := AABB(_curve.get_point_position(0), Vector3.ZERO)
+	for p in range(1, _curve.point_count):
+		aabb = aabb.expand(_curve.get_point_position(0))
+	aabb = aabb.grow(_parameters.dna_radius_nanometers)
+	return aabb
+
+
+func create_state_snapshot() -> Dictionary:
+	var state_snapshot: Dictionary = super.create_state_snapshot()
+	state_snapshot["_curve"] = _create_curve_snapshot()
+	state_snapshot["_twists_offset_radians"] = _twists_offset_radians
+	state_snapshot["_sequence"] = _sequence
+	state_snapshot["_parameters"] = _parameters.create_state_snapshot()
+	state_snapshot["_base_transform_cache"] = _base_transform_cache.duplicate()
+	return state_snapshot
+
+
+func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
+	_set_curve_snapshot(in_state_snapshot["_curve"])
+	_twists_offset_radians = in_state_snapshot["_twists_offset_radians"]
+	_sequence = in_state_snapshot["_sequence"]
+	_parameters.apply_state_snapshot(in_state_snapshot["_parameters"])
+	_base_transform_cache = in_state_snapshot["_base_transform_cache"].duplicate()
+	super.apply_state_snapshot(in_state_snapshot)
+
+
+func _create_curve_snapshot() -> PackedVector3Array:
+	var snapshot: PackedVector3Array = []
+	for p in _curve.point_count:
+		snapshot.append(_curve.get_point_position(p))
+		snapshot.append(_curve.get_point_in(p))
+		snapshot.append(_curve.get_point_out(p))
+	return snapshot
+
+func _set_curve_snapshot(in_curve_snapshot: PackedVector3Array) -> void:
+	_curve.set_block_signals(true)
+	assert(in_curve_snapshot.size() % 3 == 0, "Invalid size of curve snapshot, expected 3 vectors per curve point")
+	_curve.point_count = roundi(in_curve_snapshot.size() / 3.0)
+	for p in range(0, in_curve_snapshot.size(), 3):
+		var idx: int = roundi(p / 3.0)
+		_curve.set_point_position(idx, in_curve_snapshot[p])
+		_curve.set_point_in(idx, in_curve_snapshot[p + 1])
+		_curve.set_point_out(idx, in_curve_snapshot[p + 2])
+	_curve.set_block_signals(false)
