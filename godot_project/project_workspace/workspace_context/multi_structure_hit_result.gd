@@ -9,12 +9,17 @@ enum HitType {
 	HIT_EMITTER,
 	HIT_ANCHOR,
 	HIT_SPRING,
+	HIT_DNA_PATH,
+	HIT_DNA_CONTROL_POINT,
 }
 
 var closest_hit_structure_context: StructureContext
 var closest_hit_atom_id: int
 var closest_hit_bond_id: int
 var closest_hit_spring_id: int
+var closest_hit_dna_control_point_id: int
+var closest_hit_dna_progress: float
+var closest_hit_dna_pos: Vector3
 var hit_type: HitType
 
 var _representation_settings: RepresentationSettings
@@ -33,12 +38,15 @@ func _init(in_camera: Camera3D, in_screen_position: Vector2, in_query_structures
 	var atom_sqr_dst_candidate: float = INF
 	var bond_sqr_dst_candidate: float = INF
 	var shape_sqr_dst_candidate: float = INF
+	var dna_sqrd_distance_candidate: float = INF
 	var spring_sqr_dst_candidate: float = INF
 	var virtual_object_sqr_dst_candidate: float = INF
 	var closest_atom_context: StructureContext = null
 	var closest_bond_context: StructureContext = null
 	var closest_spring_context: StructureContext = null
 	var closest_shape_context: StructureContext = null
+	var closest_dna_context: StructureContext = null
+	var closest_dna_cast_result: Dictionary
 	var closest_virtual_object_context: StructureContext = null
 	
 	# collect candidates
@@ -70,6 +78,17 @@ func _init(in_camera: Camera3D, in_screen_position: Vector2, in_query_structures
 			closest_spring_context = context
 			closest_hit_spring_id = collision_result.spring_id
 		
+		# dna
+		var dna_path_cast_result: Dictionary = _calculate_dna_path_sqrd_distance_to_camera(in_camera, in_screen_position, context)
+		var distance_sqrd_to_closest_point: float = dna_path_cast_result.distance_sqrd_to_closest_point
+		var distance_sqrd_to_closest_control_point: float = dna_path_cast_result.distance_sqrd_to_closest_control_point
+		var min_distance_sqrd_to_dna_path: float = min(distance_sqrd_to_closest_control_point, distance_sqrd_to_closest_point)
+		if min_distance_sqrd_to_dna_path < dna_sqrd_distance_candidate:
+			dna_sqrd_distance_candidate = min_distance_sqrd_to_dna_path
+			closest_dna_context = context
+			closest_dna_cast_result = dna_path_cast_result
+		
+		
 		# shape
 		var current_shape_sqr_dst: float = _calculate_shape_sqr_distance_to_camera(in_camera, in_screen_position, context)
 		if current_shape_sqr_dst < shape_sqr_dst_candidate:
@@ -83,14 +102,15 @@ func _init(in_camera: Camera3D, in_screen_position: Vector2, in_query_structures
 			closest_virtual_object_context = context
 	
 	# compare each candidate and promote a winner
-	var is_atom_the_closest: bool = atom_sqr_dst_candidate < min(spring_sqr_dst_candidate, bond_sqr_dst_candidate, shape_sqr_dst_candidate, virtual_object_sqr_dst_candidate)
-	var is_bond_the_closest: bool = bond_sqr_dst_candidate < min(spring_sqr_dst_candidate, atom_sqr_dst_candidate, shape_sqr_dst_candidate, virtual_object_sqr_dst_candidate)
-	var is_spring_the_closest: bool = spring_sqr_dst_candidate < min(atom_sqr_dst_candidate, bond_sqr_dst_candidate, shape_sqr_dst_candidate, virtual_object_sqr_dst_candidate)
-	var is_shape_the_closest: bool = shape_sqr_dst_candidate < min(atom_sqr_dst_candidate, bond_sqr_dst_candidate, virtual_object_sqr_dst_candidate)
-	var is_virtual_object_the_closest: bool = virtual_object_sqr_dst_candidate < min(atom_sqr_dst_candidate, bond_sqr_dst_candidate, shape_sqr_dst_candidate)
+	var is_atom_the_closest: bool = atom_sqr_dst_candidate < min(spring_sqr_dst_candidate, bond_sqr_dst_candidate, shape_sqr_dst_candidate, virtual_object_sqr_dst_candidate, dna_sqrd_distance_candidate)
+	var is_bond_the_closest: bool = bond_sqr_dst_candidate < min(spring_sqr_dst_candidate, atom_sqr_dst_candidate, shape_sqr_dst_candidate, virtual_object_sqr_dst_candidate, dna_sqrd_distance_candidate)
+	var is_spring_the_closest: bool = spring_sqr_dst_candidate < min(atom_sqr_dst_candidate, bond_sqr_dst_candidate, shape_sqr_dst_candidate, virtual_object_sqr_dst_candidate, dna_sqrd_distance_candidate)
+	var is_shape_the_closest: bool = shape_sqr_dst_candidate < min(atom_sqr_dst_candidate, bond_sqr_dst_candidate, virtual_object_sqr_dst_candidate, dna_sqrd_distance_candidate)
+	var is_virtual_object_the_closest: bool = virtual_object_sqr_dst_candidate < min(atom_sqr_dst_candidate, bond_sqr_dst_candidate, shape_sqr_dst_candidate, dna_sqrd_distance_candidate)
+	var is_dna_the_closest: bool = dna_sqrd_distance_candidate < min(atom_sqr_dst_candidate, bond_sqr_dst_candidate, spring_sqr_dst_candidate, shape_sqr_dst_candidate, virtual_object_sqr_dst_candidate)
 	var are_undetermined := atom_sqr_dst_candidate == INF and bond_sqr_dst_candidate == INF and \
 			shape_sqr_dst_candidate == INF and virtual_object_sqr_dst_candidate == INF and \
-			spring_sqr_dst_candidate == INF
+			spring_sqr_dst_candidate == INF and dna_sqrd_distance_candidate == INF
 	if are_undetermined:
 		hit_type = HitType.HIT_NOTHING
 		return
@@ -106,6 +126,16 @@ func _init(in_camera: Camera3D, in_screen_position: Vector2, in_query_structures
 	if is_shape_the_closest:
 		hit_type = HitType.HIT_SHAPE
 		closest_hit_structure_context = closest_shape_context
+	if is_dna_the_closest:
+		closest_hit_structure_context = closest_dna_context
+		if closest_dna_cast_result.closest_control_point != -1:
+			hit_type = HitType.HIT_DNA_CONTROL_POINT
+			closest_hit_dna_control_point_id = closest_dna_cast_result.closest_control_point
+			closest_hit_dna_pos = closest_dna_context.nano_structure.get_control_point_position(closest_hit_dna_control_point_id)
+		else:
+			hit_type = HitType.HIT_DNA_PATH
+			closest_hit_dna_progress = closest_dna_cast_result.path_progress
+			closest_hit_dna_pos = closest_dna_cast_result.path_pos
 	if is_virtual_object_the_closest:
 		if closest_virtual_object_context.nano_structure is NanoVirtualMotor:
 			hit_type = HitType.HIT_MOTOR
@@ -148,6 +178,57 @@ func _calculate_spring_sqr_distance_to_camera(in_struct_context: StructureContex
 	var anchor_pos: Vector3 = nano_structure.spring_get_anchor_position(in_spring_id, in_struct_context)
 	var spring_center_pos: Vector3 = (atom_pos + anchor_pos) / 2.0
 	return in_camera_pos.distance_squared_to(spring_center_pos)
+
+
+func _calculate_dna_path_sqrd_distance_to_camera(in_camera: Camera3D, in_screen_pos: Vector2,
+			in_context: StructureContext) -> Dictionary:
+	const MAX_DISTANCE_IN_PIXELS_SQRD_TO_CONTROL_POINT: float = 10*10
+	const MAX_DISTANCE_IN_PIXELS_SQRD_TO_PATH: float = 5*5
+	var result: Dictionary = {
+		path_progress = 0.0,
+		path_pos = Vector3(),
+		distance_sqrd_to_closest_point = INF,
+		closest_control_point = -1,
+		distance_sqrd_to_closest_control_point = INF,
+	}
+	if _is_simulating:
+		# path cannot be querried during simulation
+		return result
+	var dna_structure: DnaStructure = in_context.nano_structure as DnaStructure
+	if dna_structure == null:
+		# not a dna structure
+		return result
+	var path: PackedVector3Array = dna_structure.get_baked_path()
+	var ray_from: Vector3 = in_camera.project_position(in_screen_pos, in_camera.near)
+	var ray_to: Vector3 = in_camera.project_position(in_screen_pos, in_camera.far)
+	var accum_path_progress: float = 0
+	for p in range(1, path.size()):
+		var p0: Vector3 = path[p-1]
+		var p1: Vector3 = path[p]
+		var closest_segment: PackedVector3Array = Geometry3D.get_closest_points_between_segments(p0, p1, ray_from, ray_to)
+		var r0: Vector3 = closest_segment[0]
+		var r1: Vector3 = closest_segment[1]
+		var screen_path_point: Vector2 = in_camera.unproject_position(r0)
+		if screen_path_point.distance_squared_to(in_screen_pos) > MAX_DISTANCE_IN_PIXELS_SQRD_TO_PATH:
+			accum_path_progress += p0.distance_to(p1)
+			continue
+		var dist_squared: float = r0.distance_squared_to(r1)
+		if dist_squared < result.distance_sqrd_to_closest_point:
+			result.distance_sqrd_to_closest_point = dist_squared
+			result.path_progress = accum_path_progress + p0.distance_to(r0)
+			result.path_pos = r0
+		accum_path_progress += p0.distance_to(p1)
+	for p in dna_structure.get_control_point_count():
+		var point: Vector3 = dna_structure.get_control_point_position(p)
+		var screen_control_point: Vector2 = in_camera.unproject_position(point)
+		if screen_control_point.distance_squared_to(in_screen_pos) > MAX_DISTANCE_IN_PIXELS_SQRD_TO_CONTROL_POINT:
+			continue
+		var closest_point_to_ray: Vector3 = Geometry3D.get_closest_point_to_segment(point, ray_from,ray_to)
+		var dist_squared: float = point.distance_squared_to(closest_point_to_ray)
+		if dist_squared < result.distance_sqrd_to_closest_control_point:
+			result.distance_sqrd_to_closest_control_point = dist_squared
+			result.closest_control_point = p
+	return result
 
 
 func _calculate_shape_sqr_distance_to_camera(in_camera: Camera3D, in_screen_pos: Vector2,

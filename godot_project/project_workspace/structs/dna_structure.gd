@@ -11,6 +11,7 @@ enum Strand {
 	B = 2,
 }
 const StrandPolicy = DnaStructureParameters.StrandPolicy
+const INVALID_CONTROL_POINT_IDX: int = -1
 
 @export var _curve: Curve3D
 @export var _twists_offset_radians: float
@@ -25,7 +26,7 @@ var _last_sequence: String = ""
 var _last_bases_cout: int = 0
 var _signal_queue_path_changed: bool = false
 var _signal_queue_parameters_changed: bool = false
-
+var _baked_path: PackedVector3Array = []
 
 static func create(out_parameters: DnaStructureParameters, in_sequence: String = "") -> DnaStructure:
 	var instance := DnaStructure.new()
@@ -45,6 +46,19 @@ func _init() -> void:
 
 func grab_curve(out_path3d: Path3D) -> void:
 	out_path3d.curve = _curve
+
+
+func get_baked_path() -> PackedVector3Array:
+	if _baked_path.is_empty() or _signal_queue_path_changed:
+		_baked_path = _curve.get_baked_points()
+		var total_length: float = get_rise_nanometers() * _sequence.length()
+		if get_path_length() < total_length:
+			var last_pos: Vector3 = _baked_path[-1]
+			var z_dir: Vector3 = _baked_path[-2].direction_to(last_pos)
+			var remaining_distance: float = total_length - get_path_length()
+			var final_pos: Vector3 = last_pos + z_dir * remaining_distance
+			_baked_path.append(final_pos)
+	return _baked_path.duplicate()
 
 
 #region: Edit tracking
@@ -75,6 +89,7 @@ func end_edit() -> void:
 	if has_changed:
 		if _signal_queue_path_changed:
 			path_changed.emit()
+			_baked_path.clear()
 			_signal_queue_path_changed = false
 		# Emmit count changed signal before actual sequence
 		if _last_bases_cout != _sequence.length():
@@ -187,6 +202,14 @@ func set_control_point_position(in_index: int, int_position: Vector3) -> void:
 	_recalculate_curve_in_out(in_index + 1)
 
 
+func get_control_point_count() -> int:
+	return _curve.point_count
+
+
+func get_control_point_position(in_index: int) -> Vector3:
+	return _curve.get_point_position(in_index)
+
+
 func get_path_length() -> float:
 	# This is obtained from the Path3D
 	return _curve.get_baked_length()
@@ -196,6 +219,7 @@ func create_path3d() -> Path3D:
 	var path := Path3D.new()
 	path.curve = _curve
 	return path
+
 
 
 func get_base_transform(in_strand: Strand, in_base_index: int) -> Transform3D:
@@ -261,22 +285,22 @@ func _recalculate_curve_in_out(in_index: int) -> void:
 	if in_index == 0:
 		var p0: Vector3 = _curve.get_point_position(0)
 		var p1: Vector3 = _curve.get_point_position(1)
-		var dist: float = p0.distance_to(p1) / 4.0
+		var dist: float = p0.distance_to(p1) / 2.0
 		var dir: Vector3 = p0.direction_to(p1)
-		_curve.set_point_out(0, dir * dist)
+		_curve.set_point_out(in_index, dir * dist)
 	elif in_index >= _curve.point_count - 1:
 		var p1: Vector3 = _curve.get_point_position(in_index)
 		var p0: Vector3 = _curve.get_point_position(in_index - 1)
-		var dist: float = p0.distance_to(p1) / 4.0
+		var dist: float = p0.distance_to(p1) / 2.0
 		var dir: Vector3 = p1.direction_to(p0)
-		_curve.set_point_in(0, dir * dist)
+		_curve.set_point_in(in_index, dir * dist)
 	else:
 		var p1: Vector3 = _curve.get_point_position(in_index + 1)
 		var p0: Vector3 = _curve.get_point_position(in_index - 1)
-		var dist: float = p0.distance_to(p1) / 8.0
+		var dist: float = p0.distance_to(p1) / 4.0
 		var dir: Vector3 = p0.direction_to(p1)
-		_curve.set_point_in(0, -dir * dist)
-		_curve.set_point_out(0, dir * dist)
+		_curve.set_point_in(in_index, -dir * dist)
+		_curve.set_point_out(in_index, dir * dist)
 #endregion: Path
 
 
@@ -322,7 +346,10 @@ func get_tooltip_text() -> String:
 	elif length > 1000:
 		length = length / 1000
 		sufix = "K" + sufix
-	return "%.3f %s" % [length, sufix]
+	if sufix in ["bp", "b"]:
+		return "%.0f %s" % [length, sufix]
+	else:
+		return "%.3f %s" % [length, sufix]
 
 
 func get_icon() -> Texture2D:

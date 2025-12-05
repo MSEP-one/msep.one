@@ -19,3 +19,12 @@ transform = Transform3D(-4.3711e-08, -3.82132e-15, 0.999988, 8.74219e-08, -0.999
 progress = 15.4886
 use_model_front = true
 loop = false
+
+[node name="PathHoverRepresentation" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
