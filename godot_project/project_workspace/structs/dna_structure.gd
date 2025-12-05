@@ -3,6 +3,7 @@ class_name DnaStructure extends NanoStructure
 signal bases_count_changed(new_count: int)
 signal sequence_changed(new_sequence: String)
 signal path_changed()
+signal parameters_changed()
 
 
 enum Strand {
@@ -17,11 +18,13 @@ const StrandPolicy = DnaStructureParameters.StrandPolicy
 @export var _parameters: DnaStructureParameters
 
 var _base_transform_cache: Dictionary[int, Transform3D]
+var _atoms_count_cache: int = -1
 
 var _is_being_edited: bool = false
 var _last_sequence: String = ""
 var _last_bases_cout: int = 0
 var _signal_queue_path_changed: bool = false
+var _signal_queue_parameters_changed: bool = false
 
 
 static func create(out_parameters: DnaStructureParameters, in_sequence: String = "") -> DnaStructure:
@@ -35,7 +38,14 @@ func _init() -> void:
 	if _curve == null:
 		# Newly created object
 		_curve = Curve3D.new()
+	if _parameters == null:
+		_parameters = DnaStructureParameters.new()
 	_curve.changed.connect(_on_curve_changed)
+
+
+func grab_curve(out_path3d: Path3D) -> void:
+	out_path3d.curve = _curve
+
 
 #region: Edit tracking
 func start_edit() -> void:
@@ -43,6 +53,7 @@ func start_edit() -> void:
 	_is_being_edited = true
 	_last_bases_cout = _sequence.length()
 	_last_sequence = _sequence
+	_atoms_count_cache = -1
 	return
 
 
@@ -53,10 +64,13 @@ func is_being_edited() -> bool:
 func end_edit() -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
 	_is_being_edited = false
+	_atoms_count_cache = -1
 	
 	var has_changed: bool = (
 		_last_bases_cout != _sequence.length()
 		or _last_sequence != _sequence
+		or _signal_queue_path_changed
+		or _signal_queue_parameters_changed
 		)
 	if has_changed:
 		if _signal_queue_path_changed:
@@ -70,8 +84,74 @@ func end_edit() -> void:
 		if _last_sequence != _sequence:
 			sequence_changed.emit(_sequence)
 			_last_sequence = _sequence
+		if _signal_queue_parameters_changed:
+			parameters_changed.emit()
+			_signal_queue_parameters_changed = false
 		emit_changed()
 #endregion: Edit tracking
+
+
+#region: Parameters
+func set_bases_per_turn(in_bases_per_turn: float) -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	_signal_queue_parameters_changed = true
+	_parameters.bases_per_turn = in_bases_per_turn
+
+
+func get_bases_per_turn() -> float:
+	return _parameters.bases_per_turn
+
+
+func set_rise_nanometers(in_rise_nanometers: float) -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	_signal_queue_parameters_changed = true
+	_parameters.rise_nanometers = in_rise_nanometers
+	_adjust_sequence_to_path_length()
+
+
+func get_rise_nanometers() -> float:
+	return _parameters.rise_nanometers
+
+
+func set_dna_radius_nanometers(in_radius_nanometers: float) -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	_signal_queue_parameters_changed = true
+	_parameters.dna_radius_nanometers = in_radius_nanometers
+
+
+func get_dna_radius_nanometers() -> float:
+	return _parameters.dna_radius_nanometers
+
+
+func set_initial_twist_rad(in_initial_twist_rad: float) -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	_signal_queue_parameters_changed = true
+	_parameters.initial_twist_rad = in_initial_twist_rad
+
+
+func get_initial_twist_rad() -> float:
+	return _parameters.initial_twist_rad
+
+
+func set_strand_policy(in_strand_policy: StrandPolicy) -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	_signal_queue_parameters_changed = true
+	_parameters.strand_policy = in_strand_policy
+
+
+func get_strand_policy() -> StrandPolicy:
+	return _parameters.strand_policy
+
+
+func set_include_hydrogens(in_include_hydrogens: bool) -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	_signal_queue_parameters_changed = true
+	_parameters.include_hydrogens = in_include_hydrogens
+
+
+func get_include_hydrogens() -> bool:
+	return _parameters.include_hydrogens
+#endregion
 
 
 #region: Path
@@ -258,9 +338,27 @@ func get_aabb() -> AABB:
 	aabb = aabb.grow(_parameters.dna_radius_nanometers)
 	return aabb
 
+#region: AtomicStructure API
+func get_valid_atoms_count() -> int:
+	if _atoms_count_cache == -1:
+		var base_count: Dictionary[String, int] = {
+			"A" : DnaBuilder.get_template_atom_count("A", _parameters.include_hydrogens),
+			"T" : DnaBuilder.get_template_atom_count("T", _parameters.include_hydrogens),
+			"G" : DnaBuilder.get_template_atom_count("G", _parameters.include_hydrogens),
+			"C" : DnaBuilder.get_template_atom_count("C", _parameters.include_hydrogens),
+			"X" : 0,
+			"B" : DnaBuilder.get_template_atom_count("backbone0", _parameters.include_hydrogens)
+		}
+		_atoms_count_cache = base_count["B"] * _sequence.length()
+		for base in _sequence:
+			_atoms_count_cache += base_count[base]
+	return _atoms_count_cache
+#endregion: AtomicStructure API
+
 
 func create_state_snapshot() -> Dictionary:
 	var state_snapshot: Dictionary = super.create_state_snapshot()
+	state_snapshot["script.resource_path"] = get_script().resource_path
 	state_snapshot["_curve"] = _create_curve_snapshot()
 	state_snapshot["_twists_offset_radians"] = _twists_offset_radians
 	state_snapshot["_sequence"] = _sequence

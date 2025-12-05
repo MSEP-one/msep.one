@@ -325,6 +325,8 @@ func add_nano_structure(in_structure: NanoStructure) -> void:
 		else:
 			in_structure.disable_hydrogens_visibility()
 	
+	if in_structure is DnaStructure:
+		rendering.build_dna_rendering(in_structure)
 	if in_structure is NanoShape:
 		rendering.build_reference_shape_rendering(in_structure)
 	if in_structure is NanoVirtualMotor:
@@ -730,6 +732,11 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.atoms_locking_changed.connect(_on_nano_structure_atoms_locking_changed.bind(structure_context.get_int_guid()))
 		if not structure_context.nano_structure.visibility_changed.is_connected(_on_nano_structure_visibility_changed):
 			structure_context.nano_structure.visibility_changed.connect(_on_nano_structure_visibility_changed.bind(structure_context.get_int_guid()))
+		if structure_context.nano_structure is DnaStructure:
+			structure_context.nano_structure.bases_count_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.sequence_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.parameters_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is NanoShape:
 			structure_context.nano_structure.shape_properties_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure.is_virtual_object():
