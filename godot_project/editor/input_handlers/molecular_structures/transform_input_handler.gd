@@ -120,6 +120,15 @@ func _init_initial_positions_and_determine_center() -> Vector3:
 			selection_size += 1
 			center_pos += context.nano_structure.get_position()
 			_structure_context_2_initial_object_transforms[context.get_int_guid()] = Transform3D(Basis(), context.nano_structure.get_position())
+		elif context.nano_structure is DnaStructure:
+			if context.has_selection():
+				var control_points: Array = range(context.nano_structure.get_control_point_count())
+				# TODO: implement this when api exists
+				#if _workspace_context.get_edited_dna_spline() == context.nano_structure:
+					#control_points = get_selected_dna_spline_countrol_points():
+				selection_size += control_points.size()
+				for p: int in control_points:
+					center_pos += context.nano_structure.get_control_point_position(p)
 	
 	assert(selection_size > 0, "selection is empty, gizmo should be disabled and this function should not be called")
 	return center_pos / selection_size
@@ -413,6 +422,11 @@ func _force_gizmo_update() -> void:
 			elif context.is_anchor_selected():
 				selection_size += 1
 				# Anchors does not trigger `has_transformable_objects_selected = true` because they dont rotate
+			# TODO: implement this when api exists
+			#elif _workspace_context.get_edited_dna_spline() == context.nano_structure:
+				#selection_size += context.get_selected_countrol_point_count
+			elif context.is_dna_structure_fully_selected():
+				selection_size += 1
 		
 		if selection_size == 0:
 			# Selection cannot be transformed

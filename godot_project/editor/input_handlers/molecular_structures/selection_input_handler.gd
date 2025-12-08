@@ -119,6 +119,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 			# Virtual Anchor and/or Spring is being created, avoid changing selection
 			return false
 		var input_consumed: bool = _select_connected_selection_logic(in_camera, in_input_event.position, editable_structures, false)
+		# TODO: handle start editing dna spline here
 		if input_consumed == false:
 			input_consumed = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, false)
 		if input_consumed:

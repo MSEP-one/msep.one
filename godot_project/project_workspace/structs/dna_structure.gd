@@ -51,7 +51,7 @@ func grab_curve(out_path3d: Path3D) -> void:
 func get_baked_path() -> PackedVector3Array:
 	if _baked_path.is_empty() or _signal_queue_path_changed:
 		_baked_path = _curve.get_baked_points()
-		var total_length: float = get_rise_nanometers() * _sequence.length()
+		var total_length: float = get_rise_nanometers() * (_sequence.length() - 1)
 		if get_path_length() < total_length:
 			var last_pos: Vector3 = _baked_path[-1]
 			var z_dir: Vector3 = _baked_path[-2].direction_to(last_pos)
@@ -364,6 +364,15 @@ func get_aabb() -> AABB:
 		aabb = aabb.expand(_curve.get_point_position(0))
 	aabb = aabb.grow(_parameters.dna_radius_nanometers)
 	return aabb
+
+
+func is_spline_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> bool:
+	for p: int in get_control_point_count():
+		var point_2d: Vector2 = in_camera.unproject_position(get_control_point_position(p))
+		if not screen_rect.abs().has_point(point_2d):
+			return false
+	return true
+
 
 #region: AtomicStructure API
 func get_valid_atoms_count() -> int:
