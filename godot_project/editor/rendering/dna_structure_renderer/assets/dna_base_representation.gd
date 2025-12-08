@@ -103,6 +103,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["base_offset"] = base_offset
 	snapshot["base_twist"] = base_twist
 	snapshot["global_transform"] = global_transform
+	snapshot["origin.rotation"] = origin.rotation
 	var child_visibilities: Dictionary[NodePath, bool] = {}
 	for node: Node3D in a_strand.values():
 		child_visibilities[get_path_to(node)] = node.visible
@@ -119,6 +120,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	base_offset = in_state_snapshot["base_offset"]
 	base_twist = in_state_snapshot["base_twist"]
 	global_transform = in_state_snapshot["global_transform"]
+	origin.rotation = in_state_snapshot["origin.rotation"]
 	var child_visibilities: Dictionary[NodePath, bool] = in_state_snapshot["child_visibilities"]
 	for path: NodePath in child_visibilities.keys():
 		get_node(path).visible = child_visibilities[path]

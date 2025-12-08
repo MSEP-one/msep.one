@@ -88,7 +88,7 @@ func _on_create_button_pressed() -> void:
 	dna.set_structure_name("DNA Chain%d" % _workspace_context.workspace.get_nmb_of_structures())
 	var dna_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
 	var up_dir: Vector3 = _workspace_context.get_editor_viewport().get_camera_3d().global_transform.basis.y
-	var chain_length: float = params.rise_nanometers * _dna_sequence_text_edit.text.length()
+	var chain_length: float = params.rise_nanometers * (_dna_sequence_text_edit.text.length() - 1)
 	dna.start_edit()
 	dna.insert_control_point(dna_pos)
 	dna.insert_control_point(dna_pos + up_dir * chain_length)

@@ -719,6 +719,7 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 		_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
 		structure_context.selection_changed.connect(_on_structure_context_selection_changed.bind(structure_context.get_int_guid()))
 		structure_context.virtual_object_selection_changed.connect(_on_structure_context_virtual_object_selection_changed.bind(structure_context.get_int_guid()))
+		structure_context.dna_spline_selection_changed.connect(_on_structure_context_dna_spline_selection_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is AtomicStructure \
 				and not structure_context.nano_structure.atoms_moved.is_connected(_on_structure_context_atoms_moved):
 			structure_context.nano_structure.atoms_moved.connect(_on_structure_context_atoms_moved.bind(structure_context.get_int_guid()))
@@ -835,6 +836,14 @@ func _on_structure_context_virtual_object_selection_changed(_in_selected: bool, 
 		_selection_modified_structure_contexts[in_structure_context_id] = true
 
 
+func _on_structure_context_dna_spline_selection_changed(_in_selected: bool, in_structure_context_id: int) -> void:
+	if not workspace.has_structure_with_int_guid(in_structure_context_id):
+		return
+	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
+	if is_structure_context_valid(structure_context):
+		_selection_modified_structure_contexts[in_structure_context_id] = true
+
+
 func _check_for_empty_workspace() -> void:
 	if create_object_parameters.get_create_mode_enabled() == false and get_visible_structure_contexts().size() == 0:
 		create_object_parameters.set_create_mode_enabled(true)
@@ -891,6 +900,7 @@ func get_visible_structure_contexts(in_include_empty_structures: bool = false) -
 	for context: StructureContext in _structure_contexts.values():
 		if context.nano_structure.get_visible():
 			var structure_has_data: bool = context.nano_structure.is_virtual_object() \
+					or context.nano_structure is DnaStructure \
 					or context.nano_structure.get_valid_atoms_count() > 0
 			if structure_has_data or in_include_empty_structures:
 				result.push_back(context)
