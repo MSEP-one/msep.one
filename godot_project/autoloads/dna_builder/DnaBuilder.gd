@@ -36,8 +36,8 @@ func build_dna_structure(in_sequence: String, in_params := DnaStructureParameter
 
 
 func _create_strand(structure: AtomicStructure, in_sequence: String, in_params: DnaStructureParameters, in_strand: int) -> void:
-	var chain_lenght: float = in_sequence.length() * in_params.rise_nanometers
-	var z_offset: float = -chain_lenght / 2.0 # To center the chain around origin
+	var chain_length: float = in_sequence.length() * in_params.rise_nanometers
+	var z_offset: float = -chain_length / 2.0 # To center the chain around origin
 	var previous_backbone_atom_id: int = -1
 	var next_backbone_atom_id: int = -1
 	for i: int in in_sequence.length():

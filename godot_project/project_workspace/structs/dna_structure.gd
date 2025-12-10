@@ -23,7 +23,7 @@ var _atoms_count_cache: int = -1
 
 var _is_being_edited: bool = false
 var _last_sequence: String = ""
-var _last_bases_cout: int = 0
+var _last_bases_count: int = 0
 var _signal_queue_path_changed: bool = false
 var _signal_queue_parameters_changed: bool = false
 var _baked_path: PackedVector3Array = []
@@ -48,16 +48,23 @@ func grab_curve(out_path3d: Path3D) -> void:
 	out_path3d.curve = _curve
 
 
-func get_baked_path() -> PackedVector3Array:
-	if _baked_path.is_empty() or _signal_queue_path_changed:
-		_baked_path = _curve.get_baked_points()
+## Get a list of points representing the path
+## in_path_override can be provided to get an alternative path while editing the spline of this structure
+func get_baked_path(in_path_override: Curve3D = null) -> PackedVector3Array:
+	var curve: Curve3D = _curve if in_path_override == null else in_path_override
+	if _baked_path.is_empty() or _signal_queue_path_changed or in_path_override != null:
+		var baked_path: PackedVector3Array = curve.get_baked_points()
 		var total_length: float = get_rise_nanometers() * (_sequence.length() - 1)
-		if get_path_length() < total_length:
-			var last_pos: Vector3 = _baked_path[-1]
-			var z_dir: Vector3 = _baked_path[-2].direction_to(last_pos)
-			var remaining_distance: float = total_length - get_path_length()
+		if curve.get_baked_length() < total_length:
+			var last_pos: Vector3 = baked_path[-1]
+			var z_dir: Vector3 = baked_path[-2].direction_to(last_pos)
+			var remaining_distance: float = total_length - curve.get_baked_length()
 			var final_pos: Vector3 = last_pos + z_dir * remaining_distance
-			_baked_path.append(final_pos)
+			baked_path.append(final_pos)
+		if in_path_override == null:
+			_baked_path = baked_path
+		else:
+			return baked_path
 	return _baked_path.duplicate()
 
 
@@ -65,7 +72,7 @@ func get_baked_path() -> PackedVector3Array:
 func start_edit() -> void:
 	assert(not _is_being_edited, "I'm already being edited, make sure to call end_edit() when you are done with edits")
 	_is_being_edited = true
-	_last_bases_cout = _sequence.length()
+	_last_bases_count = _sequence.length()
 	_last_sequence = _sequence
 	_atoms_count_cache = -1
 	return
@@ -81,7 +88,7 @@ func end_edit() -> void:
 	_atoms_count_cache = -1
 	
 	var has_changed: bool = (
-		_last_bases_cout != _sequence.length()
+		_last_bases_count != _sequence.length()
 		or _last_sequence != _sequence
 		or _signal_queue_path_changed
 		or _signal_queue_parameters_changed
@@ -92,10 +99,10 @@ func end_edit() -> void:
 			_baked_path.clear()
 			_signal_queue_path_changed = false
 		# Emmit count changed signal before actual sequence
-		if _last_bases_cout != _sequence.length():
+		if _last_bases_count != _sequence.length():
 			var count: = _sequence.length()
 			bases_count_changed.emit(count)
-			_last_bases_cout = _sequence.length()
+			_last_bases_count = _sequence.length()
 		if _last_sequence != _sequence:
 			sequence_changed.emit(_sequence)
 			_last_sequence = _sequence
@@ -180,26 +187,26 @@ func insert_control_point(position: Vector3, in_index: int = -1) -> void:
 	assert(_is_being_edited)
 	_curve.add_point(position, Vector3.ZERO, Vector3.ZERO, in_index)
 	var index: int = in_index if in_index > -1 else _curve.point_count - 1
-	_recalculate_curve_in_out(index - 1)
-	_recalculate_curve_in_out(index)
-	_recalculate_curve_in_out(index + 1)
+	recalculate_curve_in_out(_curve, index - 1)
+	recalculate_curve_in_out(_curve, index)
+	recalculate_curve_in_out(_curve, index + 1)
 
 
 func remove_control_point(in_index: int) -> void:
 	assert(_is_being_edited)
 	_curve.remove_point(in_index)
 	if in_index > 0:
-		_recalculate_curve_in_out(in_index - 1)
+		recalculate_curve_in_out(_curve, in_index - 1)
 	if in_index < _curve.point_count:
-		_recalculate_curve_in_out(in_index)
+		recalculate_curve_in_out(_curve, in_index)
 
 
 func set_control_point_position(in_index: int, int_position: Vector3) -> void:
 	assert(_is_being_edited)
 	_curve.set_point_position(in_index, int_position)
-	_recalculate_curve_in_out(in_index - 1)
-	_recalculate_curve_in_out(in_index)
-	_recalculate_curve_in_out(in_index + 1)
+	recalculate_curve_in_out(_curve, in_index - 1)
+	recalculate_curve_in_out(_curve, in_index)
+	recalculate_curve_in_out(_curve, in_index + 1)
 
 
 func get_control_point_count() -> int:
@@ -229,7 +236,7 @@ func get_base_transform(in_strand: Strand, in_base_index: int) -> Transform3D:
 		var y_dir := Vector3.ZERO
 		var z_dir := Vector3.ZERO
 		var path_pos: Vector3
-		var points: PackedVector3Array
+		var points: PackedVector3Array = _curve.get_baked_points()
 		if at_pos > _curve.get_baked_length():
 			# Sequence is longer than the curve, continue in a straight length
 			var last_pos: Vector3 = points[-1]
@@ -275,32 +282,32 @@ func get_base_twist_rad(in_strand: Strand, in_base_index: int) -> float:
 	return angle
 
 
-func _recalculate_curve_in_out(in_index: int) -> void:
-	if _curve.point_count < 2:
+static func recalculate_curve_in_out(out_curve: Curve3D, in_index: int) -> void:
+	if out_curve.point_count < 2:
 		# Not enough points for this operation
 		return
-	if in_index < 0 or in_index >= _curve.point_count:
+	if in_index < 0 or in_index >= out_curve.point_count:
 		# Index out of range. no change needed.
 		return
 	if in_index == 0:
-		var p0: Vector3 = _curve.get_point_position(0)
-		var p1: Vector3 = _curve.get_point_position(1)
+		var p0: Vector3 = out_curve.get_point_position(0)
+		var p1: Vector3 = out_curve.get_point_position(1)
 		var dist: float = p0.distance_to(p1) / 2.0
 		var dir: Vector3 = p0.direction_to(p1)
-		_curve.set_point_out(in_index, dir * dist)
-	elif in_index >= _curve.point_count - 1:
-		var p1: Vector3 = _curve.get_point_position(in_index)
-		var p0: Vector3 = _curve.get_point_position(in_index - 1)
+		out_curve.set_point_out(in_index, dir * dist)
+	elif in_index >= out_curve.point_count - 1:
+		var p1: Vector3 = out_curve.get_point_position(in_index)
+		var p0: Vector3 = out_curve.get_point_position(in_index - 1)
 		var dist: float = p0.distance_to(p1) / 2.0
 		var dir: Vector3 = p1.direction_to(p0)
-		_curve.set_point_in(in_index, dir * dist)
+		out_curve.set_point_in(in_index, dir * dist)
 	else:
-		var p1: Vector3 = _curve.get_point_position(in_index + 1)
-		var p0: Vector3 = _curve.get_point_position(in_index - 1)
+		var p1: Vector3 = out_curve.get_point_position(in_index + 1)
+		var p0: Vector3 = out_curve.get_point_position(in_index - 1)
 		var dist: float = p0.distance_to(p1) / 4.0
 		var dir: Vector3 = p0.direction_to(p1)
-		_curve.set_point_in(in_index, -dir * dist)
-		_curve.set_point_out(in_index, dir * dist)
+		out_curve.set_point_in(in_index, -dir * dist)
+		out_curve.set_point_out(in_index, dir * dist)
 #endregion: Path
 
 
@@ -400,6 +407,7 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["_sequence"] = _sequence
 	state_snapshot["_parameters"] = _parameters.create_state_snapshot()
 	state_snapshot["_base_transform_cache"] = _base_transform_cache.duplicate()
+	state_snapshot["_baked_path"] = _baked_path.duplicate()
 	return state_snapshot
 
 
@@ -409,6 +417,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_sequence = in_state_snapshot["_sequence"]
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters"])
 	_base_transform_cache = in_state_snapshot["_base_transform_cache"].duplicate()
+	_baked_path = in_state_snapshot["_baked_path"].duplicate()
 	super.apply_state_snapshot(in_state_snapshot)
 
 

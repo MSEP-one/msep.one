@@ -129,6 +129,8 @@ func _init_initial_positions_and_determine_center() -> Vector3:
 				selection_size += control_points.size()
 				for p: int in control_points:
 					center_pos += context.nano_structure.get_control_point_position(p)
+				# Renderer global position is always set to (0, 0, 0)
+				_structure_context_2_initial_object_transforms[context.get_int_guid()] = Transform3D()
 	
 	assert(selection_size > 0, "selection is empty, gizmo should be disabled and this function should not be called")
 	return center_pos / selection_size
@@ -236,6 +238,9 @@ func _apply_selection_transform() -> void:
 		if nano_structure is AtomicStructure:
 			rendering.set_atom_selection_position_delta(Vector3(), nano_structure)
 			rendering.rotate_atom_selection_around_point(_helper.global_transform.origin, Basis(), nano_structure)
+		if nano_structure is DnaStructure:
+			rendering.set_dna_selection_position_delta(Vector3(), nano_structure)
+			rendering.rotate_dna_selection_around_point(_helper.global_transform.origin, Basis(), nano_structure)
 		
 		var object_old_transform: Transform3D
 		var object_new_transform: Transform3D
@@ -251,6 +256,19 @@ func _apply_selection_transform() -> void:
 			var new_pos: Vector3 = _helper.global_position + _helper.global_transform.basis * delta_pos
 			object_new_transform = Transform3D(final_transform.basis.orthonormalized(), new_pos)
 			object_old_transform = nano_structure.get_transform()
+		elif nano_structure is DnaStructure:
+			var dna := nano_structure as DnaStructure
+			var points_to_transform: PackedInt32Array = range(dna.get_control_point_count())
+			# TODO: implement this when api exists
+			#if _workspace_context.get_edited_dna_spline() == context.nano_structure:
+				#points_to_transform = get_selected_control_points
+			dna.start_edit()
+			for p: int in points_to_transform:
+				var original_pos: Vector3 = dna.get_control_point_position(p)
+				var delta_pos: Vector3 = original_pos - _selection_initial_position
+				var new_pos: Vector3 = _helper.global_position + _helper.global_transform.basis * delta_pos
+				dna.set_control_point_position(p, new_pos)
+			dna.end_edit()
 		elif nano_structure is NanoVirtualAnchor:
 			# Anchors have position but not rotation and scale
 			assert(_structure_context_2_initial_object_transforms.has(context.get_int_guid()), "initial transform should be prepared in '_prepare_gizmo_for_structure()'")
@@ -280,7 +298,8 @@ func _apply_selection_transform() -> void:
 		var atoms_changed: bool = nmb_of_moved_atoms > 0
 		var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
 		var anchor_moved: bool = context.is_anchor_selected()
-		if atoms_changed or object_moved or anchor_moved:
+		var dna_changed: bool = context.is_dna_structure_fully_selected() # or _workspace_context.get_edited_dna_spline() == context.nano_structure
+		if atoms_changed or object_moved or anchor_moved or dna_changed:
 			if atoms_changed:
 				nano_structure.start_edit()
 				nano_structure.atoms_set_positions(atoms_to_move, target_positions)
@@ -349,6 +368,12 @@ func _on_helper_transform_changed(in_translation_changed: bool, in_rotation_chan
 			var initial_nano_struct_transform: Transform3D = _structure_context_2_initial_object_transforms[context.get_int_guid()]
 			rendering.transform_object_by_external_transform(context.nano_structure, _selection_initial_position,
 					initial_nano_struct_transform, _helper.global_transform)
+		elif nano_structure is DnaStructure:
+			if in_translation_changed:
+				rendering.set_dna_selection_position_delta(-delta, nano_structure)
+			if in_rotation_changed:
+				rendering.rotate_dna_selection_around_point(_helper.global_transform.origin,
+						_helper.global_transform.basis, nano_structure)
 		else:
 			if in_translation_changed:
 				rendering.set_atom_selection_position_delta(-delta, nano_structure)
@@ -426,7 +451,7 @@ func _force_gizmo_update() -> void:
 			#elif _workspace_context.get_edited_dna_spline() == context.nano_structure:
 				#selection_size += context.get_selected_countrol_point_count
 			elif context.is_dna_structure_fully_selected():
-				selection_size += 1
+				selection_size += (context.nano_structure as DnaStructure).get_control_point_count()
 		
 		if selection_size == 0:
 			# Selection cannot be transformed
