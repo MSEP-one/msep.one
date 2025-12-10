@@ -566,6 +566,18 @@ func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply:
 	atomic_structure_renderer.rotate_atom_selection_around_point(in_point, in_rotation_to_apply)
 
 
+func set_dna_selection_position_delta(in_selection_delta: Vector3, in_structure: DnaStructure) -> void:
+	if not enabled: return
+	var dna_structure_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.int_guid)
+	dna_structure_renderer.set_selection_position_delta(in_selection_delta)
+
+
+func rotate_dna_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis, in_structure: DnaStructure) -> void:
+	if not enabled: return
+	var dna_structure_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.int_guid)
+	dna_structure_renderer.rotate_selection_around_point(in_point, in_rotation_to_apply)
+
+
 func transform_object_by_external_transform(in_structure: NanoStructure, in_selection_initial_pos: Vector3,
 			in_initial_nano_struct_transform: Transform3D, in_gizmo_transform: Transform3D) -> void:
 	if not enabled: return

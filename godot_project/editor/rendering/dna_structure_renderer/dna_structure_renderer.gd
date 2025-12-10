@@ -5,10 +5,10 @@ class_name DnaStructureRenderer extends Path3D
 @onready var _transform_helper: PathFollow3D = %TransformHelper
 @onready var _path_representation: Control = %PathRepresentation
 
-
+const StrandPolicy = DnaStructure.StrandPolicy
 
 @export_custom(PROPERTY_HINT_ENUM, "A,B,DOUBLE", PROPERTY_USAGE_EDITOR)
-var _strand_policy := DnaStructure.StrandPolicy.DOUBLE:
+var _strand_policy := StrandPolicy.DOUBLE:
 	set = set_strand_policy
 
 @export_custom(PROPERTY_HINT_MULTILINE_TEXT, "", PROPERTY_USAGE_EDITOR)
@@ -44,7 +44,13 @@ var _path_hovered: bool = false
 var _path_highlighted: bool = false
 var _path_being_edited: bool = false
 var _hovered_control_point: int = -1
-var _highlighted_control_points: Dictionary[int, bool]
+var _highlighted_control_points: Dictionary[int, bool] = {}
+
+# Transform gizmo tools
+# while transform gizmo is in use, _temp_curve will create a duplicate of dna's curve
+# when transformation is applied, renderer retakes the curve from the object and _temp_curve is freed
+var _original_curve: Curve3D = null
+var _temp_curve: Curve3D = null
 
 # Track camera changes
 var _camera: Camera3D
@@ -87,6 +93,7 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_initial_twist = in_structure.get_initial_twist_rad()
 	_update_bases()
 
+
 func _enter_tree() -> void:
 	var editor_viewport: WorkspaceEditorViewport = get_viewport() as WorkspaceEditorViewport
 	if not is_instance_valid(editor_viewport):
@@ -97,7 +104,9 @@ func _enter_tree() -> void:
 		workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
 		workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 
+
 func _on_curve_changed() -> void:
+	assert(curve.get_baked_length() > 0, "Invalid curve, dna chain should be deleted in this case")
 	_transform_helper.progress_ratio = 1
 	for base: DnaBaseRepresentation in _bases:
 		const NEEDS_UPDATE_THRESHOLD: float = 0.9
@@ -106,11 +115,74 @@ func _on_curve_changed() -> void:
 			base.set_deferred(&"base_offset", base.base_offset)
 
 
+func set_selection_position_delta(in_selection_delta: Vector3) -> void:
+	_path_representation.queue_redraw()
+	if in_selection_delta == Vector3():
+		_reset_temp_curve()
+		return
+	_setup_temp_curve()
+	var points_to_transform: PackedInt32Array = range(curve.point_count)
+	var needs_recalculate_in_out: bool = false
+	if _path_being_edited:
+		needs_recalculate_in_out = _highlighted_control_points.size() != curve.point_count
+		points_to_transform = _highlighted_control_points.keys()
+	var inout_positions_to_update: Dictionary[int, bool]
+	for p: int in points_to_transform:
+		var original_pos: Vector3 = _original_curve.get_point_position(p)
+		var transformed_pos: Vector3 = original_pos + in_selection_delta
+		_temp_curve.set_point_position(p, transformed_pos)
+		inout_positions_to_update[p - 1] = true
+		inout_positions_to_update[p] = true
+		inout_positions_to_update[p + 1] = true
+	if not needs_recalculate_in_out:
+		# The entire curve is being edited, inout wont change
+		return
+	for p: int in inout_positions_to_update.keys():
+		DnaStructure.recalculate_curve_in_out(_temp_curve, p)
+
+
+func rotate_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
+	_path_representation.queue_redraw()
+	if in_rotation_to_apply == Basis():
+		_reset_temp_curve()
+		return
+	_setup_temp_curve()
+	var points_to_transform: PackedInt32Array = range(curve.point_count)
+	if _path_being_edited:
+		points_to_transform = _highlighted_control_points.keys()
+	var inout_positions_to_update: Dictionary[int, bool]
+	for p: int in points_to_transform:
+		var original_pos: Vector3 = _original_curve.get_point_position(p)
+		var local_to_axis: Vector3 = original_pos - in_point
+		var rotated: Vector3 = in_rotation_to_apply * local_to_axis
+		var transformed_pos: Vector3 = rotated + in_point
+		_temp_curve.set_point_position(p, transformed_pos)
+		inout_positions_to_update[p - 1] = true
+		inout_positions_to_update[p] = true
+		inout_positions_to_update[p + 1] = true
+	for p: int in inout_positions_to_update.keys():
+		DnaStructure.recalculate_curve_in_out(_temp_curve, p)
+
+func _reset_temp_curve() -> void:
+	if _temp_curve != null:
+		curve = _original_curve
+		_original_curve = null
+		_temp_curve = null
+
+
+func _setup_temp_curve() -> void:
+	if _temp_curve == null:
+		_original_curve = curve
+		_temp_curve = curve.duplicate()
+		# Assign _temp_curve to be used by PathFollow3D during transformation
+		curve = _temp_curve
+
+
 func get_curve_final_transform() -> Transform3D:
 	return _transform_helper.transform
 
 
-func set_strand_policy(in_strand_policy: DnaStructure.StrandPolicy) -> void:
+func set_strand_policy(in_strand_policy: StrandPolicy) -> void:
 	if is_node_ready() and in_strand_policy == _strand_policy:
 		return
 	_strand_policy = in_strand_policy
@@ -218,26 +290,27 @@ func _on_path_representation_drawn() -> void:
 	if not is_hovered and not _path_highlighted and not _path_being_edited:
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
-	var path: PackedVector3Array = dna_structure.get_baked_path()
+	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
 	if path.is_empty():
 		return
 	var camera: Camera3D = get_viewport().get_camera_3d()
 	var last_pos2d: Vector2 = camera.unproject_position(path[0])
 	const MIN_SEGMENT_DISTANCE_SQRD_IN_PIXELS: float = 3 * 3
 	var last_idx: int = path.size() - 1
+	const PATH_COLOR = Color.WHITE
+	var path_width: int = 2
+	if _path_highlighted or _path_being_edited:
+		path_width = 4
 	for i in range(1, path.size()):
 		var pos2d: Vector2 = camera.unproject_position(path[i])
 		if last_pos2d.distance_squared_to(pos2d) >= MIN_SEGMENT_DISTANCE_SQRD_IN_PIXELS or i == last_idx:
-			const PATH_COLOR = Color.WHITE
-			var path_width: int = 2
-			if _path_highlighted or _path_being_edited:
-				path_width = 4
 			_path_representation.draw_line(last_pos2d, pos2d, PATH_COLOR, path_width)
 			last_pos2d = pos2d
 	if not _path_being_edited:
 		return
-	for cp_idx: int in dna_structure.get_control_point_count():
-		var pos: Vector3 = dna_structure.get_control_point_position(cp_idx)
+	var drawn_curve: Curve3D = curve if _temp_curve == null else _temp_curve
+	for cp_idx: int in drawn_curve.point_count:
+		var pos: Vector3 = drawn_curve.get_point_position(cp_idx)
 		var pos2d: Vector2 = camera.unproject_position(pos)
 		const CONTROL_POINT_RADIUS: float = 5
 		const CONTROL_POINT_COLOR := Color.ROYAL_BLUE
