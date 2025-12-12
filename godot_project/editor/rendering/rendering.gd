@@ -3,6 +3,7 @@ class_name Rendering extends Node
 ## It's providing all the public api that might be needed for the rendering
 
 const AtomicStructureRendererScn: PackedScene = preload("uid://ddis4g64f3o04")
+const DnaStructureRendererScn: PackedScene = preload("uid://2uelg2pe8don")
 const NanoShapeRendererScn: PackedScene = preload("uid://b6snixhbqq57y")
 const NanoVirtualMotorRendererScn: PackedScene = preload("uid://c1cjktftkuj1d")
 const NanoParticleEmitterRendererScn: PackedScene = preload("uid://b0jv0ex0g4qmp")
@@ -25,6 +26,7 @@ signal representation_changed(new_representation: Representation)
 
 @export var enabled: bool = true
 @onready var _atomic_structure_renderers: Node = $AtomicStructureRenderers
+@onready var _dna_structure_renderers: Node = $DnaStructureRenderers
 @onready var _reference_shape_renderers: Node = $NanoShapeRenderers
 @onready var _virtual_motor_renderers: Node = $VirtualMotorRenderers
 @onready var _particle_emitter_renderers: Node = $ParticleEmitterRenderers
@@ -98,6 +100,14 @@ func build_atomic_structure_rendering(in_structure_context: StructureContext,
 		atomic_structure_renderer.ensure_bond_rendering_on()
 	else:
 		atomic_structure_renderer.ensure_bond_rendering_off()
+
+
+func build_dna_rendering(in_structure: DnaStructure) -> void:
+	if not enabled: return
+	var dna_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.get_int_guid())
+	dna_renderer.build(_workspace_context, in_structure)
+	if _hover_disabled:
+		dna_renderer.disable_hover()
 
 
 func build_reference_shape_rendering(in_shape: NanoShape) -> void:
@@ -239,6 +249,7 @@ func remove_with_id(in_structure_id: int) -> void:
 	var structure_renderer_name: String = str(in_structure_id)
 	var containers: Array[Node] = [
 		_atomic_structure_renderers,
+		_dna_structure_renderers,
 		_virtual_motor_renderers,
 		_particle_emitter_renderers,
 		_reference_shape_renderers,
@@ -384,6 +395,19 @@ func _get_renderer_for_atomic_structure_id(in_structure_id: int) -> AtomicStruct
 	structure_renderer = _atomic_structure_renderers.get_node(structure_renderer_name)
 	return structure_renderer
 
+
+func _get_renderer_for_dna_structure(in_structure_id: int) -> DnaStructureRenderer:
+	if not enabled: return null
+	var dna_renderer_name: String = str(in_structure_id)
+	var dna_renderer: DnaStructureRenderer
+	var need_to_create_dna_renderer: bool = not _dna_structure_renderers.has_node(dna_renderer_name)
+	if need_to_create_dna_renderer:
+		dna_renderer = DnaStructureRendererScn.instantiate()
+		dna_renderer.set_name(dna_renderer_name)
+		_dna_structure_renderers.add_child(dna_renderer)
+	else:
+		dna_renderer = _dna_structure_renderers.get_node(dna_renderer_name)
+	return dna_renderer
 
 func _get_renderer_for_reference_shape(in_structure_id: int) -> NanoShapeRenderer:
 	if not enabled: return null
@@ -540,6 +564,18 @@ func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply:
 	if not enabled: return
 	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure)
 	atomic_structure_renderer.rotate_atom_selection_around_point(in_point, in_rotation_to_apply)
+
+
+func set_dna_selection_position_delta(in_selection_delta: Vector3, in_structure: DnaStructure) -> void:
+	if not enabled: return
+	var dna_structure_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.int_guid)
+	dna_structure_renderer.set_selection_position_delta(in_selection_delta)
+
+
+func rotate_dna_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis, in_structure: DnaStructure) -> void:
+	if not enabled: return
+	var dna_structure_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.int_guid)
+	dna_structure_renderer.rotate_selection_around_point(in_point, in_rotation_to_apply)
 
 
 func transform_object_by_external_transform(in_structure: NanoStructure, in_selection_initial_pos: Vector3,
@@ -1016,11 +1052,13 @@ func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_default_representation"] = _default_representation
 	var renderers_data: Dictionary = _collect_renderer_snapshot_data(_atomic_structure_renderers.get_children())
+	var dna_data: Dictionary = _collect_renderer_snapshot_data(_dna_structure_renderers.get_children())
 	var anchors_data: Dictionary = _collect_renderer_snapshot_data(_virtual_anchor_renderers.get_children())
 	var motors_data: Dictionary = _collect_renderer_snapshot_data(_virtual_motor_renderers.get_children())
 	var emitters_data: Dictionary = _collect_renderer_snapshot_data(_particle_emitter_renderers.get_children())
 	var shapes_data: Dictionary = _collect_renderer_snapshot_data(_reference_shape_renderers.get_children())
 	snapshot["renderers_data"] = renderers_data
+	snapshot["dna_data"] = dna_data
 	snapshot["anchors_data"] = anchors_data
 	snapshot["motors_data"] = motors_data
 	snapshot["emitters_data"] = emitters_data
@@ -1065,12 +1103,27 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 		renderer.apply_state_snapshot(renderer_snapshot)
 	
 	#
+	var dna_data: Dictionary = in_snapshot["dna_data"]
+	var dna_renderers: Dictionary = dna_data["renderers"]
+	var dna_renderers_snapshots: Dictionary = dna_data["renderers_snapshots"]
+	for renderer_name: String in dna_renderers:
+		var renderer: DnaStructureRenderer
+		var dna_renderer_snapshot: Dictionary = dna_renderers_snapshots[renderer_name]
+		if is_instance_valid(dna_renderers[renderer_name]) \
+				and not dna_renderers[renderer_name].is_queued_for_deletion():
+			renderer = dna_renderers[renderer_name]
+		else:
+			# create new one
+			renderer = _get_renderer_for_dna_structure(renderer_name.to_int())
+		renderer.apply_state_snapshot(dna_renderer_snapshot)
+	
+	#
 	var anchors_data: Dictionary = in_snapshot["anchors_data"]
 	var anchor_renderers: Dictionary = anchors_data["renderers"]
-	var anchor_renderes_snapshots: Dictionary = anchors_data["renderers_snapshots"]
+	var anchor_renderers_snapshots: Dictionary = anchors_data["renderers_snapshots"]
 	for renderer_name: String in anchor_renderers:
 		var renderer: VirtualAnchorRenderer
-		var anchor_renderer_snapshot: Dictionary = anchor_renderes_snapshots[renderer_name]
+		var anchor_renderer_snapshot: Dictionary = anchor_renderers_snapshots[renderer_name]
 		if is_instance_valid(anchor_renderers[renderer_name]) \
 				and not anchor_renderers[renderer_name].is_queued_for_deletion():
 			renderer = anchor_renderers[renderer_name]

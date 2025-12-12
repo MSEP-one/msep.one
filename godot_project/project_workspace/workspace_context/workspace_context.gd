@@ -12,7 +12,7 @@ signal virtual_object_transform_changed(structure_context: StructureContext)
 signal atoms_added_to_structure(structure_context: StructureContext, atom_ids: PackedInt32Array)
 signal current_structure_context_changed(structure_context: StructureContext)
 signal hovered_structure_context_changed(toplevel_hovered_structure_context: StructureContext,
-		hovered_structure_context: StructureContext, atom_id: int, bond_id: int, spring_id: int)
+		hovered_structure_context: StructureContext, atom_id: int, bond_id: int, spring_id: int, dna_control_point_idx: int)
 signal editable_structure_context_list_changed(new_editable_structure_contexts: Array[StructureContext])
 signal started_creating_object()
 signal aborted_creating_object()
@@ -129,6 +129,7 @@ var _hovered_structure_context: StructureContext
 var _hovered_atom_id: int = AtomicStructure.INVALID_ATOM_ID
 var _hovered_bond_id: int = AtomicStructure.INVALID_BOND_ID
 var _hovered_spring_id: int = AtomicStructure.INVALID_SPRING_ID
+var _dna_control_point_idx: int = DnaStructure.INVALID_CONTROL_POINT_IDX
 
 var _preview_texture_viewport: SubViewport = null
 
@@ -325,6 +326,8 @@ func add_nano_structure(in_structure: NanoStructure) -> void:
 		else:
 			in_structure.disable_hydrogens_visibility()
 	
+	if in_structure is DnaStructure:
+		rendering.build_dna_rendering(in_structure)
 	if in_structure is NanoShape:
 		rendering.build_reference_shape_rendering(in_structure)
 	if in_structure is NanoVirtualMotor:
@@ -716,6 +719,7 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 		_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
 		structure_context.selection_changed.connect(_on_structure_context_selection_changed.bind(structure_context.get_int_guid()))
 		structure_context.virtual_object_selection_changed.connect(_on_structure_context_virtual_object_selection_changed.bind(structure_context.get_int_guid()))
+		structure_context.dna_spline_selection_changed.connect(_on_structure_context_dna_spline_selection_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is AtomicStructure \
 				and not structure_context.nano_structure.atoms_moved.is_connected(_on_structure_context_atoms_moved):
 			structure_context.nano_structure.atoms_moved.connect(_on_structure_context_atoms_moved.bind(structure_context.get_int_guid()))
@@ -730,6 +734,11 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.atoms_locking_changed.connect(_on_nano_structure_atoms_locking_changed.bind(structure_context.get_int_guid()))
 		if not structure_context.nano_structure.visibility_changed.is_connected(_on_nano_structure_visibility_changed):
 			structure_context.nano_structure.visibility_changed.connect(_on_nano_structure_visibility_changed.bind(structure_context.get_int_guid()))
+		if structure_context.nano_structure is DnaStructure:
+			structure_context.nano_structure.bases_count_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.sequence_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.parameters_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is NanoShape:
 			structure_context.nano_structure.shape_properties_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure.is_virtual_object():
@@ -827,6 +836,14 @@ func _on_structure_context_virtual_object_selection_changed(_in_selected: bool, 
 		_selection_modified_structure_contexts[in_structure_context_id] = true
 
 
+func _on_structure_context_dna_spline_selection_changed(_in_selected: bool, in_structure_context_id: int) -> void:
+	if not workspace.has_structure_with_int_guid(in_structure_context_id):
+		return
+	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
+	if is_structure_context_valid(structure_context):
+		_selection_modified_structure_contexts[in_structure_context_id] = true
+
+
 func _check_for_empty_workspace() -> void:
 	if create_object_parameters.get_create_mode_enabled() == false and get_visible_structure_contexts().size() == 0:
 		create_object_parameters.set_create_mode_enabled(true)
@@ -883,6 +900,7 @@ func get_visible_structure_contexts(in_include_empty_structures: bool = false) -
 	for context: StructureContext in _structure_contexts.values():
 		if context.nano_structure.get_visible():
 			var structure_has_data: bool = context.nano_structure.is_virtual_object() \
+					or context.nano_structure is DnaStructure \
 					or context.nano_structure.get_valid_atoms_count() > 0
 			if structure_has_data or in_include_empty_structures:
 				result.push_back(context)
@@ -1171,19 +1189,21 @@ func get_rendering() -> Rendering:
 
 
 func set_hovered_structure_context(in_structure_context: StructureContext, in_atom_id: int,
-			in_bond_id: int, in_spring_id: int) -> void:
+			in_bond_id: int, in_spring_id: int, in_dna_control_point_idx: int) -> void:
 	if in_structure_context == _hovered_structure_context and _hovered_atom_id == in_atom_id and \
-			_hovered_bond_id == in_bond_id and _hovered_spring_id == in_spring_id:
+			_hovered_bond_id == in_bond_id and _hovered_spring_id == in_spring_id and \
+			_dna_control_point_idx == in_dna_control_point_idx:
 		return
 	_hovered_structure_context = in_structure_context
 	_hovered_atom_id = in_atom_id
 	_hovered_bond_id = in_bond_id
 	_hovered_spring_id = in_spring_id
+	_dna_control_point_idx = in_dna_control_point_idx
 	var informed_toplevel_structure_context: StructureContext = null
 	if not in_structure_context in [null, get_current_structure_context()]:
 		informed_toplevel_structure_context = get_toplevel_editable_context(in_structure_context)
 	hovered_structure_context_changed.emit(informed_toplevel_structure_context, in_structure_context,
-			_hovered_atom_id, _hovered_bond_id, _hovered_spring_id)
+			_hovered_atom_id, _hovered_bond_id, _hovered_spring_id, _dna_control_point_idx)
 
 
 func has_hovered_object() -> bool:

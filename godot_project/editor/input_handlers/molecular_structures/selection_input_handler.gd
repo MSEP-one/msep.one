@@ -119,6 +119,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 			# Virtual Anchor and/or Spring is being created, avoid changing selection
 			return false
 		var input_consumed: bool = _select_connected_selection_logic(in_camera, in_input_event.position, editable_structures, false)
+		# TODO: handle start editing dna spline here
 		if input_consumed == false:
 			input_consumed = _screen_selection_logic(in_camera, in_input_event.position, editable_structures, false)
 		if input_consumed:
@@ -139,6 +140,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		var hovering_atom_id: int = -1
 		var hovering_bond_id: int = -1
 		var hovering_spring_id: int = -1
+		var hovering_dna_control_point_idx: int = -1
 		var hover_position: Vector3 = Vector3(INF, INF, INF)
 		if not editable_structures.is_empty():
 			var multi_structure_hit_result := MultiStructureHitResult.new(in_camera, in_input_event.position, editable_structures)
@@ -168,10 +170,20 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 					if _is_shape_selectable():
 						hovering_object = multi_structure_hit_result.closest_hit_structure_context
 						hover_position = hovering_object.nano_structure.get_position()
+				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
+					hovering_object = multi_structure_hit_result.closest_hit_structure_context
+					hovering_dna_control_point_idx =  multi_structure_hit_result.closest_hit_dna_control_point_id
+					hover_position = hovering_object.nano_structure.get_control_point_position(hovering_dna_control_point_idx)
+				MultiStructureHitResult.HitType.HIT_DNA_PATH:
+					hovering_object = multi_structure_hit_result.closest_hit_structure_context
+					hover_position = multi_structure_hit_result.closest_hit_dna_pos
+				MultiStructureHitResult.HitType.HIT_NOTHING:
+					pass
 				_:
 					# do nothing
+					assert(false, "Unhandled hit type: " + MultiStructureHitResult.HitType.find_key(multi_structure_hit_result.hit_type))
 					pass
-		get_workspace_context().set_hovered_structure_context(hovering_object, hovering_atom_id, hovering_bond_id, hovering_spring_id)
+		get_workspace_context().set_hovered_structure_context(hovering_object, hovering_atom_id, hovering_bond_id, hovering_spring_id, hovering_dna_control_point_idx)
 		var selection_center: Vector3 = workspace_context.get_selection_aabb().get_center() if \
 				workspace_context.has_selection() else Vector3(INF, INF,INF)
 		_update_distance_message(workspace_context, hover_position, selection_center)
