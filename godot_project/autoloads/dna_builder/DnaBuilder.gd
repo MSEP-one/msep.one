@@ -5,17 +5,6 @@ const PackedMolecule = preload("res://autoloads/dna_builder/templates/packed_mol
 var DNA_BASES_OFFSET: float = 0.6
 const DNA_COMPLEMENT: Dictionary[String, String] = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
 
-class Parameters:
-	enum StrandPolicy {
-		A,
-		B,
-		DOUBLE
-	}
-	var bases_per_turn: float = 10.0
-	var rise_nanometers: float = 0.34
-	var dna_radius_nanometers: float = 1.0
-	var strand_policy:= StrandPolicy.DOUBLE
-	var include_hydrogens: bool = true
 
 var _base_templates: Dictionary[String, PackedMolecule] = {}
 
@@ -28,13 +17,13 @@ func is_dev_tool_enabled() -> bool:
 ## Build a DNA AtomicStructure from in_sequence.
 ## Args:
 ##   in_sequence: DNA in_sequence string (e.g., "ATGC")
-##   in_parameters: a DnaBuilder.Parameters object, or null for default
-func build_dna_structure(in_sequence: String, in_params := Parameters.new()) -> AtomicStructure:
+##   in_parameters: a DnaStructureParameters object, or null for default
+func build_dna_structure(in_sequence: String, in_params := DnaStructureParameters.new()) -> AtomicStructure:
 	var structure := AtomicStructure.create()
-	var STRANDS_TO_CREATE: Dictionary[Parameters.StrandPolicy, PackedInt32Array] = {
-		Parameters.StrandPolicy.A      : [0],
-		Parameters.StrandPolicy.B      : [1],
-		Parameters.StrandPolicy.DOUBLE : [0, 1],
+	var STRANDS_TO_CREATE: Dictionary[DnaStructure.StrandPolicy, PackedInt32Array] = {
+		DnaStructure.StrandPolicy.A      : [0],
+		DnaStructure.StrandPolicy.B      : [1],
+		DnaStructure.StrandPolicy.DOUBLE : [0, 1],
 	}
 	var strands: PackedInt32Array = STRANDS_TO_CREATE[in_params.strand_policy]
 	
@@ -46,7 +35,9 @@ func build_dna_structure(in_sequence: String, in_params := Parameters.new()) -> 
 	return structure
 
 
-func _create_strand(structure: AtomicStructure, in_sequence: String, in_params: Parameters, in_strand: int) -> void:
+func _create_strand(structure: AtomicStructure, in_sequence: String, in_params: DnaStructureParameters, in_strand: int) -> void:
+	var chain_lenght: float = in_sequence.length() * in_params.rise_nanometers
+	var z_offset: float = -chain_lenght / 2.0 # To center the chain around origin
 	var previous_backbone_atom_id: int = -1
 	var next_backbone_atom_id: int = -1
 	for i: int in in_sequence.length():
@@ -58,7 +49,7 @@ func _create_strand(structure: AtomicStructure, in_sequence: String, in_params: 
 		for a: int in nucleotide.atoms.size():
 			var atom_data: Vector4 = nucleotide.atoms[a]
 			var atomic_number: int = int(atom_data.w)
-			var position := Vector3(atom_data.x, atom_data.y, atom_data.z)
+			var position := Vector3(atom_data.x, atom_data.y, atom_data.z + z_offset)
 			structure.add_atom(AtomicStructure.AddAtomParameters.new(atomic_number, position))
 		for bond_data: Vector3i in nucleotide.bonds:
 			var atom_a: int = base_atom_start + bond_data.x
@@ -76,7 +67,7 @@ func _create_strand(structure: AtomicStructure, in_sequence: String, in_params: 
 func _build_nucleotide(
 			in_base: String,
 			in_index: int,
-			in_params: Parameters,
+			in_params: DnaStructureParameters,
 			strand: int = 0
 		) -> PackedMolecule:
 	assert(in_base in ["A", "T", "G", "C"], "Unknown base: %s" % in_base)
