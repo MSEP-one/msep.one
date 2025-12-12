@@ -157,8 +157,7 @@ func _on_workspace_context_editable_structure_context_list_changed(in_new_editab
 
 func _on_workspace_context_hovered_structure_context_changed(
 			in_toplevel_hovered_structure_context: StructureContext, in_hovered_structure_context: StructureContext,
-			in_atom_id: int, in_bond_id: int, in_spring_id: int,
-			_in_dna_control_point_idx: int) -> void:
+			in_atom_id: int, in_bond_id: int, in_spring_id: int) -> void:
 	_current_representation.handle_hover_structure_changed(in_toplevel_hovered_structure_context,
 			in_hovered_structure_context, in_atom_id, in_bond_id, in_spring_id)
 	_springs_representation.handle_hover_structure_changed(in_toplevel_hovered_structure_context,

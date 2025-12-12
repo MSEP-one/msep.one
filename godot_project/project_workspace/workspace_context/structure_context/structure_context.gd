@@ -6,7 +6,6 @@ signal selection_changed()
 signal atom_selection_changed()
 signal atoms_deselected(in_deselected_atoms: PackedInt32Array)
 signal virtual_object_selection_changed(is_selected: bool)
-signal dna_spline_selection_changed(is_selected: bool)
 
 var workspace_context: WorkspaceContext
 
@@ -41,7 +40,6 @@ func _notification(what: int) -> void:
 		_selection_db.atom_selection_changed.connect(_on_selection_db_atom_selection_changed)
 		_selection_db.atoms_deselected.connect(_on_selection_db_atoms_deselected)
 		_selection_db.virtual_object_selection_changed.connect(_on_virtual_object_selection_changed)
-		_selection_db.dna_spline_selection_changed.connect(_on_dna_spline_selection_changed)
 	if what == NOTIFICATION_READY:
 		assert(_init_called)
 		pass
@@ -166,9 +164,7 @@ func has_selection(in_recursive: bool = false) -> bool:
 
 
 func has_transformable_selection() -> bool:
-	return is_any_atom_selected() \
-		or _selection_db.is_virtual_object_selected() \
-		or _selection_db.is_dna_spline_selected()
+	return is_any_atom_selected() or _selection_db.is_virtual_object_selected()
 
 
 func has_cached_selection_set() -> bool:
@@ -201,18 +197,6 @@ func is_bond_selected(in_bond_id: int) -> bool:
 
 func is_spring_selected(in_spring_id: int) -> bool:
 	return _selection_db.is_spring_selected(in_spring_id)
-
-
-func is_dna_structure_fully_selected() -> bool:
-	if not nano_structure is DnaStructure:
-		return false
-	if workspace_context.is_simulating():
-		assert(false, "TODO: Check if all atoms are fully selected")
-		return false
-	# TODO: implement this when api exists
-	#if workspace_context.get_edited_dna_spline() == nano_structure:
-		#return check_if_all_control_points_selected()
-	return _selection_db.is_dna_spline_selected()
 
 
 func is_virtual_object_selected() -> bool:
@@ -256,8 +240,6 @@ func is_fully_selected() -> bool:
 			# Anchor is not selected, make an early return
 			return false
 		return true
-	if nano_structure is DnaStructure:
-		return is_dna_structure_fully_selected()
 	assert(nano_structure is AtomicStructure, "NanoStructure seems to be an untracked kind of virtual object (%s)" % nano_structure.get_type())
 	return _selection_db.get_selected_atoms().size() == nano_structure.get_valid_atoms_count() \
 			and _selection_db.get_selected_bonds().size() == nano_structure.get_valid_bonds_count() \
@@ -400,11 +382,6 @@ func set_spring_selection(in_springs_to_select: PackedInt32Array) -> void:
 	return _selection_db.set_spring_selection(in_springs_to_select)
 
 
-func set_dna_spline_selected(in_selected: bool) -> void:
-	assert(nano_structure is DnaStructure)
-	_selection_db.set_dna_spline_selected(in_selected)
-
-
 func set_virtual_object_selected(in_selected: bool) -> void:
 	assert(nano_structure.is_virtual_object())
 	# This method does not care of the type of virtual object, use with care
@@ -538,7 +515,3 @@ func _on_selection_db_atoms_deselected(in_deselected_atoms: PackedInt32Array) ->
 
 func _on_virtual_object_selection_changed(is_selected: bool) -> void:
 	virtual_object_selection_changed.emit(is_selected)
-
-
-func _on_dna_spline_selection_changed(is_selected: bool) -> void:
-	dna_spline_selection_changed.emit(is_selected)

@@ -6,7 +6,6 @@ signal atom_selection_changed
 signal selection_changed
 signal atoms_deselected(in_deselected_atoms: PackedInt32Array)
 signal virtual_object_selection_changed(is_selected: bool)
-signal dna_spline_selection_changed(is_selected: bool)
 signal springs_deselected(in_deselected_springs: PackedInt32Array)
 
 
@@ -16,7 +15,6 @@ var _spring_selection: SpringSelection
 
 var _application_is_editor_build: bool = OS.has_feature("editor")
 var _is_virtual_object_selected: bool = false
-var _is_dna_spline_selected: bool = false
 var _is_initialized: bool = false
 
 
@@ -45,7 +43,7 @@ func has_selection() -> bool:
 		# user applied another undo between _update_gizmo.call_deferred() and _update_gizmo call
 		return false
 	
-	return _atom_selection.has_selection() or _is_virtual_object_selected or _is_dna_spline_selected or _spring_selection.has_selection()
+	return _atom_selection.has_selection() or _is_virtual_object_selected or _spring_selection.has_selection()
 
 
 func has_cached_selection_set() -> bool:
@@ -82,10 +80,6 @@ func is_spring_selected(in_spring_id: int) -> bool:
 
 func is_virtual_object_selected() -> bool:
 	return _is_virtual_object_selected
-
-
-func is_dna_spline_selected() -> bool:
-	return _is_dna_spline_selected
 
 
 func get_selected_atoms() -> PackedInt32Array:
@@ -284,15 +278,7 @@ func invert_selection() -> void:
 			if not _spring_selection.is_spring_selected(spring_id):
 				springs_to_select.append(spring_id)
 		set_spring_selection(springs_to_select)
-	
-	# ---- DNA Structures ----
-	if nano_structure is DnaStructure:
-		# TODO: implement this when api exists
-		#if workspace_context.get_edited_dna_spline() == nano_structure:
-			#invert_control_points_selection()
-		#else:
-			set_dna_spline_selected(!is_dna_spline_selected())
-	
+		
 	# ---- Virtual Objects ----
 	if nano_structure.is_virtual_object():
 		set_virtual_object_selected(!is_virtual_object_selected())
@@ -302,8 +288,6 @@ func select_all() -> void:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
 	if nano_structure.is_virtual_object():
 		set_virtual_object_selected(true)
-	elif  nano_structure is DnaStructure:
-		set_dna_spline_selected(true)
 	else:
 		assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 		set_atom_selection(nano_structure.get_visible_atoms())
@@ -352,15 +336,6 @@ func set_virtual_object_selected(in_selected: bool) -> void:
 	virtual_object_selection_changed.emit(in_selected)
 
 
-func set_dna_spline_selected(in_selected: bool) -> void:
-	var nano_structure: NanoStructure = _structure_context.nano_structure
-	if in_selected == _is_dna_spline_selected || not nano_structure is DnaStructure:
-		return
-	assert(nano_structure.get_visible(), "Cannot change selection of a hidden object")
-	_is_dna_spline_selected = in_selected
-	dna_spline_selection_changed.emit(in_selected)
-
-
 func set_spring_selection(in_springs_to_select: PackedInt32Array) -> void:
 	var previous_selection: PackedInt32Array = _spring_selection.get_selection()
 	_spring_selection.clear_selection()
@@ -397,7 +372,6 @@ func clear_selection() -> void:
 	
 	var rendering: Rendering = _structure_context.get_rendering()
 	set_virtual_object_selected(false)
-	set_dna_spline_selected(false)
 	
 	if nano_structure is AtomicStructure:
 		rendering.lowlight_atoms(deselected_atoms, nano_structure, bonds_released_from_partial_influence,
@@ -418,14 +392,6 @@ func get_selection_aabb() -> AABB:
 	if is_virtual_object_selected():
 		var object_aabb: AABB = nano_structure.get_aabb()
 		selections_aabbs.push_back(object_aabb)
-	
-	# TODO: implement this when api exists
-	#if workspace_context.get_edited_dna_spline() == nano_structure:
-		#selections_aabbs.push_back(_atom_selection.get_aabb())
-	#el\
-	if is_dna_spline_selected():
-		selections_aabbs.push_back(nano_structure.get_aabb())
-		
 	
 	if _atom_selection.has_selection():
 		selections_aabbs.push_back(_atom_selection.get_aabb())
@@ -478,19 +444,18 @@ func _process_atom_deselection_result(result: AtomSelection.AtomDeselectionResul
 		selection_changed.emit()
 
 
+# TODO: in 4.2 convert return type to struct
 func get_selection_snapshot() -> Dictionary:
 	var result_data: Dictionary = {
 		atom_snapshot = _atom_selection.get_snapshot(),
 		spring_snapshot = _spring_selection.get_snapshot(),
-		is_virtual_object_selected = _is_virtual_object_selected,
-		is_dna_spline_selected = _is_dna_spline_selected,
+		is_virtual_object_selected = _is_virtual_object_selected
 	}
 	return result_data
 
 
 func apply_selection_snapshot(in_snapshot: Dictionary) -> void:
 	_is_virtual_object_selected = in_snapshot.is_virtual_object_selected
-	_is_dna_spline_selected = in_snapshot.is_dna_spline_selected
 	var atom_snapshot: Array = in_snapshot.atom_snapshot
 	var spring_snapshot: Array = in_snapshot.spring_snapshot
 	var _apply_result: AtomSelection.ApplySnapshotResult = _atom_selection.apply_snapshot(atom_snapshot)
