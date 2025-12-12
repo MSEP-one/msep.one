@@ -39,16 +39,16 @@ func _notification(what: int) -> void:
 		_strand_double_button = %StrandDoubleButton as Button
 		_include_hydrogens_check_button = %IncludeHydrogensCheckButton as CheckButton
 		_create_button = %CreateButton as Button
-		var default_params := DnaStructureParameters.new()
+		var default_params := DnaBuilder.Parameters.new()
 		_dna_radius_spin_box_slider.value = default_params.dna_radius_nanometers
 		_bases_per_turn_spin_box_slider.value = default_params.bases_per_turn
 		_rise_nanometers_spin_box_slider.value = default_params.rise_nanometers
 		match default_params.strand_policy:
-			DnaStructure.StrandPolicy.A:
+			DnaBuilder.Parameters.StrandPolicy.A:
 				_strand_a_button.button_pressed = true
-			DnaStructure.StrandPolicy.B:
+			DnaBuilder.Parameters.StrandPolicy.B:
 				_strand_b_button.button_pressed = true
-			DnaStructure.StrandPolicy.DOUBLE:
+			DnaBuilder.Parameters.StrandPolicy.DOUBLE:
 				_strand_double_button.button_pressed = true
 		_include_hydrogens_check_button.button_pressed = default_params.include_hydrogens
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
@@ -65,18 +65,18 @@ func _on_feature_flag_toggled() -> void:
 
 
 func _on_create_button_pressed() -> void:
-	var params := DnaStructureParameters.new()
+	var params := DnaBuilder.Parameters.new()
 	params.dna_radius_nanometers = _dna_radius_spin_box_slider.value
 	params.bases_per_turn = _bases_per_turn_spin_box_slider.value
 	params.rise_nanometers = _rise_nanometers_spin_box_slider.value
 	var strand_button: Button = _strand_a_button.button_group.get_pressed_button()
 	match strand_button:
 		_strand_a_button:
-			params.strand_policy = DnaStructure.StrandPolicy.A
+			params.strand_policy = DnaBuilder.Parameters.StrandPolicy.A
 		_strand_b_button:
-			params.strand_policy = DnaStructure.StrandPolicy.B
+			params.strand_policy = DnaBuilder.Parameters.StrandPolicy.B
 		_strand_double_button:
-			params.strand_policy = DnaStructure.StrandPolicy.DOUBLE
+			params.strand_policy = DnaBuilder.Parameters.StrandPolicy.DOUBLE
 		_:
 			push_error("Invalid strand polocy_button: ",
 				"<null>" if strand_button == null else str(get_path_to(strand_button)))
@@ -84,15 +84,8 @@ func _on_create_button_pressed() -> void:
 	if OS.is_debug_build() and DnaBuilder.is_dev_tool_enabled():
 		DnaBuilder.DNA_BASES_OFFSET = %OffsetSpinBoxSlider.value
 
-	var dna: DnaStructure = DnaStructure.create(params, _dna_sequence_text_edit.text)
+	var dna: AtomicStructure = DnaBuilder.build_dna_structure(_dna_sequence_text_edit.text, params)
 	dna.set_structure_name("DNA Chain%d" % _workspace_context.workspace.get_nmb_of_structures())
-	var dna_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
-	var up_dir: Vector3 = _workspace_context.get_editor_viewport().get_camera_3d().global_transform.basis.y
-	var chain_length: float = params.rise_nanometers * (_dna_sequence_text_edit.text.length() - 1)
-	dna.start_edit()
-	dna.insert_control_point(dna_pos)
-	dna.insert_control_point(dna_pos + up_dir * chain_length)
-	dna.end_edit()
 	var parent_context: StructureContext = _workspace_context.get_current_structure_context()
 	_workspace_context.workspace.add_structure(dna, parent_context.nano_structure)
 	_workspace_context.snapshot_moment("Create DNA Chain")

@@ -194,7 +194,7 @@ func _drag_drop_bond_preview_update(in_position: Vector3) -> void:
 		rendering.atom_preview_hide()
 		rendering.bond_preview_hide()
 		get_workspace_context().set_hovered_structure_context(structure_context, _target_atom_id,
-				AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
+				AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID)
 		return
 	
 	structure_context.set_atom_selection([_drag_start_atom_id])
@@ -237,7 +237,7 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 				# Cannot create spring from atom to atom, switch mode to create bonds
 				_ensure_creating_bonds()
 			workspace_context.set_hovered_structure_context(hit_context, atom_id, AtomicStructure.INVALID_BOND_ID,
-					AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
+					AtomicStructure.INVALID_SPRING_ID)
 			atomic_structure = hit_context.nano_structure as AtomicStructure
 			atomic_structure_context = hit_context
 			if _creating == _CREATING_BOND and atomic_structure.int_guid != _drag_start_structure_id:
@@ -246,7 +246,7 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 				_hide_atom_and_bond_preview()
 				return false
 			workspace_context.set_hovered_structure_context(hit_context,_target_atom_id,
-					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
+					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID)
 			assert(is_instance_valid(atomic_structure))
 			atom_id = multi_structure_hit_result.closest_hit_atom_id
 			_target_atom_id = atom_id
@@ -255,7 +255,7 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 			assert(is_instance_valid(anchor))
 			anchor_context = hit_context
 			workspace_context.set_hovered_structure_context(hit_context, AtomicStructure.INVALID_ATOM_ID,
-					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
+					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID)
 			if _drag_state != _DRAG_FROM_ATOM:
 				# Cannot create spring from anchor to anchor
 				return false
@@ -265,7 +265,7 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 			_hide_atom_and_bond_preview()
 			_hide_anchor_and_spring_preview()
 			workspace_context.set_hovered_structure_context(hit_context, AtomicStructure.INVALID_ATOM_ID,
-					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
+					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID)
 			return false
 	# 2. Resolve Drag Source
 	match _drag_state:

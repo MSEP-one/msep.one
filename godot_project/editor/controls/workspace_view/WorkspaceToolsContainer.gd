@@ -20,8 +20,7 @@ func _on_hovered_structure_context_changed(
 			in_hovered_structure_context: StructureContext,
 			in_atom_id: int,
 			in_bond_id: int,
-			in_spring_id: int,
-			in_dna_control_point_idx: int) -> void:
+			in_spring_id: int) -> void:
 	if in_hovered_structure_context != null and in_hovered_structure_context.nano_structure.is_virtual_object():
 		_show_virtual_object_tooltip(in_hovered_structure_context)
 	elif in_toplevel_hovered_structure_context == null:
@@ -33,12 +32,6 @@ func _on_hovered_structure_context_changed(
 			_show_hovered_spring_tooltip(in_hovered_structure_context, in_spring_id)
 		else:
 			tooltip_text = ""
-	elif in_hovered_structure_context.nano_structure is DnaStructure:
-		if in_dna_control_point_idx == DnaStructure.INVALID_CONTROL_POINT_IDX:
-			tooltip_text = _get_path_to_context(in_hovered_structure_context).rstrip("\n")
-			tooltip_text += " (%s)" % in_hovered_structure_context.nano_structure.get_tooltip_text()
-		else:
-			_show_hovered_dna_control_point_tooltip(in_hovered_structure_context, in_dna_control_point_idx)
 	elif in_spring_id != AtomicStructure.INVALID_SPRING_ID:
 		_show_hovered_spring_tooltip(in_hovered_structure_context, in_spring_id)
 		var group_path: String = _get_path_to_context(in_hovered_structure_context)
@@ -99,15 +92,6 @@ func _show_hovered_spring_tooltip(in_hovered_structure_context: StructureContext
 	if not is_equal_approx(anchor_position.distance_squared_to(atom_position), length * length):
 		tooltip += tr("Current legth: %.3f nm\n") % anchor_position.distance_to(atom_position)
 	tooltip += tr("Force: %.2f nN/nm\n") % structure.spring_get_constant_force(in_spring_id)
-	tooltip_text = tooltip
-
-
-func _show_hovered_dna_control_point_tooltip(in_hovered_structure_context: StructureContext, in_dna_control_point_idx: int) -> void:
-	var dna_structure: DnaStructure = in_hovered_structure_context.nano_structure as DnaStructure
-	var tooltip: String = _get_path_to_context(in_hovered_structure_context).rstrip("\n")
-	tooltip += " (%s)\n" % dna_structure.get_tooltip_text()
-	var pos: Vector3 = dna_structure.get_control_point_position(in_dna_control_point_idx)
-	tooltip += tr("Control Point #%d: %s\n") % [in_dna_control_point_idx, str(pos)]
 	tooltip_text = tooltip
 
 

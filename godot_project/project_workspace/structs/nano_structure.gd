@@ -104,7 +104,6 @@ func is_virtual_object() -> bool:
 	return self is NanoShape or self.get_type() in \
 			[&"RotaryMotor", &"LinearMotor", &"Spring", &"AnchorPoint", &"ParticleEmitter"]
 
-
 ## Returns a texture to represent the structure in the UI, it can be a predefined
 ## icon or a thumbnail of the actual structure
 func get_icon() -> Texture2D:

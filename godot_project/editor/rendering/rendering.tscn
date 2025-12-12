@@ -38,10 +38,6 @@ script = ExtResource("1_vymcv")
 
 [node name="OtherStructureRenderer(Placeholder Sample)" parent="AtomicStructureRenderers" instance_placeholder="res://editor/rendering/atomic_structure_renderer/atomic_structure_renderer.tscn"]
 
-[node name="DnaStructureRenderers" type="Node" parent="."]
-
-[node name="DnaStructureRenderer" parent="DnaStructureRenderers" instance_placeholder="res://editor/rendering/dna_structure_renderer/dna_structure_renderer.tscn"]
-
 [node name="NanoShapeRenderers" type="Node" parent="."]
 
 [node name="ReferenceShapeRenderer(Placeholder Sample)" parent="NanoShapeRenderers" instance_placeholder="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.tscn"]

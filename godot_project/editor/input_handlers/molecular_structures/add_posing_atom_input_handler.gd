@@ -118,7 +118,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	
 	# Discard atoms hovering if a candidate is hovered.
 	if _hovered_candidate != null:
-		out_context.workspace_context.set_hovered_structure_context(null, -1, -1, -1, -1)
+		out_context.workspace_context.set_hovered_structure_context(null, -1, -1, -1)
 	
 	if not (in_input_event is InputEventMouseButton and 
 			in_input_event.pressed and

@@ -76,8 +76,6 @@ func _update_selected_info() -> void:
 			total_emitters_selected += 1
 		elif context.nano_structure is NanoVirtualAnchor:
 			total_anchors_selected += 1
-		elif context.nano_structure is DnaStructure:
-			pass
 		else:
 			assert(false, "Untracked nano structure type: %s" % context.nano_structure.get_type())
 			pass

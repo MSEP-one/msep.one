@@ -211,8 +211,7 @@ func _on_shape_context_virtual_object_selection_changed(in_is_selected: bool) ->
 
 
 func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: StructureContext,
-			hovered_structure_context: StructureContext, _atom_id: int, _bond_id: int, _spring_id: int,
-			_in_dna_control_point_idx: int) -> void:
+			hovered_structure_context: StructureContext, _atom_id: int, _bond_id: int, _spring_id: int) -> void:
 	var nano_shape: NanoShape = _workspace_context.workspace.get_structure_by_int_guid(_shape_id) as NanoShape
 	if not is_instance_valid(shape) or not is_instance_valid(nano_shape):
 		return
