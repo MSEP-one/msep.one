@@ -91,7 +91,8 @@ func _enter_tree() -> void:
 func _on_workspace_context_hovered_structure_context_changed(
 			in_toplevel_hovered_structure_context: StructureContext,
 			in_hovered_structure_context: StructureContext,
-			_in_atom_id: int, _in_bond_id: int, _in_spring_id: int) -> void:
+			_in_atom_id: int, _in_bond_id: int, _in_spring_id: int,
+			_in_dna_control_point_idx: int) -> void:
 	var anchor: NanoVirtualAnchor = get_anchor()
 	if not is_instance_valid(anchor):
 		# This renderer is no longer valid

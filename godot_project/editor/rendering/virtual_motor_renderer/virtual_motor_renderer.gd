@@ -185,7 +185,8 @@ func _enter_tree() -> void:
 func _on_workspace_context_hovered_structure_context_changed(
 			toplevel_hovered_structure_context: StructureContext,
 			in_hovered_structure_context: StructureContext,
-			_in_atom_id: int, _in_bond_id: int, _in_spring_id: int) -> void:
+			_in_atom_id: int, _in_bond_id: int, _in_spring_id: int,
+			_in_dna_control_point_idx: int) -> void:
 	var motor: NanoVirtualMotor = _workspace_context.workspace.get_structure_by_int_guid(_motor_id)
 	var is_motor_hovered: bool = false
 	if is_instance_valid(toplevel_hovered_structure_context) and is_instance_valid(motor) and \

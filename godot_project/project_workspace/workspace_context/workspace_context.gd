@@ -12,7 +12,7 @@ signal virtual_object_transform_changed(structure_context: StructureContext)
 signal atoms_added_to_structure(structure_context: StructureContext, atom_ids: PackedInt32Array)
 signal current_structure_context_changed(structure_context: StructureContext)
 signal hovered_structure_context_changed(toplevel_hovered_structure_context: StructureContext,
-		hovered_structure_context: StructureContext, atom_id: int, bond_id: int, spring_id: int)
+		hovered_structure_context: StructureContext, atom_id: int, bond_id: int, spring_id: int, dna_control_point_idx: int)
 signal editable_structure_context_list_changed(new_editable_structure_contexts: Array[StructureContext])
 signal started_creating_object()
 signal aborted_creating_object()
@@ -129,6 +129,7 @@ var _hovered_structure_context: StructureContext
 var _hovered_atom_id: int = AtomicStructure.INVALID_ATOM_ID
 var _hovered_bond_id: int = AtomicStructure.INVALID_BOND_ID
 var _hovered_spring_id: int = AtomicStructure.INVALID_SPRING_ID
+var _dna_control_point_idx: int = DnaStructure.INVALID_CONTROL_POINT_IDX
 
 var _preview_texture_viewport: SubViewport = null
 
@@ -1178,19 +1179,21 @@ func get_rendering() -> Rendering:
 
 
 func set_hovered_structure_context(in_structure_context: StructureContext, in_atom_id: int,
-			in_bond_id: int, in_spring_id: int) -> void:
+			in_bond_id: int, in_spring_id: int, in_dna_control_point_idx: int) -> void:
 	if in_structure_context == _hovered_structure_context and _hovered_atom_id == in_atom_id and \
-			_hovered_bond_id == in_bond_id and _hovered_spring_id == in_spring_id:
+			_hovered_bond_id == in_bond_id and _hovered_spring_id == in_spring_id and \
+			_dna_control_point_idx == in_dna_control_point_idx:
 		return
 	_hovered_structure_context = in_structure_context
 	_hovered_atom_id = in_atom_id
 	_hovered_bond_id = in_bond_id
 	_hovered_spring_id = in_spring_id
+	_dna_control_point_idx = in_dna_control_point_idx
 	var informed_toplevel_structure_context: StructureContext = null
 	if not in_structure_context in [null, get_current_structure_context()]:
 		informed_toplevel_structure_context = get_toplevel_editable_context(in_structure_context)
 	hovered_structure_context_changed.emit(informed_toplevel_structure_context, in_structure_context,
-			_hovered_atom_id, _hovered_bond_id, _hovered_spring_id)
+			_hovered_atom_id, _hovered_bond_id, _hovered_spring_id, _dna_control_point_idx)
 
 
 func has_hovered_object() -> bool:

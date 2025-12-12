@@ -46,7 +46,7 @@ func _set_strand_policy(in_policy: DnaStructure.StrandPolicy) -> void:
 func _set_base(in_base: String) -> void:
 	assert(in_base.length() <= 1)
 	in_base = in_base.to_upper()
-	if not in_base in ["A","T","C","G"]:
+	if not in_base in ["A","T","C","G", "X"]:
 		push_error("Invalid base ", in_base)
 		in_base = "X"
 	if in_base == base and is_node_ready():

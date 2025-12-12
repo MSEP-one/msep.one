@@ -121,7 +121,8 @@ func set_input_forwarding_enabled(in_enabled: bool) -> void:
 			null,
 			AtomicStructure.INVALID_ATOM_ID,
 			AtomicStructure.INVALID_BOND_ID,
-			AtomicStructure.INVALID_SPRING_ID
+			AtomicStructure.INVALID_SPRING_ID,
+			DnaStructure.INVALID_CONTROL_POINT_IDX,
 		)
 
 
