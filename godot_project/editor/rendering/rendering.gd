@@ -958,6 +958,9 @@ func _refresh_outline_color() -> void:
 	
 	RenderingServer.global_shader_parameter_set(&"selected_atom_outline_color", outline_color)
 	RenderingServer.global_shader_parameter_set(&"reference_shape_selected_wireframe_color", outline_color)
+	for dna_renderer: Node in _dna_structure_renderers.get_children():
+		if dna_renderer is DnaStructureRenderer:
+			dna_renderer.queue_redraw()
 
 
 func _refresh_viewport_background() -> void:
