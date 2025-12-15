@@ -2,10 +2,8 @@
 class_name DnaStructureRenderer extends Path3D
 
 
-@onready var _transform_helper: PathFollow3D = %TransformHelper
-@onready var _path_representation: Control = %PathRepresentation
-
 const StrandPolicy = DnaStructure.StrandPolicy
+
 
 @export_custom(PROPERTY_HINT_ENUM, "A,B,DOUBLE", PROPERTY_USAGE_EDITOR)
 var _strand_policy := StrandPolicy.DOUBLE:
@@ -46,6 +44,10 @@ var _path_being_edited: bool = false
 var _hovered_control_point: int = -1
 var _highlighted_control_points: Dictionary[int, bool] = {}
 
+@onready var _transform_helper: PathFollow3D = %TransformHelper
+@onready var _path_representation: Control = %PathRepresentation
+
+
 # Transform gizmo tools
 # while transform gizmo is in use, _temp_curve will create a duplicate of dna's curve
 # when transformation is applied, renderer retakes the curve from the object and _temp_curve is freed
@@ -68,9 +70,6 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var is_hovered: bool = _path_hovered and _hover_enabled
-	if not is_hovered and not _path_highlighted and not _path_being_edited:
-		return
 	# Redraw if the camera is moving
 	if is_instance_valid(_camera) and (
 			_camera.global_transform != _camera_last_transform
@@ -79,7 +78,7 @@ func _process(_delta: float) -> void:
 		_camera_last_transform = _camera.global_transform
 		_camera_last_zoom = _camera.size
 		_camera_last_projection = _camera.projection
-		_path_representation.queue_redraw()
+		queue_redraw()
 
 
 func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -> void:
@@ -116,7 +115,7 @@ func _on_curve_changed() -> void:
 
 
 func set_selection_position_delta(in_selection_delta: Vector3) -> void:
-	_path_representation.queue_redraw()
+	queue_redraw()
 	if in_selection_delta == Vector3():
 		_reset_temp_curve()
 		return
@@ -142,7 +141,7 @@ func set_selection_position_delta(in_selection_delta: Vector3) -> void:
 
 
 func rotate_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
-	_path_representation.queue_redraw()
+	queue_redraw()
 	if in_rotation_to_apply == Basis():
 		_reset_temp_curve()
 		return
@@ -262,6 +261,12 @@ func _update_bases() -> void:
 func disable_hover() -> void:
 	# This is used to ensure the hover effect is never used in the 3D preview of the DynamicContextDocker
 	_hover_enabled = false
+	queue_redraw()
+
+
+func queue_redraw() -> void:
+	if is_queued_for_deletion() or not is_inside_tree():
+		return
 	_path_representation.queue_redraw()
 
 
@@ -282,13 +287,10 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 		_path_hovered = dna_structure == hovered_structure_context.nano_structure
 		if _path_hovered:
 			_hovered_control_point = in_dna_control_point_idx
-	_path_representation.queue_redraw()
+	queue_redraw()
 
 
 func _on_path_representation_drawn() -> void:
-	var is_hovered: bool = _path_hovered and _hover_enabled
-	if not is_hovered and not _path_highlighted and not _path_being_edited:
-		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
 	if path.is_empty():
@@ -297,14 +299,13 @@ func _on_path_representation_drawn() -> void:
 	var last_pos2d: Vector2 = camera.unproject_position(path[0])
 	const MIN_SEGMENT_DISTANCE_SQRD_IN_PIXELS: float = 3 * 3
 	var last_idx: int = path.size() - 1
-	const PATH_COLOR = Color.WHITE
 	var path_width: int = 2
 	if _path_highlighted or _path_being_edited:
 		path_width = 4
 	for i in range(1, path.size()):
 		var pos2d: Vector2 = camera.unproject_position(path[i])
 		if last_pos2d.distance_squared_to(pos2d) >= MIN_SEGMENT_DISTANCE_SQRD_IN_PIXELS or i == last_idx:
-			_path_representation.draw_line(last_pos2d, pos2d, PATH_COLOR, path_width)
+			_path_representation.draw_line(last_pos2d, pos2d, _get_outline_color(), path_width)
 			last_pos2d = pos2d
 	if not _path_being_edited:
 		return
@@ -324,6 +325,18 @@ func _on_path_representation_drawn() -> void:
 		_path_representation.draw_circle(pos2d, CONTROL_POINT_RADIUS, color)
 
 
+func _get_outline_color() -> Color:
+	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
+	var color: Color = representation_settings.get_theme().get_highlight_color()
+	if representation_settings.get_custom_selection_outline_color_enabled():
+		color = representation_settings.get_custom_selection_outline_color()
+	var is_hovered: bool = _path_hovered and _hover_enabled
+	if is_hovered or _path_highlighted or _path_being_edited:
+		return color
+	color.a = 0.5
+	return color
+
+
 func _on_workspace_context_selection_in_structures_changed(out_structure_contexts: Array[StructureContext]) -> void:
 	for context: StructureContext in out_structure_contexts:
 		var is_this_strucutre: bool = context.nano_structure.int_guid == _structure_id
@@ -331,7 +344,7 @@ func _on_workspace_context_selection_in_structures_changed(out_structure_context
 			var is_selected: bool = context.is_dna_structure_fully_selected()
 			if is_selected != _path_highlighted:
 				_path_highlighted = is_selected
-				_path_representation.queue_redraw()
+				queue_redraw()
 
 
 func create_state_snapshot() -> Dictionary:
@@ -374,4 +387,4 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	for i in bases_snapshots.size():
 		_bases[i].apply_state_snapshot(bases_snapshots[i])
 	_applying_snapshot = false
-	_path_representation.queue_redraw()
+	queue_redraw()
