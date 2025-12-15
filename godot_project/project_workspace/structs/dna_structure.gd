@@ -3,7 +3,7 @@ class_name DnaStructure extends NanoStructure
 signal bases_count_changed(new_count: int)
 signal sequence_changed(new_sequence: String)
 signal path_changed()
-signal parameters_changed()
+signal parameters_changed(read_only_parameters: DnaStructureParameters)
 
 
 enum Strand {
@@ -108,10 +108,14 @@ func end_edit() -> void:
 			bases_count_changed.emit(count)
 			_last_bases_cout = _sequence.length()
 		if _last_sequence != _sequence:
-			sequence_changed.emit(_sequence)
 			_last_sequence = _sequence
+			_baked_path.clear()
+			sequence_changed.emit(_sequence)
 		if _signal_queue_parameters_changed:
-			parameters_changed.emit()
+			_baked_path.clear()
+			_parameters.set_read_only(true)
+			parameters_changed.emit(_parameters)
+			_parameters.set_read_only(false)
 			_signal_queue_parameters_changed = false
 		emit_changed()
 #endregion: Edit tracking
