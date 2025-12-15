@@ -3,7 +3,7 @@ class_name DnaStructureRenderer extends Path3D
 
 
 @onready var _transform_helper: PathFollow3D = %TransformHelper
-@onready var _path_hover_representation: Control = %PathHoverRepresentation
+@onready var _path_representation: Control = %PathRepresentation
 
 
 
@@ -41,15 +41,39 @@ var _applying_snapshot: bool = false
 # hovering API
 var _hover_enabled: bool = true
 var _path_hovered: bool = false
+var _path_highlighted: bool = false
+var _path_being_edited: bool = false
 var _hovered_control_point: int = -1
-var _path_position_hovered: Vector3
 var _highlighted_control_points: Dictionary[int, bool]
+
+# Track camera changes
+var _camera: Camera3D
+var _camera_last_transform: Transform3D
+var _camera_last_zoom: float
+var _camera_last_projection: Camera3D.ProjectionType
+
 
 func _ready() -> void:
 	_update_bases()
 	_transform_helper.progress_ratio = 1
 	curve_changed.connect(_on_curve_changed)
-	_path_hover_representation.draw.connect(_on_path_hover_representation_drawn)
+	_path_representation.draw.connect(_on_path_representation_drawn)
+	_camera = get_viewport().get_camera_3d()
+
+
+func _process(_delta: float) -> void:
+	var is_hovered: bool = _path_hovered and _hover_enabled
+	if not is_hovered and not _path_highlighted and not _path_being_edited:
+		return
+	# Redraw if the camera is moving
+	if is_instance_valid(_camera) and (
+			_camera.global_transform != _camera_last_transform
+			or _camera.size != _camera_last_zoom
+			or _camera_last_projection != _camera.projection):
+		_camera_last_transform = _camera.global_transform
+		_camera_last_zoom = _camera.size
+		_camera_last_projection = _camera.projection
+		_path_representation.queue_redraw()
 
 
 func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -> void:
@@ -61,11 +85,17 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_rise_nanometers = in_structure.get_rise_nanometers()
 	_bases_per_turn = in_structure.get_bases_per_turn()
 	_initial_twist = in_structure.get_initial_twist_rad()
+	_update_bases()
 
-	if not in_workspace_context.editable_structure_context_list_changed.is_connected(_on_editable_structure_context_list_changed):
-		in_workspace_context.editable_structure_context_list_changed.connect(_on_editable_structure_context_list_changed)
-		in_workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
-
+func _enter_tree() -> void:
+	var editor_viewport: WorkspaceEditorViewport = get_viewport() as WorkspaceEditorViewport
+	if not is_instance_valid(editor_viewport):
+		return
+	var workspace_context: WorkspaceContext = editor_viewport.get_workspace_context()
+	if not workspace_context.editable_structure_context_list_changed.is_connected(_on_editable_structure_context_list_changed):
+		workspace_context.editable_structure_context_list_changed.connect(_on_editable_structure_context_list_changed)
+		workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
+		workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 
 func _on_curve_changed() -> void:
 	_transform_helper.progress_ratio = 1
@@ -140,13 +170,6 @@ func set_initial_twist(in_twist_rad: float) -> void:
 
 
 func _update_bases() -> void:
-	if Engine.is_editor_hint():
-		_update_bases_deferred()
-	else:
-		ScriptUtils.call_deferred_once(_update_bases_deferred)
-
-
-func _update_bases_deferred() -> void:
 	var base_count: int = _sequence.length()
 	while _bases.size() > base_count:
 		_bases.pop_back().queue_free()
@@ -167,10 +190,10 @@ func _update_bases_deferred() -> void:
 func disable_hover() -> void:
 	# This is used to ensure the hover effect is never used in the 3D preview of the DynamicContextDocker
 	_hover_enabled = false
-	_path_hover_representation.queue_redraw()
+	_path_representation.queue_redraw()
 
 
-func _on_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
+func _on_editable_structure_context_list_changed(_in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	print_debug("TODO: _on_editable_structure_context_list_changed")
 
 
@@ -187,11 +210,12 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 		_path_hovered = dna_structure == hovered_structure_context.nano_structure
 		if _path_hovered:
 			_hovered_control_point = in_dna_control_point_idx
-	_path_hover_representation.queue_redraw()
+	_path_representation.queue_redraw()
 
 
-func _on_path_hover_representation_drawn() -> void:
-	if not _hover_enabled or not _path_hovered:
+func _on_path_representation_drawn() -> void:
+	var is_hovered: bool = _path_hovered and _hover_enabled
+	if not is_hovered and not _path_highlighted and not _path_being_edited:
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	var path: PackedVector3Array = dna_structure.get_baked_path()
@@ -205,9 +229,13 @@ func _on_path_hover_representation_drawn() -> void:
 		var pos2d: Vector2 = camera.unproject_position(path[i])
 		if last_pos2d.distance_squared_to(pos2d) >= MIN_SEGMENT_DISTANCE_SQRD_IN_PIXELS or i == last_idx:
 			const PATH_COLOR = Color.WHITE
-			const PATH_WIDTH = 2
-			_path_hover_representation.draw_line(last_pos2d, pos2d, PATH_COLOR, PATH_WIDTH)
+			var path_width: int = 2
+			if _path_highlighted or _path_being_edited:
+				path_width = 4
+			_path_representation.draw_line(last_pos2d, pos2d, PATH_COLOR, path_width)
 			last_pos2d = pos2d
+	if not _path_being_edited:
+		return
 	for cp_idx: int in dna_structure.get_control_point_count():
 		var pos: Vector3 = dna_structure.get_control_point_position(cp_idx)
 		var pos2d: Vector2 = camera.unproject_position(pos)
@@ -220,7 +248,17 @@ func _on_path_hover_representation_drawn() -> void:
 			color = CONTROL_POINT_COLOR_HIGHLIGHTED
 		elif _hovered_control_point == cp_idx:
 			color = CONTROL_POINT_COLOR_HOVER
-		_path_hover_representation.draw_circle(pos2d, CONTROL_POINT_RADIUS, color)
+		_path_representation.draw_circle(pos2d, CONTROL_POINT_RADIUS, color)
+
+
+func _on_workspace_context_selection_in_structures_changed(out_structure_contexts: Array[StructureContext]) -> void:
+	for context: StructureContext in out_structure_contexts:
+		var is_this_strucutre: bool = context.nano_structure.int_guid == _structure_id
+		if is_this_strucutre:
+			var is_selected: bool = context.is_dna_structure_fully_selected()
+			if is_selected != _path_highlighted:
+				_path_highlighted = is_selected
+				_path_representation.queue_redraw()
 
 
 func create_state_snapshot() -> Dictionary:
@@ -232,6 +270,8 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_rise_nanometers"] = _rise_nanometers
 	snapshot["_bases_per_turn"] = _bases_per_turn
 	snapshot["_initial_twist"] = _initial_twist
+	snapshot["_path_highlighted"] = _path_highlighted
+	snapshot["_path_being_edited"] = _path_being_edited
 	var bases_snapshots: Array[Dictionary] = []
 	for b: DnaBaseRepresentation in _bases:
 		bases_snapshots.append(b.create_state_snapshot())
@@ -247,6 +287,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_rise_nanometers = in_state_snapshot["_rise_nanometers"]
 	_bases_per_turn = in_state_snapshot["_bases_per_turn"]
 	_initial_twist = in_state_snapshot["_initial_twist"]
+	_path_highlighted = in_state_snapshot["_path_highlighted"]
+	_path_being_edited = in_state_snapshot["_path_being_edited"]
 	var bases_snapshots: Array[Dictionary] = in_state_snapshot["bases_snapshots"]
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	dna_structure.grab_curve(self)
@@ -259,3 +301,4 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	for i in bases_snapshots.size():
 		_bases[i].apply_state_snapshot(bases_snapshots[i])
 	_applying_snapshot = false
+	_path_representation.queue_redraw()
