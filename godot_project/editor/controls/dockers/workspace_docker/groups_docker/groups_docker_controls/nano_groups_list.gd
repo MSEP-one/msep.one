@@ -416,7 +416,7 @@ func _update_structure_selection(in_groups_to_update: PackedInt32Array) -> void:
 ## NanoShape and Motors, etc can't be displayed here but shapes also extends NanoMolecularStructure
 ## so we have to be explicit on the check here.
 func _can_appear_in_tree(nano_structure: NanoStructure) -> bool:
-	return not nano_structure.is_virtual_object()
+	return not nano_structure.is_virtual_object() and not nano_structure is DnaStructure
 
 
 func _get_structure_tree_item_or_null(in_structure_id: int) -> TreeItem:

@@ -39,6 +39,7 @@ func _init() -> void:
 	if _curve == null:
 		# Newly created object
 		_curve = Curve3D.new()
+		_curve.bake_interval = 0.02
 	if _parameters == null:
 		_parameters = DnaStructureParameters.new()
 	_curve.changed.connect(_on_curve_changed)
@@ -207,6 +208,10 @@ func remove_control_point(in_index: int) -> void:
 		recalculate_curve_in_out(_curve, in_index - 1)
 	if in_index < _curve.point_count:
 		recalculate_curve_in_out(_curve, in_index)
+
+
+func is_control_point_valid(in_index: int) -> bool:
+	return in_index >= 0 and in_index < _curve.point_count
 
 
 func set_control_point_position(in_index: int, int_position: Vector3) -> void:

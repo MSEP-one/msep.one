@@ -355,6 +355,24 @@ func lowlight_springs(in_springs_to_lowlight: PackedInt32Array, in_structure: At
 	atomic_structure_renderer.lowlight_springs(in_springs_to_lowlight)
 
 
+func notify_dna_path_being_edited(in_structure_id: int) -> void:
+	for dna_renderer: Node in _dna_structure_renderers.get_children():
+		if dna_renderer is DnaStructureRenderer:
+			dna_renderer.notify_dna_path_being_edited(in_structure_id)
+
+
+func highlight_dna_control_points(in_control_points_to_highlight: PackedInt32Array, in_dna_structure: DnaStructure) -> void:
+	if not enabled: return
+	var dna_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_dna_structure.get_int_guid())
+	dna_renderer.highlight_control_points(in_control_points_to_highlight)
+
+
+func lowlight_dna_control_points(in_control_points_to_lowlight: PackedInt32Array, in_dna_structure: DnaStructure) -> void:
+	if not enabled: return
+	var dna_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_dna_structure.get_int_guid())
+	dna_renderer.lowlight_control_points(in_control_points_to_lowlight)
+
+
 func apply_theme(in_theme: Theme3D) -> void:
 	if _theme_in_use == in_theme:
 		_refresh_viewport_background()

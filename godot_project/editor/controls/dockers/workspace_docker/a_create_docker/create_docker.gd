@@ -136,11 +136,27 @@ func _ensure_workspace_initialized(in_workspace_context: WorkspaceContext) -> vo
 	assert(create_object_parameters != null, "Workspace Context should always have CreateObjectParameters component")
 	if !create_object_parameters.create_mode_type_changed.is_connected(_on_create_object_parameters_create_mode_changed):
 		create_object_parameters.create_mode_type_changed.connect(_on_create_object_parameters_create_mode_changed)
+		create_object_parameters.create_mode_enabled_changed.connect(_on_create_object_parameters_create_mode_enabled_changed)
 
 
 func _on_create_object_parameters_create_mode_changed(_in_create_mode: int) -> void:
 	# Update controls visibility
 	_update_visibility(should_show(_workspace_context))
+	_stop_edit_dna_spline_if_necesary()
+
+
+func _on_create_object_parameters_create_mode_enabled_changed(_in_enabled: bool) -> void:
+	_stop_edit_dna_spline_if_necesary()
+
+
+func _stop_edit_dna_spline_if_necesary() -> void:
+	var is_editing_dna_spline: bool = _workspace_context.get_edited_dna_spline_id() != Workspace.INVALID_STRUCTURE_ID
+	if not is_editing_dna_spline:
+		return
+	if (_workspace_context.create_object_parameters.get_create_mode_enabled()
+			and _workspace_context.create_object_parameters.get_create_mode_type()
+			!= CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN):
+		_workspace_context.stop_editing_dna_spline()
 
 
 func add_control_to_category(in_category_id: StringName, in_control: DynamicContextControl) -> bool:

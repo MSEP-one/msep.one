@@ -25,3 +25,11 @@ button_group = SubResource("ButtonGroup_q7pc7")
 
 [node name="StrandDoubleButton" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer" index="2"]
 button_group = SubResource("ButtonGroup_q7pc7")
+
+[node name="StartStopEditingButton" type="Button" parent="VBoxContainer" index="3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+tooltip_text = "While editing path you can change the shape of the DNA chain, double click or Ctrl+Click adds control points, selecting points and press Delete to remove a point."
+theme_type_variation = &"CrystalButton"
+text = "Start Editing Path"

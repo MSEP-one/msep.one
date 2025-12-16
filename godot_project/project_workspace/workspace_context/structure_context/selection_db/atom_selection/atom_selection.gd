@@ -154,6 +154,11 @@ func select_atoms(in_atoms: PackedInt32Array) -> AtomSelectionResult:
 	return _determine_bond_influence(any_new_atom_selected, in_atoms, false)
 
 
+func select_dna_control_points(in_control_points: PackedInt32Array) -> bool:
+	var any_new_point_selected: bool = _internal_select_atoms(in_control_points)
+	return any_new_point_selected
+
+
 func select_atoms_and_get_auto_selected_bonds(in_atoms: PackedInt32Array) -> AtomSelectionResult:
 	var any_new_atom_selected: bool = _internal_select_atoms(in_atoms)
 	return _determine_bond_influence(any_new_atom_selected, in_atoms, true)

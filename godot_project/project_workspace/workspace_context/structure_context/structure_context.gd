@@ -7,6 +7,8 @@ signal atom_selection_changed()
 signal atoms_deselected(in_deselected_atoms: PackedInt32Array)
 signal virtual_object_selection_changed(is_selected: bool)
 signal dna_spline_selection_changed(is_selected: bool)
+signal dna_control_points_selection_changed()
+signal dna_control_points_deselected(in_deselected_control_points: PackedInt32Array)
 
 var workspace_context: WorkspaceContext
 
@@ -42,6 +44,8 @@ func _notification(what: int) -> void:
 		_selection_db.atoms_deselected.connect(_on_selection_db_atoms_deselected)
 		_selection_db.virtual_object_selection_changed.connect(_on_virtual_object_selection_changed)
 		_selection_db.dna_spline_selection_changed.connect(_on_dna_spline_selection_changed)
+		_selection_db.dna_control_points_selection_changed.connect(_on_dna_control_points_selection_changed)
+		_selection_db.dna_control_points_deselected.connect(_on_dna_control_points_deselected)
 	if what == NOTIFICATION_READY:
 		assert(_init_called)
 		pass
@@ -119,6 +123,10 @@ func is_context_of_object_being_created() -> bool:
 func is_editable() -> bool:
 	if is_context_of_object_being_created():
 		return true
+	if workspace_context.get_edited_dna_spline_context() == self:
+		return true
+	if workspace_context.get_edited_dna_spline_context() != null:
+		return false
 	if _is_editable_dirty:
 		_is_editable_dirty = false
 		if workspace_context == null or workspace_context.get_current_structure_context() == null:
@@ -168,7 +176,8 @@ func has_selection(in_recursive: bool = false) -> bool:
 func has_transformable_selection() -> bool:
 	return is_any_atom_selected() \
 		or _selection_db.is_virtual_object_selected() \
-		or _selection_db.is_dna_spline_selected()
+		or _selection_db.is_dna_spline_selected() \
+		or _selection_db.get_selected_dna_spline_countrol_points().size() > 0
 
 
 func has_cached_selection_set() -> bool:
@@ -203,15 +212,28 @@ func is_spring_selected(in_spring_id: int) -> bool:
 	return _selection_db.is_spring_selected(in_spring_id)
 
 
-func is_dna_structure_fully_selected() -> bool:
+func dna_structure_has_selection() -> bool:
 	if not nano_structure is DnaStructure:
 		return false
 	if workspace_context.is_simulating():
+		assert(false, "TODO: Check if any atoms are selected")
+		return false
+	if _selection_db.is_dna_spline_selected():
+		return true
+	if workspace_context.get_edited_dna_spline_id() == get_int_guid() and _selection_db.get_selected_dna_spline_countrol_points().size() > 0:
+		return true
+	return false
+
+
+func is_dna_structure_fully_selected() -> bool:
+	if not nano_structure is DnaStructure:
+		return false
+	var dna_structure := nano_structure as DnaStructure
+	if workspace_context.is_simulating():
 		assert(false, "TODO: Check if all atoms are fully selected")
 		return false
-	# TODO: implement this when api exists
-	#if workspace_context.get_edited_dna_spline() == nano_structure:
-		#return check_if_all_control_points_selected()
+	if workspace_context.get_edited_dna_spline_id() == dna_structure.int_guid:
+		return _selection_db.get_selected_dna_spline_countrol_points().size() == dna_structure.get_control_point_count()
 	return _selection_db.is_dna_spline_selected()
 
 
@@ -405,6 +427,22 @@ func set_dna_spline_selected(in_selected: bool) -> void:
 	_selection_db.set_dna_spline_selected(in_selected)
 
 
+func set_dna_control_point_selection(in_control_points_to_select: PackedInt32Array) -> void:
+	return _selection_db.set_dna_control_point_selection(in_control_points_to_select)
+
+
+func select_dna_control_points(in_control_points_to_select: PackedInt32Array) -> void:
+	return _selection_db.select_dna_control_points(in_control_points_to_select)
+
+
+func deselect_dna_control_points(in_control_points_to_deselect: PackedInt32Array) -> void:
+	return _selection_db.deselect_dna_control_points(in_control_points_to_deselect)
+
+
+func get_selected_dna_spline_countrol_points() -> PackedInt32Array:
+	return _selection_db.get_selected_dna_spline_countrol_points()
+
+
 func set_virtual_object_selected(in_selected: bool) -> void:
 	assert(nano_structure.is_virtual_object())
 	# This method does not care of the type of virtual object, use with care
@@ -542,3 +580,12 @@ func _on_virtual_object_selection_changed(is_selected: bool) -> void:
 
 func _on_dna_spline_selection_changed(is_selected: bool) -> void:
 	dna_spline_selection_changed.emit(is_selected)
+
+
+func _on_dna_control_points_selection_changed() -> void:
+	dna_control_points_selection_changed.emit()
+
+
+func _on_dna_control_points_deselected(in_deselected_control_points: PackedInt32Array) -> void:
+	dna_control_points_deselected.emit(in_deselected_control_points)
+

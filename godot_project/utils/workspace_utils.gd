@@ -454,6 +454,7 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 	if structures_with_selection.is_empty():
 		return
 	
+	out_workspace_context.stop_editing_dna_spline_no_snapshot()
 	for structure_context: StructureContext in structures_with_selection:
 		if structure_context.is_anchor_selected():
 			var workspace: Workspace = out_workspace_context.workspace
@@ -466,8 +467,8 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 			structure_context.set_anchor_selected(false)
 			structure_context.nano_structure.set_visible(false)
 		elif structure_context.nano_structure is DnaStructure and structure_context.is_dna_structure_fully_selected():
-			# TODO: implement this when api exists
-			# out_workspace_context.set_edited_dna_spline(null)
+			if out_workspace_context.get_edited_dna_spline_id() == structure_context.get_int_guid():
+				out_workspace_context.stop_editing_dna_spline_no_snapshot()
 			structure_context.set_dna_spline_selected(false)
 			structure_context.nano_structure.set_visible(false)
 		elif structure_context.nano_structure.is_virtual_object() and structure_context.is_virtual_object_selected():
@@ -493,7 +494,7 @@ static func show_hidden_objects(out_workspace_context: WorkspaceContext) -> void
 	
 	for structure_context: StructureContext in hidden_structures:
 		var nano_structure: NanoStructure = structure_context.nano_structure
-		if nano_structure.is_virtual_object():
+		if nano_structure.is_virtual_object() or nano_structure is DnaStructure:
 			structure_context.nano_structure.set_visible(true)
 		else:
 			var hidden_atoms: PackedInt32Array = structure_context.get_hidden_atoms()

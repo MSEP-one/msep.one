@@ -6,6 +6,7 @@ const StrandPolicy = DnaStructure.StrandPolicy
 
 var _select_one_info_label: InfoLabel
 var _main_container: Container
+var _start_stop_editing_button: Button
 
 var _workspace_context: WorkspaceContext
 var _tracked_structure: DnaStructure = null
@@ -17,17 +18,19 @@ func _notification(what: int) -> void:
 		_initialized = true
 		_select_one_info_label = %SelectOneInfoLabel as InfoLabel
 		_main_container = $VBoxContainer as Container
+		_start_stop_editing_button = %StartStopEditingButton as Button
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
 		_dna_radius_spin_box_slider.value_confirmed.connect(_on_dna_radius_spin_box_slider_value_confirmed)
 		_bases_per_turn_spin_box_slider.value_confirmed.connect(_on_bases_per_turn_spin_box_slider_value_confirmed)
 		_rise_nanometers_spin_box_slider.value_confirmed.connect(_on_rise_nanometers_spin_box_slider_value_confirmed)
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
 		_include_hydrogens_check_button.toggled.connect(_on_include_hydrogens_check_button_toggled)
+		_start_stop_editing_button.pressed.connect(_on_start_stop_editing_button_pressed)
 		# TODO: Connect controls signals
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
-	_workspace_context = in_workspace_context
+	_ensure_workspace_initialized(in_workspace_context)
 	
 	var selected_count: int = 0
 	var structure: DnaStructure
@@ -50,6 +53,16 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		_main_container.show()
 		_set_tracked_structure(structure)
 	return true
+
+
+func _ensure_workspace_initialized(in_workspace_context: WorkspaceContext) -> void:
+	_workspace_context = in_workspace_context
+	if not _workspace_context.dna_spline_edit_started.is_connected(_on_dna_spline_edition_started):
+		_workspace_context.dna_spline_edit_started.connect(_on_dna_spline_edition_started)
+		_workspace_context.dna_spline_edit_ended.connect(_on_dna_spline_edition_ended)
+		# Assume not active edition during initialization
+		assert(_workspace_context.get_edited_dna_spline_id() == Workspace.INVALID_STRUCTURE_ID)
+		_on_dna_spline_edition_ended()
 
 
 func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
@@ -143,3 +156,25 @@ func _on_include_hydrogens_check_button_toggled(in_button_pressed: bool) -> void
 	_tracked_structure.set_include_hydrogens(in_button_pressed)
 	_tracked_structure.end_edit()
 	_workspace_context.snapshot_moment("Set Dna Chain includes hydrogens")
+
+
+func _on_start_stop_editing_button_pressed() -> void:
+	assert(_tracked_structure != null, "Invalid ui state")
+	if _workspace_context.get_edited_dna_spline_context() == null:
+		_workspace_context.start_editing_dna_spline(_tracked_structure.get_int_guid())
+		_workspace_context.snapshot_moment("Start Editing DNA Path")
+
+	else:
+		assert(_workspace_context.get_edited_dna_spline_id() == _tracked_structure.int_guid)
+		_workspace_context.stop_editing_dna_spline()
+		_workspace_context.snapshot_moment("Stop Editing DNA Path")
+
+
+func _on_dna_spline_edition_started(dna_context: StructureContext) -> void:
+	assert(_tracked_structure == dna_context.nano_structure)
+	_start_stop_editing_button.text = tr(&"Stop Editing Path")
+
+
+func _on_dna_spline_edition_ended() -> void:
+	_start_stop_editing_button.text = tr(&"Start Editing Path")
+
