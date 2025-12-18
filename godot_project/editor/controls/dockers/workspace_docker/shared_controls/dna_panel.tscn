@@ -120,12 +120,14 @@ text = "Double"
 
 [node name="DevToolLabel" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.498039, 0.313726, 1)
 text = "Bases Offset"
 
 [node name="OffsetSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 tooltip_text = "This is a DEV TOOL, should never be visible on release"
 min_value = 0.5

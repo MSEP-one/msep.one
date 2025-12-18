@@ -30,7 +30,7 @@ class_name DnaBaseRepresentation extends PathFollow3D
 
 
 var _applying_snapshot: bool = false
-
+var _transform_override := Transform3D()
 
 static func create() -> DnaBaseRepresentation:
 	return preload("uid://cgh1pcn88ip1a").instantiate()
@@ -63,6 +63,14 @@ func _set_base(in_base: String) -> void:
 	b_strand[&"Base2"].visible = base in ["T", "C"]
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_SCENE_INSTANTIATED:
+		set_notify_local_transform(true)
+	if what == NOTIFICATION_LOCAL_TRANSFORM_CHANGED:
+		if _transform_override != Transform3D() and _transform_override != transform:
+			transform = _transform_override
+
+
 func _set_base_offset(in_offset: float) -> void:
 	base_offset = in_offset
 	if _applying_snapshot == true: return
@@ -71,9 +79,10 @@ func _set_base_offset(in_offset: float) -> void:
 		var t: Transform3D = _get_curve_final_transform()
 		var remaining_offset: float = in_offset - max_progress
 		t.origin += t.basis.z * remaining_offset
-		transform = t
+		_transform_override = t
 	else:
 		progress = in_offset
+		_transform_override = Transform3D()
 
 
 func _set_dna_radius(in_radius: float) -> void:
