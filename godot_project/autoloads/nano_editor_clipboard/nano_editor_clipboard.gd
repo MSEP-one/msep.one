@@ -16,6 +16,11 @@ enum ClipboardContentType {
 
 
 func copy(in_workspace_context: WorkspaceContext) -> void:
+	if in_workspace_context.get_edited_dna_spline_id():
+		if not in_workspace_context.get_edited_dna_spline_context().is_dna_structure_fully_selected():
+			in_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
+				tr(&"Cannot copy DNA spline control points"))
+			return
 	var selection_result: Array[Dictionary] = _get_selected_structure_and_atoms(in_workspace_context)
 	if selection_result.is_empty():
 		return
@@ -49,6 +54,8 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 				_copy_anchor(structure_context, nano_structure, new_content)
 			&"ParticleEmitter":
 				_copy_particle_emitter(structure_context, nano_structure, new_content)
+			&"DnaStructure":
+				_copy_dna_structure(structure_context, nano_structure, new_content)
 			_:
 				push_warning("Nano structure type not implemented for copy")
 	var root_group_id: int = -1
@@ -254,7 +261,18 @@ func _copy_particle_emitter(
 	_copy_structure(in_structure_context, in_emitter, out_content)
 
 
+func _copy_dna_structure(in_structure_context: StructureContext,
+	in_emitter: DnaStructure,
+	out_content: Array[Dictionary]) -> void:
+	_copy_structure(in_structure_context, in_emitter, out_content)
+
+
 func cut(out_workspace_context: WorkspaceContext) -> void:
+	if out_workspace_context.get_edited_dna_spline_id():
+		if not out_workspace_context.get_edited_dna_spline_context().is_dna_structure_fully_selected():
+			out_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
+				tr(&"Cannot cut DNA spline control points"))
+			return
 	copy(out_workspace_context)
 	if out_workspace_context.has_selection():
 		out_workspace_context.action_delete.execute()
@@ -386,6 +404,8 @@ func paste(out_workspace_context: WorkspaceContext, in_auto_bond_order: int) -> 
 				new_motor.disconnect_structure_by_id(original_id)
 				new_motor.connect_structure_by_id(new_id)
 	if did_create_undo_action:
+		if out_workspace_context.get_edited_dna_spline_id() != Workspace.INVALID_STRUCTURE_ID:
+			out_workspace_context.stop_editing_dna_spline()
 		for structure_context: StructureContext in selection_per_structure.keys():
 			structure_context.clear_selection()
 		out_workspace_context.snapshot_moment("Paste clipboard content")

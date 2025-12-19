@@ -13,7 +13,8 @@ enum Strand {
 const StrandPolicy = DnaStructureParameters.StrandPolicy
 const INVALID_CONTROL_POINT_IDX: int = -1
 
-@export var _curve: Curve3D
+@export var _curve: Curve3D:
+	set = _set_curve
 @export var _twists_offset_radians: float
 @export var _sequence: String
 @export var _parameters: DnaStructureParameters
@@ -36,12 +37,18 @@ static func create(out_parameters: DnaStructureParameters, in_sequence: String =
 
 
 func _init() -> void:
+	if _parameters == null:
+		_parameters = DnaStructureParameters.new()
 	if _curve == null:
 		# Newly created object
 		_curve = Curve3D.new()
 		_curve.bake_interval = 0.02
-	if _parameters == null:
-		_parameters = DnaStructureParameters.new()
+
+
+func _set_curve(in_curve: Curve3D) -> void:
+	if _curve != null and _curve.changed.is_connected(_on_curve_changed):
+		_curve.changed.disconnect(_on_curve_changed)
+	_curve = in_curve
 	_curve.changed.connect(_on_curve_changed)
 
 
