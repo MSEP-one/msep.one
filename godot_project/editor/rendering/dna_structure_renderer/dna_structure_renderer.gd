@@ -5,34 +5,34 @@ class_name DnaStructureRenderer extends Path3D
 const StrandPolicy = DnaStructure.StrandPolicy
 
 
+@export_group("Materials")
+@export var a_strand_material: ShaderMaterial
+@export var b_strand_material: ShaderMaterial
+@export var base_pivot_material: ShaderMaterial
+
+
+@export_group("Editor Debug", "_")
 @export_custom(PROPERTY_HINT_ENUM, "A,B,DOUBLE", PROPERTY_USAGE_EDITOR)
 var _strand_policy := StrandPolicy.DOUBLE:
 	set = set_strand_policy
-
 @export_custom(PROPERTY_HINT_MULTILINE_TEXT, "", PROPERTY_USAGE_EDITOR)
 var _sequence: String:
 	set = set_sequence
-
-
 @export_custom(PROPERTY_HINT_RANGE, "0.1,2.0,0.05,or_greater", PROPERTY_USAGE_EDITOR)
 var _rise_nanometers: float = 0.34:
 	set = set_rise_nanometers
-
 @export_custom(PROPERTY_HINT_RANGE, "0.5,1.5,0.05,or_greater", PROPERTY_USAGE_EDITOR)
 var _dna_radius: float = 1.0:
 	set = set_dna_radius
-
-
 @export_custom(PROPERTY_HINT_RANGE, "5,15,0.1,or_greater,or_less", PROPERTY_USAGE_EDITOR)
 var _bases_per_turn: float = 10:
 	set = set_bases_per_turn 
-
-
 @export_custom(PROPERTY_HINT_RANGE, "-360,360,0.1", PROPERTY_USAGE_EDITOR)
 var _initial_twist_degrees: float:
 	set = _set_initial_twist_degrees,
 	get = _get_initial_twist_degrees
 var _initial_twist: float
+@export_group("")
 
 
 var _workspace_context: WorkspaceContext
@@ -43,6 +43,7 @@ var _updating_parameters: bool = false
 
 # hovering API
 var _hover_enabled: bool = true
+var _is_selectable: bool = true
 var _path_hovered: bool = false
 var _path_highlighted: bool = false
 var _path_being_edited: bool = false
@@ -310,6 +311,7 @@ func _update_bases() -> void:
 		_bases.pop_back().queue_free()
 	while _bases.size() < base_count:
 		var base := DnaBaseRepresentation.create()
+		base.setup_materials(a_strand_material, b_strand_material, base_pivot_material)
 		add_child(base)
 		_bases.append(base)
 	
@@ -335,8 +337,16 @@ func queue_redraw() -> void:
 	_path_representation.queue_redraw()
 
 
-func _on_editable_structure_context_list_changed(_in_new_editable_structure_contexts: Array[StructureContext]) -> void:
-	print_debug("TODO: _on_editable_structure_context_list_changed")
+func _on_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
+	_is_selectable = false
+	for context: StructureContext in in_new_editable_structure_contexts:
+		if context.get_int_guid() == _structure_id:
+			_is_selectable = true
+			break
+	const SELECTABLE_VALUE: float = 1.0
+	const UNSELECTABLE_VALUE: float = 0.0
+	_set_shader_uniform(&"is_selectable", SELECTABLE_VALUE if _is_selectable else UNSELECTABLE_VALUE)
+	
 
 
 func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: StructureContext,
@@ -357,7 +367,7 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 
 
 func _on_path_representation_drawn() -> void:
-	if is_queued_for_deletion():
+	if is_queued_for_deletion() or not _is_selectable:
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
@@ -415,6 +425,12 @@ func _on_workspace_context_selection_in_structures_changed(out_structure_context
 				queue_redraw()
 
 
+func _set_shader_uniform(in_uniform: StringName, in_value: Variant) -> void:
+	a_strand_material.set_shader_parameter(in_uniform, in_value)
+	b_strand_material.set_shader_parameter(in_uniform, in_value)
+	base_pivot_material.set_shader_parameter(in_uniform, in_value)
+
+
 func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_workspace_context"] = _workspace_context
@@ -427,6 +443,8 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_path_highlighted"] = _path_highlighted
 	snapshot["_path_being_edited"] = _path_being_edited
 	snapshot["_highlighted_control_points"] = _highlighted_control_points.duplicate()
+	snapshot["_is_selectable"] = _is_selectable
+	snapshot["_selectable_uniform"] = base_pivot_material.get_shader_parameter(&"is_selectable")
 	var bases_snapshots: Array[Dictionary] = []
 	for b: DnaBaseRepresentation in _bases:
 		bases_snapshots.append(b.create_state_snapshot())
@@ -445,6 +463,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_path_highlighted = in_state_snapshot["_path_highlighted"]
 	_path_being_edited = in_state_snapshot["_path_being_edited"]
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
+	_is_selectable = in_state_snapshot["_is_selectable"]
+	_set_shader_uniform(&"is_selectable", in_state_snapshot["_selectable_uniform"])
 	var bases_snapshots: Array[Dictionary] = in_state_snapshot["bases_snapshots"]
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	dna_structure.grab_curve(self)
