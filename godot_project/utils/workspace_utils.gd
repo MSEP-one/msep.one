@@ -451,10 +451,20 @@ static func forward_event(out_workspace_context: WorkspaceContext, event: InputE
 
 static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> void:
 	var structures_with_selection: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_selection()
+	
+	var edited_dna_context: StructureContext = out_workspace_context.get_edited_dna_spline_context()
+	if edited_dna_context != null:
+		if edited_dna_context.is_dna_structure_fully_selected():
+			structures_with_selection = [edited_dna_context]
+			out_workspace_context.stop_editing_dna_spline()
+		else:
+			out_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
+				out_workspace_context.tr(&"Cannot hide DNA spline control points"))
+			structures_with_selection = []
+	
 	if structures_with_selection.is_empty():
 		return
 	
-	out_workspace_context.stop_editing_dna_spline()
 	for structure_context: StructureContext in structures_with_selection:
 		if structure_context.is_anchor_selected():
 			var workspace: Workspace = out_workspace_context.workspace

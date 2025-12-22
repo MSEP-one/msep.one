@@ -38,6 +38,7 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	if edited_spline_context != null:
 		selected_count = 1
 		structure = edited_spline_context.nano_structure as DnaStructure
+		_start_stop_editing_button.text = tr(&"Stop Editing Path")
 	else:
 		for structure_context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
 			if not structure_context.nano_structure is DnaStructure:
