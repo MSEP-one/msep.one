@@ -34,12 +34,17 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	
 	var selected_count: int = 0
 	var structure: DnaStructure
-	for structure_context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
-		if not structure_context.nano_structure is DnaStructure:
-			_set_tracked_structure(null)
-			return false
-		selected_count += 1
-		structure = structure_context.nano_structure as DnaStructure
+	var edited_spline_context: StructureContext = in_workspace_context.get_edited_dna_spline_context()
+	if edited_spline_context != null:
+		selected_count = 1
+		structure = edited_spline_context.nano_structure as DnaStructure
+	else:
+		for structure_context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
+			if not structure_context.nano_structure is DnaStructure:
+				_set_tracked_structure(null)
+				return false
+			selected_count += 1
+			structure = structure_context.nano_structure as DnaStructure
 	
 	if selected_count == 0:
 		_set_tracked_structure(null)
@@ -162,12 +167,11 @@ func _on_start_stop_editing_button_pressed() -> void:
 	assert(_tracked_structure != null, "Invalid ui state")
 	if _workspace_context.get_edited_dna_spline_context() == null:
 		_workspace_context.start_editing_dna_spline(_tracked_structure.get_int_guid())
-		_workspace_context.snapshot_moment("Start Editing DNA Path")
-
+		_workspace_context.snapshot_moment("Start Editing DNA Spline")
 	else:
 		assert(_workspace_context.get_edited_dna_spline_id() == _tracked_structure.int_guid)
 		_workspace_context.stop_editing_dna_spline()
-		_workspace_context.snapshot_moment("Stop Editing DNA Path")
+		_workspace_context.snapshot_moment("Stop Editing DNA Spline")
 
 
 func _on_dna_spline_edition_started(dna_context: StructureContext) -> void:

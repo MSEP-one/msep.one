@@ -137,14 +137,11 @@ func _on_parameters_changed(in_parameters: DnaStructureParameters) -> void:
 
 
 func _on_curve_changed() -> void:
-	assert(curve.get_baked_length() > 0, "Invalid curve, dna chain should be deleted in this case")
+	assert(curve.point_count > 1, "Invalid curve, dna chain should be deleted in this case")
 	_path_representation.queue_redraw()
 	_transform_helper.progress_ratio = 1
 	for base: DnaBaseRepresentation in _bases:
-		const NEEDS_UPDATE_THRESHOLD: float = 0.9
-		if base.progress_ratio >= NEEDS_UPDATE_THRESHOLD:
-			# recalculate transform of trailing bases
-			base.set_deferred(&"base_offset", base.base_offset)
+		base.set_deferred(&"base_offset", base.base_offset)
 
 
 func notify_dna_path_being_edited(in_structure_id: int) -> void:

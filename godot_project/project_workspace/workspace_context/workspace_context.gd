@@ -415,7 +415,7 @@ func set_current_structure_context(in_structure_context: StructureContext) -> vo
 		return
 	# Activating an object cancels create mode
 	abort_creating_object()
-	stop_editing_dna_spline_no_snapshot()
+	stop_editing_dna_spline()
 	workspace.active_structure_int_guid = in_structure_context.get_int_guid()
 	_current_structure_context_id = in_structure_context.get_int_guid()
 	current_structure_context_changed.emit(in_structure_context)
@@ -594,15 +594,6 @@ func start_editing_dna_spline(in_dna_id: int) -> void:
 	get_rendering().notify_dna_path_being_edited(in_dna_id)
 	dna_spline_edit_started.emit(structure_context)
 	_emit_new_editable_structures()
-	snapshot_moment("Start Editing DNA Spline")
-
-
-func stop_editing_dna_spline_no_snapshot() -> void:
-	if _edited_dna_spline_id != Workspace.INVALID_STRUCTURE_ID:
-		_edited_dna_spline_id = Workspace.INVALID_STRUCTURE_ID
-		get_rendering().notify_dna_path_being_edited(Workspace.INVALID_STRUCTURE_ID)
-		_emit_new_editable_structures()
-		dna_spline_edit_ended.emit()
 
 
 func stop_editing_dna_spline() -> void:
@@ -611,7 +602,6 @@ func stop_editing_dna_spline() -> void:
 		get_rendering().notify_dna_path_being_edited(Workspace.INVALID_STRUCTURE_ID)
 		_emit_new_editable_structures()
 		dna_spline_edit_ended.emit()
-		snapshot_moment("Stop Editing DNA Spline")
 # # /Edited DNA Spline
 # # # # # #
 

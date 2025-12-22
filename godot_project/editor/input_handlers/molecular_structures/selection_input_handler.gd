@@ -346,7 +346,7 @@ func _activate_selection_logic(
 						_workspace_context.snapshot_moment("Insert DNA control cpoint")
 				else:
 					get_workspace_context().start_editing_dna_spline(affected_context.get_int_guid())
-					_workspace_context.snapshot_moment("Start Editing DNA Path")
+					get_workspace_context().snapshot_moment("Start Editing DNA Spline")
 				return true
 			get_workspace_context().change_current_structure_context(affected_context)
 			_workspace_context.snapshot_moment("Change Selection")
@@ -561,7 +561,7 @@ func _screen_selection_logic(
 									need_to_create_snapshot = true
 					else:
 						if is_editing:
-							_workspace_context.stop_editing_dna_spline_no_snapshot()
+							_workspace_context.stop_editing_dna_spline()
 						if hit_context.is_dna_structure_fully_selected():
 							hit_context.set_dna_spline_selected(false)
 							if not need_to_create_snapshot:

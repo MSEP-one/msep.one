@@ -157,6 +157,7 @@ func _stop_edit_dna_spline_if_necesary() -> void:
 			and _workspace_context.create_object_parameters.get_create_mode_type()
 			!= CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN):
 		_workspace_context.stop_editing_dna_spline()
+		_workspace_context.snapshot_moment("Stop Editing DNA Spline")
 
 
 func add_control_to_category(in_category_id: StringName, in_control: DynamicContextControl) -> bool:
