@@ -82,10 +82,10 @@ func apply_selection() -> void:
 				context.select_bonds(selected_bonds)
 				context.select_springs(selected_springs)
 		if context.nano_structure is DnaStructure:
-			# TODO: implement this when api exists
-			#if workspace_context.get_edited_dna_spline() == context.nano_structure:
-				#select_control_points_in_box()
-			#else:
+			if _workspace_context.get_edited_dna_spline_context() == context:
+				var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
+				context.set_dna_control_point_selection(control_points_in_box)
+			else:
 				if _is_dna_structure_within_screen_rect(context, camera):
 					context.set_dna_spline_selected(true)
 		if context.nano_structure.is_virtual_object() and _is_virtual_object_within_screen_rect(context, camera):
@@ -150,11 +150,10 @@ func apply_deselection() -> void:
 				context.deselect_atoms(deselected_atoms)
 				context.deselect_bonds(deselected_bonds)
 				context.deselect_springs(deselected_springs)
-		# TODO: implement this when api exists
-		#if workspace_context.get_edited_dna_spline() == context.nano_structure:
-			#deselect_control_points_in_box()
-		#el\
-		if _is_dna_structure_within_screen_rect(context, camera):
+		if _workspace_context.get_edited_dna_spline_context() == context:
+			var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
+			context.deselect_dna_control_points(control_points_in_box)
+		elif _is_dna_structure_within_screen_rect(context, camera):
 				context.set_dna_spline_selected(true)
 		if context.nano_structure.is_virtual_object() and _is_virtual_object_within_screen_rect(context, camera):
 			context.set_virtual_object_selected(false)
@@ -170,6 +169,22 @@ func _is_dna_structure_within_screen_rect(in_context: StructureContext, in_camer
 		# individual atoms and bonds not considered in this API
 		return false
 	return in_context.nano_structure.is_spline_within_screen_rect(in_camera, _rect)
+
+
+func _get_dna_control_points_within_screen_rect(in_context: StructureContext, in_camera: Camera3D) -> PackedInt32Array:
+	assert(in_context.nano_structure is DnaStructure)
+	var is_simulating: bool = in_context.workspace_context.is_simulating()
+	if is_simulating:
+		# individual atoms and bonds not considered in this API
+		return []
+	var dna: DnaStructure = in_context.nano_structure
+	var control_points_in_box: PackedInt32Array = []
+	for p: int in dna.get_control_point_count():
+		var control_point_3d: Vector3 = dna.get_control_point_position(p)
+		var control_point_2d: Vector2 = in_camera.unproject_position(control_point_3d)
+		if _rect.abs().has_point(control_point_2d):
+			control_points_in_box.append(p)
+	return control_points_in_box
 
 
 func _is_virtual_object_within_screen_rect(in_context: StructureContext, in_camera: Camera3D) -> bool:

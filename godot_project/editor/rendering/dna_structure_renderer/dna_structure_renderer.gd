@@ -138,12 +138,34 @@ func _on_parameters_changed(in_parameters: DnaStructureParameters) -> void:
 
 func _on_curve_changed() -> void:
 	assert(curve.get_baked_length() > 0, "Invalid curve, dna chain should be deleted in this case")
+	_path_representation.queue_redraw()
 	_transform_helper.progress_ratio = 1
 	for base: DnaBaseRepresentation in _bases:
 		const NEEDS_UPDATE_THRESHOLD: float = 0.9
 		if base.progress_ratio >= NEEDS_UPDATE_THRESHOLD:
 			# recalculate transform of trailing bases
 			base.set_deferred(&"base_offset", base.base_offset)
+
+
+func notify_dna_path_being_edited(in_structure_id: int) -> void:
+	var being_edited: bool = _structure_id == in_structure_id
+	if being_edited != _path_being_edited:
+		_path_being_edited = being_edited
+		_path_representation.queue_redraw()
+
+
+func highlight_control_points(in_control_points_to_highlight: PackedInt32Array) -> void:
+	if in_control_points_to_highlight.is_empty(): return
+	for p in in_control_points_to_highlight:
+		_highlighted_control_points[p] = true
+	_path_representation.queue_redraw()
+
+
+func lowlight_control_points(in_control_points_to_lowlight: PackedInt32Array) -> void:
+	if in_control_points_to_lowlight.is_empty(): return
+	for p in in_control_points_to_lowlight:
+		_highlighted_control_points.erase(p)
+	_path_representation.queue_redraw()
 
 
 func set_selection_position_delta(in_selection_delta: Vector3) -> void:
@@ -325,6 +347,7 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 			in_dna_control_point_idx: int) -> void:
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	_path_hovered = false
+	_hovered_control_point = -1
 	if is_instance_valid(toplevel_hovered_structure_context) and is_instance_valid(dna_structure) and \
 			_workspace_context.workspace.is_a_ancestor_of_b(toplevel_hovered_structure_context.nano_structure, dna_structure):
 		_path_hovered = true
@@ -337,6 +360,8 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 
 
 func _on_path_representation_drawn() -> void:
+	if is_queued_for_deletion():
+		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
 	if path.is_empty():
@@ -360,7 +385,7 @@ func _on_path_representation_drawn() -> void:
 		var pos: Vector3 = drawn_curve.get_point_position(cp_idx)
 		var pos2d: Vector2 = camera.unproject_position(pos)
 		const CONTROL_POINT_RADIUS: float = 5
-		const CONTROL_POINT_COLOR := Color.ROYAL_BLUE
+		const CONTROL_POINT_COLOR := Color.DEEP_PINK
 		const CONTROL_POINT_COLOR_HOVER := Color.GOLD
 		const CONTROL_POINT_COLOR_HIGHLIGHTED := Color.CHARTREUSE
 		var color: Color = CONTROL_POINT_COLOR
@@ -404,6 +429,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_initial_twist"] = _initial_twist
 	snapshot["_path_highlighted"] = _path_highlighted
 	snapshot["_path_being_edited"] = _path_being_edited
+	snapshot["_highlighted_control_points"] = _highlighted_control_points.duplicate()
 	var bases_snapshots: Array[Dictionary] = []
 	for b: DnaBaseRepresentation in _bases:
 		bases_snapshots.append(b.create_state_snapshot())
@@ -421,6 +447,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_initial_twist = in_state_snapshot["_initial_twist"]
 	_path_highlighted = in_state_snapshot["_path_highlighted"]
 	_path_being_edited = in_state_snapshot["_path_being_edited"]
+	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
 	var bases_snapshots: Array[Dictionary] = in_state_snapshot["bases_snapshots"]
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	dna_structure.grab_curve(self)

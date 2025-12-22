@@ -19,6 +19,8 @@ signal aborted_creating_object()
 signal object_tree_visibility_changed()
 signal atoms_relaxation_started()
 signal atoms_relaxation_finished(error_description_or_empty: String)
+signal dna_spline_edit_started(spline_context: StructureContext)
+signal dna_spline_edit_ended()
 # When simulaiton starts
 signal simulation_started()
 # When last frame of simulation is received, or user stops simulation without aborting it
@@ -87,6 +89,7 @@ var _current_structure_context_id: int
 #TODO: this is redundant
 var _modified_structure_contexts: Dictionary #[int, true]
 var _selection_modified_structure_contexts: Dictionary #[int, true]
+var _edited_dna_spline_id: int
 var _simulation: SimulationData = null
 var _is_simulation_playback_running: bool = false
 var _is_applying_simulation_state: bool = false
@@ -412,6 +415,7 @@ func set_current_structure_context(in_structure_context: StructureContext) -> vo
 		return
 	# Activating an object cancels create mode
 	abort_creating_object()
+	stop_editing_dna_spline_no_snapshot()
 	workspace.active_structure_int_guid = in_structure_context.get_int_guid()
 	_current_structure_context_id = in_structure_context.get_int_guid()
 	current_structure_context_changed.emit(in_structure_context)
@@ -563,9 +567,57 @@ func peek_context_of_object_being_created(in_callback: Callable) -> bool:
 	return in_callback.call(_current_create_object_structure_context)
 
 
-# # Simulation
+# # # # # #
+# # Edited DNA Spline
+func get_edited_dna_spline_id() -> int:
+	return _edited_dna_spline_id
+
+
+func get_edited_dna_spline_context() -> StructureContext:
+	if _edited_dna_spline_id == Workspace.INVALID_STRUCTURE_ID:
+		return null
+	var structure_context: StructureContext = get_nano_structure_context_from_id(_edited_dna_spline_id)
+	assert(structure_context != null)
+	return structure_context
+
+
+func start_editing_dna_spline(in_dna_id: int) -> void:
+	if in_dna_id == _edited_dna_spline_id:
+		return
+	assert(workspace.get_structure_by_int_guid(in_dna_id) is DnaStructure, "Invalid dna_id")
+	if _edited_dna_spline_id != Workspace.INVALID_STRUCTURE_ID:
+		_edited_dna_spline_id = Workspace.INVALID_STRUCTURE_ID
+		dna_spline_edit_ended.emit()
+	var structure_context: StructureContext = get_nano_structure_context_from_id(in_dna_id)
+	assert(structure_context != null)
+	_edited_dna_spline_id = in_dna_id
+	get_rendering().notify_dna_path_being_edited(in_dna_id)
+	dna_spline_edit_started.emit(structure_context)
+	_emit_new_editable_structures()
+	snapshot_moment("Start Editing DNA Spline")
+
+
+func stop_editing_dna_spline_no_snapshot() -> void:
+	if _edited_dna_spline_id != Workspace.INVALID_STRUCTURE_ID:
+		_edited_dna_spline_id = Workspace.INVALID_STRUCTURE_ID
+		get_rendering().notify_dna_path_being_edited(Workspace.INVALID_STRUCTURE_ID)
+		_emit_new_editable_structures()
+		dna_spline_edit_ended.emit()
+
+
+func stop_editing_dna_spline() -> void:
+	if _edited_dna_spline_id != Workspace.INVALID_STRUCTURE_ID:
+		_edited_dna_spline_id = Workspace.INVALID_STRUCTURE_ID
+		get_rendering().notify_dna_path_being_edited(Workspace.INVALID_STRUCTURE_ID)
+		_emit_new_editable_structures()
+		dna_spline_edit_ended.emit()
+		snapshot_moment("Stop Editing DNA Spline")
+# # /Edited DNA Spline
 # # # # # #
 
+
+# # # # # #
+# # Simulation
 func start_simulating(in_simulation_data: SimulationData) -> void:
 	assert(not is_simulating(), "I'm already being simulated, make sure to call " +
 			"abort_simulation_if_running() when you are done with it")
@@ -667,8 +719,6 @@ func apply_simulation_if_running() -> void:
 	_simulation = null
 	simulation_finished.emit()
 	_history.create_snapshot(tr("Apply Simulation State"))
-
-
 # # /Simulation
 # # # # # #
 
@@ -720,6 +770,7 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 		structure_context.selection_changed.connect(_on_structure_context_selection_changed.bind(structure_context.get_int_guid()))
 		structure_context.virtual_object_selection_changed.connect(_on_structure_context_virtual_object_selection_changed.bind(structure_context.get_int_guid()))
 		structure_context.dna_spline_selection_changed.connect(_on_structure_context_dna_spline_selection_changed.bind(structure_context.get_int_guid()))
+		structure_context.dna_control_points_selection_changed.connect(_on_structure_context_dna_spline_selection_changed.bind(true, structure_context.get_int_guid()))
 		if structure_context.nano_structure is AtomicStructure \
 				and not structure_context.nano_structure.atoms_moved.is_connected(_on_structure_context_atoms_moved):
 			structure_context.nano_structure.atoms_moved.connect(_on_structure_context_atoms_moved.bind(structure_context.get_int_guid()))
@@ -836,7 +887,7 @@ func _on_structure_context_virtual_object_selection_changed(_in_selected: bool, 
 		_selection_modified_structure_contexts[in_structure_context_id] = true
 
 
-func _on_structure_context_dna_spline_selection_changed(_in_selected: bool, in_structure_context_id: int) -> void:
+func _on_structure_context_dna_spline_selection_changed(_is_selected: bool, in_structure_context_id: int) -> void:
 	if not workspace.has_structure_with_int_guid(in_structure_context_id):
 		return
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
@@ -888,6 +939,7 @@ func get_all_structure_contexts(in_include_empty_structures: bool = false) -> Ar
 	var result: Array[StructureContext] = []
 	for context: StructureContext in _structure_contexts.values():
 		var structure_has_data: bool = context.nano_structure.is_virtual_object() \
+				or context.nano_structure is DnaStructure \
 				or context.nano_structure.get_valid_atoms_count() > 0
 		if structure_has_data or in_include_empty_structures:
 			result.push_back(context)
@@ -1099,6 +1151,9 @@ func get_atomic_structure_contexts_with_selection(in_include_empty_groups_with_s
 	var editable := get_editable_structure_contexts()
 	for structure_context: StructureContext in editable:
 		if structure_context.nano_structure.is_virtual_object():
+			continue
+		if structure_context.nano_structure is DnaStructure:
+			# TODO: add DNA structures during simulation?
 			continue
 		if structure_context.nano_structure.get_visible() and structure_context.has_selection(in_include_empty_groups_with_selected_subgroups):
 			result.push_back(structure_context)
@@ -1410,6 +1465,7 @@ func create_state_snapshot() -> Dictionary:
 	
 	snapshot["structure_contexts"] = structure_contexts
 	snapshot["_current_structure_context_id"] = _current_structure_context_id
+	snapshot["_edited_dna_spline_id"] = _edited_dna_spline_id
 	snapshot["_editable_structure_contexts_ids"] = _editable_structure_contexts_ids.duplicate()
 	snapshot["rendering_snapshot"] = get_rendering().create_state_snapshot()
 	
@@ -1443,6 +1499,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 		_selection_modified_structure_contexts.erase(structure_context_id)
 	
 	_current_structure_context_id = in_snapshot["_current_structure_context_id"]
+	_edited_dna_spline_id = in_snapshot["_edited_dna_spline_id"]
 	
 	get_rendering().apply_state_snapshot(in_snapshot["rendering_snapshot"])
 	_is_applying_snapshot = false

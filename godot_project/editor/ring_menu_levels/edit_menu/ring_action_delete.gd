@@ -50,6 +50,8 @@ func _delete_selection_of_structure(out_context: StructureContext, out_already_d
 	if _can_delete_objects(out_context):
 		_action_delete_objects(out_context, out_already_deleted_contexts)
 		return
+	if _can_delete_dna_control_points(out_context):
+		_action_delete_dna_control_points(out_context)
 	if _can_delete_atoms_bonds_or_springs(out_context):
 		_action_delete_atoms_bonds_springs(out_context)
 
@@ -63,6 +65,8 @@ func _action_delete_atoms_bonds_springs(context: StructureContext) -> void:
 func _action_delete_objects(context: StructureContext, out_already_deleted_contexts: Array[StructureContext]) -> void:
 	if out_already_deleted_contexts.has(context):
 		return
+	if _workspace_context.get_edited_dna_spline_id() != Workspace.INVALID_STRUCTURE_ID:
+		_workspace_context.stop_editing_dna_spline_no_snapshot()
 	var workspace: Workspace = _workspace_context.workspace
 	if !_did_create_undo_action:
 		_did_create_undo_action = true
@@ -149,6 +153,28 @@ func _can_delete_atoms_bonds_or_springs(in_context: StructureContext) -> bool:
 	return false
 
 
+func _can_delete_dna_control_points(out_context: StructureContext) -> bool:
+	return _workspace_context.get_edited_dna_spline_id() == out_context.get_int_guid() \
+			and out_context.get_selected_dna_spline_countrol_points().size() > 0
+
+
+func _action_delete_dna_control_points(out_context: StructureContext) -> void:
+	assert(_workspace_context.get_edited_dna_spline_id() == out_context.get_int_guid())
+	var selected_points: PackedInt32Array = out_context.get_selected_dna_spline_countrol_points()
+	out_context.clear_selection()
+	assert(selected_points.size() > 0)
+	if !_did_create_undo_action:
+		_did_create_undo_action = true
+	# sort in reverse to remove from last to first, ensuring indexes wont shift
+	selected_points.sort()
+	selected_points.reverse()
+	var dna_structure: DnaStructure = out_context.nano_structure as DnaStructure
+	dna_structure.start_edit()
+	for p: int in selected_points:
+		dna_structure.remove_control_point(p)
+	dna_structure.end_edit()
+
+
 ## Delete the selected atoms / bonds in a structure and the connected springs.
 ## The UndoRedo property backward_undo_ops must be enabled for this function to work properly.
 func _delete_selection(out_context: StructureContext) -> void:
@@ -216,6 +242,13 @@ func _can_delete_objects(in_context: StructureContext) -> bool:
 			if not in_context.nano_structure is NanoVirtualAnchor else in_context.is_anchor_selected()
 	var emitter_selected: bool = true \
 			if not in_context.nano_structure is NanoParticleEmitter else in_context.is_particle_emitter_selected()
+	var dna_spline_selected: bool = true \
+			if not in_context.nano_structure is DnaStructure else in_context.is_dna_structure_fully_selected()
+	
+	# EXCEPTION: DnaStructure gets deleted if all but 1 control point are selected
+	if _workspace_context.get_edited_dna_spline_id() == in_context.int_guid:
+		if in_context.get_selected_dna_spline_countrol_points().size() >= in_context.nano_structure.get_control_point_count() - 1:
+			dna_spline_selected = true
 	
 	var child_structures: Array[NanoStructure] = \
 			in_context.workspace_context.workspace.get_child_structures(in_context.nano_structure)
@@ -224,6 +257,6 @@ func _can_delete_objects(in_context: StructureContext) -> bool:
 		if not _can_delete_objects(child_context):
 			return false
 	
-	if all_atoms_selected and shape_selected and motor_selected and anchor_selected and emitter_selected:
+	if all_atoms_selected and shape_selected and motor_selected and anchor_selected and emitter_selected and dna_spline_selected:
 		return true
 	return false
