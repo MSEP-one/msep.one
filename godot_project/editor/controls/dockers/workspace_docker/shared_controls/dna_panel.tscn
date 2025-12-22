@@ -1,0 +1,143 @@
+[gd_scene load_steps=5 format=3 uid="uid://bdeg2b7ycyi66"]
+
+[ext_resource type="Script" uid="uid://cdyropsbauo4k" path="res://editor/controls/dockers/workspace_docker/shared_controls/dna_panel.gd" id="1_imbu4"]
+[ext_resource type="PackedScene" uid="uid://qwxweev3tdf8" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/dna_sequence_text_edit.tscn" id="2_6y0sb"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_w42n7"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_8e3dj"]
+
+[node name="DnaPanel" type="MarginContainer"]
+offset_right = 462.0
+offset_bottom = 268.0
+script = ExtResource("1_imbu4")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Sequence"
+
+[node name="DnaSequenceTextEdit" parent="VBoxContainer" instance=ExtResource("2_6y0sb")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 116)
+layout_mode = 2
+scroll_fit_content_height = false
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+layout_mode = 2
+text = "DNA Radius"
+
+[node name="DnaRadiusSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.5
+max_value = 1.5
+step = 0.01
+value = 1.0
+allow_greater = true
+suffix = "nm"
+
+[node name="Label3" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+layout_mode = 2
+text = "Bases per turn"
+
+[node name="BasesPerTurnSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 2.0
+max_value = 15.0
+step = 0.1
+value = 10.0
+allow_greater = true
+custom_arrow_step = 0.5
+
+[node name="Label4" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+layout_mode = 2
+text = "Rise"
+
+[node name="RiseNanometersSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.1
+max_value = 1.0
+step = 0.01
+value = 0.34
+allow_greater = true
+suffix = "nm"
+custom_arrow_step = 0.05
+
+[node name="Label2" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+layout_mode = 2
+text = "Strands"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="StrandAButton" type="Button" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_8e3dj")
+text = "A"
+
+[node name="StrandBButton" type="Button" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorTernary"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_8e3dj")
+text = "B"
+
+[node name="StrandDoubleButton" type="Button" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_8e3dj")
+text = "Double"
+
+[node name="DevToolLabel" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.498039, 0.313726, 1)
+text = "Bases Offset"
+
+[node name="OffsetSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "This is a DEV TOOL, should never be visible on release"
+min_value = 0.5
+max_value = 1.5
+step = 0.01
+value = 1.0
+allow_greater = true
+suffix = "nm"
+custom_arrow_step = 0.1
+
+[node name="IncludeHydrogensCheckButton" type="CheckButton" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Include Hydrogens"

@@ -8,12 +8,26 @@ enum StrandPolicy {
 }
 
 
-var bases_per_turn: float = 10.0
-var rise_nanometers: float = 0.34
-var dna_radius_nanometers: float = 1.0
-var initial_twist_rad: float = 0.0
-var strand_policy:= StrandPolicy.DOUBLE
-var include_hydrogens: bool = true
+@export var bases_per_turn: float = 10.0
+@export var rise_nanometers: float = 0.34
+@export var dna_radius_nanometers: float = 1.0
+@export var initial_twist_rad: float = 0.0
+@export var strand_policy:= StrandPolicy.DOUBLE
+@export var include_hydrogens: bool = true
+
+
+var _is_read_only: bool = false
+
+
+func set_read_only(in_read_only: bool) -> void:
+	_is_read_only = in_read_only
+
+
+func _set(property: StringName, _value: Variant) -> bool:
+	if property in [&"bases_per_turn", &"rise_nanometers", &"dna_radius_nanometers", &"initial_twist_rad", &"strand_policy", &"include_hydrogens"]:
+		assert(!_is_read_only)
+		pass
+	return false
 
 
 func create_state_snapshot() -> Dictionary:

@@ -8,6 +8,8 @@ class_name DnaBaseRepresentation extends PathFollow3D
 	set = _set_base
 @export var base_offset: float:
 	set = _set_base_offset
+@export var dna_radius: float = 1.0:
+	set = _set_dna_radius
 @export var base_twist: float:
 	set = _set_base_twist
 
@@ -73,6 +75,10 @@ func _set_base_offset(in_offset: float) -> void:
 	else:
 		progress = in_offset
 
+
+func _set_dna_radius(in_radius: float) -> void:
+	a_strand[&"Backbone"].position.x = in_radius
+	b_strand[&"Backbone"].position.x = in_radius
 
 
 func _set_base_twist(in_twist: float) -> void:

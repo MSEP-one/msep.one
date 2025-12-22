@@ -45,7 +45,20 @@ func _draw() -> void:
 
 func _handle_unicode_input(unicode_char: int, _in_caret_index: int) -> void:
 	if char(unicode_char) in ACCEPTED_CHARS:
-		insert_text_at_caret(char(unicode_char).to_upper())
+		if has_selection():
+			delete_selection()
+			insert_text_at_caret(char(unicode_char).to_upper())
+		elif is_overtype_mode_enabled():
+			set_block_signals(true)
+			for i in get_caret_count():
+				var line: String = get_line(get_caret_line(i))
+				var col: int = get_caret_column(i)
+				line[col] = char(unicode_char).to_upper()
+				set_line(get_caret_line(i), line)
+				set_caret_column(col + 1, true, i)
+			set_block_signals(false)
+		else:
+			insert_text_at_caret(char(unicode_char).to_upper())
 
 func _paste(in_caret_index: int) -> void:
 	_handle_paste(DisplayServer.clipboard_get(), in_caret_index)

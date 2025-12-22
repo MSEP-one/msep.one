@@ -123,6 +123,18 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_virtual_spring_parameters.tscn"
 			]
 		},
+	&"Edit DNA Chain":
+		{
+			icon = "🧬",
+			header = true,
+			scroll = false, # will use Tree control scroll instead
+			collapse = true,
+			start_collapsed = false,
+			stretch_ratio = 0.0,
+			controls = [
+				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_dna_panel.tscn"
+			]
+		},
 	&"Connect Object to Motor":
 		{
 			icon = "⚙️🔗",

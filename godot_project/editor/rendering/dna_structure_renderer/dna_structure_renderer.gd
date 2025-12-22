@@ -18,6 +18,10 @@ var _sequence: String:
 var _rise_nanometers: float = 0.34:
 	set = set_rise_nanometers
 
+@export_custom(PROPERTY_HINT_RANGE, "0.5,1.5,0.05,or_greater", PROPERTY_USAGE_EDITOR)
+var _dna_radius: float = 1.0:
+	set = set_dna_radius
+
 
 @export_custom(PROPERTY_HINT_RANGE, "5,15,0.1,or_greater,or_less", PROPERTY_USAGE_EDITOR)
 var _bases_per_turn: float = 10:
@@ -35,6 +39,7 @@ var _workspace_context: WorkspaceContext
 var _structure_id: int
 var _bases: Array[DnaBaseRepresentation]
 var _applying_snapshot: bool = false
+var _updating_parameters: bool = false
 
 # hovering API
 var _hover_enabled: bool = true
@@ -85,12 +90,16 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_workspace_context = in_workspace_context
 	_structure_id = in_structure.get_int_guid()
 	in_structure.grab_curve(self)
+	_updating_parameters = true
 	_strand_policy = in_structure.get_strand_policy()
 	_sequence = in_structure.get_sequence()
 	_rise_nanometers = in_structure.get_rise_nanometers()
+	_dna_radius = in_structure.get_dna_radius_nanometers()
 	_bases_per_turn = in_structure.get_bases_per_turn()
 	_initial_twist = in_structure.get_initial_twist_rad()
+	_updating_parameters = false
 	_update_bases()
+	_ensure_structure_signal_connections(in_structure)
 
 
 func _enter_tree() -> void:
@@ -102,6 +111,29 @@ func _enter_tree() -> void:
 		workspace_context.editable_structure_context_list_changed.connect(_on_editable_structure_context_list_changed)
 		workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
 		workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
+
+
+func _ensure_structure_signal_connections(in_structure: DnaStructure) -> void:
+	if not in_structure.sequence_changed.is_connected(_on_sequence_changed):
+		in_structure.sequence_changed.connect(_on_sequence_changed)
+		in_structure.parameters_changed.connect(_on_parameters_changed)
+
+
+func _on_sequence_changed(in_sequence: String) -> void:
+	set_sequence(in_sequence)
+	_path_representation.queue_redraw()
+
+
+func _on_parameters_changed(in_parameters: DnaStructureParameters) -> void:
+	_updating_parameters = true
+	_strand_policy = in_parameters.strand_policy
+	_rise_nanometers = in_parameters.rise_nanometers
+	_dna_radius = in_parameters.dna_radius_nanometers
+	_bases_per_turn = in_parameters.bases_per_turn
+	_initial_twist = in_parameters.initial_twist_rad
+	_updating_parameters = false
+	_update_bases()
+	_path_representation.queue_redraw()
 
 
 func _on_curve_changed() -> void:
@@ -162,6 +194,7 @@ func rotate_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basi
 	for p: int in inout_positions_to_update.keys():
 		DnaStructure.recalculate_curve_in_out(_temp_curve, p)
 
+
 func _reset_temp_curve() -> void:
 	if _temp_curve != null:
 		curve = _original_curve
@@ -211,6 +244,16 @@ func set_rise_nanometers(in_rise: float) -> void:
 	_update_bases()
 
 
+func set_dna_radius(in_radius: float) -> void:
+	if is_node_ready() and _dna_radius == in_radius:
+		return
+	_dna_radius = in_radius
+	if _applying_snapshot == true: return
+	if not is_node_ready():
+		await ready
+	_update_bases()
+
+
 func set_bases_per_turn(in_bases_per_turn: float) -> void:
 	if is_node_ready() and _bases_per_turn == in_bases_per_turn:
 		return
@@ -241,6 +284,8 @@ func set_initial_twist(in_twist_rad: float) -> void:
 
 
 func _update_bases() -> void:
+	if _updating_parameters:
+		return
 	var base_count: int = _sequence.length()
 	while _bases.size() > base_count:
 		_bases.pop_back().queue_free()
@@ -255,6 +300,7 @@ func _update_bases() -> void:
 		_bases[i].strand_policy = _strand_policy
 		_bases[i].base = _sequence[i]
 		_bases[i].base_offset = i * _rise_nanometers
+		_bases[i].dna_radius = _dna_radius
 		_bases[i].base_twist = _initial_twist + delta_angle * i
 
 
@@ -387,4 +433,5 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	for i in bases_snapshots.size():
 		_bases[i].apply_state_snapshot(bases_snapshots[i])
 	_applying_snapshot = false
+	_ensure_structure_signal_connections(dna_structure)
 	queue_redraw()

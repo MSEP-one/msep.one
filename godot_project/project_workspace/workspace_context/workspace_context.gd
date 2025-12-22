@@ -738,7 +738,7 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.bases_count_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.sequence_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
-			structure_context.nano_structure.parameters_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.parameters_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is NanoShape:
 			structure_context.nano_structure.shape_properties_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure.is_virtual_object():

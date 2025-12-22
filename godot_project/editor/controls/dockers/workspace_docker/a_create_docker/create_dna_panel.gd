@@ -1,17 +1,8 @@
-extends DynamicContextControl
+extends DnaPanel
 
-
-var _dna_sequence_text_edit: TextEdit
-var _dna_radius_spin_box_slider: SpinBoxSlider
-var _bases_per_turn_spin_box_slider: SpinBoxSlider
-var _rise_nanometers_spin_box_slider: SpinBoxSlider
-var _strand_a_button: Button
-var _strand_b_button: Button
-var _strand_double_button: Button
-var _include_hydrogens_check_button: CheckButton
 var _create_button: Button
 
-
+var _initialized: bool = false
 var _workspace_context: WorkspaceContext
 
 
@@ -29,15 +20,8 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_SCENE_INSTANTIATED:
-		_dna_sequence_text_edit = %DnaSequenceTextEdit as TextEdit
-		_dna_radius_spin_box_slider = %DnaRadiusSpinBoxSlider as SpinBoxSlider
-		_bases_per_turn_spin_box_slider = %BasesPerTurnSpinBoxSlider as SpinBoxSlider
-		_rise_nanometers_spin_box_slider = %RiseNanometersSpinBoxSlider as SpinBoxSlider
-		_strand_a_button = %StrandAButton as Button
-		_strand_b_button = %StrandBButton as Button
-		_strand_double_button = %StrandDoubleButton as Button
-		_include_hydrogens_check_button = %IncludeHydrogensCheckButton as CheckButton
+	if what == NOTIFICATION_SCENE_INSTANTIATED and !_initialized == true:
+		_initialized = true
 		_create_button = %CreateButton as Button
 		var default_params := DnaStructureParameters.new()
 		_dna_radius_spin_box_slider.value = default_params.dna_radius_nanometers
@@ -87,11 +71,12 @@ func _on_create_button_pressed() -> void:
 	var dna: DnaStructure = DnaStructure.create(params, _dna_sequence_text_edit.text)
 	dna.set_structure_name("DNA Chain%d" % _workspace_context.workspace.get_nmb_of_structures())
 	var dna_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
-	var up_dir: Vector3 = _workspace_context.get_editor_viewport().get_camera_3d().global_transform.basis.y
+	var right_dir: Vector3 = _workspace_context.get_editor_viewport().get_camera_3d().global_transform.basis.x
 	var chain_length: float = params.rise_nanometers * (_dna_sequence_text_edit.text.length() - 1)
 	dna.start_edit()
 	dna.insert_control_point(dna_pos)
-	dna.insert_control_point(dna_pos + up_dir * chain_length)
+	dna.insert_control_point(dna_pos - right_dir * chain_length / 2.0)
+	dna.insert_control_point(dna_pos + right_dir * chain_length / 2.0)
 	dna.end_edit()
 	var parent_context: StructureContext = _workspace_context.get_current_structure_context()
 	_workspace_context.workspace.add_structure(dna, parent_context.nano_structure)
