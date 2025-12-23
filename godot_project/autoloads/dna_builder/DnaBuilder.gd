@@ -136,6 +136,10 @@ func get_template_atom_count(in_base: String, in_include_hydrogens: bool = false
 	return get_template(in_base, in_include_hydrogens).atoms.size()
 
 
+func get_template_bond_count(in_base: String, in_include_hydrogens: bool = false) -> int:
+	return get_template(in_base, in_include_hydrogens).bonds.size()
+
+
 func _dump_template(
 			out_result: PackedMolecule,
 			in_template: PackedMolecule,

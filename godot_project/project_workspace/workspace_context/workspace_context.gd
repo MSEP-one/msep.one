@@ -71,6 +71,7 @@ var ignored_warnings: Dictionary = {
 	emitters_affected_by_motors = false,
 	emitters_with_unstable_parameters = false,
 	overlapping_emitters_in_simulation = false,
+	convert_dna_with_invalid_bases = false,
 }
 
 var visible_object_tree: bool = false:

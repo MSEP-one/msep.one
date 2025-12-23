@@ -11,6 +11,7 @@ script = ExtResource("2_q7pc7")
 
 [node name="SelectOneInfoLabel" parent="." index="0" instance=ExtResource("3_673q0")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_vertical = 4
 text = "[center][wave start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/wave] Select only one DNA Chain at a time to edit it[/center]"
@@ -26,10 +27,39 @@ button_group = SubResource("ButtonGroup_q7pc7")
 [node name="StrandDoubleButton" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer" index="2"]
 button_group = SubResource("ButtonGroup_q7pc7")
 
-[node name="StartStopEditingButton" type="Button" parent="VBoxContainer" index="3"]
+[node name="StartStopEditingButton" type="Button" parent="VBoxContainer" index="4"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 tooltip_text = "While editing path you can change the shape of the DNA chain, double click or Ctrl+Click adds control points, selecting points and press Delete to remove a point."
 theme_type_variation = &"CrystalButton"
 text = "Start Editing Path"
+
+[node name="Label3" type="Label" parent="VBoxContainer" index="5"]
+layout_mode = 2
+text = "Convert to Atoms"
+
+[node name="PanelContainer2" type="PanelContainer" parent="VBoxContainer" index="6"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer2" index="0"]
+layout_mode = 2
+
+[node name="OverrideColorsCheckButton" type="CheckButton" parent="VBoxContainer/PanelContainer2/VBoxContainer" index="0"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Override Colors per Strand"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer2/VBoxContainer" index="1"]
+layout_mode = 2
+
+[node name="CreateAtomsButton" type="Button" parent="VBoxContainer/PanelContainer2/VBoxContainer/HBoxContainer" index="0"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+theme_type_variation = &"CrystalButton"
+text = "Create Atoms from template
+"

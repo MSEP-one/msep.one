@@ -17,7 +17,7 @@ button_group = SubResource("ButtonGroup_8e3dj")
 [node name="StrandDoubleButton" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer" index="2"]
 button_group = SubResource("ButtonGroup_8e3dj")
 
-[node name="CreateButton" type="Button" parent="VBoxContainer" index="3"]
+[node name="CreateButton" type="Button" parent="VBoxContainer" index="4"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
