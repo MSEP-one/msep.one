@@ -13,20 +13,9 @@ class_name DnaBaseRepresentation extends PathFollow3D
 @export var base_twist: float:
 	set = _set_base_twist
 
-@onready var origin: Node3D = %Origin
-@onready var a_strand: Dictionary[StringName, Node3D] = {
-	origin = %A,
-	Backbone = %BackboneA,
-	Base1 = %Base1A,
-	Base2 = %Base2A,
-}
-
-@onready var b_strand: Dictionary[StringName, Node3D] = {
-	origin = %B,
-	Backbone = %BackboneB,
-	Base1 = %Base1B,
-	Base2 = %Base2B,
-}
+var origin: MeshInstance3D
+var a_strand: Dictionary[StringName, MeshInstance3D]
+var b_strand: Dictionary[StringName, MeshInstance3D]
 
 
 var _applying_snapshot: bool = false
@@ -34,6 +23,18 @@ var _transform_override := Transform3D()
 
 static func create() -> DnaBaseRepresentation:
 	return preload("uid://cgh1pcn88ip1a").instantiate()
+
+
+func setup_materials(
+			a_strand_material: ShaderMaterial,
+			b_strand_material: ShaderMaterial,
+			pivot: ShaderMaterial
+			) -> void:
+	origin.material_override = pivot
+	for mesh: MeshInstance3D in a_strand.values():
+		mesh.material_override = a_strand_material
+	for mesh: MeshInstance3D in b_strand.values():
+		mesh.material_override = b_strand_material
 
 
 func _set_strand_policy(in_policy: DnaStructure.StrandPolicy) -> void:
@@ -66,6 +67,19 @@ func _set_base(in_base: String) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		set_notify_local_transform(true)
+		origin = %Origin
+		a_strand = {
+			origin = %A,
+			Backbone = %BackboneA,
+			Base1 = %Base1A,
+			Base2 = %Base2A,
+		}
+		b_strand = {
+			origin = %B,
+			Backbone = %BackboneB,
+			Base1 = %Base1B,
+			Base2 = %Base2B,
+		}
 	if what == NOTIFICATION_LOCAL_TRANSFORM_CHANGED:
 		if _transform_override != Transform3D() and _transform_override != transform:
 			transform = _transform_override

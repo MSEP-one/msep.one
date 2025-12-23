@@ -1,12 +1,13 @@
 [gd_scene load_steps=7 format=3 uid="uid://cgh1pcn88ip1a"]
 
-[ext_resource type="Material" uid="uid://fv6vtvhtqm4q" path="res://editor/rendering/dna_structure_renderer/assets/a_strand_material.tres" id="1_i4wnt"]
 [ext_resource type="Script" uid="uid://65fxwbdka41r" path="res://editor/rendering/dna_structure_renderer/assets/dna_base_representation.gd" id="1_pauiq"]
-[ext_resource type="Material" uid="uid://cq3pox0ek24bm" path="res://editor/rendering/dna_structure_renderer/assets/b_strand_material.tres" id="2_pauiq"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_i33sh"]
 radius = 0.02
 height = 0.04
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0rd65"]
+albedo_color = Color(1, 0, 0, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_v3v15"]
 radius = 0.06
@@ -18,6 +19,9 @@ bottom_radius = 0.3
 height = 0.01
 radial_segments = 6
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_356lv"]
+albedo_color = Color(0, 0, 1, 1)
+
 [node name="DnaBase" type="PathFollow3D"]
 transform = Transform3D(4.37112e-08, 0.999985, 4.37112e-08, 0, -4.37107e-08, 0.999995, 0.999995, -4.37107e-08, -1.91068e-15, 0, 0, 0)
 use_model_front = true
@@ -27,14 +31,14 @@ script = ExtResource("1_pauiq")
 unique_name_in_owner = true
 mesh = SubResource("SphereMesh_i33sh")
 
-[node name="A" type="Node3D" parent="Origin"]
+[node name="A" type="MeshInstance3D" parent="Origin"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
 
 [node name="BackboneA" type="MeshInstance3D" parent="Origin/A"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, -8.35187e-23, 0, -8.35187e-23, 1, 1, 0, 0)
-material_override = ExtResource("1_i4wnt")
+material_override = SubResource("StandardMaterial3D_0rd65")
 mesh = SubResource("SphereMesh_v3v15")
 skeleton = NodePath("../../..")
 
@@ -42,25 +46,25 @@ skeleton = NodePath("../../..")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.374543, 0, 0)
 visible = false
-material_override = ExtResource("1_i4wnt")
+material_override = SubResource("StandardMaterial3D_0rd65")
 mesh = SubResource("CylinderMesh_yduts")
 
 [node name="Base2A" type="MeshInstance3D" parent="Origin/A/BackboneA/Base1A"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, -6.31089e-30, 0, -6.31089e-30, 1, -0.479951, -5.55113e-17, -0.00975529)
 visible = false
-material_override = ExtResource("1_i4wnt")
+material_override = SubResource("StandardMaterial3D_0rd65")
 mesh = SubResource("CylinderMesh_yduts")
 skeleton = NodePath("../..")
 
-[node name="B" type="Node3D" parent="Origin"]
+[node name="B" type="MeshInstance3D" parent="Origin"]
 unique_name_in_owner = true
 transform = Transform3D(-1, -8.74228e-08, -3.82137e-15, 0, -4.37114e-08, 1, -8.74228e-08, 1, 4.37114e-08, 0, 0, 0)
 
 [node name="BackboneB" type="MeshInstance3D" parent="Origin/B"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, -8.35187e-23, 0, -8.35187e-23, 1, 1, 0, 0)
-material_override = ExtResource("2_pauiq")
+material_override = SubResource("StandardMaterial3D_356lv")
 mesh = SubResource("SphereMesh_v3v15")
 skeleton = NodePath("../../..")
 
@@ -68,13 +72,13 @@ skeleton = NodePath("../../..")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.374543, 0, 0)
 visible = false
-material_override = ExtResource("2_pauiq")
+material_override = SubResource("StandardMaterial3D_356lv")
 mesh = SubResource("CylinderMesh_yduts")
 
 [node name="Base2B" type="MeshInstance3D" parent="Origin/B/BackboneB/Base1B"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, -6.31089e-30, 0, -6.31089e-30, 1, -0.524517, 1.77636e-15, -0.00191832)
 visible = false
-material_override = ExtResource("2_pauiq")
+material_override = SubResource("StandardMaterial3D_356lv")
 mesh = SubResource("CylinderMesh_yduts")
 skeleton = NodePath("../..")
