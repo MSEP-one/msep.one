@@ -37,6 +37,7 @@ var _initial_twist: float
 
 var _workspace_context: WorkspaceContext
 var _structure_id: int
+var _object_visible: bool = true
 var _bases: Array[DnaBaseRepresentation]
 var _applying_snapshot: bool = false
 var _updating_parameters: bool = false
@@ -118,6 +119,7 @@ func _ensure_structure_signal_connections(in_structure: DnaStructure) -> void:
 	if not in_structure.sequence_changed.is_connected(_on_sequence_changed):
 		in_structure.sequence_changed.connect(_on_sequence_changed)
 		in_structure.parameters_changed.connect(_on_parameters_changed)
+		in_structure.visibility_changed.connect(_on_structure_visibility_changed)
 
 
 func _on_sequence_changed(in_sequence: String) -> void:
@@ -135,6 +137,11 @@ func _on_parameters_changed(in_parameters: DnaStructureParameters) -> void:
 	_updating_parameters = false
 	_update_bases()
 	_path_representation.queue_redraw()
+
+
+func _on_structure_visibility_changed(in_visible: bool) -> void:
+	_object_visible = in_visible
+	_update_visibility()
 
 
 func _on_curve_changed() -> void:
@@ -366,8 +373,13 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 	queue_redraw()
 
 
+func _update_visibility() -> void:
+	visible = _object_visible
+	queue_redraw()
+
+
 func _on_path_representation_drawn() -> void:
-	if is_queued_for_deletion() or not _is_selectable or Engine.is_editor_hint():
+	if !visible or is_queued_for_deletion() or not _is_selectable or Engine.is_editor_hint():
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
@@ -444,6 +456,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_path_being_edited"] = _path_being_edited
 	snapshot["_highlighted_control_points"] = _highlighted_control_points.duplicate()
 	snapshot["_is_selectable"] = _is_selectable
+	snapshot["_object_visible"] = _object_visible
 	snapshot["_selectable_uniform"] = base_pivot_material.get_shader_parameter(&"is_selectable")
 	var bases_snapshots: Array[Dictionary] = []
 	for b: DnaBaseRepresentation in _bases:
@@ -464,6 +477,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_path_being_edited = in_state_snapshot["_path_being_edited"]
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
 	_is_selectable = in_state_snapshot["_is_selectable"]
+	_object_visible = in_state_snapshot["_object_visible"]
 	_set_shader_uniform(&"is_selectable", in_state_snapshot["_selectable_uniform"])
 	var bases_snapshots: Array[Dictionary] = in_state_snapshot["bases_snapshots"]
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
@@ -478,4 +492,4 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 		_bases[i].apply_state_snapshot(bases_snapshots[i])
 	_applying_snapshot = false
 	_ensure_structure_signal_connections(dna_structure)
-	queue_redraw()
+	_update_visibility()

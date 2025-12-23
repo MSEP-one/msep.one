@@ -603,6 +603,7 @@ func stop_editing_dna_spline() -> void:
 		_edited_dna_spline_id = Workspace.INVALID_STRUCTURE_ID
 		get_rendering().notify_dna_path_being_edited(Workspace.INVALID_STRUCTURE_ID)
 		_emit_new_editable_structures()
+		structure_context.set_dna_control_point_selection([])
 		structure_context.set_dna_spline_selected(true)
 		dna_spline_edit_ended.emit()
 # # /Edited DNA Spline
