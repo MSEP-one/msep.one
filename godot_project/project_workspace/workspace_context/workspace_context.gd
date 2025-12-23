@@ -591,6 +591,7 @@ func start_editing_dna_spline(in_dna_id: int) -> void:
 	var structure_context: StructureContext = get_nano_structure_context_from_id(in_dna_id)
 	assert(structure_context != null)
 	_edited_dna_spline_id = in_dna_id
+	structure_context.set_dna_spline_selected(false)
 	get_rendering().notify_dna_path_being_edited(in_dna_id)
 	dna_spline_edit_started.emit(structure_context)
 	_emit_new_editable_structures()
@@ -598,9 +599,11 @@ func start_editing_dna_spline(in_dna_id: int) -> void:
 
 func stop_editing_dna_spline() -> void:
 	if _edited_dna_spline_id != Workspace.INVALID_STRUCTURE_ID:
+		var structure_context: StructureContext = get_edited_dna_spline_context()
 		_edited_dna_spline_id = Workspace.INVALID_STRUCTURE_ID
 		get_rendering().notify_dna_path_being_edited(Workspace.INVALID_STRUCTURE_ID)
 		_emit_new_editable_structures()
+		structure_context.set_dna_spline_selected(true)
 		dna_spline_edit_ended.emit()
 # # /Edited DNA Spline
 # # # # # #

@@ -82,6 +82,9 @@ func _on_create_button_pressed() -> void:
 	dna.end_edit()
 	var parent_context: StructureContext = _workspace_context.get_current_structure_context()
 	_workspace_context.workspace.add_structure(dna, parent_context.nano_structure)
+	_workspace_context.clear_all_selection()
+	_workspace_context.get_structure_context(dna.int_guid).set_dna_spline_selected(true)
+	WorkspaceUtils.focus_camera_on_aabb(_workspace_context, dna.get_aabb())
 	_workspace_context.snapshot_moment("Create DNA Chain")
 
 

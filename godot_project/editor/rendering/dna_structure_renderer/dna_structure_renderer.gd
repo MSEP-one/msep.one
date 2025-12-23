@@ -367,7 +367,7 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 
 
 func _on_path_representation_drawn() -> void:
-	if is_queued_for_deletion() or not _is_selectable:
+	if is_queued_for_deletion() or not _is_selectable or Engine.is_editor_hint():
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
