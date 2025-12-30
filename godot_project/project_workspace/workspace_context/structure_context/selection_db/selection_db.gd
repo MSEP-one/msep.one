@@ -293,7 +293,7 @@ func invert_selection() -> void:
 		set_spring_selection(springs_to_select)
 	
 	# ---- DNA Structures ----
-	if nano_structure is DnaStructure:
+	if nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 		if _structure_context.workspace_context.get_edited_dna_spline_id() == nano_structure.int_guid:
 			var dna_structure := nano_structure as DnaStructure
 			var all_points := PackedInt32Array(range(dna_structure.get_control_point_count()))
@@ -314,7 +314,7 @@ func select_all() -> void:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
 	if nano_structure.is_virtual_object():
 		set_virtual_object_selected(true)
-	elif  nano_structure is DnaStructure:
+	elif  nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 		set_dna_spline_selected(true)
 		if _structure_context.workspace_context.get_edited_dna_spline_id() == _structure_context.get_int_guid():
 			set_dna_control_point_selection(range(nano_structure.get_control_point_count()))
@@ -377,6 +377,7 @@ func set_dna_spline_selected(in_selected: bool) -> void:
 
 func set_dna_control_point_selection(in_control_points_to_select: PackedInt32Array) -> void:
 	var dna_structure: DnaStructure = _structure_context.nano_structure as DnaStructure
+	assert(dna_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath, "Invalid edit mdoe for this operation")
 	assert(!dna_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 	_validate_dna_control_point_selection(in_control_points_to_select)
 	
@@ -404,7 +405,6 @@ func set_dna_control_point_selection(in_control_points_to_select: PackedInt32Arr
 
 func select_dna_control_points(in_control_points: PackedInt32Array) -> void:
 	var dna_structure: DnaStructure = _structure_context.nano_structure as DnaStructure
-	assert(!dna_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 	_validate_dna_control_point_selection(in_control_points)
 	var changed: bool = false
 	for p: int in in_control_points:

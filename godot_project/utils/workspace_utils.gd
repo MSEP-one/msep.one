@@ -456,7 +456,6 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 	if edited_dna_context != null:
 		if edited_dna_context.is_dna_structure_fully_selected():
 			structures_with_selection = [edited_dna_context]
-			out_workspace_context.stop_editing_dna_spline()
 		else:
 			out_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
 				out_workspace_context.tr(&"Cannot hide DNA spline control points"))
@@ -476,9 +475,9 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 				atomic_structure.set_springs_visibility(springs_to_hide, false)
 			structure_context.set_anchor_selected(false)
 			structure_context.nano_structure.set_visible(false)
-		elif structure_context.nano_structure is DnaStructure and structure_context.is_dna_structure_fully_selected():
-			if out_workspace_context.get_edited_dna_spline_id() == structure_context.get_int_guid():
-				out_workspace_context.stop_editing_dna_spline()
+		elif structure_context.nano_structure is DnaStructure \
+				and structure_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
+				and structure_context.is_dna_structure_fully_selected():
 			structure_context.set_dna_spline_selected(false)
 			structure_context.nano_structure.set_visible(false)
 		elif structure_context.nano_structure.is_virtual_object() and structure_context.is_virtual_object_selected():

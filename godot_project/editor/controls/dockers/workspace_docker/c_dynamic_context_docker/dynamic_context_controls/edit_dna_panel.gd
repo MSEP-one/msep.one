@@ -6,9 +6,12 @@ const StrandPolicy = DnaStructure.StrandPolicy
 
 var _select_one_info_label: InfoLabel
 var _main_container: Container
-var _start_stop_editing_button: Button
+var _edit_path_button: Button
+var _edit_atoms_button: Button
 var _override_colors_check_button: CheckButton
 var _create_atoms_button: Button
+var _setup_animation_player: AnimationPlayer
+
 
 var _workspace_context: WorkspaceContext
 var _tracked_structure: DnaStructure = null
@@ -20,16 +23,18 @@ func _notification(what: int) -> void:
 		_initialized = true
 		_select_one_info_label = %SelectOneInfoLabel as InfoLabel
 		_main_container = $VBoxContainer as Container
-		_start_stop_editing_button = %StartStopEditingButton as Button
+		_edit_path_button = %EditPathButton as Button
+		_edit_atoms_button = %EditAtomsButton as Button
 		_override_colors_check_button = %OverrideColorsCheckButton as CheckButton
 		_create_atoms_button = %CreateAtomsButton as Button
+		_setup_animation_player = %SetupAnimationPlayer as AnimationPlayer
+		_edit_path_button.button_group.pressed.connect(_on_edit_mode_button_group_pressed)
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
 		_dna_radius_spin_box_slider.value_confirmed.connect(_on_dna_radius_spin_box_slider_value_confirmed)
 		_bases_per_turn_spin_box_slider.value_confirmed.connect(_on_bases_per_turn_spin_box_slider_value_confirmed)
 		_rise_nanometers_spin_box_slider.value_confirmed.connect(_on_rise_nanometers_spin_box_slider_value_confirmed)
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
 		_include_hydrogens_check_button.toggled.connect(_on_include_hydrogens_check_button_toggled)
-		_start_stop_editing_button.pressed.connect(_on_start_stop_editing_button_pressed)
 		_create_atoms_button.pressed.connect(_on_create_atoms_button_pressed)
 
 
@@ -42,7 +47,6 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	if edited_spline_context != null:
 		selected_count = 1
 		structure = edited_spline_context.nano_structure as DnaStructure
-		_start_stop_editing_button.text = tr(&"Stop Editing Path")
 	else:
 		for structure_context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
 			if not structure_context.nano_structure is DnaStructure:
@@ -67,12 +71,6 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 
 func _ensure_workspace_initialized(in_workspace_context: WorkspaceContext) -> void:
 	_workspace_context = in_workspace_context
-	if not _workspace_context.dna_spline_edit_started.is_connected(_on_dna_spline_edition_started):
-		_workspace_context.dna_spline_edit_started.connect(_on_dna_spline_edition_started)
-		_workspace_context.dna_spline_edit_ended.connect(_on_dna_spline_edition_ended)
-		# Assume not active edition during initialization
-		assert(_workspace_context.get_edited_dna_spline_id() == Workspace.INVALID_STRUCTURE_ID)
-		_on_dna_spline_edition_ended()
 
 
 func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
@@ -83,6 +81,16 @@ func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 	_tracked_structure = in_structure_or_null
 	if in_structure_or_null != null:
 		_tracked_structure.sequence_changed.connect(_on_tracked_structure_sequence_changed)
+		
+		match _tracked_structure.get_edit_mode():
+			DnaStructure.EditMode.SequenceAndPath:
+				_setup_animation_player.play(&"setup_edit_path")
+				_edit_path_button.set_pressed_no_signal(true)
+				_edit_atoms_button.set_pressed_no_signal(false)
+			DnaStructure.EditMode.AtomsAndBonds:
+				_setup_animation_player.play(&"setup_edit_atoms")
+				_edit_path_button.set_pressed_no_signal(false)
+				_edit_atoms_button.set_pressed_no_signal(true)
 		_dna_sequence_text_edit.set_block_signals(true)
 		_dna_sequence_text_edit.text = _tracked_structure.get_sequence()
 		_dna_sequence_text_edit.set_block_signals(false)
@@ -100,6 +108,33 @@ func _on_tracked_structure_sequence_changed(in_sequence: String) -> void:
 		_dna_sequence_text_edit.set_block_signals(true)
 		_dna_sequence_text_edit.text = in_sequence
 		_dna_sequence_text_edit.set_block_signals(false)
+
+
+func _on_edit_mode_button_group_pressed(in_button: Button) -> void:
+	var mode_map: Dictionary[Button, DnaStructure.EditMode] = {
+		_edit_path_button: DnaStructure.EditMode.SequenceAndPath,
+		_edit_atoms_button: DnaStructure.EditMode.AtomsAndBonds,
+	}
+	var mode: DnaStructure.EditMode = mode_map[in_button]
+	if mode == _tracked_structure.get_edit_mode():
+		# Re-selected the already selected mode, nothing to do here
+		return
+	match mode:
+		DnaStructure.EditMode.SequenceAndPath:
+			var promise: Promise = _workspace_context.show_warning_dialog(
+				tr("Any modification in position of the atoms will be discarded with this operation.\n"+
+				"Do you want to proceed?"), tr("Continue"), tr("Cancel"))
+			await promise.wait_for_fulfill()
+			if promise.get_result() == false:
+				return
+			_workspace_context.get_structure_context(_tracked_structure.get_int_guid()).set_dna_spline_selected(false)
+			_tracked_structure.set_edit_mode(DnaStructure.EditMode.SequenceAndPath)
+			_setup_animation_player.play(&"setup_edit_path")
+			_workspace_context.snapshot_moment("DNA Structure: edit Path and Sequence")
+		DnaStructure.EditMode.AtomsAndBonds:
+			_tracked_structure.set_edit_mode(DnaStructure.EditMode.AtomsAndBonds)
+			_setup_animation_player.play(&"setup_edit_atoms")
+			_workspace_context.snapshot_moment("DNA Structure: show Atoms and Bonds")
 
 
 func _on_dna_sequence_text_edit_text_changed() -> void:
@@ -168,17 +203,6 @@ func _on_include_hydrogens_check_button_toggled(in_button_pressed: bool) -> void
 	_workspace_context.snapshot_moment("Set Dna Chain includes hydrogens")
 
 
-func _on_start_stop_editing_button_pressed() -> void:
-	assert(_tracked_structure != null, "Invalid ui state")
-	if _workspace_context.get_edited_dna_spline_context() == null:
-		_workspace_context.start_editing_dna_spline(_tracked_structure.get_int_guid())
-		_workspace_context.snapshot_moment("Start Editing DNA Spline")
-	else:
-		assert(_workspace_context.get_edited_dna_spline_id() == _tracked_structure.int_guid)
-		_workspace_context.stop_editing_dna_spline()
-		_workspace_context.snapshot_moment("Stop Editing DNA Spline")
-
-
 func _on_create_atoms_button_pressed() -> void:
 	assert(_tracked_structure != null, "Invalid ui state")
 	var sequence: String = _tracked_structure.get_sequence()
@@ -235,13 +259,4 @@ func _on_create_atoms_button_pressed() -> void:
 			new_group.set_color_override(atom_map.values(), STRAND_COLOR[strand])
 		new_group.end_edit()
 	_workspace_context.snapshot_moment("Create group from DNA Chain")
-
-
-func _on_dna_spline_edition_started(dna_context: StructureContext) -> void:
-	assert(_tracked_structure == dna_context.nano_structure)
-	_start_stop_editing_button.text = tr(&"Stop Editing Path")
-
-
-func _on_dna_spline_edition_ended() -> void:
-	_start_stop_editing_button.text = tr(&"Start Editing Path")
 

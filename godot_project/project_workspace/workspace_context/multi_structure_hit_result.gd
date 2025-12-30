@@ -195,7 +195,7 @@ func _calculate_dna_path_sqrd_distance_to_camera(in_camera: Camera3D, in_screen_
 		# path cannot be querried during simulation
 		return result
 	var dna_structure: DnaStructure = in_context.nano_structure as DnaStructure
-	if dna_structure == null:
+	if dna_structure == null or dna_structure.get_edit_mode() != DnaStructure.EditMode.SequenceAndPath:
 		# not a dna structure
 		return result
 	var path: PackedVector3Array = dna_structure.get_baked_path()

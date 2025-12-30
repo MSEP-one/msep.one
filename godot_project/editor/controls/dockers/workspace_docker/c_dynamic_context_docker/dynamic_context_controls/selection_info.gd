@@ -68,6 +68,9 @@ func _update_selected_info() -> void:
 			total_atoms_selected += context.get_selected_atoms().size()
 			total_bonds_selected += context.get_selected_bonds().size()
 			total_springs_selected += context.get_selected_springs().size()
+			if context.nano_structure is DnaStructure:
+				# TODO: Show DNA structure properties
+				pass
 		elif context.nano_structure is NanoShape:
 			total_shapes_selected += 1
 		elif context.nano_structure is NanoVirtualMotor:
@@ -76,8 +79,6 @@ func _update_selected_info() -> void:
 			total_emitters_selected += 1
 		elif context.nano_structure is NanoVirtualAnchor:
 			total_anchors_selected += 1
-		elif context.nano_structure is DnaStructure:
-			pass
 		else:
 			assert(false, "Untracked nano structure type: %s" % context.nano_structure.get_type())
 			pass

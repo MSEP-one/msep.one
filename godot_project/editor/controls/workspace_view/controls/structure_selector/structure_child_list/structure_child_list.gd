@@ -130,7 +130,7 @@ func _get_child_structures() -> Array[NanoStructure]:
 		children_structures = _workspace_context.workspace.get_child_structures(
 				_parent_structure_context.nano_structure)
 	var is_valid_group: Callable = func(in_nano_structure: NanoStructure) -> bool:
-		return not in_nano_structure.is_virtual_object() and not in_nano_structure is DnaStructure
+		return not in_nano_structure.is_virtual_object()
 	return children_structures.filter(is_valid_group)
 
 

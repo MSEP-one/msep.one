@@ -99,6 +99,11 @@ func get_visible() -> bool:
 	return _visible
 
 
+## Does this object work as a group?
+func can_contain_child_structure() -> bool:
+	return false
+
+
 ## Returns true if the object is not a group of particles. Ex: Shapes, Motors, Springs
 func is_virtual_object() -> bool:
 	return self is NanoShape or self.get_type() in \

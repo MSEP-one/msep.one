@@ -120,7 +120,7 @@ func _init_initial_positions_and_determine_center() -> Vector3:
 			selection_size += 1
 			center_pos += context.nano_structure.get_position()
 			_structure_context_2_initial_object_transforms[context.get_int_guid()] = Transform3D(Basis(), context.nano_structure.get_position())
-		elif context.nano_structure is DnaStructure:
+		elif context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 			if context.has_selection():
 				var control_points: Array = range(context.nano_structure.get_control_point_count())
 				if _workspace_context.get_edited_dna_spline_id() == context.get_int_guid():
@@ -255,7 +255,7 @@ func _apply_selection_transform() -> void:
 			var new_pos: Vector3 = _helper.global_position + _helper.global_transform.basis * delta_pos
 			object_new_transform = Transform3D(final_transform.basis.orthonormalized(), new_pos)
 			object_old_transform = nano_structure.get_transform()
-		elif nano_structure is DnaStructure:
+		elif nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 			var dna := nano_structure as DnaStructure
 			var points_to_transform: PackedInt32Array = range(dna.get_control_point_count())
 			if _workspace_context.get_edited_dna_spline_id() == context.get_int_guid():
@@ -367,7 +367,7 @@ func _on_helper_transform_changed(in_translation_changed: bool, in_rotation_chan
 			var initial_nano_struct_transform: Transform3D = _structure_context_2_initial_object_transforms[context.get_int_guid()]
 			rendering.transform_object_by_external_transform(context.nano_structure, _selection_initial_position,
 					initial_nano_struct_transform, _helper.global_transform)
-		elif nano_structure is DnaStructure:
+		elif nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 			if in_translation_changed:
 				rendering.set_dna_selection_position_delta(-delta, nano_structure)
 			if in_rotation_changed:

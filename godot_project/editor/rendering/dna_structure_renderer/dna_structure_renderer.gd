@@ -48,6 +48,7 @@ var _is_selectable: bool = true
 var _path_hovered: bool = false
 var _path_highlighted: bool = false
 var _path_being_edited: bool = false
+var _edit_mode: DnaStructure.EditMode
 var _hovered_control_point: int = -1
 var _highlighted_control_points: Dictionary[int, bool] = {}
 
@@ -99,6 +100,7 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_dna_radius = in_structure.get_dna_radius_nanometers()
 	_bases_per_turn = in_structure.get_bases_per_turn()
 	_initial_twist = in_structure.get_initial_twist_rad()
+	_edit_mode = in_structure.get_edit_mode()
 	_updating_parameters = false
 	_update_bases()
 	_ensure_structure_signal_connections(in_structure)
@@ -110,6 +112,7 @@ func _enter_tree() -> void:
 		return
 	var workspace_context: WorkspaceContext = editor_viewport.get_workspace_context()
 	if not workspace_context.editable_structure_context_list_changed.is_connected(_on_editable_structure_context_list_changed):
+		workspace_context.current_structure_context_changed.connect(_on_current_structure_context_changed)
 		workspace_context.editable_structure_context_list_changed.connect(_on_editable_structure_context_list_changed)
 		workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
 		workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
@@ -120,6 +123,7 @@ func _ensure_structure_signal_connections(in_structure: DnaStructure) -> void:
 		in_structure.sequence_changed.connect(_on_sequence_changed)
 		in_structure.parameters_changed.connect(_on_parameters_changed)
 		in_structure.visibility_changed.connect(_on_structure_visibility_changed)
+		in_structure.edit_mode_changed.connect(_on_edit_mode_changed)
 
 
 func _on_sequence_changed(in_sequence: String) -> void:
@@ -144,19 +148,17 @@ func _on_structure_visibility_changed(in_visible: bool) -> void:
 	_update_visibility()
 
 
+func _on_edit_mode_changed(in_mode: DnaStructure.EditMode) -> void:
+	_edit_mode = in_mode
+	_update_visibility()
+
+
 func _on_curve_changed() -> void:
 	assert(curve.point_count > 1, "Invalid curve, dna chain should be deleted in this case")
 	_path_representation.queue_redraw()
 	_transform_helper.progress_ratio = 1
 	for base: DnaBaseRepresentation in _bases:
 		base.set_deferred(&"base_offset", base.base_offset)
-
-
-func notify_dna_path_being_edited(in_structure_id: int) -> void:
-	var being_edited: bool = _structure_id == in_structure_id
-	if being_edited != _path_being_edited:
-		_path_being_edited = being_edited
-		_path_representation.queue_redraw()
 
 
 func highlight_control_points(in_control_points_to_highlight: PackedInt32Array) -> void:
@@ -344,6 +346,11 @@ func queue_redraw() -> void:
 	_path_representation.queue_redraw()
 
 
+func _on_current_structure_context_changed(structure_context: StructureContext) -> void:
+	_path_being_edited = structure_context.get_int_guid() == _structure_id
+	_update_visibility()
+
+
 func _on_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	_is_selectable = false
 	for context: StructureContext in in_new_editable_structure_contexts:
@@ -374,7 +381,7 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 
 
 func _update_visibility() -> void:
-	visible = _object_visible
+	visible = _object_visible and _edit_mode == DnaStructure.EditMode.SequenceAndPath
 	queue_redraw()
 
 
@@ -454,6 +461,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_initial_twist"] = _initial_twist
 	snapshot["_path_highlighted"] = _path_highlighted
 	snapshot["_path_being_edited"] = _path_being_edited
+	snapshot["_edit_mode"] = _edit_mode
 	snapshot["_highlighted_control_points"] = _highlighted_control_points.duplicate()
 	snapshot["_is_selectable"] = _is_selectable
 	snapshot["_object_visible"] = _object_visible
@@ -475,6 +483,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_initial_twist = in_state_snapshot["_initial_twist"]
 	_path_highlighted = in_state_snapshot["_path_highlighted"]
 	_path_being_edited = in_state_snapshot["_path_being_edited"]
+	_edit_mode = in_state_snapshot["_edit_mode"]
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
 	_is_selectable = in_state_snapshot["_is_selectable"]
 	_object_visible = in_state_snapshot["_object_visible"]

@@ -67,6 +67,6 @@ func _on_nano_structure_picker_popup_panel_nano_structure_clicked(in_structure_i
 
 func _on_current_structure_context_changed(structure_context: StructureContext) -> void:
 	var nano_structure: NanoStructure = structure_context.nano_structure
-	if not is_instance_valid(nano_structure) or nano_structure is NanoShape:
+	if not is_instance_valid(nano_structure) or not nano_structure.can_contain_child_structure():
 		return
 	selected_id = nano_structure.int_guid
