@@ -71,6 +71,12 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 
 func _ensure_workspace_initialized(in_workspace_context: WorkspaceContext) -> void:
 	_workspace_context = in_workspace_context
+	if not _workspace_context.history_changed.is_connected(_on_history_changed):
+		_workspace_context.history_changed.connect(_on_history_changed)
+
+
+func _on_history_changed() -> void:
+	_update_ui()
 
 
 func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
@@ -79,9 +85,13 @@ func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 	if _tracked_structure != null:
 		_tracked_structure.sequence_changed.disconnect(_on_tracked_structure_sequence_changed)
 	_tracked_structure = in_structure_or_null
-	if in_structure_or_null != null:
+	if _tracked_structure != null:
 		_tracked_structure.sequence_changed.connect(_on_tracked_structure_sequence_changed)
-		
+	_update_ui()
+
+
+func _update_ui() -> void:
+	if _tracked_structure != null:
 		match _tracked_structure.get_edit_mode():
 			DnaStructure.EditMode.SequenceAndPath:
 				_setup_animation_player.play(&"setup_edit_path")

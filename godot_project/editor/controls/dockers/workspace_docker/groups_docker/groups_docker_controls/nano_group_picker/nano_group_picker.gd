@@ -33,8 +33,10 @@ func rebuild_if_needed(in_workspace_context: WorkspaceContext) -> void:
 		if in_workspace_context.has_nano_structure_context_id(prev_selected):
 			_nano_structure_picker_popup_panel.selected_id = prev_selected
 		else:
-			_nano_structure_picker_popup_panel.selected_id = \
-				in_workspace_context.get_current_structure_context().get_int_guid()
+			var group_id: int = in_workspace_context.get_current_structure_context().get_int_guid()
+			if not in_workspace_context.get_current_structure_context().nano_structure.can_contain_child_structure():
+				group_id = in_workspace_context.get_current_structure_context().nano_structure.int_parent_guid
+			_nano_structure_picker_popup_panel.selected_id = group_id
 		text = _nano_structure_picker_popup_panel.get_selected_structure_name()
 
 
