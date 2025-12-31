@@ -34,6 +34,9 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 		return false
 	_ensure_initialized(in_workspace_context)
 	
+	if not structure_context.nano_structure.can_contain_child_structure():
+		return false
+	
 	var check_object_being_created: Callable = func(in_struct: NanoStructure) -> bool:
 		return in_struct is NanoVirtualMotor
 	

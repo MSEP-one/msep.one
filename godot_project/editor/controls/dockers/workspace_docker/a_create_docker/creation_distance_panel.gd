@@ -27,6 +27,8 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	var structure_context: StructureContext = in_workspace_context.get_current_structure_context()
 	if !is_instance_valid(structure_context) || !is_instance_valid(structure_context.nano_structure):
 		return false
+	if not structure_context.nano_structure.can_contain_child_structure():
+		return false
 	if not in_workspace_context.create_object_parameters.get_create_mode_type() in [
 		CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS,
 		CreateObjectParameters.CreateModeType.CREATE_SHAPES,
@@ -46,7 +48,19 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 		_on_create_distance_method_changed(in_workspace_context.create_object_parameters.get_create_distance_method())
 		_on_creation_distance_from_camera_factor_changed(in_workspace_context.create_object_parameters.get_creation_distance_from_camera_factor())
 		_on_snap_to_shape_surface_changed(in_workspace_context.create_object_parameters.get_snap_to_shape_surface())
-	return structure_context.nano_structure is AtomicStructure
+	match in_workspace_context.create_object_parameters.get_create_mode_type():
+		CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS, \
+		CreateObjectParameters.CreateModeType.CREATE_FRAGMENT, \
+		CreateObjectParameters.CreateModeType.CREATE_PARTICLE_EMITTERS:
+			if not structure_context.nano_structure.can_create_and_delete_atoms():
+				return false
+		CreateObjectParameters.CreateModeType.CREATE_SHAPES, \
+		CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN, \
+		CreateObjectParameters.CreateModeType.CREATE_VIRTUAL_MOTORS, \
+		CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS:
+			if not structure_context.nano_structure.can_contain_child_structure():
+				return false
+	return true
 
 
 func _on_button_group_creation_distance_method_pressed(in_button: Button) -> void:

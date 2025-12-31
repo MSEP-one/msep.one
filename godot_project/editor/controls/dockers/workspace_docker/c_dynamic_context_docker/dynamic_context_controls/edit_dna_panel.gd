@@ -43,17 +43,12 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	
 	var selected_count: int = 0
 	var structure: DnaStructure
-	var edited_spline_context: StructureContext = in_workspace_context.get_edited_dna_spline_context()
-	if edited_spline_context != null:
-		selected_count = 1
-		structure = edited_spline_context.nano_structure as DnaStructure
-	else:
-		for structure_context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
-			if not structure_context.nano_structure is DnaStructure:
-				_set_tracked_structure(null)
-				return false
-			selected_count += 1
-			structure = structure_context.nano_structure as DnaStructure
+	for structure_context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
+		if not structure_context.nano_structure is DnaStructure:
+			_set_tracked_structure(null)
+			return false
+		selected_count += 1
+		structure = structure_context.nano_structure as DnaStructure
 	
 	if selected_count == 0:
 		_set_tracked_structure(null)

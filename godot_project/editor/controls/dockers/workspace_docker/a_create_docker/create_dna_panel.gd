@@ -11,7 +11,10 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	var structure_context: StructureContext = in_workspace_context.get_current_structure_context()
 	if !is_instance_valid(structure_context) || !is_instance_valid(structure_context.nano_structure):
 		return false
-
+	
+	if not in_workspace_context.get_current_structure_context().nano_structure.can_contain_child_structure():
+		return false
+	
 	if in_workspace_context.create_object_parameters.get_create_mode_type() \
 			!= CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN:
 		return false
@@ -49,6 +52,8 @@ func _on_feature_flag_toggled() -> void:
 
 
 func _on_create_button_pressed() -> void:
+	var parent_context: StructureContext = _workspace_context.get_current_structure_context()
+	assert(parent_context.nano_structure.can_contain_child_structure())
 	var params := DnaStructureParameters.new()
 	params.dna_radius_nanometers = _dna_radius_spin_box_slider.value
 	params.bases_per_turn = _bases_per_turn_spin_box_slider.value
@@ -78,7 +83,6 @@ func _on_create_button_pressed() -> void:
 	dna.insert_control_point(dna_pos - right_dir * chain_length / 2.0)
 	dna.insert_control_point(dna_pos + right_dir * chain_length / 2.0)
 	dna.end_edit()
-	var parent_context: StructureContext = _workspace_context.get_current_structure_context()
 	_workspace_context.workspace.add_structure(dna, parent_context.nano_structure)
 	_workspace_context.clear_all_selection()
 	_workspace_context.get_structure_context(dna.int_guid).set_dna_spline_selected(true)

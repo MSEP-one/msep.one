@@ -22,7 +22,7 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	var workspace_context: WorkspaceContext = in_structure_context.workspace_context
 	if workspace_context.is_creating_object():
 		workspace_context.abort_creating_object()
-	return in_structure_context.nano_structure.can_create_and_delete_atoms()
+	return in_structure_context.nano_structure.can_contain_child_structure()
 
 
 func handle_inputs_end() -> void:
@@ -32,7 +32,7 @@ func handle_inputs_end() -> void:
 func handle_inputs_resume() -> void:
 	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS \
-			or not get_workspace_context().get_current_structure_context().nano_structure.can_create_and_delete_atoms() \
+			or not get_workspace_context().get_current_structure_context().nano_structure.can_contain_child_structure() \
 			or not parameters.get_create_mode_enabled():
 		return
 	update_preview_position()

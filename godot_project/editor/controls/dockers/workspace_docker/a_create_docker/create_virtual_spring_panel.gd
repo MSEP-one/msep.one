@@ -13,6 +13,10 @@ func _notification(what: int) -> void:
 
 func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	_ensure_workspace_initialized(in_workspace_context)
+	
+	if not in_workspace_context.get_current_structure_context().nano_structure.can_contain_child_structure():
+		return false
+	
 	if in_workspace_context.create_object_parameters.get_create_mode_type() \
 			!= CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS:
 		return false

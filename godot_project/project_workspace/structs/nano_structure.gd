@@ -101,7 +101,7 @@ func get_visible() -> bool:
 
 ## Does this object work as a group?
 func can_contain_child_structure() -> bool:
-	return false
+	return FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_CAN_HAVE_CHILDREN)
 
 
 ## Returns true if the object is not a group of particles. Ex: Shapes, Motors, Springs
