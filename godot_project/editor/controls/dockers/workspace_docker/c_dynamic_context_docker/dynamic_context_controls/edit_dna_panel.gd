@@ -7,6 +7,8 @@ const StrandPolicy = DnaStructure.StrandPolicy
 var _select_one_info_label: InfoLabel
 var _main_container: Container
 var _start_stop_editing_button: Button
+var _override_colors_check_button: CheckButton
+var _create_atoms_button: Button
 
 var _workspace_context: WorkspaceContext
 var _tracked_structure: DnaStructure = null
@@ -19,6 +21,8 @@ func _notification(what: int) -> void:
 		_select_one_info_label = %SelectOneInfoLabel as InfoLabel
 		_main_container = $VBoxContainer as Container
 		_start_stop_editing_button = %StartStopEditingButton as Button
+		_override_colors_check_button = %OverrideColorsCheckButton as CheckButton
+		_create_atoms_button = %CreateAtomsButton as Button
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
 		_dna_radius_spin_box_slider.value_confirmed.connect(_on_dna_radius_spin_box_slider_value_confirmed)
 		_bases_per_turn_spin_box_slider.value_confirmed.connect(_on_bases_per_turn_spin_box_slider_value_confirmed)
@@ -26,7 +30,7 @@ func _notification(what: int) -> void:
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
 		_include_hydrogens_check_button.toggled.connect(_on_include_hydrogens_check_button_toggled)
 		_start_stop_editing_button.pressed.connect(_on_start_stop_editing_button_pressed)
-		# TODO: Connect controls signals
+		_create_atoms_button.pressed.connect(_on_create_atoms_button_pressed)
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
@@ -173,6 +177,64 @@ func _on_start_stop_editing_button_pressed() -> void:
 		assert(_workspace_context.get_edited_dna_spline_id() == _tracked_structure.int_guid)
 		_workspace_context.stop_editing_dna_spline()
 		_workspace_context.snapshot_moment("Stop Editing DNA Spline")
+
+
+func _on_create_atoms_button_pressed() -> void:
+	assert(_tracked_structure != null, "Invalid ui state")
+	var sequence: String = _tracked_structure.get_sequence()
+	var has_invalid_bases: bool = sequence.find("X") != -1
+	if has_invalid_bases and _workspace_context.ignored_warnings.convert_dna_with_invalid_bases == false:
+		var warning_promise: Promise = _workspace_context.show_warning_dialog(
+				tr("DNA Sequence is incomplete. To continue will lead to missing bases in the chain."),
+				tr("Continue"), tr("Cancel") , &"convert_dna_with_invalid_bases", true)
+		await warning_promise.wait_for_fulfill()
+		if warning_promise.get_result() == false:
+			# "Cancel" button selected
+			return
+	var parent_group: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_tracked_structure.int_parent_guid)
+	var new_group: AtomicStructure = AtomicStructure.create()
+	new_group.set_structure_name(_tracked_structure.get_structure_name() + "'s atoms")
+	_workspace_context.workspace.add_structure(new_group, parent_group)
+	const STRAND_COLOR: Dictionary[DnaStructure.Strand, Color] = {
+		DnaStructure.Strand.A : Color.RED,
+		DnaStructure.Strand.B : Color.BLUE,
+	}
+	if _tracked_structure.get_strand_policy() == StrandPolicy.DOUBLE:
+		# Split strands in subgroups
+		for strand: DnaStructure.Strand in _tracked_structure.get_strands():
+			var strand_group: AtomicStructure = AtomicStructure.create()
+			strand_group.set_structure_name("Strand " + DnaStructure.Strand.find_key(strand))
+			strand_group.start_edit()
+			var atom_map: Dictionary[int, int]
+			for atom_id: int in _tracked_structure.get_atom_ids_for_strand(strand):
+				var atomic_number: int = _tracked_structure.atom_get_atomic_number(atom_id)
+				var pos: Vector3 = _tracked_structure.atom_get_position(atom_id)
+				atom_map[atom_id] = strand_group.add_atom(AtomicStructure.AddAtomParameters.new(atomic_number, pos))
+			for bond_id: int in _tracked_structure.get_bond_ids_for_strand(strand):
+				var bond_data: Vector3i = _tracked_structure.get_bond(bond_id)
+				# remap atom ids
+				strand_group.add_bond(atom_map[bond_data.x], atom_map[bond_data.y], bond_data.z)
+			if _override_colors_check_button.button_pressed:
+				strand_group.set_color_override(atom_map.values(), STRAND_COLOR[strand])
+			strand_group.end_edit()
+			_workspace_context.workspace.add_structure(strand_group, new_group)
+		pass
+	else:
+		new_group.start_edit()
+		var atom_map: Dictionary[int, int]
+		for atom_id: int in _tracked_structure.get_valid_atoms():
+			var atomic_number: int = _tracked_structure.atom_get_atomic_number(atom_id)
+			var pos: Vector3 = _tracked_structure.atom_get_position(atom_id)
+			atom_map[atom_id] = new_group.add_atom(AtomicStructure.AddAtomParameters.new(atomic_number, pos))
+		for bond_id: int in _tracked_structure.get_valid_bonds():
+			var bond_data: Vector3i = _tracked_structure.get_bond(bond_id)
+			# remap atom ids
+			new_group.add_bond(atom_map[bond_data.x], atom_map[bond_data.y], bond_data.z)
+		if _override_colors_check_button.button_pressed:
+			var strand: DnaStructure.Strand = _tracked_structure.get_strands()[0]
+			new_group.set_color_override(atom_map.values(), STRAND_COLOR[strand])
+		new_group.end_edit()
+	_workspace_context.snapshot_moment("Create group from DNA Chain")
 
 
 func _on_dna_spline_edition_started(dna_context: StructureContext) -> void:

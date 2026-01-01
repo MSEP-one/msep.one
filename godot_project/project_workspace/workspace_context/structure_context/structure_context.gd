@@ -216,7 +216,7 @@ func dna_structure_has_selection() -> bool:
 	if not nano_structure is DnaStructure:
 		return false
 	if workspace_context.is_simulating():
-		assert(false, "TODO: Check if any atoms are selected")
+		# TODO: Check if any atoms are selected
 		return false
 	if _selection_db.is_dna_spline_selected():
 		return true
@@ -230,7 +230,7 @@ func is_dna_structure_fully_selected() -> bool:
 		return false
 	var dna_structure := nano_structure as DnaStructure
 	if workspace_context.is_simulating():
-		assert(false, "TODO: Check if all atoms are fully selected")
+		# TODO: Check if all atoms are fully selected
 		return false
 	if workspace_context.get_edited_dna_spline_id() == dna_structure.int_guid:
 		return _selection_db.get_selected_dna_spline_countrol_points().size() == dna_structure.get_control_point_count()
