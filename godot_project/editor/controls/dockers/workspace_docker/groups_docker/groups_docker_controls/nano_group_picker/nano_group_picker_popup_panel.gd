@@ -70,7 +70,7 @@ func initialize(in_workspace_context: WorkspaceContext) -> void:
 
 
 func _can_contain_children(in_structure: NanoStructure) -> bool:
-	return not in_structure.is_virtual_object() and not in_structure is DnaStructure
+	return in_structure.can_contain_child_structure()
 
 
 func get_selected_structure_name() -> String:

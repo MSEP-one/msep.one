@@ -25,8 +25,9 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		# Check what is selected, return as soon as possible
 		if context.nano_structure.is_virtual_object() and context.is_virtual_object_selected():
 			return true
-		if context.nano_structure is DnaStructure and context.dna_structure_has_selection():
-			return true
+		if context.nano_structure is DnaStructure:
+			if context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath and context.dna_structure_has_selection():
+				return true
 		if context.get_selected_bonds().size():
 			return true
 		selected_atoms_count += context.get_selected_atoms().size()

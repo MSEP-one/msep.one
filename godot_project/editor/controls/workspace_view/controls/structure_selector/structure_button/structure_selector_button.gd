@@ -81,7 +81,7 @@ func _has_children_not_in_path(in_nano_structure: NanoStructure) -> bool:
 
 func _is_not_in_path_to_active_structure(in_nano_structure: NanoStructure) -> bool:
 	# Shapes, Motors, and DNAStructures are intentionally hidden of the list
-	var is_valid_group: bool = not in_nano_structure.is_virtual_object() and not in_nano_structure is DnaStructure
+	var is_valid_group: bool = not in_nano_structure.is_virtual_object()
 	if not is_valid_group:
 		return false
 	var path: Array[NanoStructure] = _get_path_to_current_structure()

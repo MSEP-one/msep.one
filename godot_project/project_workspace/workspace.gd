@@ -371,6 +371,7 @@ func _internal_add_structure(in_structure: NanoStructure, in_parent: NanoStructu
 	_structures[in_structure.int_guid] = in_structure
 	if in_parent != null:
 		assert(_structures.has(in_parent.int_guid), "Parent structure is not part of the workspace")
+		assert(in_parent.can_contain_child_structure(), "Object of type %s cannot contain children" % in_parent.get_type())
 		in_structure.int_parent_guid = in_parent.int_guid
 	in_structure.set_representation_settings(representation_settings)
 	if not in_structure.renamed.is_connected(_on_nano_structure_renamed):

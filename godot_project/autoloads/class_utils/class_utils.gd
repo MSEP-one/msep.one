@@ -162,7 +162,12 @@ func _do_check(in_class_to_check: ClassDescription) -> void:
 	var all_implemented_functions: Dictionary = _find_all_implemented_functions(in_class_to_check)
 	for function_desc: FunctionDescription in functions_which_needs_to_be_implemented:
 		var is_implemented: bool = all_implemented_functions.has(function_desc.function_name)
-		assert(is_implemented, "Class " + in_class_to_check.name_of_class + " needs to implement abstract function: " + function_desc.function_name)
+		# Assert is done in a separate callback to not interrupt the for loop in case it happens
+		_do_assert(is_implemented, "Class " + in_class_to_check.name_of_class + " needs to implement abstract function: " + function_desc.function_name)
+
+func _do_assert(condition: bool, message: String) -> void:
+	assert(condition, message)
+	pass
 
 
 func _find_ancestor_abstract_functions(in_class: ClassDescription) -> Array[FunctionDescription]:

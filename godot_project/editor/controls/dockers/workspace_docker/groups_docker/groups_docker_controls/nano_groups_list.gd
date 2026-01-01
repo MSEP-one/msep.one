@@ -89,7 +89,7 @@ func _on_structures_tree_can_drop_data(at_position: Vector2, data: Variant) -> b
 			null if parent_candidate_structure_id == 0 else \
 			workspace.get_structure_by_int_guid(parent_candidate_structure_id)
 	var dragged_structure: NanoStructure = workspace.get_structure_by_int_guid(dragged_structure_id)
-	return not workspace.is_a_ancestor_of_b(dragged_structure, parent_candidate)
+	return not workspace.is_a_ancestor_of_b(dragged_structure, parent_candidate) and parent_candidate.can_contain_child_structure()
 
 
 func _on_structures_tree_drop_data(at_position: Vector2, data: Variant) -> void:
@@ -416,7 +416,7 @@ func _update_structure_selection(in_groups_to_update: PackedInt32Array) -> void:
 ## NanoShape and Motors, etc can't be displayed here but shapes also extends NanoMolecularStructure
 ## so we have to be explicit on the check here.
 func _can_appear_in_tree(nano_structure: NanoStructure) -> bool:
-	return not nano_structure.is_virtual_object() and not nano_structure is DnaStructure
+	return nano_structure.can_contain_child_structure() or nano_structure is DnaStructure
 
 
 func _get_structure_tree_item_or_null(in_structure_id: int) -> TreeItem:

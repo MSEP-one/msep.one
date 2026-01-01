@@ -81,6 +81,11 @@ func get_icon() -> Texture2D:
 	return preload("res://editor/icons/MolecularStructure_x28.svg")
 
 
+## Does this object work as a group?
+func can_contain_child_structure() -> bool:
+	return true
+
+
 ## Unlike Resource.duplicate(subresources=true) this method will make sure internal Dictionaries
 ## and Arrays are also duplicated and unique, so they are not shared to the original NanoStructure
 func safe_duplicate() -> NanoStructure:

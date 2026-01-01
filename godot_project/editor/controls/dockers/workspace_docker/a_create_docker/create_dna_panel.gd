@@ -49,8 +49,6 @@ func _on_feature_flag_toggled() -> void:
 
 
 func _on_create_button_pressed() -> void:
-	if _workspace_context.get_edited_dna_spline_id() != Workspace.INVALID_STRUCTURE_ID:
-		_workspace_context.stop_editing_dna_spline()
 	var params := DnaStructureParameters.new()
 	params.dna_radius_nanometers = _dna_radius_spin_box_slider.value
 	params.bases_per_turn = _bases_per_turn_spin_box_slider.value
@@ -70,7 +68,7 @@ func _on_create_button_pressed() -> void:
 	if OS.is_debug_build() and DnaBuilder.is_dev_tool_enabled():
 		DnaBuilder.DNA_BASES_OFFSET = %OffsetSpinBoxSlider.value
 
-	var dna: DnaStructure = DnaStructure.create(params, _dna_sequence_text_edit.text)
+	var dna: DnaStructure = DnaStructure.create_dna(params, _dna_sequence_text_edit.text)
 	dna.set_structure_name("DNA Chain%d" % _workspace_context.workspace.get_nmb_of_structures())
 	var dna_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
 	var right_dir: Vector3 = _workspace_context.get_editor_viewport().get_camera_3d().global_transform.basis.x

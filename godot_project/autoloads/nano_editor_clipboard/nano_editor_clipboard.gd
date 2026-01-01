@@ -404,8 +404,6 @@ func paste(out_workspace_context: WorkspaceContext, in_auto_bond_order: int) -> 
 				new_motor.disconnect_structure_by_id(original_id)
 				new_motor.connect_structure_by_id(new_id)
 	if did_create_undo_action:
-		if out_workspace_context.get_edited_dna_spline_id() != Workspace.INVALID_STRUCTURE_ID:
-			out_workspace_context.stop_editing_dna_spline()
 		for structure_context: StructureContext in selection_per_structure.keys():
 			structure_context.clear_selection()
 		out_workspace_context.snapshot_moment("Paste clipboard content")

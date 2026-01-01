@@ -81,7 +81,7 @@ func apply_selection() -> void:
 				var selected_bonds: PackedInt32Array = context.select_atoms_and_get_auto_selected_bonds(selected_atoms)
 				context.select_bonds(selected_bonds)
 				context.select_springs(selected_springs)
-		if context.nano_structure is DnaStructure:
+		if context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 			if _workspace_context.get_edited_dna_spline_context() == context:
 				var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
 				context.set_dna_control_point_selection(control_points_in_box)

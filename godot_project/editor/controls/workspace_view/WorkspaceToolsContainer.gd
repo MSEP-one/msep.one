@@ -33,7 +33,7 @@ func _on_hovered_structure_context_changed(
 			_show_hovered_spring_tooltip(in_hovered_structure_context, in_spring_id)
 		else:
 			tooltip_text = ""
-	elif in_hovered_structure_context.nano_structure is DnaStructure:
+	elif in_hovered_structure_context.nano_structure is DnaStructure and in_hovered_structure_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 		if in_dna_control_point_idx == DnaStructure.INVALID_CONTROL_POINT_IDX:
 			tooltip_text = _get_path_to_context(in_hovered_structure_context).rstrip("\n")
 			tooltip_text += " (%s)" % in_hovered_structure_context.nano_structure.get_tooltip_text()

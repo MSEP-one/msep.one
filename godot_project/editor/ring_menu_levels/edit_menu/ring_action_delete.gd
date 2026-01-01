@@ -65,8 +65,6 @@ func _action_delete_atoms_bonds_springs(context: StructureContext) -> void:
 func _action_delete_objects(context: StructureContext, out_already_deleted_contexts: Array[StructureContext]) -> void:
 	if out_already_deleted_contexts.has(context):
 		return
-	if _workspace_context.get_edited_dna_spline_id() != Workspace.INVALID_STRUCTURE_ID:
-		_workspace_context.stop_editing_dna_spline()
 	var workspace: Workspace = _workspace_context.workspace
 	if !_did_create_undo_action:
 		_did_create_undo_action = true
