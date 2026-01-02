@@ -30,6 +30,7 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 		return false
 	_ensure_initialized(in_workspace_context)
 	
+	
 	var check_object_being_created: Callable = func(in_struct: NanoStructure) -> bool:
 		return in_struct is NanoParticleEmitter
 	
@@ -38,6 +39,9 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 		if in_workspace_context.is_creating_object() and \
 				in_workspace_context.peek_object_being_created(check_object_being_created):
 			in_workspace_context.abort_creating_object()
+		return false
+	
+	if not structure_context.nano_structure.can_create_and_delete_atoms():
 		return false
 	
 	if in_workspace_context.is_creating_object() and \
@@ -174,6 +178,20 @@ func _on_create_from_small_molecules_pressed() -> void:
 
 func _on_small_molecules_picker_molecule_selected(in_path: String, _in_preview: Texture2D) -> void:
 	assert(is_instance_valid(_workspace_context))
+	var parent_context: StructureContext = _workspace_context.get_current_structure_context()
+	if parent_context.nano_structure is DnaStructure:
+		var promise: Promise = _workspace_context.show_warning_dialog(
+			tr("Creating a Particle Emitter as child of a DNA Chain is not allowed.\n"+
+				"This is because particle emitters creates atoms in their parent group, and DNA Chains dont support this."),
+			tr("Create as sibling"), tr("Abort")
+		)
+		await promise.wait_for_fulfill()
+		if promise.get_result() == false:
+			# Aborted
+			return
+		parent_context = _workspace_context.get_nano_structure_context_from_id(parent_context.nano_structure.int_parent_guid)
+		_workspace_context.set_current_structure_context(parent_context)
+	
 	var unpacked_mol_path: String = WorkspaceUtils.unpack_mol_file_and_get_path(in_path)
 	var absolute_path: String = ProjectSettings.globalize_path(unpacked_mol_path)
 	var template: NanoStructure = await WorkspaceUtils.get_nano_structure_from_file(_workspace_context, absolute_path, false, false, false)

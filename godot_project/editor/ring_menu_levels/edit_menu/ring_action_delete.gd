@@ -35,6 +35,17 @@ func _execute_action() -> void:
 	var selected_structures_contexts: Array[StructureContext] = \
 			_workspace_context.get_structure_contexts_with_selection()
 	_did_create_undo_action = false
+	for context in selected_structures_contexts:
+		if context.nano_structure is AtomicStructure and not context.nano_structure.can_create_and_delete_atoms():
+			if context.is_fully_selected():
+				# will delete the entire group
+				continue
+			var has_atom_bond_selection: bool = context.get_selected_atoms().size() + context.get_selected_bonds().size() > 0
+			if has_atom_bond_selection:
+				_workspace_context.get_editor_viewport_container().show_warning_in_message_bar(
+					tr("Cannot delete selected atoms and bonds, The structure containing them does not support being modified")
+				)
+				return
 	var deleted_structures_contexts: Array[StructureContext] = []
 	for context in selected_structures_contexts:
 		_delete_selection_of_structure(context, deleted_structures_contexts)

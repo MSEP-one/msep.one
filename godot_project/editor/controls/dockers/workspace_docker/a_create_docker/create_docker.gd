@@ -13,6 +13,17 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/a_create_docker/controls/create_mode_picker.tscn"
 			]
 		},
+	&"Uneditable DNA Chain":
+		{
+			icon = "",
+			header = false,
+			scroll = false,
+			collapse = false,
+			start_collapsed = false,
+			controls = [
+				"res://editor/controls/dockers/workspace_docker/a_create_docker/uneditable_atoms_warning.tscn"
+			]
+		},
 	&"Atoms and Bonds Parameters":
 		{
 			icon = "uid://df8has67xkedj",

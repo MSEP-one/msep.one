@@ -104,6 +104,7 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_updating_parameters = false
 	_update_bases()
 	_ensure_structure_signal_connections(in_structure)
+	_update_visibility()
 
 
 func _enter_tree() -> void:

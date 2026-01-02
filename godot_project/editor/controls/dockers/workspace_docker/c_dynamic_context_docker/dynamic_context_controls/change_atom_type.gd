@@ -6,6 +6,7 @@ const _METADATA_ID_ELEMENT: int = 1
 
 
 @onready var _tree: Tree = %Tree
+@onready var _immutable_atoms_info_label: InfoLabel = %ImmutableAtomsInfoLabel
 @onready var _selection_description: Label = %SelectionDescription
 @onready var _button_change_to: Button = %ButtonChangeTo
 @onready var _element_picker_popup: CompactElementPickerPopup = %CompactElementPickerPopup
@@ -65,6 +66,8 @@ func _on_element_picker_atom_type_change_requested(in_to_element: int) -> void:
 	var selected_contexts: Array[StructureContext] =  \
 			_workspace_context.get_structure_contexts_with_selection()
 	for context in selected_contexts:
+		if context.nano_structure.can_create_and_delete_atoms() == false:
+			continue
 		var should_change_callback: Callable = func(atom_id: int) -> bool:
 			var element: int = context.nano_structure.atom_get_atomic_number(atom_id)
 			return element in elements_to_change
@@ -153,12 +156,19 @@ func _refresh_target_list() -> void:
 	
 	var selected_contexts: Array[StructureContext] =  \
 			_workspace_context.get_structure_contexts_with_selection()
+	var has_immutable_objects: bool = false
 	for context in selected_contexts:
+		if context.nano_structure is AtomicStructure and context.nano_structure.can_create_and_delete_atoms() == false:
+			if context.get_selected_atoms().size():
+				has_immutable_objects = true
+			continue
 		var atoms: PackedInt32Array = context.get_selected_atoms()
 		total += atoms.size()
 		for atom_id in atoms:
 			var element: int = context.nano_structure.atom_get_atomic_number(atom_id)
 			per_element_count[element] = per_element_count.get(element, 0) + 1
+	
+	_immutable_atoms_info_label.visible = has_immutable_objects
 	
 	_tree.clear()
 	var item_all: TreeItem = _tree.create_item()

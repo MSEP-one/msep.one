@@ -55,7 +55,16 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 			&"ParticleEmitter":
 				_copy_particle_emitter(structure_context, nano_structure, new_content)
 			&"DnaStructure":
-				_copy_dna_structure(structure_context, nano_structure, new_content)
+				var is_current: bool = in_workspace_context.get_current_structure_context().nano_structure == nano_structure
+				if nano_structure.get_edit_mode() == DnaStructure.EditMode.AtomsAndBonds and is_current:
+					_copy_selected_atoms(
+						structure_context, nano_structure, atom_selection, new_content
+					)
+					_copy_selected_springs(
+						structure_context, nano_structure, spring_selection, atom_selection, new_content
+					)
+				else:
+					_copy_dna_structure(structure_context, nano_structure, new_content)
 			_:
 				push_warning("Nano structure type not implemented for copy")
 	var root_group_id: int = -1
@@ -287,6 +296,11 @@ func paste(out_workspace_context: WorkspaceContext, in_auto_bond_order: int) -> 
 	var did_create_undo_action: bool = false
 	if out_workspace_context.get_current_structure_context() != null:
 		target_structure = out_workspace_context.get_current_structure_context().nano_structure
+	if target_structure is DnaStructure:
+		out_workspace_context.get_editor_viewport_container().show_warning_in_message_bar(
+			tr("Cannot paste atoms and objects inside a DNA structure.")
+		)
+		return
 	var original_to_new_structure_id: Dictionary = {
 	#	old_id<int> = new_id<int>
 	}

@@ -51,7 +51,7 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	if workspace_context.is_creating_object():
 		workspace_context.abort_creating_object()
 		return false
-	return true
+	return workspace_context.get_current_structure_context().nano_structure.can_create_and_delete_atoms()
 
 
 func handle_inputs_end() -> void:
@@ -443,12 +443,6 @@ func _create_spring(in_atomic_struct: NanoStructure, in_anchor_id: int, in_atom_
 			in_params.get_spring_equilibrium_length_is_auto(), in_params.get_spring_equilibrium_manual_length())
 	in_atomic_struct.end_edit()
 	return spring_id
-
-
-func _revalidate_spring(in_atomic_struct: NanoStructure, in_spring_id_to_revalidate: int) -> void:
-	in_atomic_struct.start_edit()
-	in_atomic_struct.spring_revalidate(in_spring_id_to_revalidate)
-	in_atomic_struct.end_edit()
 
 
 func _select_spring(structure_context: StructureContext, in_spring_id_to_select: int) -> void:

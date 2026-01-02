@@ -208,10 +208,6 @@ func spring_invalidate(_in_spring_id: int) -> void:
 	return
 
 
-func spring_revalidate(_in_spring_id: int) -> void:
-	return
-
-
 func spring_get_atom_id(_in_spring_id: int) -> int:
 	return INVALID_ATOM_ID
 

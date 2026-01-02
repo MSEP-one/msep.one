@@ -21,7 +21,7 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	if in_structure_context.workspace_context.is_creating_object():
 		# Make sure we abort creating shapes, motors, small molecules, etc
 		in_structure_context.workspace_context.abort_creating_object()
-	return in_structure_context.nano_structure is AtomicStructure
+	return in_structure_context.nano_structure is AtomicStructure and in_structure_context.nano_structure.can_create_and_delete_atoms()
 
 
 func handle_inputs_end() -> void:
@@ -33,6 +33,7 @@ func handle_inputs_resume() -> void:
 	var structure_context: StructureContext = workspace_context.get_current_structure_context()
 	var parameters: CreateObjectParameters = workspace_context.create_object_parameters
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS \
+			or not get_workspace_context().get_current_structure_context().nano_structure.can_create_and_delete_atoms() \
 			or not parameters.get_create_mode_enabled():
 		return
 	update_preview_position()

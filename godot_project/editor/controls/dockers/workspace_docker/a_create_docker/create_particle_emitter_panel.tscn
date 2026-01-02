@@ -17,10 +17,10 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "[center]ℹ Selection must be part of the active group, and have fully selected molecules[/center]"
+text = "[center]ℹ Selection must be part of the active group, and fully selected molecules, and not belong to a DNA Chain[/center]"
 fit_content = true
 script = ExtResource("3_vh652")
-message = &"Selection must be part of the active group, and have fully selected molecules"
+message = &"Selection must be part of the active group, and fully selected molecules, and not belong to a DNA Chain"
 effect = "none"
 metadata/_custom_type_script = "uid://3hjuxktmfb16"
 

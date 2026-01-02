@@ -759,7 +759,8 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.atoms_locking_changed.connect(_on_nano_structure_atoms_locking_changed.bind(structure_context.get_int_guid()))
 		if not structure_context.nano_structure.visibility_changed.is_connected(_on_nano_structure_visibility_changed):
 			structure_context.nano_structure.visibility_changed.connect(_on_nano_structure_visibility_changed.bind(structure_context.get_int_guid()))
-		if structure_context.nano_structure is DnaStructure:
+		if structure_context.nano_structure is DnaStructure \
+				and not structure_context.nano_structure.bases_count_changed.is_connected(_on_structure_contents_modified_arg1):
 			structure_context.nano_structure.bases_count_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.sequence_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
