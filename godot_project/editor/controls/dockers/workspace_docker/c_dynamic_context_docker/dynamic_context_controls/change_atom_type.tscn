@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://df1wehgky7mt5"]
+[gd_scene load_steps=4 format=3 uid="uid://df1wehgky7mt5"]
 
 [ext_resource type="Script" uid="uid://dxgv6t3xlxtfv" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/change_atom_type.gd" id="1_538ej"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_gt1e4"]
 [ext_resource type="PackedScene" uid="uid://dyadiqebvvyti" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker_popup.tscn" id="2_pru4w"]
 
 [node name="ChangeAtomType" type="VBoxContainer"]
@@ -18,6 +19,12 @@ layout_mode = 2
 hide_folding = true
 select_mode = 1
 scroll_horizontal_enabled = false
+
+[node name="ImmutableAtomsInfoLabel" parent="." instance=ExtResource("2_gt1e4")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] Some selected atoms belong to an immutable structure and won't be affected[/center]"
+message = &"Some selected atoms belong to an immutable structure and won\'t be affected"
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
@@ -37,6 +44,7 @@ text = "No Atoms selected"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
 text = "Change To ..."
 
 [node name="CompactElementPickerPopup" parent="." instance=ExtResource("2_pru4w")]

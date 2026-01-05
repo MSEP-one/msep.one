@@ -12,6 +12,8 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	if !is_instance_valid(structure_context) || !is_instance_valid(structure_context.nano_structure):
 		return false
 	_workspace_context = in_workspace_context
+	if not in_workspace_context.get_current_structure_context().nano_structure.can_create_and_delete_atoms():
+		return false
 	if in_workspace_context.create_object_parameters.get_create_mode_type() \
 			!= CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS:
 		return false

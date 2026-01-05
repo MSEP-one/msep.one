@@ -31,11 +31,6 @@ var _valid_atoms: Dictionary = {
 
 var _highest_spring_id: int = -1
 
-#TODO: should not be needed
-var _invalid_springs: Dictionary = {
-	# id<int> : NanoSpring
-}
-
 
 func _init() -> void:
 	super._init()
@@ -518,7 +513,6 @@ func spring_invalidate(in_spring_id: int) -> void:
 	var atom_id: int = spring_get_atom_id(in_spring_id)
 	var anchor_id: int = spring_get_anchor_id(in_spring_id)
 	_atoms_to_related_springs[atom_id].erase(in_spring_id)
-	_invalid_springs[in_spring_id] = _springs[in_spring_id]
 	_springs.erase(in_spring_id)
 	_signal_queue_springs_moved.erase(in_spring_id)
 	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
@@ -532,26 +526,6 @@ func spring_invalidate(in_spring_id: int) -> void:
 		if anchor.visibility_changed.is_connected(_on_anchor_visibility_changed):
 			anchor.visibility_changed.disconnect(_on_anchor_visibility_changed)
 	_signal_queue_springs_removed.append(in_spring_id)
-
-
-func spring_revalidate(in_spring_id: int) -> void:
-	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
-	_springs[in_spring_id] = _invalid_springs[in_spring_id]
-	_invalid_springs.erase(in_spring_id)
-	_signal_queue_springs_added.append(in_spring_id)
-	
-	var revalidated_spring: NanoSpring = _springs[in_spring_id]
-	var related_anchor_id: int = revalidated_spring.target_anchor
-	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
-	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(related_anchor_id)
-	anchor.handle_spring_added(self, in_spring_id)
-	if not anchor.position_changed.is_connected(_on_anchor_position_change):
-		anchor.position_changed.connect(_on_anchor_position_change.bind(anchor))
-	
-	var related_atom_id: int = revalidated_spring.target_atom
-	if not _atoms_to_related_springs.has(related_atom_id):
-		_atoms_to_related_springs[related_atom_id] = Dictionary()
-	_atoms_to_related_springs[related_atom_id][in_spring_id] = true
 
 
 func spring_is_visible(in_spring_id: int) -> bool:
@@ -724,7 +698,6 @@ func clear() -> void:
 	_valid_atoms.clear()
 	hidden_atoms.clear()
 	hidden_bonds.clear()
-	_invalid_springs.clear()
 	_springs.clear()
 	_invalid_atoms_count = 0
 	_highest_spring_id = -1
@@ -793,7 +766,6 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["_motor_links"] = _motor_links.duplicate()
 	state_snapshot["_valid_atoms"] = _valid_atoms.duplicate()
 	state_snapshot["_highest_spring_id"] = _highest_spring_id
-	state_snapshot["_invalid_springs"] = _invalid_springs.duplicate()
 	state_snapshot["signals"] = History.create_signal_snapshot_for_object(self)
 	return state_snapshot
 
@@ -819,7 +791,6 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_motor_links = in_state_snapshot["_motor_links"].duplicate()
 	_valid_atoms = in_state_snapshot["_valid_atoms"].duplicate()
 	_highest_spring_id = in_state_snapshot["_highest_spring_id"]
-	_invalid_springs = in_state_snapshot["_invalid_springs"].duplicate()
 	
 	# This call defferent should not be needed when Renderer will implement snapshoting
 	History.apply_signal_snapshot_to_object.call_deferred(self, in_state_snapshot["signals"])

@@ -1,6 +1,7 @@
 extends DynamicContextControl
 
 
+var _immutable_atoms_info_label: InfoLabel
 var _label_describe_change: Label = null
 var _button_single: Button = null
 var _button_double: Button = null
@@ -12,6 +13,7 @@ var _workspace_context: WorkspaceContext
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
+		_immutable_atoms_info_label = %ImmutableAtomsInfoLabel as InfoLabel
 		_label_describe_change = %LabelDescribeChange
 		_button_single = %ButtonSingle as Button
 		_button_double = %ButtonDouble as Button
@@ -60,11 +62,21 @@ func _on_rendering_representation_changed() -> void:
 func _update_availability() -> void:
 	var representation: Rendering.Representation = _workspace_context.workspace.representation_settings.get_rendering_representation()
 	var representation_allows_editing: bool = representation != Rendering.Representation.STICKS
-	var selected_count: int = _get_count_selected()
+	var selected_count: int = 0
+	var has_immutable_objects: bool = false
+	if _workspace_context != null:
+		var selected_contexts: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
+		for context in selected_contexts:
+			if context.nano_structure is AtomicStructure and context.nano_structure.can_create_and_delete_atoms() == false:
+				if context.get_selected_bonds().size():
+					has_immutable_objects = true
+				continue
+			selected_count += context.get_selected_bonds().size()
 	var can_be_edited_by_user: bool = selected_count > 0 and representation_allows_editing
 	_button_single.disabled = not can_be_edited_by_user
 	_button_double.disabled = not can_be_edited_by_user
 	_button_triple.disabled = not can_be_edited_by_user
+	_immutable_atoms_info_label.visible = has_immutable_objects
 	
 	if not representation_allows_editing:
 		_label_describe_change.text = tr(&"Cannot change bond order in Sticks representation")
@@ -74,20 +86,12 @@ func _update_availability() -> void:
 		_label_describe_change.text = tr(&"Change {0} selected Bonds to...").format([selected_count])
 
 
-func _get_count_selected() -> int:
-	var selected_count: int = 0
-	if _workspace_context == null:
-		return selected_count
-	var selected_contexts: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
-	for context in selected_contexts:
-		selected_count += context.get_selected_bonds().size()
-	return selected_count
-
-
 func _change_order_of_selected_atoms(in_selected_bond_order: int) -> void:
 	EditorSfx.mouse_down()
 	var selected_contexts: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
 	for context in selected_contexts:
+		if context.nano_structure is AtomicStructure and context.nano_structure.can_create_and_delete_atoms() == false:
+			continue
 		var selected_bonds: PackedInt32Array = context.get_selected_bonds()
 		if selected_bonds.size() == 0:
 			continue

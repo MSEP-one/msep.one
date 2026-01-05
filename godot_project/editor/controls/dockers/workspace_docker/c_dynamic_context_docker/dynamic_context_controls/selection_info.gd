@@ -118,7 +118,12 @@ func _update_selected_info() -> void:
 			item.set_text(1, str(total_anchors_selected))
 	# 2. Second pass for details
 	for context in selected_structures:
-		var selection_info: Dictionary = SelectionInfo.create_selection_info(context, SelectionInfo.Type.READ_WRITE_PROPERTIES)
+		var type: SelectionInfo.Type = (
+			SelectionInfo.Type.READ_WRITE_PROPERTIES
+			if not context.nano_structure is AtomicStructure or context.nano_structure.can_create_and_delete_atoms() else
+			SelectionInfo.Type.READ_ONLY_PROPERTIES
+		)
+		var selection_info: Dictionary = SelectionInfo.create_selection_info(context, type)
 		var structure_root: TreeItem = _tree_info.create_item(root)
 		structure_root.set_text(0, context.nano_structure.get_structure_name())
 		structure_root.set_icon(0, context.nano_structure.get_icon())

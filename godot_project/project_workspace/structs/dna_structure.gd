@@ -27,7 +27,6 @@ const INVALID_CONTROL_POINT_IDX: int = -1
 @export var _twists_offset_radians: float
 @export var _sequence: String
 @export var _parameters: DnaStructureParameters
-@export var _color_overrides: Dictionary[int, Color] = {}
 @export var _edit_mode := EditMode.SequenceAndPath
 
 # Atoms and Bases caches
@@ -38,6 +37,7 @@ var _atoms_cache: Dictionary[int, AtomData] = {}
 var _bonds_count_cache: int = -1
 var _bonds_ids_cache: Dictionary[Strand, PackedInt32Array] = {}
 var _bonds_cache: Dictionary[int, Vector3i]
+var _highest_spring_id: int = -1
 static var _unpacked_atom_ids: Dictionary[int, UnpackedAtomId]
 static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
 
@@ -47,6 +47,9 @@ var _signal_queue_path_changed: bool = false
 var _signal_queue_parameters_changed: bool = false
 var _baked_path: PackedVector3Array = []
 
+@export var _springs: Dictionary = {
+	# id<int> : NanoSpring
+}
 @export var _motor_links: Dictionary[int, int] = {
 	# atom_id<int> : motor_id<int>
 }
@@ -115,8 +118,15 @@ func set_edit_mode(in_mode: EditMode) -> void:
 		# Atoms and bonds has been removed
 		var atoms_to_signal: PackedInt32Array = get_valid_atoms()
 		var bonds_to_signal: PackedInt32Array = get_valid_bonds()
+		var springs_to_remove: PackedInt32Array = _springs.keys()
 		_edit_mode = in_mode
 		_atoms_cache = {}
+		_atoms_count_cache = -1
+		_bonds_count_cache = -1
+		_springs.clear()
+		locked_atoms = {}
+		color_overrides = {}
+		springs_removed.emit(springs_to_remove)
 		atoms_removed.emit(atoms_to_signal)
 		bonds_removed.emit(bonds_to_signal)
 		# TODO: Track springs? locked atoms? color overrides?
@@ -125,6 +135,8 @@ func set_edit_mode(in_mode: EditMode) -> void:
 	elif in_mode == EditMode.AtomsAndBonds:
 		# Atoms and bonds added back
 		_edit_mode = in_mode
+		_atoms_count_cache = -1
+		_bonds_count_cache = -1
 		var atoms_to_signal: PackedInt32Array = get_valid_atoms()
 		var bonds_to_signal: PackedInt32Array = get_valid_bonds()
 		atoms_added.emit(atoms_to_signal)
@@ -443,6 +455,12 @@ func _adjust_sequence_to_path_length() -> void:
 
 
 #region: Atoms and Bonds
+## DNA Structure does not allow creating, removing, or modifying atoms and bonds
+## so this function always returns false
+func can_create_and_delete_atoms() -> bool:
+	return false
+
+
 ## Returns number of atoms that has been created in this NanoStructure
 func get_valid_atoms_count() -> int:
 	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
@@ -602,18 +620,6 @@ func atoms_set_positions(in_atoms: PackedInt32Array, in_positions: PackedVector3
 		atom_set_position(in_atoms[i], in_positions[i])
 
 
-
-## Returns true if the atom is locked
-func atom_is_locked(_in_atom_id: int) -> bool:
-	# TBD: can this feature be supported?
-	return false
-
-
-## Returns an array with the IDs of all locked atoms
-func get_locked_atoms() -> PackedInt32Array:
-	return PackedInt32Array() # PackedInt32Array(locked_atoms.keys())
-
-
 ## returns IDs of the bonds that given atom is participating in
 func atom_get_bonds(in_atom_id: int) -> PackedInt32Array:
 	var result := PackedInt32Array()
@@ -716,24 +722,6 @@ func atoms_count_visible_by_type(types_to_count: PackedInt32Array) -> int:
 		if atom.atomic_number in types_to_count and is_atom_visible(atom_id):
 			count += 1
 	return count
-
-
-func set_color_override(in_atoms: PackedInt32Array, color: Color) -> void:
-	assert(_is_being_edited, "Color override can only be changed while structure is being edited")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Atoms and Bonds cannot be edited in this mode")
-	for atom_id: int in in_atoms:
-		_color_overrides[atom_id] = color
-	_signal_queue_atoms_color_changed.append_array(in_atoms)
-
-
-func get_color_overrides() -> Dictionary:
-	return _color_overrides.duplicate()
-
-
-func remove_color_override(in_atoms: PackedInt32Array) -> void:
-	assert(_is_being_edited, "Color override can only be changed while structure is being edited")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Atoms and Bonds cannot be edited in this mode")
-	super.remove_color_override(in_atoms)
 
 
 ## UNUSED
@@ -865,15 +853,16 @@ func get_valid_bonds_count() -> int:
 		return 0
 	
 	if _bonds_count_cache == -1:
+		const GLUE_BOND = 1
 		var base_count: Dictionary[String, int] = {
-			"A" : DnaBuilder.get_template_bond_count("A", _parameters.include_hydrogens),
-			"T" : DnaBuilder.get_template_bond_count("T", _parameters.include_hydrogens),
-			"G" : DnaBuilder.get_template_bond_count("G", _parameters.include_hydrogens),
-			"C" : DnaBuilder.get_template_bond_count("C", _parameters.include_hydrogens),
+			"A" : DnaBuilder.get_template_bond_count("A", _parameters.include_hydrogens) + GLUE_BOND,
+			"T" : DnaBuilder.get_template_bond_count("T", _parameters.include_hydrogens) + GLUE_BOND,
+			"G" : DnaBuilder.get_template_bond_count("G", _parameters.include_hydrogens) + GLUE_BOND,
+			"C" : DnaBuilder.get_template_bond_count("C", _parameters.include_hydrogens) + GLUE_BOND,
 			"X" : 0,
 			"B" : DnaBuilder.get_template_bond_count("backbone0", _parameters.include_hydrogens)
 		}
-		_bonds_count_cache = base_count["B"] * _sequence.length()
+		_bonds_count_cache = (base_count["B"] + GLUE_BOND) * _sequence.length() - GLUE_BOND
 		if get_strand_policy() == StrandPolicy.DOUBLE:
 			# account for both backbones
 			_bonds_count_cache *= 2
@@ -1012,143 +1001,193 @@ static func _is_glue_bond_id(in_bond_id: int) -> bool:
 
 
 #region: Anchors and Springs
-func spring_create(_in_anchor_id: int, _in_atom_id: int, _in_spring_constant_force: float,
-			_is_equilibrium_length_automatic: bool, _in_equilibrium_manual_length: float) -> int:
-	if _edit_mode == EditMode.SequenceAndPath:
-		return INVALID_SPRING_ID
-	# TDB: Support springs?
-	return INVALID_SPRING_ID
+func spring_create(in_anchor_id: int, in_atom_id: int, in_spring_constant_force: float,
+			is_equilibrium_length_automatic: bool, in_equilibrium_manual_length: float) -> int:
+	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
+	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
+	_highest_spring_id += 1
+	_springs[_highest_spring_id] = NanoSpring.create(in_anchor_id, in_atom_id, in_spring_constant_force,
+			is_equilibrium_length_automatic, in_equilibrium_manual_length)
+	_signal_queue_springs_added.append(_highest_spring_id)
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(in_anchor_id)
+	_springs[_highest_spring_id].anchor_is_visible = anchor.get_visible()
+	anchor.handle_spring_added(self, _highest_spring_id)
+	if not anchor.position_changed.is_connected(_on_anchor_position_change):
+		anchor.position_changed.connect(_on_anchor_position_change.bind(anchor))
+	if not anchor.visibility_changed.is_connected(_on_anchor_visibility_changed.bind(anchor)):
+		anchor.visibility_changed.connect(_on_anchor_visibility_changed.bind(anchor))
+	if not _atoms_to_related_springs.has(in_atom_id):
+		_atoms_to_related_springs[in_atom_id] = Dictionary()
+	_atoms_to_related_springs[in_atom_id][_highest_spring_id] = true
+	return _highest_spring_id
 
 
-func spring_has(_in_spring_id: int) -> bool:
+func _on_anchor_position_change(_in_position: Vector3, in_anchor: NanoVirtualAnchor) -> void:
+	var moved_springs: PackedInt32Array = in_anchor.get_related_springs(int_guid)
+	for related_spring_id: int in moved_springs:
+		if spring_is_visible(related_spring_id):
+			_signal_queue_springs_moved[related_spring_id] = true
+	ScriptUtils.call_deferred_once(_ensure_edit_queue_flushed)
+
+
+func _on_anchor_visibility_changed(in_is_visible: bool, in_anchor: NanoVirtualAnchor) -> void:
+	var changed_springs: PackedInt32Array = in_anchor.get_related_springs(int_guid)
+	for related_spring_id: int in changed_springs:
+		_springs[related_spring_id].anchor_is_visible = in_is_visible
+	springs_visibility_changed.emit(changed_springs)
+
+
+func _ensure_edit_queue_flushed() -> void:
+	# Workaround, there are two scenarios:
+	# 1. User drags only anchors, in this scenario springs_moved signal will be emitted  once 
+	# (nothing unusuall, similar effect like having springs_moved.emit() inside _on_anchor_position_change
+	# 2. User drags both atoms and anchors, in this scenario thanks to this workaround springs_moved
+	# signal will be emitted only once, instead of twice (once because of atom movement, and other time 
+	# in a result of anchor movement). Thanks to this _springs will be processed only once per movement
+	start_edit()
+	end_edit()
+
+
+func spring_has(in_spring_id: int) -> bool:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return true
-	# TDB: Support springs?
-	return false
+	return _springs.has(in_spring_id)
 
 
-func spring_invalidate(_in_spring_id: int) -> void:
-	if _edit_mode == EditMode.SequenceAndPath:
-		return
-	# TDB: Support springs?
-	return
+func spring_invalidate(in_spring_id: int) -> void:
+	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
+	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
+	var atom_id: int = spring_get_atom_id(in_spring_id)
+	var anchor_id: int = spring_get_anchor_id(in_spring_id)
+	_atoms_to_related_springs[atom_id].erase(in_spring_id)
+	_springs.erase(in_spring_id)
+	_signal_queue_springs_moved.erase(in_spring_id)
+	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
+	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id)
+	anchor.handle_spring_removed(self, in_spring_id)
+	
+	var is_still_linked_to_anchor: bool = anchor.is_structure_related(int_guid)
+	if not is_still_linked_to_anchor:
+		if anchor.position_changed.is_connected(_on_anchor_position_change):
+			anchor.position_changed.disconnect(_on_anchor_position_change)
+		if anchor.visibility_changed.is_connected(_on_anchor_visibility_changed):
+			anchor.visibility_changed.disconnect(_on_anchor_visibility_changed)
+	_signal_queue_springs_removed.append(in_spring_id)
 
 
-func spring_revalidate(_in_spring_id: int) -> void:
-	if _edit_mode == EditMode.SequenceAndPath:
-		return
-	# TDB: Support springs?
-	return
+func spring_is_visible(in_spring_id: int) -> bool:
+	var spring: NanoSpring = _springs[in_spring_id]
+	if not spring.anchor_is_visible:
+		return false
+	return super.spring_is_visible(in_spring_id)
 
 
-func spring_get_atom_id(_in_spring_id: int) -> int:
+func spring_get_atom_id(in_spring_id: int) -> int:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return INVALID_ATOM_ID
-	# TDB: Support springs?
-	return INVALID_ATOM_ID
+	return _springs[in_spring_id].target_atom
 
 
-func spring_get_atom_position(_in_spring_id: int) -> Vector3:
+func spring_get_atom_position(in_spring_id: int) -> Vector3:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return Vector3()
-	# TDB: Support springs?
-	return Vector3()
+	var spring: NanoSpring = _springs[in_spring_id]
+	return atom_get_position(spring.target_atom)
 
 
-func spring_get_anchor_id(_in_spring_id: int) -> int:
+func spring_get_anchor_id(in_spring_id: int) -> int:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return -1
-	# TDB: Support springs?
-	return -1
+	var spring: NanoSpring = _springs[in_spring_id]
+	return spring.target_anchor
 
 
-func spring_get_anchor_position(_in_spring_id: int, _in_parent_context: StructureContext) -> Vector3:
+func spring_get_anchor_position(in_spring_id: int, in_parent_context: StructureContext) -> Vector3:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return Vector3()
-	# TDB: Support springs?
-	return Vector3()
+	assert(in_parent_context.nano_structure == self, "This method expects parent StructureContext")
+	var anchor_id: int = in_parent_context.nano_structure.spring_get_anchor_id(in_spring_id)
+	var workspace: Workspace = in_parent_context.workspace_context.workspace
+	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id) as NanoVirtualAnchor
+	return anchor.get_position()
 
 
-func spring_get_equilibrium_length_is_auto(_in_spring_id: int) -> bool:
+func spring_get_equilibrium_length_is_auto(in_spring_id: int) -> bool:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return false
-	# TDB: Support springs?
-	return false
+	var spring: NanoSpring = _springs[in_spring_id]
+	return spring.equilibrium_length_is_auto
 
 
-func spring_set_equilibrium_lenght_is_auto(_in_spring_id: int, _in_is_auto: bool) -> void:
-	if _edit_mode == EditMode.SequenceAndPath:
-		return
-	# TDB: Support springs?
-	return
+func spring_set_equilibrium_lenght_is_auto(in_spring_id: int, in_is_auto: bool) -> void:
+	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
+	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
+	var spring: NanoSpring = _springs[in_spring_id]
+	spring.equilibrium_length_is_auto = in_is_auto
 
 
-func spring_set_equilibrium_manual_length(_in_spring_id: int, _new_equilibrium_manual_length: float) -> void:
-	if _edit_mode == EditMode.SequenceAndPath:
-		return
-	# TDB: Support springs?
-	return
+func spring_set_equilibrium_manual_length(in_spring_id: int, new_equilibrium_manual_length: float) -> void:
+	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
+	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
+	var spring: NanoSpring = _springs[in_spring_id]
+	spring.equilibrium_manual_length = new_equilibrium_manual_length
 
 
-func spring_get_equilibrium_manual_length(_in_spring_id: int) -> float:
-	if _edit_mode == EditMode.SequenceAndPath:
-		return 0
-	# TDB: Support springs?
-	return -1.0
-
-
-func spring_calculate_equilibrium_auto_length(_in_spring_id: int, _in_parent_context: StructureContext) -> float:
+func spring_get_equilibrium_manual_length(in_spring_id: int) -> float:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return 0
-	# TDB: Support springs?
-	return -1.0
+	var spring: NanoSpring = _springs[in_spring_id]
+	return spring.equilibrium_manual_length
 
 
-func spring_get_current_equilibrium_length(_in_spring_id: int, _in_parent_context: StructureContext) -> float:
-	# TDB: Support springs?
-	return 1.0
-
-
-func spring_get_constant_force(_in_spring_id: int) -> float:
+func spring_calculate_equilibrium_auto_length(in_spring_id: int, _in_parent_context: StructureContext) -> float:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return 0
-	# TDB: Support springs?
-	return -1.0
+	var begin: Vector3 = spring_get_atom_position(in_spring_id)
+	var end: Vector3 = spring_get_anchor_position(in_spring_id, _in_parent_context)
+	var length: float = begin.distance_to(end)
+	return length
 
 
-func spring_set_constant_force(_in_spring_id: int, _new_force: float) -> void:
+func spring_get_constant_force(in_spring_id: int) -> float:
 	if _edit_mode == EditMode.SequenceAndPath:
-		return
-	# TDB: Support springs?
-	return
+		return 0
+	var spring: NanoSpring = _springs[in_spring_id]
+	return spring.constant_force
+
+
+func spring_set_constant_force(in_spring_id: int, new_force: float) -> void:
+	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
+	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
+	var spring: NanoSpring = _springs[in_spring_id]
+	spring.constant_force = new_force
 
 
 func springs_get_all() -> PackedInt32Array:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return PackedInt32Array()
-	# TDB: Support springs?
-	return PackedInt32Array()
+	return PackedInt32Array(_springs.keys())
 
 
 func springs_get_valid() -> PackedInt32Array:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return PackedInt32Array()
-	# TDB: Support springs?
-	return PackedInt32Array()
+	return PackedInt32Array(_springs.keys())
 
 
 func springs_count() -> int:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return 0
-	# TDB: Support springs?
-	return -1
+	return _springs.size()
 
 
 
-func atom_get_springs(_in_atom_id: int) -> PackedInt32Array:
+func atom_get_springs(in_atom_id: int) -> PackedInt32Array:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return PackedInt32Array()
-	# TDB: Support springs?
+	if _atoms_to_related_springs.has(in_atom_id):
+		return PackedInt32Array(_atoms_to_related_springs[in_atom_id].keys())
 	return PackedInt32Array()
 #endregion: Anchors and Strings
 
@@ -1233,7 +1272,7 @@ func get_type() -> StringName:
 
 
 func get_readable_type() -> String:
-	return "DNA Structure"
+	return "DNA Chain"
 
 
 func get_tooltip_text() -> String:
@@ -1308,7 +1347,14 @@ func is_spline_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> b
 
 func create_state_snapshot() -> Dictionary:
 	var state_snapshot: Dictionary = super.create_state_snapshot()
+	
+	var springs_dump: Dictionary = {}
+	for spring_id: int in _springs:
+		var spring: NanoSpring = _springs[spring_id]
+		springs_dump[spring_id] = spring.duplicate()
+
 	state_snapshot["script.resource_path"] = get_script().resource_path
+	state_snapshot["_edit_mode"] = _edit_mode
 	state_snapshot["_curve"] = _create_curve_snapshot()
 	state_snapshot["_twists_offset_radians"] = _twists_offset_radians
 	state_snapshot["_sequence"] = _sequence
@@ -1316,7 +1362,12 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["_base_transform_cache"] = _base_transform_cache.duplicate()
 	state_snapshot["_atoms_count_cache"] = _atoms_count_cache
 	state_snapshot["_atoms_ids_cache"] = _atoms_ids_cache.duplicate()
-	state_snapshot["_atoms_cache"] = _atoms_cache.duplicate(true)
+	state_snapshot["_springs"] = springs_dump
+	state_snapshot["_highest_spring_id"] = _highest_spring_id
+	var atom_cache_state: Dictionary = {}
+	for id: int in _atoms_cache.keys():
+		atom_cache_state[id] = AtomData.to_state(_atoms_cache[id])
+	state_snapshot["_atoms_cache"] = atom_cache_state
 	state_snapshot["_bonds_count_cache"] = _bonds_count_cache
 	state_snapshot["_bonds_ids_cache"] = _bonds_ids_cache.duplicate()
 	state_snapshot["_bonds_cache"] = _bonds_cache.duplicate()
@@ -1325,6 +1376,7 @@ func create_state_snapshot() -> Dictionary:
 
 
 func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
+	_edit_mode = in_state_snapshot["_edit_mode"]
 	_set_curve_snapshot(in_state_snapshot["_curve"])
 	_twists_offset_radians = in_state_snapshot["_twists_offset_radians"]
 	_sequence = in_state_snapshot["_sequence"]
@@ -1332,11 +1384,21 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_base_transform_cache = in_state_snapshot["_base_transform_cache"].duplicate()
 	_atoms_count_cache = in_state_snapshot["_atoms_count_cache"]
 	_atoms_ids_cache = in_state_snapshot["_atoms_ids_cache"].duplicate()
-	_atoms_cache = in_state_snapshot["_atoms_cache"].duplicate(true)
+	_atoms_cache = {}
+	for id: int in in_state_snapshot["_atoms_cache"].keys():
+		_atoms_cache[id] = AtomData.from_state(in_state_snapshot["_atoms_cache"][id])
 	_bonds_count_cache = in_state_snapshot["_bonds_count_cache"]
 	_bonds_ids_cache = in_state_snapshot["_bonds_ids_cache"].duplicate()
 	_bonds_cache = in_state_snapshot["_bonds_cache"].duplicate()
 	_baked_path = in_state_snapshot["_baked_path"].duplicate()
+	
+	_springs.clear()
+	var springs_to_apply: Dictionary = in_state_snapshot["_springs"]
+	for spring_id: int in springs_to_apply:
+		var spring: NanoSpring = springs_to_apply[spring_id].duplicate()
+		_springs[spring_id] = spring
+	_highest_spring_id = in_state_snapshot["_highest_spring_id"]
+	
 	super.apply_state_snapshot(in_state_snapshot)
 
 
@@ -1347,6 +1409,7 @@ func _create_curve_snapshot() -> PackedVector3Array:
 		snapshot.append(_curve.get_point_in(p))
 		snapshot.append(_curve.get_point_out(p))
 	return snapshot
+
 
 func _set_curve_snapshot(in_curve_snapshot: PackedVector3Array) -> void:
 	_curve.set_block_signals(true)
@@ -1443,6 +1506,9 @@ class AtomData:
 	var position: Vector3
 	
 	func _init(id_data: UnpackedAtomId, owner: DnaStructure) -> void:
+		if id_data == null and owner == null:
+			# Assume reconstructing cache
+			return
 		var base: String
 		if id_data.is_backbone:
 			base = "backbone0" if id_data.strand == Strand.A else "backbone1"
@@ -1465,4 +1531,17 @@ class AtomData:
 			owner.get_base_transform(id_data.strand, id_data.base_idx)
 		)
 		position = xform * position
+	
+	
+	static func to_state(atom: AtomData) -> Dictionary:
+		return {
+			atomic_number =  atom.atomic_number,
+			position = atom.position
+		}
+	
+	static func from_state(data: Dictionary) -> AtomData:
+		var atom := AtomData.new(null, null)
+		atom.atomic_number = data.atomic_number
+		atom.position = data.position
+		return atom
 

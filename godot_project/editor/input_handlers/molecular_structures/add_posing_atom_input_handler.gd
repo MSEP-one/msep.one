@@ -32,7 +32,7 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	if in_structure_context.workspace_context.is_creating_object():
 		# Make sure we abort creating shapes, motors, small molecules, etc
 		in_structure_context.workspace_context.abort_creating_object()
-	return in_structure_context.nano_structure is AtomicStructure
+	return in_structure_context.nano_structure is AtomicStructure and in_structure_context.nano_structure.can_create_and_delete_atoms()
 
 
 func handle_inputs_end() -> void:
@@ -266,6 +266,12 @@ func _update_candidates() -> void:
 	_candidates = []
 	
 	var context: StructureContext = _workspace_context.get_current_structure_context()
+	
+	if not context.nano_structure.can_create_and_delete_atoms():
+		_get_rendering().atom_autopose_preview_set_candidates(_candidates)
+		_candidates_dirty = false
+		return
+	
 	var total_atoms_selected: int = context.get_selected_atoms().size()
 	var max_candidates: int = MolecularEditorContext.msep_editor_settings.editor_max_atom_candidates
 	if total_atoms_selected > max_candidates:

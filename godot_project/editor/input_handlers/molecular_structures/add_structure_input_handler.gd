@@ -31,6 +31,8 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_FRAGMENT:
 		return false
 	
+	if not _workspace_context.get_current_structure_context().nano_structure.can_create_and_delete_atoms():
+		return false
 	var new_structure: NanoStructure = parameters.get_new_structure()
 	var is_creating_another_object: Callable = func(in_nano_structure: NanoStructure) -> bool:
 			return in_nano_structure != new_structure
@@ -114,6 +116,7 @@ func handle_inputs_end() -> void:
 func handle_inputs_resume() -> void:
 	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_FRAGMENT \
+			or not get_workspace_context().get_current_structure_context().nano_structure.can_create_and_delete_atoms() \
 			or not parameters.get_create_mode_enabled():
 		return
 	update_preview_position()

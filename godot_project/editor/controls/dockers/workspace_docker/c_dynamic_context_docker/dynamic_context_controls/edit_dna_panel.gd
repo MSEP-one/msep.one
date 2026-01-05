@@ -85,7 +85,7 @@ func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 	if _tracked_structure != null:
 		_tracked_structure.sequence_changed.disconnect(_on_tracked_structure_sequence_changed)
 	_tracked_structure = in_structure_or_null
-	if _tracked_structure != null:
+	if _tracked_structure != null and not _tracked_structure.sequence_changed.is_connected(_on_tracked_structure_sequence_changed):
 		_tracked_structure.sequence_changed.connect(_on_tracked_structure_sequence_changed)
 	_update_ui()
 
@@ -129,21 +129,36 @@ func _on_edit_mode_button_group_pressed(in_button: Button) -> void:
 	if mode == _tracked_structure.get_edit_mode():
 		# Re-selected the already selected mode, nothing to do here
 		return
+	var ctx: StructureContext = _workspace_context.get_structure_context(_tracked_structure.int_guid)
 	match mode:
 		DnaStructure.EditMode.SequenceAndPath:
+			var locked_atoms_count: int = _tracked_structure.get_locked_atoms().size()
+			var color_overrides_count: int = _tracked_structure.get_color_overrides().size()
+			var springs_count: int = _tracked_structure.springs_count()
+			var msg: String = (
+				tr("This is a destructive operation and any modification to the atoms will be discarded.\n") +
+				tr("  · Positions of atoms will reset\n") +
+				(tr("  · %d Springs will will be deleted.\n") % springs_count if springs_count > 0 else "") +
+				(tr("  · %d atoms will lose it's 'Locking' state.\n") % locked_atoms_count if locked_atoms_count > 0 else "") +
+				(tr("  · %d Atoms will lose it's color override.\n") % color_overrides_count if color_overrides_count > 0 else "") + 
+				tr("\nDo you want to proceed?")
+			)
 			var promise: Promise = _workspace_context.show_warning_dialog(
-				tr("Any modification in position of the atoms will be discarded with this operation.\n"+
-				"Do you want to proceed?"), tr("Continue"), tr("Cancel"))
+				msg, tr("Continue"), tr("Cancel"))
 			await promise.wait_for_fulfill()
 			if promise.get_result() == false:
+				_edit_path_button.set_pressed_no_signal(false)
+				_edit_atoms_button.set_pressed_no_signal(true)
 				return
 			_workspace_context.get_structure_context(_tracked_structure.get_int_guid()).set_dna_spline_selected(false)
 			_tracked_structure.set_edit_mode(DnaStructure.EditMode.SequenceAndPath)
 			_setup_animation_player.play(&"setup_edit_path")
+			ctx.select_all()
 			_workspace_context.snapshot_moment("DNA Structure: edit Path and Sequence")
 		DnaStructure.EditMode.AtomsAndBonds:
 			_tracked_structure.set_edit_mode(DnaStructure.EditMode.AtomsAndBonds)
 			_setup_animation_player.play(&"setup_edit_atoms")
+			ctx.select_all()
 			_workspace_context.snapshot_moment("DNA Structure: show Atoms and Bonds")
 
 

@@ -1367,6 +1367,8 @@ static func _can_create_particle_emitter_from_selection(in_workspace_context: Wo
 	if context != in_workspace_context.get_current_structure_context():
 		# Selection is not coming from active group
 		return false
+	if context.nano_structure is DnaStructure:
+		return false
 	var structure: NanoStructure = context.nano_structure
 	var selected_atoms: PackedInt32Array = context.get_selected_atoms()
 	var selected_bonds: PackedInt32Array = context.get_selected_bonds()

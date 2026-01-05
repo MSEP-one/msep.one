@@ -34,7 +34,9 @@ func _validate() -> bool:
 	if selected_contexts.is_empty():
 		# No Selection, try with all visible objects
 		for context in _workspace_context.get_visible_structure_contexts():
-			if context.nano_structure is AtomicStructure and context.nano_structure.get_valid_atoms_count() > 0:
+			if context.nano_structure is AtomicStructure \
+					and context.nano_structure.can_create_and_delete_atoms() \
+					and context.nano_structure.get_valid_atoms_count() > 0:
 				return true
 			# No visible objects, cannot execute
 		return false
@@ -60,6 +62,8 @@ func _execute_action() -> void:
 	for context in target_structures:
 		if not context.nano_structure is AtomicStructure:
 			continue
+		if context.nano_structure.can_create_and_delete_atoms() == false:
+			continue
 		var new_atoms_selection: PackedInt32Array = context.get_selected_atoms()
 		var new_bonds_selection: PackedInt32Array = context.get_selected_bonds()
 		var atoms_to_check: PackedInt32Array = []
@@ -78,9 +82,10 @@ func _execute_action() -> void:
 		
 		context.set_atom_selection(new_atoms_selection)
 		context.set_bond_selection(new_bonds_selection)
-		
-	hydrogen_atoms_count_changed.emit(delta_hydrogens.added, delta_hydrogens.removed)
-	_workspace_context.snapshot_moment(tr("Correct Hydrogens"))
+	
+	if delta_hydrogens.added > 0 or delta_hydrogens.removed > 0:
+		hydrogen_atoms_count_changed.emit(delta_hydrogens.added, delta_hydrogens.removed)
+		_workspace_context.snapshot_moment(tr("Correct Hydrogens"))
 
 
 func _complete_atom_valence(

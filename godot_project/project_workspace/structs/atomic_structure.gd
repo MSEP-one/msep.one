@@ -178,6 +178,11 @@ func _update_springs_moved_queue() -> void:
 #endregion: Edit tracking
 
 
+## Some auto-generated structures, (like dna chains) wont allow to manually add and remove atoms
+func can_create_and_delete_atoms() -> bool:
+	return true
+
+
 ## Returns number of atoms that has been created in this NanoStructure
 ## and have not been removed.
 func get_valid_atoms_count() -> int:
@@ -508,11 +513,6 @@ func spring_has(_in_spring_id: int) -> bool:
 
 
 func spring_invalidate(_in_spring_id: int) -> void:
-	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
-	return
-
-
-func spring_revalidate(_in_spring_id: int) -> void:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return
 

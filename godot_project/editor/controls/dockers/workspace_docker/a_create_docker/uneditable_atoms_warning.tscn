@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8vqayn2i3ske"]
+
+[ext_resource type="Script" uid="uid://bjmqv00gts6mu" path="res://editor/controls/dockers/workspace_docker/a_create_docker/uneditable_atoms_warning.gd" id="1_qbfyo"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_4oxem"]
+
+[node name="UneditableAtomsWarning" type="MarginContainer"]
+offset_right = 276.0
+offset_bottom = 30.0
+script = ExtResource("1_qbfyo")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"PanelContainerCrystal"
+
+[node name="InfoLabel" parent="PanelContainer" instance=ExtResource("2_4oxem")]
+layout_mode = 2
+text = "[center]ℹ Dna Chains cannot add, remove, or modify atoms and bonds[/center]"
+message = &"Dna Chains cannot add, remove, or modify atoms and bonds"
+effect = "none"

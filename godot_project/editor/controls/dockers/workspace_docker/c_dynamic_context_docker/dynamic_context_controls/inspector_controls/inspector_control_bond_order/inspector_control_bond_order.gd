@@ -50,7 +50,7 @@ func _on_rendering_representation_changed(in_representation: Rendering.Represent
 
 func _update_availability(in_representation: Rendering.Representation) -> void:
 	var can_be_edited_by_user: bool = in_representation != Rendering.Representation.STICKS
-	_option_button.disabled = not can_be_edited_by_user
+	_option_button.disabled = (not can_be_edited_by_user) or (not _is_editable)
 
 
 func is_editable() -> bool:
