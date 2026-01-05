@@ -16,6 +16,7 @@ func handles_empty_selection() -> bool:
 ## based on an active NanoStructure. This may depend on the active StructureOperator(s)
 func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	return in_structure_context.nano_structure is NanoShape \
+			and get_workspace_context().get_current_structure_context().nano_structure.can_contain_child_structure() \
 			and in_structure_context.workspace_context.is_creating_object() \
 			and in_structure_context.workspace_context.create_object_parameters.get_create_mode_type() == \
 					CreateObjectParameters.CreateModeType.CREATE_SHAPES
@@ -200,6 +201,7 @@ func handle_inputs_end() -> void:
 func handle_inputs_resume() -> void:
 	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_SHAPES \
+			or not get_workspace_context().get_current_structure_context().nano_structure.can_contain_child_structure() \
 			or not parameters.get_create_mode_enabled():
 		return
 	update_preview_position()

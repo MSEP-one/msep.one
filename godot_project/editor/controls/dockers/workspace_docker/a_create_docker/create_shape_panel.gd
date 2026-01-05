@@ -19,6 +19,9 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	if !_is_workspace_context_initialized():
 		_initialize_workspace_context(in_workspace_context)
 	
+	if not in_workspace_context.get_current_structure_context().nano_structure.can_contain_child_structure():
+		return false
+	
 	var check_object_being_created: Callable = func(in_struct: NanoStructure) -> bool:
 		return in_struct is NanoShape
 	

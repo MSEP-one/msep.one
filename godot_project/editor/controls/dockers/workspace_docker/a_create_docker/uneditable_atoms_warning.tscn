@@ -13,7 +13,8 @@ layout_mode = 2
 theme_type_variation = &"PanelContainerCrystal"
 
 [node name="InfoLabel" parent="PanelContainer" instance=ExtResource("2_4oxem")]
+unique_name_in_owner = true
 layout_mode = 2
-text = "[center]ℹ Dna Chains cannot add, remove, or modify atoms and bonds[/center]"
-message = &"Dna Chains cannot add, remove, or modify atoms and bonds"
+text = "[center]ℹ Immutable structures cannot add, remove, or modify atoms, bonds, or child objects[/center]"
+message = &"Immutable structures cannot add, remove, or modify atoms, bonds, or child objects"
 effect = "none"

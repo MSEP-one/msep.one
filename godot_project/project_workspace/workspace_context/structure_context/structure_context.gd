@@ -123,10 +123,6 @@ func is_context_of_object_being_created() -> bool:
 func is_editable() -> bool:
 	if is_context_of_object_being_created():
 		return true
-	if workspace_context.get_edited_dna_spline_context() == self:
-		return true
-	if workspace_context.get_edited_dna_spline_context() != null:
-		return false
 	if _is_editable_dirty:
 		_is_editable_dirty = false
 		if workspace_context == null or workspace_context.get_current_structure_context() == null:
