@@ -36,6 +36,7 @@ const FEATURE_FLAGS_ALLOW_CREATE_SMALL_MOLECULES_IN_NEW_GROUP = &"feature_flags/
 const FEATURE_FLAGS_MSEP_ONLINE = &"feature_flags/msep_online"
 const FEATURE_FLAGS_DNA_BUILDER = &"feature_flags/dna_builder"
 const FEATURE_FLAGS_DNA_BUILDER_DEV_TOOL = &"feature_flags/dna_builder_dev_tool"
+const FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS = &"feature_flags/dna_chain_as_group_of_atoms"
 const FEATURE_FLAGS_DNA_CHAIN_CAN_HAVE_CHILDREN = &"feature_flags/dna_chain_can_have_children"
 
 var irritating_bg: Texture = preload("res://autoloads/feature_flag_manager/assets/seamless_floral_background.png")

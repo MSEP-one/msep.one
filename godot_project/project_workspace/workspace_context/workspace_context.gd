@@ -565,32 +565,6 @@ func peek_context_of_object_being_created(in_callback: Callable) -> bool:
 
 
 # # # # # #
-# # Edited DNA Spline
-func get_edited_dna_spline_id() -> int:
-	var dna := get_current_structure_context().nano_structure as DnaStructure
-	if dna == null or dna.get_edit_mode() != DnaStructure.EditMode.SequenceAndPath:
-		return Workspace.INVALID_STRUCTURE_ID
-	return dna.int_guid
-
-
-func get_edited_dna_spline_context() -> StructureContext:
-	var dna := get_current_structure_context().nano_structure as DnaStructure
-	if dna == null or dna.get_edit_mode() != DnaStructure.EditMode.SequenceAndPath:
-		return null
-	return get_current_structure_context()
-
-
-func start_editing_dna_spline(in_dna_id: int) -> void:
-	if in_dna_id == get_edited_dna_spline_id():
-		return
-	assert(workspace.get_structure_by_int_guid(in_dna_id) is DnaStructure, "Invalid dna_id")
-	var structure_context: StructureContext = get_nano_structure_context_from_id(in_dna_id)
-	set_current_structure_context(structure_context)
-# # /Edited DNA Spline
-# # # # # #
-
-
-# # # # # #
 # # Simulation
 func start_simulating(in_simulation_data: SimulationData) -> void:
 	assert(not is_simulating(), "I'm already being simulated, make sure to call " +
@@ -743,8 +717,7 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 		_structure_contexts_holder.add_child_with_name(structure_context, in_nano_structure.get_structure_name().to_snake_case())
 		structure_context.selection_changed.connect(_on_structure_context_selection_changed.bind(structure_context.get_int_guid()))
 		structure_context.virtual_object_selection_changed.connect(_on_structure_context_virtual_object_selection_changed.bind(structure_context.get_int_guid()))
-		structure_context.dna_spline_selection_changed.connect(_on_structure_context_dna_spline_selection_changed.bind(structure_context.get_int_guid()))
-		structure_context.dna_control_points_selection_changed.connect(_on_structure_context_dna_spline_selection_changed.bind(true, structure_context.get_int_guid()))
+		structure_context.dna_control_points_selection_changed.connect(_on_structure_context_dna_control_points_selection_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is AtomicStructure \
 				and not structure_context.nano_structure.atoms_moved.is_connected(_on_structure_context_atoms_moved):
 			structure_context.nano_structure.atoms_moved.connect(_on_structure_context_atoms_moved.bind(structure_context.get_int_guid()))
@@ -862,7 +835,7 @@ func _on_structure_context_virtual_object_selection_changed(_in_selected: bool, 
 		_selection_modified_structure_contexts[in_structure_context_id] = true
 
 
-func _on_structure_context_dna_spline_selection_changed(_is_selected: bool, in_structure_context_id: int) -> void:
+func _on_structure_context_dna_control_points_selection_changed(in_structure_context_id: int) -> void:
 	if not workspace.has_structure_with_int_guid(in_structure_context_id):
 		return
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)

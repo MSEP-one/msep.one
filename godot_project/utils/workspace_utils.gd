@@ -452,14 +452,11 @@ static func forward_event(out_workspace_context: WorkspaceContext, event: InputE
 static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> void:
 	var structures_with_selection: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_selection()
 	
-	var edited_dna_context: StructureContext = out_workspace_context.get_edited_dna_spline_context()
-	if edited_dna_context != null:
-		if edited_dna_context.is_dna_structure_fully_selected():
-			structures_with_selection = [edited_dna_context]
-		else:
+	for context: StructureContext in structures_with_selection:
+		if context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 			out_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
 				out_workspace_context.tr(&"Cannot hide DNA spline control points"))
-			structures_with_selection = []
+			return
 	
 	if structures_with_selection.is_empty():
 		return
@@ -478,7 +475,7 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 		elif structure_context.nano_structure is DnaStructure \
 				and structure_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
 				and structure_context.is_dna_structure_fully_selected():
-			structure_context.set_dna_spline_selected(false)
+			structure_context.clear_selection()
 			structure_context.nano_structure.set_visible(false)
 		elif structure_context.nano_structure.is_virtual_object() and structure_context.is_virtual_object_selected():
 			structure_context.set_virtual_object_selected(false)
