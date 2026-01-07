@@ -480,7 +480,7 @@ func get_valid_atoms_count() -> int:
 			if get_strand_policy() in [StrandPolicy.A, StrandPolicy.DOUBLE]:
 				_atoms_count_cache += base_count[base]
 			if get_strand_policy() in [StrandPolicy.B, StrandPolicy.DOUBLE]:
-				_atoms_count_cache += base_count[DnaBuilder.DNA_COMPLEMENT[base]]
+				_atoms_count_cache += base_count[DnaBuilder.DNA_COMPLEMENT.get(base, "X")]
 	return _atoms_count_cache
 
 
@@ -867,7 +867,7 @@ func get_valid_bonds_count() -> int:
 			if get_strand_policy() in [StrandPolicy.A, StrandPolicy.DOUBLE]:
 				_bonds_count_cache += base_count[base]
 			if get_strand_policy() in [StrandPolicy.B, StrandPolicy.DOUBLE]:
-				_bonds_count_cache += base_count[DnaBuilder.DNA_COMPLEMENT[base]]
+				_bonds_count_cache += base_count[DnaBuilder.DNA_COMPLEMENT.get(base, "X")]
 	return _bonds_count_cache
 
 
