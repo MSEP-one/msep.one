@@ -62,6 +62,53 @@ static func create_dna(out_parameters: DnaStructureParameters, in_sequence: Stri
 	return instance
 
 
+static func calculate_base_origin_transform(
+		in_base_index: int,
+		in_curve: Curve3D,
+		in_rise_nanometers: float,
+		in_bases_per_turn: float,
+		in_twists_offset_radians: float) -> Transform3D:
+	var at_pos: float = in_base_index * in_rise_nanometers
+	var y_dir := Vector3.ZERO
+	var z_dir := Vector3.ZERO
+	var path_pos: Vector3
+	var baked_path: PackedVector3Array = in_curve.get_baked_points()
+	var required_length: float = in_rise_nanometers * (in_base_index)
+	if in_curve.get_baked_length() < required_length:
+		var last_pos: Vector3 = baked_path[-1]
+		z_dir = baked_path[-2].direction_to(last_pos)
+		var remaining_distance: float = required_length - in_curve.get_baked_length()
+		var final_pos: Vector3 = last_pos + z_dir * remaining_distance
+		while remaining_distance > in_curve.bake_interval:
+			last_pos += z_dir * in_curve.bake_interval
+			baked_path.append(last_pos)
+			remaining_distance -= in_curve.bake_interval
+		if last_pos != final_pos:
+			baked_path.append(final_pos)
+	# position is along the in_curve
+	var advance: float = 0
+	var point_idx: int = 0
+	var curr_pos: Vector3 = baked_path[point_idx]
+	var next_pos: Vector3 = baked_path[point_idx + 1]
+	var next_advance: float = advance + curr_pos.distance_to(next_pos)
+	while at_pos > max(advance, next_advance) and point_idx < baked_path.size() -2:
+		point_idx += 1
+		advance = next_advance
+		curr_pos = baked_path[point_idx]
+		next_pos = baked_path[point_idx + 1]
+		next_advance += curr_pos.distance_to(next_pos)
+	path_pos = curr_pos
+	z_dir = baked_path[point_idx].direction_to(baked_path[point_idx + 1])
+	y_dir = in_curve.get_baked_up_vectors()[-1]
+	
+	var rad_per_base: float = deg_to_rad(360) / in_bases_per_turn
+	var angle: float = (rad_per_base * in_base_index) + in_twists_offset_radians
+	y_dir = y_dir.rotated(z_dir, angle)
+	
+	var basis := Basis().looking_at(z_dir, y_dir)
+	return Transform3D(basis, path_pos)
+
+
 func _init() -> void:
 	if _parameters == null:
 		_parameters = DnaStructureParameters.new()
@@ -133,9 +180,6 @@ func set_edit_mode(in_mode: EditMode) -> void:
 		springs_removed.emit(springs_to_remove)
 		atoms_removed.emit(atoms_to_signal)
 		bonds_removed.emit(bonds_to_signal)
-		# TODO: Track springs? locked atoms? color overrides?
-		# changes on bases can easily invalidate springs,
-		# but maybe the property can be cleared when edit mode changes
 	elif in_mode == EditMode.AtomsAndBonds:
 		# Atoms and bonds added back
 		_edit_mode = in_mode
