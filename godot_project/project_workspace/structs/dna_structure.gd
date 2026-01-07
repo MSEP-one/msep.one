@@ -172,6 +172,7 @@ func set_edit_mode(in_mode: EditMode) -> void:
 		var springs_to_remove: PackedInt32Array = _springs.keys()
 		_edit_mode = in_mode
 		_atoms_cache = {}
+		_base_transform_cache = {}
 		_atoms_count_cache = -1
 		_bonds_count_cache = -1
 		_springs.clear()
