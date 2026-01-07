@@ -94,12 +94,16 @@ func get_baked_path(in_path_override: Curve3D = null) -> PackedVector3Array:
 		return []
 	if _baked_path.is_empty() or _signal_queue_path_changed or in_path_override != null:
 		var baked_path: PackedVector3Array = curve.get_baked_points()
-		var total_length: float = get_rise_nanometers() * (_sequence.length() - 1)
+		var total_length: float = get_path_length()
 		if curve.get_baked_length() < total_length:
 			var last_pos: Vector3 = baked_path[-1]
 			var z_dir: Vector3 = baked_path[-2].direction_to(last_pos)
 			var remaining_distance: float = total_length - curve.get_baked_length()
 			var final_pos: Vector3 = last_pos + z_dir * remaining_distance
+			while remaining_distance >= curve.bake_interval:
+				last_pos += z_dir * curve.bake_interval
+				baked_path.append(last_pos)
+				remaining_distance -= curve.bake_interval
 			baked_path.append(final_pos)
 		if in_path_override == null:
 			_baked_path = baked_path
@@ -335,8 +339,9 @@ func get_control_point_position(in_index: int) -> Vector3:
 
 
 func get_path_length() -> float:
-	# This is obtained from the Path3D
-	return _curve.get_baked_length()
+	if _sequence.length() < 1:
+		return 0.0
+	return (_sequence.length() - 1) * get_rise_nanometers()
 
 
 func get_base_transform(in_strand: Strand, in_base_index: int) -> Transform3D:
@@ -348,30 +353,22 @@ func get_base_transform(in_strand: Strand, in_base_index: int) -> Transform3D:
 		var z_dir := Vector3.ZERO
 		var path_pos: Vector3
 		var points: PackedVector3Array = get_baked_path()
-		if at_pos > _curve.get_baked_length():
-			# Sequence is longer than the curve, continue in a straight length
-			var last_pos: Vector3 = points[-1]
-			z_dir = points[-2].direction_to(last_pos)
-			var remaining_distance: float = at_pos - _curve.get_baked_length()
-			path_pos = last_pos + z_dir * remaining_distance
-			y_dir = _curve.get_baked_up_vectors()[-1]
-		else:
-			# position is along the curve
-			var advance: float = 0
-			var point_idx: int = 0
-			var curr_pos: Vector3 = points[point_idx]
-			var next_pos: Vector3 = points[point_idx + 1]
-			var next_advance: float = advance + curr_pos.distance_to(next_pos)
-			while at_pos > max(advance, next_advance) and point_idx < points.size() -2:
-				point_idx += 1
-				advance = next_advance
-				curr_pos = points[point_idx]
-				next_pos = points[point_idx + 1]
-				next_advance += curr_pos.distance_to(next_pos)
-			# TODO: Adjust path pos interpolating points[point_idx - 1] to points[point_idx]
-			path_pos = curr_pos
-			z_dir = points[point_idx].direction_to(points[point_idx + 1])
-			y_dir = _curve.get_baked_up_vectors()[point_idx]
+		assert(at_pos <= get_path_length())
+		# position is along the curve
+		var advance: float = 0
+		var point_idx: int = 0
+		var curr_pos: Vector3 = points[point_idx]
+		var next_pos: Vector3 = points[point_idx + 1]
+		var next_advance: float = advance + curr_pos.distance_to(next_pos)
+		while at_pos > max(advance, next_advance) and point_idx < points.size() -2:
+			point_idx += 1
+			advance = next_advance
+			curr_pos = points[point_idx]
+			next_pos = points[point_idx + 1]
+			next_advance += curr_pos.distance_to(next_pos)
+		path_pos = curr_pos
+		z_dir = points[point_idx].direction_to(points[point_idx + 1])
+		y_dir = _curve.get_baked_up_vectors()[-1]
 		y_dir = y_dir.rotated(z_dir, get_base_twist_rad(in_strand, in_base_index))
 		var x_dir: Vector3 = y_dir.cross(z_dir)
 		var basis := Basis(x_dir, y_dir, z_dir)
@@ -441,7 +438,7 @@ func get_sequence() -> String:
 func _adjust_sequence_to_path_length() -> void:
 	assert(_is_being_edited)
 	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
-	var expected_sequence_length: int = floori(get_path_length() / _parameters.rise_nanometers)
+	var expected_sequence_length: int = floori(_curve.get_baked_length() / _parameters.rise_nanometers)
 	if expected_sequence_length == _sequence.length():
 		return
 	# Remove only X'es at the end of the sequence
