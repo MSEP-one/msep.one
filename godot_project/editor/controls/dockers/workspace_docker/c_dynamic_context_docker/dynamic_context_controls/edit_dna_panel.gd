@@ -2,6 +2,7 @@ extends DnaPanel
 
 
 const StrandPolicy = DnaStructure.StrandPolicy
+const EditMode = DnaStructure.EditMode
 
 
 var _select_one_info_label: InfoLabel
@@ -88,11 +89,11 @@ func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 func _update_ui() -> void:
 	if _tracked_structure != null:
 		match _tracked_structure.get_edit_mode():
-			DnaStructure.EditMode.SequenceAndPath:
+			EditMode.SequenceAndPath:
 				_setup_animation_player.play(&"setup_edit_path")
 				_edit_path_button.set_pressed_no_signal(true)
 				_edit_atoms_button.set_pressed_no_signal(false)
-			DnaStructure.EditMode.AtomsAndBonds:
+			EditMode.AtomsAndBonds:
 				_setup_animation_player.play(&"setup_edit_atoms")
 				_edit_path_button.set_pressed_no_signal(false)
 				_edit_atoms_button.set_pressed_no_signal(true)
@@ -116,17 +117,17 @@ func _on_tracked_structure_sequence_changed(in_sequence: String) -> void:
 
 
 func _on_edit_mode_button_group_pressed(in_button: Button) -> void:
-	var mode_map: Dictionary[Button, DnaStructure.EditMode] = {
-		_edit_path_button: DnaStructure.EditMode.SequenceAndPath,
-		_edit_atoms_button: DnaStructure.EditMode.AtomsAndBonds,
+	var mode_map: Dictionary[Button, EditMode] = {
+		_edit_path_button: EditMode.SequenceAndPath,
+		_edit_atoms_button: EditMode.AtomsAndBonds,
 	}
-	var mode: DnaStructure.EditMode = mode_map[in_button]
+	var mode: EditMode = mode_map[in_button]
 	if mode == _tracked_structure.get_edit_mode():
 		# Re-selected the already selected mode, nothing to do here
 		return
 	var ctx: StructureContext = _workspace_context.get_structure_context(_tracked_structure.int_guid)
 	match mode:
-		DnaStructure.EditMode.SequenceAndPath:
+		EditMode.SequenceAndPath:
 			var locked_atoms_count: int = _tracked_structure.get_locked_atoms().size()
 			var color_overrides_count: int = _tracked_structure.get_color_overrides().size()
 			var springs_count: int = _tracked_structure.springs_count()
@@ -146,12 +147,12 @@ func _on_edit_mode_button_group_pressed(in_button: Button) -> void:
 				_edit_atoms_button.set_pressed_no_signal(true)
 				return
 			_workspace_context.get_structure_context(_tracked_structure.get_int_guid()).set_dna_spline_selected(false)
-			_tracked_structure.set_edit_mode(DnaStructure.EditMode.SequenceAndPath)
+			_tracked_structure.set_edit_mode(EditMode.SequenceAndPath)
 			_setup_animation_player.play(&"setup_edit_path")
 			ctx.select_all()
 			_workspace_context.snapshot_moment("DNA Structure: edit Path and Sequence")
-		DnaStructure.EditMode.AtomsAndBonds:
-			_tracked_structure.set_edit_mode(DnaStructure.EditMode.AtomsAndBonds)
+		EditMode.AtomsAndBonds:
+			_tracked_structure.set_edit_mode(EditMode.AtomsAndBonds)
 			_setup_animation_player.play(&"setup_edit_atoms")
 			ctx.select_all()
 			_workspace_context.snapshot_moment("DNA Structure: show Atoms and Bonds")
@@ -235,6 +236,11 @@ func _on_create_atoms_button_pressed() -> void:
 		if warning_promise.get_result() == false:
 			# "Cancel" button selected
 			return
+	var started_in_path_mode: bool = _tracked_structure.get_edit_mode() == EditMode.SequenceAndPath
+	if started_in_path_mode:
+		# We need to make atoms available, but no bother otehr parts of the editor
+		_tracked_structure.set_block_signals(true)
+		_tracked_structure.set_edit_mode(EditMode.AtomsAndBonds)
 	var parent_group: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_tracked_structure.int_parent_guid)
 	var new_group: AtomicStructure = AtomicStructure.create()
 	new_group.set_structure_name(_tracked_structure.get_structure_name() + "'s atoms")
@@ -278,5 +284,9 @@ func _on_create_atoms_button_pressed() -> void:
 			var strand: DnaStructure.Strand = _tracked_structure.get_strands()[0]
 			new_group.set_color_override(atom_map.values(), STRAND_COLOR[strand])
 		new_group.end_edit()
+	if started_in_path_mode:
+		# Done polling atoms, back to normal
+		_tracked_structure.set_edit_mode(EditMode.SequenceAndPath)
+		_tracked_structure.set_block_signals(false)
 	_workspace_context.snapshot_moment("Create group from DNA Chain")
 
