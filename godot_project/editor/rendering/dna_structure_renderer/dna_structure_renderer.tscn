@@ -19,13 +19,6 @@ a_strand_material = ExtResource("2_v3v15")
 b_strand_material = ExtResource("3_yduts")
 base_pivot_material = ExtResource("4_115c7")
 
-[node name="TransformHelper" type="PathFollow3D" parent="."]
-unique_name_in_owner = true
-transform = Transform3D(-4.3711e-08, -3.82132e-15, 0.999988, 8.74219e-08, -0.999986, 0, 0.99999, 8.74216e-08, 4.37109e-08, 10, 10, 0)
-progress = 15.4886
-use_model_front = true
-loop = false
-
 [node name="PathRepresentation" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 3

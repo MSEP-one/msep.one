@@ -22,9 +22,9 @@ radial_segments = 6
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_356lv"]
 albedo_color = Color(0, 0, 1, 1)
 
-[node name="DnaBase" type="PathFollow3D"]
+[node name="DnaBase" type="Node3D"]
 transform = Transform3D(4.37112e-08, 0.999985, 4.37112e-08, 0, -4.37107e-08, 0.999995, 0.999995, -4.37107e-08, -1.91068e-15, 0, 0, 0)
-use_model_front = true
+top_level = true
 script = ExtResource("1_pauiq")
 
 [node name="Origin" type="MeshInstance3D" parent="."]

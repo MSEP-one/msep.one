@@ -52,7 +52,6 @@ var _edit_mode: DnaStructure.EditMode
 var _hovered_control_point: int = -1
 var _highlighted_control_points: Dictionary[int, bool] = {}
 
-@onready var _transform_helper: PathFollow3D = %TransformHelper
 @onready var _path_representation: Control = %PathRepresentation
 
 
@@ -71,7 +70,6 @@ var _camera_last_projection: Camera3D.ProjectionType
 
 func _ready() -> void:
 	_update_bases()
-	_transform_helper.progress_ratio = 1
 	curve_changed.connect(_on_curve_changed)
 	_path_representation.draw.connect(_on_path_representation_drawn)
 	_camera = get_viewport().get_camera_3d()
@@ -157,9 +155,7 @@ func _on_edit_mode_changed(in_mode: DnaStructure.EditMode) -> void:
 func _on_curve_changed() -> void:
 	assert(curve.point_count > 1, "Invalid curve, dna chain should be deleted in this case")
 	_path_representation.queue_redraw()
-	_transform_helper.progress_ratio = 1
-	for base: DnaBaseRepresentation in _bases:
-		base.set_deferred(&"base_offset", base.base_offset)
+	_update_base_transforms()
 
 
 func highlight_control_points(in_control_points_to_highlight: PackedInt32Array) -> void:
@@ -238,10 +234,6 @@ func _setup_temp_curve() -> void:
 		_temp_curve = curve.duplicate()
 		# Assign _temp_curve to be used by PathFollow3D during transformation
 		curve = _temp_curve
-
-
-func get_curve_final_transform() -> Transform3D:
-	return _transform_helper.transform
 
 
 func set_strand_policy(in_strand_policy: StrandPolicy) -> void:
@@ -324,15 +316,19 @@ func _update_bases() -> void:
 		base.setup_materials(a_strand_material, b_strand_material, base_pivot_material)
 		add_child(base)
 		_bases.append(base)
-	
-	var delta_angle: float = deg_to_rad(360) / _bases_per_turn
-	
 	for i in base_count:
 		_bases[i].strand_policy = _strand_policy
 		_bases[i].base = _sequence[i]
-		_bases[i].base_offset = i * _rise_nanometers
 		_bases[i].dna_radius = _dna_radius
-		_bases[i].base_twist = _initial_twist + delta_angle * i
+	_update_base_transforms()
+
+
+func _update_base_transforms() -> void:
+	var base_count: int = _sequence.length()
+	for i in base_count:
+		_bases[i].transform = DnaStructure.calculate_base_origin_transform(
+			i, curve, _rise_nanometers, _bases_per_turn, _initial_twist
+		)
 
 
 func disable_hover() -> void:
