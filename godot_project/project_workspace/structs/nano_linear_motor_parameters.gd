@@ -9,7 +9,8 @@ enum Polarity {
 	set = _set_top_speed_in_nanometers_by_nanoseconds
 @export var polarity: Polarity = Polarity.FORWARD:
 	set = _set_polarity
-
+@export var max_force: float = 1.0 * 1e6:
+	set = _set_max_force
 
 var _state_snapshot_dirty: bool = true
 var _state_snapshot: Dictionary = {}
@@ -61,6 +62,12 @@ func _set_polarity(in_polarity: Polarity) -> void:
 	emit_changed()
 
 
+func _set_max_force(in_max_force: float) -> void:
+	if max_force == in_max_force:
+		return
+	max_force = in_max_force
+	emit_changed()
+
 
 func create_state_snapshot() -> Dictionary:
 	if _state_snapshot_dirty:
@@ -76,12 +83,14 @@ func create_state_snapshot() -> Dictionary:
 			"cycle_swap_polarity" = cycle_swap_polarity,
 			"cycle_eventually_stops" = cycle_eventually_stops,
 			"cycle_stop_after_n_cycles" = cycle_stop_after_n_cycles,
-			# Rotary specific properties
+			# Linear specific properties
 			"top_speed_in_nanometers_by_nanoseconds" = top_speed_in_nanometers_by_nanoseconds,
 			"polarity" = polarity,
+			"max_force" = max_force,
 		}
 		_state_snapshot_dirty = false
 	return _state_snapshot.duplicate(true)
+
 
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	# prevent `changed` and any other signal from being emited while state snapshot is being applied
@@ -102,4 +111,5 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	# Rotary specific properties
 	top_speed_in_nanometers_by_nanoseconds = in_snapshot.top_speed_in_nanometers_by_nanoseconds
 	polarity = in_snapshot.polarity
+	max_force = in_snapshot.max_force
 	set_block_signals(was_blocking_signals)

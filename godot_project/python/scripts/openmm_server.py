@@ -409,6 +409,7 @@ class MotorForce:
 		self.motor_type: MotorType = motor_force_data["parameters"]["motor_type"]
 		
 		self.ramp_in_time_in_nanoseconds: float = motor_force_data["parameters"]["ramp_in_time_in_nanoseconds"]
+		self.limit_maximum_force: bool = motor_force_data["parameters"]["limit_maximum_force"]
 		match self.motor_type:
 			case MotorType.ROTARY:
 				rotary_polarity: RotaryPolarity = motor_force_data["parameters"]["polarity"]
@@ -425,6 +426,7 @@ class MotorForce:
 				linear_polarity: LinearPolarity = motor_force_data["parameters"]["polarity"]
 				self.polarity: float = 1.0 if linear_polarity == LinearPolarity.FORWARD else -1.0
 				self.top_speed_in_nanometers_by_nanoseconds = motor_force_data["parameters"]["top_speed_in_nanometers_by_nanoseconds"]
+				self.max_force = motor_force_data["parameters"]["max_force"] * 1e-18 # Convert attoNewtons to Newtons
 			case _:
 				logging.error(f"Unknown motor type '{self.motor_type}'!")
 				pass
@@ -537,7 +539,8 @@ class MotorForce:
 		self.cycle_started_to_stop_at_time: float = 0
 		self.cycle_pause_time_accum: float = 0.0
 		self.cycle_paused: bool = False
-		self.print_counter: int = 0
+		self.print_counter: int = -1
+		self.max_acceleration: float = -1.0
 		added_particles = 0
 		is_rotary: bool = self.motor_type == MotorType.ROTARY
 		for i in range(topology_payload.atoms_count):
@@ -646,6 +649,17 @@ class MotorForce:
 			# Nothing to do here
 			return
 		
+		if self.limit_maximum_force and self.max_acceleration < 0:
+			average_particle_mass: float = 0.0
+			for i in range(len(self.atom_ids)):
+				atom_id: int = self.atom_ids[i]
+				average_particle_mass += simulation.system.getParticleMass(atom_id)._value
+			average_particle_mass /= len(self.atom_ids)
+			average_particle_mass *= 1.66053907e-27 # Convert Daltons to Kilograms
+			self.max_acceleration = self.max_force / average_particle_mass
+			if MOTOR_DEBUG_PRINTS:
+				logging.info(f"Max force: {self.max_force}N, Max acceleration: {self.max_acceleration}m/s^2")
+		
 		self.time_accum += simulation.time_step_in_nanoseconds
 		new_motor_velocity: Vec3 = Vec3(0,0,0) # new motor velocity is the same for all particles linked to the motor
 		speed: float = self._calculate_speed(simulation.time_step_in_nanoseconds)
@@ -662,9 +676,19 @@ class MotorForce:
 		new_velocities = prev_velocities.copy()
 		for i in range(len(self.atom_ids)):
 			atom_id: int = self.atom_ids[i]
-			current_velocity_in_desired_direction = self.axis_direction * dot_Vec3(prev_velocities[atom_id], self.axis_direction) * prev_velocities[atom_id].unit
-			delta_velocity = new_motor_velocity - current_velocity_in_desired_direction
-			new_velocities[atom_id] = prev_velocities[atom_id] + delta_velocity
+			previous_velocity: Vec3 = prev_velocities[atom_id]
+			final_velocity: Vec3 = new_motor_velocity
+			current_velocity_in_desired_direction = self.axis_direction * dot_Vec3(previous_velocity, self.axis_direction) * previous_velocity.unit
+			delta_velocity = final_velocity - current_velocity_in_desired_direction
+			
+			if self.limit_maximum_force:
+				acceleration: Vec3 = delta_velocity / (simulation.time_step_in_nanoseconds * nanosecond)
+				acceleration_len: float = length_Vec3(acceleration)
+				if acceleration_len > 0.0:
+					ratio: float = max(0, min(1, self.max_acceleration / acceleration_len))
+					delta_velocity *= ratio
+			
+			new_velocities[atom_id] = previous_velocity + delta_velocity
 		simulation.context.setVelocities(new_velocities)
 		return
 

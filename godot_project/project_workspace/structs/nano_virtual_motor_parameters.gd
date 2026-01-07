@@ -47,6 +47,8 @@ var motor_type: Type = Type.UNKNOWN:
 @export var cycle_stop_after_n_cycles: int = 1:
 	set = _set_cycle_stop_after_n_cycles
 
+@export var limit_maximum_force: bool = false
+
 
 func get_tooltip_text() -> String:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
@@ -129,4 +131,3 @@ func create_state_snapshot() -> Dictionary:
 func apply_state_snapshot(_in_snapshot: Dictionary) -> void:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return
-
