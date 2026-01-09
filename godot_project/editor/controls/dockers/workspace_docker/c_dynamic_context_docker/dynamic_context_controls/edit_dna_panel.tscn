@@ -282,7 +282,6 @@ layout_mode = 2
 [node name="OverrideColorsCheckButton" type="CheckButton" parent="VBoxContainer/PanelContainer2/VBoxContainer" index="0"]
 unique_name_in_owner = true
 layout_mode = 2
-button_pressed = true
 text = "Override Colors per Strand"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer2/VBoxContainer" index="1"]
