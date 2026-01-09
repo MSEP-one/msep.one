@@ -20,6 +20,7 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Select Bond" : true,
 	"Select Shape" : true,
 	"Select Motor" : true,
+	"Select DNA Chain" : true,
 	"Select Particle Emitter" : true,
 	"Select Anchor" : true,
 	"Select Spring" : true,

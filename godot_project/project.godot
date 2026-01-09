@@ -97,6 +97,7 @@ particle_emitters_with_emit_count=false
 msep_online=false
 dna_builder=false
 dna_builder_dev_tool=false
+dna_chain_as_group_of_atoms=false
 dna_chain_can_have_children=false
 
 [file_customization]

@@ -16,8 +16,10 @@ enum ClipboardContentType {
 
 
 func copy(in_workspace_context: WorkspaceContext) -> void:
-	if in_workspace_context.get_edited_dna_spline_id():
-		if not in_workspace_context.get_edited_dna_spline_context().is_dna_structure_fully_selected():
+	for context: StructureContext in in_workspace_context.get_structure_contexts_with_selection():
+		if context.nano_structure is DnaStructure \
+				and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
+				and not context.is_dna_structure_fully_selected():
 			in_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
 				tr(&"Cannot copy DNA spline control points"))
 			return
@@ -277,8 +279,10 @@ func _copy_dna_structure(in_structure_context: StructureContext,
 
 
 func cut(out_workspace_context: WorkspaceContext) -> void:
-	if out_workspace_context.get_edited_dna_spline_id():
-		if not out_workspace_context.get_edited_dna_spline_context().is_dna_structure_fully_selected():
+	for context: StructureContext in out_workspace_context.get_structure_contexts_with_selection():
+		if context.nano_structure is DnaStructure \
+				and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
+				and not context.is_dna_structure_fully_selected():
 			out_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
 				tr(&"Cannot cut DNA spline control points"))
 			return

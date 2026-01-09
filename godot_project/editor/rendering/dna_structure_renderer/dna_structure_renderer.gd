@@ -45,9 +45,9 @@ var _updating_parameters: bool = false
 # hovering API
 var _hover_enabled: bool = true
 var _is_selectable: bool = true
+var _is_top_level: bool = true
 var _path_hovered: bool = false
 var _path_highlighted: bool = false
-var _path_being_edited: bool = false
 var _edit_mode: DnaStructure.EditMode
 var _hovered_control_point: int = -1
 var _highlighted_control_points: Dictionary[int, bool] = {}
@@ -111,10 +111,8 @@ func _enter_tree() -> void:
 		return
 	var workspace_context: WorkspaceContext = editor_viewport.get_workspace_context()
 	if not workspace_context.editable_structure_context_list_changed.is_connected(_on_editable_structure_context_list_changed):
-		workspace_context.current_structure_context_changed.connect(_on_current_structure_context_changed)
 		workspace_context.editable_structure_context_list_changed.connect(_on_editable_structure_context_list_changed)
 		workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
-		workspace_context.selection_in_structures_changed.connect(_on_workspace_context_selection_in_structures_changed)
 
 
 func _ensure_structure_signal_connections(in_structure: DnaStructure) -> void:
@@ -180,11 +178,8 @@ func set_selection_position_delta(in_selection_delta: Vector3) -> void:
 		_reset_temp_curve()
 		return
 	_setup_temp_curve()
-	var points_to_transform: PackedInt32Array = range(curve.point_count)
-	var needs_recalculate_in_out: bool = false
-	if _path_being_edited:
-		needs_recalculate_in_out = _highlighted_control_points.size() != curve.point_count
-		points_to_transform = _highlighted_control_points.keys()
+	var needs_recalculate_in_out: bool = _highlighted_control_points.size() != curve.point_count
+	var points_to_transform: PackedInt32Array = _highlighted_control_points.keys()
 	var inout_positions_to_update: Dictionary[int, bool]
 	for p: int in points_to_transform:
 		var original_pos: Vector3 = _original_curve.get_point_position(p)
@@ -206,9 +201,7 @@ func rotate_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basi
 		_reset_temp_curve()
 		return
 	_setup_temp_curve()
-	var points_to_transform: PackedInt32Array = range(curve.point_count)
-	if _path_being_edited:
-		points_to_transform = _highlighted_control_points.keys()
+	var points_to_transform: PackedInt32Array = _highlighted_control_points.keys()
 	var inout_positions_to_update: Dictionary[int, bool]
 	for p: int in points_to_transform:
 		var original_pos: Vector3 = _original_curve.get_point_position(p)
@@ -345,16 +338,14 @@ func queue_redraw() -> void:
 	_path_representation.queue_redraw()
 
 
-func _on_current_structure_context_changed(structure_context: StructureContext) -> void:
-	_path_being_edited = structure_context.get_int_guid() == _structure_id
-	_update_visibility()
-
-
 func _on_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	_is_selectable = false
+	_is_top_level = false
+	var current: StructureContext = _workspace_context.get_current_structure_context()
 	for context: StructureContext in in_new_editable_structure_contexts:
 		if context.get_int_guid() == _structure_id:
 			_is_selectable = true
+			_is_top_level = context == current or _workspace_context.get_toplevel_editable_context(context) == context
 			break
 	const SELECTABLE_VALUE: float = 1.0
 	const UNSELECTABLE_VALUE: float = 0.0
@@ -396,14 +387,16 @@ func _on_path_representation_drawn() -> void:
 	const MIN_SEGMENT_DISTANCE_SQRD_IN_PIXELS: float = 3 * 3
 	var last_idx: int = path.size() - 1
 	var path_width: int = 2
-	if _path_highlighted or _path_being_edited:
+	if _highlighted_control_points.size() > 0:
 		path_width = 4
 	for i in range(1, path.size()):
 		var pos2d: Vector2 = camera.unproject_position(path[i])
 		if last_pos2d.distance_squared_to(pos2d) >= MIN_SEGMENT_DISTANCE_SQRD_IN_PIXELS or i == last_idx:
 			_path_representation.draw_line(last_pos2d, pos2d, _get_outline_color(), path_width)
 			last_pos2d = pos2d
-	if not _path_being_edited:
+	if _is_top_level == false:
+		return
+	if _highlighted_control_points.size() == 0 and _hovered_control_point == -1 and _path_hovered == false:
 		return
 	var drawn_curve: Curve3D = curve if _temp_curve == null else _temp_curve
 	for cp_idx: int in drawn_curve.point_count:
@@ -427,20 +420,11 @@ func _get_outline_color() -> Color:
 	if representation_settings.get_custom_selection_outline_color_enabled():
 		color = representation_settings.get_custom_selection_outline_color()
 	var is_hovered: bool = _path_hovered and _hover_enabled
-	if is_hovered or _path_highlighted or _path_being_edited:
+	var has_selection: bool = _highlighted_control_points.size() > 0
+	if is_hovered or has_selection:
 		return color
 	color.a = 0.5
 	return color
-
-
-func _on_workspace_context_selection_in_structures_changed(out_structure_contexts: Array[StructureContext]) -> void:
-	for context: StructureContext in out_structure_contexts:
-		var is_this_strucutre: bool = context.nano_structure.int_guid == _structure_id
-		if is_this_strucutre:
-			var is_selected: bool = context.is_dna_structure_fully_selected()
-			if is_selected != _path_highlighted:
-				_path_highlighted = is_selected
-				queue_redraw()
 
 
 func _set_shader_uniform(in_uniform: StringName, in_value: Variant) -> void:
@@ -459,10 +443,10 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_bases_per_turn"] = _bases_per_turn
 	snapshot["_initial_twist"] = _initial_twist
 	snapshot["_path_highlighted"] = _path_highlighted
-	snapshot["_path_being_edited"] = _path_being_edited
 	snapshot["_edit_mode"] = _edit_mode
 	snapshot["_highlighted_control_points"] = _highlighted_control_points.duplicate()
 	snapshot["_is_selectable"] = _is_selectable
+	snapshot["_is_top_level"] = _is_top_level
 	snapshot["_object_visible"] = _object_visible
 	snapshot["_selectable_uniform"] = base_pivot_material.get_shader_parameter(&"is_selectable")
 	var bases_snapshots: Array[Dictionary] = []
@@ -481,21 +465,21 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_bases_per_turn = in_state_snapshot["_bases_per_turn"]
 	_initial_twist = in_state_snapshot["_initial_twist"]
 	_path_highlighted = in_state_snapshot["_path_highlighted"]
-	_path_being_edited = in_state_snapshot["_path_being_edited"]
 	_edit_mode = in_state_snapshot["_edit_mode"]
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
 	_is_selectable = in_state_snapshot["_is_selectable"]
+	_is_top_level = in_state_snapshot["_is_top_level"]
 	_object_visible = in_state_snapshot["_object_visible"]
 	_set_shader_uniform(&"is_selectable", in_state_snapshot["_selectable_uniform"])
 	var bases_snapshots: Array[Dictionary] = in_state_snapshot["bases_snapshots"]
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
-	dna_structure.grab_curve(self)
 	while _bases.size() > bases_snapshots.size():
 		_bases.pop_back().queue_free()
 	while _bases.size() < bases_snapshots.size():
 		var base := DnaBaseRepresentation.create()
 		add_child(base)
 		_bases.append(base)
+	dna_structure.grab_curve(self)
 	for i in bases_snapshots.size():
 		_bases[i].apply_state_snapshot(bases_snapshots[i])
 	_applying_snapshot = false

@@ -7,6 +7,7 @@ const EditMode = DnaStructure.EditMode
 
 var _select_one_info_label: InfoLabel
 var _main_container: Container
+var _edit_mode_container: VBoxContainer
 var _edit_path_button: Button
 var _edit_atoms_button: Button
 var _override_colors_check_button: CheckButton
@@ -24,6 +25,7 @@ func _notification(what: int) -> void:
 		_initialized = true
 		_select_one_info_label = %SelectOneInfoLabel as InfoLabel
 		_main_container = $VBoxContainer as Container
+		_edit_mode_container = %EditModeContainer as VBoxContainer
 		_edit_path_button = %EditPathButton as Button
 		_edit_atoms_button = %EditAtomsButton as Button
 		_override_colors_check_button = %OverrideColorsCheckButton as CheckButton
@@ -37,6 +39,19 @@ func _notification(what: int) -> void:
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
 		_include_hydrogens_check_button.toggled.connect(_on_include_hydrogens_check_button_toggled)
 		_create_atoms_button.pressed.connect(_on_create_atoms_button_pressed)
+
+
+func _ready() -> void:
+	FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
+	_on_feature_flag_toggled(
+		FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS,
+		FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS)
+	)
+
+
+func _on_feature_flag_toggled(in_path: String, in_value: bool) -> void:
+	if in_path == FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS:
+		_edit_mode_container.visible = in_value
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
@@ -146,7 +161,7 @@ func _on_edit_mode_button_group_pressed(in_button: Button) -> void:
 				_edit_path_button.set_pressed_no_signal(false)
 				_edit_atoms_button.set_pressed_no_signal(true)
 				return
-			_workspace_context.get_structure_context(_tracked_structure.get_int_guid()).set_dna_spline_selected(false)
+			_workspace_context.get_structure_context(_tracked_structure.get_int_guid()).clear_selection()
 			_tracked_structure.set_edit_mode(EditMode.SequenceAndPath)
 			_setup_animation_player.play(&"setup_edit_path")
 			ctx.select_all()

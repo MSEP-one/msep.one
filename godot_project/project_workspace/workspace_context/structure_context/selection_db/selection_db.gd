@@ -8,7 +8,6 @@ signal selection_changed
 signal atoms_deselected(in_deselected_atoms: PackedInt32Array)
 signal dna_control_points_deselected(in_deselected_control_points: PackedInt32Array)
 signal virtual_object_selection_changed(is_selected: bool)
-signal dna_spline_selection_changed(is_selected: bool)
 signal springs_deselected(in_deselected_springs: PackedInt32Array)
 
 
@@ -19,7 +18,6 @@ var _spring_selection: SpringSelection
 
 var _application_is_editor_build: bool = OS.has_feature("editor")
 var _is_virtual_object_selected: bool = false
-var _is_dna_spline_selected: bool = false
 var _is_initialized: bool = false
 
 
@@ -50,7 +48,6 @@ func has_selection() -> bool:
 	
 	return _atom_selection.has_selection() \
 			or _is_virtual_object_selected \
-			or _is_dna_spline_selected \
 			or _spring_selection.has_selection() \
 			or _dna_control_point_selection.size() > 0
 
@@ -89,10 +86,6 @@ func is_spring_selected(in_spring_id: int) -> bool:
 
 func is_virtual_object_selected() -> bool:
 	return _is_virtual_object_selected
-
-
-func is_dna_spline_selected() -> bool:
-	return _is_dna_spline_selected
 
 
 func get_selected_atoms() -> PackedInt32Array:
@@ -294,16 +287,12 @@ func invert_selection() -> void:
 	
 	# ---- DNA Structures ----
 	if nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
-		if _structure_context.workspace_context.get_edited_dna_spline_id() == nano_structure.int_guid:
-			var dna_structure := nano_structure as DnaStructure
-			var all_points := PackedInt32Array(range(dna_structure.get_control_point_count()))
-			var selected_points: PackedInt32Array = _structure_context.get_selected_dna_spline_countrol_points()
-			var new_selection: Array = all_points.duplicate()
-			for p in selected_points:
-				new_selection.erase(p)
-			set_dna_control_point_selection(PackedInt32Array(new_selection))
-		else:
-			set_dna_spline_selected(!is_dna_spline_selected())
+		var dna_structure := nano_structure as DnaStructure
+		var selected_points: PackedInt32Array = _structure_context.get_selected_dna_spline_countrol_points()
+		var new_selection: Array = PackedInt32Array(range(dna_structure.get_control_point_count()))
+		for p in selected_points:
+			new_selection.erase(p)
+		set_dna_control_point_selection(PackedInt32Array(new_selection))
 	
 	# ---- Virtual Objects ----
 	if nano_structure.is_virtual_object():
@@ -315,9 +304,7 @@ func select_all() -> void:
 	if nano_structure.is_virtual_object():
 		set_virtual_object_selected(true)
 	elif  nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
-		set_dna_spline_selected(true)
-		if _structure_context.workspace_context.get_edited_dna_spline_id() == _structure_context.get_int_guid():
-			set_dna_control_point_selection(range(nano_structure.get_control_point_count()))
+		set_dna_control_point_selection(range(nano_structure.get_control_point_count()))
 	else:
 		assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 		set_atom_selection(nano_structure.get_visible_atoms())
@@ -364,15 +351,6 @@ func set_virtual_object_selected(in_selected: bool) -> void:
 	assert(nano_structure.get_visible(), "Cannot change selection of a hidden object")
 	_is_virtual_object_selected = in_selected
 	virtual_object_selection_changed.emit(in_selected)
-
-
-func set_dna_spline_selected(in_selected: bool) -> void:
-	var nano_structure: NanoStructure = _structure_context.nano_structure
-	if in_selected == _is_dna_spline_selected || not nano_structure is DnaStructure:
-		return
-	assert(nano_structure.get_visible(), "Cannot change selection of a hidden object")
-	_is_dna_spline_selected = in_selected
-	dna_spline_selection_changed.emit(in_selected)
 
 
 func set_dna_control_point_selection(in_control_points_to_select: PackedInt32Array) -> void:
@@ -477,7 +455,6 @@ func clear_selection() -> void:
 	
 	var rendering: Rendering = _structure_context.get_rendering()
 	set_virtual_object_selected(false)
-	set_dna_spline_selected(false)
 	
 	if nano_structure is AtomicStructure:
 		rendering.lowlight_atoms(deselected_atoms, nano_structure, bonds_released_from_partial_influence,
@@ -502,7 +479,7 @@ func get_selection_aabb() -> AABB:
 		var object_aabb: AABB = nano_structure.get_aabb()
 		selections_aabbs.push_back(object_aabb)
 	
-	if _structure_context.workspace_context.get_edited_dna_spline_id() == nano_structure.int_guid:
+	if nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 		if not _dna_control_point_selection.is_empty():
 			var dna_structure := _structure_context.nano_structure as DnaStructure
 			var points: PackedInt32Array = _dna_control_point_selection.keys()
@@ -510,12 +487,6 @@ func get_selection_aabb() -> AABB:
 			for i in range(1, points.size()):
 				aabb = aabb.expand(dna_structure.get_control_point_position(points[i]))
 			selections_aabbs.push_back(aabb)
-		else:
-			assert(is_dna_spline_selected())
-			selections_aabbs.push_back(nano_structure.get_aabb())
-	elif is_dna_spline_selected():
-		selections_aabbs.push_back(nano_structure.get_aabb())
-		
 	
 	if _atom_selection.has_selection():
 		selections_aabbs.push_back(_atom_selection.get_aabb())
@@ -582,7 +553,6 @@ func get_selection_snapshot() -> Dictionary:
 		atom_snapshot = _atom_selection.get_snapshot(),
 		spring_snapshot = _spring_selection.get_snapshot(),
 		is_virtual_object_selected = _is_virtual_object_selected,
-		is_dna_spline_selected = _is_dna_spline_selected,
 		dna_control_points_snapshot = _dna_control_point_selection.duplicate()
 	}
 	return result_data
@@ -590,7 +560,6 @@ func get_selection_snapshot() -> Dictionary:
 
 func apply_selection_snapshot(in_snapshot: Dictionary) -> void:
 	_is_virtual_object_selected = in_snapshot.is_virtual_object_selected
-	_is_dna_spline_selected = in_snapshot.is_dna_spline_selected
 	_dna_control_point_selection = in_snapshot.dna_control_points_snapshot.duplicate()
 	var atom_snapshot: Array = in_snapshot.atom_snapshot
 	var spring_snapshot: Array = in_snapshot.spring_snapshot

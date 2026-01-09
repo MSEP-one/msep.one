@@ -24,9 +24,13 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 				return true
 	return false
 
-func _on_feature_flag_toggled(in_path: String, in_new_value: bool) -> void:
-	if in_path == FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_CAN_HAVE_CHILDREN:
-		if in_new_value:
+func _on_feature_flag_toggled(in_path: String, _in_new_value: bool) -> void:
+	if in_path in [FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS, FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_CAN_HAVE_CHILDREN]:
+		var can_have_children: bool = (
+			FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS)
+			and FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_CAN_HAVE_CHILDREN)
+		)
+		if can_have_children:
 			_info_label.message = tr(&"Immutable structures cannot add, remove, or modify atoms or bonds")
 		else:
 			_info_label.message = tr(&"Immutable structures cannot add, remove, or modify atoms, bonds, or child objects")

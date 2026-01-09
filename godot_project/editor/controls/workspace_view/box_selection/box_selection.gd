@@ -82,12 +82,8 @@ func apply_selection() -> void:
 				context.select_bonds(selected_bonds)
 				context.select_springs(selected_springs)
 		if context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
-			if _workspace_context.get_edited_dna_spline_context() == context:
-				var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
-				context.set_dna_control_point_selection(control_points_in_box)
-			else:
-				if _is_dna_structure_within_screen_rect(context, camera):
-					context.set_dna_spline_selected(true)
+			var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
+			context.set_dna_control_point_selection(control_points_in_box)
 		if context.nano_structure.is_virtual_object() and _is_virtual_object_within_screen_rect(context, camera):
 			context.set_virtual_object_selected(true)
 
@@ -150,11 +146,9 @@ func apply_deselection() -> void:
 				context.deselect_atoms(deselected_atoms)
 				context.deselect_bonds(deselected_bonds)
 				context.deselect_springs(deselected_springs)
-		if _workspace_context.get_edited_dna_spline_context() == context:
+		if context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 			var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
 			context.deselect_dna_control_points(control_points_in_box)
-		elif _is_dna_structure_within_screen_rect(context, camera):
-				context.set_dna_spline_selected(true)
 		if context.nano_structure.is_virtual_object() and _is_virtual_object_within_screen_rect(context, camera):
 			context.set_virtual_object_selected(false)
 	
@@ -163,7 +157,8 @@ func apply_deselection() -> void:
 
 
 func _is_dna_structure_within_screen_rect(in_context: StructureContext, in_camera: Camera3D) -> bool:
-	assert(in_context.nano_structure is DnaStructure)
+	if not in_context.nano_structure is DnaStructure:
+		return false
 	var is_simulating: bool = in_context.workspace_context.is_simulating()
 	if is_simulating:
 		# individual atoms and bonds not considered in this API

@@ -6,6 +6,7 @@ const MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED = 20 * 20
 
 var _select_connected_queued_at: int = 0
 var _press_down_position: Vector2 = Vector2(-100, -100)
+var _queue_abort_release: bool = false
 
 func _init(in_context: WorkspaceContext) -> void:
 	super._init(in_context)
@@ -43,6 +44,8 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 	if is_double_click:
 		var editable_structures: Array[StructureContext] = _workspace_context.get_editable_structure_contexts()
 		if _activate_selection_logic(in_camera, in_input_event.position, editable_structures):
+			# Dont parse mouse release if activation logic executes
+			_queue_abort_release = true
 			return true
 		# Selection logic needs to happen on mouse release
 		# because of that we give a window of 200 msec for releasing the mouse after double click
@@ -98,6 +101,9 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		return input_consumed
 	
 	if in_input_event.is_action_released(&"select", true) and _is_near_press_down_pos(in_input_event):
+		if _queue_abort_release:
+			_queue_abort_release = false
+			return false
 		var rendering: Rendering = get_workspace_context().get_rendering()
 		if rendering.is_atom_preview_visible():
 			# Atom is being added, avoid changing selection
@@ -317,42 +323,51 @@ func _activate_selection_logic(
 		var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
 		if hit_context != get_workspace_context().get_current_structure_context():
 			var affected_context: = get_workspace_context().get_toplevel_editable_context(hit_context)
-			if affected_context.nano_structure.is_virtual_object():
+			if not affected_context.nano_structure.can_contain_child_structure():
 				# Shapes, Motors, Emitters, Springs, etc; cannot be activated, this is on purpose to have a more compact group hierarchy
+				if affected_context == hit_context and hit_context.nano_structure is DnaStructure \
+						and hit_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+					_activate_dna_structure(multi_structure_hit_result)
+					return true
 				return false
 			get_workspace_context().change_current_structure_context(affected_context)
 			_workspace_context.snapshot_moment("Change Selection")
 			return true
 		elif hit_context.nano_structure is DnaStructure \
-				and multi_structure_hit_result.hit_type in [
-					MultiStructureHitResult.HitType.HIT_DNA_PATH,
-					MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT
-				]:
-			var dna_structure: DnaStructure = hit_context.nano_structure as DnaStructure
-			if get_workspace_context().get_edited_dna_spline_id() == hit_context.get_int_guid():
-				if multi_structure_hit_result.hit_type == MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
-					hit_context.select_all()
-					_workspace_context.snapshot_moment("Change Selection")
-				else:
-					assert(multi_structure_hit_result.hit_type == MultiStructureHitResult.HitType.HIT_DNA_PATH)
-					# insert control point
-					var pos: Vector3 = multi_structure_hit_result.closest_hit_dna_pos
-					var closest_segment: int = -1
-					var closest_distance_sqrd: float = INF
-					for i in (dna_structure.get_control_point_count() - 1):
-						var p0: Vector3 = dna_structure.get_control_point_position(i)
-						var p1: Vector3 = dna_structure.get_control_point_position(i+1)
-						var closest_point: Vector3 = Geometry3D.get_closest_point_to_segment(pos, p0, p1)
-						var dist_sqrd: float = pos.distance_squared_to(closest_point)
-						if dist_sqrd < closest_distance_sqrd:
-							closest_distance_sqrd = dist_sqrd
-							closest_segment = i
-					dna_structure.start_edit()
-					dna_structure.insert_control_point(pos, closest_segment + 1)
-					dna_structure.end_edit()
-					_workspace_context.snapshot_moment("Insert DNA control cpoint")
+				and hit_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+			_activate_dna_structure(multi_structure_hit_result)
 			return true
 	return false
+
+
+func _activate_dna_structure(multi_structure_hit_result: MultiStructureHitResult) -> void:
+	assert(multi_structure_hit_result.hit_type in [
+		MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT,
+		MultiStructureHitResult.HitType.HIT_DNA_PATH
+	])
+	var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
+	var dna_structure: DnaStructure = hit_context.nano_structure as DnaStructure
+	if multi_structure_hit_result.hit_type == MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
+		hit_context.select_all()
+	elif multi_structure_hit_result.hit_type == MultiStructureHitResult.HitType.HIT_DNA_PATH:
+		# insert control point
+		var pos: Vector3 = multi_structure_hit_result.closest_hit_dna_pos
+		var closest_segment: int = -1
+		var closest_distance_sqrd: float = INF
+		for i in (dna_structure.get_control_point_count() - 1):
+			var p0: Vector3 = dna_structure.get_control_point_position(i)
+			var p1: Vector3 = dna_structure.get_control_point_position(i+1)
+			var closest_point: Vector3 = Geometry3D.get_closest_point_to_segment(pos, p0, p1)
+			var dist_sqrd: float = pos.distance_squared_to(closest_point)
+			if dist_sqrd < closest_distance_sqrd:
+				closest_distance_sqrd = dist_sqrd
+				closest_segment = i
+		dna_structure.start_edit()
+		dna_structure.insert_control_point(pos, closest_segment + 1)
+		dna_structure.end_edit()
+		hit_context.clear_selection()
+		hit_context.select_dna_control_points([closest_segment + 1])
+		_workspace_context.snapshot_moment("Insert DNA control cpoint")
 
 
 func _select_connected_selection_logic(
@@ -446,8 +461,12 @@ func _screen_selection_logic(
 	if multi_structure_hit_result.did_hit():
 		# perform selection
 		var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
+		var current: StructureContext = get_workspace_context().get_current_structure_context()
+		var is_toplevel_dna: bool = hit_context.nano_structure is DnaStructure and (hit_context == current or _workspace_context.get_toplevel_editable_context(hit_context) == hit_context)
 		const GROUP_SELECTION_BLACKLIST = [&"AnchorPoint", &"Spring"]
-		if hit_context != get_workspace_context().get_current_structure_context() and not hit_context.nano_structure.get_type() in GROUP_SELECTION_BLACKLIST:
+		if hit_context != get_workspace_context().get_current_structure_context() \
+				and not is_toplevel_dna \
+				and not hit_context.nano_structure.get_type() in GROUP_SELECTION_BLACKLIST:
 			# Clicked an object that is a child of current edited structure, select the entire group
 			if not need_to_create_snapshot:
 				snapshot_name = "Select Group"
@@ -537,39 +556,23 @@ func _screen_selection_logic(
 							snapshot_name = "Select Anchor"
 							need_to_create_snapshot = true
 						hit_context.set_anchor_selected(true)
-				MultiStructureHitResult.HitType.HIT_DNA_PATH, MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
-					var is_editing_this: bool = _workspace_context.get_edited_dna_spline_id() == hit_context.int_guid
-					var hit_on_path: bool = multi_structure_hit_result.hit_type == MultiStructureHitResult.HitType.HIT_DNA_PATH
-					if is_editing_this:
-						if hit_on_path:
-							# Deselect what is selected
-							hit_context.deselect_dna_control_points(hit_context.get_selected_dna_spline_countrol_points())
-							if not need_to_create_snapshot:
-								snapshot_name = "Clear DNA control point selection"
-								need_to_create_snapshot = true
-						else:
-							var hit_control_point: int = multi_structure_hit_result.closest_hit_dna_control_point_id
-							if hit_control_point in hit_context.get_selected_dna_spline_countrol_points():
-								hit_context.deselect_dna_control_points([hit_control_point])
-								if not need_to_create_snapshot:
-									snapshot_name = "Unselect DNA control point"
-									need_to_create_snapshot = true
-							else:
-								hit_context.select_dna_control_points([hit_control_point])
-								if not need_to_create_snapshot:
-									snapshot_name = "Select DNA control point"
-									need_to_create_snapshot = true
+				MultiStructureHitResult.HitType.HIT_DNA_PATH:
+					hit_context.select_all()
+					if not need_to_create_snapshot:
+						snapshot_name = "Select DNA Chain"
+						need_to_create_snapshot = true
+				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
+					var hit_control_point: int = multi_structure_hit_result.closest_hit_dna_control_point_id
+					if hit_control_point in hit_context.get_selected_dna_spline_countrol_points():
+						hit_context.deselect_dna_control_points([hit_control_point])
+						if not need_to_create_snapshot:
+							snapshot_name = "Unselect DNA control point"
+							need_to_create_snapshot = true
 					else:
-						if hit_context.is_dna_structure_fully_selected():
-							hit_context.set_dna_spline_selected(false)
-							if not need_to_create_snapshot:
-								snapshot_name = "Deselect DNA spline"
-								need_to_create_snapshot = true
-						else:
-							hit_context.set_dna_spline_selected(true)
-							if not need_to_create_snapshot:
-								snapshot_name = "Select DNA spline"
-								need_to_create_snapshot = true
+						hit_context.select_dna_control_points([hit_control_point])
+						if not need_to_create_snapshot:
+							snapshot_name = "Select DNA control point"
+							need_to_create_snapshot = true
 				_:
 					assert(false, "Invalid hit result")
 	if need_to_create_snapshot:
@@ -593,7 +596,8 @@ func _screen_deselection_logic(
 	# If got a hit perform deselection
 	if multi_structure_hit_result.did_hit():
 		var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
-		if hit_context != get_workspace_context().get_current_structure_context():
+		var is_toplevel_dna: bool = hit_context.nano_structure is DnaStructure and _workspace_context.get_toplevel_editable_context(hit_context) == hit_context
+		if hit_context != get_workspace_context().get_current_structure_context() and not is_toplevel_dna:
 			if not did_create_undo_action:
 				snapshot_name = "Deselect Group"
 				did_create_undo_action = true
@@ -631,6 +635,14 @@ func _screen_deselection_logic(
 					var deselected_spring_id: int = multi_structure_hit_result.closest_hit_spring_id
 					var deselected_spring: PackedInt32Array = [deselected_spring_id]
 					hit_context.deselect_springs(deselected_spring)
+				MultiStructureHitResult.HitType.HIT_DNA_PATH:
+					snapshot_name = "Deselect DNA Chain"
+					did_create_undo_action = true
+					hit_context.clear_selection()
+				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
+					snapshot_name = "Unselect DNA control point"
+					var hit_control_point: int = multi_structure_hit_result.closest_hit_dna_control_point_id
+					hit_context.deselect_dna_control_points([hit_control_point])
 				_:
 					assert(false, "Invalid hit result")
 		if did_create_undo_action:

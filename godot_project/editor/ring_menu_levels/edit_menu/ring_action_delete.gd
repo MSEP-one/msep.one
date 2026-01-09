@@ -163,12 +163,13 @@ func _can_delete_atoms_bonds_or_springs(in_context: StructureContext) -> bool:
 
 
 func _can_delete_dna_control_points(out_context: StructureContext) -> bool:
-	return _workspace_context.get_edited_dna_spline_id() == out_context.get_int_guid() \
+	return  out_context.nano_structure is DnaStructure \
+			and out_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
 			and out_context.get_selected_dna_spline_countrol_points().size() > 0
 
 
 func _action_delete_dna_control_points(out_context: StructureContext) -> void:
-	assert(_workspace_context.get_edited_dna_spline_id() == out_context.get_int_guid())
+	assert(out_context.nano_structure is DnaStructure and out_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath)
 	var selected_points: PackedInt32Array = out_context.get_selected_dna_spline_countrol_points()
 	out_context.clear_selection()
 	assert(selected_points.size() > 0)
@@ -255,9 +256,10 @@ func _can_delete_objects(in_context: StructureContext) -> bool:
 			if not in_context.nano_structure is DnaStructure else in_context.is_dna_structure_fully_selected()
 	
 	# EXCEPTION: DnaStructure gets deleted if all but 1 control point are selected
-	if _workspace_context.get_edited_dna_spline_id() == in_context.int_guid:
-		if in_context.get_selected_dna_spline_countrol_points().size() >= in_context.nano_structure.get_control_point_count() - 1:
-			dna_spline_selected = true
+	if in_context.nano_structure is DnaStructure \
+			and in_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
+			and in_context.get_selected_dna_spline_countrol_points().size() >= in_context.nano_structure.get_control_point_count() - 1:
+		dna_spline_selected = true
 	
 	var child_structures: Array[NanoStructure] = \
 			in_context.workspace_context.workspace.get_child_structures(in_context.nano_structure)

@@ -54,7 +54,7 @@ func _initialize_structures_list(in_workspace_context: WorkspaceContext) -> void
 	_structures_tree.hide_root = true
 	var root: TreeItem = _structures_tree.create_item()
 	for child: NanoStructure in childs_of_root:
-		if child.is_virtual_object():
+		if not _can_appear_in_tree(child):
 			# Dont show virtual objects, DNA structure is left on purpose
 			continue
 		_add_structures_recursively(workspace, child, root, _get_tracked_motor())
@@ -82,7 +82,7 @@ func _add_structures_recursively(
 			in_parent_tree_item: TreeItem, in_tracked_motor: NanoVirtualMotor) -> void:
 	var structure_item: TreeItem = _add_structure_to_tree(in_structure, in_parent_tree_item, in_tracked_motor)
 	for child: NanoStructure in in_workspace.get_child_structures(in_structure):
-		if child.is_virtual_object():
+		if not _can_appear_in_tree(child):
 			# Dont show virtual objects, DNA structure is left on purpose
 			continue
 		_add_structures_recursively(in_workspace, child, structure_item, in_tracked_motor)
@@ -96,7 +96,7 @@ func _rebuild() -> void:
 
 
 func _on_workspace_context_structure_added(in_structure: NanoStructure) -> void:
-	if in_structure.is_virtual_object():
+	if not _can_appear_in_tree(in_structure):
 		# Dont show virtual objects, DNA structure is left on purpose
 		return
 	var parent_tree_item: TreeItem = null
@@ -105,6 +105,14 @@ func _on_workspace_context_structure_added(in_structure: NanoStructure) -> void:
 		parent_tree_item = _tree_items[in_structure.int_parent_guid] as TreeItem
 		assert(parent_tree_item != null)
 	_add_structure_to_tree(in_structure, parent_tree_item, _get_tracked_motor())
+
+
+func _can_appear_in_tree(in_structure: NanoStructure) -> bool:
+	if in_structure.is_virtual_object():
+		return false
+	if in_structure is DnaStructure:
+		return FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS)
+	return true
 
 
 func _on_workspace_context_structure_about_to_remove(in_structure: NanoStructure) -> void:
