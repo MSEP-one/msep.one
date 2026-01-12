@@ -228,6 +228,7 @@ func _apply_selection_transform() -> void:
 		return
 	
 	var action_created: bool = false
+	var caused_dna_chain_extension: bool = false
 	
 	var rendering: Rendering = get_workspace_context().get_rendering()
 	for context: StructureContext in selected_structure_contexts:
@@ -255,6 +256,7 @@ func _apply_selection_transform() -> void:
 			object_old_transform = nano_structure.get_transform()
 		elif nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
 			var dna := nano_structure as DnaStructure
+			var sequence: String = dna.get_sequence()
 			var points_to_transform: PackedInt32Array = context.get_selected_dna_spline_countrol_points()
 			dna.start_edit()
 			for p: int in points_to_transform:
@@ -264,6 +266,8 @@ func _apply_selection_transform() -> void:
 				var new_pos: Vector3 = _helper.global_position + _helper.global_transform.basis * delta_pos
 				dna.set_control_point_position(p, new_pos)
 			dna.end_edit()
+			if sequence.length() < dna.get_sequence().length():
+				caused_dna_chain_extension = true
 		elif nano_structure is NanoVirtualAnchor:
 			# Anchors have position but not rotation and scale
 			assert(_structure_context_2_initial_object_transforms.has(context.get_int_guid()), "initial transform should be prepared in '_prepare_gizmo_for_structure()'")
@@ -310,6 +314,16 @@ func _apply_selection_transform() -> void:
 	if action_created:
 		_workspace_context.snapshot_moment("Move Selection")
 		_force_gizmo_update()
+		
+		if caused_dna_chain_extension and _workspace_context.ignored_warnings.extend_dna_chain_length == false:
+			var promise: Promise = _workspace_context.show_warning_dialog(
+				tr(&"This change will extend the length of the DNA. To do this, MSEP will add undefined nucleotide data."),
+				tr(&"Continue"), tr(&"Revert"), &"extend_dna_chain_length", true
+			)
+			await promise.wait_for_fulfill()
+			if promise.get_result() == false:
+				# Reverted
+				_workspace_context.action_undo.execute()
 
 
 func _get_gizmo_center_position() -> Vector3:
