@@ -70,6 +70,7 @@ var ignored_warnings: Dictionary = {
 	emitters_with_unstable_parameters = false,
 	overlapping_emitters_in_simulation = false,
 	convert_dna_with_invalid_bases = false,
+	extend_dna_chain_length = false,
 }
 
 var visible_object_tree: bool = false:
