@@ -112,9 +112,8 @@ func _update_ui() -> void:
 				_setup_animation_player.play(&"setup_edit_atoms")
 				_edit_path_button.set_pressed_no_signal(false)
 				_edit_atoms_button.set_pressed_no_signal(true)
-		_dna_sequence_text_edit.set_block_signals(true)
-		_dna_sequence_text_edit.text = _tracked_structure.get_sequence()
-		_dna_sequence_text_edit.set_block_signals(false)
+		if _dna_sequence_text_edit.text != _tracked_structure.get_sequence():
+			_on_tracked_structure_sequence_changed(_tracked_structure.get_sequence())
 		_dna_radius_spin_box_slider.set_value_no_signal(_tracked_structure.get_dna_radius_nanometers())
 		_bases_per_turn_spin_box_slider.set_value_no_signal(_tracked_structure.get_bases_per_turn())
 		_rise_nanometers_spin_box_slider.set_value_no_signal(_tracked_structure.get_rise_nanometers())
@@ -127,7 +126,20 @@ func _update_ui() -> void:
 func _on_tracked_structure_sequence_changed(in_sequence: String) -> void:
 	if in_sequence != _dna_sequence_text_edit.text:
 		_dna_sequence_text_edit.set_block_signals(true)
-		_dna_sequence_text_edit.text = in_sequence
+		var carets: Array[Vector2i]
+		if _dna_sequence_text_edit.has_focus():
+			# Remember positions of carets
+			for i: int in _dna_sequence_text_edit.get_caret_count():
+				carets.append(Vector2i(_dna_sequence_text_edit.get_caret_line(i), _dna_sequence_text_edit.get_caret_column(i)))
+		_dna_sequence_text_edit.text = _tracked_structure.get_sequence()
+		if _dna_sequence_text_edit.has_focus():
+			# Restore positions of carets
+			for i in carets.size():
+				if i < _dna_sequence_text_edit.get_caret_count():
+					_dna_sequence_text_edit.set_caret_line(carets[i][0], false, true, 0, i)
+					_dna_sequence_text_edit.set_caret_column(carets[i][1], true, i)
+				else:
+					_dna_sequence_text_edit.add_caret.call_deferred(carets[i][0], carets[i][1])
 		_dna_sequence_text_edit.set_block_signals(false)
 
 
