@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://wqb7owiylx85"]
+
+[ext_resource type="Script" uid="uid://xp3byufpryt0" path="res://editor/controls/share_project_dialog/controls/existing_project_option_button.gd" id="1_mshcg"]
+
+[node name="ExistingProjectOptionButton" type="OptionButton"]
+custom_minimum_size = Vector2(0, 27)
+offset_right = 278.0
+offset_bottom = 20.0
+disabled = true
+item_count = 2
+popup/item_0/id = 0
+popup/item_1/id = 1
+script = ExtResource("1_mshcg")

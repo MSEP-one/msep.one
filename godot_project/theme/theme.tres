@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=92 format=3 uid="uid://d3fnr4sbrd6ik"]
+[gd_resource type="Theme" load_steps=97 format=3 uid="uid://d3fnr4sbrd6ik"]
 
 [ext_resource type="FontFile" uid="uid://b3jkav4yxw06w" path="res://theme/Gidole-Regular.ttf" id="1_8indu"]
 [ext_resource type="Texture2D" uid="uid://bh1ju2ymvv1co" path="res://theme/icons/icon_on.svg" id="1_n28s0"]
@@ -166,6 +166,22 @@ corner_radius_bottom_right = 999
 corner_radius_bottom_left = 999
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kivow"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rucdj"]
+bg_color = Color(1, 1, 1, 0.188235)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_omiwu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5wxyd"]
+bg_color = Color(1, 1, 1, 0.352941)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ejo2e"]
 content_margin_left = 4.0
@@ -378,6 +394,12 @@ corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4ytkp"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
 
 [sub_resource type="Gradient" id="Gradient_akrsk"]
 interpolation_mode = 1
@@ -779,6 +801,17 @@ bg_color = Color(0, 0, 0, 0.0588235)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ytkp"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0.105882)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b7kn0"]
 content_margin_left = 4.0
 content_margin_top = 4.0
@@ -979,6 +1012,18 @@ EmptyStyle/styles/tab_disabled = SubResource("StyleBoxEmpty_kivow")
 EmptyStyle/styles/tab_selected = SubResource("StyleBoxEmpty_kivow")
 EmptyStyle/styles/tab_unselected = SubResource("StyleBoxEmpty_kivow")
 EmptyStyle/styles/tabbar_background = SubResource("StyleBoxEmpty_kivow")
+EraseTagButton/base_type = &"Button"
+EraseTagButton/styles/disabled = SubResource("StyleBoxFlat_rucdj")
+EraseTagButton/styles/disabled_mirrored = SubResource("StyleBoxFlat_rucdj")
+EraseTagButton/styles/focus = SubResource("StyleBoxEmpty_omiwu")
+EraseTagButton/styles/hover = SubResource("StyleBoxFlat_5wxyd")
+EraseTagButton/styles/hover_mirrored = SubResource("StyleBoxFlat_5wxyd")
+EraseTagButton/styles/hover_pressed = SubResource("StyleBoxFlat_5wxyd")
+EraseTagButton/styles/hover_pressed_mirrored = SubResource("StyleBoxFlat_5wxyd")
+EraseTagButton/styles/normal = SubResource("StyleBoxFlat_rucdj")
+EraseTagButton/styles/normal_mirrored = SubResource("StyleBoxFlat_rucdj")
+EraseTagButton/styles/pressed = SubResource("StyleBoxFlat_5wxyd")
+EraseTagButton/styles/pressed_mirrored = SubResource("StyleBoxFlat_5wxyd")
 HeaderSmallCheckBox/base_type = &"CheckBox"
 HeaderSmallCheckBox/colors/font_color = Color(1, 1, 1, 1)
 HeaderSmallCheckBox/colors/font_disabled_color = Color(1, 1, 1, 1)
@@ -1028,9 +1073,11 @@ PanelContainerCrystal/base_type = &"PanelContainer"
 PanelContainerCrystal/styles/panel = SubResource("StyleBoxFlat_6l1ye")
 PopupMenu/colors/font_disabled_color = Color(0.733333, 0.729412, 0.729412, 0.8)
 PopupPanel/styles/panel = SubResource("StyleBoxFlat_of1wl")
+RemoveTagButton/base_type = &"Button"
 RichTextLabel/fonts/bold_font = ExtResource("5_4ytkp")
 RoundedWindow/base_type = &"AcceptDialog"
 RoundedWindow/styles/panel = SubResource("StyleBoxFlat_r6qfk")
+ScrollContainer/styles/panel = SubResource("StyleBoxEmpty_4ytkp")
 SpinboxSlider/base_type = &"HSlider"
 SpinboxSlider/icons/grabber = SubResource("GradientTexture2D_36qm5")
 SpinboxSlider/icons/grabber_disabled = SubResource("GradientTexture2D_36qm5")
@@ -1102,6 +1149,8 @@ TabContainerCrystal/styles/tab_focus = SubResource("StyleBoxFlat_1yd73")
 TabContainerCrystal/styles/tab_hovered = SubResource("StyleBoxFlat_4dj6a")
 TabContainerCrystal/styles/tab_selected = SubResource("StyleBoxFlat_4dj6a")
 TabContainerCrystal/styles/tab_unselected = SubResource("StyleBoxFlat_qh4gh")
+TagLabel/base_type = &"PanelContainer"
+TagLabel/styles/panel = SubResource("StyleBoxFlat_4ytkp")
 TextEdit/colors/selection_color = Color(0.396078, 0.168627, 0.85098, 0.941176)
 TextEdit/styles/focus = SubResource("StyleBoxFlat_b7kn0")
 TextEdit/styles/normal = SubResource("StyleBoxFlat_t06f6")

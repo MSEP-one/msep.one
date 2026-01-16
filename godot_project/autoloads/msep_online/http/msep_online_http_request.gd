@@ -67,6 +67,7 @@ func _on_request_completed(result_code: int, response_code: int, headers: Packed
 				break
 		if is_json and not body.is_empty():
 			result.body = JSON.parse_string(body.get_string_from_utf8())
+		result.body.make_read_only()
 		_promise.fulfill(result)
 	else:
 		const RESULTS: Dictionary[Result, String] = {
