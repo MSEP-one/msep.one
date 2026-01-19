@@ -108,6 +108,12 @@ func is_authenticated() -> bool:
 	return _is_authenticated
 
 
+func get_authentication_headers() -> PackedStringArray:
+	if is_authenticated():
+		return ["Bearer: " + _auth_token]
+	return []
+
+
 func login(in_username: String, in_password: String) -> Promise:
 	var promise: Promise = AuthenticationPromise.new(self)
 	# Arguments could change in the future

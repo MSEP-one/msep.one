@@ -95,6 +95,8 @@ particle_emitters=true
 particle_emitters_show_unspawned_instanes=false
 particle_emitters_with_emit_count=false
 msep_online=false
+msep_online_stub_service=true
+msep_online_run_tests=false
 dna_builder=false
 dna_builder_dev_tool=false
 dna_chain_as_group_of_atoms=false
@@ -392,6 +394,8 @@ clipboard/paste_offset_direction/z=0.0
 rendering/van_der_waals/outline_thickness=0.8
 rendering/mechanical_simulation/outline_thickness=0.8
 rendering/balls_and_sticks/outline_thickness=0.3
+msep_online/baseurl="https://api.msep.one"
+msep_online/test_baseurl="http://127.0.0.1:8000"
 
 [network]
 
