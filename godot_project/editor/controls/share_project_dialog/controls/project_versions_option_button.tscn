@@ -1,0 +1,4 @@
+[gd_scene format=3 uid="uid://b3of0rcieov23"]
+
+[node name="ProjectVersionsOptionButton" type="OptionButton"]
+size_flags_horizontal = 3

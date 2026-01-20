@@ -140,7 +140,13 @@ func _on_edit_project_button_pressed() -> void:
 
 
 func _on_new_project_button_pressed() -> void:
-	DisplayServer.dialog_show("TODO", "This feature is under development", ["OK"], Callable())
+	hide()
+	var create_dlg: CreateProjectDialog = preload("uid://b1kit4646fm5f").instantiate()
+	get_parent().add_child(create_dlg)
+	create_dlg.popup_centered()
+	await create_dlg.closed
+	create_dlg.queue_free()
+	popup_centered()
 
 
 func _clear_ui() -> void:
