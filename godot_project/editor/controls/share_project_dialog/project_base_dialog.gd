@@ -13,10 +13,17 @@ var _collaborator_name_line_edit: LineEdit
 var _collaborator_email_line_edit: LineEdit
 var _add_collaborator_button: Button
 var _project_versions_option_button: OptionButton
+var _retract_version_button: Button
+var _retracted_info_label: InfoLabel
+var _version_description_text_edit: TextEdit
 var _thumbnail_texture_rect: TextureRect
 
 var _tag_labels: Dictionary[String, TagLabel]
 var _collaborator_labels: Dictionary[String, CollaboratorLabel]
+var _tags_changed: bool = false
+var _collaborators_changed: bool = false
+
+
 
 
 func _notification(what: int) -> void:
@@ -33,6 +40,9 @@ func _notification(what: int) -> void:
 		_collaborator_email_line_edit = %CollaboratorEmailLineEdit as LineEdit
 		_add_collaborator_button = %AddCollaboratorButton as Button
 		_project_versions_option_button = %ProjectVersionsOptionButton as OptionButton
+		_retract_version_button = %RetractVersionButton as Button
+		_retracted_info_label = %RetractedInfoLabel as InfoLabel
+		_version_description_text_edit = %VersionDescriptionTextEdit as TextEdit
 		_thumbnail_texture_rect = %ThumbnailTextureRect as TextureRect
 
 
@@ -52,6 +62,7 @@ func _on_about_to_popup() -> void:
 	_update_owners_list()
 
 
+# OVERRIDABLE
 func _update_owners_list() -> void:
 	_owner_option_button.clear()
 	_owner_option_button.text = MolecularEditorContext.authenticator.get_username()
@@ -72,11 +83,14 @@ func _on_add_tag_button_pressed() -> void:
 	_tag_labels[tag_name] = TagLabel.create_tag(tag_name)
 	_tag_labels[tag_name].erase_requested.connect(_on_erase_tag.bind(tag_name))
 	_tags_list_container.add_child(_tag_labels[tag_name])
+	_tags_changed = true
+	_new_tag_line_edit.grab_focus.call_deferred()
 
 
 func _on_erase_tag(in_tag_name: String) -> void:
 	_tag_labels[in_tag_name].queue_free()
 	_tag_labels.erase(in_tag_name)
+	_tags_changed = true
 
 
 func _on_add_collaborator_button_pressed() -> void:
@@ -101,9 +115,12 @@ func _on_add_collaborator_button_pressed() -> void:
 	_collaborator_labels[formatted] = CollaboratorLabel.create_collaborator(collaborator_name, collaborator_email)
 	_collaborator_labels[formatted].erase_requested.connect(_on_erase_collaborator.bind(formatted))
 	_collaborators_list_container.add_child(_collaborator_labels[formatted])
+	_collaborator_name_line_edit.grab_focus.call_deferred()
+	_collaborators_changed = true
 
 
 func _on_erase_collaborator(in_collab_name: String) -> void:
 	_collaborator_labels[in_collab_name].queue_free()
 	_collaborator_labels.erase(in_collab_name)
+	_collaborators_changed = true
 

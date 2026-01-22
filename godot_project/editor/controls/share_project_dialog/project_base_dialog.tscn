@@ -1,14 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://bualr4d7femgp"]
+[gd_scene load_steps=6 format=3 uid="uid://bualr4d7femgp"]
 
 [ext_resource type="Script" uid="uid://cyuwbhug0tsak" path="res://editor/controls/share_project_dialog/project_base_dialog.gd" id="1_cxcci"]
 [ext_resource type="PackedScene" uid="uid://b3of0rcieov23" path="res://editor/controls/share_project_dialog/controls/project_versions_option_button.tscn" id="1_dsm7m"]
 [ext_resource type="Texture2D" uid="uid://bpkx70rl1xv4t" path="res://editor/controls/welcome_page/controls/default_background.png" id="1_j0wc1"]
+[ext_resource type="Texture2D" uid="uid://diyol41er8tbb" path="res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/icons/icon_delete.svg" id="3_cxcci"]
+[ext_resource type="Script" uid="uid://3hjuxktmfb16" path="res://editor/controls/general/info_label.gd" id="4_s3qwi"]
 
 [node name="ProjectDialog" type="ConfirmationDialog"]
 title = "Project"
 position = Vector2i(0, 36)
-size = Vector2i(898, 551)
+size = Vector2i(898, 580)
 visible = true
+max_size = Vector2i(32768, 580)
 dialog_hide_on_ok = false
 dialog_close_on_escape = false
 script = ExtResource("1_cxcci")
@@ -17,8 +20,9 @@ script = ExtResource("1_cxcci")
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 888.0
-offset_bottom = 504.0
+offset_bottom = 533.0
 size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="GridContainer" type="GridContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -31,6 +35,7 @@ text = "Owner"
 [node name="OwnerOptionButton" type="OptionButton" parent="VBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="VBoxContainer/GridContainer"]
 layout_mode = 2
@@ -76,6 +81,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 placeholder_text = "Project description here..."
+wrap_mode = 1
 
 [node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
@@ -132,12 +138,16 @@ layout_mode = 2
 [node name="CollaboratorLabel" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer/CollaboratorsListContainer" instance_placeholder="res://editor/controls/share_project_dialog/controls/collaborator_label.tscn"]
 layout_mode = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer/HBoxContainer2"]
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer"]
 layout_mode = 2
-text = "New Collaborator"
+theme_type_variation = &"TooltipLabel"
+text = "Add Collaborator:"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer"]
+layout_mode = 2
 
 [node name="CollaboratorNameLineEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
@@ -177,6 +187,16 @@ text = "Versions"
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="RetractVersionButton" type="Button" parent="VBoxContainer/HBoxContainer/VersionsContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(27, 27)
+layout_mode = 2
+tooltip_text = "Retract this version"
+focus_mode = 0
+theme_type_variation = &"EraseTagButton"
+icon = ExtResource("3_cxcci")
+icon_alignment = 1
+
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer"]
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
@@ -184,16 +204,29 @@ theme_type_variation = &"SubcategoryPanel"
 [node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer"]
 layout_mode = 2
 
+[node name="RetractedInfoLabel" type="RichTextLabel" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/shake] This version has been retracted[/center]"
+fit_content = true
+script = ExtResource("4_s3qwi")
+message = &"This version has been retracted"
+metadata/_custom_type_script = "uid://3hjuxktmfb16"
+
 [node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 text = "Description"
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 theme_type_variation = &"SubcategoryPanel"
 
 [node name="VersionDescriptionTextEdit" type="TextEdit" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer/PanelContainer"]
+unique_name_in_owner = true
 layout_mode = 2
+placeholder_text = "Project description here"
 wrap_mode = 1
 scroll_fit_content_height = true
 

@@ -80,9 +80,7 @@ func _on_project_selected(project_data_or_empty: Dictionary) -> void:
 	_description_label.show()
 	_description_label.text = project_data_or_empty.description
 	_update_tags(_existing_project_option_button.get_selected_project_tags_async())
-
 	_update_collaborators(_existing_project_option_button.get_selected_project_collaborators_async())
-	# TODO
 
 
 func _update_tags(in_promise: Promise) -> void:
@@ -136,17 +134,30 @@ func _update_collaborators(in_promise: Promise) -> void:
 
 
 func _on_edit_project_button_pressed() -> void:
-	DisplayServer.dialog_show("TODO", "This feature is under development", ["OK"], Callable())
+	if _selected_project_data.is_empty():
+		return
+	hide()
+	var edit_dlg: EditProjectDialog = load("uid://610gl77d6ye").instantiate()
+	get_parent().add_child(edit_dlg)
+	edit_dlg.popup_centered.call_deferred(edit_dlg.size)
+	edit_dlg.set_project_data(
+		_selected_project_data,
+		_existing_project_option_button.get_selected_project_tags_async(),
+		_existing_project_option_button.get_selected_project_collaborators_async()
+	)
+	await edit_dlg.closed
+	edit_dlg.queue_free()
+	popup_centered.call_deferred(size)
 
 
 func _on_new_project_button_pressed() -> void:
 	hide()
-	var create_dlg: CreateProjectDialog = preload("uid://b1kit4646fm5f").instantiate()
+	var create_dlg: CreateProjectDialog = load("uid://b1kit4646fm5f").instantiate()
 	get_parent().add_child(create_dlg)
-	create_dlg.popup_centered()
+	create_dlg.popup_centered.call_deferred(create_dlg.size)
 	await create_dlg.closed
 	create_dlg.queue_free()
-	popup_centered()
+	popup_centered.call_deferred(size)
 
 
 func _clear_ui() -> void:
@@ -162,18 +173,6 @@ func _clear_ui() -> void:
 	for collab in _collaborators:
 		collab.queue_free()
 	_collaborators.clear()
-	
-
-
-# OVERRIDE
-func _on_confirmed() -> void:
-	# TODO: Upload the file and run rest apis
-	super._on_confirmed()
-
-
-# OVERRIDE
-func _on_canceled() -> void:
-	super._on_canceled()
 
 
 func _on_about_to_popup() -> void:

@@ -27,7 +27,11 @@ func _init(in_method: HTTPClient.Method, subpath: String, request_body: String =
 	var authenticator: MsepOnlineAuthenticator = MolecularEditorContext.authenticator
 	headers.append_array(authenticator.get_authentication_headers())
 	
-	url = _get_base_url() + subpath
+	if subpath.begins_with("http://") or subpath.begins_with("https://"):
+		# Is a full path, in example the url of an image or binary file
+		url = subpath
+	else:
+		url = _get_base_url() + subpath
 	const METHODS = {
 		HTTPClient.Method.METHOD_GET : "GET",
 		HTTPClient.Method.METHOD_HEAD : "HEAD",
