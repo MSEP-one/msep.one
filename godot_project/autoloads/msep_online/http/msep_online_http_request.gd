@@ -8,11 +8,11 @@ var method: String
 var _promise := Promise.new()
 
 
-func _is_using_stub_service() -> bool:
+static func _is_using_stub_service() -> bool:
 	return FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_MSEP_ONLINE_STUB_SERVICE)
 
 
-func _get_base_url() -> String:
+static func get_base_url() -> String:
 	if _is_using_stub_service():
 		return ProjectSettings.get_setting_with_override("msep/msep_online/test_baseurl") + "/"
 	return ProjectSettings.get_setting_with_override("msep/msep_online/baseurl") + "/"
@@ -31,7 +31,7 @@ func _init(in_method: HTTPClient.Method, subpath: String, request_body: String =
 		# Is a full path, in example the url of an image or binary file
 		url = subpath
 	else:
-		url = _get_base_url() + subpath
+		url = get_base_url() + subpath
 	const METHODS = {
 		HTTPClient.Method.METHOD_GET : "GET",
 		HTTPClient.Method.METHOD_HEAD : "HEAD",

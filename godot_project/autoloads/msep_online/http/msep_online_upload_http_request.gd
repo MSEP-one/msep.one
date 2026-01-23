@@ -15,7 +15,7 @@ func _init(upload_url: String, file: FileAccess) -> void:
 	headers.append_array(authenticator.get_authentication_headers())
 	file.seek(0)
 	_promise.set_meta(&"url", "URL: "+ method + " : " + upload_url)
-	if _is_using_stub_service() and _get_base_url().find("http://") == 0:
+	if _is_using_stub_service() and get_base_url().find("http://") == 0:
 		# Test server doesn't use a certificate
 		set_tls_options(TLSOptions.client_unsafe())
 	var error: Error = request_raw(

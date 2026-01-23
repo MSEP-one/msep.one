@@ -13,6 +13,11 @@ static func create(url: String, fallback: Texture2D) -> DownloadableTexture:
 	return _avatar_cache[url]
 
 
+static func create_thumbnail(uuid: String, fallback: Texture2D) -> DownloadableTexture:
+	var url: String = MsepOnlineHTTPRequest.get_base_url() + "v/%s/thumbnail" % uuid
+	return create(url, fallback)
+
+
 static var _loading_texture_cache: Dictionary[Vector2i, Texture2D]
 static var _loading_gradient: Gradient
 static func get_loading_texture(size: Vector2i) -> Texture2D:
@@ -43,7 +48,8 @@ static func _handle_download_promise(
 	var extension: String = url.get_extension().to_lower()
 	var image := Image.new()
 	match extension:
-		"png":
+		"png", "":
+			# Empty extension is assumed to come from /v/:version_uuid/thumbnail endpoint
 			image.load_png_from_buffer(promise.get_result().raw_body)
 		"jpg", "jpeg":
 			image.load_jpg_from_buffer(promise.get_result().raw_body)
