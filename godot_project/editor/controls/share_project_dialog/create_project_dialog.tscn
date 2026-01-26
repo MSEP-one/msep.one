@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1kit4646fm5f"]
+
+[ext_resource type="PackedScene" uid="uid://bualr4d7femgp" path="res://editor/controls/share_project_dialog/project_base_dialog.tscn" id="1_8u053"]
+[ext_resource type="Script" uid="uid://dfc55osjwvoff" path="res://editor/controls/share_project_dialog/create_project_dialog.gd" id="2_6tbpp"]
+
+[node name="CreateProjectDialog" instance=ExtResource("1_8u053")]
+title = "Create Project"
+size = Vector2i(898, 440)
+ok_button_text = "Create"
+script = ExtResource("2_6tbpp")
+
+[node name="VBoxContainer" parent="." index="3"]
+offset_bottom = 393.0
+
+[node name="VersionsContainer" parent="VBoxContainer/HBoxContainer" index="1"]
+visible = false

@@ -1,0 +1,215 @@
+[gd_scene load_steps=4 format=3 uid="uid://bualr4d7femgp"]
+
+[ext_resource type="Script" uid="uid://cyuwbhug0tsak" path="res://editor/controls/share_project_dialog/project_base_dialog.gd" id="1_cxcci"]
+[ext_resource type="PackedScene" uid="uid://b3of0rcieov23" path="res://editor/controls/share_project_dialog/controls/project_versions_option_button.tscn" id="1_dsm7m"]
+[ext_resource type="Texture2D" uid="uid://bpkx70rl1xv4t" path="res://editor/controls/welcome_page/controls/default_background.png" id="1_j0wc1"]
+
+[node name="ProjectDialog" type="ConfirmationDialog"]
+title = "Project"
+position = Vector2i(0, 36)
+size = Vector2i(898, 551)
+visible = true
+dialog_hide_on_ok = false
+dialog_close_on_escape = false
+script = ExtResource("1_cxcci")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 888.0
+offset_bottom = 504.0
+size_flags_horizontal = 3
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label2" type="Label" parent="VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Owner"
+
+[node name="OwnerOptionButton" type="OptionButton" parent="VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Name"
+
+[node name="NameLineEdit" type="LineEdit" parent="VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "formated name: "
+horizontal_alignment = 2
+
+[node name="FormatedNameLabel" type="Label" parent="VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label5" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Description"
+
+[node name="DescriptionTextEdit" type="TextEdit" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+placeholder_text = "Project description here..."
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Tags"
+
+[node name="PanelContainer4" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer4"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TagsListContainer" type="HFlowContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer4/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TagLabel" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer4/VBoxContainer/TagsListContainer" instance_placeholder="res://editor/controls/share_project_dialog/controls/tag_label.tscn"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer4/VBoxContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="NewTagLineEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer4/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+placeholder_text = "new tag"
+
+[node name="AddTagButton" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer4/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 0)
+layout_mode = 2
+theme_type_variation = &"EraseTagButton"
+text = "+"
+
+[node name="Label7" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Collaborators"
+
+[node name="PanelContainer3" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="CollaboratorsListContainer" type="HFlowContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CollaboratorLabel" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer/CollaboratorsListContainer" instance_placeholder="res://editor/controls/share_project_dialog/controls/collaborator_label.tscn"]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "New Collaborator"
+
+[node name="CollaboratorNameLineEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "name"
+caret_blink = true
+caret_blink_interval = 0.5
+
+[node name="CollaboratorEmailLineEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "email"
+caret_blink = true
+caret_blink_interval = 0.5
+
+[node name="AddCollaboratorButton" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer3/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 0)
+layout_mode = 2
+theme_type_variation = &"EraseTagButton"
+text = "+"
+
+[node name="VersionsContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer"]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="VBoxContainer/HBoxContainer/VersionsContainer/HBoxContainer"]
+layout_mode = 2
+text = "Versions"
+
+[node name="ProjectVersionsOptionButton" parent="VBoxContainer/HBoxContainer/VersionsContainer/HBoxContainer" instance=ExtResource("1_dsm7m")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Description"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VersionDescriptionTextEdit" type="TextEdit" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Thumbnail"
+
+[node name="PanelContainer2" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="ThumbnailTextureRect" type="TextureRect" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer/PanelContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(426, 240)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_j0wc1")
+expand_mode = 1
+stretch_mode = 5
