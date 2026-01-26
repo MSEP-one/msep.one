@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://cci1smteq0sjk"]
+
+[ext_resource type="PackedScene" uid="uid://rp5yqpl1d0rh" path="res://editor/controls/share_project_dialog/controls/tag_label.tscn" id="1_juupa"]
+[ext_resource type="Script" uid="uid://cjlsuw646fi2l" path="res://editor/controls/share_project_dialog/controls/collaborator_label.gd" id="2_q825e"]
+
+[node name="CollaboratorLabel" instance=ExtResource("1_juupa")]
+script = ExtResource("2_q825e")
+
+[node name="Label" parent="HBoxContainer" index="0"]
+text = "johndoe <john.doe@example.com>"
+
+[node name="EraseAnimationPlayer" parent="HBoxContainer/EraseButton" index="1"]
+autoplay = "RESET"

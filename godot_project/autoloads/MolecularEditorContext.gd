@@ -12,6 +12,7 @@ signal workspace_closed(workspace: Workspace)
 
 var msep_editor_settings: MSEPSettings = null
 var authenticator: MsepOnlineAuthenticator
+var msep_online_service: MsepOnlineService
 
 var _clipboard: NanoEditorClipboard
 
@@ -38,6 +39,7 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_open_contexts_holder = get_node("WorkspaceContextsHolder")
 		authenticator = %MsepOnlineAuthenticator
+		msep_online_service = %MsepOnlineService
 	if what == NOTIFICATION_PREDELETE:
 		if msep_editor_settings != null:
 			msep_editor_settings.save_settings()
