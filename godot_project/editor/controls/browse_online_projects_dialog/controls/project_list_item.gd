@@ -1,7 +1,7 @@
 extends VBoxContainer
 
 
-signal import_button_pressed(project_data: Dictionary, version_number: int)
+signal import_button_pressed(project_data: Dictionary, version_uuid: String)
 
 
 const _FALLBACK_THUMBNAIL: Texture2D = preload("uid://bpkx70rl1xv4t")
@@ -75,6 +75,14 @@ func _notification(what: int) -> void:
 		_see_more_button = %SeeMoreButton as RichTextLabel
 		_import_button = %ImportButton as Button
 		_animation_player = %AnimationPlayer as AnimationPlayer
+
+
+func notify_download_started() -> void:
+	_import_button.disabled = true
+
+
+func notify_download_ended() -> void:
+	_on_project_versions_option_button_version_changed(_project_versions_option_button.get_selected_id())
 
 
 func _ready() -> void:
@@ -163,7 +171,9 @@ func _on_project_versions_option_button_version_changed(in_version_number: int) 
 
 func _on_import_button_pressed() -> void:
 	var version_number: int = _project_versions_option_button.get_selected_id()
-	import_button_pressed.emit(_project_data, version_number)
+	var version_data: Dictionary = _project_versions_option_button.get_version_data(version_number)
+	var version_uuid: String = version_data.get("uuid", "")
+	import_button_pressed.emit(_project_data, version_uuid)
 
 
 func _update_separator() -> void:

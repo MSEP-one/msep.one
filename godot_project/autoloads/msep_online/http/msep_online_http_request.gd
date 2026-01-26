@@ -5,7 +5,7 @@ extends HTTPRequest
 var url: String
 var method: String
 
-var _promise := Promise.new()
+var _promise := DownloadPromise.new(self)
 
 
 static func _is_using_stub_service() -> bool:
@@ -52,7 +52,7 @@ func _init(in_method: HTTPClient.Method, subpath: String, request_body: String =
 		queue_free()
 
 
-func get_promise() -> Promise:
+func get_promise() -> DownloadPromise:
 	return _promise
 
 
