@@ -452,6 +452,11 @@ func download_project_version(uuid: String) -> Promise:
 func get_project_version_thumbnail(uuid: String) -> Promise:
 	var url: String = "v/%s/thumbnail" % uuid
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
+
+
+## A generic endpoint for downloading an image to ram
+func download_image(url: String) -> Promise:
+	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 #endregion : Version Permalink Endpoints
 
 

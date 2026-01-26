@@ -1,4 +1,7 @@
-[gd_scene format=3 uid="uid://b3of0rcieov23"]
+[gd_scene load_steps=2 format=3 uid="uid://b3of0rcieov23"]
+
+[ext_resource type="Script" uid="uid://dwhgjlult3lrs" path="res://editor/controls/share_project_dialog/controls/project_versions_option_button.gd" id="1_731xv"]
 
 [node name="ProjectVersionsOptionButton" type="OptionButton"]
 size_flags_horizontal = 3
+script = ExtResource("1_731xv")

@@ -1,0 +1,52 @@
+[gd_scene load_steps=4 format=3 uid="uid://610gl77d6ye"]
+
+[ext_resource type="PackedScene" uid="uid://bualr4d7femgp" path="res://editor/controls/share_project_dialog/project_base_dialog.tscn" id="1_v367c"]
+[ext_resource type="Script" uid="uid://dkl8hk8amii33" path="res://editor/controls/share_project_dialog/edit_project_dialog.gd" id="2_7cllp"]
+[ext_resource type="Script" uid="uid://bedfpdhraymiu" path="res://editor/controls/general/nano_accept_dialog.gd" id="3_7cllp"]
+
+[node name="EditProjectDialog" instance=ExtResource("1_v367c")]
+title = "Edit Project"
+script = ExtResource("2_7cllp")
+
+[node name="Label" parent="VBoxContainer/GridContainer" index="2"]
+visible = false
+
+[node name="NameLineEdit" parent="VBoxContainer/GridContainer" index="3"]
+visible = false
+
+[node name="ConfirmRetractDialog" type="ConfirmationDialog" parent="." index="4"]
+unique_name_in_owner = true
+title = "Retract Project Version"
+position = Vector2i(200, 200)
+size = Vector2i(495, 191)
+visible = true
+ok_button_text = "Proceed"
+cancel_button_text = "Abort"
+script = ExtResource("3_7cllp")
+
+[node name="MarginContainer" type="MarginContainer" parent="ConfirmRetractDialog" index="3"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 485.0
+offset_bottom = 144.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ConfirmRetractDialog/MarginContainer" index="0"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="ConfirmRetractDialog/MarginContainer/VBoxContainer" index="0"]
+layout_mode = 2
+text = "By retracting this version, it will no longer be downloadable by others.
+
+If you choose to retract it, please let us know why. (Optional)"
+
+[node name="RetractReasonTextEdit" type="TextEdit" parent="ConfirmRetractDialog/MarginContainer/VBoxContainer" index="1"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Reason"
+wrap_mode = 1
+scroll_fit_content_height = true
