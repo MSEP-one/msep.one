@@ -56,6 +56,8 @@ func abort() -> void:
 		return
 	OS.kill(_pid)
 	_dispose_video_file(_pid, _filename)
+	_pid = 0
+
 
 static func _dispose_video_file(child_pid: int, filename: String) -> void:
 	while OS.is_process_running(child_pid):
@@ -87,6 +89,8 @@ func _flush_pipes() -> void:
 
 
 func add_frame(in_image: Image) -> void:
+	if not is_running():
+		return
 	_flush_pipes()
 	_write_frame(in_image)
 
