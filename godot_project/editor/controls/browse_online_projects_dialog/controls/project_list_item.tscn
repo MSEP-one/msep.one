@@ -1,0 +1,407 @@
+[gd_scene load_steps=10 format=3 uid="uid://b0fq8rcdj6itm"]
+
+[ext_resource type="Script" uid="uid://cx17myk0nr6c3" path="res://editor/controls/browse_online_projects_dialog/controls/project_list_item.gd" id="1_kwfo3"]
+[ext_resource type="PackedScene" uid="uid://b3of0rcieov23" path="res://editor/controls/share_project_dialog/controls/project_versions_option_button.tscn" id="2_lxhj2"]
+
+[sub_resource type="Gradient" id="Gradient_nouv2"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ks18y"]
+gradient = SubResource("Gradient_nouv2")
+width = 240
+height = 135
+
+[sub_resource type="LabelSettings" id="LabelSettings_w5wox"]
+outline_size = 8
+outline_color = Color(0.166, 0.166, 0.166, 1)
+
+[sub_resource type="Animation" id="Animation_7cciw"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/CollaboratorsTitleLabel:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/CollaboratorsListContainer:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/ProjectVersionsTitleLabel:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/VersionDescriptionTitleLabel:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/VersionDescriptionLabel:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("HBoxContainer/VBoxContainer/SeeMoreButton:text")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["	[url]see more[/url]"]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/ProjectVersionsOptionButton:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_kwfo3"]
+resource_name = "see_less"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/CollaboratorsTitleLabel:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/CollaboratorsListContainer:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/ProjectVersionsTitleLabel:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/VersionDescriptionTitleLabel:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/VersionDescriptionLabel:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("HBoxContainer/VBoxContainer/SeeMoreButton:text")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["	[url]see more[/url]"]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/ProjectVersionsOptionButton:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_bo1se"]
+resource_name = "see_more"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/CollaboratorsTitleLabel:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/CollaboratorsListContainer:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/ProjectVersionsTitleLabel:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/VersionDescriptionTitleLabel:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("HBoxContainer/VBoxContainer/GridContainer/VersionDescriptionLabel:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("HBoxContainer/VBoxContainer/SeeMoreButton:text")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["	[url]see less[/url]"]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_lxhj2"]
+_data = {
+&"RESET": SubResource("Animation_7cciw"),
+&"see_less": SubResource("Animation_kwfo3"),
+&"see_more": SubResource("Animation_bo1se")
+}
+
+[node name="ProjectListItem" type="VBoxContainer"]
+offset_right = 686.0
+offset_bottom = 186.0
+script = ExtResource("1_kwfo3")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ThumbnailTextureRect" type="TextureRect" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 135)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = SubResource("GradientTexture2D_ks18y")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="NameLabel" type="Label" parent="HBoxContainer/ThumbnailTextureRect"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -18.3333
+grow_horizontal = 2
+grow_vertical = 0
+text = "name"
+label_settings = SubResource("LabelSettings_w5wox")
+text_overrun_behavior = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GridContainer" type="GridContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label1" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "· Owner:"
+
+[node name="OwnerLabel" type="RichTextLabel" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TooltipLabel"
+bbcode_enabled = true
+text = "[url]nanoforge[/url]"
+fit_content = true
+
+[node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+text = "· Description:"
+
+[node name="DescriptionLabel" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[description]"
+
+[node name="TagsTitleLabel" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+text = "· Tags:"
+
+[node name="TagsListContainer" type="HFlowContainer" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TagLabel" parent="HBoxContainer/VBoxContainer/GridContainer/TagsListContainer" instance_placeholder="res://editor/controls/share_project_dialog/controls/tag_label.tscn"]
+layout_mode = 2
+
+[node name="CollaboratorsTitleLabel" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "· Collaborators:"
+
+[node name="CollaboratorsListContainer" type="HFlowContainer" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ProjectVersionsTitleLabel" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "· Version:"
+
+[node name="ProjectVersionsOptionButton" parent="HBoxContainer/VBoxContainer/GridContainer" instance=ExtResource("2_lxhj2")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="VersionDescriptionTitleLabel" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "· Revision:"
+
+[node name="VersionDescriptionLabel" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "[revision]"
+
+[node name="SeeMoreButton" type="RichTextLabel" parent="HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "	[url]see more[/url]"
+fit_content = true
+
+[node name="ImportButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+theme_type_variation = &"CrystalButton"
+text = "Import"
+
+[node name="HSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries = {
+&"": SubResource("AnimationLibrary_lxhj2")
+}

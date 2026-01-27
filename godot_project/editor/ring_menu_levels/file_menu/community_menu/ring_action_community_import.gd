@@ -22,7 +22,4 @@ func get_icon() -> RingMenuIcon:
 
 func _execute_action() -> void:
 	_ring_menu.close()
-	DisplayServer.dialog_show.call_deferred(
-		"Unimplemented",
-		"Unimplemented option: PROJECT IMPORT",
-		["OK"], Callable())
+	WorkspaceUtils.open_browse_online_projects_dialog(_workspace_context)

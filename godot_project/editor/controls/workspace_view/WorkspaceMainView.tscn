@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bg20l6fpgvscg"]
+[gd_scene load_steps=25 format=3 uid="uid://bg20l6fpgvscg"]
 
 [ext_resource type="Script" uid="uid://caui0yo0weeow" path="res://editor/controls/workspace_view/WorkspaceMainView.gd" id="1_q2ex0"]
 [ext_resource type="PackedScene" uid="uid://dd2x0k2b74ok" path="res://editor/controls/editor_viewport_container/EditorViewportContainer.tscn" id="2_36m7k"]
@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="11_gkd3d"]
 [ext_resource type="PackedScene" uid="uid://dmiufmrvro7me" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.tscn" id="13_i5wbk"]
 [ext_resource type="PackedScene" uid="uid://ccg8on27b545r" path="res://editor/controls/share_project_dialog/share_project_dialog.tscn" id="15_y2kpq"]
+[ext_resource type="PackedScene" uid="uid://7djgql1k8ot7" path="res://editor/controls/browse_online_projects_dialog/browse_online_projects_dialog.tscn" id="16_hfo05"]
 [ext_resource type="PackedScene" uid="uid://chpep07gpvb5s" path="res://editor/controls/online_widget/online_widget.tscn" id="18_y2kpq"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_wc8in"]
@@ -167,6 +168,9 @@ visible = false
 visible = false
 
 [node name="ShareProjectDialog" parent="." instance=ExtResource("15_y2kpq")]
+visible = false
+
+[node name="BrowseOnlineProjectsDialog" parent="." instance=ExtResource("16_hfo05")]
 visible = false
 
 [node name="ToggleDockAreaVisibilityButtonLeft" parent="." instance=ExtResource("6_t7ym2")]

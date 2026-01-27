@@ -1,0 +1,118 @@
+[gd_scene load_steps=6 format=3 uid="uid://7djgql1k8ot7"]
+
+[ext_resource type="Script" uid="uid://dsr4te0p7sghd" path="res://editor/controls/browse_online_projects_dialog/browse_online_projects_dialog.gd" id="1_3ddy2"]
+[ext_resource type="Texture2D" uid="uid://bbs12w5lvns5j" path="res://editor/controls/dockers/workspace_docker/icons/icon_filter.svg" id="1_w5wox"]
+[ext_resource type="Texture2D" uid="uid://rd2bfyibhxsq" path="res://editor/controls/dockers/workspace_docker/icons/icon_sort.svg" id="2_ccyjm"]
+[ext_resource type="PackedScene" uid="uid://ievta3p7g0j" path="res://editor/controls/browse_online_projects_dialog/controls/loading_indicator.tscn" id="3_br1y1"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="5_nouv2"]
+
+[node name="BrowseOnlineProjectsDialog" type="AcceptDialog"]
+title = "Browse MSEP Online Projects"
+position = Vector2i(0, 36)
+size = Vector2i(800, 500)
+visible = true
+ok_button_text = "Close"
+script = ExtResource("1_3ddy2")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 790.0
+offset_bottom = 453.0
+
+[node name="GridContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Search:"
+
+[node name="SearchLineEdit" type="LineEdit" parent="VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "🔍"
+
+[node name="SortMenuButton" type="MenuButton" parent="VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Updated"
+icon = ExtResource("2_ccyjm")
+item_count = 4
+popup/item_0/text = "Updated"
+popup/item_0/id = 0
+popup/item_1/text = "First Created"
+popup/item_1/id = 1
+popup/item_2/text = "Author"
+popup/item_2/id = 2
+popup/item_3/text = "Trending"
+popup/item_3/id = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="TagsMenuButton" type="MenuButton" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "tags"
+icon = ExtResource("1_w5wox")
+
+[node name="FilterTagsContainer" type="HFlowContainer" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_right = 8
+
+[node name="ClearSearchLabel" type="Label" parent="VBoxContainer/ScrollContainer/MarginContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 1
+text = "Search something to start"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LoadingIndicator" parent="VBoxContainer/ScrollContainer/MarginContainer" instance=ExtResource("3_br1y1")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ErrorInfoLabel" parent="VBoxContainer/ScrollContainer/MarginContainer" instance=ExtResource("5_nouv2")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="ProjectListContainer" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ProjectListItem" parent="VBoxContainer/ScrollContainer/MarginContainer/ProjectListContainer" instance_placeholder="res://editor/controls/browse_online_projects_dialog/controls/project_list_item.tscn"]
+layout_mode = 2
+
+[node name="ProjectListItem2" parent="VBoxContainer/ScrollContainer/MarginContainer/ProjectListContainer" instance_placeholder="res://editor/controls/browse_online_projects_dialog/controls/project_list_item.tscn"]
+layout_mode = 2
+
+[node name="ProjectListItem3" parent="VBoxContainer/ScrollContainer/MarginContainer/ProjectListContainer" instance_placeholder="res://editor/controls/browse_online_projects_dialog/controls/project_list_item.tscn"]
+layout_mode = 2
+
+[node name="PaginationLabel" type="RichTextLabel" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][url]1[/url], [url]2[/url] .. [url]40[/url][/center]"
+fit_content = true
