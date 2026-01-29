@@ -24,7 +24,6 @@ const INVALID_CONTROL_POINT_IDX: int = -1
 
 @export var _curve: Curve3D:
 	set = _set_curve
-@export var _twists_offset_radians: float
 @export var _sequence: String
 @export var _parameters: DnaStructureParameters
 @export var _edit_mode := EditMode.SequenceAndPath
@@ -432,7 +431,7 @@ func get_backbone_transform(in_strand: Strand, in_base_index: int) -> Transform3
 
 func get_base_twist_rad(in_strand: Strand, in_base_index: int) -> float:
 	var rad_per_base: float = deg_to_rad(360) / _parameters.bases_per_turn
-	var angle: float = (rad_per_base * in_base_index) + _twists_offset_radians
+	var angle: float = (rad_per_base * in_base_index) + _parameters.initial_twist_rad
 	if in_strand == Strand.B:
 		angle += deg_to_rad(180)
 	return angle
@@ -1404,7 +1403,6 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["script.resource_path"] = get_script().resource_path
 	state_snapshot["_edit_mode"] = _edit_mode
 	state_snapshot["_curve"] = _create_curve_snapshot()
-	state_snapshot["_twists_offset_radians"] = _twists_offset_radians
 	state_snapshot["_sequence"] = _sequence
 	state_snapshot["_parameters"] = _parameters.create_state_snapshot()
 	state_snapshot["_base_transform_cache"] = _base_transform_cache.duplicate()
@@ -1426,7 +1424,6 @@ func create_state_snapshot() -> Dictionary:
 func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_edit_mode = in_state_snapshot["_edit_mode"]
 	_set_curve_snapshot(in_state_snapshot["_curve"])
-	_twists_offset_radians = in_state_snapshot["_twists_offset_radians"]
 	_sequence = in_state_snapshot["_sequence"]
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters"])
 	_base_transform_cache = in_state_snapshot["_base_transform_cache"].duplicate()
