@@ -850,6 +850,12 @@ func get_valid_bonds() -> PackedInt32Array:
 	if _edit_mode != EditMode.AtomsAndBonds:
 		return []
 	
+	if get_strand_policy() != StrandPolicy.DOUBLE:
+		var strand: Strand = get_strands()[0]
+		if _bonds_ids_cache.get(strand, []).is_empty():
+			_bonds_ids_cache[strand] = get_bond_ids_for_strand(strand)
+		return _bonds_ids_cache[strand]
+	
 	if not _bonds_ids_cache.get(Strand.BOTH, []).is_empty():
 		return _bonds_ids_cache[Strand.BOTH]
 	
