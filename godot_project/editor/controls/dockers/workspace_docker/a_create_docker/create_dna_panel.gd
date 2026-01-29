@@ -58,6 +58,7 @@ func _on_create_button_pressed() -> void:
 	params.dna_radius_nanometers = _dna_radius_spin_box_slider.value
 	params.bases_per_turn = _bases_per_turn_spin_box_slider.value
 	params.rise_nanometers = _rise_nanometers_spin_box_slider.value
+	params.initial_twist_rad = deg_to_rad(_initial_twist_spin_box_slider.value)
 	var strand_button: Button = _strand_a_button.button_group.get_pressed_button()
 	match strand_button:
 		_strand_a_button:
