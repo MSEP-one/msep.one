@@ -50,6 +50,10 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 				Type.READ_WRITE_PROPERTIES:
 					var editor: Control = NanoShapeUtils.create_shape_property_editor(property, true)
 					shape_dimensions[prop_name.capitalize() + suffix] = editor
+	elif nano_structure is DnaStructure:
+		for control_point: int in structure_context.get_selected_dna_spline_countrol_points():
+			const ALWAYS_EDITABLE = SelectionInfo.Type.READ_WRITE_PROPERTIES
+			info["Control Point #%d" % control_point] = {"": _create_dna_control_point_position_property(ALWAYS_EDITABLE, structure_context, control_point)}
 	elif nano_structure is NanoVirtualMotor and structure_context.is_motor_selected():
 		info["Position" + distance_unit] = {"": _create_virtual_object_position_property(in_info_type, structure_context)}
 		info["Rotation (degrees)"] = {"": _create_virtual_object_rotation_property(in_info_type, structure_context)}
@@ -192,6 +196,26 @@ static func _create_position_property(in_info_type: Type, in_structure_context: 
 			return vector3_ui
 
 
+static func _create_dna_control_point_position_property(in_info_type: Type, in_structure_context: StructureContext, control_point: int) -> Variant:
+	var dna_structure: DnaStructure = in_structure_context.nano_structure as DnaStructure
+	assert(dna_structure != null)
+	match in_info_type:
+		Type.RAW:
+			return dna_structure.get_control_point_position(control_point)
+		Type.READ_ONLY_PROPERTIES, Type.READ_WRITE_PROPERTIES, _:
+			var vector3_ui: InspectorControlVector3 = InspectorControlVector3Scene.instantiate()
+			var setter_helper := SetDnastructureControlPointPositionHelper.new(in_structure_context, control_point)
+			vector3_ui.set_meta(&"setter_helper", setter_helper) # keep setter_helper reference alive
+			vector3_ui.setup(
+				# getter
+				dna_structure.get_control_point_position.bind(control_point),
+				# setter
+				setter_helper.set_position,
+			)
+			vector3_ui.set_editable(in_info_type == Type.READ_WRITE_PROPERTIES)
+			return vector3_ui
+
+
 static func _create_virtual_object_position_property(in_info_type: Type, in_structure_context: StructureContext) -> Variant:
 	match in_info_type:
 		Type.RAW:
@@ -299,6 +323,28 @@ class SetNanostructureAtomPositionHelper:
 	
 	func store_undo_snapshot() -> void:
 		var snapshot_name: String = "Set Atom %d Pos" % (_atom_id)
+		_structure_context.workspace_context.snapshot_moment(snapshot_name)
+
+
+class SetDnastructureControlPointPositionHelper:
+	var _structure_context: StructureContext = null
+	var _control_point: int = DnaStructure.INVALID_CONTROL_POINT_IDX
+	
+	
+	func _init(in_structure_context: StructureContext, in_control_point: int) -> void:
+		_structure_context = in_structure_context
+		_control_point = in_control_point
+	
+	
+	func set_position(in_new_position: Vector3) -> void:
+		var dna_structure: DnaStructure = _structure_context.nano_structure as DnaStructure
+		dna_structure.start_edit()
+		dna_structure.set_control_point_position(_control_point, in_new_position)
+		dna_structure.end_edit()
+	
+	
+	func store_undo_snapshot() -> void:
+		var snapshot_name: String = "Set Control Point %d Pos" % (_control_point)
 		_structure_context.workspace_context.snapshot_moment(snapshot_name)
 
 
