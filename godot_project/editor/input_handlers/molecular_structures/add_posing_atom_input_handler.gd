@@ -516,8 +516,6 @@ func _should_show(ignore_create_mode: bool = false) -> bool:
 		return false
 	if parameters.get_create_mode_type() != CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS:
 		return false
-	if not _is_valid_representation():
-		return false
 	if _is_shortcut_pressed():
 		return true
 	if _is_other_shortcut_pressed():
@@ -541,14 +539,6 @@ func _is_other_shortcut_pressed() -> bool:
 		Input.is_key_pressed(KEY_CTRL) or
 		Input.is_key_pressed(KEY_META)
 	)
-
-func _is_valid_representation() -> bool:
-	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
-	const VALID_REPRESENTATIONS := [
-		Rendering.Representation.BALLS_AND_STICKS,
-		Rendering.Representation.ENHANCED_STICKS_AND_BALLS,
-	]
-	return VALID_REPRESENTATIONS.has(representation_settings.get_rendering_representation())
 
 
 ## Input handlers will execute _forward_input_* in an order dictated by this parameter
