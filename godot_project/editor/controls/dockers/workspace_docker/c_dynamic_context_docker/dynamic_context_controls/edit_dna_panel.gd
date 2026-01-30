@@ -36,6 +36,7 @@ func _notification(what: int) -> void:
 		_dna_radius_spin_box_slider.value_confirmed.connect(_on_dna_radius_spin_box_slider_value_confirmed)
 		_bases_per_turn_spin_box_slider.value_confirmed.connect(_on_bases_per_turn_spin_box_slider_value_confirmed)
 		_rise_nanometers_spin_box_slider.value_confirmed.connect(_on_rise_nanometers_spin_box_slider_value_confirmed)
+		_initial_twist_spin_box_slider.value_confirmed.connect(_on_initial_twist_spin_box_slider_value_confirmed)
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
 		_include_hydrogens_check_button.toggled.connect(_on_include_hydrogens_check_button_toggled)
 		_create_atoms_button.pressed.connect(_on_create_atoms_button_pressed)
@@ -93,7 +94,7 @@ func _on_history_changed() -> void:
 func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 	if in_structure_or_null == _tracked_structure:
 		return
-	if _tracked_structure != null:
+	if _tracked_structure != null and _tracked_structure.sequence_changed.is_connected(_on_tracked_structure_sequence_changed):
 		_tracked_structure.sequence_changed.disconnect(_on_tracked_structure_sequence_changed)
 	_tracked_structure = in_structure_or_null
 	if _tracked_structure != null and not _tracked_structure.sequence_changed.is_connected(_on_tracked_structure_sequence_changed):
@@ -225,6 +226,14 @@ func _on_rise_nanometers_spin_box_slider_value_confirmed(in_value: float) -> voi
 	_tracked_structure.set_rise_nanometers(in_value)
 	_tracked_structure.end_edit()
 	_workspace_context.snapshot_moment("Set Dna Rise per Base")
+
+
+func _on_initial_twist_spin_box_slider_value_confirmed(in_value: float) -> void:
+	assert(_tracked_structure != null)
+	_tracked_structure.start_edit()
+	_tracked_structure.set_initial_twist_rad(deg_to_rad(in_value))
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Initial Helix Twist")
 
 
 func _on_strand_policy_button_group_button_pressed(in_button: Button) -> void:

@@ -86,6 +86,19 @@ allow_greater = true
 suffix = "nm"
 custom_arrow_step = 0.05
 
+[node name="Label5" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
+layout_mode = 2
+text = "Twist"
+
+[node name="InitialTwistSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 360.0
+step = 0.01
+allow_greater = true
+suffix = "º"
+custom_arrow_step = 1.0
+
 [node name="Label2" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
 text = "Strands"
