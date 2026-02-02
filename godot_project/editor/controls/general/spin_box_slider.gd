@@ -12,6 +12,8 @@ signal value_confirmed(new_value: float)
 	set = set_spinbox_visible
 @export var slider_visible: bool = true:
 	set = set_slider_visible
+@export var slider_exp_edit: bool = false:
+	set = set_slider_exp_edit
 
 var _is_dragging: bool = false
 var _old_value: float = NAN
@@ -94,6 +96,11 @@ func _on_value_changed(in_value: float) -> void:
 func set_slider_visible(in_visible: bool) -> void:
 	slider_visible = in_visible
 	slider.visible = in_visible
+
+
+func set_slider_exp_edit(in_exp_edit: bool) -> void:
+	slider_exp_edit = in_exp_edit
+	slider.exp_edit = in_exp_edit
 
 
 func set_spinbox_visible(in_visible: bool) -> void:
