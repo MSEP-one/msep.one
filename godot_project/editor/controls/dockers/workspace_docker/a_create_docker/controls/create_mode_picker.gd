@@ -53,7 +53,7 @@ func _update_visibility_of_options() -> void:
 		_option_button.get_popup().remove_item(dna_chain_idx)
 	# 2. Add any desired option
 	if can_create_dna:
-		_option_button.get_popup().add_radio_check_item(tr("DNA Chain"), CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN)
+		_option_button.get_popup().add_radio_check_item(tr("DNA Object"), CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN)
 	if can_create_virtual_motors:
 		_option_button.get_popup().add_radio_check_item(tr("Virtual Motors"), CreateObjectParameters.CreateModeType.CREATE_VIRTUAL_MOTORS)
 	if can_create_particle_emitters:

@@ -212,8 +212,8 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 4
-text = "[center][wave start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/wave] Select only one DNA Chain at a time to edit it[/center]"
-message = &"Select only one DNA Chain at a time to edit it"
+text = "[center][wave start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/wave] Select only one DNA Object at a time to edit it[/center]"
+message = &"Select only one DNA Object at a time to edit it"
 effect = "wave"
 
 [node name="EditModeContainer" type="VBoxContainer" parent="VBoxContainer" index="0"]

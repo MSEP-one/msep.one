@@ -75,7 +75,7 @@ func _on_create_button_pressed() -> void:
 		DnaBuilder.DNA_BASES_OFFSET = %OffsetSpinBoxSlider.value
 
 	var dna: DnaStructure = DnaStructure.create_dna(params, _dna_sequence_text_edit.text)
-	dna.set_structure_name("DNA Chain%d" % _workspace_context.workspace.get_nmb_of_structures())
+	dna.set_structure_name("DNA Object%d" % _workspace_context.workspace.get_nmb_of_structures())
 	var dna_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
 	var right_dir: Vector3 = _workspace_context.get_editor_viewport().get_camera_3d().global_transform.basis.x
 	var chain_length: float = params.rise_nanometers * (_dna_sequence_text_edit.text.length() - 1)
@@ -88,7 +88,7 @@ func _on_create_button_pressed() -> void:
 	_workspace_context.clear_all_selection()
 	_workspace_context.get_structure_context(dna.int_guid).select_all()
 	WorkspaceUtils.focus_camera_on_aabb(_workspace_context, dna.get_aabb())
-	_workspace_context.snapshot_moment("Create DNA Chain")
+	_workspace_context.snapshot_moment("Create DNA Object")
 
 
 func _on_dna_sequence_text_edit_text_changed() -> void:

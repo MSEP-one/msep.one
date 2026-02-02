@@ -559,7 +559,7 @@ func _screen_selection_logic(
 				MultiStructureHitResult.HitType.HIT_DNA_PATH:
 					hit_context.select_all()
 					if not need_to_create_snapshot:
-						snapshot_name = "Select DNA Chain"
+						snapshot_name = "Select DNA Object"
 						need_to_create_snapshot = true
 				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
 					var hit_control_point: int = multi_structure_hit_result.closest_hit_dna_control_point_id
@@ -636,7 +636,7 @@ func _screen_deselection_logic(
 					var deselected_spring: PackedInt32Array = [deselected_spring_id]
 					hit_context.deselect_springs(deselected_spring)
 				MultiStructureHitResult.HitType.HIT_DNA_PATH:
-					snapshot_name = "Deselect DNA Chain"
+					snapshot_name = "Deselect DNA Object"
 					did_create_undo_action = true
 					hit_context.clear_selection()
 				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:

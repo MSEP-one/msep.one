@@ -1319,7 +1319,7 @@ func get_type() -> StringName:
 
 
 func get_readable_type() -> String:
-	return "DNA Chain"
+	return "DNA Object"
 
 
 func get_tooltip_text() -> String:
