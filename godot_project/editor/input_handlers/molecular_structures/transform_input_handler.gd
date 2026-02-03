@@ -446,6 +446,7 @@ func _force_gizmo_update() -> void:
 		GizmoRoot.setup_gizmo(_helper, structures_to_update.front().get_edit_subviewport())
 		var selection_size: int = 0
 		var has_transformable_objects_selected: bool = false
+		var has_dna_atoms_selected: bool = false
 		for context in structures_to_update:
 			var selection: PackedInt32Array = context.get_selected_atoms()
 			selection_size += selection.size()
@@ -456,12 +457,21 @@ func _force_gizmo_update() -> void:
 			elif context.is_anchor_selected():
 				selection_size += 1
 				# Anchors does not trigger `has_transformable_objects_selected = true` because they dont rotate
-			elif context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
-				selection_size += context.get_selected_dna_spline_countrol_points().size()
+			elif context.nano_structure is DnaStructure:
+				if context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+					selection_size += context.get_selected_dna_spline_countrol_points().size()
+				elif context.nano_structure.get_edit_mode() == DnaStructure.EditMode.AtomsAndBonds:
+					has_dna_atoms_selected = context.get_selected_atoms().size() > 0
+					if has_dna_atoms_selected:
+						_workspace_context.get_editor_viewport_container().show_warning_in_message_bar(
+							tr(&"Atoms in DNA objects cannot be edited.")
+						)
+						# The rest of the structures doesn't matter
+						break
 			elif context.is_dna_structure_fully_selected():
 				selection_size += (context.nano_structure as DnaStructure).get_control_point_count()
 		
-		if selection_size == 0:
+		if selection_size == 0 or has_dna_atoms_selected:
 			# Selection cannot be transformed
 			_hide_gizmo()
 			return
