@@ -35,7 +35,7 @@ func _test_msep_online() -> void:
 
 #region : Current User Endpoints
 ## Get current authenticated user metadata
-func get_me() -> Promise:
+func get_me()-> DownloadPromise:
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, "me").get_promise()
 
 
@@ -45,7 +45,7 @@ func put_me(
 		primary_email := OptionalString.empty(),
 		organization_affiliations := OptionalPackedStringArray.empty(),
 		username := OptionalString.empty(),
-	) -> Promise:
+	)-> DownloadPromise:
 	var body: Dictionary = {}
 	if bio.is_set:
 		body.bio = bio.value
@@ -59,23 +59,23 @@ func put_me(
 
 
 ## List all projects the current user can edit
-func get_me_editable() -> Promise:
+func get_me_editable()-> DownloadPromise:
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, "me/editable").get_promise()
 
 
 ## Projects where the current user is listed as a collaborator
-func get_me_credited() -> Promise:
+func get_me_credited()-> DownloadPromise:
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, "me/credited").get_promise()
 
 
 
 ## List projects you've opted out of being credited on
-func get_me_opted_out() -> Promise:
+func get_me_opted_out()-> DownloadPromise:
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, "me/opted-out").get_promise()
 
 
 ## Delete own account
-func delete_me(confirmation: String, reason: String) -> Promise:
+func delete_me(confirmation: String, reason: String)-> DownloadPromise:
 	var body: Dictionary = {
 		"confirmation" : confirmation,
 		"reason" : reason,
@@ -86,7 +86,7 @@ func delete_me(confirmation: String, reason: String) -> Promise:
 
 #region : File Upload Endpoints
 ## Request upload of user avatar
-func post_upload_user_avatar(file: FileAccess) -> Promise:
+func post_upload_user_avatar(file: FileAccess)-> DownloadPromise:
 	var file_path: String = file.get_path()
 	var extension: String = file_path.get_extension().to_lower()
 	if not _is_image_file(extension):
@@ -95,7 +95,7 @@ func post_upload_user_avatar(file: FileAccess) -> Promise:
 
 
 ## Request upload of project avatar
-func post_upload_project_avatar(in_namespace: String, project_name: String, file: FileAccess) -> Promise:
+func post_upload_project_avatar(in_namespace: String, project_name: String, file: FileAccess)-> DownloadPromise:
 	var file_path: String = file.get_path()
 	var extension: String = file_path.get_extension().to_lower()
 	if not _is_image_file(extension):
@@ -112,7 +112,7 @@ func _is_image_file(in_extension: String) -> bool:
 	return in_extension in ["png", "jpg", "jpeg"]
 
 
-func _invalid_image_file_promise() -> Promise:
+func _invalid_image_file_promise()-> DownloadPromise:
 	var fail := Promise.new()
 	fail.fail("Invalid image file format")
 	return fail
@@ -125,7 +125,7 @@ func _post_uploads(
 		content_type: String,
 		file: FileAccess,
 		additional_fields: Dictionary[String, String] = {}
-	) -> Promise:
+	)-> DownloadPromise:
 	var promise := Promise.new()
 	var body: Dictionary = {
 		"type" : type,
@@ -159,7 +159,7 @@ func _handle_upload(promise: Promise, create_url_promise: Promise, file: FileAcc
 
 #region : Namespace Endpoints
 ## Get public profile/landing page for a user or organization
-func get_namespace(in_namespace: String) -> Promise:
+func get_namespace(in_namespace: String)-> DownloadPromise:
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, in_namespace).get_promise()
 
 
@@ -169,7 +169,7 @@ func put_namespace(
 		bio := OptionalString.empty(),
 		primary_email := OptionalString.empty(),
 		organization_affiliations := OptionalPackedStringArray.empty()
-	) -> Promise:
+	)-> DownloadPromise:
 	var body: Dictionary = {}
 	if bio.is_set:
 		body.bio = bio.value
@@ -188,7 +188,7 @@ func get_namespace_projects(
 		sort:SortType = SortType.UPDATED,
 		page:     int = 1,
 		per_page: int = 20,
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects?page=%d&per_page=%d&sort=%s" % [
 		in_namespace, page, per_page, SORT_TYPE_STRING[sort]
 	]
@@ -202,7 +202,7 @@ func post_namespace_projects(
 		description: String,
 		collaborators: Array[Dictionary] = [],
 		tags: PackedStringArray = []
-	) -> Promise:
+	)-> DownloadPromise:
 	_validate_collaborators(collaborators)
 	
 	var url: String = "%s/projects" % in_namespace
@@ -216,7 +216,7 @@ func post_namespace_projects(
 
 
 ## Get project metadata
-func get_namespace_project(in_namespace: String, project_name: String) -> Promise:
+func get_namespace_project(in_namespace: String, project_name: String)-> DownloadPromise:
 	var url: String = "%s/projects/%s" % [in_namespace, project_name]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
@@ -229,7 +229,7 @@ func put_namespace_project(
 		collaborators := OptionalArrayOfDictionaries.empty(),
 		tags := OptionalPackedStringArray.empty(),
 		transfer_to_new_owner := OptionalString.empty()
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects/%s" % [in_namespace, project_name]
 	var body: Dictionary = {}
 	if description.is_set:
@@ -245,7 +245,7 @@ func put_namespace_project(
 
 
 ## Soft delete a project (creates tombstone)
-func delete_namespace_project(in_namespace: String, project_name: String, reason: String) -> Promise:
+func delete_namespace_project(in_namespace: String, project_name: String, reason: String)-> DownloadPromise:
 	var url: String = "%s/projects/%s" % [in_namespace, project_name]
 	var body: Dictionary = {
 		"reason" : reason
@@ -256,7 +256,7 @@ func delete_namespace_project(in_namespace: String, project_name: String, reason
 
 #region : Project Editors Endpoints
 ## List project editors
-func get_namespace_project_editors(in_namespace: String, project_name: String) -> Promise:
+func get_namespace_project_editors(in_namespace: String, project_name: String)-> DownloadPromise:
 	var url: String = "/%s/projects/%s/editors" % [in_namespace, project_name]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
@@ -266,7 +266,7 @@ func post_namespace_project_editor(
 		in_namespace: String,
 		project_name: String,
 		editor_username: String
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "/%s/projects/%s/editors" % [in_namespace, project_name]
 	var body: Dictionary = {
 		"username" : editor_username
@@ -279,7 +279,7 @@ func delete_namespace_project_editor(
 		in_namespace: String,
 		project_name: String,
 		editor_username: String
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "/%s/projects/%s/editors/%s" % [in_namespace, project_name, editor_username]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_DELETE, url).get_promise()
 #endregion : Project Editors Endpoints
@@ -287,7 +287,7 @@ func delete_namespace_project_editor(
 
 #region : Project Collaborators Endpoints
 ## List project collaborators
-func get_namespace_project_collaborators(in_namespace: String, project_name: String) -> Promise:
+func get_namespace_project_collaborators(in_namespace: String, project_name: String)-> DownloadPromise:
 	var url: String = "%s/projects/%s/collaborators" % [in_namespace, project_name]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
@@ -297,7 +297,7 @@ func put_namespace_project_replace_collaborators(
 		in_namespace: String,
 		project_name: String,
 		new_collaborators: Array[Dictionary]
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects/%s/collaborators" % [in_namespace, project_name]
 	var body: Dictionary = {
 		"collaborators" : new_collaborators
@@ -310,7 +310,7 @@ func put_namespace_project_replace_collaborators(
 ## Opt out of being credited on this project (add yourself as anti-collaborator).
 ## This endpoint will use bearer authentication to tell the service who are you, so is not
 ## the anonymous version that would trigger email verification
-func post_namespace_project_optout(in_namespace: String, project_name: String) -> Promise:
+func post_namespace_project_optout(in_namespace: String, project_name: String)-> DownloadPromise:
 	var url: String = "%s/projects/%s/opt-out" % [in_namespace, project_name]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_POST, url).get_promise()
 
@@ -318,7 +318,7 @@ func post_namespace_project_optout(in_namespace: String, project_name: String) -
 ## Remove opt-out (allow credit to be shown again)
 ## This endpoint will use bearer authentication to tell the service who are you, so is not
 ## the anonymous version that would trigger email verification
-func delete_namespace_project_optout(in_namespace: String, project_name: String) -> Promise:
+func delete_namespace_project_optout(in_namespace: String, project_name: String)-> DownloadPromise:
 	var url: String = "%s/projects/%s/opt-out" % [in_namespace, project_name]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_DELETE, url).get_promise()
 #endregion : Anti-Collaborator Endpoints
@@ -326,7 +326,7 @@ func delete_namespace_project_optout(in_namespace: String, project_name: String)
 
 #region : Project Tags Endpoints
 ## List project tags
-func get_namespace_project_tags(in_namespace: String, project_name: String) -> Promise:
+func get_namespace_project_tags(in_namespace: String, project_name: String)-> DownloadPromise:
 	var url: String = "%s/projects/%s/tags" % [in_namespace, project_name]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
@@ -336,7 +336,7 @@ func put_namespace_replace_project_tags(
 		in_namespace: String,
 		project_name: String,
 		new_tags: PackedStringArray
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects/%s/tags" % [in_namespace, project_name]
 	var body: Dictionary = {
 		"tags" : new_tags,
@@ -349,7 +349,7 @@ func post_namespace_add_project_tag(
 		in_namespace: String,
 		project_name: String,
 		new_tag: String
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects/%s/tags" % [in_namespace, project_name]
 	var body: Dictionary = {
 		"tag" : new_tag,
@@ -362,7 +362,7 @@ func delete_namespace_project_tag(
 		in_namespace: String,
 		project_name: String,
 		removed_tag: String
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects/%s/tags/%s" % [in_namespace, project_name, removed_tag]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_DELETE, url).get_promise()
 #endregion : Project Tags Endpoints
@@ -370,7 +370,7 @@ func delete_namespace_project_tag(
 
 #region : Version Endpoints
 ## List all versions of a project
-func get_namespace_project_versions(in_namespace: String, project_name: String) -> Promise:
+func get_namespace_project_versions(in_namespace: String, project_name: String)-> DownloadPromise:
 	var url: String = "%s/projects/%s/versions" % [in_namespace, project_name]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
@@ -381,7 +381,7 @@ func post_namespace_project_version(
 		project_name: String,
 		description: String,
 		file: FileAccess
-	) -> Promise:
+	)-> DownloadPromise:
 	var file_path: String = file.get_path()
 	var extension: String = file_path.get_extension().to_lower()
 	if not extension in ["msep1"]:
@@ -401,7 +401,7 @@ func get_namespace_project_version(
 		in_namespace: String,
 		project_name: String,
 		version_number: int,
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects/%s/versions/%d" % [in_namespace, project_name, version_number]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
@@ -412,7 +412,7 @@ func put_namespace_project_version(
 		project_name: String,
 		version_number: int,
 		description: String,
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects/%s/versions/%d" % [in_namespace, project_name, version_number]
 	var body: Dictionary = {
 		"description": description,
@@ -426,7 +426,7 @@ func delete_namespace_project_version(
 		project_name: String,
 		version_number: int,
 		reason: String,
-	) -> Promise:
+	)-> DownloadPromise:
 	var url: String = "%s/projects/%s/versions/%d" % [in_namespace, project_name, version_number]
 	var body: Dictionary = {
 		"reason" : reason,
@@ -437,25 +437,25 @@ func delete_namespace_project_version(
 
 #region : Version Permalink Endpoints
 ## Get version metadata by UUID (the permanent, provenance-safe link)
-func get_project_version(uuid: String) -> Promise:
+func get_project_version(uuid: String)-> DownloadPromise:
 	var url: String = "v/%s" % uuid
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
 
 ## Download the .msep1 file
-func download_project_version(uuid: String) -> Promise:
+func download_project_version(uuid: String)-> DownloadPromise:
 	var url: String = "v/%s/download" % uuid
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
 
 ## Download the version thumbnail
-func get_project_version_thumbnail(uuid: String) -> Promise:
+func get_project_version_thumbnail(uuid: String)-> DownloadPromise:
 	var url: String = "v/%s/thumbnail" % uuid
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
 
 ## A generic endpoint for downloading an image to ram
-func download_image(url: String) -> Promise:
+func download_image(url: String)-> DownloadPromise:
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 #endregion : Version Permalink Endpoints
 
@@ -468,7 +468,7 @@ func get_explore_projects(
 		sort: SortType = SortType.TRENDING,
 		page:      int = 1,
 		per_page:  int = 20
-	) -> Promise:
+	)-> DownloadPromise:
 	
 	var search_querry: String = "?search=" + search
 	var tag_query: String = "" 
@@ -483,7 +483,7 @@ func get_explore_projects(
 
 
 ## List all tags with usage counts
-func get_explore_tags(sort := SortType.POPULAR, limit: int = 50) -> Promise:
+func get_explore_tags(sort := SortType.POPULAR, limit: int = 50)-> DownloadPromise:
 	var url: String = "explore/tags?sort=%s&limit=%d" % [SORT_TYPE_STRING[sort], limit]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()
 
@@ -494,7 +494,7 @@ func get_explore_tag_projects(
 		sort: SortType = SortType.UPDATED,
 		page:      int = 1,
 		per_page:  int = 20,
-	) -> Promise:
+	)-> DownloadPromise:
 	
 	var url: String = "explore/tags/%s?sort=%s&page=%d&per_page=%d" % [tag, SORT_TYPE_STRING[sort], page, per_page]
 	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_GET, url).get_promise()

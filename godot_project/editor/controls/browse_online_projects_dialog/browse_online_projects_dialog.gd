@@ -17,12 +17,13 @@ enum State {
 @onready var _error_info_label: InfoLabel = %ErrorInfoLabel
 @onready var _project_list_container: VBoxContainer = %ProjectListContainer
 @onready var _pagination_label: RichTextLabel = %PaginationLabel
+@onready var _download_progress_bar: ProgressBar = %DownloadProgressBar
 
 
 var _search_promise: Promise
 var _sort_type := MsepOnlineService.SortType.UPDATED
 var _selected_tags: Dictionary[String, TagLabel]
-
+var _download_promise: DownloadPromise
 
 var _last_search: Dictionary = {
 	search_text = "",
@@ -41,6 +42,18 @@ func _ready() -> void:
 	_sort_menu_button.get_popup().id_pressed.connect(_on_sort_menu_button_id_pressed)
 	_tags_menu_button.get_popup().index_pressed.connect(_on_tags_menu_button_index_pressed)
 	_pagination_label.meta_clicked.connect(_on_pagination_label_meta_clicked)
+
+
+func _process(_delta: float) -> void:
+	if _download_promise == null:
+		_download_progress_bar.hide()
+	else:
+		_download_progress_bar.show()
+		var progress: Vector2i = _download_promise.get_progress()
+		_download_progress_bar.indeterminate = progress.y == -1
+		if progress.y != -1:
+			_download_progress_bar.max_value = progress.y
+			_download_progress_bar.value = progress.x
 
 
 func _on_about_to_popup() -> void:
@@ -140,12 +153,46 @@ func _update_project_list(in_projects: Array) -> void:
 		_project_list_container.add_child(item)
 
 
-func _on_import_button_pressed(project_data: Dictionary, version_number: int) -> void:
-	DisplayServer.dialog_show("TODO",
-		"Needs to implement import\n\n" +
-		JSON.stringify(project_data, "\t") + "\n\n" +
-		"Selected Version Number: " + str(version_number),
+func _on_import_button_pressed(project_data: Dictionary, version_uuid: String) -> void:
+	if version_uuid.is_empty():
+		DisplayServer.dialog_show("ERROR",
+		"Failed to identify the download url for %s." % project_data.get("name", ""),
 		["OK"], Callable())
+		return
+	gui_disable_input = true
+	get_ok_button().disabled = true
+	for child: Node in _project_list_container.get_children():
+		child.notify_download_started()
+	var promise: DownloadPromise = MolecularEditorContext.msep_online_service.download_project_version(version_uuid)
+	_download_promise = promise
+	await promise.wait_for_fulfill()
+	await get_tree().process_frame # show the progress bar completed by one frame
+	_download_promise = null
+	gui_disable_input = false
+	get_ok_button().disabled = false
+	if promise.has_error():
+		for child: Node in _project_list_container.get_children():
+			child.notify_download_ended()
+		DisplayServer.dialog_show("ERROR",
+		promise.get_error(),
+		["OK"], Callable())
+		return
+	var file_data: PackedByteArray = promise.get_result().raw_body
+	var md5: String = file_data.get_string_from_utf8().md5_text()
+	var temp_file_path: String = OS.get_temp_dir().path_join(md5+".msep1")
+	var temp_file := FileAccess.open(temp_file_path, FileAccess.WRITE)
+	temp_file.store_buffer(file_data)
+	temp_file.close()
+	const SHOULD_GENERATE_BONDS = false
+	const SHOULD_ADD_HYDROGENS = false
+	const SHOULD_REMOVE_WATERS = false
+	WorkspaceUtils.import_file(
+		MolecularEditorContext.get_current_workspace_context(),
+		temp_file_path, SHOULD_GENERATE_BONDS, SHOULD_ADD_HYDROGENS, SHOULD_REMOVE_WATERS,
+		ImportFileDialog.Placement.IN_FRONT_OF_CAMERA
+	)
+	DirAccess.remove_absolute(temp_file_path)
+	hide()
 
 
 func _update_pagination_label(pagination_data: Dictionary) -> void:

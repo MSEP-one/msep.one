@@ -116,3 +116,8 @@ layout_mode = 2
 bbcode_enabled = true
 text = "[center][url]1[/url], [url]2[/url] .. [url]40[/url][/center]"
 fit_content = true
+
+[node name="DownloadProgressBar" type="ProgressBar" parent="VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
