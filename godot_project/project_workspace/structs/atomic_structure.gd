@@ -178,7 +178,7 @@ func _update_springs_moved_queue() -> void:
 #endregion: Edit tracking
 
 
-## Some auto-generated structures, (like dna chains) wont allow to manually add and remove atoms
+## Some auto-generated structures, (like dna) wont allow to manually add and remove atoms
 func can_create_and_delete_atoms() -> bool:
 	return true
 

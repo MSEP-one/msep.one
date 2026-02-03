@@ -153,7 +153,7 @@ func _on_edit_mode_changed(in_mode: DnaStructure.EditMode) -> void:
 func _on_curve_changed() -> void:
 	if _applying_snapshot:
 		return
-	assert(curve.point_count > 1, "Invalid curve, dna chain should be deleted in this case")
+	assert(curve.point_count > 1, "Invalid curve, dna object should be deleted in this case")
 	_path_representation.queue_redraw()
 	_update_base_transforms()
 

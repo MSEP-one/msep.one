@@ -123,7 +123,7 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_virtual_spring_parameters.tscn"
 			]
 		},
-	&"Edit DNA Chain":
+	&"Edit DNA Object":
 		{
 			icon = "🧬",
 			header = true,

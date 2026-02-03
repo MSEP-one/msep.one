@@ -13,7 +13,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/a_create_docker/controls/create_mode_picker.tscn"
 			]
 		},
-	&"Uneditable DNA Chain":
+	&"Uneditable DNA Object":
 		{
 			icon = "",
 			header = false,
@@ -68,7 +68,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/a_create_docker/create_fragment_panel.tscn"
 			]
 		},
-	&"DNA Chain":
+	&"DNA Object":
 		{
 			icon = "🧬",
 			header = true,

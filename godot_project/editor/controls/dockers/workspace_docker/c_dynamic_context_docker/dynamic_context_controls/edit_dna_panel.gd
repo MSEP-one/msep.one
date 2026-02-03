@@ -209,7 +209,7 @@ func _on_dna_radius_spin_box_slider_value_confirmed(in_value: float) -> void:
 	_tracked_structure.start_edit()
 	_tracked_structure.set_dna_radius_nanometers(in_value)
 	_tracked_structure.end_edit()
-	_workspace_context.snapshot_moment("Set Dna Chain Radius")
+	_workspace_context.snapshot_moment("Set Dna Object Radius")
 
 
 func _on_bases_per_turn_spin_box_slider_value_confirmed(in_value: float) -> void:
@@ -257,7 +257,7 @@ func _on_include_hydrogens_check_button_toggled(in_button_pressed: bool) -> void
 	_tracked_structure.start_edit()
 	_tracked_structure.set_include_hydrogens(in_button_pressed)
 	_tracked_structure.end_edit()
-	_workspace_context.snapshot_moment("Set Dna Chain includes hydrogens")
+	_workspace_context.snapshot_moment("Set Dna Object includes hydrogens")
 
 
 func _on_create_atoms_button_pressed() -> void:
@@ -324,5 +324,5 @@ func _on_create_atoms_button_pressed() -> void:
 		# Done polling atoms, back to normal
 		_tracked_structure.set_edit_mode(EditMode.SequenceAndPath)
 		_tracked_structure.set_block_signals(false)
-	_workspace_context.snapshot_moment("Create group from DNA Chain")
+	_workspace_context.snapshot_moment("Create group from DNA Object")
 
