@@ -57,6 +57,7 @@ func _update_selected_info() -> void:
 	var total_atoms_selected: int = 0
 	var total_bonds_selected: int = 0
 	var total_springs_selected: int = 0
+	var total_control_points_selected: int = 0
 	var total_shapes_selected: int = 0
 	var total_motors_selected: int = 0
 	var total_emitters_selected: int = 0
@@ -69,8 +70,7 @@ func _update_selected_info() -> void:
 			total_bonds_selected += context.get_selected_bonds().size()
 			total_springs_selected += context.get_selected_springs().size()
 			if context.nano_structure is DnaStructure:
-				# TODO: Show DNA structure properties
-				pass
+				total_control_points_selected += context.get_selected_dna_spline_countrol_points().size()
 		elif context.nano_structure is NanoShape:
 			total_shapes_selected += 1
 		elif context.nano_structure is NanoVirtualMotor:
@@ -84,8 +84,8 @@ func _update_selected_info() -> void:
 			pass
 	# 1.1 Render total counts
 	if total_atoms_selected + total_bonds_selected + total_springs_selected + \
-			total_shapes_selected + total_motors_selected + total_emitters_selected + \
-			total_anchors_selected > 0:
+			total_control_points_selected + total_shapes_selected + total_motors_selected + \
+			total_emitters_selected + total_anchors_selected > 0:
 		var item_summary: TreeItem = _tree_info.create_item(root)
 		item_summary.set_text(0, tr(&"Summary"))
 		if total_atoms_selected > 0:
@@ -100,6 +100,10 @@ func _update_selected_info() -> void:
 			var item: TreeItem = _tree_info.create_item(item_summary)
 			item.set_text(0, tr(&"Total Springs count"))
 			item.set_text(1, str(total_springs_selected))
+		if total_control_points_selected > 0:
+			var item: TreeItem = _tree_info.create_item(item_summary)
+			item.set_text(0, tr(&"Total DNA Control Points"))
+			item.set_text(1, str(total_control_points_selected))
 		if total_shapes_selected > 0:
 			var item: TreeItem = _tree_info.create_item(item_summary)
 			item.set_text(0, tr(&"Total Shapes count"))
