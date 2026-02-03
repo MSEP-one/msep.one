@@ -164,6 +164,19 @@ func get_baked_path(in_path_override: Curve3D = null) -> PackedVector3Array:
 	return _baked_path.duplicate()
 
 
+func notify_added_to_workspace(in_workspace_context: WorkspaceContext) -> void:
+	if not in_workspace_context.about_to_apply_simulation.is_connected(_on_about_to_apply_simulation):
+		in_workspace_context.about_to_apply_simulation.connect(_on_about_to_apply_simulation)
+
+
+func _on_about_to_apply_simulation() -> void:
+	if _edit_mode == DnaStructure.EditMode.AtomsAndBonds:
+		start_edit()
+		apply_simulation_state()
+		end_edit()
+		set_edit_mode(DnaStructure.EditMode.SequenceAndPath)
+
+
 #region: Edit tracking
 func set_edit_mode(in_mode: EditMode) -> void:
 	# This may be counter intuitive, but logic is you should not be able to change
@@ -196,6 +209,11 @@ func set_edit_mode(in_mode: EditMode) -> void:
 		atoms_added.emit(atoms_to_signal)
 		bonds_created.emit(bonds_to_signal)
 	edit_mode_changed.emit(in_mode)
+
+
+func apply_simulation_state() -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	push_warning("TODO: Adjust path to roughly match the positions of atoms")
 
 
 func get_edit_mode() -> EditMode:
@@ -699,7 +717,8 @@ func atom_get_position(in_atom_id: int) -> Vector3:
 ## This is uniquely supported to update atoms positions during simulation
 func atom_set_position(in_atom_id: int, in_pos: Vector3) -> bool:
 	assert(_is_being_edited)
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Atoms and Bonds cannot be edited in this mode")
+	if _edit_mode != EditMode.AtomsAndBonds:
+		return false
 	const TO_UPDATE_POSITION = true
 	_get_atom_data(in_atom_id, TO_UPDATE_POSITION).position = in_pos
 	_signal_queue_atoms_moved.push_back(in_atom_id)
@@ -710,6 +729,8 @@ func atom_set_position(in_atom_id: int, in_pos: Vector3) -> bool:
 ## for performance reasons - this way [code]changed[/code] signal is emitted only once
 func atoms_set_positions(in_atoms: PackedInt32Array, in_positions: PackedVector3Array) -> void:
 	assert(in_atoms.size() == in_positions.size())
+	if _edit_mode != EditMode.AtomsAndBonds:
+		return
 	for i in in_atoms.size():
 		atom_set_position(in_atoms[i], in_positions[i])
 

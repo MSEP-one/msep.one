@@ -1,10 +1,12 @@
-[gd_scene load_steps=10 format=3 uid="uid://6h5ogu2meano"]
+[gd_scene load_steps=11 format=3 uid="uid://6h5ogu2meano"]
 
 [ext_resource type="PackedScene" uid="uid://bdeg2b7ycyi66" path="res://editor/controls/dockers/workspace_docker/shared_controls/dna_panel.tscn" id="1_mfh7i"]
 [ext_resource type="Script" uid="uid://cdcgvv0jwwf6c" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_dna_panel.gd" id="2_q7pc7"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="3_673q0"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_673q0"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_gmhsj"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_q7pc7"]
 
@@ -262,6 +264,12 @@ size_flags_vertical = 4
 text = "[center]ℹ In this mode, atoms can be selected, moved, relaxed, etc, but cannot be deleted or modified. New atoms and bonds cannot b added[/center]"
 message = &"In this mode, atoms can be selected, moved, relaxed, etc, but cannot be deleted or modified. New atoms and bonds cannot b added"
 effect = "none"
+
+[node name="RandSequenceButton" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/HBoxContainer" index="0"]
+button_group = SubResource("ButtonGroup_gmhsj")
+
+[node name="UserDefinedSequenceButton" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/HBoxContainer" index="1"]
+button_group = SubResource("ButtonGroup_gmhsj")
 
 [node name="StrandAButton" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer" index="0"]
 button_group = SubResource("ButtonGroup_q7pc7")

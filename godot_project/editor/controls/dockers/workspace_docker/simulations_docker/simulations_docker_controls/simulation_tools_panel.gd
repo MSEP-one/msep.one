@@ -312,7 +312,9 @@ func _update_controls() -> void:
 func _has_valid_atoms() -> bool:
 	if not is_instance_valid(_workspace_context):
 		return false
-	return _workspace_context.has_valid_atoms() or _workspace_context.has_valid_particle_emitters()
+	return _workspace_context.has_valid_atoms() \
+			or _workspace_context.has_valid_particle_emitters() \
+			or _workspace_context.has_valid_dna_objects()
 
 
 func _is_simulation_complete() -> bool:
@@ -514,6 +516,13 @@ func _on_button_start_pause_pressed() -> void:
 			if _workspace_context.has_motors() and FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_VIRTUAL_MOTORS_SIMULATION_WARNING):
 				_motors_warning_dialog.popup_centered()
 				await _motors_warning_dialog.closed
+			
+			# Turn all Dna Structures into atoms and bonds
+			for ctx: StructureContext in _workspace_context.get_all_structure_contexts():
+				if ctx.nano_structure is DnaStructure:
+					ctx.clear_selection()
+					var dna := ctx.nano_structure as DnaStructure
+					dna.set_edit_mode(DnaStructure.EditMode.AtomsAndBonds)
 			
 			# Copy simulation config to Workspace's simulation params
 			var params: SimulationParameters = _workspace_context.workspace.simulation_parameters
@@ -747,6 +756,13 @@ func _on_button_revert_pressed() -> void:
 			await promise.wait_for_fulfill()
 			if not promise.get_result():
 				return
+		
+		# Turn all Dna Structures back into simplified representation
+		for ctx: StructureContext in _workspace_context.get_all_structure_contexts():
+			if ctx.nano_structure is DnaStructure:
+				var dna := ctx.nano_structure as DnaStructure
+				dna.set_edit_mode(DnaStructure.EditMode.SequenceAndPath)
+		
 		_workspace_context.abort_simulation_if_running()
 		_status = Status.INACTIVE
 
