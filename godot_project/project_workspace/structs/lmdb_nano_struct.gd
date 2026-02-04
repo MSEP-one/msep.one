@@ -200,6 +200,15 @@ func spring_create(_in_anchor_id: int, _in_atom_id: int, _in_spring_constant_for
 	return INVALID_SPRING_ID
 
 
+func spring_create_between_atoms(_in_atom_id_1: int, _in_atom_id_2: int, _in_spring_constant_force: float,
+			_is_equilibrium_length_automatic: bool, _in_equilibrium_manual_length: float) -> int:
+	return INVALID_SPRING_ID
+
+
+func spring_is_atom_to_atom(_in_spring_id: int) -> bool:
+	return false
+
+
 func spring_has(_in_spring_id: int) -> bool:
 	return false
 
@@ -212,6 +221,10 @@ func spring_get_atom_id(_in_spring_id: int) -> int:
 	return INVALID_ATOM_ID
 
 
+func spring_get_second_atom_id(_in_spring_id: int) -> int:
+	return INVALID_ATOM_ID
+
+
 func spring_get_atom_position(_in_spring_id: int) -> Vector3:
 	return Vector3()
 
@@ -220,7 +233,7 @@ func spring_get_anchor_id(_in_spring_id: int) -> int:
 	return -1
 
 
-func spring_get_anchor_position(_in_spring_id: int, _in_parent_context: StructureContext) -> Vector3:
+func spring_get_target_position(_in_spring_id: int, _in_parent_context: StructureContext) -> Vector3:
 	return Vector3()
 
 

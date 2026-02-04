@@ -65,6 +65,9 @@ const INVALID_SPRING_ID = -1
 @export var _atoms_to_related_springs: Dictionary = {
 	# atom_id <int> : connected_springs<Dictionary = {spring_id<int> : true<bool>} >
 }
+@export var _atom_to_atom_spring_ids: Dictionary = {
+	# atom_ids < Vector2i > : spring_id <int>
+}
 
 var _signal_queue_atoms_added: PackedInt32Array = PackedInt32Array()
 var _signal_queue_atoms_moved: PackedInt32Array = PackedInt32Array()
@@ -507,6 +510,22 @@ func spring_create(_in_anchor_id: int, _in_atom_id: int, _in_spring_constant_for
 	return INVALID_SPRING_ID
 
 
+func spring_create_between_atoms(_in_atom_id_1: int, _in_atom_id_2: int, _in_spring_constant_force: float,
+			_is_equilibrium_length_automatic: bool, _in_equilibrium_manual_length: float) -> int:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return INVALID_SPRING_ID
+
+
+func spring_is_atom_to_atom(_in_spring_id: int) -> bool:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return false
+
+
+func spring_get_between_atoms(in_atom_id_1: int, in_atom_id_2: int) -> int:
+	var key := Vector2i(min(in_atom_id_1, in_atom_id_2), max(in_atom_id_1, in_atom_id_2))
+	return _atom_to_atom_spring_ids.get(key, INVALID_SPRING_ID)
+
+
 func spring_has(_in_spring_id: int) -> bool:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return false
@@ -522,17 +541,28 @@ func spring_get_atom_id(_in_spring_id: int) -> int:
 	return INVALID_ATOM_ID
 
 
+## Returns INVALID_ATOM_ID if spring target is an anchor
+func spring_get_second_atom_id(in_spring_id: int) -> int:
+	if not spring_is_atom_to_atom(in_spring_id):
+		return INVALID_ATOM_ID
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return INVALID_ATOM_ID
+
+
 func spring_get_atom_position(_in_spring_id: int) -> Vector3:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return Vector3()
 
 
-func spring_get_anchor_id(_in_spring_id: int) -> int:
+## Returns Workspace.INVALID_OBJECT_INDEX if spring target is an anchor
+func spring_get_anchor_id(in_spring_id: int) -> int:
+	if spring_is_atom_to_atom(in_spring_id):
+		return Workspace.INVALID_OBJECT_INDEX
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return -1
 
 
-func spring_get_anchor_position(_in_spring_id: int, _in_parent_context: StructureContext) -> Vector3:
+func spring_get_target_position(_in_spring_id: int, _in_parent_context: StructureContext) -> Vector3:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return Vector3()
 
@@ -605,7 +635,13 @@ func spring_is_visible(in_spring_id: int) -> bool:
 	if not are_hydrogens_visible():
 		var related_atom: int = spring_get_atom_id(in_spring_id)
 		var atomic_nmb: int = atom_get_atomic_number(related_atom)
-		return atomic_nmb != PeriodicTable.ATOMIC_NUMBER_HYDROGEN
+		if atomic_nmb == PeriodicTable.ATOMIC_NUMBER_HYDROGEN:
+			return false
+		if spring_is_atom_to_atom(in_spring_id):
+			var second_atom: int = spring_get_second_atom_id(in_spring_id)
+			var atomic_nmb2: int = atom_get_atomic_number(second_atom)
+			if atomic_nmb2 == PeriodicTable.ATOMIC_NUMBER_HYDROGEN:
+				return false
 	return true
 
 
@@ -967,6 +1003,7 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["hidden_motor_links"] = hidden_motor_links.duplicate()
 	state_snapshot["locked_atoms"] = locked_atoms.duplicate()
 	state_snapshot["_atoms_to_related_springs"] = _atoms_to_related_springs.duplicate(true)
+	state_snapshot["_atom_to_atom_spring_ids"] = _atom_to_atom_spring_ids.duplicate()
 	state_snapshot["_signal_queue_atoms_added"] = _signal_queue_atoms_added.duplicate()
 	state_snapshot["_signal_queue_atoms_moved"] = _signal_queue_atoms_moved.duplicate()
 	state_snapshot["_signal_queue_atoms_removed"] = _signal_queue_atoms_removed.duplicate()
