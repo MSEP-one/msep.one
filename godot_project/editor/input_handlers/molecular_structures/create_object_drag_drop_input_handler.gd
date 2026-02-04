@@ -122,6 +122,15 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, out_context:
 				update_preview_position()
 			if _creating == _CREATING_BOND:
 				rendering.bond_preview_show()
+			if _creating == _CREATING_SPRING and _is_atom_to_atom_drag():
+				# Atom to atom spring
+				var ctx: StructureContext = _workspace_context.get_nano_structure_context_from_id(_drag_start_structure_id)
+				var atomic_structure: AtomicStructure = ctx.nano_structure
+				if _can_create_spring_between_atoms(atomic_structure, _drag_start_atom_id, _target_atom_id):
+					rendering.virtual_anchor_preview_show()
+					_hide_anchor_preview()
+				else:
+					_hide_anchor_and_spring_preview()
 			else:
 				rendering.virtual_anchor_preview_show()
 			return true
@@ -232,10 +241,6 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 	# 1. Resolve drop target
 	match multi_structure_hit_result.hit_type:
 		MultiStructureHitResult.HitType.HIT_ATOM:
-			# Target is atom:
-			if _drag_state == _DRAG_FROM_ATOM and multi_structure_hit_result.closest_hit_atom_id != _drag_start_atom_id:
-				# Cannot create spring from atom to atom, switch mode to create bonds
-				_ensure_creating_bonds()
 			workspace_context.set_hovered_structure_context(hit_context, atom_id, AtomicStructure.INVALID_BOND_ID,
 					AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
 			atomic_structure = hit_context.nano_structure as AtomicStructure
@@ -244,6 +249,11 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 				# Not possible to create bonds between 2 different structures
 				_target_atom_id = AtomicStructure.INVALID_ATOM_ID
 				_hide_atom_and_bond_preview()
+				return false
+			elif _creating == _CREATING_SPRING and atomic_structure.int_guid != _drag_start_structure_id:
+				# Not possible to springs between 2 different structures
+				_target_atom_id = AtomicStructure.INVALID_ATOM_ID
+				_hide_anchor_and_spring_preview()
 				return false
 			workspace_context.set_hovered_structure_context(hit_context,_target_atom_id,
 					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
@@ -295,26 +305,28 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 			rendering.bond_preview_show()
 			rendering.bond_preview_update_all(bond_start_pos, bond_end_pos, first_atomic_number, second_atom_atomic_nmb, bond_order)
 		_CREATING_SPRING:
-			if not is_instance_valid(anchor):
-				# Dragging from an atom into void, use the anchor_preview to draw a new anchor
+			if not is_instance_valid(anchor) and not _is_atom_to_atom_drag():
 				return false
-			assert(is_instance_valid(anchor_context))
+			assert(is_instance_valid(anchor_context) or _is_atom_to_atom_drag())
 			assert(is_instance_valid(atomic_structure))
 			assert(is_instance_valid(atomic_structure_context))
 			assert(atom_id != AtomicStructure.INVALID_ATOM_ID)
+			assert(_drag_start_atom_id != AtomicStructure.INVALID_ATOMIC_NUMBER or not _is_atom_to_atom_drag())
 			assert(atomic_structure.is_atom_valid(atom_id) and atomic_structure.is_atom_visible(atom_id))
-			rendering.virtual_anchor_preview_set_position(anchor.get_position())
+			if _is_atom_to_atom_drag():
+				rendering.virtual_anchor_preview_set_position(atomic_structure.atom_get_position(_target_atom_id))
+			else:
+				rendering.virtual_anchor_preview_set_position(anchor.get_position())
 			rendering.virtual_anchor_preview_set_spring_ends([atomic_structure.atom_get_position(atom_id)])
 	return true
 
 
-func _ensure_creating_bonds() -> void:
-	if _workspace_context.create_object_parameters.get_create_mode_type() != \
-			CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS:
-		_workspace_context.create_object_parameters.set_create_mode_type(
-			CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
-	_creating = _CREATING_BOND
-	_hide_anchor_and_spring_preview()
+func _is_atom_to_atom_drag() -> bool:
+	if _drag_state != _DRAG_FROM_ATOM:
+		return false
+	if _drag_start_structure_id == AtomicStructure.INVALID_ATOMIC_NUMBER or _target_atom_id == AtomicStructure.INVALID_ATOMIC_NUMBER:
+		return false
+	return _drag_start_atom_id != _target_atom_id
 
 
 func _ensure_creating_springs() -> void:
@@ -335,6 +347,7 @@ func _process_create_spring_result(in_camera: Camera3D, in_input_event: InputEve
 	var atomic_structure: AtomicStructure
 	var atomic_structure_context: StructureContext
 	var atom_id: int = AtomicStructure.INVALID_ATOM_ID
+	var atom_id2: int = AtomicStructure.INVALID_ATOM_ID
 	
 	var workspace_context: WorkspaceContext = get_workspace_context()
 	var workspace: Workspace = workspace_context.workspace
@@ -346,8 +359,8 @@ func _process_create_spring_result(in_camera: Camera3D, in_input_event: InputEve
 		MultiStructureHitResult.HitType.HIT_ATOM:
 			# Target is atom:
 			if _drag_state == _DRAG_FROM_ATOM:
-				# Cannot create spring from atom to atom
-				return false
+				# atom_id will be overridden latter with _drag_start_atom_id
+				atom_id2 = multi_structure_hit_result.closest_hit_atom_id
 			atomic_structure = hit_context.nano_structure as AtomicStructure
 			atomic_structure_context = hit_context
 			assert(is_instance_valid(atomic_structure))
@@ -384,18 +397,29 @@ func _process_create_spring_result(in_camera: Camera3D, in_input_event: InputEve
 			atom_id = _drag_start_atom_id
 		_:
 			return false
-	assert(is_instance_valid(anchor))
-	assert(is_instance_valid(anchor_context))
+	assert(is_instance_valid(anchor) or atom_id2 != AtomicStructure.INVALID_ATOM_ID)
+	assert(is_instance_valid(anchor_context) or atom_id2 != AtomicStructure.INVALID_ATOM_ID)
 	assert(is_instance_valid(atomic_structure))
 	assert(is_instance_valid(atomic_structure_context))
 	assert(atom_id != AtomicStructure.INVALID_ATOM_ID)
 	assert(atomic_structure.is_atom_valid(atom_id) and atomic_structure.is_atom_visible(atom_id))
+	assert(atom_id2 == AtomicStructure.INVALID_ATOM_ID or (atomic_structure.is_atom_valid(atom_id2) and atomic_structure.is_atom_visible(atom_id2)))
 	if not created_anchor and _spring_exists(atomic_structure, atom_id, anchor):
 		return false
+	if atom_id2 != AtomicStructure.INVALID_ATOM_ID and _spring_between_atoms_exists(atomic_structure, atom_id, atom_id2):
+		return false
 	var parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
-	var new_spring_id: int = _create_spring(atomic_structure, anchor.int_guid, atom_id, parameters)
+	var new_spring_id: int
+	if anchor != null:
+		new_spring_id = _create_spring(atomic_structure, anchor.int_guid, atom_id, parameters)
+	elif not _can_create_spring_between_atoms(atomic_structure, atom_id, atom_id2):
+		# Early return
+		return true
+	elif atom_id2 != AtomicStructure.INVALID_ATOM_ID:
+		new_spring_id = _create_spring_between_atoms(atomic_structure, atom_id, atom_id2, parameters)
 	workspace_context.clear_all_selection()
-	anchor_context.select_all(false)
+	if anchor_context != null:
+		anchor_context.select_all(false)
 	atomic_structure_context.select_springs([new_spring_id])
 	var snapshot_name: String = "Create Anchor and Spring(s)" if created_anchor else "Create Spring"
 	_workspace_context.snapshot_moment(snapshot_name)
@@ -445,6 +469,28 @@ func _create_spring(in_atomic_struct: NanoStructure, in_anchor_id: int, in_atom_
 	return spring_id
 
 
+func _can_create_spring_between_atoms(in_atomic_struct: AtomicStructure, in_atom_id: int, in_atom_id2: int) -> bool:
+	if in_atom_id == in_atom_id2:
+		# Cannot create spring to itself
+		return false
+	if in_atomic_struct.spring_get_between_atoms(in_atom_id, in_atom_id2) != AtomicStructure.INVALID_SPRING_ID:
+		# Already exist
+		return false
+	if in_atomic_struct.atom_find_bond_between(in_atom_id, in_atom_id2) != AtomicStructure.INVALID_BOND_ID:
+		# Bond between atoms exists
+		return false
+	return true
+
+
+func _create_spring_between_atoms(in_atomic_struct: AtomicStructure, in_atom_id: int, in_atom_id2: int,
+			in_params: CreateObjectParameters) -> int:
+	in_atomic_struct.start_edit()
+	var spring_id: int = in_atomic_struct.spring_create_between_atoms(in_atom_id, in_atom_id2, in_params.get_spring_constant_force(),
+			in_params.get_spring_equilibrium_length_is_auto(), in_params.get_spring_equilibrium_manual_length())
+	in_atomic_struct.end_edit()
+	return spring_id
+
+
 func _select_spring(structure_context: StructureContext, in_spring_id_to_select: int) -> void:
 	structure_context.select_springs([in_spring_id_to_select])
 
@@ -456,7 +502,7 @@ func _remove_spring(in_atomic_struct: NanoStructure, in_spring_id_to_remove: int
 
 
 func _spring_exists(atomic_structure: AtomicStructure, atom_id: int, anchor: NanoVirtualAnchor) -> bool:
-	if not atomic_structure.is_atom_valid(atom_id):
+	if not atomic_structure.is_atom_valid(atom_id) or anchor == null:
 		return false
 	var springs: PackedInt32Array = atomic_structure.atom_get_springs(atom_id)
 	for spring_id: int in springs:
@@ -464,6 +510,12 @@ func _spring_exists(atomic_structure: AtomicStructure, atom_id: int, anchor: Nan
 		if anchor_id == anchor.int_guid:
 			return true
 	return false
+
+
+func _spring_between_atoms_exists(atomic_structure: AtomicStructure, atom_id: int, atom_id2: int) -> bool:
+	if not atomic_structure.is_atom_valid(atom_id):
+		return false
+	return atomic_structure.spring_get_between_atoms(atom_id, atom_id2) != AtomicStructure.INVALID_SPRING_ID
 
 
 func _create_bond(out_context: StructureContext, in_first_atom: int, in_second_atom: int) -> void:
@@ -561,6 +613,12 @@ func _hide_anchor_and_spring_preview() -> void:
 	rendering.virtual_anchor_preview_hide()
 
 
+func _hide_anchor_preview() -> void:
+	var rendering: Rendering = _get_rendering()
+	rendering.virtual_anchor_preview_hide()
+	rendering.spring_preview_show()
+
+
 func _hide_atom_and_bond_preview() -> void:
 	var rendering: Rendering = _get_rendering()
 	rendering.bond_preview_hide()
@@ -595,6 +653,8 @@ func _update_bind_source(in_camera: Camera3D, in_input_event: InputEvent) -> voi
 			# Nothing or anything that is not Atom or Anchor
 			_drag_start_structure_id = 0
 			_drag_start_atom_id = AtomicStructure.INVALID_ATOM_ID
+			if _creating == _CREATING_SPRING:
+				_get_rendering().virtual_anchor_preview_show()
 
 
 func create_state_snapshot() -> Dictionary:

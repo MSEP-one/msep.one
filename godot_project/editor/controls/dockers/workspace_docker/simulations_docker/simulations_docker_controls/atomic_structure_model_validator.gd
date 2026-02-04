@@ -293,6 +293,9 @@ func _on_alert_selected(in_alert_id: int, show_hidden: bool = false) -> void:
 		var atom_id: int = atomic_structure.spring_get_atom_id(spring_id)
 		if atomic_structure.atom_get_atomic_number(atom_id) == PeriodicTable.ATOMIC_NUMBER_HYDROGEN:
 			has_hidden_hydrogens = true
+		var atom_id2: int = atomic_structure.spring_get_second_atom_id(spring_id)
+		if atom_id2 != AtomicStructure.INVALID_ATOMIC_NUMBER and atomic_structure.atom_get_atomic_number(atom_id2) == PeriodicTable.ATOMIC_NUMBER_HYDROGEN:
+			has_hidden_hydrogens = true
 	
 	var has_hidden_atoms: bool = atom_selection.size() != visible_atom_selection.size()
 	var has_hidden_springs: bool = spring_selection.size() != visible_spring_selection.size()
@@ -311,7 +314,8 @@ func _on_alert_selected(in_alert_id: int, show_hidden: bool = false) -> void:
 			#	anchor_id<int> = true
 			}
 			for spring: int in spring_selection:
-				related_anchor_ids[atomic_structure.spring_get_anchor_id(spring)] = true
+				if not atomic_structure.spring_is_atom_to_atom(spring):
+					related_anchor_ids[atomic_structure.spring_get_anchor_id(spring)] = true
 			for anchor_id: int in related_anchor_ids.keys():
 				var anchor_context: StructureContext = _workspace_context.get_nano_structure_context_from_id(anchor_id)
 				if not anchor_context.nano_structure.visible:

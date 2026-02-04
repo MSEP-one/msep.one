@@ -185,6 +185,7 @@ class PayloadTopologyReader(PayloadChunkReader):
 		self.motors_forces: list[MotorForce] = []
 		self.emitters: list[ParticleEmitter] = []
 		self.anchors: dict = {}
+		self.atom_to_atom_springs: list[Spring] = []
 		self._openff_molecules: list[Molecule] = []
 		self.payload_to_openff_atom: dict = {}
 		self.openff_atom_to_payload: dict = {}
@@ -245,7 +246,10 @@ class PayloadTopologyReader(PayloadChunkReader):
 		elif type == "spring":
 			anchor_id: int = json_object["anchor_id"]
 			spring = Spring(json_object, topology)
-			self.anchors[anchor_id].springs.append(spring)
+			if anchor_id == -1:
+				self.atom_to_atom_springs.append(spring)
+			else:
+				self.anchors[anchor_id].springs.append(spring)
 		else:
 			logging.error(f"Unknown virtual object: {type}")
 			logging.warning(json_object)
@@ -363,8 +367,10 @@ class Spring:
 	def __init__(self, spring_data: dict, topology_payload: PayloadTopologyReader) -> None:
 		self.anchor_id: int = spring_data["anchor_id"]
 		msep_atom_id: int = spring_data["particle_id"]
+		msep_atom_id2: int = spring_data["particle_id2"]
 		openff_atom_id = topology_payload.payload_to_openff_atom[msep_atom_id]
 		self.particle_id: int = openff_atom_id
+		self.particle_id2: int = None if msep_atom_id2 is None else topology_payload.payload_to_openff_atom[msep_atom_id2]
 		self.k_constant: float = spring_data["k_constant"]
 		self.equilibrium_length: float = spring_data["equilibrium_length"]
 
@@ -1146,6 +1152,12 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 				forces.nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
 			# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
 			forces.bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
+	for spring in topology_payload.atom_to_atom_springs:
+		k_constant: float = spring.k_constant
+		equilibrium_length: float = spring.equilibrium_length
+		if forces.nonbonded_force != None:
+			forces.nonbonded_force.addException(spring.particle_id, spring.particle_id2, 0.0, 1.0, 0.0)
+		forces.bond_force.addBond(spring.particle_id, spring.particle_id2, equilibrium_length, k_constant)
 	nonbonded_exception_map: dict[tuple[int, int], int] = {} # [atoms_pair = exception_index] This is used in case passivation of atoms needs to modify an exception
 	for i, atom in enumerate(topology_payload.atoms):
 		if atom.is_locked:

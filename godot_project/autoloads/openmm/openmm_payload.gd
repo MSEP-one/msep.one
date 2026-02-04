@@ -362,17 +362,22 @@ func add_springs(in_structure_context: StructureContext, in_springs: PackedInt32
 	var nano_struct: AtomicStructure = in_structure_context.nano_structure as AtomicStructure
 	for spring_id: int in in_springs:
 		var atom_id: int = nano_struct.spring_get_atom_id(spring_id)
-		if nano_struct.atom_is_locked(atom_id):
-			# Ignore springs related to locked atoms
+		var atom_id2: int = nano_struct.spring_get_second_atom_id(spring_id) # For atom to atom spring
+		if nano_struct.atom_is_locked(atom_id) and \
+				(atom_id2 == AtomicStructure.INVALID_ATOM_ID or nano_struct.atom_is_locked(atom_id2)):
+			# Ignore springs related to locked atoms unless they affect a second non locked atom
 			continue
 		var msep_structure_and_atom_id: PackedInt32Array = [nano_struct.int_guid, atom_id]
+		var msep_structure_and_atom_id2: PackedInt32Array = [nano_struct.int_guid, atom_id2]
 		var openmm_particle_id: Variant = request_atom_id_to_structure_and_atom_id_map.find_key(msep_structure_and_atom_id)
+		var openmm_particle_id2: Variant = request_atom_id_to_structure_and_atom_id_map.find_key(msep_structure_and_atom_id2)
 		if typeof(openmm_particle_id) != TYPE_INT:
 			# Atom was not sent to openmm, skip spring
 			continue
 		
 		var anchor_id: int = in_structure_context.nano_structure.spring_get_anchor_id(spring_id)
-		if not anchor_id in other_objects_data:
+		# For atom to anchor springs
+		if anchor_id != Workspace.INVALID_OBJECT_INDEX and not anchor_id in other_objects_data:
 			# Anchor is still not know, add it
 			var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id)
 			_add_anchor(anchor)
@@ -381,6 +386,7 @@ func add_springs(in_structure_context: StructureContext, in_springs: PackedInt32
 		spring_dict[&"is"] = &"spring"
 		spring_dict[&"anchor_id"] = anchor_id
 		spring_dict[&"particle_id"] = openmm_particle_id
+		spring_dict[&"particle_id2"] = openmm_particle_id2
 		var k_constant_nn_by_nm: float = nano_struct.spring_get_constant_force(spring_id)
 		# This constant converts nN/nm to the expected kJ/mol/nm^2
 		const NN_NM__TO__JK_MOL_NM2 = 1.0 / 1.66054

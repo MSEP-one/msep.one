@@ -86,7 +86,7 @@ func _show_hovered_bond_tooltip(in_hovered_structure_context: StructureContext, 
 func _show_hovered_spring_tooltip(in_hovered_structure_context: StructureContext, in_spring_id: int) -> void:
 	var structure: AtomicStructure = in_hovered_structure_context.nano_structure as AtomicStructure
 	assert(structure)
-	var anchor_position: Vector3 = structure.spring_get_anchor_position(in_spring_id, in_hovered_structure_context)
+	var target_position: Vector3 = structure.spring_get_target_position(in_spring_id, in_hovered_structure_context)
 	var atom_position: Vector3 = structure.spring_get_atom_position(in_spring_id)
 	var is_length_auto: bool = structure.spring_get_equilibrium_length_is_auto(in_spring_id)
 	var length: float = structure.spring_get_current_equilibrium_length(in_spring_id, in_hovered_structure_context)
@@ -94,10 +94,11 @@ func _show_hovered_spring_tooltip(in_hovered_structure_context: StructureContext
 	var atomic_number: int = structure.atom_get_atomic_number(atom_id)
 	var element_data: ElementData = PeriodicTable.get_by_atomic_number(atomic_number)
 	var tooltip: String = tr("Spring (%s)\n") % [element_data.name]
-	tooltip += tr("⚓ Anchored to %s\n") % str(anchor_position)
+	if not structure.spring_is_atom_to_atom(in_spring_id):
+		tooltip += tr("⚓ Anchored to %s\n") % str(target_position)
 	tooltip += tr("Target length: %.3f nm%s\n") % [length, tr(" (auto)") if is_length_auto else ""]
-	if not is_equal_approx(anchor_position.distance_squared_to(atom_position), length * length):
-		tooltip += tr("Current legth: %.3f nm\n") % anchor_position.distance_to(atom_position)
+	if not is_equal_approx(target_position.distance_squared_to(atom_position), length * length):
+		tooltip += tr("Current legth: %.3f nm\n") % target_position.distance_to(atom_position)
 	tooltip += tr("Force: %.2f nN/nm\n") % structure.spring_get_constant_force(in_spring_id)
 	tooltip_text = tooltip
 

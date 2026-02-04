@@ -1013,6 +1013,11 @@ func spring_preview_hide() -> Rendering:
 	return self
 
 
+func spring_preview_show() -> Rendering:
+	_spring_preview.show_preview()
+	return self
+
+
 func _on_workspace_context_simulation_started() -> void:
 	_update_simulation_boundaries_visibility()
 

@@ -175,9 +175,13 @@ func _copy_selected_springs(
 	# selected_anchor_ids = {anchor_id: int = true}
 	var selected_anchor_ids: Dictionary = _get_selected_anchor_ids(in_structure_context.workspace_context)
 	for spring_id: int in in_spring_selection:
-		var target_anchor_id: int = in_structure.spring_get_anchor_id(spring_id)
 		var target_atom_id: int = in_structure.spring_get_atom_id(spring_id)
-		if not selected_anchor_ids.has(target_anchor_id) \
+		var target_atom_id2: int = in_structure.spring_get_second_atom_id(spring_id)
+		var target_anchor_id: int = in_structure.spring_get_anchor_id(spring_id)
+		if target_anchor_id != Workspace.INVALID_OBJECT_INDEX and not selected_anchor_ids.has(target_anchor_id) \
+			and not in_atom_selection.has(target_atom_id):
+			continue
+		if target_atom_id2 != AtomicStructure.INVALID_ATOM_ID and not in_atom_selection.has(target_atom_id2) \
 			and not in_atom_selection.has(target_atom_id):
 			continue
 		clipboard_springs[spring_id] = ClipboardSpring.new(
@@ -185,6 +189,7 @@ func _copy_selected_springs(
 				in_structure.spring_get_equilibrium_length_is_auto(spring_id),
 				in_structure.spring_get_equilibrium_manual_length(spring_id),
 				target_atom_id,
+				target_atom_id2,
 				target_anchor_id
 		)
 		
@@ -574,7 +579,10 @@ func _paste_springs(
 	for original_spring_id: int in clipboard_springs.keys():
 		var spring: ClipboardSpring = clipboard_springs[original_spring_id]
 		var target_atom_was_copied: bool = original_atom_ids.has(spring.target_atom)
-		var target_anchor_was_copied: bool = copied_anchor_ids.has(spring.target_anchor)
+		var target_atom2_was_copied: bool = spring.target_atom2 != AtomicStructure.INVALID_ATOM_ID \
+			and original_atom_ids.has(spring.target_atom2)
+		var target_anchor_was_copied: bool = spring.target_anchor != Workspace.INVALID_OBJECT_INDEX \
+			and copied_anchor_ids.has(spring.target_anchor)
 		if target_atom_was_copied and target_anchor_was_copied:
 			# create new spring attached to new atom and new anchor
 			var new_anchor_id: int = in_original_to_new_structure_id[spring.target_anchor]
@@ -585,7 +593,21 @@ func _paste_springs(
 			assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
 			var new_spring: ClipboardSpring = \
 				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
-					spring.equilibrium_manual_length, new_atom_id, new_anchor_id)
+					spring.equilibrium_manual_length, new_atom_id, AtomicStructure.INVALID_ATOM_ID, new_anchor_id)
+			if not springs_pending_creation.has(new_structure_id):
+				springs_pending_creation[new_structure_id] = []
+			springs_pending_creation[new_structure_id].push_back(new_spring)
+		if target_atom_was_copied and target_atom2_was_copied:
+			# create new spring attached to new atoms
+			var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom]
+			var new_atom2_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom2]
+			var new_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
+			target_structure = \
+				out_workspace_context.workspace.get_structure_by_int_guid(new_structure_id) as AtomicStructure
+			assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
+			var new_spring: ClipboardSpring = \
+				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
+					spring.equilibrium_manual_length, new_atom_id, new_atom2_id, Workspace.INVALID_OBJECT_INDEX)
 			if not springs_pending_creation.has(new_structure_id):
 				springs_pending_creation[new_structure_id] = []
 			springs_pending_creation[new_structure_id].push_back(new_spring)
@@ -602,7 +624,24 @@ func _paste_springs(
 			assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
 			var new_spring: ClipboardSpring = \
 				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
-					spring.equilibrium_manual_length, new_atom_id, spring.target_anchor)
+					spring.equilibrium_manual_length, new_atom_id, spring.target_atom2, spring.target_anchor)
+			if not springs_pending_creation.has(new_target_structure_id):
+				springs_pending_creation[new_target_structure_id] = []
+			springs_pending_creation[new_target_structure_id].push_back(new_spring)
+		elif target_atom2_was_copied: # but target_anchor was not
+			# create new spring attached to new atom and original anchor
+			var original_anchor_structure: NanoStructure = \
+				out_workspace_context.workspace.get_structure_by_int_guid(spring.target_anchor)
+			if not is_instance_valid(original_anchor_structure):
+				continue
+			var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom2]
+			var new_target_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
+			target_structure = \
+				out_workspace_context.workspace.get_structure_by_int_guid(new_target_structure_id) as AtomicStructure
+			assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
+			var new_spring: ClipboardSpring = \
+				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
+					spring.equilibrium_manual_length, spring.target_atom, new_atom_id, spring.target_anchor)
 			if not springs_pending_creation.has(new_target_structure_id):
 				springs_pending_creation[new_target_structure_id] = []
 			springs_pending_creation[new_target_structure_id].push_back(new_spring)
@@ -617,7 +656,7 @@ func _paste_springs(
 			var new_anchor_id: int = in_original_to_new_structure_id[spring.target_anchor]
 			var new_spring: ClipboardSpring = \
 				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
-					spring.equilibrium_manual_length, spring.target_atom, new_anchor_id)
+					spring.equilibrium_manual_length, spring.target_atom, spring.target_atom2, new_anchor_id)
 			if not springs_pending_creation.has(clipboard_data.group_id):
 				springs_pending_creation[clipboard_data.group_id] = []
 			springs_pending_creation[clipboard_data.group_id].push_back(new_spring)
@@ -633,15 +672,27 @@ func _paste_springs(
 		target_structure.start_edit()
 		for new_spring_params_idx: int in springs_pending_creation[structure_id].size():
 			var new_spring_params: ClipboardSpring = springs_pending_creation[structure_id][new_spring_params_idx]
-			new_spring_ids.append(
-				target_structure.spring_create(
-					new_spring_params.target_anchor,
-					new_spring_params.target_atom,
-					new_spring_params.constant_force,
-					new_spring_params.equilibrium_length_is_auto,
-					new_spring_params.equilibrium_manual_length
+			var is_atom_to_atom: bool = new_spring_params.target_anchor == Workspace.INVALID_OBJECT_INDEX
+			if is_atom_to_atom:
+				new_spring_ids.append(
+					target_structure.spring_create_between_atoms(
+						new_spring_params.target_atom,
+						new_spring_params.target_atom2,
+						new_spring_params.constant_force,
+						new_spring_params.equilibrium_length_is_auto,
+						new_spring_params.equilibrium_manual_length
+					)
 				)
-			)
+			else:
+				new_spring_ids.append(
+					target_structure.spring_create(
+						new_spring_params.target_anchor,
+						new_spring_params.target_atom,
+						new_spring_params.constant_force,
+						new_spring_params.equilibrium_length_is_auto,
+						new_spring_params.equilibrium_manual_length
+					)
+				)
 		target_structure.end_edit()
 		target_structure_context = \
 			out_workspace_context.get_nano_structure_context_from_id(structure_id)
@@ -784,12 +835,15 @@ class ClipboardSpring:
 	var equilibrium_length_is_auto: bool = true
 	var equilibrium_manual_length: float = 1.0
 	var target_atom: int
+	var target_atom2: int
 	var target_anchor: int
 	
 	func _init(in_constant_force: float, in_equilibrium_length_is_auto: bool,
-		in_equilibrium_manual_length: float, in_target_atom: int, in_target_anchor: int) -> void:
+		in_equilibrium_manual_length: float, in_target_atom: int,
+		in_target_atom2: int, in_target_anchor: int) -> void:
 		constant_force = in_constant_force
 		equilibrium_length_is_auto = in_equilibrium_length_is_auto
 		equilibrium_manual_length = in_equilibrium_manual_length
 		target_atom = in_target_atom
+		target_atom2 = in_target_atom2
 		target_anchor = in_target_anchor

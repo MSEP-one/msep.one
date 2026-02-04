@@ -164,7 +164,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hovering_spring_id = multi_structure_hit_result.closest_hit_spring_id
 					hover_position = (hovering_object.nano_structure.spring_get_atom_position(hovering_spring_id) + \
-							hovering_object.nano_structure.spring_get_anchor_position(hovering_spring_id, hovering_object)) / 2.0
+							hovering_object.nano_structure.spring_get_target_position(hovering_spring_id, hovering_object)) / 2.0
 				MultiStructureHitResult.HitType.HIT_MOTOR, MultiStructureHitResult.HitType.HIT_EMITTER:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hover_position = hovering_object.nano_structure.get_transform().origin
