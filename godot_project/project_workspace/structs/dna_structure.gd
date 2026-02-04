@@ -16,6 +16,10 @@ enum EditMode {
 	SequenceAndPath,
 	AtomsAndBonds,
 }
+enum SequencePolicy {
+	RandomlyGenerated,
+	UserDefined,
+}
 
 const StrandPolicy = DnaStructureParameters.StrandPolicy
 const PackedMolecule = preload("res://autoloads/dna_builder/templates/packed_molecule.gd")
@@ -27,6 +31,8 @@ const INVALID_CONTROL_POINT_IDX: int = -1
 @export var _sequence: String
 @export var _parameters: DnaStructureParameters
 @export var _edit_mode := EditMode.SequenceAndPath
+@export var _sequence_policy := SequencePolicy.RandomlyGenerated
+@export_storage var _rand_sequence_seed: int = 0
 
 # Atoms and Bases caches
 var _base_transform_cache: Dictionary[int, Transform3D]
@@ -41,6 +47,7 @@ static var _unpacked_atom_ids: Dictionary[int, UnpackedAtomId]
 static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
 
 var _last_sequence: String = ""
+var _last_rand_sequence_state: int = 0
 var _last_bases_cout: int = 0
 var _signal_queue_path_changed: bool = false
 var _signal_queue_parameters_changed: bool = false
@@ -54,10 +61,9 @@ var _baked_path: PackedVector3Array = []
 }
 
 
-static func create_dna(out_parameters: DnaStructureParameters, in_sequence: String = "") -> DnaStructure:
+static func create_dna(out_parameters: DnaStructureParameters) -> DnaStructure:
 	var instance := DnaStructure.new()
 	instance._parameters = out_parameters.duplicate(true)
-	instance._sequence = in_sequence
 	return instance
 
 
@@ -467,9 +473,24 @@ static func recalculate_curve_in_out(out_curve: Curve3D, in_index: int) -> void:
 
 
 #region: Sequence
+func set_sequence_policy(in_policy: SequencePolicy) -> void:
+	assert(_is_being_edited)
+	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
+	if _sequence_policy == in_policy:
+		return
+	_sequence_policy = in_policy
+	if in_policy == SequencePolicy.RandomlyGenerated and _sequence.length() > 0:
+		# Replace user generated sequence with randomly generated
+		var prev_length: int = _sequence.length()
+		_sequence = ""
+		_last_rand_sequence_state = 0
+		set_sequence_length(prev_length)
+
+
 func set_sequence(in_sequence: String) -> void:
 	assert(_is_being_edited)
 	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
+	assert(_sequence_policy == SequencePolicy.UserDefined, "Cannot set sequence when is meant to be generated randomly")
 	if _sequence != in_sequence:
 		_sequence = in_sequence
 		_adjust_sequence_to_path_length()
@@ -477,6 +498,38 @@ func set_sequence(in_sequence: String) -> void:
 
 func get_sequence() -> String:
 	return _sequence
+
+
+func get_sequence_length() -> int:
+	return _sequence.length()
+
+
+func set_sequence_length(in_length: int) -> void:
+	assert(_is_being_edited)
+	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
+	assert(_sequence_policy == SequencePolicy.RandomlyGenerated, "Cannot set sequence length unless is meant to be generated randomly")
+	if _sequence.length() >= in_length:
+		# shorten the sequence
+		_sequence = _sequence.substr(0, in_length)
+		_last_rand_sequence_state = 0
+		return
+	if _rand_sequence_seed == 0:
+		_rand_sequence_seed = randi()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _rand_sequence_seed
+	var chars: Array
+	if _last_rand_sequence_state != 0:
+		# continue from the end
+		rng.state = _last_rand_sequence_state
+		chars = range(_sequence.length(), in_length)
+	else:
+		# fill from the start
+		_sequence = ""
+		chars = range(in_length)
+	for i: int in chars:
+		const BASES = ['A', 'T', 'C', 'G']
+		_sequence += BASES[rng.randi() % BASES.size()]
+	_last_rand_sequence_state = rng.state
 
 
 func _adjust_sequence_to_path_length() -> void:

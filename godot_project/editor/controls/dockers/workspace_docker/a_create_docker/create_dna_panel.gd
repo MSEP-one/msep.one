@@ -40,7 +40,7 @@ func _notification(what: int) -> void:
 		_include_hydrogens_check_button.button_pressed = default_params.include_hydrogens
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
 		_create_button.pressed.connect(_on_create_button_pressed)
-		_create_button.disabled = true
+		_update_create_button()
 		%OffsetSpinBoxSlider.value = DnaBuilder.DNA_BASES_OFFSET
 		FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled.unbind(2))
 		_on_feature_flag_toggled()
@@ -74,13 +74,20 @@ func _on_create_button_pressed() -> void:
 	if OS.is_debug_build() and DnaBuilder.is_dev_tool_enabled():
 		DnaBuilder.DNA_BASES_OFFSET = %OffsetSpinBoxSlider.value
 
-	var dna: DnaStructure = DnaStructure.create_dna(params, _dna_sequence_text_edit.text)
+	var dna: DnaStructure = DnaStructure.create_dna(params)
 	dna.set_structure_name("DNA Object%d" % _workspace_context.workspace.get_nmb_of_structures())
 	var dna_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
 	var right_dir: Vector3 = _workspace_context.get_editor_viewport().get_camera_3d().global_transform.basis.x
-	var chain_length: float = params.rise_nanometers * (_dna_sequence_text_edit.text.length() - 1)
+	var bases_count: int = _dna_sequence_text_edit.text.length() if _user_defined_sequence_button.button_pressed else int(_sequence_length_spin_box_slider.value)
+	var chain_length: float = params.rise_nanometers * (bases_count - 1)
 	chain_length = max(chain_length, 0.01)
 	dna.start_edit()
+	if _rand_sequence_button.button_pressed:
+		dna.set_sequence_policy(DnaStructure.SequencePolicy.RandomlyGenerated)
+		dna.set_sequence_length(bases_count)
+	else:
+		dna.set_sequence_policy(DnaStructure.SequencePolicy.UserDefined)
+		dna.set_sequence(_dna_sequence_text_edit.text)
 	dna.insert_control_point(dna_pos - right_dir * chain_length / 2.0)
 	dna.insert_control_point(dna_pos + right_dir * chain_length / 2.0)
 	dna.end_edit()
@@ -92,4 +99,13 @@ func _on_create_button_pressed() -> void:
 
 
 func _on_dna_sequence_text_edit_text_changed() -> void:
-	_create_button.disabled = _dna_sequence_text_edit.text.is_empty()
+	_sequence_length_spin_box_slider.set_value_no_signal(max(_dna_sequence_text_edit.text.length(), 1))
+	_update_create_button()
+
+
+func _update_create_button() -> void:
+	if _rand_sequence_button.button_pressed:
+		# Assume slider value is always > 0
+		_create_button.disabled = false
+	else:
+		_create_button.disabled = _dna_sequence_text_edit.text.is_empty()

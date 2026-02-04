@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bdeg2b7ycyi66"]
+[gd_scene load_steps=6 format=3 uid="uid://bdeg2b7ycyi66"]
 
 [ext_resource type="Script" uid="uid://cdyropsbauo4k" path="res://editor/controls/dockers/workspace_docker/shared_controls/dna_panel.gd" id="1_imbu4"]
 [ext_resource type="PackedScene" uid="uid://qwxweev3tdf8" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/dna_sequence_text_edit.tscn" id="2_6y0sb"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_w42n7"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_imbu4"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_8e3dj"]
 
@@ -18,11 +20,59 @@ layout_mode = 2
 layout_mode = 2
 text = "Sequence"
 
-[node name="DnaSequenceTextEdit" parent="VBoxContainer" instance=ExtResource("2_6y0sb")]
+[node name="SequencePanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/SequencePanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/SequencePanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="RandSequenceButton" type="Button" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_imbu4")
+text = "Fill with a random Sequence"
+
+[node name="UserDefinedSequenceButton" type="Button" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_imbu4")
+text = "User Specified"
+
+[node name="DnaSequenceTextEdit" parent="VBoxContainer/SequencePanelContainer/VBoxContainer" instance=ExtResource("2_6y0sb")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 116)
 layout_mode = 2
 scroll_fit_content_height = false
+
+[node name="SequenceLengthContainer" type="HBoxContainer" parent="VBoxContainer/SequencePanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/SequenceLengthContainer"]
+layout_mode = 2
+text = "· Sequence length"
+
+[node name="SequenceLengthSpinBoxSlider" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/SequenceLengthContainer" instance=ExtResource("3_w42n7")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 10000.0
+value = 10.0
+allow_greater = true
+suffix = "bases"
+slider_exp_edit = true
 
 [node name="Label2" type="Label" parent="VBoxContainer"]
 layout_mode = 2
@@ -45,7 +95,7 @@ columns = 2
 
 [node name="Label" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
-text = "DNA Radius"
+text = "· DNA Radius"
 
 [node name="DnaRadiusSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
 unique_name_in_owner = true
@@ -56,10 +106,11 @@ step = 0.01
 value = 1.0
 allow_greater = true
 suffix = "nm"
+slider_exp_edit = false
 
 [node name="Label3" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
-text = "Bases per turn"
+text = "· Bases per turn"
 
 [node name="BasesPerTurnSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
 unique_name_in_owner = true
@@ -70,10 +121,11 @@ step = 0.1
 value = 10.0
 allow_greater = true
 custom_arrow_step = 0.5
+slider_exp_edit = false
 
 [node name="Label4" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
-text = "Rise"
+text = "· Rise"
 
 [node name="RiseNanometersSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
 unique_name_in_owner = true
@@ -85,10 +137,11 @@ value = 0.34
 allow_greater = true
 suffix = "nm"
 custom_arrow_step = 0.05
+slider_exp_edit = false
 
 [node name="Label5" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
-text = "Twist"
+text = "· Twist"
 
 [node name="InitialTwistSpinBoxSlider" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer" instance=ExtResource("3_w42n7")]
 unique_name_in_owner = true
@@ -98,10 +151,11 @@ step = 0.01
 allow_greater = true
 suffix = "º"
 custom_arrow_step = 1.0
+slider_exp_edit = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
-text = "Strands"
+text = "· Strands"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
@@ -154,9 +208,10 @@ value = 1.0
 allow_greater = true
 suffix = "nm"
 custom_arrow_step = 0.1
+slider_exp_edit = false
 
 [node name="IncludeHydrogensCheckButton" type="CheckButton" parent="VBoxContainer/PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
-text = "Include Hydrogens"
+text = "· Include Hydrogens"
