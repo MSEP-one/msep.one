@@ -1,6 +1,6 @@
-[gd_resource type="Resource" load_steps=2 format=4]
+[gd_resource type="Resource" load_steps=2 format=4 uid="uid://bjs6ut1gqshxq"]
 
-[ext_resource type="Script" path="res://autoloads/dna_builder/templates/packed_molecule.gd" id="1_wqgvg"]
+[ext_resource type="Script" uid="uid://8g2sevldq0c2" path="res://autoloads/dna_builder/templates/packed_molecule.gd" id="1_wqgvg"]
 
 [resource]
 script = ExtResource("1_wqgvg")
@@ -9,3 +9,4 @@ bonds = Array[Vector3i]([Vector3i(0, 1, 1), Vector3i(0, 2, 1), Vector3i(0, 4, 1)
 base_to_backbone_atom_id = 10
 next_backbone_atom_id = 0
 previous_backbone_atom_id = 8
+hydrogen_bonds = PackedInt32Array()

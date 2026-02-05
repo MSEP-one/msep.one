@@ -47,6 +47,7 @@ static var _unpacked_atom_ids: Dictionary[int, UnpackedAtomId]
 static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
 
 var _last_sequence: String = ""
+var _include_hydrogens_changed: bool = false
 var _last_rand_sequence_state: int = 0
 var _last_bases_cout: int = 0
 var _signal_queue_path_changed: bool = false
@@ -193,7 +194,10 @@ func set_edit_mode(in_mode: EditMode) -> void:
 		_base_transform_cache = {}
 		_atoms_count_cache = -1
 		_bonds_count_cache = -1
-		_springs.clear()
+		_highest_spring_id = -1
+		_springs = {}
+		_atom_to_atom_spring_ids = {}
+		_atoms_to_related_springs = {}
 		locked_atoms = {}
 		color_overrides = {}
 		springs_removed.emit(springs_to_remove)
@@ -225,6 +229,7 @@ func start_edit() -> void:
 	super.start_edit()
 	_last_bases_cout = _sequence.length()
 	_last_sequence = _sequence
+	_include_hydrogens_changed = false
 	return
 
 
@@ -248,7 +253,7 @@ func end_edit() -> void:
 				var count: = _sequence.length()
 				bases_count_changed.emit(count)
 				_last_bases_cout = _sequence.length()
-			if _last_sequence != _sequence:
+			if _last_sequence != _sequence or _include_hydrogens_changed:
 				_last_sequence = _sequence
 				_atoms_count_cache = -1
 				_atoms_ids_cache = {}
@@ -350,6 +355,7 @@ func set_include_hydrogens(in_include_hydrogens: bool) -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
 	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_signal_queue_parameters_changed = true
+	_include_hydrogens_changed = true
 	_parameters.include_hydrogens = in_include_hydrogens
 
 
@@ -575,7 +581,6 @@ func can_create_and_delete_atoms() -> bool:
 
 ## Returns number of atoms that has been created in this NanoStructure
 func get_valid_atoms_count() -> int:
-	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
 	if _edit_mode == EditMode.SequenceAndPath:
 		return 0
 	if _atoms_count_cache == -1:
@@ -1072,7 +1077,8 @@ static func _get_atom_id(in_base_idx: int, in_strand: Strand, in_is_backbone: bo
 
 
 func _get_base_template_for_unpacked_atom(in_packed: UnpackedAtomId) -> PackedMolecule:
-	assert(in_packed.base_idx >= 0 and in_packed.base_idx < _sequence.length(), "Base index out of range")
+	assert(in_packed.base_idx >= 0 and in_packed.base_idx < _sequence.length(),
+		"Base index %d out of range (0:%d)" % [in_packed.base_idx, _sequence.length()-1])
 	assert(in_packed.strand in get_strands(), "This structure doesn't have %s strand" % Strand.find_key(in_packed.strand))
 	var base: String = "backbone0" if in_packed.is_backbone else _sequence[in_packed.base_idx]
 	if in_packed.strand == Strand.B:
@@ -1081,7 +1087,8 @@ func _get_base_template_for_unpacked_atom(in_packed: UnpackedAtomId) -> PackedMo
 
 
 func _get_base_template_for_unpacked_bond(in_packed: UnpackedBondId) -> PackedMolecule:
-	assert(in_packed.base_idx >= 0 and in_packed.base_idx < _sequence.length(), "Base index out of range")
+	assert(in_packed.base_idx >= 0 and in_packed.base_idx < _sequence.length(),
+		"Base index %d out of range (0:%d)" % [in_packed.base_idx, _sequence.length()-1])
 	assert(in_packed.strand in get_strands(), "This structure doesn't have %s strand" % Strand.find_key(in_packed.strand))
 	var base: String = "backbone0" if in_packed.is_backbone else _sequence[in_packed.base_idx]
 	if in_packed.strand == Strand.B:
@@ -1146,7 +1153,7 @@ func spring_create(in_anchor_id: int, in_atom_id: int, in_spring_constant_force:
 
 func spring_create_between_atoms(in_atom_id_1: int, in_atom_id_2: int, in_spring_constant_force: float,
 			is_equilibrium_length_automatic: bool, in_equilibrium_manual_length: float) -> int:
-	assert(in_atom_id_1 != in_atom_id_1, "Cannot create an spring to itself")
+	assert(in_atom_id_1 != in_atom_id_2, "Cannot create an spring to itself")
 	assert(not INVALID_ATOM_ID in [in_atom_id_1, in_atom_id_2], "Invalid atom ID(s)")
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
 	var atoms_key := Vector2i(min(in_atom_id_1, in_atom_id_2), max(in_atom_id_1, in_atom_id_2))
@@ -1338,13 +1345,42 @@ func spring_set_constant_force(in_spring_id: int, new_force: float) -> void:
 func springs_get_all() -> PackedInt32Array:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return PackedInt32Array()
+	if _springs.is_empty() and get_strand_policy() == StrandPolicy.DOUBLE:
+		_create_hydrogen_bonds()
 	return PackedInt32Array(_springs.keys())
 
 
 func springs_get_valid() -> PackedInt32Array:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return PackedInt32Array()
+	if _springs.is_empty() and get_strand_policy() == StrandPolicy.DOUBLE:
+		_create_hydrogen_bonds()
 	return PackedInt32Array(_springs.keys())
+
+
+func _create_hydrogen_bonds() -> void:
+	assert(_springs.is_empty())
+	assert(get_strand_policy() == StrandPolicy.DOUBLE)
+	var was_being_edited: bool = _is_being_edited
+	if not was_being_edited:
+		start_edit()
+	for i: int in _sequence.length():
+		var base: String = _sequence[i]
+		if not base in DnaBuilder.DNA_COMPLEMENT.keys():
+			print("Skip base %d (%s)" % [i, base])
+			continue
+		var compliment: String = DnaBuilder.DNA_COMPLEMENT[base]
+		var a_template: PackedMolecule = DnaBuilder.get_template(base, get_include_hydrogens())
+		var b_template: PackedMolecule = DnaBuilder.get_template(compliment, get_include_hydrogens())
+		assert(a_template.hydrogen_bonds.size() == b_template.hydrogen_bonds.size(),
+			"Unmatching template data")
+		for b: int in a_template.hydrogen_bonds.size():
+			var atom_a: int = _get_atom_id(i, Strand.A, false, a_template.hydrogen_bonds[b])
+			var atom_b: int = _get_atom_id(i, Strand.B, false, b_template.hydrogen_bonds[b])
+			const FORCE: float = 0.2 # nN/nm
+			spring_create_between_atoms(atom_a, atom_b, FORCE, true, 0.001)
+	if not was_being_edited:
+		end_edit()
 
 
 func springs_count() -> int:
