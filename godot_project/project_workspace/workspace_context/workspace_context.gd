@@ -663,6 +663,7 @@ func end_simulation_if_running() -> void:
 func apply_simulation_if_running() -> void:
 	if !is_simulating():
 		return
+	
 	OpenMM.request_abort_simulation(_simulation)
 	about_to_apply_simulation.emit()
 	_simulation = null
@@ -1321,6 +1322,15 @@ func has_valid_particle_emitters() -> bool:
 			var template: AtomicStructure = null if parameters == null else parameters.get_molecule_template()
 			var atoms_count: int = 0 if template == null else template.get_valid_atoms_count()
 			if atoms_count > 0:
+				return true
+	return false
+
+
+func has_valid_dna_objects() -> bool:
+	for context: StructureContext in _structure_contexts.values():
+		if context.nano_structure is DnaStructure:
+			var dna := context.nano_structure as DnaStructure
+			if dna.get_sequence_length() > 0:
 				return true
 	return false
 

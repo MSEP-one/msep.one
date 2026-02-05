@@ -98,7 +98,6 @@ value = 20.0
 allow_greater = true
 suffix = "steps"
 custom_arrow_step = 100.0
-select_all_on_focus = true
 
 [node name="Label5" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
@@ -116,7 +115,6 @@ value = 200.0
 allow_greater = true
 suffix = "frames"
 custom_arrow_step = 100.0
-select_all_on_focus = true
 
 [node name="Label6" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
