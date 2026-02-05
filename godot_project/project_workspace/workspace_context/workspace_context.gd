@@ -1057,10 +1057,14 @@ func has_selection() -> bool:
 
 
 func has_transformable_selection() -> bool:
+	var transformable_selection: bool = false
 	for context: StructureContext in _structure_contexts.values():
+		if context.nano_structure is DnaStructure and context.get_selected_atoms().size() > 0:
+			# Cannot use transform gizmos when DNA atoms are selected
+			return false
 		if context.has_transformable_selection():
-			return true
-	return false
+			transformable_selection = true
+	return transformable_selection
 
 
 func has_cached_selection_set() -> bool:
