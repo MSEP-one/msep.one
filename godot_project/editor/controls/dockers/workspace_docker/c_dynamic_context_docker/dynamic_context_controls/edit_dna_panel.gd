@@ -9,6 +9,7 @@ var _main_container: Container
 
 var _advanced_options_button: Button
 var _advanced_options_panel: PanelContainer
+var _simulate_hydrogen_bonds_check_button: CheckButton
 var _convert_to_atoms_button: Button
 
 
@@ -24,6 +25,7 @@ func _notification(what: int) -> void:
 		_main_container = $VBoxContainer as Container
 		_advanced_options_button = %AdvancedOptionsButton as Button
 		_advanced_options_panel = %AdvancedOptionsPanel as PanelContainer
+		_simulate_hydrogen_bonds_check_button = %SimulateHydrogenBondsCheckButton as CheckButton
 		_convert_to_atoms_button = %ConvertToAtomsButton as Button
 		_sequence_length_spin_box_slider.value_confirmed.connect(_sequence_length_spin_box_slider_value_confirmed)
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
@@ -244,8 +246,8 @@ func _on_convert_to_atoms_button_pressed() -> void:
 	new_group.set_structure_name(_tracked_structure.get_structure_name() + "'s atoms")
 	_workspace_context.workspace.add_structure(new_group, parent_group)
 	new_group.start_edit()
+	var atom_map: Dictionary[int, int]
 	for strand: DnaStructure.Strand in _tracked_structure.get_strands():
-		var atom_map: Dictionary[int, int]
 		for atom_id: int in _tracked_structure.get_atom_ids_for_strand(strand):
 			var atomic_number: int = _tracked_structure.atom_get_atomic_number(atom_id)
 			var pos: Vector3 = _tracked_structure.atom_get_position(atom_id)
@@ -254,6 +256,18 @@ func _on_convert_to_atoms_button_pressed() -> void:
 			var bond_data: Vector3i = _tracked_structure.get_bond(bond_id)
 			# remap atom ids
 			new_group.add_bond(atom_map[bond_data.x], atom_map[bond_data.y], bond_data.z)
+	if _simulate_hydrogen_bonds_check_button.button_pressed:
+		var all_springs: PackedInt32Array = _tracked_structure.springs_get_all()
+		# Assume all springs has the same force
+		var k: float = 0.0 if all_springs.is_empty() else _tracked_structure.spring_get_constant_force(all_springs[0])
+		for spring_id: int in all_springs:
+			if _tracked_structure.spring_is_atom_to_atom(spring_id):
+				var atom1: int = atom_map[_tracked_structure.spring_get_atom_id(spring_id)]
+				var atom2: int = atom_map[_tracked_structure.spring_get_second_atom_id(spring_id)]
+				# Also assume all springs use automatic length
+				const LENGTH_IS_AUTOMATIC: bool = true
+				const DUMMY_LENGTH: float = 0.1
+				new_group.spring_create_between_atoms(atom1, atom2, k, LENGTH_IS_AUTOMATIC, DUMMY_LENGTH)
 	new_group.end_edit()
 	if not started_tracking_atoms:
 		# Done polling atoms, back to normal

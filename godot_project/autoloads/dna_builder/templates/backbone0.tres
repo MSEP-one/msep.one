@@ -9,3 +9,4 @@ bonds = Array[Vector3i]([Vector3i(0, 1, 2), Vector3i(0, 2, 1), Vector3i(0, 4, 1)
 base_to_backbone_atom_id = 10
 next_backbone_atom_id = 0
 previous_backbone_atom_id = 8
+hydrogen_bonds = PackedInt32Array()
