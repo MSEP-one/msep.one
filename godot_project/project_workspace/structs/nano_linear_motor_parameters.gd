@@ -5,7 +5,7 @@ enum Polarity {
 	BACKWARDS
 }
 
-@export var top_speed_in_nanometers_by_nanoseconds: float = 0.1 * 1e+6:
+@export var top_speed_in_nanometers_by_nanoseconds: float = 1000.0:
 	set = _set_top_speed_in_nanometers_by_nanoseconds
 @export var polarity: Polarity = Polarity.FORWARD:
 	set = _set_polarity

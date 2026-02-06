@@ -78,8 +78,8 @@ tooltip_text = "Revolutions per Nanosecond:
 This is the number of spins a motor will do per nanosecond.
 At {0} Rev / ns a motor will make a spin every {1} femtoseconds"
 max_value = 300.0
-step = 0.0
-value = 200.0
+step = 0.001
+value = 2.0
 allow_greater = true
 suffix = "Rev/ns"
 
