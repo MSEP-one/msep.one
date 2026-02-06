@@ -43,7 +43,12 @@ func _on_workspace_history_changed() -> void:
 
 
 func _queue_update_menu() -> void:
-	if InitialInfoScreen.visible or BusyIndicator.visible:
+	var has_exclusive_dialog_open: bool = false
+	for window: Window in get_tree().root.get_embedded_subwindows():
+		if window.visible and window.exclusive:
+			has_exclusive_dialog_open = true
+			break
+	if InitialInfoScreen.visible or BusyIndicator.visible or has_exclusive_dialog_open:
 		_set_all_is_disabled(self, true)
 	else:
 		_set_all_is_disabled(self, false)
