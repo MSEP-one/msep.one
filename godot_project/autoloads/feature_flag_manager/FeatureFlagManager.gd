@@ -78,6 +78,10 @@ func get_flag_value(in_path: String) -> bool:
 	return _featureflag_view_map[in_path].get_current_toggle()
 
 
+func set_flag_value(in_path: String, in_value: bool) -> void:
+	_featureflag_view_map[in_path].set_value(in_value)
+
+
 func _populate_featureflag_view_map() -> void:
 	var entries: Array[String] = []
 	_clear()
