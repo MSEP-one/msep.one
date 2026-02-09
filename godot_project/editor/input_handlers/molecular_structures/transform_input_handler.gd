@@ -343,6 +343,13 @@ func _get_gizmo_center_position() -> Vector3:
 			var atom_init_pos: Vector3 = context.nano_structure.atom_get_position(atom_id)
 			center_pos += atom_init_pos
 		
+		# Phase 1.1: DNA's control points
+		selection = context.get_selected_dna_spline_countrol_points()
+		selection_size += selection.size()
+		for control_point_idx: int in selection:
+			var control_point_pos: Vector3 = context.nano_structure.get_control_point_position(control_point_idx)
+			center_pos += control_point_pos
+		
 		# Phase 2: Objects with Transform3D
 		if context.nano_structure.has_transform():
 			if context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected():
