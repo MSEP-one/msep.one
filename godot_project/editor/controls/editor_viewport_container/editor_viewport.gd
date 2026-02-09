@@ -17,7 +17,8 @@ const INPUT_EVENT_ACTIONS_WHITELIST: Array[StringName] = [
 ]
 
 const INPUT_KEYS_WHITELIST: Array[Key] = [
-	KEY_ALT
+	KEY_ALT,
+	KEY_META,
 ]
 
 ## Returns the WorkspaceContext associated to the active workspace
