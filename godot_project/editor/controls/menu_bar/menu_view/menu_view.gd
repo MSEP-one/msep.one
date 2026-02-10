@@ -135,23 +135,23 @@ func _on_id_pressed(in_id: int) -> void:
 			AlgorithmTweaks.show()
 		ID_REPRESENTATION_VAN_DER_WAALS:
 			representation_settings.set_rendering_representation(Rendering.Representation.VAN_DER_WAALS_SPHERES)
-			representation_settings.emit_changed()
+			workspace_context.snapshot_moment("Representation change to Van Der Waals")
 		ID_REPRESENTATION_MECHANICAL_SIMULATION:
 			representation_settings.set_rendering_representation(Rendering.Representation.MECHANICAL_SIMULATION)
-			representation_settings.emit_changed()
+			workspace_context.snapshot_moment("Representation change to Mechanical Simulation")
 		ID_REPRESENTATION_STICKS:
 			representation_settings.set_rendering_representation(Rendering.Representation.STICKS)
-			representation_settings.emit_changed()
+			workspace_context.snapshot_moment("Representation change to Sticks")
 		ID_REPRESENTATION_ENHANCED_STICKS:
 			representation_settings.set_rendering_representation(Rendering.Representation.ENHANCED_STICKS)
-			representation_settings.emit_changed()
+			workspace_context.snapshot_moment("Representation change to Enhanced Sticks")
 		ID_REPRESENTATION_BALLS_AND_STICKS:
 			representation_settings.set_rendering_representation(Rendering.Representation.BALLS_AND_STICKS)
-			representation_settings.emit_changed()
+			workspace_context.snapshot_moment("Representation change to Balls and Sticks")
 			representation_settings.set_bond_visibility_and_notify(true)
 		ID_REPRESENTATION_ENHANCED_STICKS_AND_BALLS:
 			representation_settings.set_rendering_representation(Rendering.Representation.ENHANCED_STICKS_AND_BALLS)
-			representation_settings.emit_changed()
+			workspace_context.snapshot_moment("Representation change to Enhanced Balls and Sticks")
 		ID_REPRESENTATION_SIZE_SETTINGS:
 			request_hide.emit()
 			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
