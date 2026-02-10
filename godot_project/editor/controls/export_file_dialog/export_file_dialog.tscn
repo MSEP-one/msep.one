@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dgpgayamq4wyw"]
+
+[ext_resource type="Script" uid="uid://drvivjbvt3g7p" path="res://editor/controls/export_file_dialog/export_file_dialog.gd" id="1_nmlx1"]
+
+[node name="ExportFileDialog" type="FileDialog"]
+auto_translate_mode = 1
+title = "Export a File"
+size = Vector2i(392, 175)
+access = 2
+filters = PackedStringArray("*.xyz ; XYZ format", "*.pdb ; Protein Data Bank format")
+script = ExtResource("1_nmlx1")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cgb7a8s4egpox"]
+[gd_scene load_steps=11 format=3 uid="uid://cgb7a8s4egpox"]
 
 [ext_resource type="Script" uid="uid://dv8mr4midqkwd" path="res://editor/MolecularEditor.gd" id="1_u8b6i"]
 [ext_resource type="PackedScene" uid="uid://b711oqbglehtg" path="res://editor/controls/menu_bar/menu_bar.tscn" id="2_a3o8y"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://d27bh6k3cluw1" path="res://editor/controls/workspace_view/tab_container_active_workspaces.tscn" id="5_3fwwi"]
 [ext_resource type="Script" uid="uid://d2k0yfuvhmtby" path="res://editor/controls/general/nano_file_dialog.gd" id="6_2adso"]
 [ext_resource type="PackedScene" uid="uid://dj61no1d5t16w" path="res://editor/controls/import_file_dialog/import_file_dialog.tscn" id="6_criww"]
+[ext_resource type="PackedScene" uid="uid://dgpgayamq4wyw" path="res://editor/controls/export_file_dialog/export_file_dialog.tscn" id="7_cbhof"]
 [ext_resource type="PackedScene" uid="uid://18crkb1kbthw" path="res://editor/controls/template_library_dialog/template_library_dialog.tscn" id="7_uupny"]
 [ext_resource type="PackedScene" uid="uid://dg7wgefiwe42n" path="res://editor/controls/camera_position_dialog/camera_position_dialog.tscn" id="8_1w46u"]
 [ext_resource type="PackedScene" uid="uid://ddist487qh8in" path="res://editor/controls/video_tutorials_dialog/video_tutorials_dialog.tscn" id="9_18n8r"]
@@ -77,13 +78,8 @@ access = 2
 filters = PackedStringArray("*.msep1 ; MSEP.one Workspace")
 script = ExtResource("6_2adso")
 
-[node name="ExportFileDialog" type="FileDialog" parent="."]
+[node name="ExportFileDialog" parent="." instance=ExtResource("7_cbhof")]
 unique_name_in_owner = true
-title = "Export a File"
-size = Vector2i(392, 175)
-access = 2
-filters = PackedStringArray("*.xyz ; XYZ format", "*.pdb ; Protein Data Bank format")
-script = ExtResource("6_2adso")
 
 [node name="TemplateLibraryDialog" parent="." instance=ExtResource("7_uupny")]
 unique_name_in_owner = true

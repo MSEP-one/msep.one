@@ -252,12 +252,20 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	_update_window_title()
 
 
-func export_workspace(in_workspace: Workspace, in_path: String = "") -> void:
+func export_workspace(in_workspace: Workspace, in_path: String = "", in_export_dna: bool = false) -> void:
 	var path: String = in_path
 	if path.is_empty():
 		Editor_Utils.get_editor().show_export_workspace_dialog(in_workspace)
 		return
+	var revert_dna_modes: Array[DnaStructure]
+	if in_export_dna and not get_current_workspace_context().is_simulating():
+		for structure: NanoStructure in in_workspace.get_structures():
+			if structure is DnaStructure and structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+				revert_dna_modes.append(structure)
+				structure.set_edit_mode(DnaStructure.EditMode.AtomsAndBonds)
 	var err: Error = ResourceSaver.save(in_workspace, path)
+	for structure: DnaStructure in revert_dna_modes:
+		structure.set_edit_mode(DnaStructure.EditMode.SequenceAndPath)
 	if err != OK:
 		Editor_Utils.get_editor().prompt_error_msg(tr(&"Failed to export to file {0} with error '{1}'").format([path, error_string(err)]))
 
@@ -482,8 +490,8 @@ func _on_molecular_editor_load_workspace_confirmed(in_path: String) -> void:
 	load_and_activate_workspace(in_path)
 
 
-func _on_molecular_editor_export_workspace_confirmed(in_workspace: Workspace, in_path: String) -> void:
-	export_workspace(in_workspace, in_path)
+func _on_molecular_editor_export_workspace_confirmed(in_workspace: Workspace, in_path: String, in_export_dna: bool) -> void:
+	export_workspace(in_workspace, in_path, in_export_dna)
 
 
 func _on_about_msep_one_confirmed() -> void:
