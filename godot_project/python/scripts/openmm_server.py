@@ -1134,7 +1134,7 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 			Vec3(header.periodic_box_size[0], 0, 0),
 			Vec3(0, header.periodic_box_size[1], 0),
 			Vec3(0, 0, header.periodic_box_size[2]))
-	# Anchors
+	# Anchors and Springs
 	forces = SystemForcesCollection(openmm_system)
 	for anchor_id in topology_payload.anchors:
 		anchor: AnchorPoint = topology_payload.anchors[anchor_id]
@@ -1152,6 +1152,7 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 				forces.nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
 			# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
 			forces.bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
+	# Atom to Atom Springs
 	for spring in topology_payload.atom_to_atom_springs:
 		k_constant: float = spring.k_constant
 		equilibrium_length: float = spring.equilibrium_length
@@ -1258,7 +1259,7 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 		if forces.bond_force == None:
 			forces.bond_force = HarmonicBondForce()
 			openmm_system.addForce(forces.bond_force)
-		# Springs
+		# Anchors and springs
 		for anchor_id in topology_payload.anchors:
 			anchor: AnchorPoint = topology_payload.anchors[anchor_id]
 			if len(anchor.springs) == 0:
@@ -1275,6 +1276,13 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 					forces.nonbonded_force.addException(anchor.openmm_particle_id, spring.particle_id, 0.0, 1.0, 0.0)
 				# NOTE: use of openmm_system.addConstraint() was  not possible because it doesn't support massless particles
 				forces.bond_force.addBond(anchor.openmm_particle_id, spring.particle_id, equilibrium_length, k_constant)
+		# Atom to atom springs
+		for spring in topology_payload.atom_to_atom_springs:
+			k_constant: float = spring.k_constant
+			equilibrium_length: float = spring.equilibrium_length
+			if forces.nonbonded_force != None:
+				forces.nonbonded_force.addException(spring.particle_id, spring.particle_id2, 0.0, 1.0, 0.0)
+			forces.bond_force.addBond(spring.particle_id, spring.particle_id2, equilibrium_length, k_constant)
 		# Locked atoms
 		for i, atom in enumerate(topology_payload.atoms):
 			if atom.is_locked:
