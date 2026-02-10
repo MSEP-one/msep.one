@@ -84,7 +84,7 @@ var _snap_to_shape_surface: bool = false
 
 var _create_small_molecule_in_subgroup: bool = false
 
-var _spring_constant_force: float = 200000.0 # nN/nm
+var _spring_constant_force: float = 5000000.0 # nN/nm
 
 var _spring_equilibrium_length_is_auto: bool = true
 
