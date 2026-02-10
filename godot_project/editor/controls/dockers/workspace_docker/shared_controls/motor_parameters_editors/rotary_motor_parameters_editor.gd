@@ -91,7 +91,7 @@ func _on_rotary_motor_parameters_changed() -> void:
 	_rotary_ramp_out_time.editable = parameters.cycle_type != NanoVirtualMotorParameters.CycleType.CONTINUOUS
 	_rotary_top_speed_check_box.set_pressed_no_signal(parameters.max_speed_type == NanoRotaryMotorParameters.MaxSpeedType.TOP_SPEED)
 	_rotary_top_speed_spin_box.editable = _rotary_top_speed_check_box.button_pressed
-	var top_revolutions_per_picoseconds: float = parameters.top_revolutions_per_nanosecond / 1000
+	var top_revolutions_per_picoseconds: float = parameters.top_revolutions_per_nanosecond
 	_rotary_top_speed_spin_box.set_value_no_signal(top_revolutions_per_picoseconds)
 	_update_rotary_top_speed_tooltip()
 	_rotary_max_torque_check_box.set_pressed_no_signal(parameters.max_speed_type == NanoRotaryMotorParameters.MaxSpeedType.MAX_TORQUE)
@@ -130,7 +130,7 @@ func _on_rotary_top_speed_check_box_toggled(in_button_pressed: bool) -> void:
 
 
 func _on_rotary_top_speed_spin_box_value_confirmed(in_top_speed: float) -> void:
-	_get_rotary_parameters().top_revolutions_per_nanosecond = in_top_speed * 1000.0
+	_get_rotary_parameters().top_revolutions_per_nanosecond = in_top_speed
 	_update_rotary_top_speed_tooltip()
 	_take_snapshot_if_configured(tr(&"Top Speed"))
 
@@ -138,8 +138,8 @@ func _on_rotary_top_speed_spin_box_value_confirmed(in_top_speed: float) -> void:
 func _update_rotary_top_speed_tooltip() -> void:
 	_rotary_top_speed_spin_box.tooltip_text = tr("Revolutions per Picosecond:\n" +
 		"This is the number of spins a motor will do per picosecond.\n" +
-		"At %.2f Rev/ps a motor will make a spin every %.2f femtoseconds") % \
-		[ _rotary_top_speed_spin_box.value, 1.0 / (_rotary_top_speed_spin_box.value / 1000.0)]
+		"At %.2f Rev/ns a motor will make a spin every %.2f femtoseconds") % \
+		[ _rotary_top_speed_spin_box.value, 1.0 / (_rotary_top_speed_spin_box.value / 1000000.0)]
 
 
 func _on_rotary_max_torque_check_box_toggled(in_button_pressed: bool) -> void:
