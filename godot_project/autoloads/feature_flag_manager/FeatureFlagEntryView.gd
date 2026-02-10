@@ -28,5 +28,11 @@ func get_current_toggle() -> bool:
 		return false
 	return check_button.button_pressed
 
+func set_value(in_toggled: bool) -> void:
+	if not is_node_ready():
+		await ready
+	check_button.button_pressed = in_toggled
+
+
 func _on_button_toggled(new_value: bool) -> void:
 	value_toggled.emit(new_value)
