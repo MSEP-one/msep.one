@@ -443,7 +443,7 @@ func _add_spring(in_spring: int) -> void:
 	var atomic_structure: AtomicStructure = _structure_context.nano_structure as AtomicStructure
 	var atom_id: int = atomic_structure.spring_get_atom_id(in_spring)
 	var start: Vector3 = atomic_structure.atom_get_position(atom_id)
-	var end: Vector3 = atomic_structure.spring_get_anchor_position(in_spring, _structure_context)
+	var end: Vector3 = atomic_structure.spring_get_target_position(in_spring, _structure_context)
 	var atomic_nmb: int = atomic_structure.atom_get_atomic_number(atom_id)
 	var transform: Transform3D = _calculate_spring_transform(start, end, atomic_nmb)
 	var is_hydrogen: bool = atomic_nmb == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
@@ -466,7 +466,7 @@ func _on_nano_structure_springs_moved(in_springs_moved: PackedInt32Array) -> voi
 		if not _spring_collision_space.is_external_id_known(spring_id):
 			continue
 		var start: Vector3 = nano_structure.spring_get_atom_position(spring_id)
-		var end: Vector3 = nano_structure.spring_get_anchor_position(spring_id, _structure_context)
+		var end: Vector3 = nano_structure.spring_get_target_position(spring_id, _structure_context)
 		var atom_id: int = nano_structure.spring_get_atom_id(spring_id)
 		var atomic_nmb: int = nano_structure.atom_get_atomic_number(atom_id)
 		var transform: Transform3D = _calculate_spring_transform(start, end, atomic_nmb)
@@ -779,7 +779,7 @@ class RaycastResult:
 			var spring_position: Vector3 = Vector3.INF
 			if is_spring_colliding:
 				spring_position = (nano_structure.spring_get_atom_position(spring_id) + \
-						nano_structure.spring_get_anchor_position(spring_id, in_structure_context)) / 2.0
+						nano_structure.spring_get_target_position(spring_id, in_structure_context)) / 2.0
 			var atom_dst_to_ray_source: float = in_query_source.distance_squared_to(atom_position)
 			var bond_dst_to_ray_source: float = in_query_source.distance_squared_to(bond_position)
 			var spring_dst_to_ray_source: float = in_query_source.distance_squared_to(spring_position)

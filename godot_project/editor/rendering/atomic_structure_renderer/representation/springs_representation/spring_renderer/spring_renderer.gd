@@ -27,19 +27,20 @@ func initialize(in_structure_context: StructureContext) -> void:
 	_structure_id = in_structure_context.get_int_guid()
 	_workspace_context = in_structure_context.workspace_context
 	_multimesh.prepare()
-	var nano_struct: NanoStructure = in_structure_context.nano_structure
+	var nano_struct: AtomicStructure = in_structure_context.nano_structure
 	var springs: PackedInt32Array = nano_struct.springs_get_all()
 	var state := Representation.InstanceState.new()
 	for spring_id in springs:
-		var anchor_pos: Vector3 = nano_struct.spring_get_anchor_position(spring_id, in_structure_context)
+		var target_pos: Vector3 = nano_struct.spring_get_target_position(spring_id, in_structure_context)
 		var atom_id: int = nano_struct.spring_get_atom_id(spring_id)
 		var atom_pos: Vector3 = nano_struct.atom_get_position(atom_id)
-		var direction_to_atom: Vector3 = anchor_pos.direction_to(atom_pos)
+		var direction_to_atom: Vector3 = target_pos.direction_to(atom_pos)
 		var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
-		anchor_pos += direction_to_atom * anchor_radius
+		if not nano_struct.spring_is_atom_to_atom(spring_id):
+			target_pos += direction_to_atom * anchor_radius
 		state.is_selected = in_structure_context.is_spring_selected(spring_id)
 		state.is_hydrogen = nano_struct.atom_get_atomic_number(atom_id) == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
-		add_spring(spring_id, atom_pos, anchor_pos, state.to_float())
+		add_spring(spring_id, atom_pos, target_pos, state.to_float())
 	var workspace_context: WorkspaceContext = in_structure_context.workspace_context
 	workspace_context.workspace.representation_settings \
 		.should_hide_virtual_object_during_simulation_changed \
@@ -129,14 +130,15 @@ func hide_spring(in_spring_id: int) -> void:
 
 func show_spring(in_spring_id: int) -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
-	var nano_struct: NanoStructure = structure_context.nano_structure
+	var nano_struct: AtomicStructure = structure_context.nano_structure
 	var atom_id: int = nano_struct.spring_get_atom_id(in_spring_id)
 	var atom_position: Vector3 = nano_struct.atom_get_position(atom_id)
-	var anchor_position: Vector3 = nano_struct.spring_get_anchor_position(in_spring_id, structure_context)
-	var direction_to_atom: Vector3 = anchor_position.direction_to(atom_position)
-	var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
-	anchor_position += direction_to_atom * anchor_radius
-	refresh_spring_position(in_spring_id, atom_position, anchor_position)
+	var target_position: Vector3 = nano_struct.spring_get_target_position(in_spring_id, structure_context)
+	var direction_to_atom: Vector3 = target_position.direction_to(atom_position)
+	if not nano_struct.spring_is_atom_to_atom(in_spring_id):
+		var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
+		target_position += direction_to_atom * anchor_radius
+	refresh_spring_position(in_spring_id, atom_position, target_position)
 
 
 func hide_hydrogen_springs() -> void:
@@ -293,15 +295,22 @@ class TransformHandler:
 			if not related_nanostructure.spring_is_visible(spring_id):
 				continue
 			var atom_id: int = related_nanostructure.spring_get_atom_id(spring_id)
+			var atom_id2: int = related_nanostructure.spring_get_second_atom_id(spring_id)
 			var anchor_id: int = related_nanostructure.spring_get_anchor_id(spring_id)
 			var atom_position: Vector3 = _atom_to_transform_position.get(atom_id, 
 					related_nanostructure.atom_get_position(atom_id))
-			var anchor_position: Vector3 = _anchor_to_transform_position.get(anchor_id,
-					related_nanostructure.spring_get_anchor_position(spring_id, structure_context))
-			var direction_to_atom: Vector3 = anchor_position.direction_to(atom_position)
-			var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
-			anchor_position += direction_to_atom * anchor_radius
-			_spring_renderer.refresh_spring_position(spring_id, atom_position, anchor_position)
+			var target_position: Vector3
+			if anchor_id != Workspace.INVALID_OBJECT_INDEX:
+				var anchor_position: Vector3 = _anchor_to_transform_position.get(anchor_id,
+						related_nanostructure.spring_get_target_position(spring_id, structure_context))
+				var direction_to_atom: Vector3 = anchor_position.direction_to(atom_position)
+				var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
+				anchor_position += direction_to_atom * anchor_radius
+				target_position = anchor_position
+			elif atom_id2 != AtomicStructure.INVALID_ATOM_ID:
+				target_position = _atom_to_transform_position.get(atom_id2, 
+					related_nanostructure.atom_get_position(atom_id2))
+			_spring_renderer.refresh_spring_position(spring_id, atom_position, target_position)
 		_clear_movement_progress()
 	
 	
@@ -340,10 +349,11 @@ class TransformHandler:
 				continue
 			var atom_id: int = related_nanostructure.spring_get_atom_id(spring_id)
 			var atom_position: Vector3 = related_nanostructure.atom_get_position(atom_id)
-			var anchor_position: Vector3 = related_nanostructure.spring_get_anchor_position(spring_id, structure_context)
+			var anchor_position: Vector3 = related_nanostructure.spring_get_target_position(spring_id, structure_context)
 			var direction_to_atom: Vector3 = anchor_position.direction_to(atom_position)
-			var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
-			anchor_position += direction_to_atom * anchor_radius
+			if not related_nanostructure.spring_is_atom_to_atom(spring_id):
+				var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
+				anchor_position += direction_to_atom * anchor_radius
 			_spring_renderer.refresh_spring_position(spring_id, atom_position, anchor_position)
 	
 	

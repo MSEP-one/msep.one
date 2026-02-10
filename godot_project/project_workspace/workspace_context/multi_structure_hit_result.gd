@@ -175,8 +175,8 @@ func _calculate_spring_sqr_distance_to_camera(in_struct_context: StructureContex
 		return INF
 	var nano_structure: NanoStructure = in_struct_context.nano_structure
 	var atom_pos: Vector3 = nano_structure.spring_get_atom_position(in_spring_id)
-	var anchor_pos: Vector3 = nano_structure.spring_get_anchor_position(in_spring_id, in_struct_context)
-	var spring_center_pos: Vector3 = (atom_pos + anchor_pos) / 2.0
+	var target_pos: Vector3 = nano_structure.spring_get_target_position(in_spring_id, in_struct_context)
+	var spring_center_pos: Vector3 = (atom_pos + target_pos) / 2.0
 	return in_camera_pos.distance_squared_to(spring_center_pos)
 
 

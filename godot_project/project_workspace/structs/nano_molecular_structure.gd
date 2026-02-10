@@ -474,6 +474,39 @@ func spring_create(in_anchor_id: int, in_atom_id: int, in_spring_constant_force:
 	return _highest_spring_id
 
 
+func spring_create_between_atoms(in_atom_id_1: int, in_atom_id_2: int, in_spring_constant_force: float,
+			is_equilibrium_length_automatic: bool, in_equilibrium_manual_length: float) -> int:
+	assert(in_atom_id_1 != in_atom_id_2, "Cannot create an spring to itself")
+	assert(not INVALID_ATOM_ID in [in_atom_id_1, in_atom_id_2], "Invalid atom ID(s)")
+	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
+	var atoms_key := Vector2i(min(in_atom_id_1, in_atom_id_2), max(in_atom_id_1, in_atom_id_2))
+	if atoms_key in _atom_to_atom_spring_ids.keys():
+		var existing_spring_id: int = _atom_to_atom_spring_ids[atoms_key]
+		push_error("Spring between ", in_atom_id_1, " and ", in_atom_id_2, " already exists. Updated parameters")
+		spring_set_constant_force(existing_spring_id, in_spring_constant_force)
+		spring_set_equilibrium_lenght_is_auto(existing_spring_id, is_equilibrium_length_automatic)
+		spring_set_equilibrium_manual_length(existing_spring_id, in_equilibrium_manual_length)
+		return existing_spring_id
+	_highest_spring_id += 1
+	_springs[_highest_spring_id] = NanoSpring.create_between_atoms(in_atom_id_1, in_atom_id_2, in_spring_constant_force,
+			is_equilibrium_length_automatic, in_equilibrium_manual_length)
+	_signal_queue_springs_added.append(_highest_spring_id)
+	_springs[_highest_spring_id].anchor_is_visible = true
+	if not _atoms_to_related_springs.has(in_atom_id_1):
+		_atoms_to_related_springs[in_atom_id_1] = Dictionary()
+	if not _atoms_to_related_springs.has(in_atom_id_2):
+		_atoms_to_related_springs[in_atom_id_2] = Dictionary()
+	_atoms_to_related_springs[in_atom_id_1][_highest_spring_id] = true
+	_atoms_to_related_springs[in_atom_id_2][_highest_spring_id] = true
+	_atom_to_atom_spring_ids[atoms_key] = _highest_spring_id
+	return _highest_spring_id
+
+
+func spring_is_atom_to_atom(in_spring_id: int) -> bool:
+	assert(spring_has(in_spring_id), "Invalid spring id")
+	return _springs[in_spring_id].is_atom_to_atom()
+
+
 func _on_anchor_position_change(_in_position: Vector3, in_anchor: NanoVirtualAnchor) -> void:
 	var moved_springs: PackedInt32Array = in_anchor.get_related_springs(int_guid)
 	for related_spring_id: int in moved_springs:
@@ -511,20 +544,24 @@ func springs_get_valid() -> PackedInt32Array:
 func spring_invalidate(in_spring_id: int) -> void:
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
 	var atom_id: int = spring_get_atom_id(in_spring_id)
+	var atom_id2: int = spring_get_second_atom_id(in_spring_id)
 	var anchor_id: int = spring_get_anchor_id(in_spring_id)
 	_atoms_to_related_springs[atom_id].erase(in_spring_id)
+	if atom_id2 != INVALID_ATOM_ID:
+		_atoms_to_related_springs[atom_id2].erase(in_spring_id)
 	_springs.erase(in_spring_id)
 	_signal_queue_springs_moved.erase(in_spring_id)
 	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
-	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id)
-	anchor.handle_spring_removed(self, in_spring_id)
+	if anchor_id != Workspace.INVALID_OBJECT_INDEX:
+		var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id)
+		anchor.handle_spring_removed(self, in_spring_id)
 	
-	var is_still_linked_to_anchor: bool = anchor.is_structure_related(int_guid)
-	if not is_still_linked_to_anchor:
-		if anchor.position_changed.is_connected(_on_anchor_position_change):
-			anchor.position_changed.disconnect(_on_anchor_position_change)
-		if anchor.visibility_changed.is_connected(_on_anchor_visibility_changed):
-			anchor.visibility_changed.disconnect(_on_anchor_visibility_changed)
+		var is_still_linked_to_anchor: bool = anchor.is_structure_related(int_guid)
+		if not is_still_linked_to_anchor:
+			if anchor.position_changed.is_connected(_on_anchor_position_change):
+				anchor.position_changed.disconnect(_on_anchor_position_change)
+			if anchor.visibility_changed.is_connected(_on_anchor_visibility_changed):
+				anchor.visibility_changed.disconnect(_on_anchor_visibility_changed)
 	_signal_queue_springs_removed.append(in_spring_id)
 
 
@@ -539,6 +576,14 @@ func spring_get_atom_id(in_spring_id: int) -> int:
 	return _springs[in_spring_id].target_atom
 
 
+## Returns INVALID_ATOM_ID if spring target is an anchor
+func spring_get_second_atom_id(in_spring_id: int) -> int:
+	if not spring_is_atom_to_atom(in_spring_id):
+		return Workspace.INVALID_OBJECT_INDEX
+	var spring: NanoSpring = _springs[in_spring_id]
+	return spring.target_atom2
+
+
 func spring_get_atom_position(in_spring_id: int) -> Vector3:
 	var spring: NanoSpring = _springs[in_spring_id]
 	return atom_get_position(spring.target_atom)
@@ -549,8 +594,11 @@ func spring_get_anchor_id(in_spring_id: int) -> int:
 	return spring.target_anchor
 
 
-func spring_get_anchor_position(in_spring_id: int, in_parent_context: StructureContext) -> Vector3:
+func spring_get_target_position(in_spring_id: int, in_parent_context: StructureContext) -> Vector3:
 	assert(in_parent_context.nano_structure == self, "This method expects parent StructureContext")
+	if spring_is_atom_to_atom(in_spring_id):
+		return atom_get_position(spring_get_second_atom_id(in_spring_id))
+	# else: is anchor spring
 	var anchor_id: int = in_parent_context.nano_structure.spring_get_anchor_id(in_spring_id)
 	var workspace: Workspace = in_parent_context.workspace_context.workspace
 	var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id) as NanoVirtualAnchor
@@ -581,7 +629,7 @@ func spring_get_equilibrium_manual_length(in_spring_id: int) -> float:
 
 func spring_calculate_equilibrium_auto_length(in_spring_id: int, _in_parent_context: StructureContext) -> float:
 	var begin: Vector3 = spring_get_atom_position(in_spring_id)
-	var end: Vector3 = spring_get_anchor_position(in_spring_id, _in_parent_context)
+	var end: Vector3 = spring_get_target_position(in_spring_id, _in_parent_context)
 	var length: float = begin.distance_to(end)
 	return length
 

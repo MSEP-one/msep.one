@@ -184,6 +184,9 @@ func _dissolve_structure(in_structure: NanoStructure) -> void:
 	var springs: PackedInt32Array = in_structure.springs_get_all()
 	for spring_id: int in springs:
 		var anchor_id: int = in_structure.spring_get_anchor_id(spring_id)
+		if anchor_id == Workspace.INVALID_OBJECT_INDEX:
+			# atom to atom spring
+			continue
 		var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id)
 		anchor.handle_spring_removed(in_structure, spring_id)
 	

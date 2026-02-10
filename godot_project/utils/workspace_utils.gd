@@ -684,12 +684,20 @@ static func _move_selection_to_existing_structure(
 			for old_spring_id: int in source_structure_springs_ids:
 				var anchor_id: int = old_structure.spring_get_anchor_id(old_spring_id)
 				var old_atom_id: int = old_structure.spring_get_atom_id(old_spring_id)
+				var old_atom_id2: int = old_structure.spring_get_second_atom_id(old_spring_id)
 				var new_atom_id: int = source_to_dest_atoms_ids[old_atom_id]
+				var new_atom_id2: int = source_to_dest_atoms_ids.get(old_atom_id2, AtomicStructure.INVALID_ATOM_ID)
 				var spring_constant_force: float = old_structure.spring_get_constant_force(old_spring_id)
 				var is_equilibrium_length_automatic: bool = old_structure.spring_get_equilibrium_length_is_auto(old_spring_id)
 				var equilibrium_manual_length: float = old_structure.spring_get_equilibrium_manual_length(old_spring_id)
-				var new_spring_id: int = target_structure.spring_create(anchor_id, new_atom_id, spring_constant_force,
-						is_equilibrium_length_automatic, equilibrium_manual_length)
+				var new_spring_id: int = AtomicStructure.INVALID_SPRING_ID
+				if anchor_id != Workspace.INVALID_OBJECT_INDEX:
+					new_spring_id = target_structure.spring_create(anchor_id, new_atom_id, spring_constant_force,
+							is_equilibrium_length_automatic, equilibrium_manual_length)
+				elif new_atom_id2 != AtomicStructure.INVALID_ATOM_ID:
+					new_spring_id = target_structure.spring_create_between_atoms(new_atom_id, new_atom_id2, spring_constant_force,
+							is_equilibrium_length_automatic, equilibrium_manual_length)
+				assert(new_spring_id != AtomicStructure.INVALID_SPRING_ID)
 				destination_structure_springs_ids.append(new_spring_id)
 			
 			# 4. invalidate bonds in src

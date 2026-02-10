@@ -51,9 +51,9 @@ func _internal_select_spring(in_springs: PackedInt32Array) -> PackedInt32Array:
 			_spring_selection[spring_id] = true
 			new_springs_selected.append(spring_id)
 			var atom_position: Vector3 = nano_structure.spring_get_atom_position(spring_id)
-			var anchor_position: Vector3 = nano_structure.spring_get_anchor_position(spring_id, _structure_context)
+			var target_position: Vector3 = nano_structure.spring_get_target_position(spring_id, _structure_context)
 			_aabb = _aabb.expand(atom_position)
-			_aabb = _aabb.expand(anchor_position)
+			_aabb = _aabb.expand(target_position)
 	return new_springs_selected
 
 
@@ -98,7 +98,7 @@ func get_aabb() -> AABB:
 	_aabb = AABB(initial_position, Vector3.ZERO)
 	for spring_id: int in _spring_selection:
 		var first_pos: Vector3 = nano_structure.spring_get_atom_position(spring_id)
-		var second_pos: Vector3 = nano_structure.spring_get_anchor_position(spring_id, _structure_context)
+		var second_pos: Vector3 = nano_structure.spring_get_target_position(spring_id, _structure_context)
 		_aabb = _aabb.expand(first_pos)
 		_aabb = _aabb.expand(second_pos)
 	_aabb_rebuild_needed = false
