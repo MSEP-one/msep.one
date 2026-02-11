@@ -120,13 +120,16 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, out_context:
 		else:
 			if not _find_target_candidate(in_camera, in_input_event):
 				update_preview_position()
+			var ctx: StructureContext = _workspace_context.get_nano_structure_context_from_id(_drag_start_structure_id)
+			var atomic_structure: AtomicStructure = ctx.nano_structure
 			if _creating == _CREATING_BOND:
-				rendering.bond_preview_show()
+				if _is_atom_to_atom_drag() and not _can_create_bond_or_spring_between_atoms(atomic_structure, _drag_start_atom_id, _target_atom_id):
+					rendering.bond_preview_hide()
+				else:
+					rendering.bond_preview_show()
 			if _creating == _CREATING_SPRING and _is_atom_to_atom_drag():
 				# Atom to atom spring
-				var ctx: StructureContext = _workspace_context.get_nano_structure_context_from_id(_drag_start_structure_id)
-				var atomic_structure: AtomicStructure = ctx.nano_structure
-				if _can_create_spring_between_atoms(atomic_structure, _drag_start_atom_id, _target_atom_id):
+				if _can_create_bond_or_spring_between_atoms(atomic_structure, _drag_start_atom_id, _target_atom_id):
 					rendering.virtual_anchor_preview_show()
 					_hide_anchor_preview()
 				else:
@@ -412,7 +415,7 @@ func _process_create_spring_result(in_camera: Camera3D, in_input_event: InputEve
 	var new_spring_id: int
 	if anchor != null:
 		new_spring_id = _create_spring(atomic_structure, anchor.int_guid, atom_id, parameters)
-	elif not _can_create_spring_between_atoms(atomic_structure, atom_id, atom_id2):
+	elif not _can_create_bond_or_spring_between_atoms(atomic_structure, atom_id, atom_id2):
 		# Early return
 		return true
 	elif atom_id2 != AtomicStructure.INVALID_ATOM_ID:
@@ -449,9 +452,7 @@ func _process_create_bond_result(_out_context: StructureContext, in_camera: Came
 	
 	var have_atom_to_connect: bool = _target_atom_id != AtomicStructure.INVALID_ATOM_ID
 	if have_atom_to_connect:
-		var bond_already_exists: bool = nano_structure.atom_find_bond_between(_drag_start_atom_id, _target_atom_id) >\
-				AtomicStructure.INVALID_BOND_ID
-		if not bond_already_exists:
+		if _can_create_bond_or_spring_between_atoms(nano_structure, _drag_start_atom_id, _target_atom_id):
 			_create_bond(structure_context, _drag_start_atom_id, _target_atom_id)
 		return true
 	
@@ -469,7 +470,7 @@ func _create_spring(in_atomic_struct: NanoStructure, in_anchor_id: int, in_atom_
 	return spring_id
 
 
-func _can_create_spring_between_atoms(in_atomic_struct: AtomicStructure, in_atom_id: int, in_atom_id2: int) -> bool:
+func _can_create_bond_or_spring_between_atoms(in_atomic_struct: AtomicStructure, in_atom_id: int, in_atom_id2: int) -> bool:
 	if in_atom_id == in_atom_id2:
 		# Cannot create spring to itself
 		return false
