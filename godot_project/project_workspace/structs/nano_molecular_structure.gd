@@ -52,13 +52,14 @@ func _post_init() -> void:
 	for spring_id: int in _springs:
 		_highest_spring_id = max(_highest_spring_id, spring_id)
 		var anchor_id: int = _springs[spring_id].target_anchor
-		var anchor: NanoVirtualAnchor = related_workspace.get_structure_by_int_guid(anchor_id)
-		anchor.handle_spring_added(self, spring_id)
-		if not anchor.position_changed.is_connected(_on_anchor_position_change):
-			anchor.position_changed.connect(_on_anchor_position_change.bind(anchor))
-		if not anchor.visibility_changed.is_connected(_on_anchor_visibility_changed.bind(anchor)):
-			anchor.visibility_changed.connect(_on_anchor_visibility_changed.bind(anchor))
-		_springs[spring_id].anchor_is_visible = anchor.get_visible()
+		if anchor_id != Workspace.INVALID_OBJECT_INDEX:
+			var anchor: NanoVirtualAnchor = related_workspace.get_structure_by_int_guid(anchor_id)
+			anchor.handle_spring_added(self, spring_id)
+			if not anchor.position_changed.is_connected(_on_anchor_position_change):
+				anchor.position_changed.connect(_on_anchor_position_change.bind(anchor))
+			if not anchor.visibility_changed.is_connected(_on_anchor_visibility_changed.bind(anchor)):
+				anchor.visibility_changed.connect(_on_anchor_visibility_changed.bind(anchor))
+			_springs[spring_id].anchor_is_visible = anchor.get_visible()
 		if not spring_is_visible(spring_id):
 			invisible_springs.push_back(spring_id)
 	if not invisible_springs.is_empty():
