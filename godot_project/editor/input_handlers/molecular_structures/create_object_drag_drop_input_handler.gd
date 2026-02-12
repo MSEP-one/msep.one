@@ -254,7 +254,7 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 				_target_atom_id = AtomicStructure.INVALID_ATOM_ID
 				_hide_atom_and_bond_preview()
 				return false
-			elif _creating == _CREATING_SPRING and atomic_structure.int_guid != _drag_start_structure_id:
+			elif _creating == _CREATING_SPRING and _drag_state == _DRAG_FROM_ATOM and atomic_structure.int_guid != _drag_start_structure_id:
 				# Not possible to springs between 2 different structures
 				_target_atom_id = AtomicStructure.INVALID_ATOM_ID
 				_hide_anchor_and_spring_preview()
