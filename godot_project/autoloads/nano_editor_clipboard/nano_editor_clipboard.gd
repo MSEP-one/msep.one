@@ -183,6 +183,7 @@ func _copy_selected_springs(
 			continue
 		if target_atom_id2 != AtomicStructure.INVALID_ATOM_ID and not in_atom_selection.has(target_atom_id2) \
 			and not in_atom_selection.has(target_atom_id):
+			# only spring is selected, without any of the 2 atoms, so it cannot be copied
 			continue
 		clipboard_springs[spring_id] = ClipboardSpring.new(
 				in_structure.spring_get_constant_force(spring_id),
@@ -195,14 +196,16 @@ func _copy_selected_springs(
 		
 		related_structure_ids[spring_id] = PackedInt32Array()
 		required_structure_ids[spring_id] = PackedInt32Array()
-		if in_atom_selection.has(target_atom_id):
+		if in_atom_selection.has(target_atom_id) or (target_atom_id2 != AtomicStructure.INVALID_ATOM_ID and in_atom_selection.has(target_atom_id2)):
 			related_structure_ids[spring_id].append(in_structure.int_guid)
 		else:
 			required_structure_ids[spring_id].append(in_structure.int_guid)
-		if selected_anchor_ids.has(target_anchor_id):
-			related_structure_ids[spring_id].append(target_anchor_id)
-		else:
-			required_structure_ids[spring_id].append(target_anchor_id)
+		if target_anchor_id != Workspace.INVALID_OBJECT_INDEX:
+			# Atom to Anchor spring
+			if selected_anchor_ids.has(target_anchor_id):
+				related_structure_ids[spring_id].append(target_anchor_id)
+			else:
+				required_structure_ids[spring_id].append(target_anchor_id)
 		
 	var new_content: Dictionary = {}
 	new_content[&"type"] = ClipboardContentType.SPRINGS
@@ -630,10 +633,6 @@ func _paste_springs(
 			springs_pending_creation[new_target_structure_id].push_back(new_spring)
 		elif target_atom2_was_copied: # but target_anchor was not
 			# create new spring attached to new atom and original anchor
-			var original_anchor_structure: NanoStructure = \
-				out_workspace_context.workspace.get_structure_by_int_guid(spring.target_anchor)
-			if not is_instance_valid(original_anchor_structure):
-				continue
 			var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom2]
 			var new_target_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
 			target_structure = \
