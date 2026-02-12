@@ -1033,6 +1033,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	hidden_motor_links = in_state_snapshot["hidden_motor_links"].duplicate()
 	locked_atoms = in_state_snapshot["locked_atoms"].duplicate()
 	_atoms_to_related_springs = in_state_snapshot["_atoms_to_related_springs"].duplicate(true)
+	_atom_to_atom_spring_ids = in_state_snapshot["_atom_to_atom_spring_ids"].duplicate()
 	_signal_queue_atoms_added = in_state_snapshot["_signal_queue_atoms_added"].duplicate()
 	_signal_queue_atoms_moved = in_state_snapshot["_signal_queue_atoms_moved"].duplicate()
 	_signal_queue_atoms_removed = in_state_snapshot["_signal_queue_atoms_removed"].duplicate()
