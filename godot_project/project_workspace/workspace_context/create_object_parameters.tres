@@ -32,7 +32,7 @@ limit_maximum_force = false
 [sub_resource type="Resource" id="Resource_6rxql"]
 script = ExtResource("2_plga1")
 max_speed_type = 0
-top_revolutions_per_nanosecond = 2.0
+top_revolutions_per_nanosecond = 30.0
 max_torque = 50.0
 is_jerk_limited = false
 jerk_limit = 50.0

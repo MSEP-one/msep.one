@@ -13,7 +13,7 @@ enum MaxSpeedType {
 
 @export var max_speed_type: MaxSpeedType = MaxSpeedType.TOP_SPEED:
 	set = _set_max_speed_type
-@export var top_revolutions_per_nanosecond: float = 2.0:
+@export var top_revolutions_per_nanosecond: float = 30.0:
 	set = _set_top_revolutions_per_nanosecond
 @export var max_torque: float = 50.0:
 	set = _set_max_torque
