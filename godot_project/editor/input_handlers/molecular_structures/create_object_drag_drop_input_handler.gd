@@ -121,7 +121,7 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, out_context:
 			if not _find_target_candidate(in_camera, in_input_event):
 				update_preview_position()
 			var ctx: StructureContext = _workspace_context.get_nano_structure_context_from_id(_drag_start_structure_id)
-			var atomic_structure: AtomicStructure = ctx.nano_structure
+			var atomic_structure: AtomicStructure = null if _drag_state == _DRAG_FROM_ANCHOR else ctx.nano_structure
 			if _creating == _CREATING_BOND:
 				if _is_atom_to_atom_drag() and not _can_create_bond_or_spring_between_atoms(atomic_structure, _drag_start_atom_id, _target_atom_id):
 					rendering.bond_preview_hide()
