@@ -549,6 +549,8 @@ func spring_invalidate(in_spring_id: int) -> void:
 	_atoms_to_related_springs[atom_id].erase(in_spring_id)
 	if atom_id2 != INVALID_ATOM_ID:
 		_atoms_to_related_springs[atom_id2].erase(in_spring_id)
+		var atom_to_atom_spring_key := Vector2i(min(atom_id, atom_id2), max(atom_id, atom_id2))
+		_atom_to_atom_spring_ids.erase(atom_to_atom_spring_key)
 	_springs.erase(in_spring_id)
 	_signal_queue_springs_moved.erase(in_spring_id)
 	var workspace: Workspace = MolecularEditorContext.find_workspace_possessing_structure(self)
