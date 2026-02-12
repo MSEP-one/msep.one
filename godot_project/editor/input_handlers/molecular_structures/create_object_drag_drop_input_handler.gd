@@ -127,15 +127,16 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, out_context:
 					rendering.bond_preview_hide()
 				else:
 					rendering.bond_preview_show()
-			if _creating == _CREATING_SPRING and _is_atom_to_atom_drag():
-				# Atom to atom spring
-				if _can_create_bond_or_spring_between_atoms(atomic_structure, _drag_start_atom_id, _target_atom_id):
-					rendering.virtual_anchor_preview_show()
-					_hide_anchor_preview()
+			if _creating == _CREATING_SPRING:
+				if _is_atom_to_atom_drag():
+					# Atom to atom spring
+					if _can_create_bond_or_spring_between_atoms(atomic_structure, _drag_start_atom_id, _target_atom_id):
+						rendering.virtual_anchor_preview_show()
+						_hide_anchor_preview()
+					else:
+						_hide_anchor_and_spring_preview()
 				else:
-					_hide_anchor_and_spring_preview()
-			else:
-				rendering.virtual_anchor_preview_show()
+					rendering.virtual_anchor_preview_show()
 			return true
 	if in_input_event is InputEventMouseButton:
 		var mouse_up: bool = not in_input_event.pressed
