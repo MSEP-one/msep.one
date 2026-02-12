@@ -60,8 +60,8 @@ text = "Placement:"
 [node name="OptionButtonPlacement" type="OptionButton" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-item_count = 3
 selected = 0
+item_count = 3
 popup/item_0/text = "Keep original positions"
 popup/item_0/id = 0
 popup/item_1/text = "In front of the camera"

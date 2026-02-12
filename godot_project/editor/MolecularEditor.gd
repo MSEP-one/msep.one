@@ -4,7 +4,7 @@ class_name MolecularEditor
 
 signal load_workspace_confirmed(in_path: String)
 signal save_workspace_confirmed(in_workspace: Workspace, in_path: String)
-signal export_workspace_confirmed(in_workspace: Workspace, in_path: String)
+signal export_workspace_confirmed(in_workspace: Workspace, in_path: String, in_export_dna_enabled: bool)
 
 
 const WINDOW_MINIMUM_SIZE := Vector2i(930, 560)
@@ -138,7 +138,7 @@ func _on_export_file_dialog_file_selected(in_path: String) -> void:
 		var workspace: WeakRef = export_file_dialog.get_meta(&"__workspace__", null)
 		assert(workspace.get_ref() != null and workspace.get_ref() is Workspace,
 			"Workspace is invalid, cannot save")
-		export_workspace_confirmed.emit(workspace.get_ref(), in_path)
+		export_workspace_confirmed.emit(workspace.get_ref(), in_path, export_file_dialog.is_export_dna_enabled())
 
 
 func show_open_workspace_dialog() -> void:

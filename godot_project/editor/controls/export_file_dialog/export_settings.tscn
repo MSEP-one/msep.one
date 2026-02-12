@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://dtxfj1243co7v"]
+
+[ext_resource type="Script" uid="uid://cs8px5yn0c6r7" path="res://editor/controls/export_file_dialog/export_settings.gd" id="1_dryhq"]
+
+[node name="ExportSettings" type="VBoxContainer"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 602.0
+offset_bottom = 83.0
+script = ExtResource("1_dryhq")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Export Settings"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+text = "Options:"
+
+[node name="CheckExportDNA" type="CheckBox" parent="PanelContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Include DNA Objects as Atoms and Bonds"

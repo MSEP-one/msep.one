@@ -35,7 +35,7 @@ func _save(resource: Resource, path: String, _flags: int) -> Error:
 	# First line - Atoms count
 	var total_atom_count: int = 0
 	for structure: NanoStructure in workspace.get_structures():
-		if structure is NanoMolecularStructure:
+		if structure is AtomicStructure:
 			total_atom_count += structure.get_valid_atoms_count()
 	file.store_line(str(total_atom_count))
 	
@@ -48,7 +48,7 @@ func _save(resource: Resource, path: String, _flags: int) -> Error:
 	
 	# Atoms positions
 	for structure: NanoStructure in workspace.get_structures():
-		if not structure is NanoMolecularStructure:
+		if not structure is AtomicStructure:
 			continue
 		
 		var atoms_count: int = structure.get_valid_atoms_count()
