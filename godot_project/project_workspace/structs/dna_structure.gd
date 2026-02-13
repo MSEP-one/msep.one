@@ -1360,7 +1360,11 @@ func atom_get_springs(in_atom_id: int) -> PackedInt32Array:
 	if _edit_mode == EditMode.SequenceAndPath:
 		return PackedInt32Array()
 	if _atoms_to_related_springs.has(in_atom_id):
-		return PackedInt32Array(_atoms_to_related_springs[in_atom_id].keys())
+		var springs := PackedInt32Array(_atoms_to_related_springs[in_atom_id].keys())
+		for atom_pair: Vector2i in _atom_to_atom_spring_ids.keys():
+			if atom_pair.x == in_atom_id or atom_pair.y == in_atom_id:
+				springs.append(_atom_to_atom_spring_ids[atom_pair])
+		return springs
 	return PackedInt32Array()
 #endregion: Anchors and Strings
 

@@ -574,7 +574,8 @@ func _calculate_spring_transform(in_atom_position: Vector3, in_anchor_position: 
 	var length: float = begin.distance_to(end)
 	var thickness: float = SpringRenderer.MODEL_THICKNESS * 0.5 * PHYSIC_SPACE_SIZE_FACTOR
 	var scale := Vector3(thickness, thickness, length)
-	var new_transform := Transform3D(Basis(), position).looking_at(end).scaled_local(scale)
+	var up := Vector3.UP if position.x != end.x or position.z != position.z else Vector3.RIGHT
+	var new_transform := Transform3D(Basis(), position).looking_at(end, up).scaled_local(scale)
 	return new_transform
 
 

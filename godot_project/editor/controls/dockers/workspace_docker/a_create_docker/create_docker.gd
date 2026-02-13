@@ -112,6 +112,17 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/a_create_docker/create_virtual_spring_panel.tscn"
 			]
 		},
+	&"Auto-Create Springs":
+		{
+			icon = "⛓️",
+			header = true,
+			scroll = false,
+			collapse = false,
+			start_collapsed = false,
+			controls = [
+				"res://editor/controls/dockers/workspace_docker/a_create_docker/auto_create_springs_panel.tscn"
+			]
+		},
 	&"Creation Distance":
 		{
 			icon = "📏",
