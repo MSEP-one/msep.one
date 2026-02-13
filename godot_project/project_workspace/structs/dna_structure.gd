@@ -52,6 +52,7 @@ var _last_bases_cout: int = 0
 var _signal_queue_path_changed: bool = false
 var _signal_queue_parameters_changed: bool = false
 var _baked_path: PackedVector3Array = []
+var _adjust_path_length_queued: bool = false
 
 @export var _springs: Dictionary = {
 	# id<int> : NanoSpring
@@ -231,6 +232,8 @@ func start_edit() -> void:
 func end_edit() -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
 	if _edit_mode == EditMode.SequenceAndPath:
+		if _adjust_path_length_queued:
+			_adjust_path_length()
 		_is_being_edited = false
 		var has_changed: bool = (
 			_last_bases_cout != _sequence.length()
@@ -293,7 +296,7 @@ func set_rise_nanometers(in_rise_nanometers: float) -> void:
 	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_signal_queue_parameters_changed = true
 	_parameters.rise_nanometers = in_rise_nanometers
-	_adjust_sequence_to_path_length()
+	_queue_adjust_path_length()
 
 
 func get_rise_nanometers() -> float:
@@ -362,7 +365,7 @@ func get_include_hydrogens() -> bool:
 func _on_curve_changed() -> void:
 	_signal_queue_path_changed = true
 	_base_transform_cache.clear()
-	_adjust_sequence_to_path_length()
+	_queue_adjust_path_length()
 
 
 func insert_control_point(position: Vector3, in_index: int = -1) -> void:
@@ -404,6 +407,22 @@ func get_control_point_count() -> int:
 
 func get_control_point_position(in_index: int) -> Vector3:
 	return _curve.get_point_position(in_index)
+
+
+func get_path_length_at_control_point(in_index: int) -> float:
+	while in_index < 0:
+		in_index += get_control_point_count()
+	var path: PackedVector3Array = get_baked_path()
+	var interval_sqrd: float = _curve.bake_interval * _curve.bake_interval
+	var position: Vector3 = _curve.get_point_position(in_index)
+	var accum: float = 0
+	var last: Vector3 = path[0]
+	for i in path.size():
+		accum += last.distance_to(path[i])
+		last = path[i]
+		if last.distance_squared_to(position) <= interval_sqrd:
+			break
+	return accum
 
 
 func get_path_length() -> float:
@@ -511,7 +530,7 @@ func set_sequence(in_sequence: String) -> void:
 	assert(_sequence_policy == SequencePolicy.UserDefined, "Cannot set sequence when is meant to be generated randomly")
 	if _sequence != in_sequence:
 		_sequence = in_sequence
-		_adjust_sequence_to_path_length()
+		_queue_adjust_path_length()
 
 
 func get_sequence() -> String:
@@ -530,6 +549,7 @@ func set_sequence_length(in_length: int) -> void:
 		# shorten the sequence
 		_sequence = _sequence.substr(0, in_length)
 		_last_rand_sequence_state = 0
+		_queue_adjust_path_length()
 		return
 	if _rand_sequence_seed == 0:
 		_rand_sequence_seed = randi()
@@ -548,21 +568,49 @@ func set_sequence_length(in_length: int) -> void:
 		const BASES = ['A', 'T', 'C', 'G']
 		_sequence += BASES[rng.randi() % BASES.size()]
 	_last_rand_sequence_state = rng.state
+	_queue_adjust_path_length()
 
 
-func _adjust_sequence_to_path_length() -> void:
+func _queue_adjust_path_length() -> void:
+	assert(_is_being_edited)
+	_adjust_path_length_queued = true
+
+
+func _adjust_path_length() -> void:
 	assert(_is_being_edited)
 	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
-	var expected_sequence_length: int = floori(_curve.get_baked_length() / _parameters.rise_nanometers)
-	if expected_sequence_length == _sequence.length():
+	_adjust_path_length_queued = false
+	const MIN_RISE_NANOMETERS: float = 0.1
+	if _parameters.rise_nanometers < MIN_RISE_NANOMETERS:
 		return
-	# Remove only X'es at the end of the sequence
-	var modified_sequence: String = _sequence.rstrip("X")
-	if modified_sequence.length() < expected_sequence_length:
-		modified_sequence += "X".repeat(expected_sequence_length - modified_sequence.length())
-	# IMPORTANT: This comparison avoids unnecesary COW changes to _sequence
-	if modified_sequence != _sequence:
-		_sequence = modified_sequence
+	var expected_length: float = (get_sequence_length() - 1) * _parameters.rise_nanometers
+	const THRESHOLD: float = MIN_RISE_NANOMETERS
+	if _curve.get_baked_length() - THRESHOLD < expected_length:
+		return
+	
+	if get_control_point_count() > 2:
+		var should_drop_last: bool = get_path_length_at_control_point(-2) > expected_length
+		while should_drop_last:
+			remove_control_point(get_control_point_count() - 1)
+			should_drop_last = get_control_point_count() > 2 and get_path_length_at_control_point(-2) > expected_length
+	
+	if get_sequence_length() == 1:
+		# Special case, only 1 base exists, we should prevent a curve of size 0
+		var origin: Vector3 = get_control_point_position(0)
+		var dir: Vector3 = origin.direction_to(get_control_point_position(1))
+		set_control_point_position(1, origin + dir * MIN_RISE_NANOMETERS)
+		return
+	
+	var path: PackedVector3Array = get_baked_path()
+	var interval: float = _curve.bake_interval
+	var accum: float = 0
+	var last: Vector3 = path[0]
+	for i in path.size():
+		accum += last.distance_to(path[i])
+		last = path[i]
+		if abs(accum - expected_length) <= interval:
+			break
+	set_control_point_position(get_control_point_count() -1, last)
 #endregion: Sequence
 
 
