@@ -57,7 +57,10 @@ func _show_hovered_atom_tooltip(in_hovered_structure_context: StructureContext, 
 	var attached_count: int = structure.atom_get_bonds(in_atom_id).size()
 	var lone_pairs: int = structure.atom_get_remaining_valence(in_atom_id)
 	var tooltip: String = ""
-	tooltip += "%s (%s)\n" % [tr(element_data.name), element_data.symbol]
+	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_TOOLTIP_SHOW_IDS):
+		tooltip += "%s (%s) #%d\n" % [tr(element_data.name), element_data.symbol, in_atom_id]
+	else:
+		tooltip += "%s (%s)\n" % [tr(element_data.name), element_data.symbol]
 	tooltip += tr("Position: ") + str(pos) + "\n"
 	if structure.atom_is_locked(in_atom_id):
 		tooltip += tr("🔒 Locked in position")
@@ -79,7 +82,10 @@ func _show_hovered_bond_tooltip(in_hovered_structure_context: StructureContext, 
 	var element_data_b: ElementData = PeriodicTable.get_by_atomic_number(atom_b_element)
 	var tooltip: String = ""
 	var bond_symbol: String = ["ø", "-", "=", "≡"][bond_order]
-	tooltip += "%s%s%s (Order %d)\n" % [element_data_a.symbol, bond_symbol, element_data_b.symbol, bond_order]
+	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_TOOLTIP_SHOW_IDS):
+		tooltip += "%s%s%s (Order %d) #%d\n" % [element_data_a.symbol, bond_symbol, element_data_b.symbol, bond_order, in_bond_id]
+	else:
+		tooltip += "%s%s%s (Order %d)\n" % [element_data_a.symbol, bond_symbol, element_data_b.symbol, bond_order]
 	tooltip_text = tooltip
 
 
@@ -94,6 +100,8 @@ func _show_hovered_spring_tooltip(in_hovered_structure_context: StructureContext
 	var atomic_number: int = structure.atom_get_atomic_number(atom_id)
 	var element_data: ElementData = PeriodicTable.get_by_atomic_number(atomic_number)
 	var tooltip: String = tr("Spring (%s)\n") % [element_data.name]
+	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_TOOLTIP_SHOW_IDS):
+		tooltip = tr("Spring (%s) #%d\n") % [element_data.name, in_spring_id]
 	if not structure.spring_is_atom_to_atom(in_spring_id):
 		tooltip += tr("⚓ Anchored to %s\n") % str(target_position)
 	tooltip += tr("Target length: %.3f nm%s\n") % [length, tr(" (auto)") if is_length_auto else ""]
@@ -106,7 +114,10 @@ func _show_hovered_spring_tooltip(in_hovered_structure_context: StructureContext
 func _show_hovered_dna_control_point_tooltip(in_hovered_structure_context: StructureContext, in_dna_control_point_idx: int) -> void:
 	var dna_structure: DnaStructure = in_hovered_structure_context.nano_structure as DnaStructure
 	var tooltip: String = _get_path_to_context(in_hovered_structure_context).rstrip("\n")
-	tooltip += " (%s)\n" % dna_structure.get_tooltip_text()
+	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_TOOLTIP_SHOW_IDS):
+		tooltip += " (%s) #%d\n" % [dna_structure.get_tooltip_text(), in_dna_control_point_idx]
+	else:
+		tooltip += " (%s)\n" % dna_structure.get_tooltip_text()
 	var pos: Vector3 = dna_structure.get_control_point_position(in_dna_control_point_idx)
 	tooltip += tr("Control Point #%d: %s\n") % [in_dna_control_point_idx, str(pos)]
 	tooltip_text = tooltip
