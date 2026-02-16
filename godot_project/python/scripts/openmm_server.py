@@ -1157,7 +1157,15 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 		k_constant: float = spring.k_constant
 		equilibrium_length: float = spring.equilibrium_length
 		if forces.nonbonded_force != None:
-			forces.nonbonded_force.addException(spring.particle_id, spring.particle_id2, 0.0, 1.0, 0.0)
+			try:
+				forces.nonbonded_force.addException(spring.particle_id, spring.particle_id2, 0.0, 1.0, 0.0)
+			except Exception as e:
+				if str(e).startswith("NonbondedForce: There is already an exception for particles"):
+					# This means that the exception already exists, and was created by OpenFF
+					# likely because atoms share a common node
+					pass
+				else:
+					raise e
 		forces.bond_force.addBond(spring.particle_id, spring.particle_id2, equilibrium_length, k_constant)
 	nonbonded_exception_map: dict[tuple[int, int], int] = {} # [atoms_pair = exception_index] This is used in case passivation of atoms needs to modify an exception
 	for i, atom in enumerate(topology_payload.atoms):
@@ -1281,7 +1289,15 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 			k_constant: float = spring.k_constant
 			equilibrium_length: float = spring.equilibrium_length
 			if forces.nonbonded_force != None:
-				forces.nonbonded_force.addException(spring.particle_id, spring.particle_id2, 0.0, 1.0, 0.0)
+				try:
+					forces.nonbonded_force.addException(spring.particle_id, spring.particle_id2, 0.0, 1.0, 0.0)
+				except Exception as e:
+					if str(e).startswith("NonbondedForce: There is already an exception for particles"):
+						# This means that the exception already exists, and was created by OpenFF
+						# likely because atoms share a common node
+						pass
+					else:
+						raise e
 			forces.bond_force.addBond(spring.particle_id, spring.particle_id2, equilibrium_length, k_constant)
 		# Locked atoms
 		for i, atom in enumerate(topology_payload.atoms):
