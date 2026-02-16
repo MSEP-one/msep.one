@@ -277,6 +277,28 @@ func end_edit() -> void:
 		_is_being_edited = false
 
 
+func is_tracking_atoms() -> bool:
+	return _track_atoms
+
+
+func set_force_track_atoms(in_force_track: bool) -> void:
+	if in_force_track:
+		if _track_atoms:
+			return
+		_track_atoms = true
+		start_edit()
+		_signal_queue_path_changed = true
+		end_edit()
+	else:
+		var should_track: bool = get_representation_settings().get_dna_representation() == DnaRepresentation.ATOMS_AND_BONDS
+		if should_track == _track_atoms:
+			return
+		_track_atoms = should_track
+		start_edit()
+		_signal_queue_path_changed = true
+		end_edit()
+
+
 ## UNUSED [s]Removes every atom, bond, and spring from this structure[/s]
 func clear() -> void:
 	assert(false, "Cannot delete atoms and bonds in this structure")
