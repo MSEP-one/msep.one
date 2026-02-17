@@ -18,7 +18,6 @@ enum ClipboardContentType {
 func copy(in_workspace_context: WorkspaceContext) -> void:
 	for context: StructureContext in in_workspace_context.get_structure_contexts_with_selection():
 		if context.nano_structure is DnaStructure \
-				and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
 				and not context.is_dna_structure_fully_selected():
 			in_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
 				tr(&"Cannot copy DNA spline control points"))
@@ -57,16 +56,7 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 			&"ParticleEmitter":
 				_copy_particle_emitter(structure_context, nano_structure, new_content)
 			&"DnaStructure":
-				var is_current: bool = in_workspace_context.get_current_structure_context().nano_structure == nano_structure
-				if nano_structure.get_edit_mode() == DnaStructure.EditMode.AtomsAndBonds and is_current:
-					_copy_selected_atoms(
-						structure_context, nano_structure, atom_selection, new_content
-					)
-					_copy_selected_springs(
-						structure_context, nano_structure, spring_selection, atom_selection, new_content
-					)
-				else:
-					_copy_dna_structure(structure_context, nano_structure, new_content)
+				_copy_dna_structure(structure_context, nano_structure, new_content)
 			_:
 				push_warning("Nano structure type not implemented for copy")
 	var root_group_id: int = -1
@@ -289,7 +279,6 @@ func _copy_dna_structure(in_structure_context: StructureContext,
 func cut(out_workspace_context: WorkspaceContext) -> void:
 	for context: StructureContext in out_workspace_context.get_structure_contexts_with_selection():
 		if context.nano_structure is DnaStructure \
-				and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
 				and not context.is_dna_structure_fully_selected():
 			out_workspace_context.workspace_main_view.editor_viewport_container.show_warning_in_message_bar(
 				tr(&"Cannot cut DNA spline control points"))

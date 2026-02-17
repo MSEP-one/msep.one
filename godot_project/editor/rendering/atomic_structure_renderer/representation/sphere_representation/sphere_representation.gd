@@ -201,7 +201,9 @@ func _add_atom(in_atom_id: int) -> void:
 	var atom_scale: Vector3 = Vector3.ONE * atom_radius * BASE_SCALE
 	var atom_transform: Transform3D = Transform3D()
 	var atom_color: Color = data.color
-	atom_color.a = Representation.InstanceState.new().to_float()
+	var instance_state := Representation.InstanceState.new()
+	instance_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(in_atom_id)
+	atom_color.a = instance_state.to_float()
 	atom_transform = atom_transform.scaled_local(atom_scale)
 	atom_transform.origin = atom_position
 	_segmented_multimesh.add_particle(in_atom_id, atom_transform, atom_color, additional_color)

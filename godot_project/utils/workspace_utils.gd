@@ -471,7 +471,6 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 			structure_context.set_anchor_selected(false)
 			structure_context.nano_structure.set_visible(false)
 		elif structure_context.nano_structure is DnaStructure \
-				and structure_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
 				and structure_context.is_dna_structure_fully_selected():
 			structure_context.clear_selection()
 			structure_context.nano_structure.set_visible(false)

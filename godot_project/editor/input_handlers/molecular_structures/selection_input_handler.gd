@@ -325,16 +325,14 @@ func _activate_selection_logic(
 			var affected_context: = get_workspace_context().get_toplevel_editable_context(hit_context)
 			if not affected_context.nano_structure.can_contain_child_structure():
 				# Shapes, Motors, Emitters, Springs, etc; cannot be activated, this is on purpose to have a more compact group hierarchy
-				if affected_context == hit_context and hit_context.nano_structure is DnaStructure \
-						and hit_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+				if affected_context == hit_context and hit_context.nano_structure is DnaStructure:
 					_activate_dna_structure(multi_structure_hit_result)
 					return true
 				return false
 			get_workspace_context().change_current_structure_context(affected_context)
 			_workspace_context.snapshot_moment("Change Selection")
 			return true
-		elif hit_context.nano_structure is DnaStructure \
-				and hit_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+		elif hit_context.nano_structure is DnaStructure:
 			_activate_dna_structure(multi_structure_hit_result)
 			return true
 	return false

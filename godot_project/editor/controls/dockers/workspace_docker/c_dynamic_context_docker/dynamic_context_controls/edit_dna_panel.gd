@@ -2,15 +2,10 @@ extends DnaPanel
 
 
 const StrandPolicy = DnaStructure.StrandPolicy
-const EditMode = DnaStructure.EditMode
 
 
 var _select_one_info_label: InfoLabel
 var _main_container: Container
-var _edit_mode_container: VBoxContainer
-var _edit_path_button: Button
-var _edit_atoms_button: Button
-var _setup_animation_player: AnimationPlayer
 
 
 var _workspace_context: WorkspaceContext
@@ -23,11 +18,6 @@ func _notification(what: int) -> void:
 		_initialized = true
 		_select_one_info_label = %SelectOneInfoLabel as InfoLabel
 		_main_container = $VBoxContainer as Container
-		_edit_mode_container = %EditModeContainer as VBoxContainer
-		_edit_path_button = %EditPathButton as Button
-		_edit_atoms_button = %EditAtomsButton as Button
-		_setup_animation_player = %SetupAnimationPlayer as AnimationPlayer
-		_edit_path_button.button_group.pressed.connect(_on_edit_mode_button_group_pressed)
 		_sequence_length_spin_box_slider.value_confirmed.connect(_sequence_length_spin_box_slider_value_confirmed)
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
 		_dna_radius_spin_box_slider.value_confirmed.connect(_on_dna_radius_spin_box_slider_value_confirmed)
@@ -36,19 +26,6 @@ func _notification(what: int) -> void:
 		_initial_twist_spin_box_slider.value_confirmed.connect(_on_initial_twist_spin_box_slider_value_confirmed)
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
 		_include_hydrogens_check_button.toggled.connect(_on_include_hydrogens_check_button_toggled)
-
-
-func _ready() -> void:
-	FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
-	_on_feature_flag_toggled(
-		FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS,
-		FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS)
-	)
-
-
-func _on_feature_flag_toggled(in_path: String, in_value: bool) -> void:
-	if in_path == FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS:
-		_edit_mode_container.visible = in_value
 
 
 func _sequence_button_button_group_pressed() -> void:
@@ -116,15 +93,6 @@ func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 
 func _update_ui() -> void:
 	if _tracked_structure != null:
-		match _tracked_structure.get_edit_mode():
-			EditMode.SequenceAndPath:
-				_setup_animation_player.play(&"setup_edit_path")
-				_edit_path_button.set_pressed_no_signal(true)
-				_edit_atoms_button.set_pressed_no_signal(false)
-			EditMode.AtomsAndBonds:
-				_setup_animation_player.play(&"setup_edit_atoms")
-				_edit_path_button.set_pressed_no_signal(false)
-				_edit_atoms_button.set_pressed_no_signal(true)
 		if _dna_sequence_text_edit.text != _tracked_structure.get_sequence():
 			_on_tracked_structure_sequence_changed(_tracked_structure.get_sequence())
 		_dna_radius_spin_box_slider.set_value_no_signal(_tracked_structure.get_dna_radius_nanometers())
@@ -155,48 +123,6 @@ func _on_tracked_structure_sequence_changed(in_sequence: String) -> void:
 				else:
 					_dna_sequence_text_edit.add_caret.call_deferred(carets[i][0], carets[i][1])
 		_dna_sequence_text_edit.set_block_signals(false)
-
-
-func _on_edit_mode_button_group_pressed(in_button: Button) -> void:
-	var mode_map: Dictionary[Button, EditMode] = {
-		_edit_path_button: EditMode.SequenceAndPath,
-		_edit_atoms_button: EditMode.AtomsAndBonds,
-	}
-	var mode: EditMode = mode_map[in_button]
-	if mode == _tracked_structure.get_edit_mode():
-		# Re-selected the already selected mode, nothing to do here
-		return
-	var ctx: StructureContext = _workspace_context.get_structure_context(_tracked_structure.int_guid)
-	match mode:
-		EditMode.SequenceAndPath:
-			var locked_atoms_count: int = _tracked_structure.get_locked_atoms().size()
-			var color_overrides_count: int = _tracked_structure.get_color_overrides().size()
-			var springs_count: int = _tracked_structure.springs_count()
-			var msg: String = (
-				tr("This is a destructive operation and any modification to the atoms will be discarded.\n") +
-				tr("  · Positions of atoms will reset\n") +
-				(tr("  · %d Springs will will be deleted.\n") % springs_count if springs_count > 0 else "") +
-				(tr("  · %d atoms will lose it's 'Locking' state.\n") % locked_atoms_count if locked_atoms_count > 0 else "") +
-				(tr("  · %d Atoms will lose it's color override.\n") % color_overrides_count if color_overrides_count > 0 else "") + 
-				tr("\nDo you want to proceed?")
-			)
-			var promise: Promise = _workspace_context.show_warning_dialog(
-				msg, tr("Continue"), tr("Cancel"))
-			await promise.wait_for_fulfill()
-			if promise.get_result() == false:
-				_edit_path_button.set_pressed_no_signal(false)
-				_edit_atoms_button.set_pressed_no_signal(true)
-				return
-			_workspace_context.get_structure_context(_tracked_structure.get_int_guid()).clear_selection()
-			_tracked_structure.set_edit_mode(EditMode.SequenceAndPath)
-			_setup_animation_player.play(&"setup_edit_path")
-			ctx.select_all()
-			_workspace_context.snapshot_moment("DNA Structure: edit Path and Sequence")
-		EditMode.AtomsAndBonds:
-			_tracked_structure.set_edit_mode(EditMode.AtomsAndBonds)
-			_setup_animation_player.play(&"setup_edit_atoms")
-			ctx.select_all()
-			_workspace_context.snapshot_moment("DNA Structure: show Atoms and Bonds")
 
 
 func _sequence_length_spin_box_slider_value_confirmed(in_value: int) -> void:

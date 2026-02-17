@@ -81,7 +81,7 @@ func apply_selection() -> void:
 				var selected_bonds: PackedInt32Array = context.select_atoms_and_get_auto_selected_bonds(selected_atoms)
 				context.select_bonds(selected_bonds)
 				context.select_springs(selected_springs)
-		if context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+		if context.nano_structure is DnaStructure:
 			var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
 			context.set_dna_control_point_selection(control_points_in_box)
 		if context.nano_structure.is_virtual_object() and _is_virtual_object_within_screen_rect(context, camera):
@@ -146,7 +146,7 @@ func apply_deselection() -> void:
 				context.deselect_atoms(deselected_atoms)
 				context.deselect_bonds(deselected_bonds)
 				context.deselect_springs(deselected_springs)
-		if context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+		if context.nano_structure is DnaStructure:
 			var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
 			context.deselect_dna_control_points(control_points_in_box)
 		if context.nano_structure.is_virtual_object() and _is_virtual_object_within_screen_rect(context, camera):

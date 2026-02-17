@@ -3,6 +3,7 @@ class_name DnaStructureRenderer extends Path3D
 
 
 const StrandPolicy = DnaStructure.StrandPolicy
+const DnaRepresentation = RepresentationSettings.DnaRepresentation
 
 
 @export_group("Materials")
@@ -37,6 +38,7 @@ var _initial_twist: float
 
 var _workspace_context: WorkspaceContext
 var _structure_id: int
+var _current_representation: DnaRepresentation
 var _object_visible: bool = true
 var _bases: Array[DnaBaseRepresentation]
 var _applying_snapshot: bool = false
@@ -48,7 +50,6 @@ var _is_selectable: bool = true
 var _is_top_level: bool = true
 var _path_hovered: bool = false
 var _path_highlighted: bool = false
-var _edit_mode: DnaStructure.EditMode
 var _hovered_control_point: int = -1
 var _highlighted_control_points: Dictionary[int, bool] = {}
 
@@ -98,7 +99,7 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_dna_radius = in_structure.get_dna_radius_nanometers()
 	_bases_per_turn = in_structure.get_bases_per_turn()
 	_initial_twist = in_structure.get_initial_twist_rad()
-	_edit_mode = in_structure.get_edit_mode()
+	_current_representation = in_structure.get_representation_settings().get_dna_representation()
 	_updating_parameters = false
 	_update_bases()
 	_ensure_structure_signal_connections(in_structure)
@@ -120,7 +121,9 @@ func _ensure_structure_signal_connections(in_structure: DnaStructure) -> void:
 		in_structure.sequence_changed.connect(_on_sequence_changed)
 		in_structure.parameters_changed.connect(_on_parameters_changed)
 		in_structure.visibility_changed.connect(_on_structure_visibility_changed)
-		in_structure.edit_mode_changed.connect(_on_edit_mode_changed)
+		var representation_settings: RepresentationSettings = in_structure.get_representation_settings()
+		
+		representation_settings.dna_representation_changed.connect(_on_dna_representation_changed)
 
 
 func _on_sequence_changed(in_sequence: String) -> void:
@@ -145,8 +148,8 @@ func _on_structure_visibility_changed(in_visible: bool) -> void:
 	_update_visibility()
 
 
-func _on_edit_mode_changed(in_mode: DnaStructure.EditMode) -> void:
-	_edit_mode = in_mode
+func _on_dna_representation_changed(in_representation: DnaRepresentation) -> void:
+	_current_representation = in_representation
 	_update_visibility()
 
 
@@ -371,12 +374,12 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 
 
 func _update_visibility() -> void:
-	visible = _object_visible and _edit_mode == DnaStructure.EditMode.SequenceAndPath
+	visible = _object_visible and _current_representation == DnaRepresentation.SIMPLIFIED
 	queue_redraw()
 
 
 func _on_path_representation_drawn() -> void:
-	if !visible or is_queued_for_deletion() or not _is_selectable or Engine.is_editor_hint():
+	if is_queued_for_deletion() or not _is_selectable or Engine.is_editor_hint():
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
@@ -443,7 +446,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_bases_per_turn"] = _bases_per_turn
 	snapshot["_initial_twist"] = _initial_twist
 	snapshot["_path_highlighted"] = _path_highlighted
-	snapshot["_edit_mode"] = _edit_mode
+	snapshot["_current_representation"] = _current_representation
 	snapshot["_highlighted_control_points"] = _highlighted_control_points.duplicate()
 	snapshot["_is_selectable"] = _is_selectable
 	snapshot["_is_top_level"] = _is_top_level
@@ -465,7 +468,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_bases_per_turn = in_state_snapshot["_bases_per_turn"]
 	_initial_twist = in_state_snapshot["_initial_twist"]
 	_path_highlighted = in_state_snapshot["_path_highlighted"]
-	_edit_mode = in_state_snapshot["_edit_mode"]
+	_current_representation = in_state_snapshot["_current_representation"]
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
 	_is_selectable = in_state_snapshot["_is_selectable"]
 	_is_top_level = in_state_snapshot["_is_top_level"]

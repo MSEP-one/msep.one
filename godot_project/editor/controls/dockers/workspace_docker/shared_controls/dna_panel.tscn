@@ -106,7 +106,6 @@ step = 0.01
 value = 1.0
 allow_greater = true
 suffix = "nm"
-slider_exp_edit = false
 
 [node name="Label3" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
@@ -121,7 +120,6 @@ step = 0.1
 value = 10.0
 allow_greater = true
 custom_arrow_step = 0.5
-slider_exp_edit = false
 
 [node name="Label4" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
@@ -137,7 +135,6 @@ value = 0.34
 allow_greater = true
 suffix = "nm"
 custom_arrow_step = 0.05
-slider_exp_edit = false
 
 [node name="Label5" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
@@ -151,7 +148,6 @@ step = 0.01
 allow_greater = true
 suffix = "º"
 custom_arrow_step = 1.0
-slider_exp_edit = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer"]
 layout_mode = 2
@@ -208,7 +204,6 @@ value = 1.0
 allow_greater = true
 suffix = "nm"
 custom_arrow_step = 0.1
-slider_exp_edit = false
 
 [node name="IncludeHydrogensCheckButton" type="CheckButton" parent="VBoxContainer/PanelContainer/VBoxContainer"]
 unique_name_in_owner = true

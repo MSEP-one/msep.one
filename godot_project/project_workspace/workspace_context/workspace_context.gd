@@ -913,7 +913,7 @@ func get_all_structure_contexts(in_include_empty_structures: bool = false) -> Ar
 	var result: Array[StructureContext] = []
 	for context: StructureContext in _structure_contexts.values():
 		var structure_has_data: bool = context.nano_structure.is_virtual_object() \
-				or (context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath) \
+				or (context.nano_structure is DnaStructure) \
 				or context.nano_structure.get_valid_atoms_count() > 0
 		if structure_has_data or in_include_empty_structures:
 			result.push_back(context)
@@ -926,7 +926,7 @@ func get_visible_structure_contexts(in_include_empty_structures: bool = false) -
 	for context: StructureContext in _structure_contexts.values():
 		if context.nano_structure.get_visible():
 			var structure_has_data: bool = context.nano_structure.is_virtual_object() \
-					or (context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath) \
+					or (context.nano_structure is DnaStructure) \
 					or context.nano_structure.get_valid_atoms_count() > 0
 			if structure_has_data or in_include_empty_structures:
 				result.push_back(context)

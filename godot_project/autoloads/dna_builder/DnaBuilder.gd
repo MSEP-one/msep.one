@@ -127,6 +127,7 @@ func get_template(in_base: String, in_include_hydrogens: bool = false) -> Packed
 		"backbone1" : "backbone1",
 	}
 	const PATH = "res://autoloads/dna_builder/templates/%s.tres"
+	assert(in_base in FILENAMES.keys(), "Unknown base %s" % in_base)
 	var filename: String = FILENAMES[in_base] + ("_h" if in_include_hydrogens else "")
 	if not _base_templates.has(filename) or is_dev_tool_enabled():
 		_base_templates[filename] = ResourceLoader.load(PATH % filename, "", ResourceLoader.CACHE_MODE_IGNORE)

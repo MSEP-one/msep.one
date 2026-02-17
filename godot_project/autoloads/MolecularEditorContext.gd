@@ -252,20 +252,13 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	_update_window_title()
 
 
-func export_workspace(in_workspace: Workspace, in_path: String = "", in_export_dna: bool = false) -> void:
+func export_workspace(in_workspace: Workspace, in_path: String = "", _in_export_dna: bool = false) -> void:
 	var path: String = in_path
 	if path.is_empty():
 		Editor_Utils.get_editor().show_export_workspace_dialog(in_workspace)
 		return
-	var revert_dna_modes: Array[DnaStructure]
-	if in_export_dna and not get_current_workspace_context().is_simulating():
-		for structure: NanoStructure in in_workspace.get_structures():
-			if structure is DnaStructure and structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
-				revert_dna_modes.append(structure)
-				structure.set_edit_mode(DnaStructure.EditMode.AtomsAndBonds)
+	push_error("TODO: Reimplement Export DNA")
 	var err: Error = ResourceSaver.save(in_workspace, path)
-	for structure: DnaStructure in revert_dna_modes:
-		structure.set_edit_mode(DnaStructure.EditMode.SequenceAndPath)
 	if err != OK:
 		Editor_Utils.get_editor().prompt_error_msg(tr(&"Failed to export to file {0} with error '{1}'").format([path, error_string(err)]))
 

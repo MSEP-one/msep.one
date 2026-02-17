@@ -120,7 +120,7 @@ func _init_initial_positions_and_determine_center() -> Vector3:
 			selection_size += 1
 			center_pos += context.nano_structure.get_position()
 			_structure_context_2_initial_object_transforms[context.get_int_guid()] = Transform3D(Basis(), context.nano_structure.get_position())
-		elif context.nano_structure is DnaStructure and context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+		elif context.nano_structure is DnaStructure:
 			if context.has_selection():
 				var control_points: Array = context.get_selected_dna_spline_countrol_points()
 				selection_size += control_points.size()
@@ -254,7 +254,7 @@ func _apply_selection_transform() -> void:
 			var new_pos: Vector3 = _helper.global_position + _helper.global_transform.basis * delta_pos
 			object_new_transform = Transform3D(final_transform.basis.orthonormalized(), new_pos)
 			object_old_transform = nano_structure.get_transform()
-		elif nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+		elif nano_structure is DnaStructure:
 			var dna := nano_structure as DnaStructure
 			var sequence: String = dna.get_sequence()
 			var points_to_transform: PackedInt32Array = context.get_selected_dna_spline_countrol_points()
@@ -384,7 +384,7 @@ func _on_helper_transform_changed(in_translation_changed: bool, in_rotation_chan
 			var initial_nano_struct_transform: Transform3D = _structure_context_2_initial_object_transforms[context.get_int_guid()]
 			rendering.transform_object_by_external_transform(context.nano_structure, _selection_initial_position,
 					initial_nano_struct_transform, _helper.global_transform)
-		elif nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+		elif nano_structure is DnaStructure:
 			if in_translation_changed:
 				rendering.set_dna_selection_position_delta(-delta, nano_structure)
 			if in_rotation_changed:
@@ -465,16 +465,7 @@ func _force_gizmo_update() -> void:
 				selection_size += 1
 				# Anchors does not trigger `has_transformable_objects_selected = true` because they dont rotate
 			elif context.nano_structure is DnaStructure:
-				if context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
-					selection_size += context.get_selected_dna_spline_countrol_points().size()
-				elif context.nano_structure.get_edit_mode() == DnaStructure.EditMode.AtomsAndBonds:
-					has_dna_atoms_selected = context.get_selected_atoms().size() > 0
-					if has_dna_atoms_selected:
-						_workspace_context.get_editor_viewport_container().show_warning_in_message_bar(
-							tr(&"Atoms in DNA objects cannot be edited.")
-						)
-						# The rest of the structures doesn't matter
-						break
+				selection_size += context.get_selected_dna_spline_countrol_points().size()
 			elif context.is_dna_structure_fully_selected():
 				selection_size += (context.nano_structure as DnaStructure).get_control_point_count()
 		
