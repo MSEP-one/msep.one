@@ -8,6 +8,7 @@ signal should_hide_virtual_object_during_simulation_changed(object_type: StringN
 signal bond_visibility_changed(are_visible: bool)
 signal hydrogen_visibility_changed(are_visible: bool)
 signal atom_labels_visibility_changed(are_visible: bool)
+signal dna_representation_changed(representation: DnaRepresentation)
 signal theme_changed()
 signal color_schema_changed(new_color_schema: PeriodicTable.ColorSchema)
 
@@ -21,6 +22,12 @@ enum UserAtomSizeSource {
 	PHYSICAL_RADIUS,
 	VAN_DER_WAALS_RADIUS
 }
+
+enum DnaRepresentation {
+	SIMPLIFIED = 0,
+	ATOMS_AND_BONDS = 1,
+}
+
 
 @export var _rendering_representation := Rendering.Representation.BALLS_AND_STICKS
 
@@ -43,6 +50,8 @@ enum UserAtomSizeSource {
 @export var _display_auto_posing: bool = ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT
 
 @export var _display_simulation_boundaries: bool = SIMULATION_BOUNDARIES_VISIBLE_BY_DEFAULT
+
+@export var _dna_representation := DnaRepresentation.SIMPLIFIED
 
 @export var _custom_selection_outline_color_enabled: bool = false
 
@@ -135,6 +144,17 @@ func set_display_simulation_boundaries(new_display_simulation_boundaries: bool) 
 
 func get_display_simulation_boundaries() -> bool:
 	return _display_simulation_boundaries
+
+
+func set_dna_representation(in_representation: DnaRepresentation) -> void:
+	if _dna_representation != in_representation:
+		_dna_representation = in_representation
+		emit_changed()
+		dna_representation_changed.emit(in_representation)
+
+
+func get_dna_representation() -> DnaRepresentation:
+	return _dna_representation
 
 
 func set_bond_visibility_and_notify(new_bond_visibility: bool) -> void:
