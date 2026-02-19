@@ -740,6 +740,7 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.sequence_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.parameters_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.path_changed.connect(_on_dna_path_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is NanoShape:
 			structure_context.nano_structure.shape_properties_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure.is_virtual_object():
@@ -807,6 +808,29 @@ func _on_virtual_object_transform_changed(_ignore_arg1: Variant, in_structure_co
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
 	if structure_context != null:
 		virtual_object_transform_changed.emit(structure_context)
+
+
+func _on_dna_path_changed(in_structure_context_id: int) -> void:
+	if not workspace.has_structure_with_int_guid(in_structure_context_id):
+		return
+	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
+	if structure_context != null:
+		# There's an special case where changing the lenght of a sequence can trim the amount of
+		# control points, if those control points are selected this causes problems
+		var dna: DnaStructure = structure_context.nano_structure as DnaStructure
+		var points_to_unselect: PackedInt32Array = structure_context.get_selected_dna_spline_countrol_points()
+		for i: int in range(points_to_unselect.size()-1, -1, -1):
+			var point_idx: int = points_to_unselect[i]
+			if point_idx < dna.get_control_point_count():
+				# point still exists, dont unselect
+				points_to_unselect.remove_at(i)
+		if not points_to_unselect.is_empty():
+			structure_context.deselect_dna_control_points(points_to_unselect)
+			if not structure_context.has_selection():
+				# removed the last selection, let's keep selection alike
+				structure_context.select_all()
+		var contexts: Array[StructureContext] = [structure_context]
+		selection_in_structures_changed.emit(contexts)
 
 
 func _on_nano_structure_visibility_changed(_in_visible: bool, in_structure_context_id: int) -> void:
