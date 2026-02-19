@@ -4,6 +4,7 @@ class_name BondsSettings extends DynamicContextControl
 var _bonds_toggle: CheckButton
 var _labels_toggle: CheckButton
 var _hydrogens_toggle: CheckButton
+var _dna_representation_option_button: OptionButton
 var _hide_simulation_boundaries_toggle: CheckButton
 var _hide_reference_shapes_toggle: CheckButton
 var _hide_virtual_motors_toggle: CheckButton
@@ -18,11 +19,18 @@ func _notification(what: int) -> void:
 		_bonds_toggle = $Settings/PanelContainer/VBoxContainer/ShowBondsToggle
 		_labels_toggle = $Settings/PanelContainer/VBoxContainer/ShowLabelsToggle
 		_hydrogens_toggle = $Settings/PanelContainer/VBoxContainer/ShowHydrogensToggle
+		_dna_representation_option_button = %DnaRepresentationOptionButton
 		_hide_simulation_boundaries_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle
 		_hide_reference_shapes_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle
 		_hide_virtual_motors_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle
 		_hide_particle_emitters_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle
 		_hide_anchors_and_springs_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle
+		
+		FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
+		_on_feature_flag_toggled(
+			FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER,
+			FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER)
+		)
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
@@ -35,6 +43,8 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		settings.bond_visibility_changed.connect(_on_bond_visibility_changed)
 	if not settings.hydrogen_visibility_changed.is_connected(_on_hydrogen_visibility_changed):
 		settings.hydrogen_visibility_changed.connect(_on_hydrogen_visibility_changed)
+	if not settings.dna_representation_changed.is_connected(_on_dna_representation_changed):
+		settings.dna_representation_changed.connect(_on_dna_representation_changed)
 	if not settings.atom_labels_visibility_changed.is_connected(_on_atom_labels_visibility_changed):
 		settings.atom_labels_visibility_changed.connect(_on_atom_labels_visibility_changed)
 	if not in_workspace_context.history_changed.is_connected(_on_workspace_context_history_changed):
@@ -42,9 +52,15 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	_bonds_toggle.set_pressed_no_signal(_workspace_context.are_bonds_visualised())
 	_labels_toggle.set_pressed_no_signal(_workspace_context.are_atom_labels_visualised())
 	_hydrogens_toggle.set_pressed_no_signal(_workspace_context.are_hydrogens_visualized())
+	_on_dna_representation_changed(settings.get_dna_representation())
 	_hide_simulation_boundaries_toggle.set_pressed_no_signal(not settings.get_display_simulation_boundaries())
 	_update_visibility_during_representation_toggles()
 	return true
+
+
+func _on_feature_flag_toggled(in_path: String, in_value: bool) -> void:
+	if in_path == FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER:
+		%DnaSettingsContainer.visible = in_value
 
 
 func _on_workspace_context_history_changed() -> void:
@@ -79,6 +95,12 @@ func _on_hydrogen_visibility_changed(in_visible: bool) -> void:
 	_hydrogens_toggle.set_pressed_no_signal(in_visible)
 
 
+func _on_dna_representation_changed(in_representation: RepresentationSettings.DnaRepresentation) -> void:
+	_dna_representation_option_button.set_block_signals(true)
+	_dna_representation_option_button.select(in_representation)
+	_dna_representation_option_button.set_block_signals(false)
+
+
 func _on_atom_labels_visibility_changed(in_visible: bool) -> void:
 	_labels_toggle.set_pressed_no_signal(in_visible)
 
@@ -111,6 +133,12 @@ func _on_show_hydrogens_toggle_toggled(button_pressed: bool) -> void:
 
 func _on_show_potential_atoms_toggle_toggled(button_pressed: bool) -> void:
 	_workspace_context.workspace.representation_settings.set_display_auto_posing(button_pressed)
+
+
+func _on_dna_representation_option_button_item_selected(index: int) -> void:
+	var dna_representation := index as RepresentationSettings.DnaRepresentation
+	_workspace_context.workspace.representation_settings \
+		.set_dna_representation(dna_representation)
 
 
 func _on_hide_simulation_boundaries_toggle_toggled(button_pressed: bool) -> void:
