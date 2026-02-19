@@ -14,7 +14,6 @@ var _initial_twist_spin_box_slider: SpinBoxSlider
 var _strand_a_button: Button
 var _strand_b_button: Button
 var _strand_double_button: Button
-var _include_hydrogens_check_button: CheckButton
 
 
 func _notification(what: int) -> void:
@@ -31,7 +30,6 @@ func _notification(what: int) -> void:
 		_strand_a_button = %StrandAButton as Button
 		_strand_b_button = %StrandBButton as Button
 		_strand_double_button = %StrandDoubleButton as Button
-		_include_hydrogens_check_button = %IncludeHydrogensCheckButton as CheckButton
 		assert(_rand_sequence_button.button_group == _user_defined_sequence_button.button_group)
 		if not _rand_sequence_button.button_group.pressed.is_connected(_sequence_button_button_group_pressed):
 			_rand_sequence_button.button_group.pressed.connect(_sequence_button_button_group_pressed.unbind(1))

@@ -25,7 +25,6 @@ func _notification(what: int) -> void:
 		_rise_nanometers_spin_box_slider.value_confirmed.connect(_on_rise_nanometers_spin_box_slider_value_confirmed)
 		_initial_twist_spin_box_slider.value_confirmed.connect(_on_initial_twist_spin_box_slider_value_confirmed)
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
-		_include_hydrogens_check_button.toggled.connect(_on_include_hydrogens_check_button_toggled)
 
 
 func _sequence_button_button_group_pressed() -> void:
@@ -101,7 +100,6 @@ func _update_ui() -> void:
 		_strand_a_button.set_pressed_no_signal(_tracked_structure.get_strand_policy() == StrandPolicy.A)
 		_strand_b_button.set_pressed_no_signal(_tracked_structure.get_strand_policy() == StrandPolicy.B)
 		_strand_double_button.set_pressed_no_signal(_tracked_structure.get_strand_policy() == StrandPolicy.DOUBLE)
-		_include_hydrogens_check_button.set_pressed_no_signal(_tracked_structure.get_include_hydrogens())
 
 
 func _on_tracked_structure_sequence_changed(in_sequence: String) -> void:
@@ -197,11 +195,3 @@ func _on_strand_policy_button_group_button_pressed(in_button: Button) -> void:
 	_tracked_structure.set_strand_policy(policy)
 	_tracked_structure.end_edit()
 	_workspace_context.snapshot_moment("Set Strand Mode")
-
-
-func _on_include_hydrogens_check_button_toggled(in_button_pressed: bool) -> void:
-	assert(_tracked_structure != null)
-	_tracked_structure.start_edit()
-	_tracked_structure.set_include_hydrogens(in_button_pressed)
-	_tracked_structure.end_edit()
-	_workspace_context.snapshot_moment("Set Dna Object includes hydrogens")

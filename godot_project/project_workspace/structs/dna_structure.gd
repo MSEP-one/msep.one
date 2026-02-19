@@ -347,16 +347,6 @@ func get_strands() -> Array[Strand]:
 		_:
 			assert(false, "Should not happen")
 			return []
-
-
-func set_include_hydrogens(in_include_hydrogens: bool) -> void:
-	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	_signal_queue_parameters_changed = true
-	_parameters.include_hydrogens = in_include_hydrogens
-
-
-func get_include_hydrogens() -> bool:
-	return _parameters.include_hydrogens
 #endregion
 
 
@@ -620,12 +610,12 @@ func get_valid_atoms_count() -> int:
 		return 0
 	if _atoms_count_cache == -1:
 		var base_count: Dictionary[String, int] = {
-			"A" : DnaBuilder.get_template_atom_count("A", _parameters.include_hydrogens),
-			"T" : DnaBuilder.get_template_atom_count("T", _parameters.include_hydrogens),
-			"G" : DnaBuilder.get_template_atom_count("G", _parameters.include_hydrogens),
-			"C" : DnaBuilder.get_template_atom_count("C", _parameters.include_hydrogens),
+			"A" : DnaBuilder.get_template_atom_count("A"),
+			"T" : DnaBuilder.get_template_atom_count("T"),
+			"G" : DnaBuilder.get_template_atom_count("G"),
+			"C" : DnaBuilder.get_template_atom_count("C"),
 			"X" : 0,
-			"B" : DnaBuilder.get_template_atom_count("backbone0", _parameters.include_hydrogens)
+			"B" : DnaBuilder.get_template_atom_count("backbone0")
 		}
 		_atoms_count_cache = base_count["B"] * _sequence.length()
 		if get_strand_policy() == StrandPolicy.DOUBLE:
@@ -650,12 +640,12 @@ func get_atom_ids_for_strand(in_strand: Strand) -> PackedInt32Array:
 		# Update cache
 		_atoms_ids_cache[in_strand] = PackedInt32Array()
 		var base_count: Dictionary[String, int] = {
-			"A" : DnaBuilder.get_template_atom_count("A", _parameters.include_hydrogens),
-			"T" : DnaBuilder.get_template_atom_count("T", _parameters.include_hydrogens),
-			"G" : DnaBuilder.get_template_atom_count("G", _parameters.include_hydrogens),
-			"C" : DnaBuilder.get_template_atom_count("C", _parameters.include_hydrogens),
+			"A" : DnaBuilder.get_template_atom_count("A"),
+			"T" : DnaBuilder.get_template_atom_count("T"),
+			"G" : DnaBuilder.get_template_atom_count("G"),
+			"C" : DnaBuilder.get_template_atom_count("C"),
 			"X" : 0,
-			"B" : DnaBuilder.get_template_atom_count("backbone0", _parameters.include_hydrogens)
+			"B" : DnaBuilder.get_template_atom_count("backbone0")
 		}
 		for base_idx: int in _sequence.length():
 			# Backbone
@@ -923,12 +913,12 @@ func get_bond_ids_for_strand(in_strand: Strand) -> PackedInt32Array:
 		# Update cache
 		_bonds_ids_cache[in_strand] = PackedInt32Array()
 		var base_count: Dictionary[String, int] = {
-			"A" : DnaBuilder.get_template_bond_count("A", _parameters.include_hydrogens),
-			"T" : DnaBuilder.get_template_bond_count("T", _parameters.include_hydrogens),
-			"G" : DnaBuilder.get_template_bond_count("G", _parameters.include_hydrogens),
-			"C" : DnaBuilder.get_template_bond_count("C", _parameters.include_hydrogens),
+			"A" : DnaBuilder.get_template_bond_count("A"),
+			"T" : DnaBuilder.get_template_bond_count("T"),
+			"G" : DnaBuilder.get_template_bond_count("G"),
+			"C" : DnaBuilder.get_template_bond_count("C"),
 			"X" : 0,
-			"B" : DnaBuilder.get_template_bond_count("backbone0", _parameters.include_hydrogens)
+			"B" : DnaBuilder.get_template_bond_count("backbone0")
 		}
 		for base_idx: int in _sequence.length():
 			# Backbone
@@ -1016,12 +1006,12 @@ func get_valid_bonds_count() -> int:
 	if _bonds_count_cache == -1:
 		const GLUE_BOND = 1
 		var base_count: Dictionary[String, int] = {
-			"A" : DnaBuilder.get_template_bond_count("A", _parameters.include_hydrogens) + GLUE_BOND,
-			"T" : DnaBuilder.get_template_bond_count("T", _parameters.include_hydrogens) + GLUE_BOND,
-			"G" : DnaBuilder.get_template_bond_count("G", _parameters.include_hydrogens) + GLUE_BOND,
-			"C" : DnaBuilder.get_template_bond_count("C", _parameters.include_hydrogens) + GLUE_BOND,
+			"A" : DnaBuilder.get_template_bond_count("A") + GLUE_BOND,
+			"T" : DnaBuilder.get_template_bond_count("T") + GLUE_BOND,
+			"G" : DnaBuilder.get_template_bond_count("G") + GLUE_BOND,
+			"C" : DnaBuilder.get_template_bond_count("C") + GLUE_BOND,
 			"X" : 0,
-			"B" : DnaBuilder.get_template_bond_count("backbone0", _parameters.include_hydrogens)
+			"B" : DnaBuilder.get_template_bond_count("backbone0")
 		}
 		_bonds_count_cache = (base_count["B"] + GLUE_BOND) * _sequence.length() - GLUE_BOND
 		if get_strand_policy() == StrandPolicy.DOUBLE:
@@ -1050,7 +1040,7 @@ func get_bond(in_bond_id: int) -> Vector3i:
 		var id_info: UnpackedBondId = _unpack_bond_id(in_bond_id)
 		if id_info.is_backbone:
 			var base: String = "backbone1" if id_info.strand == Strand.B else "backbone0"
-			var template: PackedMolecule = DnaBuilder.get_template(base, get_include_hydrogens())
+			var template: PackedMolecule = DnaBuilder.get_template(base)
 			if id_info.is_glue_bond:
 				bond_data.x = _get_atom_id(id_info.base_idx - 1, id_info.strand, true, template.next_backbone_atom_id)
 				bond_data.y = _get_atom_id(id_info.base_idx, id_info.strand, true, template.previous_backbone_atom_id)
@@ -1064,10 +1054,10 @@ func get_bond(in_bond_id: int) -> Vector3i:
 			var base: String = _sequence[id_info.base_idx]
 			if id_info.strand == Strand.B:
 				base = DnaBuilder.DNA_COMPLEMENT.get(base, "X")
-			var template: PackedMolecule = DnaBuilder.get_template(base, get_include_hydrogens())
+			var template: PackedMolecule = DnaBuilder.get_template(base)
 			if id_info.is_glue_bond:
 				var backbone: String = "backbone1" if id_info.strand == Strand.B else "backbone0"
-				var backbone_template: PackedMolecule = DnaBuilder.get_template(backbone, get_include_hydrogens())
+				var backbone_template: PackedMolecule = DnaBuilder.get_template(backbone)
 				bond_data.x = _get_atom_id(id_info.base_idx, id_info.strand, false, template.base_to_backbone_atom_id)
 				bond_data.y = _get_atom_id(id_info.base_idx, id_info.strand, true, backbone_template.base_to_backbone_atom_id)
 				bond_data.z = 1
@@ -1117,7 +1107,7 @@ func _get_base_template_for_unpacked_atom(in_packed: UnpackedAtomId) -> PackedMo
 	var base: String = "backbone0" if in_packed.is_backbone else _sequence[in_packed.base_idx]
 	if in_packed.strand == Strand.B:
 		base = "backbone1" if in_packed.is_backbone else DnaBuilder.DNA_COMPLEMENT.get(base, "X")
-	return DnaBuilder.get_template(base, get_include_hydrogens())
+	return DnaBuilder.get_template(base)
 
 
 func _get_base_template_for_unpacked_bond(in_packed: UnpackedBondId) -> PackedMolecule:
@@ -1126,7 +1116,7 @@ func _get_base_template_for_unpacked_bond(in_packed: UnpackedBondId) -> PackedMo
 	var base: String = "backbone0" if in_packed.is_backbone else _sequence[in_packed.base_idx]
 	if in_packed.strand == Strand.B:
 		base = "backbone1" if in_packed.is_backbone else DnaBuilder.DNA_COMPLEMENT.get(base, "X")
-	return DnaBuilder.get_template(base, get_include_hydrogens())
+	return DnaBuilder.get_template(base)
 
 
 static func _unpack_bond_id(in_bond_id: int) -> UnpackedBondId:
@@ -1693,7 +1683,7 @@ class AtomData:
 		if base == "X":
 			assert(false, "Invalid atom ID %d" % id_data.original_id)
 			return
-		var base_template: PackedMolecule = DnaBuilder.get_template(base, owner.get_include_hydrogens())
+		var base_template: PackedMolecule = DnaBuilder.get_template(base)
 		assert(id_data.sub_atom_id < base_template.atoms.size(),
 			"Invalid atom ID %d (sub_atom_id = %d)" % [id_data.original_id, id_data.sub_atom_id])
 		var atom_info: Vector4 = base_template.atoms[id_data.sub_atom_id]

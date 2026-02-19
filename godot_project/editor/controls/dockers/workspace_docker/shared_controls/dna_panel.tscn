@@ -204,9 +204,3 @@ value = 1.0
 allow_greater = true
 suffix = "nm"
 custom_arrow_step = 0.1
-
-[node name="IncludeHydrogensCheckButton" type="CheckButton" parent="VBoxContainer/PanelContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-button_pressed = true
-text = "· Include Hydrogens"

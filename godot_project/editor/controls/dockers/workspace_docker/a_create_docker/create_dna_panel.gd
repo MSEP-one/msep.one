@@ -37,7 +37,6 @@ func _notification(what: int) -> void:
 				_strand_b_button.button_pressed = true
 			DnaStructure.StrandPolicy.DOUBLE:
 				_strand_double_button.button_pressed = true
-		_include_hydrogens_check_button.button_pressed = default_params.include_hydrogens
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
 		_create_button.pressed.connect(_on_create_button_pressed)
 		_update_create_button()
@@ -70,7 +69,6 @@ func _on_create_button_pressed() -> void:
 		_:
 			push_error("Invalid strand polocy_button: ",
 				"<null>" if strand_button == null else str(get_path_to(strand_button)))
-	params.include_hydrogens = _include_hydrogens_check_button.button_pressed
 	if OS.is_debug_build() and DnaBuilder.is_dev_tool_enabled():
 		DnaBuilder.DNA_BASES_OFFSET = %OffsetSpinBoxSlider.value
 
