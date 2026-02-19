@@ -9,14 +9,14 @@ var _parameters_wref: WeakRef = weakref(null) # WeakRef<NanoRotaryMotorParameter
 # Rotary Settings Controls
 var _rotary_ramp_in_time: TimeSpanPicker
 var _rotary_ramp_out_time: TimeSpanPicker
-var _rotary_top_speed_check_box: CheckBox
 var _rotary_top_speed_spin_box: SpinBoxSlider
-var _rotary_max_torque_check_box: CheckBox
-var _rotary_max_torque_spin_box: SpinBoxSlider
+var _rotary_limit_force_check_button: CheckButton
+var _rotary_max_force_spin_box: SpinBoxSlider
 var _rotary_jerk_limit_check_box: CheckBox
 var _rotary_jerk_limit_spin_box_slider: SpinBoxSlider
 var _rotary_clockwise_button: Button
 var _rotary_counter_clockwise_button: Button
+
 
 # when not null an snapshot in this workspace will be taken on change from UI
 var _workspace_snapshot_target: WorkspaceContext = null
@@ -29,10 +29,9 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_rotary_ramp_in_time = %RotaryRampInTime as TimeSpanPicker
 		_rotary_ramp_out_time = %RotaryRampOutTime as TimeSpanPicker
-		_rotary_top_speed_check_box = %RotaryTopSpeedCheckBox as CheckBox
 		_rotary_top_speed_spin_box = %RotaryTopSpeedSpinBox as SpinBoxSlider
-		_rotary_max_torque_check_box = %RotaryMaxTorqueCheckBox as CheckBox
-		_rotary_max_torque_spin_box = %RotaryMaxTorqueSpinBox as SpinBoxSlider
+		_rotary_limit_force_check_button = %LimitForceCheckButton as CheckButton
+		_rotary_max_force_spin_box = %RotaryMaxForceSpinBox as SpinBoxSlider
 		_rotary_jerk_limit_check_box = %RotaryJerkLimitCheckBox as CheckBox
 		_rotary_jerk_limit_spin_box_slider = %RotaryJerkLimitSpinBoxSlider as SpinBoxSlider
 		_rotary_clockwise_button = %RotaryClockwiseButton as Button
@@ -40,10 +39,9 @@ func _notification(what: int) -> void:
 		# Rotary controls signals
 		_rotary_ramp_in_time.time_span_changed.connect(_on_rotary_ramp_in_time_time_span_changed)
 		_rotary_ramp_out_time.time_span_changed.connect(_on_rotary_ramp_out_time_time_span_changed)
-		_rotary_top_speed_check_box.toggled.connect(_on_rotary_top_speed_check_box_toggled)
 		_rotary_top_speed_spin_box.value_confirmed.connect(_on_rotary_top_speed_spin_box_value_confirmed)
-		_rotary_max_torque_check_box.toggled.connect(_on_rotary_max_torque_check_box_toggled)
-		_rotary_max_torque_spin_box.value_confirmed.connect(_rotary_max_torque_spin_box_value_confirmed)
+		_rotary_limit_force_check_button.toggled.connect(_on_limit_force_check_button_toggled)
+		_rotary_max_force_spin_box.value_confirmed.connect(_on_rotary_max_force_spin_box_value_confirmed)
 		_rotary_jerk_limit_check_box.toggled.connect(_on_rotary_jerk_limit_check_box_toggled)
 		_rotary_clockwise_button.toggled.connect(_on_rotary_clockwise_button_toggled)
 		_rotary_counter_clockwise_button.toggled.connect(_on_rotary_counter_clockwise_button_toggled)
@@ -89,14 +87,12 @@ func _on_rotary_motor_parameters_changed() -> void:
 	_rotary_ramp_out_time.time_span_femtoseconds = TimeSpanPicker.unit_to_femtoseconds(
 			parameters.ramp_out_time_in_nanoseconds, TimeSpanPicker.Unit.NANOSECOND)
 	_rotary_ramp_out_time.editable = parameters.cycle_type != NanoVirtualMotorParameters.CycleType.CONTINUOUS
-	_rotary_top_speed_check_box.set_pressed_no_signal(parameters.max_speed_type == NanoRotaryMotorParameters.MaxSpeedType.TOP_SPEED)
-	_rotary_top_speed_spin_box.editable = _rotary_top_speed_check_box.button_pressed
-	var top_revolutions_per_picoseconds: float = parameters.top_revolutions_per_nanosecond
+	var top_revolutions_per_picoseconds: float = parameters.top_revolutions_per_nanosecond / 1000
 	_rotary_top_speed_spin_box.set_value_no_signal(top_revolutions_per_picoseconds)
 	_update_rotary_top_speed_tooltip()
-	_rotary_max_torque_check_box.set_pressed_no_signal(parameters.max_speed_type == NanoRotaryMotorParameters.MaxSpeedType.MAX_TORQUE)
-	_rotary_max_torque_spin_box.editable = _rotary_max_torque_check_box.button_pressed
-	_rotary_max_torque_spin_box.set_value_no_signal(parameters.max_torque)
+	_rotary_limit_force_check_button.set_pressed_no_signal(parameters.limit_maximum_force)
+	_rotary_max_force_spin_box.visible = parameters.limit_maximum_force
+	_rotary_max_force_spin_box.set_value_no_signal(parameters.max_force)
 	_rotary_jerk_limit_check_box.set_pressed_no_signal(parameters.is_jerk_limited)
 	_rotary_jerk_limit_spin_box_slider.editable = _rotary_jerk_limit_check_box.button_pressed
 	_rotary_jerk_limit_spin_box_slider.set_value_no_signal(parameters.jerk_limit)
@@ -122,13 +118,6 @@ func _on_rotary_ramp_out_time_time_span_changed(in_magnitude: float, in_unit: Ti
 	_take_snapshot_if_configured(tr(&"Ramp-Out Time"))
 
 
-func _on_rotary_top_speed_check_box_toggled(in_button_pressed: bool) -> void:
-	_rotary_top_speed_spin_box.editable = in_button_pressed
-	if in_button_pressed:
-		_get_rotary_parameters().max_speed_type = NanoRotaryMotorParameters.MaxSpeedType.TOP_SPEED
-		_take_snapshot_if_configured(tr(&"Use Max Speed"))
-
-
 func _on_rotary_top_speed_spin_box_value_confirmed(in_top_speed: float) -> void:
 	_get_rotary_parameters().top_revolutions_per_nanosecond = in_top_speed
 	_update_rotary_top_speed_tooltip()
@@ -142,16 +131,15 @@ func _update_rotary_top_speed_tooltip() -> void:
 		[ _rotary_top_speed_spin_box.value, 1.0 / (_rotary_top_speed_spin_box.value / 1000000.0)]
 
 
-func _on_rotary_max_torque_check_box_toggled(in_button_pressed: bool) -> void:
-	_rotary_max_torque_spin_box.editable = in_button_pressed
-	if in_button_pressed:
-		_get_rotary_parameters().max_speed_type = NanoRotaryMotorParameters.MaxSpeedType.MAX_TORQUE
-		_take_snapshot_if_configured(tr(&"Use Max Torque"))
+func _on_limit_force_check_button_toggled(in_toggled: bool) -> void:
+	_get_rotary_parameters().limit_maximum_force = in_toggled
+	_take_snapshot_if_configured(tr(&"Limit Maximum Force"))
+	_rotary_max_force_spin_box.visible = in_toggled
 
 
-func _rotary_max_torque_spin_box_value_confirmed(in_max_torque: float) -> void:
-	_get_rotary_parameters().max_torque = in_max_torque
-	_take_snapshot_if_configured(tr(&"Max Torque"))
+func _on_rotary_max_force_spin_box_value_confirmed(in_max_force: float) -> void:
+	_get_rotary_parameters().max_force = in_max_force
+	_take_snapshot_if_configured(tr(&"Maximum Force"))
 
 
 func _on_rotary_jerk_limit_check_box_toggled(in_button_pressed: bool) -> void:
@@ -175,4 +163,3 @@ func _on_rotary_counter_clockwise_button_toggled(in_button_pressed: bool) -> voi
 func _on_rotary_jerk_limit_spin_box_slider_value_confirmed(in_jerk_limit: float) -> void:
 	_get_rotary_parameters().jerk_limit = in_jerk_limit
 	_take_snapshot_if_configured(tr(&"Jerk Limit"))
-

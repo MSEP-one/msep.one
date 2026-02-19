@@ -1,12 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://dm1rw27pn4ruw"]
+[gd_scene load_steps=6 format=3 uid="uid://dm1rw27pn4ruw"]
 
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="1_ldadn"]
 [ext_resource type="Script" uid="uid://c3a3er2v22tly" path="res://editor/controls/dockers/workspace_docker/shared_controls/motor_parameters_editors/rotary_motor_parameters_editor.gd" id="1_pdebe"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_03etg"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_uca0l"]
-
-[sub_resource type="ButtonGroup" id="ButtonGroup_un2j1"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_cg2to"]
 
@@ -55,16 +53,6 @@ layout_mode = 2
 time_span_femtoseconds = 150.0
 min_value_in_femtoseconds = 0.0
 
-[node name="RotaryTopSpeedCheckBox" type="CheckBox" parent="."]
-unique_name_in_owner = true
-editor_description = "Unimplemented"
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-button_pressed = true
-button_group = SubResource("ButtonGroup_un2j1")
-text = "Top Speed"
-
 [node name="Label3" type="Label" parent="."]
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
@@ -83,26 +71,29 @@ value = 30.0
 allow_greater = true
 suffix = "Rev/ns"
 
-[node name="RotaryMaxTorqueCheckBox" type="CheckBox" parent="."]
-unique_name_in_owner = true
-editor_description = "Unimplemented"
-visible = false
+[node name="LimitForceLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_horizontal = 3
-tooltip_text = "Feature Implementation In Progress"
-disabled = true
-button_group = SubResource("ButtonGroup_un2j1")
-text = "Max Torque"
+text = " ・ Limit Max Force"
+vertical_alignment = 1
 
-[node name="RotaryMaxTorqueSpinBox" parent="." instance=ExtResource("2_03etg")]
-unique_name_in_owner = true
-editor_description = "Unimplemented"
-visible = false
+[node name="LimitForceHBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
-value = 50.0
+
+[node name="LimitForceCheckButton" type="CheckButton" parent="LimitForceHBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RotaryMaxForceSpinBox" parent="LimitForceHBoxContainer" instance=ExtResource("2_03etg")]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 50000.0
+step = 0.1
+value = 1000.0
 allow_greater = true
-editable = false
-suffix = "m²  kg / s² mol"
+suffix = "kJ / mol"
+custom_arrow_step = 0.001
 
 [node name="RotaryJerkLimitCheckBox" type="CheckBox" parent="."]
 unique_name_in_owner = true

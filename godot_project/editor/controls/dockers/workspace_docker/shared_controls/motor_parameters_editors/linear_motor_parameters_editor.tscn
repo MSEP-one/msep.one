@@ -86,10 +86,11 @@ layout_mode = 2
 [node name="LinearMaxForceSpinBox" parent="LimitForceHBoxContainer" instance=ExtResource("2_crlk1")]
 unique_name_in_owner = true
 layout_mode = 2
-step = 0.001
-value = 5.0
+max_value = 50000.0
+step = 0.1
+value = 1000.0
 allow_greater = true
-suffix = "aN"
+suffix = "kJ / mol"
 custom_arrow_step = 0.001
 
 [node name="Label5" type="Label" parent="."]

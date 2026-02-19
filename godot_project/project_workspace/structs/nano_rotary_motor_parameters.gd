@@ -5,18 +5,9 @@ enum Polarity {
 	COUNTER_CLOCKWISE
 }
 
-enum MaxSpeedType {
-	TOP_SPEED,
-	MAX_TORQUE
-}
 
-
-@export var max_speed_type: MaxSpeedType = MaxSpeedType.TOP_SPEED:
-	set = _set_max_speed_type
 @export var top_revolutions_per_nanosecond: float = 30.0:
 	set = _set_top_revolutions_per_nanosecond
-@export var max_torque: float = 50.0:
-	set = _set_max_torque
 @export var is_jerk_limited: bool = false:
 	set = _set_is_jerk_limited
 @export var jerk_limit: float = 50.0:
@@ -72,24 +63,10 @@ func _get_motor_type() -> Type:
 	return Type.ROTARY
 
 
-func _set_max_speed_type(in_max_speed_type: MaxSpeedType) -> void:
-	if max_speed_type == in_max_speed_type:
-		return
-	max_speed_type = in_max_speed_type
-	emit_changed()
-
-
 func _set_top_revolutions_per_nanosecond(in_top_revolutions_per_nanosecond: float) -> void:
 	if top_revolutions_per_nanosecond == in_top_revolutions_per_nanosecond:
 		return
 	top_revolutions_per_nanosecond = in_top_revolutions_per_nanosecond
-	emit_changed()
-
-
-func _set_max_torque(in_max_torque: float) -> void:
-	if max_torque == in_max_torque:
-		return
-	max_torque = in_max_torque
 	emit_changed()
 
 
@@ -128,9 +105,7 @@ func create_state_snapshot() -> Dictionary:
 			"cycle_eventually_stops" = cycle_eventually_stops,
 			"cycle_stop_after_n_cycles" = cycle_stop_after_n_cycles,
 			# Rotary specific properties
-			"max_speed_type" = max_speed_type,
 			"top_revolutions_per_nanosecond" = top_revolutions_per_nanosecond,
-			"max_torque" = max_torque,
 			"is_jerk_limited" = is_jerk_limited,
 			"jerk_limit" = jerk_limit,
 			"polarity" = polarity,
@@ -155,9 +130,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	cycle_eventually_stops = in_snapshot.cycle_eventually_stops
 	cycle_stop_after_n_cycles = in_snapshot.cycle_stop_after_n_cycles
 	# Rotary specific properties
-	max_speed_type = in_snapshot.max_speed_type
 	top_revolutions_per_nanosecond = in_snapshot.top_revolutions_per_nanosecond
-	max_torque = in_snapshot.max_torque
 	is_jerk_limited = in_snapshot.is_jerk_limited
 	jerk_limit = in_snapshot.jerk_limit
 	polarity = in_snapshot.polarity

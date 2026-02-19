@@ -47,8 +47,10 @@ var motor_type: Type = Type.UNKNOWN:
 @export var cycle_stop_after_n_cycles: int = 1:
 	set = _set_cycle_stop_after_n_cycles
 
-@export var limit_maximum_force: bool = false
-
+@export var limit_maximum_force: bool = false:
+	set = _set_limit_maximum_force
+@export var max_force: float = 1.0 * 1e6:
+	set = _set_max_force
 
 func get_tooltip_text() -> String:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
@@ -120,6 +122,20 @@ func _set_cycle_stop_after_n_cycles(in_cycle_stop_after_n_cycles: int) -> void:
 	if cycle_stop_after_n_cycles == in_cycle_stop_after_n_cycles:
 		return
 	cycle_stop_after_n_cycles = in_cycle_stop_after_n_cycles
+	emit_changed()
+
+
+func _set_limit_maximum_force(in_limit_maximum_force: bool) -> void:
+	if limit_maximum_force == in_limit_maximum_force:
+		return
+	limit_maximum_force = in_limit_maximum_force
+	emit_changed()
+
+
+func _set_max_force(in_max_force: float) -> void:
+	if max_force == in_max_force:
+		return
+	max_force = in_max_force
 	emit_changed()
 
 
