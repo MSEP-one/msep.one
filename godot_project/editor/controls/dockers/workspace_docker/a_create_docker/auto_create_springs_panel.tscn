@@ -1,0 +1,82 @@
+[gd_scene load_steps=6 format=3 uid="uid://b6vo1tf20ylkp"]
+
+[ext_resource type="Script" uid="uid://bbgedydv4ho3f" path="res://editor/controls/dockers/workspace_docker/a_create_docker/auto_create_springs_panel.gd" id="1_k222l"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_k222l"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="2_yoee2"]
+[ext_resource type="Texture2D" uid="uid://wbe2syrxllv8" path="res://editor/controls/menu_bar/menu_create/menu_atoms/icons/icon_AutoBonder_16px.svg" id="3_3tg0t"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_jgiuk"]
+
+[node name="AutoCreateBondsPanel" type="VBoxContainer"]
+offset_right = 415.0
+offset_bottom = 227.0
+script = ExtResource("1_k222l")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Spring Parameters"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer2"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="AtomToAnchorButton" type="Button" parent="PanelContainer/VBoxContainer2/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_jgiuk")
+text = "Springs from Atoms to Anchors"
+
+[node name="AtomToAtomButton" type="Button" parent="PanelContainer/VBoxContainer2/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_jgiuk")
+text = "Springs between Atoms"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "· Maximum Spring Length"
+
+[node name="MaxSpringLengthSlider" parent="PanelContainer/VBoxContainer2/HBoxContainer2" instance=ExtResource("2_k222l")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.1
+max_value = 20.0
+step = 0.1
+value = 1.0
+allow_greater = true
+suffix = "nm"
+
+[node name="InfoLabel" parent="PanelContainer/VBoxContainer2" instance=ExtResource("2_yoee2")]
+layout_mode = 2
+text = "[center]ℹ Springs created with this method always have automatic equilibrium length[/center]"
+message = &"Springs created with this method always have automatic equilibrium length"
+effect = "none"
+
+[node name="NoSelectionLabel" parent="." instance=ExtResource("2_yoee2")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AutoCreateSpringsButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Auto-Create Springs"
+icon = ExtResource("3_3tg0t")

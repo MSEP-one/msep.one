@@ -531,6 +531,23 @@ func spring_has(_in_spring_id: int) -> bool:
 	return false
 
 
+func spring_to_anchor_exists(in_atom_id: int, in_anchor_id: int) -> bool:
+	var related_springs: PackedInt32Array = atom_get_springs(in_atom_id)
+	for spring_id: int in related_springs:
+		if spring_is_atom_to_atom(spring_id):
+			continue
+		if spring_get_anchor_id(spring_id) == in_anchor_id:
+			return true
+	return false
+
+
+func spring_between_atoms_exists(in_atom_id1: int, in_atom_id2: int) -> bool:
+	assert(in_atom_id1 != in_atom_id2)
+	assert(is_atom_valid(in_atom_id1) and is_atom_valid(in_atom_id2))
+	var atom_pair := Vector2i(min(in_atom_id1, in_atom_id2), max(in_atom_id1, in_atom_id2))
+	return _atom_to_atom_spring_ids.get(atom_pair, -1) >= 0
+
+
 func spring_invalidate(_in_spring_id: int) -> void:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return

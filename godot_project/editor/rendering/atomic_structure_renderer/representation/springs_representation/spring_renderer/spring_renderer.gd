@@ -80,7 +80,8 @@ func add_spring(in_spring_id: int, in_position_begin: Vector3, in_position_end: 
 	var distance: float = in_position_begin.distance_to(in_position_end)
 	var start_position := in_position_begin
 	var spring_transform := Transform3D(Basis(), start_position)
-	spring_transform = spring_transform.looking_at(in_position_end).scaled_local(Vector3(MODEL_THICKNESS, 
+	var up := Vector3.UP if start_position.x != in_position_end.x or start_position.z != in_position_end.z else Vector3.RIGHT
+	spring_transform = spring_transform.looking_at(in_position_end, up).scaled_local(Vector3(MODEL_THICKNESS, 
 			MODEL_THICKNESS, distance))
 	var color: Color = Color(Color.WHITE, in_instance_state_as_alpha)
 	_multimesh.add_particle(in_spring_id, spring_transform, color, Color())
