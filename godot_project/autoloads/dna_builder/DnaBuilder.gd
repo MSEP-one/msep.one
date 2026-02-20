@@ -72,7 +72,7 @@ func _build_nucleotide(
 		) -> PackedMolecule:
 	assert(in_base in ["A", "T", "G", "C"], "Unknown base: %s" % in_base)
 	
-	var template: PackedMolecule = get_template(in_base, in_params.include_hydrogens)
+	var template: PackedMolecule = get_template(in_base)
 	var result := PackedMolecule.new()
 	
 	# Calculate helix position
@@ -101,7 +101,7 @@ func _build_nucleotide(
 	var backbone_centroid: Vector3 = \
 		(Vector3.RIGHT * backbone_distance).rotated(Vector3.BACK, angle)
 	backbone_centroid.z += z_offset
-	template = get_template("backbone%d" % strand, in_params.include_hydrogens)
+	template = get_template("backbone%d" % strand)
 	assert(template.base_to_backbone_atom_id >= 0, "Unconfigured b	ase_to_backbone_atom_id for " + "backbone%d" % strand)
 	if is_dev_tool_enabled():
 		# Show the centroid position. Argon for Backbone
@@ -117,7 +117,7 @@ func _build_nucleotide(
 	return result
 
 
-func get_template(in_base: String, in_include_hydrogens: bool = false) -> PackedMolecule:
+func get_template(in_base: String) -> PackedMolecule:
 	const FILENAMES = {
 		"A" : "adenine",
 		"T" : "thymine",
@@ -126,19 +126,19 @@ func get_template(in_base: String, in_include_hydrogens: bool = false) -> Packed
 		"backbone0" : "backbone0",
 		"backbone1" : "backbone1",
 	}
-	const PATH = "res://autoloads/dna_builder/templates/%s.tres"
+	const PATH = "res://autoloads/dna_builder/templates/%s_h.tres"
 	assert(in_base in FILENAMES.keys(), "Unknown base %s" % in_base)
-	var filename: String = FILENAMES[in_base] + ("_h" if in_include_hydrogens else "")
+	var filename: String = FILENAMES[in_base]
 	if not _base_templates.has(filename) or is_dev_tool_enabled():
 		_base_templates[filename] = ResourceLoader.load(PATH % filename, "", ResourceLoader.CACHE_MODE_IGNORE)
 	return _base_templates[filename]
 
-func get_template_atom_count(in_base: String, in_include_hydrogens: bool = false) -> int:
-	return get_template(in_base, in_include_hydrogens).atoms.size()
+func get_template_atom_count(in_base: String) -> int:
+	return get_template(in_base).atoms.size()
 
 
-func get_template_bond_count(in_base: String, in_include_hydrogens: bool = false) -> int:
-	return get_template(in_base, in_include_hydrogens).bonds.size()
+func get_template_bond_count(in_base: String) -> int:
+	return get_template(in_base).bonds.size()
 
 
 func _dump_template(
