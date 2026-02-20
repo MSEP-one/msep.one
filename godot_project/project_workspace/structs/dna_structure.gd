@@ -1,6 +1,5 @@
 class_name DnaStructure extends AtomicStructure
 
-signal edit_mode_changed(in_mode: EditMode)
 # Path related signals
 signal bases_count_changed(new_count: int)
 signal sequence_changed(new_sequence: String)
@@ -12,16 +11,14 @@ enum Strand {
 	B = 2,
 	BOTH = 3,
 }
-enum EditMode {
-	SequenceAndPath,
-	AtomsAndBonds,
-}
+
 enum SequencePolicy {
 	RandomlyGenerated,
 	UserDefined,
 }
 
 const StrandPolicy = DnaStructureParameters.StrandPolicy
+const DnaRepresentation = RepresentationSettings.DnaRepresentation
 const PackedMolecule = preload("res://autoloads/dna_builder/templates/packed_molecule.gd")
 const INVALID_CONTROL_POINT_IDX: int = -1
 
@@ -30,7 +27,6 @@ const INVALID_CONTROL_POINT_IDX: int = -1
 	set = _set_curve
 @export var _sequence: String
 @export var _parameters: DnaStructureParameters
-@export var _edit_mode := EditMode.SequenceAndPath
 @export var _sequence_policy := SequencePolicy.RandomlyGenerated
 @export_storage var _rand_sequence_seed: int = 0
 
@@ -43,12 +39,14 @@ var _bonds_count_cache: int = -1
 var _bonds_ids_cache: Dictionary[Strand, PackedInt32Array] = {}
 var _bonds_cache: Dictionary[int, Vector3i]
 var _highest_spring_id: int = -1
+var _track_atoms: bool = false
 static var _unpacked_atom_ids: Dictionary[int, UnpackedAtomId]
 static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
 
 var _last_sequence: String = ""
 var _last_rand_sequence_state: int = 0
 var _last_bases_cout: int = 0
+var _last_base_transform_cache: Dictionary[int, Transform3D]
 var _signal_queue_path_changed: bool = false
 var _signal_queue_parameters_changed: bool = false
 var _baked_path: PackedVector3Array = []
@@ -124,6 +122,20 @@ func _init() -> void:
 		_curve.set_block_signals(true)
 		_curve.bake_interval = 0.02
 		_curve.set_block_signals(false)
+	super._init()
+
+
+func _post_init() -> void:
+	get_representation_settings().dna_representation_changed.connect(_on_dna_representation_changed)
+	_on_dna_representation_changed(get_representation_settings().get_dna_representation())
+	super._post_init()
+
+
+func _on_dna_representation_changed(in_dna_representation: DnaRepresentation) -> void:
+	_track_atoms = in_dna_representation == DnaRepresentation.ATOMS_AND_BONDS
+	start_edit()
+	_signal_queue_path_changed = true
+	end_edit()
 
 
 func _set_curve(in_curve: Curve3D) -> void:
@@ -165,111 +177,104 @@ func get_baked_path(in_path_override: Curve3D = null) -> PackedVector3Array:
 	return _baked_path.duplicate()
 
 
-func notify_added_to_workspace(in_workspace_context: WorkspaceContext) -> void:
-	if not in_workspace_context.about_to_apply_simulation.is_connected(_on_about_to_apply_simulation):
-		in_workspace_context.about_to_apply_simulation.connect(_on_about_to_apply_simulation)
-
-
-func _on_about_to_apply_simulation() -> void:
-	if _edit_mode == DnaStructure.EditMode.AtomsAndBonds:
-		start_edit()
-		apply_simulation_state()
-		end_edit()
-		set_edit_mode(DnaStructure.EditMode.SequenceAndPath)
-
-
 #region: Edit tracking
-func set_edit_mode(in_mode: EditMode) -> void:
-	# This may be counter intuitive, but logic is you should not be able to change
-	# Path/Sequence + Atoms/Bonds in the same start/end edit process
-	assert(!_is_being_edited, "Edit Mode can only be changed while edition is not happening")
-	if _edit_mode == in_mode: return
-	if in_mode == EditMode.SequenceAndPath:
-		# Atoms and bonds has been removed
-		var atoms_to_signal: PackedInt32Array = get_valid_atoms()
-		var bonds_to_signal: PackedInt32Array = get_valid_bonds()
-		var springs_to_remove: PackedInt32Array = _springs.keys()
-		_edit_mode = in_mode
-		_atoms_cache = {}
-		_base_transform_cache = {}
-		_atoms_count_cache = -1
-		_bonds_count_cache = -1
-		_springs.clear()
-		locked_atoms = {}
-		color_overrides = {}
-		springs_removed.emit(springs_to_remove)
-		atoms_removed.emit(atoms_to_signal)
-		bonds_removed.emit(bonds_to_signal)
-	elif in_mode == EditMode.AtomsAndBonds:
-		# Atoms and bonds added back
-		_edit_mode = in_mode
-		_atoms_count_cache = -1
-		_bonds_count_cache = -1
-		var atoms_to_signal: PackedInt32Array = get_valid_atoms()
-		var bonds_to_signal: PackedInt32Array = get_valid_bonds()
-		atoms_added.emit(atoms_to_signal)
-		bonds_created.emit(bonds_to_signal)
-	edit_mode_changed.emit(in_mode)
-
-
-func apply_simulation_state() -> void:
-	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	push_warning("TODO: Adjust path to roughly match the positions of atoms")
-
-
-func get_edit_mode() -> EditMode:
-	return _edit_mode
-
-
 func start_edit() -> void:
 	assert(not _is_being_edited, "I'm already being edited, make sure to call end_edit() when you are done with edits")
 	super.start_edit()
 	_last_bases_cout = _sequence.length()
 	_last_sequence = _sequence
+	_last_base_transform_cache = _base_transform_cache.duplicate()
 	return
 
 
 func end_edit() -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	if _edit_mode == EditMode.SequenceAndPath:
-		if _adjust_path_length_queued:
-			_adjust_path_length()
-		_is_being_edited = false
-		var has_changed: bool = (
-			_last_bases_cout != _sequence.length()
-			or _last_sequence != _sequence
-			or _signal_queue_path_changed
-			or _signal_queue_parameters_changed
-			)
-		if has_changed:
-			if _signal_queue_path_changed:
-				path_changed.emit()
-				_baked_path.clear()
-				_signal_queue_path_changed = false
-			# Emmit count changed signal before actual sequence
-			if _last_bases_cout != _sequence.length():
-				var count: = _sequence.length()
-				bases_count_changed.emit(count)
-				_last_bases_cout = _sequence.length()
-			if _last_sequence != _sequence:
-				_last_sequence = _sequence
-				_atoms_count_cache = -1
-				_atoms_ids_cache = {}
-				_atoms_cache = {}
-				_bonds_count_cache = -1
-				_bonds_ids_cache = {}
-				_bonds_cache = {}
-				_baked_path.clear()
-				sequence_changed.emit(_sequence)
-			if _signal_queue_parameters_changed:
-				_baked_path.clear()
-				_parameters.set_read_only(true)
-				parameters_changed.emit(_parameters)
-				_parameters.set_read_only(false)
-				_signal_queue_parameters_changed = false
-			emit_changed()
+	if _adjust_path_length_queued:
+		_adjust_path_length()
+	var has_changed: bool = (
+		_last_bases_cout != _sequence.length()
+		or _last_sequence != _sequence
+		or _signal_queue_path_changed
+		or _signal_queue_parameters_changed
+		)
+	if has_changed:
+		if _signal_queue_path_changed:
+			path_changed.emit()
+			_baked_path.clear()
+			_signal_queue_path_changed = false
+		# Emmit count changed signal before actual sequence
+		if _last_bases_cout != _sequence.length():
+			var count: = _sequence.length()
+			bases_count_changed.emit(count)
+			_last_bases_cout = _sequence.length()
+		if _last_sequence != _sequence:
+			_baked_path.clear()
+			sequence_changed.emit(_sequence)
+		if _signal_queue_parameters_changed:
+			_baked_path.clear()
+			_parameters.set_read_only(true)
+			parameters_changed.emit(_parameters)
+			_parameters.set_read_only(false)
+			_signal_queue_parameters_changed = false
+		if _track_atoms:
+			var prev_atoms_cache: Dictionary[int, AtomData] = _atoms_cache.duplicate()
+			var prev_bonds_cache: Dictionary[int, Vector3i] = _bonds_cache.duplicate()
+			_atoms_count_cache = -1
+			_atoms_ids_cache = {}
+			_atoms_cache = {}
+			_bonds_count_cache = -1
+			_bonds_ids_cache = {}
+			_bonds_cache = {}
+			_highest_spring_id = -1
+			# HACK: temporarly set is being edited to false to fetch values
+			_is_being_edited = false
+			# Track added/removed/moved atoms
+			var all_new_atom_ids: PackedInt32Array = get_valid_atoms()
+			var all_old_atom_ids: PackedInt32Array = prev_atoms_cache.keys()
+			var was_atom_removed: Callable = func (old_atom_id: int) -> bool:
+				return not (old_atom_id in all_new_atom_ids)
+			var was_atom_added: Callable = func (new_atom_id: int) -> bool:
+				return not (new_atom_id in all_old_atom_ids)
+			var was_atom_moved: Callable = func (atom_id: int) -> bool:
+				if was_atom_added.call(atom_id) or was_atom_removed.call(atom_id):
+					return false
+				return prev_atoms_cache[atom_id].position != atom_get_position(atom_id)
+			_signal_queue_atoms_removed = Array(all_old_atom_ids).filter(was_atom_removed)
+			_signal_queue_atoms_added = Array(all_new_atom_ids).filter(was_atom_added)
+			_signal_queue_atoms_moved = Array(all_new_atom_ids).filter(was_atom_moved)
+			# Track Bonds
+			var all_new_bonds: PackedInt32Array = get_valid_bonds()
+			var all_old_bonds: PackedInt32Array = prev_bonds_cache.keys()
+			var was_bond_removed: Callable = func (old_bond_id: int) -> bool:
+				return not (old_bond_id in all_new_bonds)
+			var was_bond_added: Callable = func(new_bond_id: int) -> bool:
+				return not (new_bond_id in all_old_bonds)
+			var has_bond_changed: Callable = func (bond_id: int) -> bool:
+				if was_bond_added.call(bond_id) or was_bond_removed.call(bond_id):
+					return false
+				return prev_bonds_cache[bond_id].z != get_bond(bond_id).z
+			_signal_queue_bonds_created = Array(all_new_bonds).filter(was_bond_added)
+			_signal_queue_bonds_removed = Array(all_old_bonds).filter(was_bond_removed)
+			_signal_queue_bonds_changed = Array(all_new_bonds).filter(has_bond_changed)
+			# reset is being edited
+			_is_being_edited = true
+			super.end_edit()
+		else:
+			var prev_atoms_cache: Dictionary[int, AtomData] = _atoms_cache.duplicate()
+			var prev_bonds_cache: Dictionary[int, Vector3i] = _bonds_cache.duplicate()
+			_atoms_count_cache = -1
+			_atoms_ids_cache = {}
+			_atoms_cache = {}
+			_bonds_count_cache = -1
+			_bonds_ids_cache = {}
+			_bonds_cache = {}
+			_highest_spring_id = -1
+			_signal_queue_atoms_removed = prev_atoms_cache.keys()
+			_signal_queue_bonds_removed = prev_bonds_cache.keys()
+			super.end_edit()
+		emit_changed()
 	else:
-		super.end_edit()
+		_is_being_edited = false
 
 
 ## UNUSED [s]Removes every atom, bond, and spring from this structure[/s]
@@ -282,7 +287,6 @@ func clear() -> void:
 #region: Parameters
 func set_bases_per_turn(in_bases_per_turn: float) -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_signal_queue_parameters_changed = true
 	_parameters.bases_per_turn = in_bases_per_turn
 
@@ -293,7 +297,6 @@ func get_bases_per_turn() -> float:
 
 func set_rise_nanometers(in_rise_nanometers: float) -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_signal_queue_parameters_changed = true
 	_parameters.rise_nanometers = in_rise_nanometers
 	_queue_adjust_path_length()
@@ -305,7 +308,6 @@ func get_rise_nanometers() -> float:
 
 func set_dna_radius_nanometers(in_radius_nanometers: float) -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_signal_queue_parameters_changed = true
 	_parameters.dna_radius_nanometers = in_radius_nanometers
 
@@ -316,7 +318,6 @@ func get_dna_radius_nanometers() -> float:
 
 func set_initial_twist_rad(in_initial_twist_rad: float) -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_signal_queue_parameters_changed = true
 	_parameters.initial_twist_rad = in_initial_twist_rad
 
@@ -327,7 +328,6 @@ func get_initial_twist_rad() -> float:
 
 func set_strand_policy(in_strand_policy: StrandPolicy) -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_signal_queue_parameters_changed = true
 	_parameters.strand_policy = in_strand_policy
 
@@ -351,7 +351,6 @@ func get_strands() -> Array[Strand]:
 
 func set_include_hydrogens(in_include_hydrogens: bool) -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_signal_queue_parameters_changed = true
 	_parameters.include_hydrogens = in_include_hydrogens
 
@@ -370,7 +369,6 @@ func _on_curve_changed() -> void:
 
 func insert_control_point(position: Vector3, in_index: int = -1) -> void:
 	assert(_is_being_edited)
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_curve.add_point(position, Vector3.ZERO, Vector3.ZERO, in_index)
 	var index: int = in_index if in_index > -1 else _curve.point_count - 1
 	recalculate_curve_in_out(_curve, index - 1)
@@ -380,7 +378,6 @@ func insert_control_point(position: Vector3, in_index: int = -1) -> void:
 
 func remove_control_point(in_index: int) -> void:
 	assert(_is_being_edited)
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_curve.remove_point(in_index)
 	if in_index > 0:
 		recalculate_curve_in_out(_curve, in_index - 1)
@@ -394,7 +391,6 @@ func is_control_point_valid(in_index: int) -> bool:
 
 func set_control_point_position(in_index: int, int_position: Vector3) -> void:
 	assert(_is_being_edited)
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_curve.set_point_position(in_index, int_position)
 	recalculate_curve_in_out(_curve, in_index - 1)
 	recalculate_curve_in_out(_curve, in_index)
@@ -512,7 +508,6 @@ static func recalculate_curve_in_out(out_curve: Curve3D, in_index: int) -> void:
 #region: Sequence
 func set_sequence_policy(in_policy: SequencePolicy) -> void:
 	assert(_is_being_edited)
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	if _sequence_policy == in_policy:
 		return
 	_sequence_policy = in_policy
@@ -526,7 +521,6 @@ func set_sequence_policy(in_policy: SequencePolicy) -> void:
 
 func set_sequence(in_sequence: String) -> void:
 	assert(_is_being_edited)
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	assert(_sequence_policy == SequencePolicy.UserDefined, "Cannot set sequence when is meant to be generated randomly")
 	if _sequence != in_sequence:
 		_sequence = in_sequence
@@ -543,7 +537,6 @@ func get_sequence_length() -> int:
 
 func set_sequence_length(in_length: int) -> void:
 	assert(_is_being_edited)
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	assert(_sequence_policy == SequencePolicy.RandomlyGenerated, "Cannot set sequence length unless is meant to be generated randomly")
 	if _sequence.length() >= in_length:
 		# shorten the sequence
@@ -578,7 +571,6 @@ func _queue_adjust_path_length() -> void:
 
 func _adjust_path_length() -> void:
 	assert(_is_being_edited)
-	assert(_edit_mode == EditMode.SequenceAndPath, "Cannot change helix proeprties in this state")
 	_adjust_path_length_queued = false
 	const MIN_RISE_NANOMETERS: float = 0.1
 	if _parameters.rise_nanometers < MIN_RISE_NANOMETERS:
@@ -624,7 +616,7 @@ func can_create_and_delete_atoms() -> bool:
 ## Returns number of atoms that has been created in this NanoStructure
 func get_valid_atoms_count() -> int:
 	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return 0
 	if _atoms_count_cache == -1:
 		var base_count: Dictionary[String, int] = {
@@ -651,7 +643,7 @@ func get_atom_ids_for_strand(in_strand: Strand) -> PackedInt32Array:
 	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
 	assert(in_strand != Strand.BOTH, "Invalid usage of get_atoms_for_strand, use get_valid_atoms() instead")
 	
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return []
 	
 	if not in_strand in _atoms_ids_cache.keys():
@@ -679,14 +671,14 @@ func get_atom_ids_for_strand(in_strand: Strand) -> PackedInt32Array:
 			for sub_atom_id: int in atom_count:
 				assert(not _get_atom_id(base_idx, in_strand, false, sub_atom_id) in _atoms_ids_cache[in_strand], "Math failed and there are repeated atom ids!")
 				_atoms_ids_cache[in_strand].append(_get_atom_id(base_idx, in_strand, false, sub_atom_id))
-	return _atoms_ids_cache[in_strand]
+	return _atoms_ids_cache[in_strand].duplicate()
 	
 
 ## Returns the list of atom_ids
 func get_valid_atoms() -> PackedInt32Array:
 	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
 	
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return []
 	
 	if get_strand_policy() != StrandPolicy.DOUBLE:
@@ -721,7 +713,7 @@ func remove_atom(_in_atom_id: int) -> bool:
 
 
 func is_atom_valid(in_atom_id: int) -> bool:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return false
 	
 	var id_data: UnpackedAtomId = _unpack_atom_id(in_atom_id)
@@ -736,7 +728,7 @@ func is_atom_valid(in_atom_id: int) -> bool:
 ## Returns the numbers of protons in atom's nucleous. This reffers to the id of an
 ## element in the Periodic Table
 func atom_get_atomic_number(in_atom_id: int) -> int:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return INVALID_ATOMIC_NUMBER
 	return _get_atom_data(in_atom_id).atomic_number
 
@@ -755,7 +747,7 @@ func atom_get_formal_charge(_in_atom_id: int) -> int:
 
 ## Returns the position of the atom, relative to structure's transform
 func atom_get_position(in_atom_id: int) -> Vector3:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return Vector3.ONE * NAN
 	return _get_atom_data(in_atom_id).position
 
@@ -765,7 +757,7 @@ func atom_get_position(in_atom_id: int) -> Vector3:
 ## This is uniquely supported to update atoms positions during simulation
 func atom_set_position(in_atom_id: int, in_pos: Vector3) -> bool:
 	assert(_is_being_edited)
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return false
 	const TO_UPDATE_POSITION = true
 	_get_atom_data(in_atom_id, TO_UPDATE_POSITION).position = in_pos
@@ -777,7 +769,7 @@ func atom_set_position(in_atom_id: int, in_pos: Vector3) -> bool:
 ## for performance reasons - this way [code]changed[/code] signal is emitted only once
 func atoms_set_positions(in_atoms: PackedInt32Array, in_positions: PackedVector3Array) -> void:
 	assert(in_atoms.size() == in_positions.size())
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return
 	for i in in_atoms.size():
 		atom_set_position(in_atoms[i], in_positions[i])
@@ -824,7 +816,7 @@ func atom_get_bond_target(in_atom_id: int, in_bond_id: int) -> int:
 
 ## Returns bond id between first atom and second atom or -1 if bond do not exists
 func atom_find_bond_between(in_atom_id_a: int, in_atom_id_b: int) -> int:
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return INVALID_BOND_ID
 	
 	var a_id_data: UnpackedAtomId = _unpack_atom_id(in_atom_id_a)
@@ -876,7 +868,7 @@ func atom_find_bond_between(in_atom_id_a: int, in_atom_id_b: int) -> int:
 
 func atoms_count_visible_by_type(types_to_count: PackedInt32Array) -> int:
 	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return 0
 	var count: int = 0
 	const FOR_UPDATING_DATA: bool = false
@@ -914,7 +906,7 @@ func is_bond_valid(in_bond_id: int) -> bool:
 			return id_data.base_idx > 0 and id_data.base_idx < _sequence.length()
 		else:
 			# glue to the base, is always valid
-			return id_data.base_idx >= 0 and id_data.base_idx < _sequence.length()
+			return id_data.base_idx >= 0 and id_data.base_idx < _sequence.length() and _sequence[id_data.base_idx]
 	else:
 		var template: PackedMolecule = _get_base_template_for_unpacked_bond(id_data)
 		return id_data.sub_bond_id >= 0 and id_data.sub_bond_id < template.bonds.size()
@@ -924,7 +916,7 @@ func get_bond_ids_for_strand(in_strand: Strand) -> PackedInt32Array:
 	assert(not _is_being_edited, "I'm being edited, performing operations on bonds in this state is unrecommended")
 	assert(in_strand != Strand.BOTH, "Invalid usage of get_bonds_for_strand, use get_valid_bonds() instead")
 	
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return []
 	
 	if not in_strand in _bonds_ids_cache.keys():
@@ -961,21 +953,21 @@ func get_bond_ids_for_strand(in_strand: Strand) -> PackedInt32Array:
 				assert(not _get_glue_bond_id(base_idx, in_strand, false) in _bonds_ids_cache[in_strand], "Math failed and there are repeated bond ids!")
 				# append glue bond
 				_bonds_ids_cache[in_strand].append(_get_glue_bond_id(base_idx, in_strand, false))
-	return _bonds_ids_cache[in_strand]
+	return _bonds_ids_cache[in_strand].duplicate()
 
 
 ## Returns the list of bond_ids
 func get_valid_bonds() -> PackedInt32Array:
 	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
 	
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return []
 	
 	if get_strand_policy() != StrandPolicy.DOUBLE:
 		var strand: Strand = get_strands()[0]
 		if _bonds_ids_cache.get(strand, []).is_empty():
 			_bonds_ids_cache[strand] = get_bond_ids_for_strand(strand)
-		return _bonds_ids_cache[strand]
+		return _bonds_ids_cache[strand].duplicate()
 	
 	if not _bonds_ids_cache.get(Strand.BOTH, []).is_empty():
 		return _bonds_ids_cache[Strand.BOTH]
@@ -993,7 +985,7 @@ func get_bonds_ids() -> PackedInt32Array:
 
 ## Returns wether the bond should be rendered and/or mouse picked
 func is_bond_visible(in_bond_id: int) -> bool:
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return false
 	return super.is_bond_visible(in_bond_id)
 
@@ -1001,14 +993,14 @@ func is_bond_visible(in_bond_id: int) -> bool:
 ## Returns true if the bond is explicitely hidden with the "Hide Selected" action.
 ## Unlike is_bond_visible(), this method does not consider the hydrogen rendering state.
 func is_bond_hidden_by_user(in_bond_id: int) -> bool:
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return false
 	return super.is_bond_hidden_by_user(in_bond_id)
 
 
 ## Returns the list of bond_ids that are not hidden in the structure
 func get_visible_bonds() -> PackedInt32Array:
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return []
 	return super.get_visible_bonds()
 
@@ -1018,7 +1010,7 @@ func get_visible_bonds() -> PackedInt32Array:
 func get_valid_bonds_count() -> int:
 	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
 	
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return 0
 	
 	if _bonds_count_cache == -1:
@@ -1050,7 +1042,7 @@ func get_valid_bonds_count() -> int:
 func get_bond(in_bond_id: int) -> Vector3i:
 	assert(not _is_being_edited, "I'm being edited, performing operations on bonds in this state is unrecommended")
 	
-	if _edit_mode != EditMode.AtomsAndBonds:
+	if not _track_atoms:
 		return Vector3i(INVALID_ATOM_ID, INVALID_ATOM_ID, -1)
 	
 	if not _bonds_cache.has(in_bond_id):
@@ -1173,7 +1165,6 @@ static func _is_glue_bond_id(in_bond_id: int) -> bool:
 func spring_create(in_anchor_id: int, in_atom_id: int, in_spring_constant_force: float,
 			is_equilibrium_length_automatic: bool, in_equilibrium_manual_length: float) -> int:
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
 	_highest_spring_id += 1
 	_springs[_highest_spring_id] = NanoSpring.create(in_anchor_id, in_atom_id, in_spring_constant_force,
 			is_equilibrium_length_automatic, in_equilibrium_manual_length)
@@ -1252,14 +1243,13 @@ func _ensure_edit_queue_flushed() -> void:
 
 
 func spring_has(in_spring_id: int) -> bool:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return false
 	return _springs.has(in_spring_id)
 
 
 func spring_invalidate(in_spring_id: int) -> void:
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
 	var atom_id: int = spring_get_atom_id(in_spring_id)
 	var atom_id2: int = spring_get_second_atom_id(in_spring_id)
 	var anchor_id: int = spring_get_anchor_id(in_spring_id)
@@ -1292,7 +1282,7 @@ func spring_is_visible(in_spring_id: int) -> bool:
 
 
 func spring_get_atom_id(in_spring_id: int) -> int:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return INVALID_ATOM_ID
 	return _springs[in_spring_id].target_atom
 
@@ -1306,14 +1296,14 @@ func spring_get_second_atom_id(in_spring_id: int) -> int:
 
 
 func spring_get_atom_position(in_spring_id: int) -> Vector3:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return Vector3()
 	var spring: NanoSpring = _springs[in_spring_id]
 	return atom_get_position(spring.target_atom)
 
 
 func spring_get_anchor_id(in_spring_id: int) -> int:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return Workspace.INVALID_OBJECT_INDEX
 	if spring_is_atom_to_atom(in_spring_id):
 		return Workspace.INVALID_OBJECT_INDEX
@@ -1322,7 +1312,7 @@ func spring_get_anchor_id(in_spring_id: int) -> int:
 
 
 func spring_get_target_position(in_spring_id: int, in_parent_context: StructureContext) -> Vector3:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return Vector3()
 	assert(in_parent_context.nano_structure == self, "This method expects parent StructureContext")
 	if spring_is_atom_to_atom(in_spring_id):
@@ -1335,7 +1325,7 @@ func spring_get_target_position(in_spring_id: int, in_parent_context: StructureC
 
 
 func spring_get_equilibrium_length_is_auto(in_spring_id: int) -> bool:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return false
 	var spring: NanoSpring = _springs[in_spring_id]
 	return spring.equilibrium_length_is_auto
@@ -1343,27 +1333,25 @@ func spring_get_equilibrium_length_is_auto(in_spring_id: int) -> bool:
 
 func spring_set_equilibrium_lenght_is_auto(in_spring_id: int, in_is_auto: bool) -> void:
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
 	var spring: NanoSpring = _springs[in_spring_id]
 	spring.equilibrium_length_is_auto = in_is_auto
 
 
 func spring_set_equilibrium_manual_length(in_spring_id: int, new_equilibrium_manual_length: float) -> void:
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
 	var spring: NanoSpring = _springs[in_spring_id]
 	spring.equilibrium_manual_length = new_equilibrium_manual_length
 
 
 func spring_get_equilibrium_manual_length(in_spring_id: int) -> float:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return 0
 	var spring: NanoSpring = _springs[in_spring_id]
 	return spring.equilibrium_manual_length
 
 
 func spring_calculate_equilibrium_auto_length(in_spring_id: int, _in_parent_context: StructureContext) -> float:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return 0
 	var begin: Vector3 = spring_get_atom_position(in_spring_id)
 	var end: Vector3 = spring_get_target_position(in_spring_id, _in_parent_context)
@@ -1372,7 +1360,7 @@ func spring_calculate_equilibrium_auto_length(in_spring_id: int, _in_parent_cont
 
 
 func spring_get_constant_force(in_spring_id: int) -> float:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return 0
 	var spring: NanoSpring = _springs[in_spring_id]
 	return spring.constant_force
@@ -1380,32 +1368,31 @@ func spring_get_constant_force(in_spring_id: int) -> float:
 
 func spring_set_constant_force(in_spring_id: int, new_force: float) -> void:
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Cannot edit springs in this mode")
 	var spring: NanoSpring = _springs[in_spring_id]
 	spring.constant_force = new_force
 
 
 func springs_get_all() -> PackedInt32Array:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return PackedInt32Array()
 	return PackedInt32Array(_springs.keys())
 
 
 func springs_get_valid() -> PackedInt32Array:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return PackedInt32Array()
 	return PackedInt32Array(_springs.keys())
 
 
 func springs_count() -> int:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return 0
 	return _springs.size()
 
 
 
 func atom_get_springs(in_atom_id: int) -> PackedInt32Array:
-	if _edit_mode == EditMode.SequenceAndPath:
+	if not _track_atoms:
 		return PackedInt32Array()
 	if _atoms_to_related_springs.has(in_atom_id):
 		var springs := PackedInt32Array(_atoms_to_related_springs[in_atom_id].keys())
@@ -1461,7 +1448,6 @@ func motor_links_get_all() -> Dictionary: # { atom_id<int> = motor_id<int> }
 
 func atom_set_motor_link(in_atom_id: int, out_motor_context: StructureContext) -> void:
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Atoms and Bonds cannot be edited in this mode")
 	assert(is_instance_valid(out_motor_context) and out_motor_context.nano_structure is NanoVirtualMotor,
 			"Invalid motor target for creating a link")
 	assert(connected_motor == 0, "Linking a particual atom when the entire structure is connected is not possible")
@@ -1476,7 +1462,6 @@ func atom_set_motor_link(in_atom_id: int, out_motor_context: StructureContext) -
 
 func atom_clear_motor_link(in_atom_id: int) -> void:
 	assert(_is_being_edited, "To perform any changes to AtomicStructure you need to put it in edit mode by calling start_edit()")
-	assert(_edit_mode == EditMode.AtomsAndBonds, "Atoms and Bonds cannot be edited in this mode")
 	assert(connected_motor == 0, "Disconnecting a particular atom when the entire structure is connected is not possible")
 	assert(is_atom_valid(in_atom_id), "Invalid atom ID")
 	if _motor_links.has(in_atom_id):
@@ -1519,44 +1504,14 @@ func get_icon() -> Texture2D:
 	return null
 
 
-func get_aabb(in_bounds_type := AABB_BoundsType.AtomsPositions) -> AABB:
-	if _edit_mode == EditMode.AtomsAndBonds:
-		var aabb: AABB = AABB()
-		if get_valid_atoms_count() == 0:
-			return aabb
-		var elements_radius: Dictionary[int, float]
-		var is_first: bool = true
-		for atom_id: int in get_valid_atoms():
-			var atom: AtomData = _get_atom_data(atom_id)
-			var atom_aabb := AABB(atom.position, Vector3.ZERO)
-			if in_bounds_type != AABB_BoundsType.AtomsPositions and not atom.atomic_number in elements_radius:
-				var element_data: ElementData = PeriodicTable.get_by_atomic_number(atom.atomic_number)
-				match in_bounds_type:
-					AABB_BoundsType.VisualRadius:
-						elements_radius[atom.atomic_number] = (
-							Representation.get_atom_radius(element_data, get_representation_settings()) \
-							* Representation.get_atom_scale_factor(get_representation_settings())
-						)
-					AABB_BoundsType.CovalentRadius:
-						elements_radius[atom.atomic_number] = element_data.covalent_radius[1]
-					AABB_BoundsType.ContactRadius:
-						elements_radius[atom.atomic_number] = element_data.contact_radius
-			atom_aabb = atom_aabb.grow(elements_radius.get(atom.atomic_number, 0.0)).abs()
-			if is_first:
-				aabb = atom_aabb
-				is_first = false
-			else:
-				aabb = aabb.expand(atom_aabb.position)
-				aabb = aabb.expand(atom_aabb.end)
-		return aabb.abs()
-	else:
-		if _curve.point_count == 0:
-			return AABB()
-		var aabb := AABB(_curve.get_point_position(0), Vector3.ZERO)
-		for p in range(1, _curve.point_count):
-			aabb = aabb.expand(_curve.get_point_position(p))
-		aabb = aabb.grow(_parameters.dna_radius_nanometers)
-		return aabb
+func get_aabb(_in_bounds_type := AABB_BoundsType.AtomsPositions) -> AABB:
+	if _curve.point_count == 0:
+		return AABB()
+	var aabb := AABB(_curve.get_point_position(0), Vector3.ZERO)
+	for p in range(1, _curve.point_count):
+		aabb = aabb.expand(_curve.get_point_position(p))
+	aabb = aabb.grow(_parameters.dna_radius_nanometers)
+	return aabb
 
 
 func is_spline_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> bool:
@@ -1579,7 +1534,7 @@ func create_state_snapshot() -> Dictionary:
 		springs_dump[spring_id] = spring.duplicate()
 
 	state_snapshot["script.resource_path"] = get_script().resource_path
-	state_snapshot["_edit_mode"] = _edit_mode
+	state_snapshot["_track_atoms"] = _track_atoms
 	state_snapshot["_curve"] = _create_curve_snapshot()
 	state_snapshot["_sequence"] = _sequence
 	state_snapshot["_parameters"] = _parameters.create_state_snapshot()
@@ -1600,7 +1555,7 @@ func create_state_snapshot() -> Dictionary:
 
 
 func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
-	_edit_mode = in_state_snapshot["_edit_mode"]
+	_track_atoms = in_state_snapshot["_track_atoms"]
 	_set_curve_snapshot(in_state_snapshot["_curve"])
 	_sequence = in_state_snapshot["_sequence"]
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters"])

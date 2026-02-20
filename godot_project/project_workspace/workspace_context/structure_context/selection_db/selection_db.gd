@@ -286,7 +286,7 @@ func invert_selection() -> void:
 		set_spring_selection(springs_to_select)
 	
 	# ---- DNA Structures ----
-	if nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+	if nano_structure is DnaStructure:
 		var dna_structure := nano_structure as DnaStructure
 		var selected_points: PackedInt32Array = _structure_context.get_selected_dna_spline_countrol_points()
 		var new_selection: Array = PackedInt32Array(range(dna_structure.get_control_point_count()))
@@ -303,7 +303,7 @@ func select_all() -> void:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
 	if nano_structure.is_virtual_object():
 		set_virtual_object_selected(true)
-	elif  nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+	elif  nano_structure is DnaStructure:
 		set_dna_control_point_selection(range(nano_structure.get_control_point_count()))
 	else:
 		assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
@@ -355,7 +355,6 @@ func set_virtual_object_selected(in_selected: bool) -> void:
 
 func set_dna_control_point_selection(in_control_points_to_select: PackedInt32Array) -> void:
 	var dna_structure: DnaStructure = _structure_context.nano_structure as DnaStructure
-	assert(dna_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath, "Invalid edit mdoe for this operation")
 	assert(!dna_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 	_validate_dna_control_point_selection(in_control_points_to_select)
 	
@@ -479,7 +478,7 @@ func get_selection_aabb() -> AABB:
 		var object_aabb: AABB = nano_structure.get_aabb()
 		selections_aabbs.push_back(object_aabb)
 	
-	if nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+	if nano_structure is DnaStructure:
 		if not _dna_control_point_selection.is_empty():
 			var dna_structure := _structure_context.nano_structure as DnaStructure
 			var points: PackedInt32Array = _dna_control_point_selection.keys()

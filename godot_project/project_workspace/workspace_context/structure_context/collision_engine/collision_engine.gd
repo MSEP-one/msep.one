@@ -62,6 +62,9 @@ func _notification(in_what: int) -> void:
 func initialize(in_structure_context: StructureContext) -> void:
 	_structure_context = in_structure_context
 	var nano_structure: NanoStructure = in_structure_context.nano_structure
+	if nano_structure is DnaStructure:
+		# DnaStructure never tracks atoms, bonds, or springs
+		return
 	var representation_settings: RepresentationSettings = nano_structure.get_representation_settings()
 	
 	_hydrogens_enabled = representation_settings.get_hydrogens_visible()

@@ -208,8 +208,6 @@ func is_spring_selected(in_spring_id: int) -> bool:
 func dna_structure_has_selection() -> bool:
 	if not nano_structure is DnaStructure:
 		return false
-	if nano_structure.get_edit_mode() == DnaStructure.EditMode.AtomsAndBonds:
-		return is_any_atom_selected() or is_any_bond_selected()
 	if _selection_db.get_selected_dna_spline_countrol_points().size() > 0:
 		return true
 	return false
@@ -219,11 +217,7 @@ func is_dna_structure_fully_selected() -> bool:
 	if not nano_structure is DnaStructure:
 		return false
 	var dna_structure := nano_structure as DnaStructure
-	if dna_structure.get_edit_mode() == DnaStructure.EditMode.AtomsAndBonds:
-		return get_selected_atoms().size() == dna_structure.get_valid_atoms_count() \
-			and get_selected_bonds().size() == dna_structure.get_valid_bonds_count()
-	else:
-		return _selection_db.get_selected_dna_spline_countrol_points().size() == dna_structure.get_control_point_count()
+	return _selection_db.get_selected_dna_spline_countrol_points().size() == dna_structure.get_control_point_count()
 
 
 func is_virtual_object_selected() -> bool:
@@ -287,7 +281,7 @@ func has_atom_selection(include_children: bool = true) -> bool:
 
 
 func is_empty() -> bool:
-	if nano_structure is DnaStructure and nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath:
+	if nano_structure is DnaStructure:
 		return false
 	if nano_structure is AtomicStructure:
 		return nano_structure.get_valid_atoms_count() == 0

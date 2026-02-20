@@ -164,12 +164,11 @@ func _can_delete_atoms_bonds_or_springs(in_context: StructureContext) -> bool:
 
 func _can_delete_dna_control_points(out_context: StructureContext) -> bool:
 	return  out_context.nano_structure is DnaStructure \
-			and out_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
 			and out_context.get_selected_dna_spline_countrol_points().size() > 0
 
 
 func _action_delete_dna_control_points(out_context: StructureContext) -> void:
-	assert(out_context.nano_structure is DnaStructure and out_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath)
+	assert(out_context.nano_structure is DnaStructure)
 	var selected_points: PackedInt32Array = out_context.get_selected_dna_spline_countrol_points()
 	out_context.clear_selection()
 	assert(selected_points.size() > 0)
@@ -257,7 +256,6 @@ func _can_delete_objects(in_context: StructureContext) -> bool:
 	
 	# EXCEPTION: DnaStructure gets deleted if all but 1 control point are selected
 	if in_context.nano_structure is DnaStructure \
-			and in_context.nano_structure.get_edit_mode() == DnaStructure.EditMode.SequenceAndPath \
 			and in_context.get_selected_dna_spline_countrol_points().size() >= in_context.nano_structure.get_control_point_count() - 1:
 		dna_spline_selected = true
 	

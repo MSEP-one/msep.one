@@ -137,12 +137,16 @@ func _on_show_potential_atoms_toggle_toggled(button_pressed: bool) -> void:
 
 func _on_dna_representation_option_button_item_selected(index: int) -> void:
 	var dna_representation := index as RepresentationSettings.DnaRepresentation
+	if dna_representation == _workspace_context.workspace.representation_settings.get_dna_representation():
+		return
 	_workspace_context.workspace.representation_settings \
 		.set_dna_representation(dna_representation)
+	_workspace_context.snapshot_moment("Change DNA Representation")
 
 
 func _on_hide_simulation_boundaries_toggle_toggled(button_pressed: bool) -> void:
 	_workspace_context.workspace.representation_settings.set_display_simulation_boundaries(not button_pressed)
+
 
 func _on_hide_virtual_objects_toggle(button_pressed: bool, in_type: StringName) -> void:
 	_workspace_context.workspace.representation_settings.set_should_hide_virtual_object_during_simulation(in_type, button_pressed)
