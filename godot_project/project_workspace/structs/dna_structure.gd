@@ -1301,6 +1301,14 @@ func spring_get_anchor_id(in_spring_id: int) -> int:
 	return spring.target_anchor
 
 
+func get_related_anchors() -> PackedInt32Array:
+	var anchor_ids: Dictionary[int, bool]
+	for spring: NanoSpring in _springs.values():
+		if spring.target_anchor != Workspace.INVALID_OBJECT_INDEX:
+			anchor_ids[spring.target_anchor] = true
+	return PackedInt32Array(anchor_ids.keys())
+
+
 func spring_get_target_position(in_spring_id: int, in_parent_context: StructureContext) -> Vector3:
 	if not _track_atoms:
 		return Vector3()

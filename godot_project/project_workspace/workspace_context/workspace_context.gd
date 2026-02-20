@@ -357,6 +357,10 @@ func _on_weak_workspace_structure_about_to_remove(in_structure: NanoStructure) -
 	rendering.remove(in_structure)
 	if in_structure is NanoVirtualAnchor:
 		in_structure.deinitialize()
+	if in_structure is AtomicStructure:
+		for anchor_id: int in in_structure.get_related_anchors():
+			var anchor: NanoVirtualAnchor = workspace.get_structure_by_int_guid(anchor_id)
+			anchor.handle_linked_structure_removed(in_structure.int_guid)
 	structure_about_to_remove.emit(in_structure)
 	_structure_contexts.erase(in_structure.int_guid)
 	_emit_new_editable_structures()

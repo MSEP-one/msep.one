@@ -579,6 +579,11 @@ func spring_get_anchor_id(in_spring_id: int) -> int:
 	return -1
 
 
+func get_related_anchors() -> PackedInt32Array:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return []
+
+
 func spring_get_target_position(_in_spring_id: int, _in_parent_context: StructureContext) -> Vector3:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return Vector3()

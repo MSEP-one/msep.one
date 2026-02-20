@@ -54,7 +54,11 @@ func handle_spring_removed(in_nano_structure: NanoStructure, in_spring_id: int) 
 	_linked_nano_structures[in_nano_structure.int_guid].erase(in_spring_id)
 	if _linked_nano_structures[in_nano_structure.int_guid].is_empty():
 		_linked_nano_structures.erase(in_nano_structure.int_guid)
-	
+
+
+func handle_linked_structure_removed(in_structure_id: int) -> void:
+	_linked_nano_structures.erase(in_structure_id)
+
 
 func get_related_structures() -> PackedInt32Array:
 	return PackedInt32Array(_linked_nano_structures.keys())
