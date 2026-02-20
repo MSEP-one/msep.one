@@ -246,7 +246,7 @@ func set_bond_selection(in_bonds_to_select: PackedInt32Array) -> void:
 
 func invert_selection() -> void:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
-	if nano_structure is AtomicStructure:
+	if nano_structure is AtomicStructure and not nano_structure is DnaStructure:
 		assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 		
 		# ---- Atoms ----
