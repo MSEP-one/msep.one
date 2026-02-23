@@ -9,8 +9,6 @@ enum Polarity {
 	set = _set_top_speed_in_nanometers_by_nanoseconds
 @export var polarity: Polarity = Polarity.FORWARD:
 	set = _set_polarity
-@export var max_force: float = 1.0 * 1e6:
-	set = _set_max_force
 
 var _state_snapshot_dirty: bool = true
 var _state_snapshot: Dictionary = {}
@@ -62,13 +60,6 @@ func _set_polarity(in_polarity: Polarity) -> void:
 	emit_changed()
 
 
-func _set_max_force(in_max_force: float) -> void:
-	if max_force == in_max_force:
-		return
-	max_force = in_max_force
-	emit_changed()
-
-
 func create_state_snapshot() -> Dictionary:
 	if _state_snapshot_dirty:
 		_state_snapshot = {
@@ -86,6 +77,7 @@ func create_state_snapshot() -> Dictionary:
 			# Linear specific properties
 			"top_speed_in_nanometers_by_nanoseconds" = top_speed_in_nanometers_by_nanoseconds,
 			"polarity" = polarity,
+			"limit_maximum_force" = limit_maximum_force,
 			"max_force" = max_force,
 		}
 		_state_snapshot_dirty = false
@@ -112,4 +104,5 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	top_speed_in_nanometers_by_nanoseconds = in_snapshot.top_speed_in_nanometers_by_nanoseconds
 	polarity = in_snapshot.polarity
 	max_force = in_snapshot.max_force
+	limit_maximum_force = in_snapshot.limit_maximum_force
 	set_block_signals(was_blocking_signals)
