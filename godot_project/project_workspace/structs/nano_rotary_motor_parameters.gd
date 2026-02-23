@@ -106,12 +106,15 @@ func create_state_snapshot() -> Dictionary:
 			"cycle_stop_after_n_cycles" = cycle_stop_after_n_cycles,
 			# Rotary specific properties
 			"top_revolutions_per_nanosecond" = top_revolutions_per_nanosecond,
+			"limit_maximum_force" = limit_maximum_force,
+			"max_force" = max_force,
 			"is_jerk_limited" = is_jerk_limited,
 			"jerk_limit" = jerk_limit,
 			"polarity" = polarity,
 		}
 		_state_snapshot_dirty = false
 	return _state_snapshot.duplicate(true)
+
 
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	# prevent `changed` and any other signal from being emited whil state snapshot is being applied
@@ -131,6 +134,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	cycle_stop_after_n_cycles = in_snapshot.cycle_stop_after_n_cycles
 	# Rotary specific properties
 	top_revolutions_per_nanosecond = in_snapshot.top_revolutions_per_nanosecond
+	limit_maximum_force = in_snapshot.limit_maximum_force
+	max_force = in_snapshot.max_force
 	is_jerk_limited = in_snapshot.is_jerk_limited
 	jerk_limit = in_snapshot.jerk_limit
 	polarity = in_snapshot.polarity

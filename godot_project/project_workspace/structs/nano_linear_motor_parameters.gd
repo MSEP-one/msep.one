@@ -104,4 +104,5 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	top_speed_in_nanometers_by_nanoseconds = in_snapshot.top_speed_in_nanometers_by_nanoseconds
 	polarity = in_snapshot.polarity
 	max_force = in_snapshot.max_force
+	limit_maximum_force = in_snapshot.limit_maximum_force
 	set_block_signals(was_blocking_signals)

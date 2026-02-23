@@ -392,10 +392,6 @@ class RotaryPolarity(IntEnum):
 	CLOCKWISE = 0,
 	COUNTER_CLOCKWISE = 1
 
-class RotaryMaxSpeedType(IntEnum):
-	TOP_SPEED = 0,
-	MAX_TORQUE = 1
-
 class LinearPolarity(IntEnum):
 	FORWARD = 0,
 	BACKWARDS = 1
@@ -611,6 +607,8 @@ class MotorForce:
 		positions = state.getPositions()
 		reference_particle_position: Vec3 = positions[0]
 		axis_point: Vec3 = closest_point_in_rect_to_other(self.position, self.axis_direction, reference_particle_position)
+		if axis_point == reference_particle_position: # Particle is aligned with the rotation axis
+			return 0.0
 		axis_to_particle_dir: Vec3 = normalize_Vec3(reference_particle_position - axis_point)._value
 		up: Vec3 = Vec3(0.0, 1.0, 0.0)
 		if abs(dot_Vec3(self.axis_direction, up)) > 0.9:
@@ -646,6 +644,7 @@ class MotorForce:
 		state = simulation.context.getState(getVelocities=True, getPositions= True)
 		prev_velocities = state.getVelocities()
 		positions = state.getPositions()
+		new_velocities = prev_velocities.copy()
 		
 		# Cycle accumulation
 		current_angle: float = self.get_molecule_angle(simulation)
@@ -661,17 +660,25 @@ class MotorForce:
 		# Force calculations
 		for i in range(len(self.atom_ids)):
 			atom_id: int = self.atom_ids[i]
-			new_motor_velocity = prev_velocities[atom_id]
-			force: Vec3 = self._calculate_rotary_motor_particle_force(simulation, speed, positions[atom_id], prev_velocities[atom_id], i)
+			vector: Vec3 = self._calculate_rotary_motor_particle_vector(simulation, speed, positions[atom_id], prev_velocities[atom_id], i)
+			self.last_motor_velocities[i] = prev_velocities[atom_id] # update record for the next iter
+			if self.limit_maximum_force:
+				self.external_force.setParticleParameters(i, atom_id, vector)
+			else:
+				new_velocities[atom_id] = vector
+			
 			if atom_id in MOTOR_PER_PARTICLE_LOG_FILES:
 				prev_motor_velocity: Vec3 = self.last_motor_velocities[i]
+				new_motor_velocity = vector
 				if length_Vec3(prev_motor_velocity) > 0.0 and length_Vec3(force) > 0.0 and dot_Vec3(normalize_Vec3(prev_motor_velocity), normalize_Vec3(new_motor_velocity)) < 0.1:
 					self.particle_log(i, "		MOTOR DIRECTION SUDDENLY INVERTED!")
 					self.particle_log(i, f"		speed ({speed}) , prev_motor_velocity {prev_motor_velocity}({length_Vec3(prev_motor_velocity)}) new_motor_velocity {new_motor_velocity}({length_Vec3(new_motor_velocity)})")
-			self.last_motor_velocities[i] = prev_velocities[atom_id] # update record for the next iter
-			self.external_force.setParticleParameters(i, atom_id, force)
 		
-		self.external_force.updateParametersInContext(simulation.context)
+		if self.limit_maximum_force:
+			self.external_force.updateParametersInContext(simulation.context)
+		else:
+			simulation.context.setVelocities(new_velocities)
+		
 		return
 	
 	def _calculate_rotary_motor_particle_distance_to_axis(self, particle_pos: Vec3) -> float:
@@ -679,26 +686,30 @@ class MotorForce:
 		distance = length_Vec3(particle_pos - axis_of_rotation)
 		return distance
 	
-	def _calculate_rotary_motor_particle_force(self, simulation, speed: float, particle_pos: Vec3, previous_velocity: Vec3, i: int) -> Vec3:
+	def _calculate_rotary_motor_particle_vector(self, simulation, speed: float, particle_pos: Vec3, previous_velocity: Vec3, i: int) -> Vec3:
 		previous_velocity = (previous_velocity._value * 1000.0) * (meter / second) # convert from nm/ps to m/s
 		distance_to_axis: float = self._calculate_rotary_motor_particle_distance_to_axis(particle_pos)
-		target_speed = speed * distance_to_axis
+		target_speed: float = speed * distance_to_axis
 		axis_of_rotation: Vec3 = closest_point_in_rect_to_other(self.position, self.axis_direction, particle_pos)
 		axis_to_particle_vec: Vec3 = particle_pos - axis_of_rotation
 		axis_to_particle_dir: Vec3 = normalize_Vec3(axis_to_particle_vec)
-		move_dir: Vec3 = normalize_Vec3(cross_Vec3(axis_to_particle_dir / nanometer, self.axis_direction) * nanometer / nanosecond) * self.polarity
-		current_speed_in_desired_direction = dot_Vec3(previous_velocity, move_dir)
-		speed_delta: Vec3 = target_speed - current_speed_in_desired_direction
+		move_dir: Vec3 = normalize_Vec3(cross_Vec3(axis_to_particle_dir / nanometer, self.axis_direction) * nanometer / nanosecond)._value * self.polarity
+		current_speed_in_desired_direction: float = dot_Vec3(previous_velocity, move_dir)
+		delta_speed: float = target_speed - current_speed_in_desired_direction
+		result: Vec3
 		
-		force_quantity = speed_delta * 1.5 # Empirical approximation. This could use a proper analytical solution.
 		if self.limit_maximum_force:
+			force_quantity = delta_speed * 1.5 # Empirical approximation. This could use a proper analytical solution.
 			force_quantity = min(abs(force_quantity), self.max_force)
 		
-		# If the particle is going faster than the target speed, apply an opposing force to slow it down.
-		# (If this is not desired, set force_quantity to 0 to avoid speeding it up even more)
-		if current_speed_in_desired_direction > target_speed:
-			force_quantity = -force_quantity
-		force: Vec3 = force_quantity * move_dir._value * kilojoule_per_mole
+			# If the particle is going faster than the target speed, apply an opposing force to slow it down.
+			# (If this is not desired, set force_quantity to 0 to avoid speeding it up even more)
+			if current_speed_in_desired_direction > target_speed:
+				force_quantity = -force_quantity
+			result = force_quantity * move_dir * kilojoule_per_mole
+		else:
+			delta_velocity = delta_speed * move_dir * previous_velocity.unit
+			result = previous_velocity + delta_velocity
 		
 		atom_id: int = self.atom_ids[i]
 		if atom_id in MOTOR_PER_PARTICLE_LOG_FILES:
@@ -710,8 +721,12 @@ class MotorForce:
 			self.particle_log(i, f"	axis_to_particle_vec {axis_to_particle_vec}")
 			self.particle_log(i, f"	axis_to_particle_dir {axis_to_particle_dir}")
 			self.particle_log(i, f"	move_dir {move_dir}")
-			self.particle_log(i, f"		force ({length_Vec3(force)}kJ/mol) {force}")
-		return force
+			if self.limit_maximum_force:
+				self.particle_log(i, f"force {result}")
+			else:
+				self.particle_log(i, f"new velocity {result}")
+		
+		return result
 	
 	def _advance_linear(self, simulation):
 		if self.stopped or len(self.atom_ids) == 0:
@@ -731,28 +746,33 @@ class MotorForce:
 		
 		state = simulation.context.getState(getVelocities=True)
 		prev_velocities = state.getVelocities()
+		new_velocities = prev_velocities.copy()
 		
 		for i in range(len(self.atom_ids)):
 			atom_id: int = self.atom_ids[i]
 			previous_velocity: Vec3 = prev_velocities[atom_id]._value * 1000.0 * (meter / second) # from nm/ps to m/s
-			current_speed_in_desired_direction: float = dot_Vec3(previous_velocity, self.axis_direction * self.polarity)
-			speed_delta: float = target_speed - current_speed_in_desired_direction
+			move_dir: Vec3 = self.axis_direction * self.polarity
+			current_speed_in_desired_direction: float = dot_Vec3(previous_velocity, move_dir)
+			delta_speed: float = target_speed - current_speed_in_desired_direction
 			
-			# Calculate required force to reach target speed from current speed
-			force_quantity = speed_delta * 1.5 # Empirical approximation. This could use a proper analytical solution.
 			if self.limit_maximum_force:
+				# Calculate required force to reach target speed from current speed
+				force_quantity = delta_speed * 1.5 # Empirical approximation. This could use a proper analytical solution.
 				force_quantity = min(abs(force_quantity), self.max_force)
-			# If the particle is going faster than the target speed, apply an opposing force to slow it down.
-			# (If this is not desired, set force_quantity to 0 to avoid speeding it up even more)
-			if current_speed_in_desired_direction > target_speed:
-				force_quantity = -force_quantity
-			force: Vec3 = force_quantity * self.axis_direction * self.polarity * kilojoule_per_mole
-			self.external_force.setParticleParameters(i, atom_id, force)
-			
-			if MOTOR_DEBUG_PRINTS and self.print_counter == 0 and i == 0:
-				logging.info(f"Current speed: {current_speed_in_desired_direction} m/s - Force: {force} kJ/mol")
-		
-		self.external_force.updateParametersInContext(simulation.context)
+				# If the particle is going faster than the target speed, apply an opposing force to slow it down.
+				# (If this is not desired, set force_quantity to 0 to avoid speeding it up even more)
+				if current_speed_in_desired_direction > target_speed:
+					force_quantity = -force_quantity
+				force: Vec3 = force_quantity * move_dir * kilojoule_per_mole
+				self.external_force.setParticleParameters(i, atom_id, force)
+			else:
+				delta_velocity = delta_speed * move_dir * previous_velocity.unit
+				new_velocities[atom_id] = prev_velocities[atom_id] + delta_velocity
+				
+		if self.limit_maximum_force:
+			self.external_force.updateParametersInContext(simulation.context)
+		else:
+			simulation.context.setVelocities(new_velocities)
 		return
 
 	def _calculate_speed(self, delta_time: float) -> float:
