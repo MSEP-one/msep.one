@@ -7,6 +7,10 @@ const StrandPolicy = DnaStructure.StrandPolicy
 var _select_one_info_label: InfoLabel
 var _main_container: Container
 
+var _advanced_options_button: Button
+var _advanced_options_panel: PanelContainer
+var _convert_to_atoms_button: Button
+
 
 var _workspace_context: WorkspaceContext
 var _tracked_structure: DnaStructure = null
@@ -18,6 +22,9 @@ func _notification(what: int) -> void:
 		_initialized = true
 		_select_one_info_label = %SelectOneInfoLabel as InfoLabel
 		_main_container = $VBoxContainer as Container
+		_advanced_options_button = %AdvancedOptionsButton as Button
+		_advanced_options_panel = %AdvancedOptionsPanel as PanelContainer
+		_convert_to_atoms_button = %ConvertToAtomsButton as Button
 		_sequence_length_spin_box_slider.value_confirmed.connect(_sequence_length_spin_box_slider_value_confirmed)
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
 		_dna_radius_spin_box_slider.value_confirmed.connect(_on_dna_radius_spin_box_slider_value_confirmed)
@@ -25,6 +32,8 @@ func _notification(what: int) -> void:
 		_rise_nanometers_spin_box_slider.value_confirmed.connect(_on_rise_nanometers_spin_box_slider_value_confirmed)
 		_initial_twist_spin_box_slider.value_confirmed.connect(_on_initial_twist_spin_box_slider_value_confirmed)
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
+		_advanced_options_button.pressed.connect(_on_advanced_options_button_pressed)
+		_convert_to_atoms_button.pressed.connect(_on_convert_to_atoms_button_pressed)
 
 
 func _sequence_button_button_group_pressed() -> void:
@@ -88,6 +97,9 @@ func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 	if _tracked_structure != null and not _tracked_structure.sequence_changed.is_connected(_on_tracked_structure_sequence_changed):
 		_tracked_structure.sequence_changed.connect(_on_tracked_structure_sequence_changed)
 	_update_ui()
+	if _advanced_options_panel.visible:
+		# hide advanced options when selecting a different object
+		_on_advanced_options_button_pressed()
 
 
 func _update_ui() -> void:
@@ -195,3 +207,59 @@ func _on_strand_policy_button_group_button_pressed(in_button: Button) -> void:
 	_tracked_structure.set_strand_policy(policy)
 	_tracked_structure.end_edit()
 	_workspace_context.snapshot_moment("Set Strand Mode")
+
+
+func _on_include_hydrogens_check_button_toggled(in_button_pressed: bool) -> void:
+	assert(_tracked_structure != null)
+	_tracked_structure.start_edit()
+	_tracked_structure.set_include_hydrogens(in_button_pressed)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Dna Object includes hydrogens")
+
+
+func _on_advanced_options_button_pressed() -> void:
+	_advanced_options_panel.visible = not _advanced_options_panel.visible
+	const COLLAPSED_ICON: Texture2D = preload("uid://b2w2wxk2bb4wg")
+	const EXPANDED_ICON: Texture2D = preload("uid://gl1hqwiod5y0")
+	_advanced_options_button.icon = EXPANDED_ICON if _advanced_options_panel.visible else COLLAPSED_ICON
+
+
+func _on_convert_to_atoms_button_pressed() -> void:
+	assert(_tracked_structure != null, "Invalid ui state")
+	if _workspace_context.ignored_warnings.convert_dna_to_atoms == false:
+		var warning_promise: Promise = _workspace_context.show_warning_dialog(
+				tr("MSEP.one does not support Hydrogen Bonds, so simulations run on DNA may not deliver scientifically accurate results."),
+				tr("Continue"), tr("Cancel") , &"convert_dna_to_atoms", true)
+		await warning_promise.wait_for_fulfill()
+		if warning_promise.get_result() == false:
+			# "Cancel" button selected
+			return
+	var started_tracking_atoms: bool = _tracked_structure.is_tracking_atoms()
+	if not started_tracking_atoms:
+		# We need to make atoms available, but no bother otehr parts of the editor
+		_tracked_structure.set_block_signals(true)
+		_tracked_structure.set_force_track_atoms(true)
+	var parent_group: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_tracked_structure.int_parent_guid)
+	var new_group: AtomicStructure = AtomicStructure.create()
+	new_group.set_structure_name(_tracked_structure.get_structure_name() + "'s atoms")
+	_workspace_context.workspace.add_structure(new_group, parent_group)
+	new_group.start_edit()
+	for strand: DnaStructure.Strand in _tracked_structure.get_strands():
+		var atom_map: Dictionary[int, int]
+		for atom_id: int in _tracked_structure.get_atom_ids_for_strand(strand):
+			var atomic_number: int = _tracked_structure.atom_get_atomic_number(atom_id)
+			var pos: Vector3 = _tracked_structure.atom_get_position(atom_id)
+			atom_map[atom_id] = new_group.add_atom(AtomicStructure.AddAtomParameters.new(atomic_number, pos))
+		for bond_id: int in _tracked_structure.get_bond_ids_for_strand(strand):
+			var bond_data: Vector3i = _tracked_structure.get_bond(bond_id)
+			# remap atom ids
+			new_group.add_bond(atom_map[bond_data.x], atom_map[bond_data.y], bond_data.z)
+	new_group.end_edit()
+	if not started_tracking_atoms:
+		# Done polling atoms, back to normal
+		_tracked_structure.set_force_track_atoms(false)
+		_tracked_structure.set_block_signals(false)
+	_workspace_context.workspace.remove_structure(_tracked_structure)
+	var new_context: StructureContext = _workspace_context.get_structure_context(new_group.int_guid)
+	new_context.select_all()
+	_workspace_context.snapshot_moment("Convert DNA to Atoms and Bonds")
