@@ -134,8 +134,7 @@ func _refresh_tree_selection_filters() -> void:
 	if small_molecule_has_been_selected:
 		var tree_item: TreeItem = _tree.create_item(root)
 		tree_item.set_text(0, _selected_small_molecule.get_structure_name())
-		# Instance ID of small molecule object is used as ID of delete button
-		tree_item.add_button(0, DELETE_ICON, _selected_small_molecule.get_instance_id())
+		tree_item.add_button(0, DELETE_ICON)
 	_tree.update_minimum_size()
 
 
@@ -235,10 +234,8 @@ func _center_template_on_origin(out_template: AtomicStructure) -> void:
 func _on_tree_delete_button_clicked(_item: TreeItem, _column: int, id: int, _mouse_button_index: int) -> void:
 	if _applying_what == ApplyingWhat.ATOMS and _selected_type == id:
 		_clear_selected_object()
-	# Instance ID of small molecule object is used as ID of delete button
 	elif _applying_what == ApplyingWhat.SMALL_MOLECULES \
-			and _selected_small_molecule != null \
-			and _selected_small_molecule.get_instance_id() == id:
+			and _selected_small_molecule != null:
 		_clear_selected_object()
 
 
