@@ -462,7 +462,11 @@ func get_base_transform(in_strand: Strand, in_base_index: int) -> Transform3D:
 			next_pos = points[point_idx + 1]
 			next_advance += curr_pos.distance_to(next_pos)
 		path_pos = curr_pos
-		z_dir = points[point_idx].direction_to(points[point_idx + 1])
+		var off: int = 1
+		z_dir = points[clampi(point_idx - off, 0, points.size() - 1)].direction_to(points[clampi(point_idx + off, 0, points.size() - 1)])
+		while z_dir == Vector3.ZERO:
+			off += 1
+			z_dir = points[clampi(point_idx - off, 0, points.size() - 1)].direction_to(points[clampi(point_idx + off, 0, points.size() - 1)])
 		y_dir = _curve.get_baked_up_vectors()[-1]
 		y_dir = y_dir.rotated(z_dir, get_base_twist_rad(in_strand, in_base_index))
 		var x_dir: Vector3 = y_dir.cross(z_dir)
