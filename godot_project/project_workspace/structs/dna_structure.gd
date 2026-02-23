@@ -125,10 +125,13 @@ func _init() -> void:
 	super._init()
 
 
-func _post_init() -> void:
-	get_representation_settings().dna_representation_changed.connect(_on_dna_representation_changed)
+func set_representation_settings(in_representation_settings: RepresentationSettings) -> void:
+	var prev_representation: RepresentationSettings = get_representation_settings()
+	if prev_representation != null and prev_representation.dna_representation_changed.is_connected(_on_dna_representation_changed):
+		prev_representation.dna_representation_changed.disconnect(_on_dna_representation_changed)
+	in_representation_settings.dna_representation_changed.connect(_on_dna_representation_changed)
+	super.set_representation_settings(in_representation_settings)
 	_on_dna_representation_changed(get_representation_settings().get_dna_representation())
-	super._post_init()
 
 
 func _on_dna_representation_changed(in_dna_representation: DnaRepresentation) -> void:
