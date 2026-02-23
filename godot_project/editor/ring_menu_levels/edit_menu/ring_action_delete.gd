@@ -241,7 +241,7 @@ func _can_delete_objects(in_context: StructureContext) -> bool:
 	if not in_context.workspace_context.workspace.has_structure(in_context.nano_structure):
 		return false
 	
-	var all_atoms_selected: bool = (not in_context.nano_structure is AtomicStructure) or \
+	var all_atoms_selected: bool = (in_context.nano_structure is DnaStructure) or (not in_context.nano_structure is AtomicStructure) or \
 			in_context.get_selected_atoms().size() == in_context.nano_structure.get_valid_atoms_count()
 	var shape_selected: bool = true \
 			if not in_context.nano_structure is NanoShape else in_context.is_shape_selected()
