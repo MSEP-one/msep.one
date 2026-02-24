@@ -376,6 +376,21 @@ func _process_create_spring_result(in_camera: Camera3D, in_input_event: InputEve
 			anchor = hit_context.nano_structure as NanoVirtualAnchor
 			anchor_context = hit_context
 			assert(is_instance_valid(anchor))
+		MultiStructureHitResult.HitType.HIT_SHAPE:
+			if is_snap_to_shape_surface_enabled(_workspace_context):
+				if _drag_state != _DRAG_FROM_ATOM:
+					# Cannot create spring from anchor to anchor
+					return false
+				# Create an Anchor in empty space to bind source atom
+				created_anchor = true
+				anchor = NanoVirtualAnchor.new()
+				anchor.set_structure_name("AnchorPoint")
+				anchor.set_position(_get_rendering().virtual_anchor_preview_get_position())
+				workspace.add_structure(anchor, workspace_context.get_current_structure_context().nano_structure)
+				anchor_context = workspace_context.get_nano_structure_context(anchor)
+				anchor_context.select_all(true)
+			else:
+				return false
 		MultiStructureHitResult.HitType.HIT_NOTHING:
 			if _drag_state != _DRAG_FROM_ATOM:
 				# Cannot create spring from anchor to anchor
