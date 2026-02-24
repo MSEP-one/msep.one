@@ -97,10 +97,7 @@ particle_emitters_with_emit_count=false
 msep_online=false
 msep_online_stub_service=true
 msep_online_run_tests=false
-dna_builder=false
 dna_builder_dev_tool=false
-dna_chain_as_group_of_atoms=false
-dna_chain_can_have_children=false
 tooltip_show_ids=false
 
 [file_customization]

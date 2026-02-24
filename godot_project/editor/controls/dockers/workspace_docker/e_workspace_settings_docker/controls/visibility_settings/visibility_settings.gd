@@ -25,12 +25,6 @@ func _notification(what: int) -> void:
 		_hide_virtual_motors_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle
 		_hide_particle_emitters_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle
 		_hide_anchors_and_springs_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle
-		
-		FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
-		_on_feature_flag_toggled(
-			FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER,
-			FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER)
-		)
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
@@ -56,11 +50,6 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	_hide_simulation_boundaries_toggle.set_pressed_no_signal(not settings.get_display_simulation_boundaries())
 	_update_visibility_during_representation_toggles()
 	return true
-
-
-func _on_feature_flag_toggled(in_path: String, in_value: bool) -> void:
-	if in_path == FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER:
-		%DnaSettingsContainer.visible = in_value
 
 
 func _on_workspace_context_history_changed() -> void:
