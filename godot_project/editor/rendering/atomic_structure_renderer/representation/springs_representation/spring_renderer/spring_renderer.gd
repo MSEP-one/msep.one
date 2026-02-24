@@ -349,13 +349,17 @@ class TransformHandler:
 			if not related_nanostructure.spring_is_visible(spring_id):
 				continue
 			var atom_id: int = related_nanostructure.spring_get_atom_id(spring_id)
+			var atom_id2: int = related_nanostructure.spring_get_second_atom_id(spring_id)
 			var atom_position: Vector3 = related_nanostructure.atom_get_position(atom_id)
-			var anchor_position: Vector3 = related_nanostructure.spring_get_target_position(spring_id, structure_context)
-			var direction_to_atom: Vector3 = anchor_position.direction_to(atom_position)
+			var target_position: Vector3 = related_nanostructure.spring_get_target_position(spring_id, structure_context)
+			var direction_to_atom: Vector3 = target_position.direction_to(atom_position)
+			_atom_to_transform_position[atom_id] = atom_position
+			if atom_id2 != AtomicStructure.INVALID_ATOM_ID:
+				_atom_to_transform_position[atom_id2] = target_position
 			if not related_nanostructure.spring_is_atom_to_atom(spring_id):
 				var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
-				anchor_position += direction_to_atom * anchor_radius
-			_spring_renderer.refresh_spring_position(spring_id, atom_position, anchor_position)
+				target_position += direction_to_atom * anchor_radius
+			_spring_renderer.refresh_spring_position(spring_id, atom_position, target_position)
 	
 	
 	func _clear_movement_progress() -> void:
