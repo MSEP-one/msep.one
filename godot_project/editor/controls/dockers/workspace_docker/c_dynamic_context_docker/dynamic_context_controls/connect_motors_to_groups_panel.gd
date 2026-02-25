@@ -130,7 +130,7 @@ func _free_tree_item_and_all_dependencies(in_item: TreeItem) -> void:
  
 
 func _on_workspace_structure_reparented(in_structure: NanoStructure, in_new_parent: NanoStructure) -> void:
-	if in_structure.is_virtual_object():
+	if in_structure.is_virtual_object() or not in_structure.can_contain_child_structure():
 		# Dont show virtual objects
 		return
 	var structure_item: TreeItem = _tree_items.get(in_structure.int_guid, null)
