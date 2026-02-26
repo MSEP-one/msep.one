@@ -301,7 +301,7 @@ static func collect_drastically_invalid_tetrahedral_structure(
 	]
 	for structure_ctx: StructureContext in in_visible_strucutre_contexts:
 		var structure: AtomicStructure = structure_ctx.nano_structure as AtomicStructure
-		if not is_instance_valid(structure):
+		if not is_instance_valid(structure) or structure is DnaStructure:
 			# not atomic structure, is a virtual object
 			continue
 		var atom_ids: PackedInt32Array = []
@@ -374,7 +374,7 @@ static func collect_invalid_bond_angles(in_visible_strucutre_contexts: Array[Str
 	#	}, ...
 	]
 	for context: StructureContext in in_visible_strucutre_contexts:
-		if context.nano_structure is AtomicStructure:
+		if context.nano_structure is AtomicStructure and not context.nano_structure is DnaStructure:
 			_collect_invalid_bond_angles_atom_groups(context, in_atom_set, out_invalid_angle_atom_groups)
 	return out_invalid_angle_atom_groups
 
