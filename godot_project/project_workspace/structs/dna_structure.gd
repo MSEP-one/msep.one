@@ -215,6 +215,7 @@ func end_edit() -> void:
 			sequence_changed.emit(_sequence)
 		if _signal_queue_parameters_changed:
 			_baked_path.clear()
+			_base_transform_cache.clear()
 			_parameters.set_read_only(true)
 			parameters_changed.emit(_parameters)
 			_parameters.set_read_only(false)
