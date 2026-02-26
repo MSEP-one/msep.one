@@ -1331,7 +1331,7 @@ func has_hidden_objects() -> bool:
 
 func has_valid_atoms() -> bool:
 	for context: StructureContext in get_visible_structure_contexts():
-		if not context.nano_structure is AtomicStructure:
+		if not context.nano_structure is AtomicStructure or context.nano_structure is DnaStructure:
 			continue
 		var nano_structure: AtomicStructure = context.nano_structure
 		if not nano_structure.get_valid_atoms().is_empty():
