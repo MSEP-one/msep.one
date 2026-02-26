@@ -907,7 +907,7 @@ func _create_payload(
 	var partial_set: bool = in_atom_set != AtomicStructure.AtomSet.ALL
 	for context: StructureContext in structure_contexts:
 		var structure: NanoStructure = context.nano_structure
-		if structure is AtomicStructure:
+		if structure is AtomicStructure and not structure is DnaStructure:
 			var atom_ids: PackedInt32Array = context.nano_structure.get_valid_atoms()
 			var bond_ids: PackedInt32Array = context.nano_structure.get_valid_bonds()
 			var springs_ids: PackedInt32Array = context.nano_structure.springs_get_all()
@@ -956,7 +956,7 @@ func _has_selected_atoms(in_structure_context: StructureContext) -> bool:
 
 func _has_visible_atoms(in_structure_context: StructureContext) -> bool:
 	var structure: AtomicStructure = in_structure_context.nano_structure
-	if not structure:
+	if not structure or structure is DnaStructure:
 		return false
 	return structure.get_visible() and structure.get_visible_atoms().size() > 0
 
