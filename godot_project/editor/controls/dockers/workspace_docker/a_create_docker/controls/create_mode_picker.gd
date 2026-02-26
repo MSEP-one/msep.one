@@ -17,26 +17,21 @@ func _on_feature_flag_toggled(in_path: String, _in_new_value: bool) -> void:
 				FeatureFlagManager.FEATURE_FLAG_VIRTUAL_MOTORS,
 				FeatureFlagManager.FEATURE_FLAG_PARTICLE_EMITTERS,
 				FeatureFlagManager.FEATURE_FLAG_VIRTUAL_SPRINGS,
-				FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER,
 			]:
 		_update_visibility_of_options()
 
 
 func _update_visibility_of_options() -> void:
-	var can_create_dna: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER)
 	var can_create_virtual_motors: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_VIRTUAL_MOTORS)
 	var can_create_particle_emitters: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_PARTICLE_EMITTERS)
 	var can_create_virtual_springs: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_VIRTUAL_SPRINGS)
-	var dna_chain_idx: int = _option_button.get_popup().get_item_index(CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN)
 	var virtual_motors_idx: int = _option_button.get_popup().get_item_index(CreateObjectParameters.CreateModeType.CREATE_VIRTUAL_MOTORS)
 	var particle_emitters_idx: int = _option_button.get_popup().get_item_index(CreateObjectParameters.CreateModeType.CREATE_PARTICLE_EMITTERS)
 	var virtual_springs_idx: int = _option_button.get_popup().get_item_index(CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS)
-	var dna_chain_exists: bool = dna_chain_idx != -1
 	var motors_item_exists: bool = virtual_motors_idx != -1
 	var emitters_item_exists: bool = particle_emitters_idx != -1
 	var spring_item_exists: bool = virtual_springs_idx != -1
-	if can_create_dna == dna_chain_exists \
-			and can_create_virtual_motors == motors_item_exists \
+	if can_create_virtual_motors == motors_item_exists \
 			and can_create_particle_emitters == emitters_item_exists \
 			and can_create_virtual_springs == spring_item_exists:
 		# Nothing to do here
@@ -49,11 +44,7 @@ func _update_visibility_of_options() -> void:
 		_option_button.get_popup().remove_item(particle_emitters_idx)
 	if motors_item_exists:
 		_option_button.get_popup().remove_item(virtual_motors_idx)
-	if dna_chain_exists:
-		_option_button.get_popup().remove_item(dna_chain_idx)
 	# 2. Add any desired option
-	if can_create_dna:
-		_option_button.get_popup().add_radio_check_item(tr("DNA Object"), CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN)
 	if can_create_virtual_motors:
 		_option_button.get_popup().add_radio_check_item(tr("Virtual Motors"), CreateObjectParameters.CreateModeType.CREATE_VIRTUAL_MOTORS)
 	if can_create_particle_emitters:
@@ -66,8 +57,6 @@ func _update_visibility_of_options() -> void:
 	elif _option_button.selected == CreateObjectParameters.CreateModeType.CREATE_PARTICLE_EMITTERS and not can_create_particle_emitters:
 		_on_option_button_id_pressed(CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
 	elif _option_button.selected == CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS and not can_create_virtual_springs:
-		_on_option_button_id_pressed(CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
-	elif _option_button.selected == CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN and not can_create_dna:
 		_on_option_button_id_pressed(CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS)
 	var create_object_parameters: CreateObjectParameters = _weak_create_object_parameters.get_ref() as CreateObjectParameters
 	_option_button.select(-1) # This ensures RadioButton is updated

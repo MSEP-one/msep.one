@@ -47,7 +47,6 @@ button_pressed = true
 text = "Show Potential Atom Positions"
 
 [node name="DnaSettingsContainer" type="HBoxContainer" parent="Settings/PanelContainer/VBoxContainer"]
-unique_name_in_owner = true
 layout_mode = 2
 
 [node name="Control" type="Control" parent="Settings/PanelContainer/VBoxContainer/DnaSettingsContainer"]

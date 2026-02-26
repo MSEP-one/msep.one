@@ -9,13 +9,7 @@ func _notification(what: int) -> void:
 
 
 func should_show() -> bool:
-	var any_visible: bool = false
-	any_visible = any_visible or _should_show_checkbox(
-		_check_export_dna,
-		FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER,
-		_does_current_workspace_has_dna
-	)
-	return any_visible
+	return true
 
 
 func set_export_dna_enabled(in_enabled: bool) -> void:

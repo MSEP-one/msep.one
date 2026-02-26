@@ -111,7 +111,7 @@ func _can_appear_in_tree(in_structure: NanoStructure) -> bool:
 	if in_structure.is_virtual_object():
 		return false
 	if in_structure is DnaStructure:
-		return FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_CHAIN_AS_GROUP_OF_ATOMS)
+		return false
 	return true
 
 

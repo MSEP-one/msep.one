@@ -10,8 +10,7 @@ var _base_templates: Dictionary[String, PackedMolecule] = {}
 
 
 func is_dev_tool_enabled() -> bool:
-	return (FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER)
-		and FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER_DEV_TOOL))
+	return (FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_DNA_BUILDER_DEV_TOOL))
 
 
 ## Build a DNA AtomicStructure from in_sequence.
