@@ -45,7 +45,7 @@ func _validate_bonds_in_thread(
 	var spatial_hash_grid: SpatialHashGridOverlaps = SpatialHashGridOverlaps.new(MAX_COVALENT_RADIUS)
 	
 	for structure_context: StructureContext in in_structure_contexts:
-		if not structure_context.nano_structure is AtomicStructure:
+		if not structure_context.nano_structure is AtomicStructure or structure_context.nano_structure is DnaStructure:
 			continue
 		var atomic_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
 		var ignored_springs: Array[Metadata] = []
