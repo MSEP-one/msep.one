@@ -256,6 +256,7 @@ func _try_deselect_hidden_virtual_objects() -> bool:
 	var selection_changed: bool = false
 	var types_to_evaluate: Array[Script] = [
 		NanoShape,
+		DnaStructure,
 		NanoVirtualMotor,
 		NanoParticleEmitter,
 		NanoVirtualAnchor,
@@ -271,7 +272,9 @@ func _try_deselect_hidden_virtual_objects_of_type(object_type: StringName) -> bo
 	var contexts_with_selection: Array[StructureContext] = get_structure_contexts_with_selection()
 	for ctx: StructureContext in contexts_with_selection:
 		if ctx.nano_structure is AtomicStructure:
-			if RepresentationSettings.virtual_object_key_to_script(object_type) == NanoVirtualAnchor:
+			if ctx.nano_structure is DnaStructure:
+				deselect_all()
+			elif RepresentationSettings.virtual_object_key_to_script(object_type) == NanoVirtualAnchor:
 				# Unselect any selected spring
 				var selected_springs: PackedInt32Array = ctx.get_selected_springs()
 				if selected_springs.size() > 0:

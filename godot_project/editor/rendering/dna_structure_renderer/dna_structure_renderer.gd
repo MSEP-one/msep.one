@@ -51,6 +51,8 @@ var _is_top_level: bool = true
 var _path_hovered: bool = false
 var _path_highlighted: bool = false
 var _hovered_control_point: int = -1
+var _should_hide_in_simulation: bool = false
+var _is_simulating: bool = false
 var _highlighted_control_points: Dictionary[int, bool] = {}
 
 @onready var _path_representation: Control = %PathRepresentation
@@ -101,6 +103,14 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_initial_twist = in_structure.get_initial_twist_rad()
 	_current_representation = in_structure.get_representation_settings().get_dna_representation()
 	_updating_parameters = false
+	_workspace_context.workspace.representation_settings \
+		.should_hide_virtual_object_during_simulation_changed \
+		.connect(_on_should_hide_virtual_object_during_simulation_changed)
+	_workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
+	_workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+	_is_simulating = _workspace_context.is_simulating()
+	_should_hide_in_simulation = _workspace_context.workspace.representation_settings \
+			.get_should_hide_virtual_object_during_simulation(DnaStructure)
 	_update_bases()
 	_ensure_structure_signal_connections(in_structure)
 	_update_visibility()
@@ -303,6 +313,17 @@ func set_initial_twist(in_twist_rad: float) -> void:
 	_update_bases()
 
 
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	if in_type == RepresentationSettings.script_to_virtual_object_key(DnaStructure):
+		_should_hide_in_simulation = in_should_hide
+		_update_visibility()
+
+
+func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
+	_is_simulating = in_is_simulating
+	_update_visibility()
+
+
 func _update_bases() -> void:
 	if _updating_parameters:
 		return
@@ -374,12 +395,15 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 
 
 func _update_visibility() -> void:
-	visible = _object_visible and _current_representation == DnaRepresentation.SIMPLIFIED
+	visible = _object_visible and _current_representation == DnaRepresentation.SIMPLIFIED \
+		and ((not _is_simulating) or (not _should_hide_in_simulation))
 	queue_redraw()
 
 
 func _on_path_representation_drawn() -> void:
 	if is_queued_for_deletion() or not _is_selectable or Engine.is_editor_hint():
+		return
+	if (_is_simulating and _should_hide_in_simulation):
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
@@ -450,6 +474,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_highlighted_control_points"] = _highlighted_control_points.duplicate()
 	snapshot["_is_selectable"] = _is_selectable
 	snapshot["_is_top_level"] = _is_top_level
+	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["_object_visible"] = _object_visible
 	snapshot["_selectable_uniform"] = base_pivot_material.get_shader_parameter(&"is_selectable")
 	var bases_snapshots: Array[Dictionary] = []
@@ -472,6 +497,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
 	_is_selectable = in_state_snapshot["_is_selectable"]
 	_is_top_level = in_state_snapshot["_is_top_level"]
+	_should_hide_in_simulation = in_state_snapshot["_should_hide_in_simulation"]
 	_object_visible = in_state_snapshot["_object_visible"]
 	_set_shader_uniform(&"is_selectable", in_state_snapshot["_selectable_uniform"])
 	var bases_snapshots: Array[Dictionary] = in_state_snapshot["bases_snapshots"]

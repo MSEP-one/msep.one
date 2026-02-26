@@ -73,6 +73,7 @@ enum DnaRepresentation {
 
 @export var _hide_during_simulation: Dictionary[StringName, bool] = {
 	reference_shapes = true,
+	dna_objects = true,
 	virtual_motors = true,
 	particle_emitters = true,
 	anchors_and_springs = true,
@@ -272,6 +273,7 @@ func _variant_to_virtual_object_key(in_type: Variant) -> StringName:
 static func script_to_virtual_object_key(in_script: Script) -> StringName:
 	var SCRIPT_TO_KEY_MAP: Dictionary[Script, StringName] = {
 		NanoShape: &"reference_shapes",
+		DnaStructure: &"dna_objects",
 		NanoVirtualMotor: &"virtual_motors",
 		NanoParticleEmitter: &"particle_emitters",
 		NanoVirtualAnchor: &"anchors_and_springs",
@@ -282,6 +284,7 @@ static func script_to_virtual_object_key(in_script: Script) -> StringName:
 static func virtual_object_key_to_script(in_type: StringName) -> Script:
 	var KEY_TO_SCRIPT_MAP: Dictionary[StringName, Script] = {
 		&"reference_shapes": NanoShape,
+		&"dna_objects": DnaStructure,
 		&"virtual_motors": NanoVirtualMotor,
 		&"particle_emitters": NanoParticleEmitter,
 		&"anchors_and_springs": NanoVirtualAnchor,

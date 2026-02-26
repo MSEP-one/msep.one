@@ -90,6 +90,11 @@ layout_mode = 2
 button_pressed = true
 text = "Reference Shapes"
 
+[node name="HideDnaObjectsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+button_pressed = true
+text = "DNA Objects"
+
 [node name="HideVirtualMotorsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 button_pressed = true
@@ -114,6 +119,7 @@ text = "Anchors and Springs
 [connection signal="item_selected" from="Settings/PanelContainer/VBoxContainer/DnaSettingsContainer/DnaRepresentationOptionButton" to="." method="_on_dna_representation_option_button_item_selected"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle" to="." method="_on_hide_simulation_boundaries_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"reference_shapes"]]
+[connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideDnaObjectsToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"dna_objects"]]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"virtual_motors"]]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"particle_emitters"]]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"anchors_and_springs"]]
