@@ -200,7 +200,7 @@ static func _has_bad_tetrahedral_angle(in_workspace_context: WorkspaceContext, i
 		in_workspace_context.get_visible_structure_contexts()
 	for structure_ctx: StructureContext in structure_contexts:
 		var structure: AtomicStructure = structure_ctx.nano_structure as AtomicStructure
-		if not is_instance_valid(structure):
+		if not is_instance_valid(structure) or structure is DnaStructure:
 			# not atomic structure, is a virtual object
 			continue
 		var atom_ids: PackedInt32Array = []
