@@ -285,7 +285,7 @@ func _apply_selection_transform() -> void:
 		remote_atom_transforms.assign(_structure_context_2_initial_atom_selection_positions[context.get_int_guid()])
 		for atom_transform: AtomPosition in remote_atom_transforms:
 			var atom_id: int = atom_transform.atom_id
-			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
+			var old_pos: Vector3 = atom_transform.atom_initial_position
 			var delta_pos: Vector3 = atom_transform.atom_initial_position - _selection_initial_position
 			var new_pos: Vector3 = _helper.global_position + _helper.global_transform.basis * delta_pos
 			atoms_to_move.push_back(atom_id)
