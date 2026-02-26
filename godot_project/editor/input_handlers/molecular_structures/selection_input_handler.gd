@@ -662,7 +662,8 @@ func _is_shape_selectable() -> bool:
 	var create_object_parameters: CreateObjectParameters = get_workspace_context().create_object_parameters
 	var select_mode_enabled: bool = not create_object_parameters.get_create_mode_enabled()
 	var is_creating_atoms: bool = create_object_parameters.get_create_mode_type() == CreateObjectParameters.CreateModeType.CREATE_ATOMS_AND_BONDS
+	var is_creating_anchors: bool = create_object_parameters.get_create_mode_type() == CreateObjectParameters.CreateModeType.CREATE_ANCHORS_AND_SPRINGS
 	var snap_to_surface_enabled: bool = create_object_parameters.get_snap_to_shape_surface()
-	if select_mode_enabled or not is_creating_atoms:
+	if select_mode_enabled or not (is_creating_atoms or is_creating_anchors):
 		return true
 	return not snap_to_surface_enabled
