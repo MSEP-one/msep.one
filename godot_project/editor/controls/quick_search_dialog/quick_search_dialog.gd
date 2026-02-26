@@ -199,6 +199,8 @@ func _discover_actions_recursive(path: String, parent: TreeItem) -> void:
 func _on_about_to_popup() -> void:
 	if _action_items.is_empty():
 		_rebuild_tree()
+	# Release the focus of any other control
+	get_tree().root.gui_release_focus()
 	_search_bar.text = ""
 	_search_bar.grab_focus()
 	_filter_actions()

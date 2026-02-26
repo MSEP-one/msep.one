@@ -8,7 +8,7 @@
 disable_3d = true
 title = " Quick search"
 initial_position = 2
-size = Vector2i(278, 258)
+size = Vector2i(290, 258)
 visible = true
 unresizable = false
 borderless = false
@@ -19,10 +19,10 @@ script = ExtResource("1_ox6k4")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = -4.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 
