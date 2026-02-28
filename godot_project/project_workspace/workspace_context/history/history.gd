@@ -44,6 +44,7 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Shrink Selection" : true,
 	"Invert Selection" : true,
 	"Change Hydrogen Visibility" : true,
+	"Change DNA Representation" : true,
 	"Show Bonds" : true,
 	"Hide Bonds" : true,
 	"Show Atom Labels" : true,
