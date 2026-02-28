@@ -7,6 +7,7 @@ var _hydrogens_toggle: CheckButton
 var _dna_representation_option_button: OptionButton
 var _hide_simulation_boundaries_toggle: CheckButton
 var _hide_reference_shapes_toggle: CheckButton
+var _hide_dna_objects_toggle: CheckButton
 var _hide_virtual_motors_toggle: CheckButton
 var _hide_particle_emitters_toggle: CheckButton
 var _hide_anchors_and_springs_toggle: CheckButton
@@ -22,6 +23,7 @@ func _notification(what: int) -> void:
 		_dna_representation_option_button = %DnaRepresentationOptionButton
 		_hide_simulation_boundaries_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle
 		_hide_reference_shapes_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle
+		_hide_dna_objects_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideDnaObjectsToggle
 		_hide_virtual_motors_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle
 		_hide_particle_emitters_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle
 		_hide_anchors_and_springs_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle
@@ -59,6 +61,7 @@ func _on_workspace_context_history_changed() -> void:
 func _update_visibility_during_representation_toggles() -> void:
 	var settings: RepresentationSettings = _workspace_context.workspace.representation_settings
 	_hide_reference_shapes_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoShape))
+	_hide_dna_objects_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(DnaStructure))
 	_hide_virtual_motors_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoVirtualMotor))
 	_hide_particle_emitters_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoParticleEmitter))
 	_hide_anchors_and_springs_toggle.set_pressed_no_signal(settings.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor))

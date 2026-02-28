@@ -31,6 +31,9 @@ var _nano_structure_id: int = Workspace.INVALID_STRUCTURE_ID
 var _is_built: bool = false
 var _is_preview: bool = false
 var _transparency: float = 0.0
+var _object_visible: bool = true
+var _is_simulating: bool = false
+var _should_hide_dna_in_simulation: bool = false
 var _up_to_date_representations: Dictionary = {
 #	Rendering.Representation: true
 }
@@ -59,10 +62,10 @@ func build_for_preview(in_nano_structure: AtomicStructure, in_representation: Re
 		if rep != in_representation:
 			_representation_to_node_map[rep].hide()
 	_fixed_size_representation.build_for_preview(in_nano_structure)
-	visible = in_nano_structure.get_visible()
-	
+	_object_visible = in_nano_structure.get_visible()
 	_is_built = true
 	_labels_representation.build_for_preview(in_nano_structure)
+	_update_visibility()
 	_refresh_label_visibility_state()
 	refresh_atom_sizes()
 	_current_representation.show()
@@ -76,6 +79,16 @@ func build(in_structure_context: StructureContext, in_representation: Rendering.
 	_rendering_representation = in_representation
 	_current_representation = _representation_to_node_map[in_representation]
 	_nano_structure_id = in_structure_context.get_int_guid()
+	if in_structure_context.nano_structure is DnaStructure:
+		# Only DNA Structure cares if there's an ongoing simulation to hide this object
+		_workspace_context.workspace.representation_settings \
+			.should_hide_virtual_object_during_simulation_changed \
+			.connect(_on_should_hide_virtual_object_during_simulation_changed)
+		_workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
+		_workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+		_is_simulating = in_structure_context.workspace_context.is_simulating()
+		_should_hide_dna_in_simulation = _workspace_context.workspace.representation_settings \
+			.get_should_hide_virtual_object_during_simulation(DnaStructure)
 	_internal_build()
 	_refresh_label_visibility_state()
 	refresh_atom_sizes()
@@ -91,7 +104,7 @@ func _internal_build() -> void:
 	_fixed_size_representation.build(structure_context)
 	_up_to_date_representations[_rendering_representation] = true
 	var nano_structure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_nano_structure_id) as NanoStructure
-	visible = nano_structure.get_visible()
+	_object_visible = nano_structure.get_visible()
 	if not nano_structure.atoms_moved.is_connected(_on_nanostructure_atoms_moved):
 		nano_structure.atoms_moved.connect(_on_nanostructure_atoms_moved)
 	if not nano_structure.atoms_atomic_number_changed.is_connected(_on_nanostructure_atoms_atomic_number_changed):
@@ -286,7 +299,26 @@ func _on_nanostructure_atoms_color_override_changed(in_changed_atoms: PackedInt3
 
 
 func _on_nanostructure_visibility_changed(new_visibility: bool) -> void:
-	visible = new_visibility
+	_object_visible = new_visibility
+	_update_visibility()
+
+
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	# NOTE: This method is only connected for DNA Objects
+	if in_type == RepresentationSettings.script_to_virtual_object_key(DnaStructure):
+		_should_hide_dna_in_simulation = in_should_hide
+		_update_visibility()
+
+
+func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
+	# NOTE: This method is only connected for DNA Objects
+	_is_simulating = in_is_simulating
+	_update_visibility()
+
+
+func _update_visibility() -> void:
+	var should_hide_on_simulation: bool = (_is_simulating and _should_hide_dna_in_simulation)
+	visible = _object_visible and not should_hide_on_simulation
 	if visible:
 		_current_representation.show()
 		_fixed_size_representation.show()
@@ -565,6 +597,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_are_labels_available_for_current_representation"] = _are_labels_available_for_current_representation
 	snapshot["_is_label_representation_up_to_date"] = _is_label_representation_up_to_date
 	snapshot["_rendering_representation"] = _rendering_representation
+	snapshot["_should_hide_dna_in_simulation"] = _should_hide_dna_in_simulation
 	snapshot["_is_built"] = _is_built
 	snapshot["_nano_structure_id"] = _nano_structure_id
 	snapshot["_up_to_date_representations"] = _up_to_date_representations.duplicate(true)
@@ -581,6 +614,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_are_labels_available_for_current_representation = in_snapshot["_are_labels_available_for_current_representation"]
 	_is_label_representation_up_to_date = in_snapshot["_is_label_representation_up_to_date"]
 	_rendering_representation = in_snapshot["_rendering_representation"]
+	_should_hide_dna_in_simulation = in_snapshot["_should_hide_dna_in_simulation"]
 	_is_built = in_snapshot["_is_built"]
 	_nano_structure_id = in_snapshot["_nano_structure_id"]
 	_up_to_date_representations = in_snapshot["_up_to_date_representations"].duplicate(true)
@@ -600,8 +634,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	for representation: Rendering.Representation in _representation_to_node_map:
 		if representation != _rendering_representation:
 			_representation_to_node_map[representation].hide()
-	_current_representation.show()
-	_fixed_size_representation.show()
+	_update_visibility()
 
 
 ## Used in several Representation(s) handle_hover_structure_changed()
