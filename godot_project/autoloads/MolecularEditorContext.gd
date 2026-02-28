@@ -257,7 +257,6 @@ func export_workspace(in_workspace: Workspace, in_path: String = "", _in_export_
 	if path.is_empty():
 		Editor_Utils.get_editor().show_export_workspace_dialog(in_workspace)
 		return
-	push_error("TODO: Reimplement Export DNA")
 	var err: Error = ResourceSaver.save(in_workspace, path)
 	if err != OK:
 		Editor_Utils.get_editor().prompt_error_msg(tr(&"Failed to export to file {0} with error '{1}'").format([path, error_string(err)]))
