@@ -406,6 +406,8 @@ func _on_path_representation_drawn() -> void:
 	if (_is_simulating and _should_hide_in_simulation):
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
+	if _current_representation == DnaRepresentation.ATOMS_AND_BONDS:
+		_path_representation_draw_aabb(dna_structure)
 	var path: PackedVector3Array = dna_structure.get_baked_path(_temp_curve)
 	if path.is_empty():
 		return
@@ -416,10 +418,11 @@ func _on_path_representation_drawn() -> void:
 	var path_width: int = 2
 	if _highlighted_control_points.size() > 0:
 		path_width = 4
+	var outline_color: Color = _get_outline_color()
 	for i in range(1, path.size()):
 		var pos2d: Vector2 = camera.unproject_position(path[i])
 		if last_pos2d.distance_squared_to(pos2d) >= MIN_SEGMENT_DISTANCE_SQRD_IN_PIXELS or i == last_idx:
-			_path_representation.draw_line(last_pos2d, pos2d, _get_outline_color(), path_width)
+			_path_representation.draw_line(last_pos2d, pos2d, outline_color, path_width)
 			last_pos2d = pos2d
 	if _is_top_level == false:
 		return
@@ -439,6 +442,34 @@ func _on_path_representation_drawn() -> void:
 		elif _hovered_control_point == cp_idx:
 			color = CONTROL_POINT_COLOR_HOVER
 		_path_representation.draw_circle(pos2d, CONTROL_POINT_RADIUS, color)
+
+
+func _path_representation_draw_aabb(in_dna_structure: DnaStructure) -> void:
+	var path_width: int = 2
+	var aabb: AABB = in_dna_structure.get_aabb().abs()
+	var start: Vector3 = aabb.position
+	var end: Vector3 = aabb.end
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	var outline_color: Color = _get_outline_color()
+	var corners: PackedVector3Array = [start, end]
+	var corners_2d: PackedVector2Array = [camera.unproject_position(start),camera.unproject_position(end)]
+	for c in 3:
+		var p2: Vector3 = start
+		p2[c] = end[c]
+		corners.append(p2)
+		corners_2d.append(camera.unproject_position(p2))
+		p2 = end
+		p2[c] = start[c]
+		corners.append(p2)
+		corners_2d.append(camera.unproject_position(p2))
+	for i: int in range(corners_2d.size() - 1):
+		for j: int in range(i, corners_2d.size()):
+			var common: int = 0
+			for c in 3:
+				if corners[i][c] == corners[j][c]:
+					common += 1
+			if common > 1:
+				_path_representation.draw_line(corners_2d[i], corners_2d[j], outline_color, path_width)
 
 
 func _get_outline_color() -> Color:

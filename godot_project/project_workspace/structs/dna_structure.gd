@@ -51,6 +51,7 @@ var _signal_queue_path_changed: bool = false
 var _signal_queue_parameters_changed: bool = false
 var _baked_path: PackedVector3Array = []
 var _adjust_path_length_queued: bool = false
+var _aabb_cache := AABB()
 
 @export var _springs: Dictionary = {
 	# id<int> : NanoSpring
@@ -201,6 +202,7 @@ func end_edit() -> void:
 		or _signal_queue_parameters_changed
 		)
 	if has_changed:
+		_aabb_cache = AABB()
 		if _signal_queue_path_changed:
 			path_changed.emit()
 			_baked_path.clear()
@@ -1566,11 +1568,14 @@ func get_icon() -> Texture2D:
 func get_aabb(_in_bounds_type := AABB_BoundsType.AtomsPositions) -> AABB:
 	if _curve.point_count == 0:
 		return AABB()
-	var aabb := AABB(_curve.get_point_position(0), Vector3.ZERO)
-	for p in range(1, _curve.point_count):
-		aabb = aabb.expand(_curve.get_point_position(p))
-	aabb = aabb.grow(_parameters.dna_radius_nanometers)
-	return aabb
+	if _aabb_cache == AABB():
+		var aabb := AABB(_curve.get_point_position(0), Vector3.ZERO)
+		var strands: Array[Strand] = get_strands()
+		for base_index: int in get_sequence_length():
+			for strand: Strand in strands:
+				aabb = aabb.expand(get_backbone_transform(strand, base_index).origin)
+		_aabb_cache = aabb.grow(0.1)
+	return _aabb_cache
 
 
 func is_spline_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> bool:
@@ -1610,6 +1615,7 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["_bonds_ids_cache"] = _bonds_ids_cache.duplicate()
 	state_snapshot["_bonds_cache"] = _bonds_cache.duplicate()
 	state_snapshot["_baked_path"] = _baked_path.duplicate()
+	state_snapshot["_aabb_cache"] = _aabb_cache
 	return state_snapshot
 
 
@@ -1628,6 +1634,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_bonds_ids_cache = in_state_snapshot["_bonds_ids_cache"].duplicate()
 	_bonds_cache = in_state_snapshot["_bonds_cache"].duplicate()
 	_baked_path = in_state_snapshot["_baked_path"].duplicate()
+	_aabb_cache = in_state_snapshot["_aabb_cache"]
 	
 	_springs.clear()
 	var springs_to_apply: Dictionary = in_state_snapshot["_springs"]

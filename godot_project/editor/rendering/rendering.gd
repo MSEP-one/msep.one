@@ -87,8 +87,6 @@ func build_atomic_structure_rendering(in_structure_context: StructureContext,
 	assert(not in_structure_context.nano_structure.is_being_edited(), "Can't build renderer for AtomicStructure which is being edited")
 	var atomic_structure_renderer: AtomicStructureRenderer = _get_renderer_for_atomic_structure(in_structure_context.nano_structure)
 	atomic_structure_renderer.build(in_structure_context, _default_representation)
-	if in_structure_context.nano_structure is DnaStructure:
-		atomic_structure_renderer.set_transparency(0.5)
 	var representation_settings: RepresentationSettings = in_structure_context.nano_structure.get_representation_settings()
 	if representation_settings.get_hydrogens_visible():
 		atomic_structure_renderer.ensure_hydrogens_rendering_on()
