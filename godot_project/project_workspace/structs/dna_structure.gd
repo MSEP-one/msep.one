@@ -203,10 +203,6 @@ func end_edit() -> void:
 		)
 	if has_changed:
 		_aabb_cache = AABB()
-		if _signal_queue_path_changed:
-			path_changed.emit()
-			_baked_path.clear()
-			_signal_queue_path_changed = false
 		# Emmit count changed signal before actual sequence
 		if _last_bases_cout != _sequence.length():
 			var count: = _sequence.length()
@@ -278,6 +274,10 @@ func end_edit() -> void:
 			_signal_queue_atoms_removed = prev_atoms_cache.keys()
 			_signal_queue_bonds_removed = prev_bonds_cache.keys()
 			super.end_edit()
+		if _signal_queue_path_changed:
+			_baked_path.clear()
+			_signal_queue_path_changed = false
+			path_changed.emit()
 		emit_changed()
 	else:
 		_is_being_edited = false

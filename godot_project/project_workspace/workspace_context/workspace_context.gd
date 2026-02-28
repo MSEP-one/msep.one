@@ -836,8 +836,7 @@ func _on_dna_path_changed(in_structure_context_id: int) -> void:
 			if not structure_context.has_selection():
 				# removed the last selection, let's keep selection alike
 				structure_context.select_all()
-			var contexts: Array[StructureContext] = [structure_context]
-			selection_in_structures_changed.emit(contexts)
+		_selection_modified_structure_contexts[in_structure_context_id] = true
 
 
 func _on_nano_structure_visibility_changed(_in_visible: bool, in_structure_context_id: int) -> void:
