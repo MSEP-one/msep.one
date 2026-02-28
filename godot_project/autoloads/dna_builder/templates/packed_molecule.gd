@@ -7,3 +7,4 @@ extends Resource
 @export var base_to_backbone_atom_id: int = -1
 @export var next_backbone_atom_id: int = -1
 @export var previous_backbone_atom_id: int = -1
+@export var hydrogen_bonds: PackedInt32Array

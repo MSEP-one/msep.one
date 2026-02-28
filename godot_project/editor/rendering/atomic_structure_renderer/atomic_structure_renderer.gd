@@ -624,7 +624,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_labels_representation.apply_state_snapshot(in_snapshot["_labels_representation.snapshot"])
 	_fixed_size_representation.apply_state_snapshot(in_snapshot["_fixed_size_representation.snapshot"])
 	var nano_structure: AtomicStructure = _workspace_context.workspace.get_structure_by_int_guid(_nano_structure_id)
-	if not nano_structure.atoms_moved.is_connected(_on_nanostructure_atoms_moved):
+	if not nano_structure.atoms_moved.is_connected(_on_nanostructure_atoms_moved) and not nano_structure is DnaStructure:
 		# This can happen if the AtomicStructureRenderer was destroyed because
 		# a group was deleted, and a new one was created in it's place
 		_internal_build()
