@@ -595,6 +595,8 @@ class MotorForce:
 		state = simulation.context.getState(getPositions = True)
 		positions = state.getPositions()
 		atom_count = len(self.atom_ids)
+		if atom_count == 0:
+			return molecule_center
 		for i in range(atom_count):
 			atom_id: int = self.atom_ids[i]
 			molecule_center += positions[atom_id]._value
@@ -605,6 +607,8 @@ class MotorForce:
 	def get_molecule_angle(self, simulation) -> float:
 		state = simulation.context.getState(getPositions= True)
 		positions = state.getPositions()
+		if not positions: # Group is empty, angle can't be calculated
+			return 0.0 
 		reference_particle_position: Vec3 = positions[0]
 		axis_point: Vec3 = closest_point_in_rect_to_other(self.position, self.axis_direction, reference_particle_position)
 		if axis_point == reference_particle_position: # Particle is aligned with the rotation axis
