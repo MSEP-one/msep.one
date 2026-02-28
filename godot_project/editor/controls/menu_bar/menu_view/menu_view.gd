@@ -47,6 +47,7 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 	set_item_disabled(get_item_index(ID_HIDE_SELECTED_OBJECTS), !has_context)
 	set_item_disabled(get_item_index(ID_SHOW_HIDDEN_OBJECTS), !has_context)
 	set_item_disabled(get_item_index(ID_OVERRIDE_DEFAULT_COLORS), !has_context)
+	set_item_disabled(get_item_index(ID_DNA_REPRESENTATION), !has_context)
 	var visible_object_tree: bool = false
 	if has_context:
 		visible_object_tree = in_context.visible_object_tree
@@ -167,6 +168,16 @@ func _on_id_pressed(in_id: int) -> void:
 		ID_REPRESENTATION_SHOW_HYDROGENS:
 			request_hide.emit()
 			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
+		ID_DNA_REPRESENTATION:
+			const DnaRepresentation = RepresentationSettings.DnaRepresentation
+			var current_representation: DnaRepresentation = representation_settings.get_dna_representation()
+			match current_representation:
+				DnaRepresentation.SIMPLIFIED:
+					workspace_context.workspace.representation_settings.set_dna_representation(DnaRepresentation.ATOMS_AND_BONDS)
+				DnaRepresentation.ATOMS_AND_BONDS:
+					workspace_context.workspace.representation_settings.set_dna_representation(DnaRepresentation.SIMPLIFIED)
+			workspace_context.snapshot_moment("Change DNA Representation")
+			request_hide.emit()
 
 
 enum {
@@ -191,4 +202,5 @@ enum {
 	ID_SHOW_HIDDEN_OBJECTS             = 19,
 	ID_OVERRIDE_DEFAULT_COLORS         = 20,
 	ID_THEME_3D                        = 21,
+	ID_DNA_REPRESENTATION              = 22,
 }
