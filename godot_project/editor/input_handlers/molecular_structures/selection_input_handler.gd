@@ -352,9 +352,16 @@ func _activate_dna_structure(multi_structure_hit_result: MultiStructureHitResult
 		var pos: Vector3 = multi_structure_hit_result.closest_hit_dna_pos
 		var closest_segment: int = -1
 		var closest_distance_sqrd: float = INF
-		for i in (dna_structure.get_control_point_count() - 1):
-			var p0: Vector3 = dna_structure.get_control_point_position(i)
-			var p1: Vector3 = dna_structure.get_control_point_position(i+1)
+		var control_points: PackedVector3Array
+		for i in dna_structure.get_control_point_count():
+			control_points.append(dna_structure.get_control_point_position(i))
+		var last_pos: Vector3 = dna_structure.get_baked_path()[-1]
+		const SMALL_VALUE_LESS_THAN_BAKE_INTERVAL_SQRD = 0.015 * 0.015
+		if control_points[-1].distance_squared_to(last_pos) > SMALL_VALUE_LESS_THAN_BAKE_INTERVAL_SQRD:
+			control_points.append(last_pos)
+		for i in (control_points.size() - 1):
+			var p0: Vector3 = control_points[i]
+			var p1: Vector3 = control_points[i+1]
 			var closest_point: Vector3 = Geometry3D.get_closest_point_to_segment(pos, p0, p1)
 			var dist_sqrd: float = pos.distance_squared_to(closest_point)
 			if dist_sqrd < closest_distance_sqrd:
