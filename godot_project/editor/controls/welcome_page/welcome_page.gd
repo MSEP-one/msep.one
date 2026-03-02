@@ -6,7 +6,6 @@ const SETTINGS_FOLDER = "user://editor/"
 const SETTINGS_FILE   = "home_settings.res"
 const MAX_KNOWN_WORKSPACES_SHOWN: int = 4
 
-const FEATURE_FLAG_NEW_PROJECT_ON_STARTUP = "feature_flags/new_workspace_on_startup"
 
 @onready var new_workspace: Button = %NewWorkspace
 @onready var load_workspace_from_disk: Button = %LoadWorkspaceFromDisk
@@ -52,7 +51,7 @@ func _update_workspaces_list() -> void:
 	if _first_run:
 		if is_instance_valid(workspace_to_activate):
 			MolecularEditorContext.activate_workspace(workspace_to_activate)
-		elif ProjectSettings.get_setting(FEATURE_FLAG_NEW_PROJECT_ON_STARTUP, true):
+		else:
 			var opening_workspace: bool = false
 			for arg in OS.get_cmdline_args():
 				if arg.is_absolute_path() and FileAccess.file_exists(arg) and arg.get_extension() == "msep1":

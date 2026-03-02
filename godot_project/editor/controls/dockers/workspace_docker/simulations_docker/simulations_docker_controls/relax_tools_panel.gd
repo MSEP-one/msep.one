@@ -7,7 +7,6 @@ const _DIMMED_ALPHA: float = 0.2
 var _option_selection_only: CheckBox = null
 var _option_all_visible: CheckBox = null
 var _option_group: ButtonGroup = null
-var _temperature_picker: TemperaturePicker = null
 var _check_box_maintain_locks: CheckBox = null
 var _check_box_include_springs: CheckBox = null
 var _check_box_passivate_molecules: CheckBox = null
@@ -23,13 +22,9 @@ func _notification(in_what: int) -> void:
 		_option_selection_only = %OptionSelectionOnly as CheckBox
 		_option_all_visible = %OptionAllVisible as CheckBox
 		_option_group = _option_all_visible.button_group
-		_temperature_picker = %TemperaturePicker as TemperaturePicker
 		_check_box_maintain_locks = %CheckBoxMaintainLocks as CheckBox
 		_check_box_include_springs = %CheckBoxIncludeSprings as CheckBox
 		_check_box_passivate_molecules = %CheckBoxPassivateMolecules as CheckBox
-		FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
-		var show_temperature_picker: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.RELAX_EDITABLE_TEMPERATURE)
-		_temperature_picker.visible = show_temperature_picker
 		_button_run_relaxation = %ButtonRunRelaxation as Button
 		_button_view_alerts = %ButtonViewAlerts as Button
 		_open_mm_failure_tracker = %OpenMMFailureTracker as OpenMMFailureTracker
@@ -68,11 +63,6 @@ func _update_view_alerts_button() -> void:
 	_button_view_alerts.text = tr_n(&"View %d alert", &"View %d alerts", alerts_count) % alerts_count
 
 
-func _on_feature_flag_toggled(path: String, new_value: bool) -> void:
-	if path == FeatureFlagManager.RELAX_EDITABLE_TEMPERATURE and is_instance_valid(_temperature_picker):
-		_temperature_picker.visible = new_value
-
-
 func _on_workspace_context_selection_in_structures_changed(_in_structure_contexts: Array[StructureContext]) -> void:
 	ScriptUtils.call_deferred_once(_update_button_run_relaxation_state)
 
@@ -99,7 +89,6 @@ func _on_option_group_pressed(_in_button: BaseButton) -> void:
 
 
 func _on_button_run_relaxation_pressed() -> void:
-	var temperature_in_kelvins: float = _temperature_picker.temperature_kelvins
 	var atom_set: AtomicStructure.AtomSet = _get_atom_set()
 	var request: RelaxRequest = null
 	if WorkspaceUtils.can_relax(_workspace_context, atom_set):
@@ -116,7 +105,8 @@ func _on_button_run_relaxation_pressed() -> void:
 		var include_springs: bool = _check_box_include_springs.button_pressed
 		var lock_atoms: bool = _check_box_maintain_locks.button_pressed
 		var passivate_molecules: bool = _check_box_passivate_molecules.button_pressed
-		request = WorkspaceUtils.relax(_workspace_context, temperature_in_kelvins, atom_set, include_springs, lock_atoms, passivate_molecules)
+		const TEMPERATURE_IN_KELVINS: float = 300
+		request = WorkspaceUtils.relax(_workspace_context, TEMPERATURE_IN_KELVINS, atom_set, include_springs, lock_atoms, passivate_molecules)
 	if is_instance_valid(request) and is_instance_valid(request.promise):
 		_workspace_context.clear_alerts()
 		_open_mm_failure_tracker.track_openmm_relax_request(request)

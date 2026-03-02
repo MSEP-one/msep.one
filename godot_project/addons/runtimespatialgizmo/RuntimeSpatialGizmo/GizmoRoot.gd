@@ -32,7 +32,6 @@ var mouse_hover_detected := {
 	ortho_z_surface = false
 }
 # ability to deactive the gizmo completelly
-var _is_active: bool = true
 var _mouse_inside_subviewport: bool = true
 var transform_init_counter: int = TRANSFORM_INIT_ITERATION_COUNT
 # This is the node on which transformations are applied.
@@ -91,13 +90,6 @@ var active_viewport: Viewport:
 		return null
 
 
-func _ready() -> void:
-	FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
-	var display_gizmo: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_DISPLAY_GIZMO)
-	if not display_gizmo:
-		_is_active = false
-
-
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
 		# Manually free HandleGizmo that may not be in the tree
@@ -105,14 +97,6 @@ func _notification(what: int) -> void:
 		if is_instance_valid(hg):
 			hg.queue_free()
 
-
-func _on_feature_flag_toggled(in_path: String, in_display_gizmo: bool) -> void:
-	if in_path != FeatureFlagManager.FEATURE_FLAG_DISPLAY_GIZMO:
-		return
-	_is_active = in_display_gizmo
-	set_process_input(in_display_gizmo)
-	if not _is_active:
-		disable_gizmo()
 
 func _on_subviewport_container_mouse_entered() -> void:
 	_mouse_inside_subviewport = true
@@ -129,10 +113,6 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if !event.pressed:
 			grab_mode = GrabMode.NONE
-
-
-func is_active() -> bool:
-	return _is_active
 
 
 func create_state_snapshot() -> Dictionary:
@@ -316,8 +296,6 @@ func toggle_local_global() -> void:
 
 
 func enable_gizmo() -> void:
-	if not _is_active:
-		return
 	if weakref(selected_node).get_ref():
 		if hg.get_parent() != active_viewport:
 			if hg.get_parent() != null:

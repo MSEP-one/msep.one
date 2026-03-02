@@ -43,7 +43,6 @@ var _button_end: Button = null
 var _button_apply: Button = null
 var _button_view_alerts: Button = null
 var _open_mm_failure_tracker: OpenMMFailureTracker = null
-var _motors_warning_dialog: NanoAcceptDialog = null
 
 var _workspace_context: WorkspaceContext = null
 var _status: Status = Status.INACTIVE: set = _set_status
@@ -116,7 +115,6 @@ func _notification(in_what: int) -> void:
 		_button_apply = %ButtonApply as Button
 		_button_view_alerts = %ButtonViewAlerts as Button
 		_open_mm_failure_tracker = %OpenMMFailureTracker as OpenMMFailureTracker
-		_motors_warning_dialog = %MotorsWarningDialog as NanoAcceptDialog
 		_status = Status.INACTIVE
 		_spin_box_timeline.share(_slider_timeline)
 		# Note: Step is too small for setting it from Godot inspector
@@ -512,9 +510,6 @@ func _on_button_start_pause_pressed() -> void:
 			if not _has_valid_atoms():
 				_label_empty_notice.visible = true
 				return
-			if _workspace_context.has_motors() and FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_VIRTUAL_MOTORS_SIMULATION_WARNING):
-				_motors_warning_dialog.popup_centered()
-				await _motors_warning_dialog.closed
 			
 			# Copy simulation config to Workspace's simulation params
 			var params: SimulationParameters = _workspace_context.workspace.simulation_parameters

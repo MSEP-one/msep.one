@@ -164,20 +164,6 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_rcmdb")
 value = 22.0
 show_percentage = false
 
-[node name="ElapsedTimeLabel" type="Label" parent="CenterContainer/InfoContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme = ExtResource("9_b0qj8")
-theme_type_variation = &"HeaderLarge"
-theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
-theme_override_constants/shadow_offset_x = 0
-theme_override_constants/shadow_offset_y = 0
-theme_override_constants/shadow_outline_size = 9
-text = "Elapsed: 00:00.000"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 2
-
 [node name="ButtonsContainer" type="HBoxContainer" parent="CenterContainer/InfoContainer"]
 layout_mode = 2
 alignment = 1

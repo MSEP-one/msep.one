@@ -1,6 +1,5 @@
 class_name RingLevelAtoms extends RingMenuLevel
 
-const FEATURE_FLAG_AUTOBONDER_ACTION_ENABLED: StringName = &"feature_flags/autobonder_action_enabled"
 
 var _workspace_context: WorkspaceContext = null
 var _ring_menu: NanoRingMenu = null
@@ -14,10 +13,7 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 		tr("Atoms"),
 		tr("Free mode for editing molecules and atoms in space")
 	)
-	var autobonder_action_enabled: bool = \
-		ProjectSettings.get_setting(FEATURE_FLAG_AUTOBONDER_ACTION_ENABLED, true)
-	if autobonder_action_enabled:
-		add_action(RingActionAutoBonder.new(_workspace_context, in_menu))
+	add_action(RingActionAutoBonder.new(_workspace_context, in_menu))
 	add_action(in_workspace_context.action_add_hydrogens)
 	add_action(in_workspace_context.action_correct_overlapping_atoms)
 	add_action(preload("ring_action_set_atom_locking.gd").new(_workspace_context, in_menu))

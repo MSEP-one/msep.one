@@ -14,33 +14,20 @@ const FEATURE_FLAG_BASE_PATH = "feature_flags"
 
 # const with the full path of the feature, under Project Settings
 # Keep them in alphabetical order:
-const FEATURE_FLAG_DISPLAY_GIZMO := &"feature_flags/display_gizmo"
 const FEATURE_FLAG_ENABLE_VISUAL_MENU_ON_ALL_PLATFORMS := &"feature_flags/enable_visual_menu_on_all_platforms"
 const FEATURE_FLAG_SHOW_ATOM_RENDERING_PROPERTIES_VIEW := &"feature_flags/show_rendering_atom_properties_view"
-const FEATURE_FLAG_TOGGLE_BACKGROUND := &"feature_flags/show_irritating_background"
 const SHOW_INPUT_OVERLAY := &"feature_flags/show_input_overlay"
-const USE_DARK_BACKGROUND_ENVIRONMENT_FLAG = &"feature_flags/use_dark_background_environment"
-const SHOW_ASYNC_PROCESS_ELAPSED_TIME = &"feature_flags/show_async_process_elapsed_time"
-const RELAX_EDITABLE_TEMPERATURE = &"feature_flags/relax_editable_temperature"
 const TEMPERATURE_IN_FAHRENHEIT = &"feature_flags/temperature_in_fahrenheit"
-const FEATURE_FLAG_VIRTUAL_MOTORS = &"feature_flags/virtual_motors"
-const FEATURE_FLAG_PARTICLE_EMITTERS = &"feature_flags/particle_emitters"
 const FEATURE_FLAG_EMITTERS_WITH_EMIT_COUNT = &"feature_flags/particle_emitters_with_emit_count"
 const FEATURE_FLAG_EMITTERS_SHOW_UNSPAWNED_INSTANCES = &"feature_flags/particle_emitters_show_unspawned_instanes"
-const FEATURE_FLAG_VIRTUAL_MOTORS_SIMULATION_WARNING = &"feature_flags/virtual_motors_simulation_warning"
-const FEATURE_FLAG_VIRTUAL_SPRINGS = &"feature_flags/virtual_springs"
-const FEATURE_FLAG_APPLY_WORKSPACE_VERSION_FIXES = &"feature_flags/apply_workspace_version_fixes"
 const FEATURE_FLAG_LMDB_STRUCTURE = &"feature_flags/use_lmdb_structure"
 const FEATURE_FLAGS_ALLOW_SCALE_WIDGETS = &"feature_flags/allow_scale_widgets"
-const FEATURE_FLAGS_ALLOW_CREATE_SMALL_MOLECULES_IN_NEW_GROUP = &"feature_flags/allow_create_small_molecules_in_new_group"
 const FEATURE_FLAGS_MSEP_ONLINE = &"feature_flags/msep_online"
 const FEATURE_FLAGS_MSEP_ONLINE_STUB_SERVICE = &"feature_flags/msep_online_stub_service"
 const FEATURE_FLAGS_MSEP_ONLINE_RUN_TESTS = &"feature_flags/msep_online_run_tests"
 const FEATURE_FLAGS_DNA_BUILDER_DEV_TOOL = &"feature_flags/dna_builder_dev_tool"
 const FEATURE_FLAGS_TOOLTIP_SHOW_IDS = &"feature_flags/tooltip_show_ids"
 
-var irritating_bg: Texture = preload("res://autoloads/feature_flag_manager/assets/seamless_floral_background.png")
-var slightly_less_irritating_bg: Texture = preload("res://autoloads/feature_flag_manager/assets/seamless_flamingo_background.png")
 
 ## A map that holds a reference for the FeatureFlagView
 var _featureflag_view_map: Dictionary = {
@@ -58,7 +45,6 @@ func _ready() -> void:
 	_populate_featureflag_view_map()
 	close_requested.connect(_on_close_requested)
 	# Connect to the feature flag 
-	on_feature_flag_toggled.connect(_on_feature_flag_toggled)
 	always_on_top_button.toggled.connect(_on_always_on_top_button_toggled)
 	hide()
 
@@ -110,13 +96,6 @@ func _on_value_toggled(new_value: bool, path: String) -> void:
 func _on_close_requested() -> void:
 	hide()
 
-func _on_feature_flag_toggled(path: String, new_value: bool) -> void:
-	if path != FEATURE_FLAG_TOGGLE_BACKGROUND:
-		return
-	if new_value:
-		background.texture = irritating_bg
-	else:
-		background.texture = slightly_less_irritating_bg
 
 func _unhandled_key_input(event: InputEvent) -> void:
 ## Workaround for the Shortcut object ignoring the pressed status and automatically closing

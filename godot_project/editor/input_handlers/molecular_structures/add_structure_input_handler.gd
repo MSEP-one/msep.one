@@ -70,11 +70,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_structur
 	if in_input_event.button_index == MOUSE_BUTTON_LEFT and in_input_event.is_released():
 		if _press_down_position.distance_squared_to(in_input_event.global_position) > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
 			return false
-		var create_object_parameters: CreateObjectParameters = in_structure_context.workspace_context.create_object_parameters
-		if create_object_parameters.get_create_small_molecule_in_subgroup():
-			_create_new_structure(in_structure_context.workspace_context)
-		else:
-			_merge_structure(in_structure_context)
+		_merge_structure(in_structure_context)
 		return true
 	elif in_input_event.button_index == MOUSE_BUTTON_LEFT and in_input_event.is_pressed():
 			_press_down_position = in_input_event.global_position
