@@ -1763,10 +1763,12 @@ class AtomData:
 			# Assume reconstructing cache
 			return
 		var base: String
+		var flip_y: bool
 		if id_data.is_backbone:
 			base = "backbone0" if id_data.strand == Strand.A else "backbone1"
 		else:
 			base = owner.get_sequence()[id_data.base_idx]
+			flip_y = base in ["T", "C"]
 			if id_data.strand == Strand.B:
 				base = DnaBuilder.DNA_COMPLEMENT.get(base, "X")
 		if base == "X":
@@ -1778,6 +1780,8 @@ class AtomData:
 		var atom_info: Vector4 = base_template.atoms[id_data.sub_atom_id]
 		atomic_number = int(atom_info.w)
 		position = Vector3(atom_info.x, atom_info.y, atom_info.z)
+		if flip_y:
+			position.y = -position.y
 		var xform: Transform3D = (
 			owner.get_backbone_transform(id_data.strand, id_data.base_idx)
 			if id_data.is_backbone else
