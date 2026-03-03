@@ -40,6 +40,7 @@ var _bonds_ids_cache: Dictionary[Strand, PackedInt32Array] = {}
 var _bonds_cache: Dictionary[int, Vector3i]
 var _highest_spring_id: int = -1
 var _track_atoms: bool = false
+var _track_hydrogen_bonds: bool = false
 static var _unpacked_atom_ids: Dictionary[int, UnpackedAtomId]
 static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
 
@@ -288,7 +289,9 @@ func is_tracking_atoms() -> bool:
 
 
 func set_force_track_atoms(in_force_track: bool) -> void:
+	# NOTE: This is used exclusively for when converting DNA Object to a group
 	if in_force_track:
+		_track_hydrogen_bonds = true
 		if _track_atoms:
 			return
 		_track_atoms = true
@@ -296,6 +299,12 @@ func set_force_track_atoms(in_force_track: bool) -> void:
 		_signal_queue_path_changed = true
 		end_edit()
 	else:
+		# Stop tracking hydrogen bonds
+		_track_hydrogen_bonds = false
+		_springs.clear()
+		_atom_to_atom_spring_ids.clear()
+		_atoms_to_related_springs.clear()
+		_highest_spring_id = -1
 		var should_track: bool = get_representation_settings().get_dna_representation() == DnaRepresentation.ATOMS_AND_BONDS
 		if should_track == _track_atoms:
 			return
@@ -1407,7 +1416,7 @@ func spring_set_constant_force(in_spring_id: int, new_force: float) -> void:
 func springs_get_all() -> PackedInt32Array:
 	if not _track_atoms:
 		return PackedInt32Array()
-	if _springs.is_empty() and get_strand_policy() == StrandPolicy.DOUBLE:
+	if _springs.is_empty() and _track_hydrogen_bonds and get_strand_policy() == StrandPolicy.DOUBLE:
 		_create_hydrogen_bonds()
 	return PackedInt32Array(_springs.keys())
 

@@ -236,11 +236,9 @@ func _on_convert_to_atoms_button_pressed() -> void:
 		if warning_promise.get_result() == false:
 			# "Cancel" button selected
 			return
-	var started_tracking_atoms: bool = _tracked_structure.is_tracking_atoms()
-	if not started_tracking_atoms:
-		# We need to make atoms available, but no bother otehr parts of the editor
-		_tracked_structure.set_block_signals(true)
-		_tracked_structure.set_force_track_atoms(true)
+	# We need to make atoms available, but no bother other parts of the editor
+	_tracked_structure.set_block_signals(true)
+	_tracked_structure.set_force_track_atoms(true)
 	var parent_group: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_tracked_structure.int_parent_guid)
 	var new_group: AtomicStructure = AtomicStructure.create()
 	new_group.set_structure_name(_tracked_structure.get_structure_name() + "'s atoms")
@@ -269,10 +267,9 @@ func _on_convert_to_atoms_button_pressed() -> void:
 				const DUMMY_LENGTH: float = 0.1
 				new_group.spring_create_between_atoms(atom1, atom2, k, LENGTH_IS_AUTOMATIC, DUMMY_LENGTH)
 	new_group.end_edit()
-	if not started_tracking_atoms:
-		# Done polling atoms, back to normal
-		_tracked_structure.set_force_track_atoms(false)
-		_tracked_structure.set_block_signals(false)
+	# Done polling atoms, back to normal
+	_tracked_structure.set_force_track_atoms(false)
+	_tracked_structure.set_block_signals(false)
 	_workspace_context.workspace.remove_structure(_tracked_structure)
 	var new_context: StructureContext = _workspace_context.get_structure_context(new_group.int_guid)
 	new_context.select_all()
