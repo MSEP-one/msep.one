@@ -76,7 +76,6 @@ enabled=PackedStringArray("res://addons/runtimespatialgizmo/plugin.cfg", "res://
 show_input_overlay=false
 show_rendering_atom_properties_view=false
 enable_visual_menu_on_all_platforms=false
-temperature_in_fahrenheit=false
 use_lmdb_structure=false
 allow_scale_widgets=false
 particle_emitters_show_unspawned_instanes=false
