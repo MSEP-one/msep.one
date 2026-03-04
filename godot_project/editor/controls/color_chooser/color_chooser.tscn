@@ -18,5 +18,6 @@ size_flags_horizontal = 3
 [node name="ColorPickerButton" type="ColorPickerButton" parent="HBoxContainer"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
+size_flags_horizontal = 3
 
 [connection signal="color_changed" from="HBoxContainer/ColorPickerButton" to="." method="_on_color_picker_button_color_changed"]

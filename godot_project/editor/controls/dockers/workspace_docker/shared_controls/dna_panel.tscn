@@ -1,12 +1,78 @@
-[gd_scene load_steps=6 format=3 uid="uid://bdeg2b7ycyi66"]
+[gd_scene load_steps=13 format=3 uid="uid://bdeg2b7ycyi66"]
 
 [ext_resource type="Script" uid="uid://cdyropsbauo4k" path="res://editor/controls/dockers/workspace_docker/shared_controls/dna_panel.gd" id="1_imbu4"]
 [ext_resource type="PackedScene" uid="uid://qwxweev3tdf8" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/dna_sequence_text_edit.tscn" id="2_6y0sb"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_w42n7"]
+[ext_resource type="Texture2D" uid="uid://b2w2wxk2bb4wg" path="res://editor/controls/category_container/icons/collapsed.svg" id="4_w42n7"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="5_w42n7"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_imbu4"]
 
+[sub_resource type="GDScript" id="GDScript_w42n7"]
+script/source = "# This builtin script works to toggle a pannel visibility by pressing a button
+extends Button
+
+@export var panel: PanelContainer
+
+
+func _ready() -> void:
+	assert(panel != null)
+	_update_icon()
+	pressed.connect(_on_pressed)
+
+
+func ensure_panel_hidden() -> void:
+	panel.visible = false
+	_update_icon()
+
+
+func _on_pressed() -> void:
+	panel.visible = not panel.visible
+	_update_icon()
+
+
+func _update_icon() -> void:
+	const COLLAPSED_ICON: Texture2D = preload(\"uid://b2w2wxk2bb4wg\")
+	const EXPANDED_ICON: Texture2D = preload(\"uid://gl1hqwiod5y0\")
+	icon = EXPANDED_ICON if panel.visible else COLLAPSED_ICON
+"
+
 [sub_resource type="ButtonGroup" id="ButtonGroup_8e3dj"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_hnbyp"]
+
+[sub_resource type="GDScript" id="GDScript_6y0sb"]
+script/source = "# This builtin script makes a control change it's visibility based on a toggle button
+extends Control
+
+@export var button: Button
+@export var invert_pressed: bool = false
+
+func _ready() -> void:
+	assert(button != null)
+	assert(button.toggle_mode == true, \"Button is not toggle_mode\")
+	button.toggled.connect(_on_button_toggled)
+	_on_button_toggled(button.button_pressed)
+	const EditDnaPanel: Script = preload(\"uid://cdcgvv0jwwf6c\")
+	if owner is EditDnaPanel:
+		owner.tracked_object_changed.connect(_on_tracked_object_changed)
+
+
+func _on_button_toggled(in_button_pressed: bool) -> void:
+	if invert_pressed:
+		in_button_pressed = not in_button_pressed
+	visible = in_button_pressed
+
+func _on_tracked_object_changed(in_object: DnaStructure) -> void:
+	if in_object == null:
+		return
+	# Update visibility
+	_on_button_toggled(button.button_pressed)
+"
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_6y0sb"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_w42n7"]
 
 [node name="DnaPanel" type="MarginContainer"]
 offset_right = 462.0
@@ -74,9 +140,14 @@ allow_greater = true
 suffix = "bases"
 slider_exp_edit = true
 
-[node name="Label2" type="Label" parent="VBoxContainer"]
+[node name="HelixParametersButton" type="Button" parent="VBoxContainer" node_paths=PackedStringArray("panel")]
 layout_mode = 2
 text = "Helix Parameters"
+icon = ExtResource("4_w42n7")
+flat = true
+alignment = 0
+script = SubResource("GDScript_w42n7")
+panel = NodePath("../PanelContainer")
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -204,3 +275,317 @@ value = 1.0
 allow_greater = true
 suffix = "nm"
 custom_arrow_step = 0.1
+
+[node name="ColorizeOptionsButton" type="Button" parent="VBoxContainer" node_paths=PackedStringArray("panel")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Color Overrides"
+icon = ExtResource("4_w42n7")
+flat = true
+alignment = 0
+script = SubResource("GDScript_w42n7")
+panel = NodePath("../ColorizeMainContainer")
+
+[node name="ColorizeMainContainer" type="PanelContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "· Backbone"
+
+[node name="DontColorizeBackboneButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(154, 0)
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_hnbyp")
+text = "Disabled"
+
+[node name="PerStrandBackboneButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(154, 0)
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_hnbyp")
+text = "Per Strand"
+
+[node name="ColorizeBackboneContainer" type="PanelContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer" node_paths=PackedStringArray("button")]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+script = SubResource("GDScript_6y0sb")
+button = NodePath("../HBoxContainer/PerStrandBackboneButton")
+
+[node name="GridContainer" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "A Strand Backbone"
+
+[node name="BackboneAColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+color = Color(1, 0, 0, 1)
+
+[node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "B Strand Backbone"
+
+[node name="BackboneBColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+color = Color(0, 0, 1, 1)
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "· Sugars"
+
+[node name="SugarSameAsBackboneButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3"]
+custom_minimum_size = Vector2(154, 0)
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_6y0sb")
+text = "Same as Backbone"
+
+[node name="SugarSameAsBasesButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3"]
+custom_minimum_size = Vector2(154, 0)
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_6y0sb")
+text = "Same as Bases"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "· Bases"
+
+[node name="DontColorizeBasesButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_w42n7")
+text = "Disabled"
+
+[node name="PerStrandBasesButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme_type_variation = &"StructureSelectorTernary"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_w42n7")
+text = "Per Strand"
+
+[node name="PerGrooveButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme_type_variation = &"StructureSelectorTernary"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_w42n7")
+text = "M/m Groove"
+
+[node name="PerBaseTypeButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_w42n7")
+text = "Per Base Type"
+
+[node name="ColorizeBasesContainer" type="PanelContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer" node_paths=PackedStringArray("button")]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+script = SubResource("GDScript_6y0sb")
+button = NodePath("../HBoxContainer2/DontColorizeBasesButton")
+invert_pressed = true
+
+[node name="PerStrandContainer" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
+visible = false
+layout_mode = 2
+script = SubResource("GDScript_6y0sb")
+button = NodePath("../../HBoxContainer2/PerStrandBasesButton")
+
+[node name="Label" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "A Strand Bases"
+
+[node name="BasesAStrandColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+color = Color(1, 0, 0, 1)
+edit_alpha = false
+
+[node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "B Strand Bases"
+
+[node name="BasesBStrandColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+color = Color(0, 0, 1, 1)
+edit_alpha = false
+
+[node name="PerGrooveContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
+layout_mode = 2
+script = SubResource("GDScript_6y0sb")
+button = NodePath("../../HBoxContainer2/PerGrooveButton")
+
+[node name="InfoLabel" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer" instance=ExtResource("5_w42n7")]
+layout_mode = 2
+text = "[center][pulse start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ[/pulse] This setting only affects Atoms and Bonds visualization[/center]"
+message = &"This setting only affects Atoms and Bonds visualization"
+effect = "pulse"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer"]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Major Groove"
+
+[node name="MajorGrooveColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_type_variation = &"CrystalButton"
+disabled = true
+color = Color(0.835294, 0.0235294, 0.447059, 1)
+edit_alpha = false
+
+[node name="Label1" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Minor Groove"
+
+[node name="MinorGrooveColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_type_variation = &"CrystalButton"
+disabled = true
+color = Color(0.0666667, 0.490196, 0.886275, 1)
+edit_alpha = false
+
+[node name="PerBaseTypeContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
+visible = false
+layout_mode = 2
+script = SubResource("GDScript_6y0sb")
+button = NodePath("../../HBoxContainer2/PerBaseTypeButton")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Schema"
+
+[node name="BasesSchemaOptionButton" type="OptionButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 6
+popup/item_0/text = "Standard"
+popup/item_0/id = 0
+popup/item_1/text = "Biomodel (DRuMS)"
+popup/item_1/id = 1
+popup/item_2/text = "RCSB PDB"
+popup/item_2/id = 2
+popup/item_3/text = "Standard Base Pair"
+popup/item_3/id = 3
+popup/item_4/text = "Purine/Pyrimidine Base Pair"
+popup/item_4/id = 4
+popup/item_5/text = "Custom"
+popup/item_5/id = 5
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer"]
+layout_mode = 2
+
+[node name="Label1" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "A"
+
+[node name="BaseAPickerButton" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_type_variation = &"CrystalButton"
+disabled = true
+color = Color(0, 1, 0, 1)
+edit_alpha = false
+
+[node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "T"
+
+[node name="BaseTPickerButton" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_type_variation = &"CrystalButton"
+disabled = true
+color = Color(1, 0, 0, 1)
+edit_alpha = false
+
+[node name="Label3" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "C"
+
+[node name="BaseCPickerButton" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_type_variation = &"CrystalButton"
+disabled = true
+color = Color(0, 0, 1, 1)
+edit_alpha = false
+
+[node name="Label4" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "G"
+
+[node name="BaseGPickerButton" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(59, 39)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_type_variation = &"CrystalButton"
+disabled = true
+color = Color(1, 0.501961, 0, 1)
+edit_alpha = false

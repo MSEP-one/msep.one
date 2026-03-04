@@ -1,5 +1,6 @@
 extends DnaPanel
 
+signal tracked_object_changed(out_object: DnaStructure)
 
 const StrandPolicy = DnaStructure.StrandPolicy
 
@@ -8,7 +9,6 @@ var _select_one_info_label: InfoLabel
 var _main_container: Container
 
 var _advanced_options_button: Button
-var _advanced_options_panel: PanelContainer
 var _simulate_hydrogen_bonds_check_button: CheckButton
 var _convert_to_atoms_button: Button
 
@@ -24,7 +24,6 @@ func _notification(what: int) -> void:
 		_select_one_info_label = %SelectOneInfoLabel as InfoLabel
 		_main_container = $VBoxContainer as Container
 		_advanced_options_button = %AdvancedOptionsButton as Button
-		_advanced_options_panel = %AdvancedOptionsPanel as PanelContainer
 		_simulate_hydrogen_bonds_check_button = %SimulateHydrogenBondsCheckButton as CheckButton
 		_convert_to_atoms_button = %ConvertToAtomsButton as Button
 		_sequence_length_spin_box_slider.value_confirmed.connect(_sequence_length_spin_box_slider_value_confirmed)
@@ -34,7 +33,6 @@ func _notification(what: int) -> void:
 		_rise_nanometers_spin_box_slider.value_confirmed.connect(_on_rise_nanometers_spin_box_slider_value_confirmed)
 		_initial_twist_spin_box_slider.value_confirmed.connect(_on_initial_twist_spin_box_slider_value_confirmed)
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
-		_advanced_options_button.pressed.connect(_on_advanced_options_button_pressed)
 		_convert_to_atoms_button.pressed.connect(_on_convert_to_atoms_button_pressed)
 
 
@@ -99,9 +97,8 @@ func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 	if _tracked_structure != null and not _tracked_structure.sequence_changed.is_connected(_on_tracked_structure_sequence_changed):
 		_tracked_structure.sequence_changed.connect(_on_tracked_structure_sequence_changed)
 	_update_ui()
-	if _advanced_options_panel.visible:
-		# hide advanced options when selecting a different object
-		_on_advanced_options_button_pressed()
+	_advanced_options_button.ensure_panel_hidden()
+	tracked_object_changed.emit(_tracked_structure)
 
 
 func _update_ui() -> void:
@@ -217,13 +214,6 @@ func _on_include_hydrogens_check_button_toggled(in_button_pressed: bool) -> void
 	_tracked_structure.set_include_hydrogens(in_button_pressed)
 	_tracked_structure.end_edit()
 	_workspace_context.snapshot_moment("Set Dna Object includes hydrogens")
-
-
-func _on_advanced_options_button_pressed() -> void:
-	_advanced_options_panel.visible = not _advanced_options_panel.visible
-	const COLLAPSED_ICON: Texture2D = preload("uid://b2w2wxk2bb4wg")
-	const EXPANDED_ICON: Texture2D = preload("uid://gl1hqwiod5y0")
-	_advanced_options_button.icon = EXPANDED_ICON if _advanced_options_panel.visible else COLLAPSED_ICON
 
 
 func _on_convert_to_atoms_button_pressed() -> void:
