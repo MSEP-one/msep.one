@@ -256,7 +256,7 @@ func set_should_hide_virtual_object_during_simulation(in_type: StringName, in_sh
 
 func get_should_hide_virtual_object_during_simulation(in_type: Variant) -> bool:
 	var key: StringName = _variant_to_virtual_object_key(in_type)
-	return _hide_during_simulation[key]
+	return _hide_during_simulation.get(key, true)
 
 
 func _variant_to_virtual_object_key(in_type: Variant) -> StringName:
