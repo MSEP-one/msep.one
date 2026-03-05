@@ -48,7 +48,6 @@ func _notification(in_what: int) -> void:
 		
 		_option_button_temperature_unit = $OptionButtonTemperatureUnit
 		if not Engine.is_editor_hint():
-			FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
 			_build_units_list()
 		_set_editable(editable)
 		
@@ -56,21 +55,12 @@ func _notification(in_what: int) -> void:
 		_spin_box_slider.value_confirmed.connect(_on_spin_box_slider_value_confirmed)
 
 
-func _on_feature_flag_toggled(path: String, _new_value: bool) -> void:
-	if path == FeatureFlagManager.TEMPERATURE_IN_FAHRENHEIT and is_instance_valid(_option_button_temperature_unit):
-		_build_units_list()
-
 func _build_units_list() -> void:
 	var selected_idx: int = _option_button_temperature_unit.selected
 	var selected_id: int = _option_button_temperature_unit.get_item_id(selected_idx)
-	var show_fahrenheit: bool = FeatureFlagManager.get_flag_value(FeatureFlagManager.TEMPERATURE_IN_FAHRENHEIT)
 	_option_button_temperature_unit.clear()
 	_option_button_temperature_unit.add_item("Kelvin (K)", Unit.KELVIN)
-	if show_fahrenheit:
-		_option_button_temperature_unit.add_item("Fahrenheit (ºF)", Unit.FAHRENHEIT)
-	else:
-		if selected_id == Unit.FAHRENHEIT:
-			selected_id = Unit.KELVIN
+	_option_button_temperature_unit.add_item("Fahrenheit (ºF)", Unit.FAHRENHEIT)
 	_option_button_temperature_unit.add_item("Celsius (ºC)", Unit.CELSIUS)
 	_option_button_temperature_unit.select(_option_button_temperature_unit.get_item_index(selected_id))
 	current_unit = selected_id as Unit
