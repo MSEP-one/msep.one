@@ -73,25 +73,12 @@ enabled=PackedStringArray("res://addons/runtimespatialgizmo/plugin.cfg", "res://
 
 [feature_flags]
 
-new_workspace_on_startup=true
 show_input_overlay=false
-use_dark_background_environment=true
-use_minimum_atom_render_radius=true
 show_rendering_atom_properties_view=false
-display_gizmo=true
-autobonder_action_enabled=true
 enable_visual_menu_on_all_platforms=false
-show_async_process_elapsed_time=false
-relax_editable_temperature=false
 temperature_in_fahrenheit=false
-virtual_motors=true
-virtual_motors_simulation_warning=false
-virtual_springs=true
-apply_workspace_version_fixes=false
 use_lmdb_structure=false
 allow_scale_widgets=false
-allow_create_small_molecules_in_new_group=false
-particle_emitters=true
 particle_emitters_show_unspawned_instanes=false
 particle_emitters_with_emit_count=false
 msep_online=false

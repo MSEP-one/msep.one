@@ -327,9 +327,6 @@ func _apply_selection_transform() -> void:
 
 
 func _get_gizmo_center_position() -> Vector3:
-	if not GizmoRoot.is_active():
-		return Vector3()
-	
 	var selection_size: int = 0
 	var center_pos: Vector3 = Vector3()
 	
@@ -435,9 +432,6 @@ func _on_workspace_context_atom_relaxation_started() -> void:
 
 
 func _force_gizmo_update() -> void:
-	if not GizmoRoot.is_active():
-		return
-	
 	var structures_to_update: Array[StructureContext] = get_workspace_context().get_structure_contexts_with_transformable_selection()
 	for ctx_id: int in _structure_context_2_initial_atom_selection_positions.keys():
 		var structure_context: StructureContext = _workspace_context.get_structure_context(ctx_id)

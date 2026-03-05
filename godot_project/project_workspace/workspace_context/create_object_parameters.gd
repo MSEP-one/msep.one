@@ -13,7 +13,6 @@ signal selected_shape_for_new_objects_changed(in_shape: PrimitiveMesh)
 signal selected_virtual_motor_parameters_changed(in_parameters: NanoVirtualMotorParameters)
 signal simulation_type_changed(new_simulation_type: SimulationType)
 signal snap_to_shape_surface_changed(enabled: bool)
-signal create_small_molecule_in_subgroup_changed(enabled: bool)
 signal spring_constant_force_changed(force: float)
 signal spring_equilibrium_length_is_auto_changed(is_auto: bool)
 signal spring_equilibrium_manual_length_changed(manual_length: float)
@@ -81,8 +80,6 @@ var _creation_distance_from_camera_factor: float = 0.3
 var _simulation_type := SimulationType.RELAXATION
 
 var _snap_to_shape_surface: bool = false
-
-var _create_small_molecule_in_subgroup: bool = false
 
 var _spring_constant_force: float = 5000000.0 # nN/nm
 
@@ -268,17 +265,6 @@ func set_snap_to_shape_surface(in_enabled: bool) -> void:
 
 func get_snap_to_shape_surface() -> bool:
 	return _snap_to_shape_surface
-
-
-func set_create_small_molecule_in_subgroup(in_enabled: bool) -> void:
-	if _create_small_molecule_in_subgroup == in_enabled:
-		return
-	_create_small_molecule_in_subgroup = in_enabled
-	create_small_molecule_in_subgroup_changed.emit(in_enabled)
-
-
-func get_create_small_molecule_in_subgroup() -> bool:
-	return _create_small_molecule_in_subgroup
 
 
 func set_spring_constant_force(in_force: float) -> void:

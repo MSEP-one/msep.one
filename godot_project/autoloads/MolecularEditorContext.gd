@@ -133,19 +133,9 @@ func soft_load_workspace(in_path: String) -> Workspace:
 				)) % [last_version, Editor_Utils.get_msep_version()])
 		return null
 	
-	apply_workspace_version_fixes(workspace)
 	_open_workspaces.push_back(workspace)
 	workspace_loaded.emit(workspace)
 	return workspace
-
-
-## During development, the format or data of workspaces can change, and this invalidates old files
-## This function is intended to mitigate the problem by making some changes to the workspace before
-## the rest of the MSEP.one editor takes over it
-func apply_workspace_version_fixes(_out_workspace: Workspace, in_force: bool = false) -> void:
-	if not in_force and not FeatureFlagManager.get_flag_value(
-			FeatureFlagManager.FEATURE_FLAG_APPLY_WORKSPACE_VERSION_FIXES):
-		return
 
 
 func _get_suggested_path(in_path: String) -> String:

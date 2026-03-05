@@ -24,12 +24,6 @@ text = "No fragments found. Try to search for another term."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="GroupCheckBox" type="CheckBox" parent="VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-button_pressed = true
-text = "Create molecule in its own group"
-
 [node name="FragmentsContainer" type="VBoxContainer" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

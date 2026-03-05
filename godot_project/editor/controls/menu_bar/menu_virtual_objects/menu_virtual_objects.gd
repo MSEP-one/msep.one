@@ -18,30 +18,9 @@ enum {
 func _ready() -> void:
 	add_submenu_item(tr("Shapes"), shapes.name)
 
-var feature_flag_items: Dictionary = {
-	ID_SPRINGS: {
-		&"flag": FeatureFlagManager.FEATURE_FLAG_VIRTUAL_SPRINGS,
-		&"icon": preload("res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_spring_x16.svg"),
-		&"text": tr("Anchors and Springs")
-	},
-	ID_PARTICLE_EMITTERS: {
-		&"flag": FeatureFlagManager.FEATURE_FLAG_PARTICLE_EMITTERS,
-		&"icon": preload("res://editor/icons/icon_particle_emitter_x16.svg"),
-		&"text": tr("Particle Emitters")
-	},
-}
 
 func _update_menu() -> void:
 	shapes._update_menu()
-	for id: int in feature_flag_items:
-		var data: Dictionary = feature_flag_items[id]
-		var flag_enabled: bool = FeatureFlagManager.get_flag_value(data[&"flag"])
-		var menu_item_exists: bool = get_item_index(id) != -1
-		if flag_enabled != menu_item_exists:
-			if flag_enabled:
-				add_icon_item(data[&"icon"], data[&"text"], id)
-			else:
-				remove_item(get_item_index(id))
 	var has_context: bool = MolecularEditorContext.get_current_workspace() != null
 	for i in item_count:
 		set_item_disabled(i, not has_context)

@@ -17,22 +17,15 @@ const ID_AUTO_BONDER = 200
 const ID_ADD_HYDROGENS = 201
 const ID_LOCK_UNLOCK_SELECTED_ATOMS = 202
 const ID_CORRECT_OVERLAPPING_ATOMS = 203
-const FEATURE_FLAG_AUTOBONDER_ACTION_ENABLED: StringName = &"feature_flags/autobonder_action_enabled"
-
-var _autobonder_action_enabled: bool = true
-
 
 func _ready() -> void:
 	super()
-	_autobonder_action_enabled = \
-		ProjectSettings.get_setting(FEATURE_FLAG_AUTOBONDER_ACTION_ENABLED, true)
 	
 	for element: int in PeriodicTable.NON_METALS:
 		var data: ElementData = PeriodicTable.get_by_atomic_number(element) as ElementData
 		add_icon_item(Icons.atom,tr(data.name), data.number)
 	add_separator("", 0)
-	if _autobonder_action_enabled:
-		add_icon_item(Icons.auto_bonder, tr("Auto-Create Bonds"), ID_AUTO_BONDER)
+	add_icon_item(Icons.auto_bonder, tr("Auto-Create Bonds"), ID_AUTO_BONDER)
 	add_icon_item(Icons.add_hydrogens, tr("Correct Hydrogens"), ID_ADD_HYDROGENS)
 	set_item_shortcut(get_item_index(ID_ADD_HYDROGENS), shortcut_add_hydrogens, true)
 	add_icon_item(Icons.lock_selected_atoms, tr("Lock/Unlock Selected Atoms"), ID_LOCK_UNLOCK_SELECTED_ATOMS)
@@ -56,8 +49,7 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 	if has_context and not in_context.are_hydrogens_visualized():
 		set_item_disabled(get_item_index(PeriodicTable.ATOMIC_NUMBER_HYDROGEN), true)
 	if !has_context:
-		if _autobonder_action_enabled:
-			set_item_disabled(get_item_index(ID_AUTO_BONDER), true)
+		set_item_disabled(get_item_index(ID_AUTO_BONDER), true)
 		set_item_disabled(get_item_index(ID_ADD_HYDROGENS), true)
 		set_item_disabled(get_item_index(ID_LOCK_UNLOCK_SELECTED_ATOMS), true)
 		set_item_disabled(get_item_index(ID_CORRECT_OVERLAPPING_ATOMS), true)
@@ -68,12 +60,10 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 			in_context.get_structure_contexts_with_selection()
 	for context in selected_structures_contexts:
 		if context.get_selected_atoms().size() > 1:
-			if _autobonder_action_enabled:
-				set_item_disabled(get_item_index(ID_AUTO_BONDER), false)
+			set_item_disabled(get_item_index(ID_AUTO_BONDER), false)
 			set_item_disabled(get_item_index(ID_ADD_HYDROGENS), false)
 			return
-	if _autobonder_action_enabled:
-		set_item_disabled(get_item_index(ID_AUTO_BONDER), true)
+	set_item_disabled(get_item_index(ID_AUTO_BONDER), true)
 
 	# Validate Add Hydrogens
 	set_item_disabled(get_item_index(ID_ADD_HYDROGENS), true)

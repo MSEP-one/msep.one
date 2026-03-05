@@ -22,7 +22,6 @@ var _info_container: VBoxContainer
 var _message: Label
 var _steps_container: HBoxContainer
 var _progress_bar: ProgressBar
-var _elapsed_time_label: Label
 var _button_work_in_background: Button
 var _button_stop: Button
 var _button_cancel: Button
@@ -43,11 +42,9 @@ func _notification(what: int) -> void:
 		_message = %Message
 		_steps_container = %StepsContainer
 		_progress_bar = %ProgressBar
-		_elapsed_time_label = %ElapsedTimeLabel
 		_button_work_in_background = %ButtonWorkInBackground
 		_button_stop = %ButtonStop
 		_button_cancel = %ButtonCancel
-		_elapsed_time_label.hide()
 		for child in _gears_anim.get_children():
 			if child.has_method(&"set_spin_factor"):
 				_spinning_gears.append(child)
@@ -90,15 +87,8 @@ func activate(in_with_message: String = "",
 	else:
 		_message.text = in_with_message
 		_message.show()
-	# with_elapsed_time_counter
-	var with_elapsed_time_counter: bool = FeatureFlagManager.get_flag_value(
-		FeatureFlagManager.SHOW_ASYNC_PROCESS_ELAPSED_TIME
-	)
 	_elapsed = 0.0
 	_minutes = 0
-	_elapsed_time_label.text = ""
-	_elapsed_time_label.visible = with_elapsed_time_counter
-	set_process(with_elapsed_time_counter)
 	# in_cancel_callback
 	_button_cancel.visible = in_cancel_callback.is_valid()
 	_cancel_callback = in_cancel_callback
@@ -130,7 +120,6 @@ func activate(in_with_message: String = "",
 	
 
 func deactivate() -> void:
-	set_process(false)
 	_active = false
 	_cancel_callback = Callable()
 	_stop_callback = Callable()
@@ -159,13 +148,6 @@ func _set_blur_factor(in_factor: float) -> void:
 	_blur_factor = in_factor
 	if is_instance_valid(_blur_background):
 		_blur_background.material.set_shader_parameter(&"blur", in_factor)
-
-func _process(delta: float) -> void:
-	_elapsed += delta
-	if _elapsed >= 60.0:
-		_minutes += 1
-		_elapsed -= 60.0
-	_elapsed_time_label.text = tr("Elapsed: ") + ("%02d:%02d.%03d" % [_minutes, _elapsed, fmod(_elapsed, 1.0)*1000])
 
 
 func _update_center_container_rect() -> void:

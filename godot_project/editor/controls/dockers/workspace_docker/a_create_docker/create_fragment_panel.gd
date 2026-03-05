@@ -13,7 +13,6 @@ var _fragment_map: Dictionary = {
 @onready var _fragments_container: VBoxContainer = %FragmentsContainer
 @onready var _search: LineEdit = %Search
 @onready var _no_search_result_found: Label = %NoSearchResultFound
-@onready var _group_check_box: CheckBox = %GroupCheckBox
 
 var _workspace_context: WorkspaceContext = null
 
@@ -30,21 +29,12 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 			!= CreateObjectParameters.CreateModeType.CREATE_FRAGMENT:
 		return false
 	
-	if not in_workspace_context.create_object_parameters.create_small_molecule_in_subgroup_changed.is_connected(
-			_on_create_small_molecule_in_subgroup_changed):
-		in_workspace_context.create_object_parameters.create_small_molecule_in_subgroup_changed.connect(
-			_on_create_small_molecule_in_subgroup_changed)
-		_group_check_box.set_pressed_no_signal(in_workspace_context.create_object_parameters.get_create_small_molecule_in_subgroup())
-	
 	return true
 
 
 func _ready() -> void:
 	_init_fragments_ui()
 	_search.text_changed.connect(_on_search_text_changed)
-	_group_check_box.toggled.connect(_on_group_check_box_toggled)
-	FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
-	_update_group_checkbox_visibility()
 
 
 ## Creates the UI controls for each fragment found in the fragments folder.
@@ -105,14 +95,6 @@ func _on_fragment_selected(fragment_path: String) -> void:
 	main_viewport.push_input(mouse_move)
 
 
-func _update_group_checkbox_visibility() -> void:
-	var can_create_in_new_group: bool = FeatureFlagManager.get_flag_value( \
-			FeatureFlagManager.FEATURE_FLAGS_ALLOW_CREATE_SMALL_MOLECULES_IN_NEW_GROUP)
-	_group_check_box.visible = can_create_in_new_group
-	if not can_create_in_new_group:
-		_group_check_box.set_pressed_no_signal(false)
-
-
 func _on_search_text_changed(text: String) -> void:
 	text = text.capitalize().to_lower().strip_edges()
 	if text.is_empty():
@@ -141,18 +123,3 @@ func _on_search_text_changed(text: String) -> void:
 	
 	# Show a warning if nothing matches the search query
 	_no_search_result_found.visible = not has_visible_results
-
-
-func _on_group_check_box_toggled(in_pressed: bool) -> void:
-	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
-	workspace_context.create_object_parameters.set_create_small_molecule_in_subgroup(in_pressed)
-
-
-func _on_create_small_molecule_in_subgroup_changed(in_enabled: bool) -> void:
-	_group_check_box.set_pressed_no_signal(in_enabled)
-
-
-func _on_feature_flag_toggled(in_path: String, _in_value: bool) -> void:
-	if in_path != FeatureFlagManager.FEATURE_FLAGS_ALLOW_CREATE_SMALL_MOLECULES_IN_NEW_GROUP:
-		return
-	_update_group_checkbox_visibility()
