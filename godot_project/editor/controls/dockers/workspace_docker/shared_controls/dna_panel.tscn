@@ -304,6 +304,7 @@ size_flags_horizontal = 3
 text = "· Backbone"
 
 [node name="DontColorizeBackboneButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(154, 0)
 layout_mode = 2
 theme_type_variation = &"StructureSelectorButton"
@@ -313,6 +314,7 @@ button_group = SubResource("ButtonGroup_hnbyp")
 text = "Disabled"
 
 [node name="PerStrandBackboneButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(154, 0)
 layout_mode = 2
 theme_type_variation = &"StructureSelectorMoreButton"
@@ -335,6 +337,7 @@ size_flags_horizontal = 6
 text = "A Strand Backbone"
 
 [node name="BackboneAColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
 theme_type_variation = &"CrystalButton"
@@ -346,6 +349,7 @@ size_flags_horizontal = 6
 text = "B Strand Backbone"
 
 [node name="BackboneBColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
 theme_type_variation = &"CrystalButton"
@@ -361,6 +365,7 @@ size_flags_horizontal = 3
 text = "· Sugars"
 
 [node name="SugarSameAsBackboneButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(154, 0)
 layout_mode = 2
 theme_type_variation = &"StructureSelectorButton"
@@ -370,6 +375,7 @@ button_group = SubResource("ButtonGroup_6y0sb")
 text = "Same as Backbone"
 
 [node name="SugarSameAsBasesButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(154, 0)
 layout_mode = 2
 theme_type_variation = &"StructureSelectorMoreButton"
@@ -387,6 +393,7 @@ size_flags_horizontal = 3
 text = "· Bases"
 
 [node name="DontColorizeBasesButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StructureSelectorButton"
 toggle_mode = true
@@ -395,6 +402,7 @@ button_group = SubResource("ButtonGroup_w42n7")
 text = "Disabled"
 
 [node name="PerStrandBasesButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StructureSelectorTernary"
 toggle_mode = true
@@ -402,6 +410,7 @@ button_group = SubResource("ButtonGroup_w42n7")
 text = "Per Strand"
 
 [node name="PerGrooveButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StructureSelectorTernary"
 toggle_mode = true
@@ -409,6 +418,7 @@ button_group = SubResource("ButtonGroup_w42n7")
 text = "M/m Groove"
 
 [node name="PerBaseTypeButton" type="Button" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StructureSelectorMoreButton"
 toggle_mode = true
@@ -434,6 +444,7 @@ size_flags_horizontal = 6
 text = "A Strand Bases"
 
 [node name="BasesAStrandColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
 theme_type_variation = &"CrystalButton"
@@ -446,6 +457,7 @@ size_flags_horizontal = 6
 text = "B Strand Bases"
 
 [node name="BasesBStrandColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
 theme_type_variation = &"CrystalButton"
@@ -453,6 +465,7 @@ color = Color(0, 0, 1, 1)
 edit_alpha = false
 
 [node name="PerGrooveContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
+visible = false
 layout_mode = 2
 script = SubResource("GDScript_6y0sb")
 button = NodePath("../../HBoxContainer2/PerGrooveButton")
@@ -472,6 +485,7 @@ size_flags_horizontal = 6
 text = "Major Groove"
 
 [node name="MajorGrooveColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
 size_flags_horizontal = 8
@@ -486,6 +500,7 @@ size_flags_horizontal = 6
 text = "Minor Groove"
 
 [node name="MinorGrooveColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
 size_flags_horizontal = 8

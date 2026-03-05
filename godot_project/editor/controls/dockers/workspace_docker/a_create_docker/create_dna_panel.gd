@@ -71,7 +71,26 @@ func _on_create_button_pressed() -> void:
 				"<null>" if strand_button == null else str(get_path_to(strand_button)))
 	if OS.is_debug_build() and DnaBuilder.is_dev_tool_enabled():
 		DnaBuilder.DNA_BASES_OFFSET = %OffsetSpinBoxSlider.value
-
+	
+	var backbone_color_policy_group: ButtonGroup = _dont_colorize_backbone_button.button_group
+	params.backbone_color_policy = backbone_color_policy_group.get_pressed_button() \
+		.get_meta(&"backbone_color_policy")
+	params.backbone_strand_colors[&"A"] = _backbone_a_color_picker.color
+	params.backbone_strand_colors[&"B"] = _backbone_b_color_picker.color
+	var sugar_color_policy_group: ButtonGroup = _sugar_same_as_backbone_button.button_group
+	params.sugar_color_policy = sugar_color_policy_group.get_pressed_button() \
+		.get_meta(&"sugar_color_policy")
+	var bases_color_policy_group: ButtonGroup = _dont_colorize_bases_button.button_group
+	params.bases_color_policy = bases_color_policy_group.get_pressed_button() \
+		.get_meta(&"bases_color_policy")
+	params.bases_strand_colors[&"A"] = _bases_a_strand_color_picker.color
+	params.bases_strand_colors[&"B"] = _bases_b_strand_color_picker.color
+	params.major_groove_color = _major_groove_color_picker.color
+	params.minor_groove_color = _minor_groove_color_picker.color
+	params.bases_color_schema = _bases_schema_option_button.get_selected_id() as DnaStructureParameters.BasesColorSchema
+	for base: StringName in _bases_color_pickers.keys():
+		params.bases_custom_colors[base] = _bases_color_pickers[base].color
+	
 	var dna: DnaStructure = DnaStructure.create_dna(params)
 	dna.set_structure_name("DNA Object%d" % _workspace_context.workspace.get_nmb_of_structures())
 	var dna_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position(_workspace_context)
