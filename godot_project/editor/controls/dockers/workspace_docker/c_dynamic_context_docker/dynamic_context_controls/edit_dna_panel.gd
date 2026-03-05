@@ -15,6 +15,7 @@ var _convert_to_atoms_button: Button
 
 var _workspace_context: WorkspaceContext
 var _tracked_structure: DnaStructure = null
+var _updating_ui: bool = false
 var _initialized: bool = false
 
 
@@ -33,6 +34,17 @@ func _notification(what: int) -> void:
 		_rise_nanometers_spin_box_slider.value_confirmed.connect(_on_rise_nanometers_spin_box_slider_value_confirmed)
 		_initial_twist_spin_box_slider.value_confirmed.connect(_on_initial_twist_spin_box_slider_value_confirmed)
 		_strand_a_button.button_group.pressed.connect(_on_strand_policy_button_group_button_pressed)
+		_dont_colorize_backbone_button.button_group.pressed.connect(_on_backbone_color_policy_button_pressed)
+		_sugar_same_as_backbone_button.button_group.pressed.connect(_on_sugar_color_policy_button_pressed)
+		_dont_colorize_bases_button.button_group.pressed.connect(_on_bases_color_policy_button_pressed)
+		_backbone_a_color_picker.color_changed.connect(_on_backbone_strand_color_changed.bind(DnaStructure.Strand.A))
+		_backbone_b_color_picker.color_changed.connect(_on_backbone_strand_color_changed.bind(DnaStructure.Strand.B))
+		_bases_a_strand_color_picker.color_changed.connect(_on_bases_strand_color_changed.bind(DnaStructure.Strand.A))
+		_bases_b_strand_color_picker.color_changed.connect(_on_bases_strand_color_changed.bind(DnaStructure.Strand.B))
+		_major_groove_color_picker.color_changed.connect(_on_major_groove_color_changed)
+		_minor_groove_color_picker.color_changed.connect(_on_minor_groove_color_changed)
+		for base_type: StringName in _bases_color_pickers.keys():
+			_bases_color_pickers[base_type].color_changed.connect(_on_base_type_color_changed.bind(base_type))
 		_convert_to_atoms_button.pressed.connect(_on_convert_to_atoms_button_pressed)
 
 
@@ -103,6 +115,7 @@ func _set_tracked_structure(in_structure_or_null: DnaStructure) -> void:
 
 func _update_ui() -> void:
 	if _tracked_structure != null:
+		_updating_ui = true
 		if _dna_sequence_text_edit.text != _tracked_structure.get_sequence():
 			_on_tracked_structure_sequence_changed(_tracked_structure.get_sequence())
 		_dna_radius_spin_box_slider.set_value_no_signal(_tracked_structure.get_dna_radius_nanometers())
@@ -111,6 +124,49 @@ func _update_ui() -> void:
 		_strand_a_button.set_pressed_no_signal(_tracked_structure.get_strand_policy() == StrandPolicy.A)
 		_strand_b_button.set_pressed_no_signal(_tracked_structure.get_strand_policy() == StrandPolicy.B)
 		_strand_double_button.set_pressed_no_signal(_tracked_structure.get_strand_policy() == StrandPolicy.DOUBLE)
+		match _tracked_structure.get_backbone_color_policy():
+			DnaStructureParameters.BackboneColorPolicy.BACKBONE_NO_COLORS:
+				_dont_colorize_backbone_button.button_pressed = true
+			DnaStructureParameters.BackboneColorPolicy.BACKBONE_PER_STRAND:
+				_per_strand_backbone_button.button_pressed = true
+			_:
+				assert(false, "Unknown BackboneColorPolicy %d" % _tracked_structure.get_backbone_color_policy())
+				pass
+		_backbone_a_color_picker.color = _tracked_structure.get_backbone_strand_color(DnaStructure.Strand.A)
+		_backbone_b_color_picker.color = _tracked_structure.get_backbone_strand_color(DnaStructure.Strand.B)
+		match _tracked_structure.get_sugar_color_policy():
+			DnaStructureParameters.SugarsColorPolicy.SUGAR_SAME_AS_BACKBONE:
+				_sugar_same_as_backbone_button.button_pressed = true
+			DnaStructureParameters.SugarsColorPolicy.SUGAR_SAME_AS_BASES:
+				_sugar_same_as_bases_button.button_pressed = true
+			_:
+				assert(false, "Unknown SugarsColorPolicy %d" % _tracked_structure.get_sugar_color_policy())
+				pass
+		match _tracked_structure.get_bases_color_policy():
+			DnaStructureParameters.BasesColorPolicy.BASES_NO_COLORS:
+				_dont_colorize_bases_button.button_pressed = true
+			DnaStructureParameters.BasesColorPolicy.BASES_PER_STRAND:
+				_per_strand_bases_button.button_pressed = true
+			DnaStructureParameters.BasesColorPolicy.BASES_MAJOR_MINOR_GROOVE:
+				_per_groove_button.button_pressed = true
+			DnaStructureParameters.BasesColorPolicy.BASES_PER_TYPE:
+				_per_base_type_button.button_pressed = true
+			_:
+				assert(false, "Unknown BasesColorPolicy %d" % _tracked_structure.get_bases_color_policy())
+				pass
+		_bases_a_strand_color_picker.color = _tracked_structure.get_bases_strand_colors(DnaStructure.Strand.A)
+		_bases_b_strand_color_picker.color = _tracked_structure.get_bases_strand_colors(DnaStructure.Strand.B)
+		_major_groove_color_picker.color = _tracked_structure.get_major_groove_color()
+		_minor_groove_color_picker.color = _tracked_structure.get_minor_groove_color()
+		var color_schema: DnaStructure.BasesColorSchema = _tracked_structure.get_bases_color_schema()
+		_bases_schema_option_button.select(_bases_schema_option_button.get_item_index(color_schema))
+		if color_schema == DnaStructure.BasesColorSchema.CUSTOM:
+			for base_type: StringName in _bases_color_pickers.keys():
+				_bases_color_pickers[base_type].color = _tracked_structure.get_base_custom_colors(base_type)
+		else:
+			# select() doesn't emit the item_selected signal, call it manually
+			_on_bases_schema_option_button_item_selected(_bases_schema_option_button.get_item_index(color_schema))
+		_updating_ui = false
 
 
 func _on_tracked_structure_sequence_changed(in_sequence: String) -> void:
@@ -206,6 +262,95 @@ func _on_strand_policy_button_group_button_pressed(in_button: Button) -> void:
 	_tracked_structure.set_strand_policy(policy)
 	_tracked_structure.end_edit()
 	_workspace_context.snapshot_moment("Set Strand Mode")
+
+
+func _on_backbone_color_policy_button_pressed(in_button: Button) -> void:
+	var policy: DnaStructure.BackboneColorPolicy = in_button.get_meta(&"backbone_color_policy")
+	if _updating_ui or _tracked_structure == null or _tracked_structure.get_backbone_color_policy() == policy:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_backbone_color_policy(policy)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Backbone Color Policy")
+
+
+func _on_sugar_color_policy_button_pressed(in_button: Button) -> void:
+	var policy: DnaStructure.SugarsColorPolicy = in_button.get_meta(&"sugar_color_policy")
+	if _updating_ui or _tracked_structure == null or _tracked_structure.get_sugar_color_policy() == policy:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_sugar_color_policy(policy)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Sugars Color Policy")
+
+
+func _on_bases_color_policy_button_pressed(in_button: Button) -> void:
+	var policy: DnaStructure.BasesColorPolicy = in_button.get_meta(&"bases_color_policy")
+	if _updating_ui or _tracked_structure == null or _tracked_structure.get_bases_color_policy() == policy:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_bases_color_policy(policy)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Bases Color Policy")
+
+
+func _on_backbone_strand_color_changed(in_color: Color, in_strand: DnaStructure.Strand) -> void:
+	if _updating_ui or _tracked_structure == null or _tracked_structure.get_backbone_strand_color(in_strand) == in_color:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_backbone_strand_color(in_strand, in_color)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Backbone Strand Color")
+
+
+func _on_bases_strand_color_changed(in_color: Color, in_strand: DnaStructure.Strand) -> void:
+	if _updating_ui or _tracked_structure == null or _tracked_structure.get_bases_strand_colors(in_strand) == in_color:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_bases_strand_colors(in_strand, in_color)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Bases Strand Color")
+
+
+func _on_major_groove_color_changed(in_color: Color) -> void:
+	if _updating_ui or _tracked_structure == null or _tracked_structure.get_major_groove_color() == in_color:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_major_groove_color(in_color)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Major Groove Color")
+
+
+func _on_minor_groove_color_changed(in_color: Color) -> void:
+	if _updating_ui or _tracked_structure == null or _tracked_structure.get_minor_groove_color() == in_color:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_minor_groove_color(in_color)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Minor Groove Color")
+
+
+
+func _on_base_type_color_changed(in_color: Color, in_base: StringName) -> void:
+	if _updating_ui or _tracked_structure == null \
+			or _tracked_structure.get_bases_color_schema() != DnaStructure.BasesColorSchema.CUSTOM \
+			or _tracked_structure.get_base_custom_colors(in_base) == in_color:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_base_custom_color(in_base, in_color)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set %s Base Color" % in_base)
+
+
+func _on_bases_schema_option_button_item_selected(in_index: int) -> void:
+	super._on_bases_schema_option_button_item_selected(in_index)
+	var schema := _bases_schema_option_button.get_selected_id() as DnaStructure.BasesColorSchema
+	if _updating_ui or _tracked_structure == null or _tracked_structure.get_bases_color_schema() == schema:
+		return
+	_tracked_structure.start_edit()
+	_tracked_structure.set_bases_color_schema(schema)
+	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Bases Color Schema")
 
 
 func _on_include_hydrogens_check_button_toggled(in_button_pressed: bool) -> void:
