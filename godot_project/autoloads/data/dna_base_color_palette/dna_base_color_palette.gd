@@ -13,8 +13,11 @@ const DEFAULT_A_STRAND_COLOR := Color.RED
 const DEFAULT_B_STRAND_COLOR := Color.BLUE
 const DEFAULT_MAJOR_GROOVE := Color8(213,   6, 114)
 const DEFAULT_MINOR_GROOVE := Color8( 17, 125, 226)
-static func get_schema_colors(in_schema: Schema) -> Dictionary:
-	return _SCHEMA_TO_COLORS[in_schema].duplicate()
+static func get_schema_colors_or_empty(in_schema: Schema) -> Dictionary[StringName, Color]:
+	# This method is necesary to convert Dictionary in typed Dictionary[K,V]
+	var dict: Dictionary[StringName, Color]
+	dict.assign(_SCHEMA_TO_COLORS[in_schema])
+	return dict
 
 
 const _SCHEMA_TO_COLORS: Dictionary[Schema, Dictionary] = {
@@ -48,6 +51,7 @@ const _SCHEMA_TO_COLORS: Dictionary[Schema, Dictionary] = {
 		&"C": Color8( 51,  38, 255),
 		&"G": Color8(255,   5, 255),
 	},
+	Schema.CUSTOM : {}
 }
 
 

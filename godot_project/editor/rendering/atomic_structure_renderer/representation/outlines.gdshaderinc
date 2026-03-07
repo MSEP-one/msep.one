@@ -24,7 +24,8 @@ varying float is_instance_hovered;
 
 float uv_is_outline(vec2 uv) {
 	// UV with x component less than 0 means the mesh is an outline, and can me grown
-	return step(uv.x, 0.0); // 0.0 < uv.x ? 0.0 /* not outline */ : 1.0 /* outline */
+	// 0.000001 is used to accept UV.x == 0 as non outline
+	return step(uv.x, -0.000001); // 0.000001 < uv.x ? 0.0 /* not outline */ : 1.0 /* outline */
 }
 
 // Usage:
