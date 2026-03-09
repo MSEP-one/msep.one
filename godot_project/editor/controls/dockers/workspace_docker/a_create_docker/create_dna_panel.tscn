@@ -1,12 +1,26 @@
-[gd_scene load_steps=4 format=3 uid="uid://dmnib7j4ygl8j"]
+[gd_scene load_steps=8 format=3 uid="uid://dmnib7j4ygl8j"]
 
 [ext_resource type="Script" uid="uid://d3sfr458tscsd" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_dna_panel.gd" id="1_m000l"]
 [ext_resource type="PackedScene" uid="uid://bdeg2b7ycyi66" path="res://editor/controls/dockers/workspace_docker/shared_controls/dna_panel.tscn" id="1_y5jvm"]
 
+[sub_resource type="ButtonGroup" id="ButtonGroup_y5jvm"]
+
 [sub_resource type="ButtonGroup" id="ButtonGroup_8e3dj"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_61xlk"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_t5a7f"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_t2pju"]
 
 [node name="CreateDnaPanel" instance=ExtResource("1_y5jvm")]
 script = ExtResource("1_m000l")
+
+[node name="RandSequenceButton" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/HBoxContainer" index="0"]
+button_group = SubResource("ButtonGroup_y5jvm")
+
+[node name="UserDefinedSequenceButton" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/HBoxContainer" index="1"]
+button_group = SubResource("ButtonGroup_y5jvm")
 
 [node name="StrandAButton" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer" index="0"]
 button_group = SubResource("ButtonGroup_8e3dj")
@@ -17,7 +31,34 @@ button_group = SubResource("ButtonGroup_8e3dj")
 [node name="StrandDoubleButton" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer" index="2"]
 button_group = SubResource("ButtonGroup_8e3dj")
 
-[node name="CreateButton" type="Button" parent="VBoxContainer" index="4"]
+[node name="ColorizeMainContainer" parent="VBoxContainer" index="5"]
+visible = false
+
+[node name="DontColorizeBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer" index="1"]
+button_group = SubResource("ButtonGroup_61xlk")
+
+[node name="PerStrandBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer" index="2"]
+button_group = SubResource("ButtonGroup_61xlk")
+
+[node name="SugarSameAsBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3" index="1"]
+button_group = SubResource("ButtonGroup_t5a7f")
+
+[node name="SugarSameAsBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3" index="2"]
+button_group = SubResource("ButtonGroup_t5a7f")
+
+[node name="DontColorizeBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="1"]
+button_group = SubResource("ButtonGroup_t2pju")
+
+[node name="PerStrandBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="2"]
+button_group = SubResource("ButtonGroup_t2pju")
+
+[node name="PerGrooveButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="3"]
+button_group = SubResource("ButtonGroup_t2pju")
+
+[node name="PerBaseTypeButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="4"]
+button_group = SubResource("ButtonGroup_t2pju")
+
+[node name="CreateButton" type="Button" parent="VBoxContainer" index="6"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4

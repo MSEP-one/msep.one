@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://6h5ogu2meano"]
+[gd_scene load_steps=10 format=3 uid="uid://6h5ogu2meano"]
 
 [ext_resource type="PackedScene" uid="uid://bdeg2b7ycyi66" path="res://editor/controls/dockers/workspace_docker/shared_controls/dna_panel.tscn" id="1_mfh7i"]
 [ext_resource type="Script" uid="uid://cdcgvv0jwwf6c" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_dna_panel.gd" id="2_q7pc7"]
@@ -8,6 +8,40 @@
 [sub_resource type="ButtonGroup" id="ButtonGroup_gmhsj"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_q7pc7"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_y5hmy"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_iwofu"]
+
+[sub_resource type="GDScript" id="GDScript_gmhsj"]
+script/source = "# This builtin script works to toggle a pannel visibility by pressing a button
+extends Button
+
+@export var panel: PanelContainer
+
+
+func _ready() -> void:
+	assert(panel != null)
+	focus_mode = Control.FOCUS_NONE
+	_update_icon()
+	pressed.connect(_on_pressed)
+
+
+func ensure_panel_hidden() -> void:
+	panel.visible = false
+	_update_icon()
+
+
+func _on_pressed() -> void:
+	panel.visible = not panel.visible
+	_update_icon()
+
+
+func _update_icon() -> void:
+	const COLLAPSED_ICON: Texture2D = preload(\"uid://b2w2wxk2bb4wg\")
+	const EXPANDED_ICON: Texture2D = preload(\"uid://gl1hqwiod5y0\")
+	icon = EXPANDED_ICON if panel.visible else COLLAPSED_ICON
+"
 
 [node name="EditDnaPanel" instance=ExtResource("1_mfh7i")]
 script = ExtResource("2_q7pc7")
@@ -27,6 +61,9 @@ button_group = SubResource("ButtonGroup_gmhsj")
 [node name="UserDefinedSequenceButton" parent="VBoxContainer/SequencePanelContainer/VBoxContainer/HBoxContainer" index="1"]
 button_group = SubResource("ButtonGroup_gmhsj")
 
+[node name="PanelContainer" parent="VBoxContainer" index="3"]
+visible = false
+
 [node name="StrandAButton" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer" index="0"]
 button_group = SubResource("ButtonGroup_q7pc7")
 
@@ -36,16 +73,46 @@ button_group = SubResource("ButtonGroup_q7pc7")
 [node name="StrandDoubleButton" parent="VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/GridContainer/HBoxContainer" index="2"]
 button_group = SubResource("ButtonGroup_q7pc7")
 
-[node name="AdvancedOptionsButton" type="Button" parent="VBoxContainer" index="4"]
+[node name="ColorizeMainContainer" parent="VBoxContainer" index="5"]
+visible = false
+
+[node name="DontColorizeBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer" index="1"]
+button_group = SubResource("ButtonGroup_y5hmy")
+
+[node name="PerStrandBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer" index="2"]
+button_group = SubResource("ButtonGroup_y5hmy")
+
+[node name="SugarSameAsBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3" index="1"]
+button_group = SubResource("ButtonGroup_y5hmy")
+
+[node name="SugarSameAsBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3" index="2"]
+button_group = SubResource("ButtonGroup_y5hmy")
+
+[node name="DontColorizeBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="1"]
+button_group = SubResource("ButtonGroup_iwofu")
+
+[node name="PerStrandBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="2"]
+button_group = SubResource("ButtonGroup_iwofu")
+
+[node name="PerGrooveButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="3"]
+button_group = SubResource("ButtonGroup_iwofu")
+
+[node name="PerBaseTypeButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="4"]
+button_group = SubResource("ButtonGroup_iwofu")
+
+[node name="AdvancedOptionsButton" type="Button" parent="VBoxContainer" index="6" node_paths=PackedStringArray("panel")]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Advanced Options"
 icon = ExtResource("4_gmhsj")
 flat = true
 alignment = 0
+script = SubResource("GDScript_gmhsj")
+panel = NodePath("../AdvancedOptionsPanel")
 
-[node name="AdvancedOptionsPanel" type="PanelContainer" parent="VBoxContainer" index="5"]
+[node name="AdvancedOptionsPanel" type="PanelContainer" parent="VBoxContainer" index="7"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 
