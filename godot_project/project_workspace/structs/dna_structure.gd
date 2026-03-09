@@ -5,6 +5,8 @@ signal bases_count_changed(new_count: int)
 signal sequence_changed(new_sequence: String)
 signal path_changed()
 signal parameters_changed(read_only_parameters: DnaStructureParameters)
+signal colors_changed()
+
 
 enum Strand {
 	A = 1,
@@ -18,6 +20,10 @@ enum SequencePolicy {
 }
 
 const StrandPolicy = DnaStructureParameters.StrandPolicy
+const BackboneColorPolicy = DnaStructureParameters.BackboneColorPolicy
+const SugarsColorPolicy = DnaStructureParameters.SugarsColorPolicy
+const BasesColorPolicy = DnaStructureParameters.BasesColorPolicy
+const BasesColorSchema = DnaStructureParameters.BasesColorSchema
 const DnaRepresentation = RepresentationSettings.DnaRepresentation
 const PackedMolecule = preload("res://autoloads/dna_builder/templates/packed_molecule.gd")
 const INVALID_CONTROL_POINT_IDX: int = -1
@@ -50,6 +56,7 @@ var _last_bases_cout: int = 0
 var _last_base_transform_cache: Dictionary[int, Transform3D]
 var _signal_queue_path_changed: bool = false
 var _signal_queue_parameters_changed: bool = false
+var _signal_queue_colors_changed: bool = false
 var _baked_path: PackedVector3Array = []
 var _adjust_path_length_queued: bool = false
 var _aabb_cache := AABB()
@@ -279,6 +286,9 @@ func end_edit() -> void:
 			_baked_path.clear()
 			_signal_queue_path_changed = false
 			path_changed.emit()
+		if _signal_queue_colors_changed:
+			_signal_queue_colors_changed = false
+			colors_changed.emit()
 		emit_changed()
 	else:
 		_is_being_edited = false
@@ -384,6 +394,109 @@ func get_strands() -> Array[Strand]:
 		_:
 			assert(false, "Should not happen")
 			return []
+#endregion
+
+
+#region colorization
+func set_backbone_color_policy(in_color_policy: BackboneColorPolicy) -> void:
+	assert(_is_being_edited)
+	_parameters.backbone_color_policy = in_color_policy
+	_signal_queue_colors_changed = true
+
+
+func get_backbone_color_policy() -> BackboneColorPolicy:
+	return _parameters.backbone_color_policy
+
+
+func set_sugar_color_policy(in_color_policy: SugarsColorPolicy) -> void:
+	assert(_is_being_edited)
+	_parameters.sugar_color_policy = in_color_policy
+	_signal_queue_colors_changed = true
+
+
+func get_sugar_color_policy() -> SugarsColorPolicy:
+	return _parameters.sugar_color_policy
+
+
+func set_bases_color_policy(in_color_policy: BasesColorPolicy) -> void:
+	assert(_is_being_edited)
+	_parameters.bases_color_policy = in_color_policy
+	_signal_queue_colors_changed = true
+
+
+func get_bases_color_policy() -> BasesColorPolicy:
+	return _parameters.bases_color_policy
+
+
+const _STRAND_TO_NAMES = {
+	Strand.A : [&"A"],
+	Strand.B : [&"B"],
+	Strand.BOTH : [&"A", &"B"],
+}
+func set_backbone_strand_color(in_strand: Strand, in_color: Color) -> void:
+	assert(_is_being_edited)
+	for strand_name: StringName in _STRAND_TO_NAMES[in_strand]:
+		_parameters.backbone_strand_colors[strand_name] = in_color
+	_signal_queue_colors_changed = true
+
+
+func get_backbone_strand_color(in_strand: Strand) -> Color:
+	assert(in_strand != Strand.BOTH)
+	return _parameters.backbone_strand_colors[_STRAND_TO_NAMES[in_strand][0]]
+
+
+func set_bases_strand_colors(in_strand: Strand, in_color: Color) -> void:
+	assert(_is_being_edited)
+	for strand_name: StringName in _STRAND_TO_NAMES[in_strand]:
+		_parameters.bases_strand_colors[strand_name] = in_color
+	_signal_queue_colors_changed = true
+
+
+func get_bases_strand_colors(in_strand: Strand) -> Color:
+	assert(in_strand != Strand.BOTH)
+	return _parameters.bases_strand_colors[_STRAND_TO_NAMES[in_strand][0]]
+
+
+func set_major_groove_color(in_color: Color) -> void:
+	assert(_is_being_edited)
+	_parameters.major_groove_color = in_color
+	_signal_queue_colors_changed = true
+
+
+func get_major_groove_color() -> Color:
+	return _parameters.major_groove_color
+
+
+func set_minor_groove_color(in_color: Color) -> void:
+	assert(_is_being_edited)
+	_parameters.minor_groove_color = in_color
+	_signal_queue_colors_changed = true
+
+
+func get_minor_groove_color() -> Color:
+	return _parameters.minor_groove_color
+
+
+func set_bases_color_schema(in_schema: BasesColorSchema) -> void:
+	assert(_is_being_edited)
+	_parameters.bases_color_schema = in_schema
+	_signal_queue_colors_changed = true
+
+
+func get_bases_color_schema() -> BasesColorSchema:
+	return _parameters.bases_color_schema
+
+
+func set_base_custom_color(in_base: StringName, in_color: Color) -> void:
+	assert(_is_being_edited)
+	assert(in_base in [&"A", &"T", &"C", &"G"], "Invalid base %s" % in_base)
+	_parameters.bases_custom_colors[in_base] = in_color
+	_signal_queue_colors_changed = true
+
+
+func get_base_custom_colors(in_base: StringName) -> Color:
+	assert(in_base in [&"A", &"T", &"C", &"G"], "Invalid base %s" % in_base)
+	return _parameters.bases_custom_colors[in_base]
 #endregion
 
 
