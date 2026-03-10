@@ -35,9 +35,11 @@ button_group = SubResource("ButtonGroup_8e3dj")
 visible = false
 
 [node name="DontColorizeBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer" index="1"]
+button_pressed = false
 button_group = SubResource("ButtonGroup_61xlk")
 
 [node name="PerStrandBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer" index="2"]
+button_pressed = true
 button_group = SubResource("ButtonGroup_61xlk")
 
 [node name="BackboneAColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer" index="1"]
@@ -53,6 +55,7 @@ button_group = SubResource("ButtonGroup_t5a7f")
 button_group = SubResource("ButtonGroup_t5a7f")
 
 [node name="DontColorizeBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="1"]
+button_pressed = false
 button_group = SubResource("ButtonGroup_t2pju")
 
 [node name="PerStrandBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="2"]
@@ -62,6 +65,7 @@ button_group = SubResource("ButtonGroup_t2pju")
 button_group = SubResource("ButtonGroup_t2pju")
 
 [node name="PerBaseTypeButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="4"]
+button_pressed = true
 button_group = SubResource("ButtonGroup_t2pju")
 
 [node name="BasesAStrandColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer" index="1"]
