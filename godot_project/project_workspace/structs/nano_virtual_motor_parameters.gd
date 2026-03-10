@@ -47,7 +47,7 @@ var motor_type: Type = Type.UNKNOWN:
 @export var cycle_stop_after_n_cycles: int = 1:
 	set = _set_cycle_stop_after_n_cycles
 
-@export var limit_maximum_force: bool = false:
+@export var limit_maximum_force: bool = true:
 	set = _set_limit_maximum_force
 @export var max_force: float = 1.0 * 1e6:
 	set = _set_max_force
