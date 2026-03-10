@@ -490,7 +490,6 @@ custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
 size_flags_horizontal = 8
 theme_type_variation = &"CrystalButton"
-disabled = true
 color = Color(0.835294, 0.0235294, 0.447059, 1)
 edit_alpha = false
 
@@ -505,7 +504,6 @@ custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
 size_flags_horizontal = 8
 theme_type_variation = &"CrystalButton"
-disabled = true
 color = Color(0.0666667, 0.490196, 0.886275, 1)
 edit_alpha = false
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://6h5ogu2meano"]
+[gd_scene load_steps=11 format=3 uid="uid://6h5ogu2meano"]
 
 [ext_resource type="PackedScene" uid="uid://bdeg2b7ycyi66" path="res://editor/controls/dockers/workspace_docker/shared_controls/dna_panel.tscn" id="1_mfh7i"]
 [ext_resource type="Script" uid="uid://cdcgvv0jwwf6c" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_dna_panel.gd" id="2_q7pc7"]
@@ -10,6 +10,8 @@
 [sub_resource type="ButtonGroup" id="ButtonGroup_q7pc7"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_y5hmy"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_0us75"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_iwofu"]
 
@@ -83,10 +85,10 @@ button_group = SubResource("ButtonGroup_y5hmy")
 button_group = SubResource("ButtonGroup_y5hmy")
 
 [node name="SugarSameAsBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3" index="1"]
-button_group = SubResource("ButtonGroup_y5hmy")
+button_group = SubResource("ButtonGroup_0us75")
 
 [node name="SugarSameAsBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3" index="2"]
-button_group = SubResource("ButtonGroup_y5hmy")
+button_group = SubResource("ButtonGroup_0us75")
 
 [node name="DontColorizeBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="1"]
 button_group = SubResource("ButtonGroup_iwofu")
