@@ -29,9 +29,9 @@ const BasesColorSchema = DnaBaseColorPalette.Schema
 @export var dna_radius_nanometers: float = 1.0
 @export var initial_twist_rad: float = 0.0
 @export var strand_policy := StrandPolicy.DOUBLE
-@export var backbone_color_policy := BackboneColorPolicy.BACKBONE_NO_COLORS
+@export var backbone_color_policy := BackboneColorPolicy.BACKBONE_PER_STRAND
 @export var sugar_color_policy := SugarsColorPolicy.SUGAR_SAME_AS_BACKBONE
-@export var bases_color_policy := BasesColorPolicy.BASES_NO_COLORS
+@export var bases_color_policy := BasesColorPolicy.BASES_PER_TYPE
 @export var backbone_strand_colors: Dictionary[StringName, Color]
 @export var bases_strand_colors: Dictionary[StringName, Color]
 @export var major_groove_color := DnaBaseColorPalette.DEFAULT_MAJOR_GROOVE
