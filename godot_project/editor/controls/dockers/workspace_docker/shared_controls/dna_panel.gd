@@ -17,7 +17,20 @@ var _strand_a_button: Button
 var _strand_b_button: Button
 var _strand_double_button: Button
 # Color Override Controls
-
+var _dont_colorize_backbone_button: Button
+var _per_strand_backbone_button: Button
+var _backbone_a_color_picker: ColorPickerButton
+var _backbone_b_color_picker: ColorPickerButton
+var _sugar_same_as_backbone_button: Button
+var _sugar_same_as_bases_button: Button
+var _dont_colorize_bases_button: Button
+var _per_strand_bases_button: Button
+var _per_groove_button: Button
+var _per_base_type_button: Button
+var _bases_a_strand_color_picker: ColorPickerButton
+var _bases_b_strand_color_picker: ColorPickerButton
+var _major_groove_color_picker: ColorPickerButton
+var _minor_groove_color_picker: ColorPickerButton
 var _bases_schema_option_button: OptionButton
 var _bases_color_pickers: Dictionary[StringName, ColorPickerButton]
 
@@ -35,6 +48,20 @@ func _notification(what: int) -> void:
 		_strand_a_button = %StrandAButton as Button
 		_strand_b_button = %StrandBButton as Button
 		_strand_double_button = %StrandDoubleButton as Button
+		_dont_colorize_backbone_button = %DontColorizeBackboneButton as Button
+		_per_strand_backbone_button = %PerStrandBackboneButton as Button
+		_backbone_a_color_picker = %BackboneAColorPicker as ColorPickerButton
+		_backbone_b_color_picker = %BackboneBColorPicker as ColorPickerButton
+		_sugar_same_as_backbone_button = %SugarSameAsBackboneButton as Button
+		_sugar_same_as_bases_button = %SugarSameAsBasesButton as Button
+		_dont_colorize_bases_button = %DontColorizeBasesButton as Button
+		_per_strand_bases_button = %PerStrandBasesButton as Button
+		_per_groove_button = %PerGrooveButton as Button
+		_per_base_type_button = %PerBaseTypeButton as Button
+		_bases_a_strand_color_picker = %BasesAStrandColorPicker as ColorPickerButton
+		_bases_b_strand_color_picker = %BasesBStrandColorPicker as ColorPickerButton
+		_major_groove_color_picker = %MajorGrooveColorPicker as ColorPickerButton
+		_minor_groove_color_picker = %MinorGrooveColorPicker as ColorPickerButton
 		assert(_rand_sequence_button.button_group == _user_defined_sequence_button.button_group)
 		_bases_schema_option_button = %BasesSchemaOptionButton
 		_bases_color_pickers = {
@@ -43,6 +70,22 @@ func _notification(what: int) -> void:
 			&"C" : %BaseCPickerButton,
 			&"G" : %BaseGPickerButton,
 		}
+		_dont_colorize_backbone_button.set_meta(&"backbone_color_policy",
+			DnaStructureParameters.BackboneColorPolicy.BACKBONE_NO_COLORS)
+		_per_strand_backbone_button.set_meta(&"backbone_color_policy",
+			DnaStructureParameters.BackboneColorPolicy.BACKBONE_PER_STRAND)
+		_sugar_same_as_backbone_button.set_meta(&"sugar_color_policy",
+			DnaStructureParameters.SugarsColorPolicy.SUGAR_SAME_AS_BACKBONE)
+		_sugar_same_as_bases_button.set_meta(&"sugar_color_policy",
+			DnaStructureParameters.SugarsColorPolicy.SUGAR_SAME_AS_BASES)
+		_dont_colorize_bases_button.set_meta(&"bases_color_policy",
+			DnaStructureParameters.BasesColorPolicy.BASES_NO_COLORS)
+		_per_strand_bases_button.set_meta(&"bases_color_policy",
+			DnaStructureParameters.BasesColorPolicy.BASES_PER_STRAND)
+		_per_groove_button.set_meta(&"bases_color_policy",
+			DnaStructureParameters.BasesColorPolicy.BASES_MAJOR_MINOR_GROOVE)
+		_per_base_type_button.set_meta(&"bases_color_policy",
+			DnaStructureParameters.BasesColorPolicy.BASES_PER_TYPE)
 		if not _rand_sequence_button.button_group.pressed.is_connected(_sequence_button_button_group_pressed):
 			_rand_sequence_button.button_group.pressed.connect(_sequence_button_button_group_pressed.unbind(1))
 			_sequence_button_button_group_pressed()
