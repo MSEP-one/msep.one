@@ -1,9 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://bdeg2b7ycyi66"]
+[gd_scene load_steps=14 format=3 uid="uid://bdeg2b7ycyi66"]
 
 [ext_resource type="Script" uid="uid://cdyropsbauo4k" path="res://editor/controls/dockers/workspace_docker/shared_controls/dna_panel.gd" id="1_imbu4"]
 [ext_resource type="PackedScene" uid="uid://qwxweev3tdf8" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/dna_sequence_text_edit.tscn" id="2_6y0sb"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_w42n7"]
 [ext_resource type="Texture2D" uid="uid://b2w2wxk2bb4wg" path="res://editor/controls/category_container/icons/collapsed.svg" id="4_w42n7"]
+[ext_resource type="PackedScene" uid="uid://df6twl5j41stt" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/advanced_color_picker_button.tscn" id="5_hnbyp"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="5_w42n7"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_imbu4"]
@@ -336,24 +337,20 @@ layout_mode = 2
 size_flags_horizontal = 6
 text = "A Strand Backbone"
 
-[node name="BackboneAColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
+[node name="BackboneAColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-theme_type_variation = &"CrystalButton"
-color = Color(1, 0, 0, 1)
+show_reset_button = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 6
 text = "B Strand Backbone"
 
-[node name="BackboneBColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
+[node name="BackboneBColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-theme_type_variation = &"CrystalButton"
-color = Color(0, 0, 1, 1)
+show_reset_button = false
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer"]
 layout_mode = 2
@@ -426,6 +423,7 @@ button_group = SubResource("ButtonGroup_w42n7")
 text = "Per Base Type"
 
 [node name="ColorizeBasesContainer" type="PanelContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer" node_paths=PackedStringArray("button")]
+visible = false
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 script = SubResource("GDScript_6y0sb")
@@ -443,26 +441,20 @@ layout_mode = 2
 size_flags_horizontal = 6
 text = "A Strand Bases"
 
-[node name="BasesAStrandColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
+[node name="BasesAStrandColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-theme_type_variation = &"CrystalButton"
-color = Color(1, 0, 0, 1)
-edit_alpha = false
+show_reset_button = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
 layout_mode = 2
 size_flags_horizontal = 6
 text = "B Strand Bases"
 
-[node name="BasesBStrandColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
+[node name="BasesBStrandColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-theme_type_variation = &"CrystalButton"
-color = Color(0, 0, 1, 1)
-edit_alpha = false
+show_reset_button = false
 
 [node name="PerGrooveContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
 visible = false
@@ -484,28 +476,20 @@ layout_mode = 2
 size_flags_horizontal = 6
 text = "Major Groove"
 
-[node name="MajorGrooveColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
+[node name="MajorGrooveColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-size_flags_horizontal = 8
-theme_type_variation = &"CrystalButton"
-color = Color(0.835294, 0.0235294, 0.447059, 1)
-edit_alpha = false
+show_reset_button = false
 
 [node name="Label1" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 6
 text = "Minor Groove"
 
-[node name="MinorGrooveColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
+[node name="MinorGrooveColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-size_flags_horizontal = 8
-theme_type_variation = &"CrystalButton"
-color = Color(0.0666667, 0.490196, 0.886275, 1)
-edit_alpha = false
+show_reset_button = false
 
 [node name="PerBaseTypeContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
 visible = false
@@ -548,57 +532,37 @@ layout_mode = 2
 size_flags_horizontal = 6
 text = "A"
 
-[node name="BaseAPickerButton" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+[node name="BaseAPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-size_flags_horizontal = 8
-theme_type_variation = &"CrystalButton"
-disabled = true
-color = Color(0, 1, 0, 1)
-edit_alpha = false
+show_reset_button = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 6
 text = "T"
 
-[node name="BaseTPickerButton" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+[node name="BaseTPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-size_flags_horizontal = 8
-theme_type_variation = &"CrystalButton"
-disabled = true
-color = Color(1, 0, 0, 1)
-edit_alpha = false
+show_reset_button = false
 
 [node name="Label3" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 6
 text = "C"
 
-[node name="BaseCPickerButton" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+[node name="BaseCPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-size_flags_horizontal = 8
-theme_type_variation = &"CrystalButton"
-disabled = true
-color = Color(0, 0, 1, 1)
-edit_alpha = false
+show_reset_button = false
 
 [node name="Label4" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 6
 text = "G"
 
-[node name="BaseGPickerButton" type="ColorPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
+[node name="BaseGPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2" instance=ExtResource("5_hnbyp")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(59, 39)
 layout_mode = 2
-size_flags_horizontal = 8
-theme_type_variation = &"CrystalButton"
-disabled = true
-color = Color(1, 0.501961, 0, 1)
-edit_alpha = false
+show_reset_button = false

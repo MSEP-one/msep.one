@@ -208,6 +208,7 @@ func end_edit() -> void:
 		or _last_sequence != _sequence
 		or _signal_queue_path_changed
 		or _signal_queue_parameters_changed
+		or _signal_queue_colors_changed
 		)
 	if has_changed:
 		_aabb_cache = AABB()

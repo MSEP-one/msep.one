@@ -2,14 +2,12 @@
 class_name DnaStructureRenderer extends Path3D
 
 
+const Strand = DnaStructure.Strand
 const StrandPolicy = DnaStructure.StrandPolicy
 const DnaRepresentation = RepresentationSettings.DnaRepresentation
-
-
-@export_group("Materials")
-@export var a_strand_material: ShaderMaterial
-@export var b_strand_material: ShaderMaterial
-@export var base_pivot_material: ShaderMaterial
+const BackboneColorPolicy = DnaStructure.BackboneColorPolicy
+const BasesColorPolicy = DnaStructure.BasesColorPolicy
+const BasesColorSchema = DnaStructure.BasesColorSchema
 
 
 @export_group("Editor Debug", "_")
@@ -35,6 +33,19 @@ var _initial_twist_degrees: float:
 var _initial_twist: float
 @export_group("")
 
+@export var _default_material: ShaderMaterial
+
+@onready var _backbone_a_strand: ShaderMaterial = _default_material.duplicate(false)
+@onready var _backbone_b_strand: ShaderMaterial = _default_material.duplicate(false)
+@onready var _base_a_strand: ShaderMaterial = _default_material.duplicate(false)
+@onready var _base_b_strand: ShaderMaterial = _default_material.duplicate(false)
+@onready var _base_per_type: Dictionary[StringName, ShaderMaterial] = {
+	&"A" : _default_material.duplicate(false),
+	&"T" : _default_material.duplicate(false),
+	&"C" : _default_material.duplicate(false),
+	&"G" : _default_material.duplicate(false),
+}
+
 
 var _workspace_context: WorkspaceContext
 var _structure_id: int
@@ -43,6 +54,11 @@ var _object_visible: bool = true
 var _bases: Array[DnaBaseRepresentation]
 var _applying_snapshot: bool = false
 var _updating_parameters: bool = false
+# Color tracking
+var _backbone_color_policy: BackboneColorPolicy
+var _bases_color_policy: BasesColorPolicy
+var _bases_color_schema: BasesColorSchema
+
 
 # hovering API
 var _hover_enabled: bool = true
@@ -102,6 +118,9 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_bases_per_turn = in_structure.get_bases_per_turn()
 	_initial_twist = in_structure.get_initial_twist_rad()
 	_current_representation = in_structure.get_representation_settings().get_dna_representation()
+	_backbone_color_policy = in_structure.get_backbone_color_policy()
+	_bases_color_policy = in_structure.get_bases_color_policy()
+	_bases_color_schema = in_structure.get_bases_color_schema()
 	_updating_parameters = false
 	_workspace_context.workspace.representation_settings \
 		.should_hide_virtual_object_during_simulation_changed \
@@ -111,9 +130,29 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_is_simulating = _workspace_context.is_simulating()
 	_should_hide_in_simulation = _workspace_context.workspace.representation_settings \
 			.get_should_hide_virtual_object_during_simulation(DnaStructure)
+	_on_structure_colors_changed()
 	_update_bases()
 	_ensure_structure_signal_connections(in_structure)
 	_update_visibility()
+
+
+func get_backbone_material(in_strand: Strand) -> ShaderMaterial:
+	return _backbone_a_strand if in_strand == Strand.A else _backbone_b_strand
+
+
+func get_base_material(in_strand: Strand, in_base: StringName) -> ShaderMaterial:
+	match _bases_color_policy:
+		BasesColorPolicy.BASES_NO_COLORS, \
+		BasesColorPolicy.BASES_PER_STRAND, \
+		BasesColorPolicy.BASES_MAJOR_MINOR_GROOVE:
+			return _base_a_strand if in_strand == Strand.A else _base_b_strand
+		BasesColorPolicy.BASES_PER_TYPE:
+			assert(in_base in _base_per_type, "Unexpected base %s" % in_base)
+			return _base_per_type[in_base]
+	assert(false, "Unhandled case: BasesColorPolicy=%d Strand=%s Base=%s"
+		% [_bases_color_policy, in_strand, in_base]
+	)
+	return null
 
 
 func _enter_tree() -> void:
@@ -131,8 +170,9 @@ func _ensure_structure_signal_connections(in_structure: DnaStructure) -> void:
 		in_structure.sequence_changed.connect(_on_sequence_changed)
 		in_structure.parameters_changed.connect(_on_parameters_changed)
 		in_structure.visibility_changed.connect(_on_structure_visibility_changed)
-		var representation_settings: RepresentationSettings = in_structure.get_representation_settings()
+		in_structure.colors_changed.connect(_on_structure_colors_changed)
 		
+		var representation_settings: RepresentationSettings = in_structure.get_representation_settings()
 		representation_settings.dna_representation_changed.connect(_on_dna_representation_changed)
 
 
@@ -156,6 +196,48 @@ func _on_parameters_changed(in_parameters: DnaStructureParameters) -> void:
 func _on_structure_visibility_changed(in_visible: bool) -> void:
 	_object_visible = in_visible
 	_update_visibility()
+
+
+func _on_structure_colors_changed() -> void:
+	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
+	# Base representation only needs to change materials when switching between
+	# per-base and per-strand
+	var prev_mat_is_per_base: bool = _bases_color_policy == BasesColorPolicy.BASES_PER_TYPE
+	var new_mat_is_per_base: bool = dna_structure.get_bases_color_policy() == BasesColorPolicy.BASES_PER_TYPE
+	# Update Policies and materials
+	_backbone_color_policy = dna_structure.get_backbone_color_policy()
+	_bases_color_policy = dna_structure.get_bases_color_policy()
+	_bases_color_schema = dna_structure.get_bases_color_schema()
+	var base_materials_changed: bool = prev_mat_is_per_base != new_mat_is_per_base
+	if base_materials_changed:
+		for base_representation in _bases:
+			base_representation.update_materials(self)
+	# Update Backbone Colors
+	var colors: Dictionary[Strand, Color] = {
+		Strand.A : DnaBaseColorPalette.DEFAULT_A_STRAND_COLOR,
+		Strand.B : DnaBaseColorPalette.DEFAULT_B_STRAND_COLOR,
+	}
+	if _backbone_color_policy == BackboneColorPolicy.BACKBONE_PER_STRAND:
+		colors[Strand.A] = dna_structure.get_backbone_strand_color(Strand.A)
+		colors[Strand.B] = dna_structure.get_backbone_strand_color(Strand.B)
+	_backbone_a_strand.set_shader_parameter(&"albedo", colors[Strand.A])
+	_backbone_b_strand.set_shader_parameter(&"albedo", colors[Strand.B])
+	# Update Bases colors
+	if new_mat_is_per_base:
+		var schema_colors: Dictionary[StringName, Color] = \
+			DnaBaseColorPalette.get_schema_colors_or_empty(_bases_color_schema)
+		for base_type: StringName in _base_per_type.keys():
+			_base_per_type[base_type].set_shader_parameter(&"albedo",
+				schema_colors.get(base_type, dna_structure.get_base_custom_colors(base_type)))
+	else:
+		if _bases_color_policy == BasesColorPolicy.BASES_PER_STRAND:
+			colors[Strand.A] = dna_structure.get_bases_strand_colors(Strand.A)
+			colors[Strand.B] = dna_structure.get_bases_strand_colors(Strand.B)
+		else:
+			colors[Strand.A] = DnaBaseColorPalette.DEFAULT_A_STRAND_COLOR
+			colors[Strand.B] = DnaBaseColorPalette.DEFAULT_B_STRAND_COLOR
+		_base_a_strand.set_shader_parameter(&"albedo", colors[Strand.A])
+		_base_b_strand.set_shader_parameter(&"albedo", colors[Strand.B])
 
 
 func _on_dna_representation_changed(in_representation: DnaRepresentation) -> void:
@@ -332,13 +414,14 @@ func _update_bases() -> void:
 		_bases.pop_back().queue_free()
 	while _bases.size() < base_count:
 		var base := DnaBaseRepresentation.create()
-		base.setup_materials(a_strand_material, b_strand_material, base_pivot_material)
+		base.base = _sequence[_bases.size()]
 		add_child(base)
 		_bases.append(base)
 	for i in base_count:
 		_bases[i].strand_policy = _strand_policy
 		_bases[i].base = _sequence[i]
 		_bases[i].dna_radius = _dna_radius
+		_bases[i].update_materials(self)
 	_update_base_transforms()
 
 
@@ -486,9 +569,13 @@ func _get_outline_color() -> Color:
 
 
 func _set_shader_uniform(in_uniform: StringName, in_value: Variant) -> void:
-	a_strand_material.set_shader_parameter(in_uniform, in_value)
-	b_strand_material.set_shader_parameter(in_uniform, in_value)
-	base_pivot_material.set_shader_parameter(in_uniform, in_value)
+	assert(in_uniform != &"albedo", "ALBEDO uniform is not meant to be set to all materials")
+	_backbone_a_strand.set_shader_parameter(in_uniform, in_value)
+	_backbone_b_strand.set_shader_parameter(in_uniform, in_value)
+	_base_a_strand.set_shader_parameter(in_uniform, in_value)
+	_base_b_strand.set_shader_parameter(in_uniform, in_value)
+	for base_type_material: ShaderMaterial in _base_per_type.values():
+		base_type_material.set_shader_parameter(in_uniform, in_value)
 
 
 func create_state_snapshot() -> Dictionary:
@@ -507,7 +594,20 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_is_top_level"] = _is_top_level
 	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["_object_visible"] = _object_visible
-	snapshot["_selectable_uniform"] = base_pivot_material.get_shader_parameter(&"is_selectable")
+	snapshot["_selectable_uniform"] = _backbone_a_strand.get_shader_parameter(&"is_selectable")
+	snapshot["_backbone_color_policy"] = _backbone_color_policy
+	snapshot["_bases_color_policy"] = _bases_color_policy
+	snapshot["_bases_color_schema"] = _bases_color_schema
+	snapshot["_material_colors"] = {
+		&"_backbone_a_strand" : _backbone_a_strand.get_shader_parameter(&"albedo"),
+		&"_backbone_b_strand" : _backbone_b_strand.get_shader_parameter(&"albedo"),
+		&"_base_a_strand" : _base_a_strand.get_shader_parameter(&"albedo"),
+		&"_base_b_strand" : _base_b_strand.get_shader_parameter(&"albedo"),
+		&"_base_per_typeA" : _base_per_type.A.get_shader_parameter(&"albedo"),
+		&"_base_per_typeT" : _base_per_type.T.get_shader_parameter(&"albedo"),
+		&"_base_per_typeC" : _base_per_type.C.get_shader_parameter(&"albedo"),
+		&"_base_per_typeG" : _base_per_type.G.get_shader_parameter(&"albedo"),
+	}
 	var bases_snapshots: Array[Dictionary] = []
 	for b: DnaBaseRepresentation in _bases:
 		bases_snapshots.append(b.create_state_snapshot())
@@ -531,6 +631,18 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_should_hide_in_simulation = in_state_snapshot["_should_hide_in_simulation"]
 	_object_visible = in_state_snapshot["_object_visible"]
 	_set_shader_uniform(&"is_selectable", in_state_snapshot["_selectable_uniform"])
+	_backbone_color_policy = in_state_snapshot["_backbone_color_policy"]
+	_bases_color_policy = in_state_snapshot["_bases_color_policy"]
+	_bases_color_schema = in_state_snapshot["_bases_color_schema"]
+	var material_colors: Dictionary = in_state_snapshot["_material_colors"]
+	_backbone_a_strand.set_shader_parameter(&"albedo", material_colors._backbone_a_strand)
+	_backbone_b_strand.set_shader_parameter(&"albedo", material_colors._backbone_b_strand)
+	_base_a_strand.set_shader_parameter(&"albedo", material_colors._base_a_strand)
+	_base_b_strand.set_shader_parameter(&"albedo", material_colors._base_b_strand)
+	_base_per_type.A.set_shader_parameter(&"albedo", material_colors._base_per_typeA)
+	_base_per_type.T.set_shader_parameter(&"albedo", material_colors._base_per_typeT)
+	_base_per_type.C.set_shader_parameter(&"albedo", material_colors._base_per_typeC)
+	_base_per_type.G.set_shader_parameter(&"albedo", material_colors._base_per_typeG)
 	var bases_snapshots: Array[Dictionary] = in_state_snapshot["bases_snapshots"]
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
 	while _bases.size() > bases_snapshots.size():
@@ -542,6 +654,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	dna_structure.grab_curve(self)
 	for i in bases_snapshots.size():
 		_bases[i].apply_state_snapshot(bases_snapshots[i])
+		_bases[i].update_materials(self)
 	_applying_snapshot = false
 	_ensure_structure_signal_connections(dna_structure)
 	_update_visibility()

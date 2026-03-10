@@ -19,20 +19,20 @@ var _strand_double_button: Button
 # Color Override Controls
 var _dont_colorize_backbone_button: Button
 var _per_strand_backbone_button: Button
-var _backbone_a_color_picker: ColorPickerButton
-var _backbone_b_color_picker: ColorPickerButton
+var _backbone_a_color_picker: AdvancedColorPickerButton
+var _backbone_b_color_picker: AdvancedColorPickerButton
 var _sugar_same_as_backbone_button: Button
 var _sugar_same_as_bases_button: Button
 var _dont_colorize_bases_button: Button
 var _per_strand_bases_button: Button
 var _per_groove_button: Button
 var _per_base_type_button: Button
-var _bases_a_strand_color_picker: ColorPickerButton
-var _bases_b_strand_color_picker: ColorPickerButton
-var _major_groove_color_picker: ColorPickerButton
-var _minor_groove_color_picker: ColorPickerButton
+var _bases_a_strand_color_picker: AdvancedColorPickerButton
+var _bases_b_strand_color_picker: AdvancedColorPickerButton
+var _major_groove_color_picker: AdvancedColorPickerButton
+var _minor_groove_color_picker: AdvancedColorPickerButton
 var _bases_schema_option_button: OptionButton
-var _bases_color_pickers: Dictionary[StringName, ColorPickerButton]
+var _bases_color_pickers: Dictionary[StringName, AdvancedColorPickerButton]
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -50,18 +50,18 @@ func _notification(what: int) -> void:
 		_strand_double_button = %StrandDoubleButton as Button
 		_dont_colorize_backbone_button = %DontColorizeBackboneButton as Button
 		_per_strand_backbone_button = %PerStrandBackboneButton as Button
-		_backbone_a_color_picker = %BackboneAColorPicker as ColorPickerButton
-		_backbone_b_color_picker = %BackboneBColorPicker as ColorPickerButton
+		_backbone_a_color_picker = %BackboneAColorPicker as AdvancedColorPickerButton
+		_backbone_b_color_picker = %BackboneBColorPicker as AdvancedColorPickerButton
 		_sugar_same_as_backbone_button = %SugarSameAsBackboneButton as Button
 		_sugar_same_as_bases_button = %SugarSameAsBasesButton as Button
 		_dont_colorize_bases_button = %DontColorizeBasesButton as Button
 		_per_strand_bases_button = %PerStrandBasesButton as Button
 		_per_groove_button = %PerGrooveButton as Button
 		_per_base_type_button = %PerBaseTypeButton as Button
-		_bases_a_strand_color_picker = %BasesAStrandColorPicker as ColorPickerButton
-		_bases_b_strand_color_picker = %BasesBStrandColorPicker as ColorPickerButton
-		_major_groove_color_picker = %MajorGrooveColorPicker as ColorPickerButton
-		_minor_groove_color_picker = %MinorGrooveColorPicker as ColorPickerButton
+		_bases_a_strand_color_picker = %BasesAStrandColorPicker as AdvancedColorPickerButton
+		_bases_b_strand_color_picker = %BasesBStrandColorPicker as AdvancedColorPickerButton
+		_major_groove_color_picker = %MajorGrooveColorPicker as AdvancedColorPickerButton
+		_minor_groove_color_picker = %MinorGrooveColorPicker as AdvancedColorPickerButton
 		assert(_rand_sequence_button.button_group == _user_defined_sequence_button.button_group)
 		_bases_schema_option_button = %BasesSchemaOptionButton
 		_bases_color_pickers = {
@@ -91,6 +91,13 @@ func _notification(what: int) -> void:
 			_sequence_button_button_group_pressed()
 		if not _bases_schema_option_button.item_selected.is_connected(_on_bases_schema_option_button_item_selected):
 			_bases_schema_option_button.item_selected.connect(_on_bases_schema_option_button_item_selected)
+			_backbone_a_color_picker.color = DnaBaseColorPalette.DEFAULT_A_STRAND_COLOR
+			_backbone_b_color_picker.color = DnaBaseColorPalette.DEFAULT_B_STRAND_COLOR
+			_bases_a_strand_color_picker.color = DnaBaseColorPalette.DEFAULT_A_STRAND_COLOR
+			_bases_b_strand_color_picker.color = DnaBaseColorPalette.DEFAULT_B_STRAND_COLOR
+			_major_groove_color_picker.color = DnaBaseColorPalette.DEFAULT_MAJOR_GROOVE
+			_minor_groove_color_picker.color = DnaBaseColorPalette.DEFAULT_MINOR_GROOVE
+			_on_bases_schema_option_button_item_selected(_bases_schema_option_button.selected)
 		# TODO: Delete me when feature is complete
 		if not COLOR_OVERRIDES_ENABLED:
 			%ColorizeOptionsButton.hide()
@@ -106,9 +113,9 @@ func _sequence_button_button_group_pressed() -> void:
 func _on_bases_schema_option_button_item_selected(in_index: int) -> void:
 	const Schema = DnaBaseColorPalette.Schema
 	var schema: Schema = _bases_schema_option_button.get_item_id(in_index) as Schema
-	var colors: Dictionary = {} if schema == Schema.CUSTOM else DnaBaseColorPalette.get_schema_colors(schema)
+	var colors: Dictionary = DnaBaseColorPalette.get_schema_colors_or_empty(schema)
 	for base: StringName in _bases_color_pickers.keys():
-		var picker: ColorPickerButton = _bases_color_pickers[base]
+		var picker: AdvancedColorPickerButton = _bases_color_pickers[base]
 		picker.set_block_signals(true)
 		picker.color = colors.get(base, picker.color)
 		picker.disabled = schema != Schema.CUSTOM

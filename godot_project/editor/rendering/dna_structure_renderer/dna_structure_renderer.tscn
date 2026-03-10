@@ -1,9 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://2uelg2pe8don"]
+[gd_scene load_steps=4 format=3 uid="uid://2uelg2pe8don"]
 
 [ext_resource type="Script" uid="uid://bwfbdoh8nk86s" path="res://editor/rendering/dna_structure_renderer/dna_structure_renderer.gd" id="1_v3v15"]
-[ext_resource type="Material" uid="uid://fv6vtvhtqm4q" path="res://editor/rendering/dna_structure_renderer/assets/a_strand_material.tres" id="2_v3v15"]
-[ext_resource type="Material" uid="uid://cq3pox0ek24bm" path="res://editor/rendering/dna_structure_renderer/assets/b_strand_material.tres" id="3_yduts"]
-[ext_resource type="Material" uid="uid://bibsai3i126o5" path="res://editor/rendering/dna_structure_renderer/assets/base_pivot_material.tres" id="4_115c7"]
+[ext_resource type="Material" uid="uid://bibsai3i126o5" path="res://editor/rendering/dna_structure_renderer/assets/dna_material.tres" id="2_v3v15"]
 
 [sub_resource type="Curve3D" id="Curve3D_irorl"]
 _data = {
@@ -15,9 +13,7 @@ point_count = 2
 [node name="DnaStructureRenderer" type="Path3D"]
 curve = SubResource("Curve3D_irorl")
 script = ExtResource("1_v3v15")
-a_strand_material = ExtResource("2_v3v15")
-b_strand_material = ExtResource("3_yduts")
-base_pivot_material = ExtResource("4_115c7")
+_default_material = ExtResource("2_v3v15")
 
 [node name="PathRepresentation" type="Control" parent="."]
 unique_name_in_owner = true

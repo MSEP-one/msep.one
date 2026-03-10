@@ -40,6 +40,12 @@ button_group = SubResource("ButtonGroup_61xlk")
 [node name="PerStrandBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer" index="2"]
 button_group = SubResource("ButtonGroup_61xlk")
 
+[node name="BackboneAColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer" index="1"]
+show_apply_button = false
+
+[node name="BackboneBColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer" index="3"]
+show_apply_button = false
+
 [node name="SugarSameAsBackboneButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3" index="1"]
 button_group = SubResource("ButtonGroup_t5a7f")
 
@@ -57,6 +63,30 @@ button_group = SubResource("ButtonGroup_t2pju")
 
 [node name="PerBaseTypeButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2" index="4"]
 button_group = SubResource("ButtonGroup_t2pju")
+
+[node name="BasesAStrandColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer" index="1"]
+show_apply_button = false
+
+[node name="BasesBStrandColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer" index="3"]
+show_apply_button = false
+
+[node name="MajorGrooveColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2" index="1"]
+show_apply_button = false
+
+[node name="MinorGrooveColorPicker" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2" index="3"]
+show_apply_button = false
+
+[node name="BaseAPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2" index="1"]
+show_apply_button = false
+
+[node name="BaseTPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2" index="3"]
+show_apply_button = false
+
+[node name="BaseCPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2" index="5"]
+show_apply_button = false
+
+[node name="BaseGPickerButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2" index="7"]
+show_apply_button = false
 
 [node name="CreateButton" type="Button" parent="VBoxContainer" index="6"]
 unique_name_in_owner = true

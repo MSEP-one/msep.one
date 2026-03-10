@@ -9,6 +9,7 @@ class_name DnaBaseRepresentation extends Node3D
 @export var dna_radius: float = 1.0:
 	set = _set_dna_radius
 
+
 var origin: MeshInstance3D
 var a_strand: Dictionary[StringName, MeshInstance3D]
 var b_strand: Dictionary[StringName, MeshInstance3D]
@@ -20,16 +21,18 @@ static func create() -> DnaBaseRepresentation:
 	return preload("uid://cgh1pcn88ip1a").instantiate()
 
 
-func setup_materials(
-			a_strand_material: ShaderMaterial,
-			b_strand_material: ShaderMaterial,
-			pivot: ShaderMaterial
-			) -> void:
-	origin.material_override = pivot
-	for mesh: MeshInstance3D in a_strand.values():
-		mesh.material_override = a_strand_material
-	for mesh: MeshInstance3D in b_strand.values():
-		mesh.material_override = b_strand_material
+func update_materials(in_renderer: DnaStructureRenderer) -> void:
+	#origin.material_override = pivot
+	const Strand = DnaStructure.Strand
+	# Backbone
+	a_strand.Backbone.material_override = in_renderer.get_backbone_material(Strand.A)
+	b_strand.Backbone.material_override = in_renderer.get_backbone_material(Strand.B)
+	# Bases
+	a_strand.Base1.material_override = in_renderer.get_base_material(Strand.A, base)
+	a_strand.Base2.material_override = a_strand.Base1.material_override
+	var compliment: String = DnaBuilder.DNA_COMPLEMENT.get(base, "X")
+	b_strand.Base1.material_override = in_renderer.get_base_material(Strand.B, compliment)
+	b_strand.Base2.material_override = b_strand.Base1.material_override
 
 
 func _set_strand_policy(in_policy: DnaStructure.StrandPolicy) -> void:

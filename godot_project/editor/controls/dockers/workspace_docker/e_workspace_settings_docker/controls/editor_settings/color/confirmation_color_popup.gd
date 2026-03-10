@@ -19,8 +19,27 @@ signal default_pressed()
 func _ready() -> void:
 	_color_picker.color = DEFAULT_COLOR
 	
+	_color_picker.color_changed.connect(_on_color_picker_color_changed)
 	_apply_btn.pressed.connect(_on_apply_button_pressed)
 	_default_btn.pressed.connect(_on_default_button_pressed)
+
+
+func set_default_button_visible(in_visible: bool) -> void:
+	_default_btn.visible = in_visible
+
+
+func set_apply_button_visible(in_visible: bool) -> void:
+	_apply_btn.visible = in_visible
+
+
+func set_current_color(in_color: Color) -> void:
+	_color_picker.color = in_color
+
+
+func _on_color_picker_color_changed(in_color: Color) -> void:
+	if not _apply_btn.visible:
+		_selected_color = in_color
+		color_selected.emit(_selected_color)
 
 
 func _on_apply_button_pressed() -> void:
@@ -29,6 +48,7 @@ func _on_apply_button_pressed() -> void:
 	if not _selected_color in _recent_colors:
 		_recent_colors.append(_selected_color)
 		_update_recent_colors()
+	hide()
 
 
 func _on_default_button_pressed() -> void:

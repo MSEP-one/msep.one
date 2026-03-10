@@ -37,7 +37,7 @@ const BasesColorSchema = DnaBaseColorPalette.Schema
 @export var major_groove_color := DnaBaseColorPalette.DEFAULT_MAJOR_GROOVE
 @export var minor_groove_color := DnaBaseColorPalette.DEFAULT_MINOR_GROOVE
 @export var bases_color_schema := BasesColorSchema.STANDARD
-@export var bases_custom_colors: Dictionary[StringName, Color] = _create_default_custom_colors()
+@export var bases_custom_colors: Dictionary[StringName, Color] = DnaBaseColorPalette.get_schema_colors_or_empty(BasesColorSchema.STANDARD)
 
 
 var _is_read_only: bool = false
@@ -54,13 +54,6 @@ func _set(property: StringName, _value: Variant) -> bool:
 		assert(!_is_read_only)
 		pass
 	return false
-
-
-func _create_default_custom_colors() -> Dictionary[StringName, Color]:
-	# This method is necesary to convert Dictionary in typed Dictionary[K,V]
-	var dict: Dictionary[StringName, Color]
-	dict.assign(DnaBaseColorPalette.get_schema_colors(BasesColorSchema.STANDARD))
-	return dict
 
 
 func create_state_snapshot() -> Dictionary:
