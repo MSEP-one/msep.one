@@ -53,7 +53,11 @@ func _handle_unicode_input(unicode_char: int, _in_caret_index: int) -> void:
 			for i in get_caret_count():
 				var line: String = get_line(get_caret_line(i))
 				var col: int = get_caret_column(i)
-				line[col] = char(unicode_char).to_upper()
+				if col == line.length():
+					# placed at the end of the line
+					line += char(unicode_char).to_upper()
+				else:
+					line[col] = char(unicode_char).to_upper()
 				set_line(get_caret_line(i), line)
 				set_caret_column(col + 1, true, i)
 			set_block_signals(false)
