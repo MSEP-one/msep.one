@@ -86,6 +86,10 @@ func toggle_what_to_show() -> void:
 	set_what_to_show(WHAT_TO_SHOW_INVERTED[_what_to_show])
 
 
+func get_what_to_show() -> WhatToShow:
+	return _what_to_show
+
+
 func _on_workspace_context_structure_added(in_nano_structure: NanoStructure) -> void:
 	var other_parent_id: int = in_nano_structure.int_parent_guid
 	var self_parent_id: int = \
