@@ -237,10 +237,11 @@ func end_edit() -> void:
 			_bonds_ids_cache = {}
 			_bonds_cache = {}
 			_highest_spring_id = -1
+			color_overrides = {}
 			# HACK: temporarly set is being edited to false to fetch values
 			_is_being_edited = false
-			# Track added/removed/moved atoms
 			var all_new_atom_ids: PackedInt32Array = get_valid_atoms()
+			# Track added/removed/moved atoms
 			var all_old_atom_ids: PackedInt32Array = prev_atoms_cache.keys()
 			var was_atom_removed: Callable = func (old_atom_id: int) -> bool:
 				return not (old_atom_id in all_new_atom_ids)
@@ -253,7 +254,29 @@ func end_edit() -> void:
 			_signal_queue_atoms_removed = Array(all_old_atom_ids).filter(was_atom_removed)
 			_signal_queue_atoms_added = Array(all_new_atom_ids).filter(was_atom_added)
 			_signal_queue_atoms_moved = Array(all_new_atom_ids).filter(was_atom_moved)
+			for atom_id in all_new_atom_ids:
+				if was_atom_added.call(atom_id) or was_atom_removed.call(atom_id):
+					continue
+				if prev_atoms_cache[atom_id].atomic_number != atom_get_atomic_number(atom_id):
+					_signal_queue_atomic_number_changed.append(Vector2i(atom_id, atom_get_atomic_number(atom_id)))
+			# NOTE: prev_atoms_cache.is_empty() means user just started tracking atoms
+			var atoms_to_check_colors: PackedInt32Array
+			if _signal_queue_colors_changed or prev_atoms_cache.is_empty() or _last_sequence != _sequence:
+				atoms_to_check_colors = all_new_atom_ids.duplicate()
+			else:
+				atoms_to_check_colors = _signal_queue_atoms_added.duplicate()
+				atoms_to_check_colors.append_array(_signal_queue_atomic_number_changed)
+			_is_being_edited = true
+			for atom_id: int in atoms_to_check_colors:
+				var expected_color_or_transparent: Color = _get_atom_expected_color(atom_id)
+				var should_have_color: bool = expected_color_or_transparent != Color.TRANSPARENT
+				if should_have_color:
+					set_color_override([atom_id], expected_color_or_transparent)
+				else:
+					remove_color_override([atom_id])
 			# Track Bonds
+			# HACK: temporarly set is being edited to false to fetch values
+			_is_being_edited = false
 			var all_new_bonds: PackedInt32Array = get_valid_bonds()
 			var all_old_bonds: PackedInt32Array = prev_bonds_cache.keys()
 			var was_bond_removed: Callable = func (old_bond_id: int) -> bool:
@@ -293,6 +316,42 @@ func end_edit() -> void:
 		emit_changed()
 	else:
 		_is_being_edited = false
+
+
+func _get_atom_expected_color(in_atom_id: int) -> Color:
+	var unpacked_id: UnpackedAtomId = _unpack_atom_id(in_atom_id)
+	var is_backbone: bool = unpacked_id.is_backbone
+	if get_sugar_color_policy() == SugarsColorPolicy.SUGAR_SAME_AS_BASES:
+		if _get_atom_data(in_atom_id, true).is_sugar:
+			# Is a sugar from the backbone, and should be treated as a base
+			is_backbone = false
+	if is_backbone:
+		match get_backbone_color_policy():
+			BackboneColorPolicy.BACKBONE_NO_COLORS:
+				return Color.TRANSPARENT
+			BackboneColorPolicy.BACKBONE_PER_STRAND:
+				return get_backbone_strand_color(unpacked_id.strand)
+	else:
+		match get_bases_color_policy():
+			BasesColorPolicy.BASES_NO_COLORS:
+				return Color.TRANSPARENT
+			BasesColorPolicy.BASES_PER_STRAND:
+				return get_bases_strand_colors(unpacked_id.strand)
+			BasesColorPolicy.BASES_MAJOR_MINOR_GROOVE:
+				if _get_atom_data(in_atom_id, true).is_major_groove:
+					return get_major_groove_color()
+				else:
+					return get_minor_groove_color()
+			BasesColorPolicy.BASES_PER_TYPE:
+				var base: String = _sequence[unpacked_id.base_idx]
+				if unpacked_id.strand == Strand.B:
+					base = DnaBuilder.DNA_COMPLEMENT.get(base, "X")
+				if get_bases_color_schema() == BasesColorSchema.CUSTOM:
+					return get_base_custom_colors(base)
+				# HACK: Accessing to private memeber _SCHEMA_TO_COLORS to avoid consecutive
+				#allocation of dictionaries every time this method is called
+				return DnaBaseColorPalette._SCHEMA_TO_COLORS[get_bases_color_schema()].get(base, Color.TRANSPARENT)
+	return Color.TRANSPARENT
 
 
 func is_tracking_atoms() -> bool:
@@ -1871,6 +1930,8 @@ class UnpackedBondId:
 class AtomData:
 	var atomic_number: int =  PeriodicTable.INVALID_ATOMIC_NUMBER
 	var position: Vector3
+	var is_sugar: bool
+	var is_major_groove: bool
 	
 	func _init(id_data: UnpackedAtomId, owner: DnaStructure) -> void:
 		if id_data == null and owner == null:
@@ -1902,6 +1963,8 @@ class AtomData:
 			owner.get_base_transform(id_data.strand, id_data.base_idx)
 		)
 		position = xform * position
+		is_sugar = id_data.sub_atom_id in base_template.sugar_atoms
+		is_major_groove = id_data.sub_atom_id in base_template.major_groove_atoms
 	
 	
 	static func to_state(atom: AtomData) -> Dictionary:

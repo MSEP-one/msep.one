@@ -10,3 +10,5 @@ base_to_backbone_atom_id = 2
 next_backbone_atom_id = -1
 previous_backbone_atom_id = -1
 hydrogen_bonds = PackedInt32Array(4, 8)
+sugar_atoms = PackedInt32Array()
+major_groove_atoms = PackedInt32Array(0, 1, 4, 5, 7, 8, 9, 10, 11, 12, 13)

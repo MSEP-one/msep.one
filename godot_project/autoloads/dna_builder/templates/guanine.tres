@@ -1,4 +1,4 @@
-[gd_resource type="Resource" load_steps=2 format=4 uid="uid://bxtw446ho1u0y"]
+[gd_resource type="Resource" load_steps=2 format=4 uid="uid://dp7snqo3suwad"]
 
 [ext_resource type="Script" uid="uid://8g2sevldq0c2" path="res://autoloads/dna_builder/templates/packed_molecule.gd" id="1_cjlsc"]
 
@@ -10,3 +10,5 @@ base_to_backbone_atom_id = 2
 next_backbone_atom_id = -1
 previous_backbone_atom_id = -1
 hydrogen_bonds = PackedInt32Array(9, 8, 10)
+sugar_atoms = PackedInt32Array()
+major_groove_atoms = PackedInt32Array(0, 1, 2, 4, 7, 8, 9)

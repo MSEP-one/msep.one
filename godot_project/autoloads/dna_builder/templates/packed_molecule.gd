@@ -8,3 +8,5 @@ extends Resource
 @export var next_backbone_atom_id: int = -1
 @export var previous_backbone_atom_id: int = -1
 @export var hydrogen_bonds: PackedInt32Array
+@export var sugar_atoms: PackedInt32Array
+@export var major_groove_atoms: PackedInt32Array

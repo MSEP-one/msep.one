@@ -2,8 +2,6 @@ class_name  DnaPanel
 extends DynamicContextControl
 
 
-const COLOR_OVERRIDES_ENABLED = false
-
 var _rand_sequence_button: Button
 var _user_defined_sequence_button: Button
 var _sequence_length_container: HBoxContainer
@@ -98,10 +96,6 @@ func _notification(what: int) -> void:
 			_major_groove_color_picker.color = DnaBaseColorPalette.DEFAULT_MAJOR_GROOVE
 			_minor_groove_color_picker.color = DnaBaseColorPalette.DEFAULT_MINOR_GROOVE
 			_on_bases_schema_option_button_item_selected(_bases_schema_option_button.selected)
-		# TODO: Delete me when feature is complete
-		if not COLOR_OVERRIDES_ENABLED:
-			%ColorizeOptionsButton.hide()
-			%ColorizeMainContainer.hide()
 
 
 func _sequence_button_button_group_pressed() -> void:
