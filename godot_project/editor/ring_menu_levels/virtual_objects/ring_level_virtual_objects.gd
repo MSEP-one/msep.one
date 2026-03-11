@@ -18,7 +18,6 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	add_action(RingActionCreateMotor.new(in_workspace_context, in_menu, NanoVirtualMotorParameters.Type.ROTARY))
 	add_action(RingActionCreateMotor.new(in_workspace_context, in_menu, NanoVirtualMotorParameters.Type.LINEAR))
 	add_action(RingActionCreateDnaObject.new(in_workspace_context, in_menu))
-	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAG_VIRTUAL_SPRINGS):
-		add_action(RingActionCreateAnchorsAndSprings.new(in_workspace_context, in_menu))
+	add_action(RingActionCreateAnchorsAndSprings.new(in_workspace_context, in_menu))
 	add_action(RingActionCreateParticleEmitters.new(in_workspace_context, in_menu))
 	add_action(RingActionAddShapes.new(_workspace_context, in_menu))
