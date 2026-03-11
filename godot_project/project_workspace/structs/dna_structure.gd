@@ -723,6 +723,10 @@ func set_sequence_policy(in_policy: SequencePolicy) -> void:
 		set_sequence_length(prev_length)
 
 
+func get_sequence_policy() -> SequencePolicy:
+	return _sequence_policy
+
+
 func set_sequence(in_sequence: String) -> void:
 	assert(_is_being_edited)
 	assert(_sequence_policy == SequencePolicy.UserDefined, "Cannot set sequence when is meant to be generated randomly")
@@ -1782,6 +1786,7 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["script.resource_path"] = get_script().resource_path
 	state_snapshot["_track_atoms"] = _track_atoms
 	state_snapshot["_curve"] = _create_curve_snapshot()
+	state_snapshot["_sequence_policy"] = _sequence_policy
 	state_snapshot["_sequence"] = _sequence
 	state_snapshot["_parameters"] = _parameters.create_state_snapshot()
 	state_snapshot["_base_transform_cache"] = _base_transform_cache.duplicate()
@@ -1804,6 +1809,7 @@ func create_state_snapshot() -> Dictionary:
 func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_track_atoms = in_state_snapshot["_track_atoms"]
 	_set_curve_snapshot(in_state_snapshot["_curve"])
+	_sequence_policy = in_state_snapshot["_sequence_policy"]
 	_sequence = in_state_snapshot["_sequence"]
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters"])
 	_base_transform_cache = in_state_snapshot["_base_transform_cache"].duplicate()
