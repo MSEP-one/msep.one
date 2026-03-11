@@ -160,7 +160,6 @@ func _on_structure_list_structure_context_selected(out_selected_structure_contex
 func _on_structure_list_more_childs_requested(
 			out_parent_structure_context: StructureContext,
 			in_clicked_global_button_rect: Rect2) -> void:
-	_showing_more_childs = true
 	var parent_id: int = 0 if out_parent_structure_context == null else out_parent_structure_context.nano_structure.int_guid
 	var active_id: int = _workspace_context.get_current_structure_context().nano_structure.int_guid
 	var list: StructureChildList = _get_or_create_list(parent_id)
@@ -179,6 +178,7 @@ func _on_structure_list_more_childs_requested(
 	list.toggle_what_to_show()
 	list.rebuild_list()
 	list.show()
+	_showing_more_childs = list.get_what_to_show() == StructureChildList.WhatToShow.ALL
 	_hide_floating_lists_not_in_path_to(null if parent_id == 0 else out_parent_structure_context.nano_structure)
 
 
