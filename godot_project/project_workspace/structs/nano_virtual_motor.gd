@@ -8,9 +8,15 @@ signal structure_disconnected(in_disconnected_structure_id: int)
 
 @export var _transform: Transform3D
 @export var _parameters: NanoVirtualMotorParameters
-@export var _connected_structures: Dictionary = {
+@export var _connected_structures: Dictionary[int, bool] = {
 #	structure_id<int> = true<bool>
 }
+
+
+func notify_added_to_workspace(in_workspace_context: WorkspaceContext) -> void:
+	var workspace: Workspace = in_workspace_context.workspace
+	if not workspace.structure_about_to_remove.is_connected(_on_structure_about_to_remove):
+		workspace.structure_about_to_remove.connect(_on_structure_about_to_remove)
 
 
 ## Structure types needs to return a valid type name to be considered valid
@@ -186,3 +192,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 			_parameters = NanoRotaryMotorParameters.new()
 	_parameters.apply_state_snapshot(in_state_snapshot["_parameters_snapshot"])
 	_connected_structures = in_state_snapshot["_connected_structures"].duplicate(true)
+
+
+func _on_structure_about_to_remove(in_structure: NanoStructure) -> void:
+	if is_structure_connected(in_structure):
+		disconnect_structure(in_structure)
