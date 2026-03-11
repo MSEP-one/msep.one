@@ -23,7 +23,7 @@ func get_icon() -> RingMenuIcon:
 
 
 func _has_selection() -> bool:
-	return is_instance_valid(_workspace_context) and _workspace_context.has_selection()
+	return is_instance_valid(_workspace_context) and _workspace_context.has_hiddable_selection()
 
 
 func _execute_action() -> void:

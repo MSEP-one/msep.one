@@ -1086,6 +1086,15 @@ func has_selection() -> bool:
 	return false
 
 
+func has_hiddable_selection() -> bool:
+	for context: StructureContext in _structure_contexts.values():
+		if context.nano_structure.get_visible() and context.has_selection():
+			if context.nano_structure is DnaStructure and not context.is_fully_selected():
+				continue
+			return true
+	return false
+
+
 func has_transformable_selection() -> bool:
 	var transformable_selection: bool = false
 	for context: StructureContext in _structure_contexts.values():
