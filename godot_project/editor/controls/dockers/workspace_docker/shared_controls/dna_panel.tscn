@@ -121,6 +121,9 @@ text = "User Specified"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 116)
 layout_mode = 2
+context_menu_enabled = false
+shortcut_keys_enabled = false
+middle_mouse_paste_enabled = false
 scroll_fit_content_height = false
 
 [node name="SequenceLengthContainer" type="HBoxContainer" parent="VBoxContainer/SequencePanelContainer/VBoxContainer"]

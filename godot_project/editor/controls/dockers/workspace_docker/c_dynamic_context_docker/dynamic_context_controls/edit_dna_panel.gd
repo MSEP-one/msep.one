@@ -54,7 +54,7 @@ func _sequence_button_button_group_pressed() -> void:
 	_sequence_length_spin_box_slider.visible = true
 	_dna_sequence_text_edit.editable = pressed_button == _user_defined_sequence_button
 	_dna_sequence_text_edit.visible = true
-	if _tracked_structure == null:
+	if _tracked_structure == null or _updating_ui == true:
 		return
 	_tracked_structure.start_edit()
 	if _rand_sequence_button.button_pressed:
@@ -62,6 +62,7 @@ func _sequence_button_button_group_pressed() -> void:
 	else:
 		_tracked_structure.set_sequence_policy(DnaStructure.SequencePolicy.UserDefined)
 	_tracked_structure.end_edit()
+	_workspace_context.snapshot_moment("Set Dna Sequence Mode")
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
@@ -118,6 +119,11 @@ func _update_ui() -> void:
 		_updating_ui = true
 		if _dna_sequence_text_edit.text != _tracked_structure.get_sequence():
 			_on_tracked_structure_sequence_changed(_tracked_structure.get_sequence())
+		match _tracked_structure.get_sequence_policy():
+			DnaStructure.SequencePolicy.RandomlyGenerated:
+				_rand_sequence_button.button_pressed = true
+			DnaStructure.SequencePolicy.UserDefined:
+				_user_defined_sequence_button.button_pressed = true
 		_dna_radius_spin_box_slider.set_value_no_signal(_tracked_structure.get_dna_radius_nanometers())
 		_bases_per_turn_spin_box_slider.set_value_no_signal(_tracked_structure.get_bases_per_turn())
 		_rise_nanometers_spin_box_slider.set_value_no_signal(_tracked_structure.get_rise_nanometers())
