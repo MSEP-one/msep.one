@@ -389,6 +389,9 @@ func _on_convert_to_atoms_button_pressed() -> void:
 			var bond_data: Vector3i = _tracked_structure.get_bond(bond_id)
 			# remap atom ids
 			new_group.add_bond(atom_map[bond_data.x], atom_map[bond_data.y], bond_data.z)
+	var color_overrides: Dictionary = _tracked_structure.get_color_overrides()
+	for prev_atom_id: int in color_overrides.keys():
+		new_group.set_color_override([atom_map[prev_atom_id]], color_overrides[prev_atom_id])
 	if _simulate_hydrogen_bonds_check_button.button_pressed:
 		var all_springs: PackedInt32Array = _tracked_structure.springs_get_all()
 		# Assume all springs has the same force
