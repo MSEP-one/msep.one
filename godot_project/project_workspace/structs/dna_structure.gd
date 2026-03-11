@@ -251,17 +251,14 @@ func end_edit() -> void:
 				if was_atom_added.call(atom_id) or was_atom_removed.call(atom_id):
 					return false
 				return prev_atoms_cache[atom_id].position != atom_get_position(atom_id)
-			var check_atomic_number_changed: Callable = func (atom_id: int) -> bool:
-				if was_atom_added.call(atom_id) or was_atom_removed.call(atom_id):
-					return false
-				if prev_atoms_cache[atom_id].atomic_number != atom_get_atomic_number(atom_id):
-					_signal_queue_atomic_number_changed.append(Vector2i(atom_id, atom_get_atomic_number(atom_id)))
-					return true
-				return false
 			_signal_queue_atoms_removed = Array(all_old_atom_ids).filter(was_atom_removed)
 			_signal_queue_atoms_added = Array(all_new_atom_ids).filter(was_atom_added)
 			_signal_queue_atoms_moved = Array(all_new_atom_ids).filter(was_atom_moved)
-			Array(all_new_atom_ids).filter(check_atomic_number_changed)
+			for atom_id in all_new_atom_ids:
+				if was_atom_added.call(atom_id) or was_atom_removed.call(atom_id):
+					continue
+				if prev_atoms_cache[atom_id].atomic_number != atom_get_atomic_number(atom_id):
+					_signal_queue_atomic_number_changed.append(Vector2i(atom_id, atom_get_atomic_number(atom_id)))
 			# NOTE: prev_atoms_cache.is_empty() means user just started tracking atoms
 			var atoms_to_check_colors: PackedInt32Array
 			if _signal_queue_colors_changed or prev_atoms_cache.is_empty() or _last_sequence != _sequence:
@@ -270,16 +267,13 @@ func end_edit() -> void:
 				atoms_to_check_colors = _signal_queue_atoms_added.duplicate()
 				atoms_to_check_colors.append_array(_signal_queue_atomic_number_changed)
 			_is_being_edited = true
-			
-			var assign_atom_colors: Callable = func(atom_id: int) -> bool:
+			for atom_id: int in atoms_to_check_colors:
 				var expected_color_or_transparent: Color = _get_atom_expected_color(atom_id)
 				var should_have_color: bool = expected_color_or_transparent != Color.TRANSPARENT
 				if should_have_color:
 					set_color_override([atom_id], expected_color_or_transparent)
 				else:
 					remove_color_override([atom_id])
-				return false
-			Array(atoms_to_check_colors).filter(assign_atom_colors)
 			# Track Bonds
 			# HACK: temporarly set is being edited to false to fetch values
 			_is_being_edited = false
