@@ -599,6 +599,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_rendering_representation"] = _rendering_representation
 	snapshot["_should_hide_dna_in_simulation"] = _should_hide_dna_in_simulation
 	snapshot["_is_built"] = _is_built
+	snapshot["_object_visible"] = _object_visible
 	snapshot["_nano_structure_id"] = _nano_structure_id
 	snapshot["_up_to_date_representations"] = _up_to_date_representations.duplicate(true)
 	snapshot["_current_representation.snapshot"] = _current_representation.create_state_snapshot()
@@ -616,6 +617,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_rendering_representation = in_snapshot["_rendering_representation"]
 	_should_hide_dna_in_simulation = in_snapshot["_should_hide_dna_in_simulation"]
 	_is_built = in_snapshot["_is_built"]
+	_object_visible = in_snapshot["_object_visible"]
 	_nano_structure_id = in_snapshot["_nano_structure_id"]
 	_up_to_date_representations = in_snapshot["_up_to_date_representations"].duplicate(true)
 	_current_representation = _representation_to_node_map[_rendering_representation]
