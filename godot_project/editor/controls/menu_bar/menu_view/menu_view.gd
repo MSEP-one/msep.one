@@ -54,9 +54,10 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 		var has_visible_objects: bool = in_context.get_visible_structure_contexts().size() > 0
 		var has_selected_objects: bool = in_context.get_structure_contexts_with_selection().size() > 0
 		var has_hidden_objects: bool = in_context.has_hidden_objects()
+		var can_hide: bool = in_context.has_hiddable_selection()
 		set_item_disabled(get_item_index(ID_FOCUS_ON_VISIBLE_OBJECTS), !has_visible_objects)
 		set_item_disabled(get_item_index(ID_FOCUS_ON_SELECTED_OBJECTS), !has_selected_objects)
-		set_item_disabled(get_item_index(ID_HIDE_SELECTED_OBJECTS), !has_selected_objects)
+		set_item_disabled(get_item_index(ID_HIDE_SELECTED_OBJECTS), !can_hide)
 		set_item_disabled(get_item_index(ID_SHOW_HIDDEN_OBJECTS), !has_hidden_objects)
 		set_item_disabled(get_item_index(ID_OVERRIDE_DEFAULT_COLORS), !in_context.is_any_atom_selected())
 		
