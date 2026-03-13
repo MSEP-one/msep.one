@@ -1318,6 +1318,8 @@ static func _can_relax_all_visible(in_workspace_context: WorkspaceContext) -> bo
 	for context in visible_structures:
 		if not context.nano_structure is AtomicStructure:
 			continue
+		if context.nano_structure is DnaStructure:
+			continue
 		if context.nano_structure.get_valid_atoms_count() > 0:
 			# At least 1 visible atom
 			return true
@@ -1329,6 +1331,8 @@ static func _can_relax_all(in_workspace_context: WorkspaceContext) -> bool:
 			in_workspace_context.get_all_structure_contexts()
 	for context in visible_structures:
 		if not context.nano_structure is AtomicStructure:
+			continue
+		if context.nano_structure is DnaStructure:
 			continue
 		if context.nano_structure.get_valid_atoms_count() > 0:
 			return true
