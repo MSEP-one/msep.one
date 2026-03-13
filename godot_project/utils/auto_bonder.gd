@@ -6,6 +6,7 @@ const GENERATED_BOND_ORDER: int = 1
 
 
 static func generate_bonds_for_structure(out_context: StructureContext, in_selected_atoms_only: bool = false) -> PackedInt32Array:
+	assert(not out_context.nano_structure is DnaStructure)
 	var atoms: PackedInt32Array
 	var selected_atoms: PackedInt32Array = out_context.get_selected_atoms()
 	if in_selected_atoms_only:
