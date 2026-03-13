@@ -260,12 +260,7 @@ func end_edit() -> void:
 				if prev_atoms_cache[atom_id].atomic_number != atom_get_atomic_number(atom_id):
 					_signal_queue_atomic_number_changed.append(Vector2i(atom_id, atom_get_atomic_number(atom_id)))
 			# NOTE: prev_atoms_cache.is_empty() means user just started tracking atoms
-			var atoms_to_check_colors: PackedInt32Array
-			if _signal_queue_colors_changed or prev_atoms_cache.is_empty() or _last_sequence != _sequence:
-				atoms_to_check_colors = all_new_atom_ids.duplicate()
-			else:
-				atoms_to_check_colors = _signal_queue_atoms_added.duplicate()
-				atoms_to_check_colors.append_array(_signal_queue_atomic_number_changed)
+			var atoms_to_check_colors: PackedInt32Array = all_new_atom_ids.duplicate()
 			_is_being_edited = true
 			for atom_id: int in atoms_to_check_colors:
 				var expected_color_or_transparent: Color = _get_atom_expected_color(atom_id)

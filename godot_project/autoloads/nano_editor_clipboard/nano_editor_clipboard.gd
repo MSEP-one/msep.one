@@ -297,14 +297,8 @@ func paste(out_workspace_context: WorkspaceContext, in_auto_bond_order: int) -> 
 	var did_create_undo_action: bool = false
 	if out_workspace_context.get_current_structure_context() != null:
 		target_structure = out_workspace_context.get_current_structure_context().nano_structure
-	if target_structure is DnaStructure:
-		out_workspace_context.get_editor_viewport_container().show_warning_in_message_bar(
-			tr("Cannot paste atoms and objects inside a DNA structure.")
-		)
-		return
-	var original_to_new_structure_id: Dictionary = {
-	#	old_id<int> = new_id<int>
-	}
+	assert(not target_structure is DnaStructure, "Cannot paste atoms and objects inside a DNA structure.")
+	var original_to_new_structure_id: Dictionary[int, int] = {}
 	# reference root to allow pasting direct childs
 	var current_structure_id: int = out_workspace_context.get_current_structure_context().nano_structure.int_guid
 	original_to_new_structure_id[current_structure_id] = current_structure_id
