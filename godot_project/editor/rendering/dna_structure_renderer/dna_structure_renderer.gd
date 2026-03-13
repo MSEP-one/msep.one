@@ -524,6 +524,7 @@ func _on_path_representation_drawn() -> void:
 			color = CONTROL_POINT_COLOR_HIGHLIGHTED
 		elif _hovered_control_point == cp_idx:
 			color = CONTROL_POINT_COLOR_HOVER
+		_path_representation.draw_circle(pos2d, CONTROL_POINT_RADIUS + 1, Color.BLACK)
 		_path_representation.draw_circle(pos2d, CONTROL_POINT_RADIUS, color)
 
 
