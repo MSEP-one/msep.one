@@ -334,7 +334,7 @@ func show_bond_rendering() -> void:
 
 
 static func get_bond_color(in_atom_id: int, in_nano_structure: NanoStructure) -> Color:
-	if in_nano_structure is NanoMolecularStructure and in_nano_structure.has_color_override(in_atom_id):
+	if in_nano_structure is AtomicStructure and in_nano_structure.has_color_override(in_atom_id):
 		return in_nano_structure.get_color_override(in_atom_id)
 	var atomic_number: int = in_nano_structure.atom_get_atomic_number(in_atom_id)
 	var data: ElementData = PeriodicTable.get_by_atomic_number(atomic_number)
