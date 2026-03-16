@@ -545,6 +545,15 @@ func _path_representation_draw_aabb(in_dna_structure: DnaStructure) -> void:
 		p2[c] = start[c]
 		corners.append(p2)
 		corners_2d.append(camera.unproject_position(p2))
+	var farthest_idx: int = -1
+	var fathest_distance_sqrd: float = 0
+	for i in corners.size():
+		var corner_distance_sqrd: float = camera.global_position.distance_squared_to(corners[i])
+		if corner_distance_sqrd > fathest_distance_sqrd:
+			farthest_idx = i
+			fathest_distance_sqrd = corner_distance_sqrd
+	corners.remove_at(farthest_idx)
+	corners_2d.remove_at(farthest_idx)
 	for i: int in range(corners_2d.size() - 1):
 		for j: int in range(i, corners_2d.size()):
 			var common: int = 0
