@@ -652,7 +652,8 @@ func get_base_transform(in_strand: Strand, in_base_index: int) -> Transform3D:
 			z_dir = points[clampi(point_idx - off, 0, points.size() - 1)].direction_to(points[clampi(point_idx + off, 0, points.size() - 1)])
 		y_dir = _curve.get_baked_up_vectors()[-1]
 		y_dir = y_dir.rotated(z_dir, get_base_twist_rad(in_strand, in_base_index))
-		var x_dir: Vector3 = y_dir.cross(z_dir)
+		var x_dir: Vector3 = y_dir.cross(z_dir).normalized()
+		y_dir = z_dir.cross(x_dir)
 		var basis := Basis(x_dir, y_dir, z_dir)
 		var base_offset: float = _parameters.dna_radius_nanometers - DnaBuilder.DNA_BASES_OFFSET
 		var final_pos: Vector3 = path_pos + x_dir * base_offset
