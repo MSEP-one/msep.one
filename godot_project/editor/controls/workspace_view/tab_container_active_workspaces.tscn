@@ -7,8 +7,10 @@
 offset_right = 1142.0
 offset_bottom = 537.0
 size_flags_horizontal = 3
+current_tab = 0
 tabs_visible = false
 script = ExtResource("1_fx300")
 
 [node name="Welcome" parent="." instance=ExtResource("2_jqw1i")]
 layout_mode = 2
+metadata/_tab_index = 0

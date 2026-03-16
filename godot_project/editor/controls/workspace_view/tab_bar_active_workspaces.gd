@@ -29,6 +29,7 @@ func _ready() -> void:
 	active_workspaces.tab_changed.connect(_on_active_workspaces_tab_changed, CONNECT_DEFERRED)
 	active_workspaces.tab_title_updated.connect(_on_active_workspaces_tab_title_updated, CONNECT_DEFERRED)
 	resized.connect(_on_resized)
+	tab_bar_active_workspaces.gui_input.connect(_on_tab_bar_active_workspaces_gui_input)
 	tab_bar_active_workspaces.tab_changed.connect(_on_tab_bar_active_workspaces_tab_changed)
 	tab_bar_active_workspaces.tab_close_pressed.connect(_on_tab_bar_active_workspaces_tab_close_pressed)
 	next_button.pressed.connect(_on_next_button_pressed)
@@ -39,6 +40,19 @@ func _ready() -> void:
 	
 	MolecularEditorContext.workspace_activated.connect(_on_workspace_activated)
 	MolecularEditorContext.homepage_activated.connect(_on_homepage_activated)
+
+
+func _on_tab_bar_active_workspaces_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.is_pressed():
+		if event.button_index != MOUSE_BUTTON_MIDDLE:
+			return
+		var tab_idx: int = tab_bar_active_workspaces.get_tab_idx_at_point(event.position)
+		var is_home_tab: bool = tab_idx == 0
+		if tab_idx == -1 or is_home_tab:
+			return
+		EditorSfx.mouse_down()
+		tab_bar_active_workspaces.current_tab = tab_idx
+		active_workspaces.tab_bar.tab_close_pressed.emit(tab_idx)
 
 
 func _process(_delta: float) -> void:

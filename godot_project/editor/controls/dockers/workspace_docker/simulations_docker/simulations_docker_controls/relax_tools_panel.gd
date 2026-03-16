@@ -58,6 +58,8 @@ func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
 
 
 func _update_view_alerts_button() -> void:
+	if not is_instance_valid(_workspace_context) or _workspace_context.is_queued_for_deletion():
+		return
 	var alerts_count: int = _workspace_context.get_alerts_count()
 	_button_view_alerts.visible = (not _workspace_context.is_alerts_panel_visible()) and alerts_count > 0
 	_button_view_alerts.text = tr_n(&"View %d alert", &"View %d alerts", alerts_count) % alerts_count
