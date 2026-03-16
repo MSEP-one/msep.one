@@ -68,12 +68,14 @@ size_flags_horizontal = 4
 [node name="ButtonRunRelaxation" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"CrystalButton"
 text = "Run Relaxation"
 icon = ExtResource("3_885b2")
 
 [node name="ButtonViewAlerts" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"CrystalButton"
 text = "View 4 Alerts..."
 
 [node name="OpenMMFailureTracker" parent="." instance=ExtResource("4_5qhdq")]
