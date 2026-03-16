@@ -238,6 +238,11 @@ func _copy_structure(
 	if in_structure is NanoVirtualAnchor: # Anchors don't have a transform but have a position
 		new_content[&"data"][&"local_to_camera_transform"] = \
 			camera_transform.inverse() * Transform3D(Basis(), in_structure.get_position())
+	if in_structure is DnaStructure: # Dna Objects have several individual positions
+		new_content[&"data"][&"local_to_camera_control_points"] = PackedVector3Array()
+		for i: int in in_structure.get_control_point_count():
+			new_content[&"data"][&"local_to_camera_control_points"] \
+				.append(camera_transform.inverse() * in_structure.get_control_point_position(i))
 	
 	out_content.push_back(new_content)
 
@@ -711,6 +716,15 @@ func paste_object(
 			new_structure.set_position(new_transform.origin)
 		else:
 			new_structure.set_transform(new_transform)
+	if new_structure is DnaStructure:
+		var local_to_camera_control_points: PackedVector3Array = in_entity_data[&"local_to_camera_control_points"]
+		assert(new_structure.get_control_point_count() == local_to_camera_control_points.size())
+		var camera_transform: Transform3D = out_workspace_context.get_camera_global_transform()
+		new_structure.start_edit()
+		for i: int in local_to_camera_control_points.size():
+			var new_control_point_pos: Vector3 = camera_transform * local_to_camera_control_points[i]
+			new_structure.set_control_point_position(i, new_control_point_pos)
+		new_structure.end_edit()
 	out_workspace_context.workspace.add_structure(new_structure, in_parent_structure)
 	var new_structure_context: StructureContext = \
 		out_workspace_context.get_nano_structure_context(new_structure)
