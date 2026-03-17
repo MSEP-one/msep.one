@@ -13,6 +13,7 @@ var _tree_items: Dictionary = {
 #	structure_id<int> = tree_item<TreeItem>
 }
 var _editing_connection: bool = false
+var _removed_items_this_frame: PackedInt32Array
 
 
 func _notification(what: int) -> void:
@@ -119,6 +120,12 @@ func _on_workspace_context_structure_about_to_remove(in_structure: NanoStructure
 	var structure_item: TreeItem = _tree_items.get(in_structure.int_guid, null)
 	if structure_item != null:
 		_free_tree_item_and_all_dependencies(structure_item)
+		_removed_items_this_frame.append(in_structure.int_guid)
+		ScriptUtils.call_deferred_once(_clear_removed_items_this_frame)
+
+
+func _clear_removed_items_this_frame() -> void:
+	_removed_items_this_frame.clear()
 
 
 func _free_tree_item_and_all_dependencies(in_item: TreeItem) -> void:
@@ -259,6 +266,10 @@ func _on_tracked_motor_structure_connected(in_new_structure_id: int) -> void:
 func _on_tracked_motor_structure_disconnected(in_disconnected_structure_id: int) -> void:
 	if _editing_connection: return
 	var structure_item: TreeItem = _tree_items.get(in_disconnected_structure_id, null) as TreeItem
+	if structure_item == null:
+		assert(in_disconnected_structure_id in _removed_items_this_frame,
+			"Could not find structure and was not in the list of recently deleted.")
+		return
 	if structure_item.get_cell_mode(_TREE_COLUMN_0) != TreeItem.CELL_MODE_CHECK:
 		return
 	structure_item.set_checked(_TREE_COLUMN_0, false)
