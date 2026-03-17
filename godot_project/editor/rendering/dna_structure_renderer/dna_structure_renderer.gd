@@ -242,6 +242,8 @@ func _on_structure_colors_changed() -> void:
 
 func _on_dna_representation_changed(in_representation: DnaRepresentation) -> void:
 	_current_representation = in_representation
+	if _current_representation == DnaRepresentation.SIMPLIFIED:
+		_update_bases()
 	_update_visibility()
 
 
@@ -250,7 +252,8 @@ func _on_curve_changed() -> void:
 		return
 	assert(curve.point_count > 1, "Invalid curve, dna object should be deleted in this case")
 	_path_representation.queue_redraw()
-	_update_base_transforms()
+	if _current_representation == DnaRepresentation.SIMPLIFIED:
+		_update_base_transforms()
 
 
 func highlight_control_points(in_control_points_to_highlight: PackedInt32Array) -> void:
