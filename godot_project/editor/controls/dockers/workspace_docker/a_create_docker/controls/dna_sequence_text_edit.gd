@@ -64,6 +64,7 @@ func _handle_unicode_input(unicode_char: int, _in_caret_index: int) -> void:
 		else:
 			insert_text_at_caret(char(unicode_char).to_upper())
 
+
 func _paste(in_caret_index: int) -> void:
 	_handle_paste(DisplayServer.clipboard_get(), in_caret_index)
 
@@ -98,6 +99,21 @@ func _show_invalid_clipboard_message() -> void:
 
 
 func _gui_input(in_event: InputEvent) -> void:
+	if in_event.is_action_pressed(&"ui_copy"):
+		copy()
+		get_viewport().set_input_as_handled()
+		return
+	
+	if in_event.is_action_pressed(&"ui_cut"):
+		cut()
+		get_viewport().set_input_as_handled()
+		return
+	
+	if in_event.is_action_pressed(&"ui_paste"):
+		paste()
+		get_viewport().set_input_as_handled()
+		return
+	
 	if in_event is InputEventKey:
 		# block non unicode characters
 		if in_event.keycode in [KEY_TAB, KEY_ENTER]:
