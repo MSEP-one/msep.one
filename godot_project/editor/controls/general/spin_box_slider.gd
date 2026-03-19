@@ -35,6 +35,8 @@ func _ready() -> void:
 	slider.drag_started.connect(_on_slider_drag_started)
 	slider.drag_ended.connect(_on_slider_drag_ended)
 	value_changed.connect(_on_value_changed)
+	value_confirmed.connect(_on_value_confirmed.unbind(1))
+	_adjust_min_size_to_content()
 
 
 ## Spinbox control doesn't have a drag_started / drag_ended signal, so this
@@ -91,6 +93,21 @@ func _on_value_changed(in_value: float) -> void:
 	if _is_dragging:
 		return
 	value_confirmed.emit(in_value)
+
+
+# Ensure text fits in the control
+func _on_value_confirmed() -> void:
+	_adjust_min_size_to_content()
+
+
+func _adjust_min_size_to_content() -> void:
+	var line_edit: LineEdit = get_line_edit()
+	# When changing value from slider, text includes suffix
+	# To ensure consistency we stript the suffix from the length of the string, then add it back
+	const CUT_EXCESS_SPACE = 2
+	var length: int = line_edit.text.get_slice(" ", 0).length() + suffix.length() - CUT_EXCESS_SPACE
+	line_edit.add_theme_constant_override(&"minimum_character_width", length)
+	minimum_size_changed.emit()
 
 
 func set_slider_visible(in_visible: bool) -> void:
