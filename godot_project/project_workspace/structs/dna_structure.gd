@@ -75,6 +75,15 @@ static func create_dna(out_parameters: DnaStructureParameters) -> DnaStructure:
 	return instance
 
 
+# These variables are used to prevent duplicated processing
+# every time a different path is requested, or a base lower than alst is requested,
+# the algorithm will restart form the start, but otherwise will continue from the last known values
+static var _last_querried_base_index: int = 0xFFFFFF
+static var _last_querried_curve_rid := RID()
+static var _last_baked_path: PackedVector3Array
+static var _last_baked_path_length: float = 0
+static var _last_accum_length: float = 0
+static var _last_baked_path_index: int = -1
 static func calculate_base_origin_transform(
 		in_base_index: int,
 		in_curve: Curve3D,
@@ -85,12 +94,24 @@ static func calculate_base_origin_transform(
 	var y_dir := Vector3.ZERO
 	var z_dir := Vector3.ZERO
 	var path_pos: Vector3
-	var baked_path: PackedVector3Array = in_curve.get_baked_points()
+	var can_continue_from_last_querry: bool = (
+		_last_querried_base_index < in_base_index
+		and _last_querried_curve_rid == in_curve.get_rid()
+		# Note: in_rise_nanometers in_bases_per_turn and in_twists_offset_radians are not tested
+		# When they change the base index will always go back to 0
+		# so there's no need to check them too
+	)
+	_last_querried_base_index = in_base_index
+	_last_querried_curve_rid = in_curve.get_rid()
+	
+	var baked_path: PackedVector3Array = _last_baked_path if can_continue_from_last_querry else in_curve.get_baked_points()
+	_last_baked_path_length = _last_baked_path_length if can_continue_from_last_querry else in_curve.get_baked_length()
 	var required_length: float = in_rise_nanometers * (in_base_index)
-	if in_curve.get_baked_length() < required_length:
+	
+	if _last_baked_path_length < required_length:
 		var last_pos: Vector3 = baked_path[-1]
-		z_dir = baked_path[-2].direction_to(last_pos)
-		var remaining_distance: float = required_length - in_curve.get_baked_length()
+		z_dir = in_curve.get_baked_points()[-2].direction_to(last_pos)
+		var remaining_distance: float = required_length - _last_baked_path_length
 		var final_pos: Vector3 = last_pos + z_dir * remaining_distance
 		while remaining_distance > in_curve.bake_interval:
 			last_pos += z_dir * in_curve.bake_interval
@@ -98,9 +119,11 @@ static func calculate_base_origin_transform(
 			remaining_distance -= in_curve.bake_interval
 		if last_pos != final_pos:
 			baked_path.append(final_pos)
+			_last_baked_path_length += last_pos.distance_to(final_pos)
+	_last_baked_path = baked_path
 	# position is along the in_curve
-	var advance: float = 0
-	var point_idx: int = 0
+	var advance: float = _last_accum_length if can_continue_from_last_querry else 0.0
+	var point_idx: int = _last_baked_path_index if can_continue_from_last_querry else 0
 	var curr_pos: Vector3 = baked_path[point_idx]
 	var next_pos: Vector3 = baked_path[point_idx + 1]
 	var next_advance: float = advance + curr_pos.distance_to(next_pos)
@@ -112,12 +135,13 @@ static func calculate_base_origin_transform(
 		next_advance += curr_pos.distance_to(next_pos)
 	path_pos = curr_pos
 	z_dir = baked_path[point_idx].direction_to(baked_path[point_idx + 1])
-	y_dir = in_curve.get_baked_up_vectors()[-1]
+	y_dir = in_curve.get_baked_up_vectors()[min(point_idx, in_curve.get_baked_up_vectors().size() - 1)]
+	_last_accum_length = advance
+	_last_baked_path_index = point_idx
 	
 	var rad_per_base: float = deg_to_rad(360) / in_bases_per_turn
 	var angle: float = (rad_per_base * in_base_index) + in_twists_offset_radians
 	y_dir = y_dir.rotated(z_dir, angle)
-	
 	var basis := Basis().looking_at(z_dir, y_dir)
 	return Transform3D(basis, path_pos)
 
