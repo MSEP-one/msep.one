@@ -205,6 +205,26 @@ func _sequence_length_spin_box_slider_value_confirmed(in_value: int) -> void:
 
 
 func _on_dna_sequence_text_edit_text_changed() -> void:
+	if not _dna_sequence_text_edit.editable:
+		# There's a GodotEngine but that allows to edit TextEdit in MacOS when disabled
+		# This is selecting some text and pressing Option+E to start writing a
+		# vowel with ´ ie: áéíóú. Godot replaces selection for the ´ character
+		# that latter is rejected for not being in the ATGC bases
+		# This workaround will revert all of this madness
+		var carets: Array[Vector2i]
+		for i in _dna_sequence_text_edit.get_caret_count():
+			carets.append(Vector2i(
+				_dna_sequence_text_edit.get_caret_line(i),
+				_dna_sequence_text_edit.get_caret_column(i)
+			))
+		_dna_sequence_text_edit.text = _tracked_structure.get_sequence()
+		for i in carets.size():
+			if i >= _dna_sequence_text_edit.get_caret_count():
+				_dna_sequence_text_edit.add_caret(carets[i][0], carets[i][1])
+			else:
+				_dna_sequence_text_edit.set_caret_line(carets[i][0])
+				_dna_sequence_text_edit.set_caret_column(carets[i][1])
+		return
 	assert(_tracked_structure != null)
 	var sequence: String = _dna_sequence_text_edit.text
 	_tracked_structure.start_edit()
