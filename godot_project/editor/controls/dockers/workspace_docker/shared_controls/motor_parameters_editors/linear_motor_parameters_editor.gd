@@ -80,8 +80,7 @@ func _on_linear_motor_parameters_changed() -> void:
 	_linear_ramp_out_time.time_span_femtoseconds = TimeSpanPicker.unit_to_femtoseconds(
 			parameters.ramp_out_time_in_nanoseconds, TimeSpanPicker.Unit.NANOSECOND)
 	_linear_ramp_out_time.editable = parameters.cycle_type != NanoVirtualMotorParameters.CycleType.CONTINUOUS
-	var top_speed_in_femtoseconds: float = parameters.top_speed_in_nanometers_by_nanoseconds / 1e+6
-	_linear_top_speed_spin_box.set_value_no_signal(top_speed_in_femtoseconds)
+	_linear_top_speed_spin_box.set_value_no_signal(parameters.top_speed_in_nanometers_by_nanoseconds)
 	_linear_max_force_spin_box.set_value_no_signal(parameters.max_force)
 	_linear_forward_polarity_button.set_pressed_no_signal(parameters.polarity == NanoLinearMotorParameters.Polarity.FORWARD)
 	_linear_backward_polarity_button.set_pressed_no_signal(parameters.polarity == NanoLinearMotorParameters.Polarity.BACKWARDS)
@@ -107,9 +106,8 @@ func _on_linear_ramp_out_time_time_span_changed(in_magnitude: float, in_unit: Ti
 	_take_snapshot_if_configured(tr(&"Ramp-Out Time"))
 
 
-func _on_linear_top_speed_spin_box_value_confirmed(in_top_speed_in_femtoseconds: float) -> void:
-	var top_speed_in_nanoseconds: float = in_top_speed_in_femtoseconds * 1e+6
-	_get_linear_parameters().top_speed_in_nanometers_by_nanoseconds = top_speed_in_nanoseconds
+func _on_linear_top_speed_spin_box_value_confirmed(in_top_speed_in_nanoseconds: float) -> void:
+	_get_linear_parameters().top_speed_in_nanometers_by_nanoseconds = in_top_speed_in_nanoseconds
 	_take_snapshot_if_configured(tr(&"Top Speed"))
 
 
