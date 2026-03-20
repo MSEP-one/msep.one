@@ -16,9 +16,9 @@ enum CycleType { ## How cycle works
 
 var motor_type: Type = Type.UNKNOWN:
 	get = _get_motor_type
-@export var ramp_in_time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(150, TimeSpanPicker.Unit.NANOSECOND):
+@export var ramp_in_time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(75, TimeSpanPicker.Unit.NANOSECOND):
 	set = _set_ramp_in_time_in_nanoseconds
-@export var ramp_out_time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(150, TimeSpanPicker.Unit.NANOSECOND):
+@export var ramp_out_time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(75, TimeSpanPicker.Unit.NANOSECOND):
 	set = _set_ramp_out_time_in_nanoseconds
 @export_group("Cycle", "cycle_")
 ## Reffer to 

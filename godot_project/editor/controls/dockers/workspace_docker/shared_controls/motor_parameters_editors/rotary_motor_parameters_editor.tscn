@@ -37,7 +37,7 @@ vertical_alignment = 1
 [node name="RotaryRampInTime" parent="." instance=ExtResource("1_ldadn")]
 unique_name_in_owner = true
 layout_mode = 2
-time_span_femtoseconds = 150.0
+time_span_femtoseconds = 75.0
 min_value_in_femtoseconds = 0.0
 
 [node name="Label2" type="Label" parent="."]
@@ -50,7 +50,7 @@ vertical_alignment = 1
 [node name="RotaryRampOutTime" parent="." instance=ExtResource("1_ldadn")]
 unique_name_in_owner = true
 layout_mode = 2
-time_span_femtoseconds = 150.0
+time_span_femtoseconds = 75.0
 min_value_in_femtoseconds = 0.0
 
 [node name="Label3" type="Label" parent="."]

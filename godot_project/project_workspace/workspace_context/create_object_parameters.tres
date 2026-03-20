@@ -27,11 +27,11 @@ cycle_swap_polarity = false
 cycle_eventually_stops = false
 cycle_stop_after_n_cycles = 0
 limit_maximum_force = true
-max_force = 1e+06
+max_force = 1000.0
 
 [sub_resource type="Resource" id="Resource_6rxql"]
 script = ExtResource("2_plga1")
-top_revolutions_per_nanosecond = 30.0
+top_revolutions_per_nanosecond = 120.0
 is_jerk_limited = false
 jerk_limit = 50.0
 polarity = 0
@@ -45,7 +45,7 @@ cycle_swap_polarity = false
 cycle_eventually_stops = false
 cycle_stop_after_n_cycles = 0
 limit_maximum_force = true
-max_force = 1e+06
+max_force = 1000.0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ou6fn"]
 height = 1.0

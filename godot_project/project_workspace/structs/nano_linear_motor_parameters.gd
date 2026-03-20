@@ -26,7 +26,7 @@ func _on_self_changed() -> void:
 func get_tooltip_text() -> String:
 	var tooltip: String = ""
 	var polarity_name: StringName = NanoLinearMotorParameters.Polarity.find_key(polarity)
-	tooltip += tr("Top Speed: %.1f nm/fs\n") % (top_speed_in_nanometers_by_nanoseconds / 1000000.0)
+	tooltip += tr("Top Speed: %.1f nm/ns\n") % (top_speed_in_nanometers_by_nanoseconds)
 	tooltip += tr(polarity_name.capitalize()) + "\n"
 	var with_cycle: bool = cycle_type != NanoLinearMotorParameters.CycleType.CONTINUOUS
 	if with_cycle and cycle_swap_polarity:
