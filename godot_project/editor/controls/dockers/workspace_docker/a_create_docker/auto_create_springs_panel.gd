@@ -172,9 +172,9 @@ func _create_atom_to_atom_springs() -> void:
 					EQUILIBRIUM_LENGTH_IS_AUTO, MANUAL_EQUILIBRIUM_LENGTH
 				)
 				springs_added.append(new_spring)
-			if springs_added.size() > 0:
-				structure.end_edit()
-				ctx.select_springs(springs_added)
-				new_spring_count += springs_added.size()
+		if springs_added.size() > 0:
+			structure.end_edit()
+			ctx.select_springs(springs_added)
+			new_spring_count += springs_added.size()
 	if new_spring_count > 0:
 		_workspace_context.snapshot_moment("Create %d Springs" % new_spring_count)
