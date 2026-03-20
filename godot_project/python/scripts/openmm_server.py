@@ -847,6 +847,7 @@ class ParticleEmitter:
 		rest_position_reader = PayloadChunkReader(self.atom_rest_position_buffer)
 		state = simulation.context.getState(getPositions=True, getVelocities=True)
 		forces = SystemForcesCollection(simulation.system)
+		self.forces = forces
 		positions = state.getPositions()
 		initial_velocities = state.getVelocities()
 		bonds_per_atom, angles_per_atom, torsions_per_atom = self._collect_forces_per_atom(simulation)
@@ -936,7 +937,7 @@ class ParticleEmitter:
 			self.enable_instance(i, simulation)
 
 	def enable_instance(self, instance_index: int, simulation: Simulation):
-		forces = SystemForcesCollection(simulation.system)
+		forces: SystemForcesCollection = self.forces
 		state = simulation.context.getState(getVelocities=True, getPositions=True)
 		velocities = state.getVelocities()
 		current_positions = state.getPositions()
@@ -1151,6 +1152,9 @@ class SystemForcesCollection():
 				self.torsion_force = force
 			elif isinstance(force, AndersenThermostat):
 				self.thermostat_force = force
+			elif isinstance(force, CustomExternalForce):
+				# Ignore motor forces
+				pass
 			else:
 				print(f"Untracked force: {force.getName()}")
 
