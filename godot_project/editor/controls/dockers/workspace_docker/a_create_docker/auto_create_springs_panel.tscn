@@ -44,7 +44,7 @@ layout_mode = 2
 theme_type_variation = &"StructureSelectorMoreButton"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_jgiuk")
-text = "Springs between Atoms"
+text = "Springs Between Atoms"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer2"]
 layout_mode = 2
