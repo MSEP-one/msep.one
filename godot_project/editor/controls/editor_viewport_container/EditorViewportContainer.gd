@@ -305,6 +305,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if !is_visible_in_tree():
 		return
+	if event is InputEventKey and get_viewport().gui_get_focus_owner() != null:
+		# Ignore all input when some control has input control
+		return
 	if InitialInfoScreen.was_closed:
 		editor_viewport.forward_viewport_input(event)
 
