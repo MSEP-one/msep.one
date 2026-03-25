@@ -27,6 +27,7 @@ func _ready() -> void:
 	_replay_button.pressed.connect(_on_replay_pressed)
 	_full_screen_button.toggled.connect(_on_full_screen_button_toggled)
 	get_tree().root.size_changed.connect(_on_main_window_size_changed)
+	about_to_popup.connect(_on_about_to_popup)
 	close_requested.connect(_on_close_requested)
 	pause()
 
@@ -100,6 +101,11 @@ func _on_main_window_size_changed() -> void:
 func _update_full_screen_size() -> void:
 	position = Vector2.ZERO
 	size = get_tree().root.size
+
+
+func _on_about_to_popup() -> void:
+	_full_screen_button.button_pressed = false
+
 
 func _on_close_requested() -> void:
 	pause()
