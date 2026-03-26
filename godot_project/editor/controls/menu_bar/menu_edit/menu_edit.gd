@@ -21,6 +21,9 @@ enum {
 @export var shortcut_delete_macos: Shortcut
 
 
+var _is_macos: bool = OS.get_name().to_lower() == "macos"
+
+
 func _ready() -> void:
 	super()
 	set_item_shortcut(ID_UNDO, shortcut_undo, true)
@@ -86,13 +89,28 @@ func _on_id_pressed(in_id: int) -> void:
 		ID_DELETE:
 			workspace_context.action_delete.execute()
 		ID_COPY:
+			if _is_macos:
+				var focused: Control = get_tree().root.gui_get_focus_owner()
+				if focused is TextEdit:
+					focused.copy()
+					return
 			workspace_context.action_copy.execute()
 			var can_paste: bool = workspace_context.action_paste.can_paste()
 			set_item_disabled(ID_PASTE, !can_paste)
 			set_item_disabled(ID_BONDED_PASTE, !can_paste)
 		ID_CUT:
+			if _is_macos:
+				var focused: Control = get_tree().root.gui_get_focus_owner()
+				if focused is TextEdit:
+					focused.cut()
+					return
 			workspace_context.action_cut.execute()
 		ID_PASTE:
+			if _is_macos:
+				var focused: Control = get_tree().root.gui_get_focus_owner()
+				if focused is TextEdit:
+					focused.paste()
+					return
 			workspace_context.action_paste.execute()
 		ID_BONDED_PASTE:
 			workspace_context.action_bonded_paste.execute()
