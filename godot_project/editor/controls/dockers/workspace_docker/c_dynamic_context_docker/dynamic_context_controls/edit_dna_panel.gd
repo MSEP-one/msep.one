@@ -11,6 +11,7 @@ var _main_container: Container
 var _advanced_options_button: Button
 var _simulate_hydrogen_bonds_check_button: CheckButton
 var _convert_to_atoms_button: Button
+var _change_representation_button: RichTextLabel
 
 
 var _workspace_context: WorkspaceContext
@@ -27,6 +28,7 @@ func _notification(what: int) -> void:
 		_advanced_options_button = %AdvancedOptionsButton as Button
 		_simulate_hydrogen_bonds_check_button = %SimulateHydrogenBondsCheckButton as CheckButton
 		_convert_to_atoms_button = %ConvertToAtomsButton as Button
+		_change_representation_button = %ChangeRepresentationButton as RichTextLabel
 		_sequence_length_spin_box_slider.value_confirmed.connect(_sequence_length_spin_box_slider_value_confirmed)
 		_dna_sequence_text_edit.text_changed.connect(_on_dna_sequence_text_edit_text_changed)
 		_dna_radius_spin_box_slider.value_confirmed.connect(_on_dna_radius_spin_box_slider_value_confirmed)
@@ -46,6 +48,7 @@ func _notification(what: int) -> void:
 		for base_type: StringName in _bases_color_pickers.keys():
 			_bases_color_pickers[base_type].color_changed.connect(_on_base_type_color_changed.bind(base_type))
 		_convert_to_atoms_button.pressed.connect(_on_convert_to_atoms_button_pressed)
+		_change_representation_button.meta_clicked.connect(_on_change_representation_button_meta_clicked.unbind(1))
 
 
 func _sequence_button_button_group_pressed() -> void:
@@ -438,3 +441,11 @@ func _on_convert_to_atoms_button_pressed() -> void:
 	var new_context: StructureContext = _workspace_context.get_structure_context(new_group.int_guid)
 	new_context.select_all()
 	_workspace_context.snapshot_moment("Convert DNA to Atoms and Bonds")
+
+
+func _on_change_representation_button_meta_clicked() -> void:
+	MolecularEditorContext.request_workspace_docker_focus(
+		WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+		&"Representation Settings",
+		[^"VisibilitySettings", ^"%DnaRepresentationOptionButton/.."]
+		)
