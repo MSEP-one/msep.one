@@ -297,7 +297,11 @@ func is_workspace_docker_area_hidden_by_user(in_docker_unique_name: StringName) 
 	return false
 
 
-func request_workspace_docker_focus(in_docker_unique_name: StringName, in_category_name := StringName()) -> void:
+func request_workspace_docker_focus(
+		in_docker_unique_name: StringName,
+		in_category_name := StringName(),
+		in_focus_control_path: Array[NodePath] = []
+		) -> void:
 	var workspace_context: WorkspaceContext = get_current_workspace_context()
 	if workspace_context == null:
 		return
@@ -323,7 +327,7 @@ func request_workspace_docker_focus(in_docker_unique_name: StringName, in_catego
 	await get_tree().process_frame
 	assert(docker.has_category(in_category_name), "Missing category '%s' in docker with unique name '%s'" %
 		[in_category_name, in_docker_unique_name])
-	docker.highlight_category(in_category_name)
+	docker.highlight_category(in_category_name, in_focus_control_path)
 
 
 func close_workspace_no_prompt(in_workspace: Workspace) -> void:

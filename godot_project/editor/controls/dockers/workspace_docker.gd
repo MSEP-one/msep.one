@@ -179,10 +179,17 @@ func ensure_category_expanded(in_id: StringName) -> void:
 	category.category_control.expanded = true
 
 
-func highlight_category(in_id: StringName) -> void:
+func highlight_category(in_id: StringName, in_focus_control_path: Array[NodePath] = []) -> void:
 	assert(_categories.has(in_id))
 	var category: Category = _categories[in_id] as Category
 	var control: Control = category.category_control
+	if not in_focus_control_path.is_empty():
+		# Target is a specific control inside the category
+		control = category.container
+		for node_path: NodePath in in_focus_control_path:
+			var c: Control = control.get_node_or_null(node_path) as Control
+			assert(c != null, "Invalid NodePath: %s " % [node_path])
+			control = c
 	var overlay := Control.new()
 	add_child(overlay)
 	overlay.draw.connect(_on_category_control_draw.bind(control, overlay))
