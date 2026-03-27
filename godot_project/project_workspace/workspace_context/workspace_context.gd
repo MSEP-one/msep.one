@@ -354,6 +354,8 @@ func _on_weak_workspace_structure_about_to_remove(in_structure: NanoStructure) -
 	structure_context.clear_selection()
 	if _selection_modified_structure_contexts.has(in_structure.int_guid):
 		_selection_modified_structure_contexts.erase(in_structure.int_guid)
+	if _modified_structure_contexts.has(in_structure.int_guid):
+		_modified_structure_contexts.erase(in_structure.int_guid)
 	var rendering: Rendering = get_editor_viewport().get_rendering()
 	assert(rendering, "Received structure_removed signal before workspace " +
 						"viewport UI was initialized (or after destroyed?)")
