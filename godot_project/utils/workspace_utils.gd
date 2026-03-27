@@ -635,14 +635,15 @@ static func _move_selection_to_existing_structure(
 			var old_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
 			var source_structure_atoms_ids: PackedInt32Array = structure_context.get_selected_atoms()
 			var source_structure_bonds_ids: PackedInt32Array = structure_context.get_selected_bonds()
-			var source_structure_springs_ids: PackedInt32Array = PackedInt32Array()
+			var source_structure_springs_ids: Dictionary[int, bool] = {}
 			var old_color_overrides: Dictionary = old_structure.get_color_overrides()
 			var new_color_overrides: Dictionary = {
 			#	color<Color> = atoms_to_apply<PackedInt32Array>
 			}
 			
 			for atom_id: int in source_structure_atoms_ids:
-				source_structure_springs_ids.append_array(old_structure.atom_get_springs(atom_id))
+				for spring_id: int in old_structure.atom_get_springs(atom_id):
+					source_structure_springs_ids[spring_id] = true
 			
 			var destination_structure_atoms_ids: PackedInt32Array = []
 			var destination_structure_bonds_ids: PackedInt32Array = []
@@ -680,7 +681,7 @@ static func _move_selection_to_existing_structure(
 				destination_structure_bonds_ids.push_back(new_bond_id)
 			
 			# 3. Copy springs from src to dst
-			for old_spring_id: int in source_structure_springs_ids:
+			for old_spring_id: int in source_structure_springs_ids.keys():
 				var anchor_id: int = old_structure.spring_get_anchor_id(old_spring_id)
 				var old_atom_id: int = old_structure.spring_get_atom_id(old_spring_id)
 				var old_atom_id2: int = old_structure.spring_get_second_atom_id(old_spring_id)
@@ -707,8 +708,8 @@ static func _move_selection_to_existing_structure(
 				old_structure.remove_atom(old_atom_id)
 			# 6. invalidate springs in src
 			#    Make all selected springs visible before invalidating them
-			old_structure.set_springs_visibility(source_structure_springs_ids, true)
-			for old_spring_id: int in source_structure_springs_ids:
+			old_structure.set_springs_visibility(source_structure_springs_ids.keys(), true)
+			for old_spring_id: int in source_structure_springs_ids.keys():
 				old_structure.spring_invalidate(old_spring_id)
 			new_atoms_to_select_when_done.append_array(destination_structure_atoms_ids)
 			old_structure.end_edit()
