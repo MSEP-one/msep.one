@@ -577,7 +577,7 @@ func _paste_springs(
 			if not springs_pending_creation.has(new_structure_id):
 				springs_pending_creation[new_structure_id] = []
 			springs_pending_creation[new_structure_id].push_back(new_spring)
-		if target_atom_was_copied and target_atom2_was_copied:
+		elif target_atom_was_copied and target_atom2_was_copied:
 			# create new spring attached to new atoms
 			var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom]
 			var new_atom2_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom2]
