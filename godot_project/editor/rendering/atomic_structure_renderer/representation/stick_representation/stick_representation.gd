@@ -718,8 +718,7 @@ static func calculate_transform_for_bond(in_first_pos: Vector3, in_sec_pos: Vect
 	# capsule stick looks like a sphere when two atoms are at the same place.
 	var length: float = max(0.025, in_first_pos.distance_to(in_sec_pos))
 	var particle_transform: Transform3D = Transform3D(Basis(), particle_position)
-	if particle_transform.origin.distance_squared_to(in_first_pos) > 0.001:
-		particle_transform = particle_transform.looking_at(in_first_pos, in_up_vector)
+	particle_transform = particle_transform.looking_at(in_first_pos, in_up_vector)
 	particle_transform = particle_transform.scaled_local(Vector3(1, 1, length))
 	return particle_transform
 
