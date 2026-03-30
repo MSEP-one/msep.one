@@ -528,6 +528,10 @@ func _is_shortcut_pressed() -> bool:
 		Input.is_key_pressed(KEY_ALT) and
 		not Input.is_key_pressed(KEY_SHIFT) and
 		not Input.is_key_pressed(KEY_META)
+	) or (
+		_is_mac and
+		Input.is_key_pressed(KEY_ALT) and
+		not Input.is_key_pressed(KEY_SHIFT)
 	)
 
 
