@@ -201,6 +201,7 @@ func _sequence_length_spin_box_slider_value_confirmed(in_value: int) -> void:
 	_tracked_structure.start_edit()
 	_tracked_structure.set_sequence_length(in_value)
 	_tracked_structure.end_edit()
+	WorkspaceUtils.focus_camera_on_aabb(_workspace_context, _tracked_structure.get_aabb())
 	_workspace_context.snapshot_moment("Set Dna Sequence Length")
 
 
@@ -219,6 +220,7 @@ func _on_dna_sequence_text_edit_text_changed() -> void:
 		_dna_sequence_text_edit.set_caret_line(caret_line)
 		_dna_sequence_text_edit.set_caret_column(caret_pos)
 		_dna_sequence_text_edit.set_block_signals(false)
+	WorkspaceUtils.focus_camera_on_aabb(_workspace_context, _tracked_structure.get_aabb())
 	_workspace_context.snapshot_moment("Set Dna Sequence")
 
 
@@ -334,7 +336,6 @@ func _on_minor_groove_color_changed(in_color: Color) -> void:
 	_tracked_structure.set_minor_groove_color(in_color)
 	_tracked_structure.end_edit()
 	_workspace_context.snapshot_moment("Set Minor Groove Color")
-
 
 
 func _on_base_type_color_changed(in_color: Color, in_base: StringName) -> void:

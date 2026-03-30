@@ -59,6 +59,7 @@ var _signal_queue_parameters_changed: bool = false
 var _signal_queue_colors_changed: bool = false
 var _baked_path: PackedVector3Array = []
 var _adjust_path_length_queued: bool = false
+var _adjust_path_sequence_changed: bool = false
 var _aabb_cache := AABB()
 
 @export var _springs: Dictionary = {
@@ -752,7 +753,7 @@ func set_sequence(in_sequence: String) -> void:
 	assert(_sequence_policy == SequencePolicy.UserDefined, "Cannot set sequence when is meant to be generated randomly")
 	if _sequence != in_sequence:
 		_sequence = in_sequence
-		_queue_adjust_path_length()
+		_queue_adjust_path_length(true)
 
 
 func get_sequence() -> String:
@@ -789,24 +790,51 @@ func set_sequence_length(in_length: int) -> void:
 		const BASES = ['A', 'T', 'C', 'G']
 		_sequence += BASES[rng.randi() % BASES.size()]
 	_last_rand_sequence_state = rng.state
-	_queue_adjust_path_length()
+	_queue_adjust_path_length(true)
 
 
-func _queue_adjust_path_length() -> void:
+func _queue_adjust_path_length(in_sequence_changed: bool = false) -> void:
 	assert(_is_being_edited)
 	_adjust_path_length_queued = true
+	_adjust_path_sequence_changed = _adjust_path_sequence_changed or in_sequence_changed
 
 
 func _adjust_path_length() -> void:
 	assert(_is_being_edited)
+	var should_extend_path: bool = _adjust_path_sequence_changed
+	_adjust_path_sequence_changed = false 
 	_adjust_path_length_queued = false
+	
 	const MIN_RISE_NANOMETERS: float = 0.1
 	if _parameters.rise_nanometers < MIN_RISE_NANOMETERS:
 		return
-	var expected_length: float = (get_sequence_length() - 1) * _parameters.rise_nanometers
+	
 	const THRESHOLD: float = MIN_RISE_NANOMETERS
-	if _curve.get_baked_length() - THRESHOLD < expected_length:
-		return
+	var expected_length: float = (get_sequence_length() - 1) * _parameters.rise_nanometers
+	var curve_length: float = _curve.get_baked_length() - THRESHOLD
+	if curve_length < expected_length:
+		if should_extend_path:
+			assert(get_control_point_count() >= 2, "DNA Curve doesn't have enough control points")
+			# Find where the last curve point should be
+			var length_diff: float = expected_length - curve_length
+			var last_point: Vector3 = _curve.get_baked_points()[-1]
+			var before_last_point: Vector3 = _curve.get_baked_points()[-2]
+			var dir: Vector3 = before_last_point.direction_to(last_point)
+			if dir.is_equal_approx(Vector3.ZERO):
+				dir = Vector3.UP
+			var expected_last_position: Vector3 = last_point + dir * length_diff
+			
+			# Move the curve's last point to the target position if the curve is straight
+			# or add a new point if it's curved.
+			# (Path is straight if the out direction of the second to last control point
+			# is roughly aligned with the last curve normal)
+			var before_last_out: Vector3 = _curve.get_point_out(get_control_point_count() - 2).normalized()
+			if before_last_out.dot(dir) > 0.8:
+				set_control_point_position(get_control_point_count() - 1, expected_last_position)
+			else: 
+				insert_control_point(expected_last_position)
+		else:
+			return
 	
 	if get_control_point_count() > 2:
 		var should_drop_last: bool = get_path_length_at_control_point(-2) > expected_length
@@ -2004,4 +2032,3 @@ class AtomData:
 		atom.atomic_number = data.atomic_number
 		atom.position = data.position
 		return atom
-
