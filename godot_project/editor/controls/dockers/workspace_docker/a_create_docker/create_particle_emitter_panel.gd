@@ -102,8 +102,29 @@ func _update_ui() -> void:
 
 func _on_create_from_selection_button_pressed() -> void:
 	assert(WorkspaceUtils.can_create_particle_emitter_from_selection(_workspace_context))
-	# 1. Create emitter parameters from settings
 	var selected_contexts: Array[StructureContext] = _workspace_context.get_atomic_structure_contexts_with_selection()
+	# 1. Check and warn about springs
+	if _workspace_context.ignored_warnings.new_particle_emitter_ignores_springs == false:
+		var has_springs: bool = false
+		for context: StructureContext in selected_contexts:
+			if context.get_selected_springs().size() > 0:
+				has_springs = true
+				break
+			var structure: AtomicStructure = context.nano_structure as AtomicStructure
+			for atom_id in context.get_selected_atoms():
+				if structure.atom_get_springs(atom_id).size() > 0:
+					has_springs = true
+					break
+			if has_springs:
+				break
+		if has_springs:
+			var promise: Promise = _workspace_context.show_warning_dialog(
+				tr(&"Particle Emitters dont support springs.\nIf you proceed all springs of the particle emitter will be removed."),
+				tr(&"Proceed"), tr(&"Cancel"), &"new_particle_emitter_ignores_springs", true
+			)
+			await promise.wait_for_fulfill()
+			if promise.get_result() == false:
+				return
 	# 2. Validate topology of selection
 	_workspace_context.start_async_work(tr(&"Validating topology"))
 	const SELECTION_ONLY = AtomicStructure.AtomSet.SELECTED_ONLY
@@ -121,7 +142,7 @@ func _on_create_from_selection_button_pressed() -> void:
 	var template := AtomicStructure.create()
 	template.start_edit()
 	var context: StructureContext = selected_contexts[0] as StructureContext
-	var center_of_selection: Vector3 = context.get_selection_aabb().get_center()
+	var center_of_selection := Vector3.ZERO
 	var structure: AtomicStructure = context.nano_structure as AtomicStructure
 	var atoms: PackedInt32Array = context.get_selected_atoms()
 	var bonds: PackedInt32Array = context.get_selected_bonds()
@@ -133,6 +154,8 @@ func _on_create_from_selection_button_pressed() -> void:
 		var pos: Vector3 = structure.atom_get_position(atom_id)
 		# Asiming template is NanoMolecualStructure
 		atom_map[atom_id] = template.add_atom(NanoMolecularStructure.AddAtomParameters.new(element, pos))
+		center_of_selection += pos
+	center_of_selection /= atoms.size()
 	for bond_id: int in bonds:
 		var bond_data: Vector3i = structure.get_bond(bond_id)
 		var atom1: int = bond_data.x
@@ -141,6 +164,12 @@ func _on_create_from_selection_button_pressed() -> void:
 			var order: int = bond_data.z
 			template.add_bond(atom_map[atom1], atom_map[atom2], order)
 		structure.remove_bond(bond_id)
+	var springs: Dictionary[int, bool]
+	for atom_id: int in atoms:
+		for spring_id: int in structure.atom_get_springs(atom_id):
+			springs[spring_id] = true
+	for spring_id: int in springs.keys():
+		structure.spring_invalidate(spring_id)
 	structure.remove_atoms(atoms)
 	structure.end_edit()
 	_center_template_on_origin(template)
