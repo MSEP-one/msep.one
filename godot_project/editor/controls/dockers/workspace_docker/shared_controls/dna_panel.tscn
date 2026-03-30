@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_w42n7"]
 [ext_resource type="Texture2D" uid="uid://b2w2wxk2bb4wg" path="res://editor/controls/category_container/icons/collapsed.svg" id="4_w42n7"]
 [ext_resource type="PackedScene" uid="uid://df6twl5j41stt" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/editor_settings/color/advanced_color_picker_button.tscn" id="5_hnbyp"]
+[ext_resource type="Script" uid="uid://d2h7xyc1cxxeo" path="res://editor/controls/dockers/workspace_docker/shared_controls/toggle_button_controlled_visibility.gd" id="5_w3t4b"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="5_w42n7"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_imbu4"]
@@ -41,35 +42,6 @@ func _update_icon() -> void:
 [sub_resource type="ButtonGroup" id="ButtonGroup_8e3dj"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_hnbyp"]
-
-[sub_resource type="GDScript" id="GDScript_6y0sb"]
-script/source = "# This builtin script makes a control change it's visibility based on a toggle button
-extends Control
-
-@export var button: Button
-@export var invert_pressed: bool = false
-
-func _ready() -> void:
-	assert(button != null)
-	assert(button.toggle_mode == true, \"Button is not toggle_mode\")
-	button.toggled.connect(_on_button_toggled)
-	_on_button_toggled(button.button_pressed)
-	const EditDnaPanel: Script = preload(\"uid://cdcgvv0jwwf6c\")
-	if owner is EditDnaPanel:
-		owner.tracked_object_changed.connect(_on_tracked_object_changed)
-
-
-func _on_button_toggled(in_button_pressed: bool) -> void:
-	if invert_pressed:
-		in_button_pressed = not in_button_pressed
-	visible = in_button_pressed
-
-func _on_tracked_object_changed(in_object: DnaStructure) -> void:
-	if in_object == null:
-		return
-	# Update visibility
-	_on_button_toggled(button.button_pressed)
-"
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_6y0sb"]
 
@@ -329,7 +301,7 @@ text = "Per Strand"
 [node name="ColorizeBackboneContainer" type="PanelContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer" node_paths=PackedStringArray("button")]
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
-script = SubResource("GDScript_6y0sb")
+script = ExtResource("5_w3t4b")
 button = NodePath("../HBoxContainer/PerStrandBackboneButton")
 
 [node name="GridContainer" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer"]
@@ -432,14 +404,14 @@ text = "Per Base Type"
 visible = false
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
-script = SubResource("GDScript_6y0sb")
+script = ExtResource("5_w3t4b")
 button = NodePath("../HBoxContainer2/HBoxContainer/DontColorizeBasesButton")
 invert_pressed = true
 
 [node name="PerStrandContainer" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
 visible = false
 layout_mode = 2
-script = SubResource("GDScript_6y0sb")
+script = ExtResource("5_w3t4b")
 button = NodePath("../../HBoxContainer2/HBoxContainer/PerStrandBasesButton")
 
 [node name="Label" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
@@ -465,7 +437,7 @@ show_reset_button = false
 [node name="PerGrooveContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
 visible = false
 layout_mode = 2
-script = SubResource("GDScript_6y0sb")
+script = ExtResource("5_w3t4b")
 button = NodePath("../../HBoxContainer2/HBoxContainer/PerGrooveButton")
 
 [node name="InfoLabel" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer" instance=ExtResource("5_w42n7")]
@@ -500,7 +472,7 @@ show_reset_button = false
 [node name="PerBaseTypeContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
 visible = false
 layout_mode = 2
-script = SubResource("GDScript_6y0sb")
+script = ExtResource("5_w3t4b")
 button = NodePath("../../HBoxContainer2/HBoxContainer/PerBaseTypeButton")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer"]
