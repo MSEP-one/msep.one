@@ -352,8 +352,8 @@ func select_by_type(types_to_select: PackedInt32Array) -> void:
 	return _selection_db.select_by_type(types_to_select)
 
 
-func select_connected(in_show_hidden_objects: bool = false) -> AtomSelection.AtomSelectionResult: 
-	return _selection_db.select_connected(in_show_hidden_objects)
+func select_connected(in_show_hidden_objects: bool = false, in_linked_by_springs: bool = false) -> AtomSelection.AtomSelectionResult: 
+	return _selection_db.select_connected(in_show_hidden_objects, in_linked_by_springs)
 
 
 func find_atoms_and_bonds_connected_to(in_atom_id: int) -> Dictionary[StringName, PackedInt32Array]:

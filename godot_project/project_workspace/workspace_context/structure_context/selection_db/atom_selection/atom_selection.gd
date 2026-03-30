@@ -174,10 +174,12 @@ func select_by_type(in_types: PackedInt32Array) -> AtomSelectionResult:
 	return select_atoms_and_get_auto_selected_bonds(atoms_to_select)
 
 
-func select_connected(in_show_hidden_objects: bool = false) -> AtomSelectionResult:
+func select_connected(in_show_hidden_objects: bool = false, in_linked_by_springs: bool = false) -> AtomSelectionResult:
 	var related_structure: AtomicStructure = _structure_context.nano_structure as AtomicStructure
 	var atoms_to_select: Dictionary = {}
 	var bonds_to_visit: Dictionary = _bonds_partially_influenced_by_atoms.duplicate()
+	if in_linked_by_springs:
+		_select_connected_by_springs(atoms_to_select, bonds_to_visit)
 	bonds_to_visit.merge(_bonds_selection)
 	var all_bonds_visited: bool = false
 	var hidden_atoms_to_show: PackedInt32Array = PackedInt32Array()
@@ -225,6 +227,21 @@ func select_connected(in_show_hidden_objects: bool = false) -> AtomSelectionResu
 	clear_selection_layers()
 	return select_atoms_and_get_auto_selected_bonds(atoms_list)
 
+
+func _select_connected_by_springs(out_atoms_to_select: Dictionary, out_bonds_to_visit: Dictionary) -> void:
+	var related_structure: AtomicStructure = _structure_context.nano_structure as AtomicStructure
+	for atom_id: int in _atoms_selection.keys():
+		for spring_id: int in related_structure.atom_get_springs(atom_id):
+			if not related_structure.spring_is_atom_to_atom(spring_id):
+				continue
+			var other_atom: int = related_structure.spring_get_second_atom_id(spring_id)
+			if other_atom == atom_id:
+				other_atom = related_structure.spring_get_atom_id(spring_id)
+			if other_atom in _atoms_selection:
+				continue
+			out_atoms_to_select[other_atom] = true
+			for bond_id: int in related_structure.atom_get_bonds(other_atom):
+				out_bonds_to_visit[bond_id] = true
 
 func can_grow_selection() -> bool:
 	if _bonds_partially_influenced_by_atoms.size() + _non_selected_bonds_fully_influenced_by_atoms.size() > 0:

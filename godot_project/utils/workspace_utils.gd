@@ -20,8 +20,8 @@ static func select_by_type(out_workspace_context: WorkspaceContext, types: Packe
 	_select_by_type(out_workspace_context, types)
 
 
-static func select_connected(out_workspace_context: WorkspaceContext, in_show_hidden_objects: bool = false) -> void:
-	_select_connected(out_workspace_context, in_show_hidden_objects)
+static func select_connected(out_workspace_context: WorkspaceContext, in_show_hidden_objects: bool = false, in_linked_by_springs: bool = false) -> void:
+	_select_connected(out_workspace_context, in_show_hidden_objects, in_linked_by_springs)
 
 
 static func grow_selection(out_workspace_context: WorkspaceContext) -> void:
@@ -545,11 +545,14 @@ static func _select_by_type(out_workspace_context: WorkspaceContext, types: Pack
 	out_workspace_context.snapshot_moment("Select Atoms by Type")
 
 
-static func _select_connected(out_workspace_context: WorkspaceContext, in_show_hidden_objects: bool) -> void:
+static func _select_connected(
+		out_workspace_context: WorkspaceContext,
+		in_show_hidden_objects: bool,
+		in_linked_by_springs: bool) -> void:
 	var all_structures: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_selection()
 	var selection_changed: bool = false
 	for struct_context in all_structures:
-		var result: AtomSelection.AtomSelectionResult = struct_context.select_connected(in_show_hidden_objects)
+		var result: AtomSelection.AtomSelectionResult = struct_context.select_connected(in_show_hidden_objects, in_linked_by_springs)
 		selection_changed = selection_changed or result.selection_changed
 	if selection_changed:
 		out_workspace_context.snapshot_moment("Select Connected Atoms")
@@ -1345,20 +1348,32 @@ static func _can_move_selection_to_another_group(in_workspace_context: Workspace
 			in_workspace_context.get_structure_contexts_with_selection()
 	if selected_structures.is_empty():
 		return false
+	var has_selection: bool = false
 	for context in selected_structures:
-		var structure: NanoStructure = context.nano_structure
+		if not context.nano_structure is AtomicStructure:
+			has_selection = true
+			continue
+		var structure: AtomicStructure = context.nano_structure as AtomicStructure
 		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
 		var selected_bonds: PackedInt32Array = context.get_selected_bonds()
+		has_selection = has_selection or not selected_atoms.is_empty()
 		# 1. Check if all bonds connected to selected atoms are also selected
 		for atom_id in selected_atoms:
 			var atom_bonds: PackedInt32Array = structure.atom_get_bonds(atom_id)
-			if atom_bonds.is_empty():
-				# Atom is unbound, We allow it
-				continue
 			for atom_bond_id in atom_bonds:
 				if not atom_bond_id in selected_bonds:
 					# At least one bond is not selected
 					# This means molecule is not fully selected
+					return false
+			var atom_springs: PackedInt32Array = structure.atom_get_springs(atom_id)
+			for spring_id in atom_springs:
+				if not structure.spring_is_atom_to_atom(spring_id):
+					continue
+				var other_atom_id: int = structure.spring_get_second_atom_id(spring_id)
+				if other_atom_id == atom_id:
+					# Other atom is actually the first atom
+					other_atom_id = structure.spring_get_atom_id(spring_id)
+				if not other_atom_id in selected_atoms:
 					return false
 		# 2. Check if all atoms connected to selected bonds are also selected
 		for bond_id in selected_bonds:
@@ -1367,7 +1382,7 @@ static func _can_move_selection_to_another_group(in_workspace_context: Workspace
 				# At least one atom is not selected
 				# This means molecule is not fully selected
 				return false
-	return true
+	return has_selection
 
 
 static func _can_create_particle_emitter_from_selection(in_workspace_context: WorkspaceContext) -> bool:

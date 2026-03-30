@@ -80,8 +80,9 @@ can_select_current = false
 unique_name_in_owner = true
 self_modulate = Color(1, 1, 1, 0.2)
 layout_mode = 2
-text = "[center][shake start=4 length=14 freq=0.5 sat=0.8 val=0.8 connected=1]ℹ When adding a molecule to a group, make sure it is entirely selected.[/shake][/center]"
-message = &"When adding a molecule to a group, make sure it is entirely selected."
+text = "[center]ℹ When grouping a molecule, or group of molecules connected with springs; make sure it is entirely selected.[/center]"
+message = &"When grouping a molecule, or group of molecules connected with springs; make sure it is entirely selected."
+effect = "none"
 effect_affects_message = true
 
 [node name="MarginContainer" type="MarginContainer" parent="."]

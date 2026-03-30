@@ -155,7 +155,7 @@ func _update_apply_button_state() -> void:
 			(_check_box_add_to_existing.button_pressed or not new_group_name_is_empty)
 	_button_set_structure.disabled = not can_apply
 	
-	var default_message: String = tr(&"When adding a molecule to a group, make sure it is entirely selected.")
+	var default_message: String = tr(&"When grouping a molecule, or group of molecules connected with springs; make sure it is entirely selected.")
 	var notice_message: String
 	if can_apply:
 		notice_message = default_message
@@ -179,7 +179,7 @@ func _get_active_group_picker() -> NanoGroupPicker:
 func _on_label_select_only_notice_meta_clicked(meta: Variant) -> void:
 	match meta:
 		"select_linked":
-			WorkspaceUtils.select_connected(_workspace_context, true)
+			WorkspaceUtils.select_connected(_workspace_context, true, true)
 		_:
 			assert(false, "Unknown meta! %s" % str(meta))
 			return
