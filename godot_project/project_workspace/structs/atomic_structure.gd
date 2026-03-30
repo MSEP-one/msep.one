@@ -805,20 +805,30 @@ func merge_structure(in_structure: AtomicStructure, in_placement_xform: Transfor
 			new_bonds.push_back(bond_id)
 	
 	# Add Springs
+	var new_spring_id: int
 	for spring_id: int in in_structure.springs_get_valid():
 		if not in_structure.spring_has(spring_id):
 			continue
 		var related_anchor_id: int = in_structure.spring_get_anchor_id(spring_id)
 		var related_atom: int = in_structure.spring_get_atom_id(spring_id)
+		var second_atom: int = in_structure.spring_get_second_atom_id(spring_id)
 		var new_atom: int = original_to_structure_atom_map[related_atom]
+		var new_atom2: int = original_to_structure_atom_map.get(second_atom, AtomicStructure.INVALID_ATOM_ID)
 		var constant_force: float = in_structure.spring_get_constant_force(spring_id)
 		var equilibrium_length_is_auto: float = in_structure.spring_get_equilibrium_length_is_auto(spring_id)
 		var equilibrium_manual_length: float = in_structure.spring_get_equilibrium_manual_length(spring_id)
-		var anchor: NanoVirtualAnchor = in_workspace.get_structure_by_int_guid(related_anchor_id)
-		if _check_if_anchor_connected_to_atom(anchor, new_atom):
+		if related_anchor_id != Workspace.INVALID_OBJECT_INDEX:
+			var anchor: NanoVirtualAnchor = in_workspace.get_structure_by_int_guid(related_anchor_id)
+			if _check_if_anchor_connected_to_atom(anchor, new_atom):
+				continue
+			new_spring_id = spring_create(related_anchor_id, new_atom, constant_force,
+					equilibrium_length_is_auto, equilibrium_manual_length)
+		elif second_atom != AtomicStructure.INVALID_ATOM_ID:
+			new_spring_id = spring_create_between_atoms(new_atom, new_atom2, constant_force,
+					equilibrium_length_is_auto, equilibrium_manual_length)
+		else:
+			assert(false, "Cannot merge spring #%d since it doesn't have a valid target" % spring_id)
 			continue
-		var new_spring_id: int = spring_create(related_anchor_id, new_atom, constant_force,
-				equilibrium_length_is_auto, equilibrium_manual_length)
 		new_springs.append(new_spring_id)
 	end_edit()
 	return MergeStructureResult.new(original_to_structure_atom_map, new_atoms, new_bonds, new_springs)
