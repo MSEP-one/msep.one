@@ -37,7 +37,7 @@ func _execute_action(in_from_cut_command: bool = false) -> void:
 	var was_ring_menu_active: bool = _ring_menu.is_active()
 	_ring_menu.close()
 	var selected_structures_contexts: Array[StructureContext] = \
-			_workspace_context.get_structure_contexts_with_selection()
+			_workspace_context.get_structure_contexts_with_selection(true)
 	_did_create_undo_action = false
 	for context in selected_structures_contexts:
 		if context.nano_structure is AtomicStructure and not context.nano_structure.can_create_and_delete_atoms():
