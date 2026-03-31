@@ -670,7 +670,8 @@ func _update_bind_source(in_camera: Camera3D, in_input_event: InputEvent) -> voi
 			# Nothing or anything that is not Atom or Anchor
 			_drag_start_structure_id = 0
 			_drag_start_atom_id = AtomicStructure.INVALID_ATOM_ID
-			if _creating == _CREATING_SPRING:
+			var create_mode_enabled: bool = workspace_context.create_object_parameters.get_create_mode_enabled()
+			if _creating == _CREATING_SPRING and create_mode_enabled:
 				_get_rendering().virtual_anchor_preview_show()
 
 
