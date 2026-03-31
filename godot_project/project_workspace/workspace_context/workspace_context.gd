@@ -66,6 +66,7 @@ var ignored_warnings: Dictionary = {
 	invalid_relaxed_tetrahedral_structure = false,
 	abort_simulation = false,
 	end_simulation = false,
+	new_particle_emitter_ignores_springs = false,
 	emitters_affected_by_motors = false,
 	emitters_with_unstable_parameters = false,
 	overlapping_emitters_in_simulation = false,
