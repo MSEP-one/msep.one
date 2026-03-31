@@ -330,7 +330,7 @@ func _is_atom_to_atom_drag() -> bool:
 		return false
 	if _drag_start_structure_id == AtomicStructure.INVALID_ATOMIC_NUMBER or _target_atom_id == AtomicStructure.INVALID_ATOMIC_NUMBER:
 		return false
-	return _drag_start_atom_id != _target_atom_id
+	return true
 
 
 func _ensure_creating_springs() -> void:

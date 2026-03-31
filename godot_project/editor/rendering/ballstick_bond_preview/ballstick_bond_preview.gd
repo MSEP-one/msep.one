@@ -61,7 +61,8 @@ func update_all(in_first_pos: Vector3, in_sec_pos: Vector3, in_first_atomic_numb
 
 func update_second_atom_pos(in_sec_pos: Vector3) -> void:
 	_second_pos = in_sec_pos
-	_update_preview()
+	if _preview.visible:
+		_update_preview()
 
 
 func set_order(in_bond_order: int) -> void:
@@ -87,6 +88,10 @@ func _update_preview() -> void:
 	var second_data: ElementData = PeriodicTable.get_by_atomic_number(_second_atomic_number)
 	var camera: Camera3D = get_viewport().get_camera_3d()
 	var dir_between_start_and_end: Vector3 = _first_pos.direction_to(_second_pos)
+	if dir_between_start_and_end.is_zero_approx():
+		# source and target are too close, simply hide it
+		hide()
+		return
 	var up_vector: Vector3 = dir_between_start_and_end.cross(camera.global_transform.basis.y)
 	if up_vector.length_squared() == 0:
 		# When dir_between_start_and_end is the same as camera's Y axis, cross product will be ZERO
