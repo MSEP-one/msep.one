@@ -33,6 +33,9 @@ func update(in_atom_positions: PackedVector3Array, new_anchor_position: Vector3 
 		var direction_to_atom: Vector3 = _anchor_position.direction_to(start_pos)
 		var anchor_radius: float = NanoVirtualAnchor.MODEL_SIZE * 0.5
 		var end_pos: Vector3 = _anchor_position + direction_to_atom * anchor_radius
+		if start_pos == end_pos:
+			hide_preview()
+			return
 		var distance: float = start_pos.distance_to(end_pos)
 		var spring_transform := Transform3D(Basis(), start_pos)
 		var spring_scale: Vector3 = Vector3(SpringRenderer.MODEL_THICKNESS, SpringRenderer.MODEL_THICKNESS, distance)
