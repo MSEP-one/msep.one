@@ -527,7 +527,15 @@ func create_state_snapshot() -> Dictionary:
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(self)
 	var structure_state: Dictionary = in_snapshot["structures_snapshot"]
-	for snapshot_structure_id: int in structure_state:
+	
+	var structure_ids: Array = structure_state.keys()
+	structure_ids.sort_custom(func(id1: int, id2:int) -> bool:
+		# Sort the IDs to have particle emitters last to update
+		if structure_state[id2]["script.resource_path"] == NanoParticleEmitter.resource_path:
+			return true
+		return false
+	)
+	for snapshot_structure_id: int in structure_ids:
 		var structure_snapshot: Dictionary = structure_state[snapshot_structure_id]
 		
 		if not _structures.has(snapshot_structure_id):

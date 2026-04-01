@@ -126,7 +126,9 @@ func ensure_instances_exists() -> void:
 		_update_instances_original_positions() # Could be optimized
 		return
 	
-	_instances_group.start_edit()
+	var was_being_edited: bool = _instances_group.is_being_edited()
+	if not was_being_edited:
+		_instances_group.start_edit()
 	# collect template data
 	var template_atoms: PackedInt32Array = template.get_valid_atoms()
 	var template_bonds: PackedInt32Array = template.get_valid_bonds()
@@ -187,7 +189,8 @@ func ensure_instances_exists() -> void:
 		for bond_id: int in instance:
 			if _instances_group.is_bond_valid(bond_id):
 				_instances_group.remove_bond(bond_id)
-	_instances_group.end_edit()
+	if not was_being_edited:
+		_instances_group.end_edit()
 
 
 ## Called just before starting a simulation.
