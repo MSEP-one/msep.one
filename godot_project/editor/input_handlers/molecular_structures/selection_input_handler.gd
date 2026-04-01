@@ -468,7 +468,7 @@ func _screen_selection_logic(
 		var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
 		var current: StructureContext = get_workspace_context().get_current_structure_context()
 		var is_toplevel_dna: bool = hit_context.nano_structure is DnaStructure and (hit_context == current or _workspace_context.get_toplevel_editable_context(hit_context) == hit_context)
-		const GROUP_SELECTION_BLACKLIST = [&"AnchorPoint", &"Spring"]
+		const GROUP_SELECTION_BLACKLIST = [&"Spring"]
 		if hit_context != get_workspace_context().get_current_structure_context() \
 				and not is_toplevel_dna \
 				and not hit_context.nano_structure.get_type() in GROUP_SELECTION_BLACKLIST:
