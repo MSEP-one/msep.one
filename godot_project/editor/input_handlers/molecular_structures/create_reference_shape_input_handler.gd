@@ -143,6 +143,8 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_context:
 		return false
 	if in_input_event is InputEventMouseButton:
 		if in_input_event.button_index == MOUSE_BUTTON_LEFT and !in_input_event.pressed:
+			var distance_sqrd_to_start: float = _press_down_position.distance_squared_to(in_input_event.global_position)
+			_press_down_position = Vector2(-100, -100)
 			if _ghost_shape.get_shape() == null:
 				# Closed the ring menu before selecting an initial shape
 				in_context.workspace_context.abort_creating_object()
@@ -150,7 +152,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_context:
 			var has_modifiers: bool = input_has_modifiers(in_input_event)
 			if has_modifiers:
 				return false
-			if _press_down_position.distance_squared_to(in_input_event.global_position) > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
+			if distance_sqrd_to_start > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
 				return false
 			assert(in_context.workspace_context.is_creating_object(), "This input handler should never work unless a shape is being created")
 			var selected_structures: Array[StructureContext] = in_context.workspace_context.get_structure_contexts_with_selection()

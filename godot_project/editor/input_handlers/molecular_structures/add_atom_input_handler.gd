@@ -111,7 +111,8 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 		# do not add atom on mouse button down, it's to early to determine if user really wants to add atom or for example do a pan gesture
 		var mouse_up: bool = not in_input_event.pressed
 		if in_input_event.button_index == MOUSE_BUTTON_LEFT and mouse_up:
-			
+			var distance_sqrd_to_start: float = _press_down_position.distance_squared_to(in_input_event.global_position)
+			_press_down_position = Vector2(-100, -100)
 			var preview_atomic_number: int = get_workspace_context().create_object_parameters.get_new_atom_element()
 			var cannot_create_because_hydrogen: bool = not out_context.nano_structure.are_hydrogens_visible() \
 					and preview_atomic_number == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
@@ -119,7 +120,7 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 				return true
 			
 			var has_modifiers: bool = input_has_modifiers(in_input_event)
-			if _press_down_position.distance_squared_to(in_input_event.global_position) > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
+			if distance_sqrd_to_start > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
 				return false
 			var atom_pos: Vector3 = rendering.atom_preview_get_position()
 			if !has_modifiers || (_check_input_event_can_bind(in_input_event) and !_check_context_can_bind(out_context, atom_pos)):
