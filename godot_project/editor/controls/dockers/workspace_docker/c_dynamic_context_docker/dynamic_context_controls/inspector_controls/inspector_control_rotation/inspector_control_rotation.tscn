@@ -11,12 +11,14 @@ text = "yaw"
 min_value = -360.0
 max_value = 360.0
 suffix = "º"
+custom_arrow_step = 0.1
 
 [node name="LabelX2" parent="Components" index="2"]
 text = "pitch"
 
 [node name="Y" parent="Components" index="3"]
 suffix = "º"
+custom_arrow_step = 0.1
 
 [node name="LabelX3" parent="Components" index="4"]
 text = "roll"
@@ -27,4 +29,4 @@ max_value = 180.0
 allow_greater = false
 allow_lesser = false
 suffix = "º"
-custom_arrow_step = 1.0
+custom_arrow_step = 0.1

@@ -6,6 +6,9 @@ signal structure_connected(in_new_structure_id: int)
 signal structure_disconnected(in_disconnected_structure_id: int)
 
 
+const DEFAULT_ROTATION = Quaternion(Vector3.UP, deg_to_rad(-90))
+const DEFAULT_TRANSFORM = Transform3D(Basis(DEFAULT_ROTATION))
+
 @export var _transform: Transform3D
 @export var _parameters: NanoVirtualMotorParameters
 @export var _connected_structures: Dictionary[int, bool] = {
