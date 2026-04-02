@@ -37,8 +37,9 @@ var mouse_drag_in_widget_is_active := false
 var workspace_tools_container : Control = null
 var colliding_axis_index : int = -1
 var snap_rotation: Vector3 = Vector3.ZERO
+var snap_start_rotation: Vector3 = Vector3.ZERO
 var snap_progress: float = .0
-var snap_speed: float = 1.0
+var snap_speed: float = 4.0
 var snap_is_active: bool = false
 var orbit_radius: float = .0
 var orbit_center: Vector3 = Vector3.ZERO
@@ -205,9 +206,10 @@ func _process(_in_delta: float, in_force: bool = false, in_finish: bool = false)
 	modulate.a = widget_alpha
 	
 	if snap_is_active:
+		MolecularEditorContext.get_current_workspace_context().get_rendering().hide_all_previews()
 		if snap_progress < 1.0 - EPSILON || in_finish:
 			snap_progress = min(snap_progress + _in_delta * snap_speed, 1.0)
-			_camera.global_rotation = _camera.global_rotation.lerp(snap_rotation, \
+			_camera.global_rotation = snap_start_rotation.lerp(snap_rotation, \
 					snap_progress)
 			_camera.global_position = orbit_center - \
 			_camera.global_transform.basis.get_rotation_quaternion() * Vector3.FORWARD * \
@@ -260,6 +262,7 @@ func snap_to_rotation(in_rotation : Vector3) -> void:
 		orbit_radius = creation_distance
 	
 	snap_rotation = in_rotation
+	snap_start_rotation = _camera.global_rotation
 	
 	snap_is_active = true
 

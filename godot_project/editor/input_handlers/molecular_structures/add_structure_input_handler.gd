@@ -68,7 +68,9 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_structur
 		return false
 		
 	if in_input_event.button_index == MOUSE_BUTTON_LEFT and in_input_event.is_released():
-		if _press_down_position.distance_squared_to(in_input_event.global_position) > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
+		var distance_sqrd_to_start: float = _press_down_position.distance_squared_to(in_input_event.global_position)
+		_press_down_position = Vector2(-100, -100)
+		if distance_sqrd_to_start > MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED:
 			return false
 		_merge_structure(in_structure_context)
 		return true
