@@ -245,19 +245,23 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 	# 1. Resolve drop target
 	match multi_structure_hit_result.hit_type:
 		MultiStructureHitResult.HitType.HIT_ATOM:
-			workspace_context.set_hovered_structure_context(hit_context, atom_id, AtomicStructure.INVALID_BOND_ID,
-					AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
 			atomic_structure = hit_context.nano_structure as AtomicStructure
 			atomic_structure_context = hit_context
 			if _creating == _CREATING_BOND and atomic_structure.int_guid != _drag_start_structure_id:
 				# Not possible to create bonds between 2 different structures
 				_target_atom_id = AtomicStructure.INVALID_ATOM_ID
 				_hide_atom_and_bond_preview()
+				workspace_context.set_hovered_structure_context(
+					null, AtomicStructure.INVALID_ATOM_ID, AtomicStructure.INVALID_BOND_ID,
+					AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
 				return false
 			elif _creating == _CREATING_SPRING and _drag_state == _DRAG_FROM_ATOM and atomic_structure.int_guid != _drag_start_structure_id:
 				# Not possible to springs between 2 different structures
 				_target_atom_id = AtomicStructure.INVALID_ATOM_ID
 				_hide_anchor_and_spring_preview()
+				workspace_context.set_hovered_structure_context(
+					null, AtomicStructure.INVALID_ATOM_ID, AtomicStructure.INVALID_BOND_ID,
+					AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
 				return false
 			workspace_context.set_hovered_structure_context(hit_context,_target_atom_id,
 					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
@@ -268,17 +272,20 @@ func _find_target_candidate(in_camera: Camera3D, in_input_event: InputEvent) -> 
 			anchor = hit_context.nano_structure as NanoVirtualAnchor
 			assert(is_instance_valid(anchor))
 			anchor_context = hit_context
-			workspace_context.set_hovered_structure_context(hit_context, AtomicStructure.INVALID_ATOM_ID,
-					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
 			if _drag_state != _DRAG_FROM_ATOM:
 				# Cannot create spring from anchor to anchor
+				workspace_context.set_hovered_structure_context(
+					null, AtomicStructure.INVALID_ATOM_ID, AtomicStructure.INVALID_BOND_ID,
+					AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
 				return false
+			workspace_context.set_hovered_structure_context(hit_context, AtomicStructure.INVALID_ATOM_ID,
+					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
 			_ensure_creating_springs()
 		_:
 			_target_atom_id = AtomicStructure.INVALID_ATOM_ID
 			_hide_atom_and_bond_preview()
 			_hide_anchor_and_spring_preview()
-			workspace_context.set_hovered_structure_context(hit_context, AtomicStructure.INVALID_ATOM_ID,
+			workspace_context.set_hovered_structure_context(null, AtomicStructure.INVALID_ATOM_ID,
 					AtomicStructure.INVALID_BOND_ID, AtomicStructure.INVALID_SPRING_ID, DnaStructure.INVALID_CONTROL_POINT_IDX)
 			return false
 	# 2. Resolve Drag Source
