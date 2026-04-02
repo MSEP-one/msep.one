@@ -61,9 +61,12 @@ func _execute_action(in_from_cut_command: bool = false) -> void:
 		_workspace_context.snapshot_moment("Delete Selection")
 
 
-func _delete_selection_of_structure(out_context: StructureContext, out_already_deleted_contexts: Array[StructureContext], in_from_cut_command: bool) -> void:
+func _delete_selection_of_structure(
+		out_context: StructureContext,
+		out_already_deleted_contexts: Array[StructureContext],
+		in_from_cut_command: bool) -> void:
 	if _can_delete_objects(out_context, in_from_cut_command):
-		_action_delete_objects(out_context, out_already_deleted_contexts)
+		_action_delete_objects(out_context, out_already_deleted_contexts, in_from_cut_command)
 		return
 	if _can_delete_dna_control_points(out_context, in_from_cut_command):
 		_action_delete_dna_control_points(out_context)
@@ -77,14 +80,24 @@ func _action_delete_atoms_bonds_springs(context: StructureContext) -> void:
 	_delete_selection(context)
 
 
-func _action_delete_objects(context: StructureContext, out_already_deleted_contexts: Array[StructureContext]) -> void:
+func _action_delete_objects(
+		context: StructureContext,
+		out_already_deleted_contexts: Array[StructureContext],
+		in_from_cut_command: bool) -> void:
 	if out_already_deleted_contexts.has(context):
 		return
 	var workspace: Workspace = _workspace_context.workspace
 	if !_did_create_undo_action:
 		_did_create_undo_action = true
 	# 1. Find fully selected objects
-	var objects_to_delete: Array[StructureContext] = [context]
+	var objects_to_delete: Array[StructureContext] = []
+	if context == _workspace_context.get_current_structure_context():
+		if _can_delete_dna_control_points(context, in_from_cut_command):
+			_action_delete_dna_control_points(context)
+		if _can_delete_atoms_bonds_or_springs(context):
+			_action_delete_atoms_bonds_springs(context)
+	else:
+		objects_to_delete.append(context)
 	# 2. Expand to also delete child objects
 	var added_something: = true
 	while added_something:
