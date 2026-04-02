@@ -34,6 +34,13 @@ func update_materials(in_renderer: DnaStructureRenderer) -> void:
 	b_strand.Base1.material_override = in_renderer.get_base_material(Strand.B, compliment)
 	b_strand.Base2.material_override = b_strand.Base1.material_override
 
+func refresh_selection_preview(in_is_selected: bool) -> void:
+	var meshes: Array[MeshInstance3D] = []
+	meshes.append_array(a_strand.values())
+	meshes.append_array(b_strand.values())
+	for mesh: MeshInstance3D in meshes:
+		mesh.set_layer_mask_value(Rendering.SELECTION_PREVIEW_LAYER_BIT, in_is_selected)
+
 
 func _set_strand_policy(in_policy: DnaStructure.StrandPolicy) -> void:
 	strand_policy = in_policy

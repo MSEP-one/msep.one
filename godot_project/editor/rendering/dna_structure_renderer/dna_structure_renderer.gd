@@ -258,16 +258,29 @@ func _on_curve_changed() -> void:
 
 func highlight_control_points(in_control_points_to_highlight: PackedInt32Array) -> void:
 	if in_control_points_to_highlight.is_empty(): return
+	var was_selected: bool = _highlighted_control_points.size() > 0
 	for p in in_control_points_to_highlight:
 		_highlighted_control_points[p] = true
+	if not was_selected:
+		_refresh_selection_preview(true)
 	_path_representation.queue_redraw()
 
 
 func lowlight_control_points(in_control_points_to_lowlight: PackedInt32Array) -> void:
 	if in_control_points_to_lowlight.is_empty(): return
+	var was_selected: bool = _highlighted_control_points.size() > 0
 	for p in in_control_points_to_lowlight:
 		_highlighted_control_points.erase(p)
+	var is_selected: bool = _highlighted_control_points.size() > 0
+	if was_selected != is_selected:
+		_refresh_selection_preview(is_selected)
 	_path_representation.queue_redraw()
+
+
+func _refresh_selection_preview(in_is_selected: bool, in_starting_from_base: int = 0) -> void:
+	for base_idx: int in range(in_starting_from_base, _bases.size()):
+		_bases[base_idx].refresh_selection_preview(in_is_selected)
+	_set_shader_uniform(&"is_selected", 1.0 if in_is_selected else 0.0)
 
 
 func set_selection_position_delta(in_selection_delta: Vector3) -> void:
@@ -415,11 +428,13 @@ func _update_bases() -> void:
 	var base_count: int = _sequence.length()
 	while _bases.size() > base_count:
 		_bases.pop_back().queue_free()
+	var first_new_base: int = _bases.size()
 	while _bases.size() < base_count:
 		var base := DnaBaseRepresentation.create()
 		base.base = _sequence[_bases.size()]
 		add_child(base)
 		_bases.append(base)
+	_refresh_selection_preview(_highlighted_control_points.size() > 0, first_new_base)
 	for i in base_count:
 		_bases[i].strand_policy = _strand_policy
 		_bases[i].base = _sequence[i]
@@ -668,6 +683,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	for i in bases_snapshots.size():
 		_bases[i].apply_state_snapshot(bases_snapshots[i])
 		_bases[i].update_materials(self)
+	var is_selected: bool = _highlighted_control_points.size() > 0
+	_refresh_selection_preview(is_selected)
 	_applying_snapshot = false
 	_ensure_structure_signal_connections(dna_structure)
 	_update_visibility()
