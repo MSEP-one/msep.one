@@ -529,7 +529,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	var structure_state: Dictionary = in_snapshot["structures_snapshot"]
 	
 	var structure_ids: Array = structure_state.keys()
-	structure_ids.sort_custom(func(id1: int, id2:int) -> bool:
+	structure_ids.sort_custom(func(_id1: int, id2:int) -> bool:
 		# Sort the IDs to have particle emitters last to update
 		if structure_state[id2]["script.resource_path"] == NanoParticleEmitter.resource_path:
 			return true
