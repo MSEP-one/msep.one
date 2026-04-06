@@ -442,16 +442,11 @@ class SetVirtualObjectRotationHelper:
 		var euler: Vector3 = basis.get_euler()
 		if _type == Type.MOTOR:
 			# Virtual Motors faces RIGHT instead of FORWARD
-			# because of this we need a special conversion:
-			
-			# Calculate Yaw (rotation around the Y-axis) based on the right axis (forward)
-			var yaw: float = atan2(basis.z.y, basis.z.z)
-			# Calculate Pitch (rotation around the X-axis) based on the right axis
-			var pitch: float = asin(-basis.z.x)
-			# Calculate Roll (rotation around the Z-axis) based on the up axis
-			var roll: float = atan2(basis.y.x, basis.x.x)
-			
-			euler = Vector3(yaw, pitch, roll)
+			# because of this we need to revert the "default rotation"
+			basis = NanoVirtualMotor.DEFAULT_TRANSFORM.basis.inverse() * basis
+			euler = basis.get_euler()
+			# yaw and roll of motors are inverted
+			euler = Vector3(euler.z, euler.y, euler.x)
 		if _type == Type.EMITTER:
 			# Particle Emitters faces UP instead of FORWARD
 			# because of this we need to revert the "default rotation"
@@ -468,15 +463,11 @@ class SetVirtualObjectRotationHelper:
 		)
 		var quaternion := Quaternion.from_euler(euler_rad)
 		if _type == Type.MOTOR:
+			# yaw and roll of motors are inverted
+			quaternion = Quaternion.from_euler(Vector3(euler_rad.z, euler_rad.y, euler_rad.x))
 			# Virtual Motors faces RIGHT instead of FORWARD
-			# because of this we need a special quaternion:
-			# Create quaternions for each rotation axis
-			var yaw_quat := Quaternion(Vector3.FORWARD, euler_rad.x)    # Yaw around the Z-axis
-			var pitch_quat := Quaternion(Vector3.UP, euler_rad.y)       # Pitch around the Y-axis
-			var roll_quat := Quaternion(Vector3.RIGHT, euler_rad.z)     # Roll around the X-axis
-
-			# Combine rotations: yaw -> pitch -> roll
-			quaternion = pitch_quat * yaw_quat * roll_quat
+			# quaternion is the normal one, but is has a "rotation offset"
+			quaternion = Quaternion(NanoVirtualMotor.DEFAULT_TRANSFORM.basis) * quaternion
 		if _type == Type.EMITTER:
 			# Particle Emitters faces UP instead of FORWARD
 			# quaternion is the normal one, but is has a "rotation offset"
