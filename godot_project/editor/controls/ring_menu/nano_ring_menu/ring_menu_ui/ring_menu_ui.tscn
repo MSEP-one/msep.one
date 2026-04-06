@@ -97,7 +97,7 @@ environment = ExtResource("3_1v3j8")
 
 [node name="FadeAnimator" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_wd55v")
+&"": SubResource("AnimationLibrary_wd55v")
 }
 
 [connection signal="back_requested" from="SubViewport/RingMenu3D" to="." method="_on_ring_menu_3d_back_requested"]

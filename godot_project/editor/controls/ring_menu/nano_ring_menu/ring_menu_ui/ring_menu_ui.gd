@@ -90,6 +90,7 @@ func keep_ring_in_bounds() -> void:
 
 
 func animate_hide() -> void:
+	release_focus()
 	_subviewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	_subviewport.gui_disable_input = true
 	_subviewport.physics_object_picking = false
