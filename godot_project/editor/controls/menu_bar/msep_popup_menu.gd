@@ -12,6 +12,12 @@ func _init() -> void:
 	BusyIndicator.visibility_changed.connect(_on_full_screen_popupup_visibility_changed)
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_READY:
+		if not get_tree().root.focus_entered.is_connected(_on_main_window_focus_entered):
+			get_tree().root.focus_entered.connect(_on_main_window_focus_entered)
+
+
 func _ready() -> void:
 	pass
 
@@ -26,6 +32,10 @@ func _on_popup_hide() -> void:
 
 
 func _on_full_screen_popupup_visibility_changed() -> void:
+	_queue_update_menu()
+
+
+func _on_main_window_focus_entered() -> void:
 	_queue_update_menu()
 
 
