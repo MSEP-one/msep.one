@@ -969,7 +969,7 @@ func _has_selected_atoms(in_structure_context: StructureContext) -> bool:
 
 
 func _has_visible_atoms(in_structure_context: StructureContext) -> bool:
-	var structure: AtomicStructure = in_structure_context.nano_structure
+	var structure: AtomicStructure = in_structure_context.nano_structure as AtomicStructure
 	if not structure or structure is DnaStructure:
 		return false
 	return structure.get_visible() and structure.get_visible_atoms().size() > 0
