@@ -40,6 +40,7 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 offset_right = 284.0
 offset_bottom = 40.0
+focus_mode = 0
 theme_type_variation = &"WorkspaceTabBar"
 current_tab = 0
 tab_alignment = 1

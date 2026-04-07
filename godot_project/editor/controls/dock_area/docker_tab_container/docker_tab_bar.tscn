@@ -42,8 +42,10 @@ offset_right = 170.0
 grow_vertical = 0
 size_flags_horizontal = 3
 size_flags_vertical = 8
-tab_count = 2
+focus_mode = 0
+current_tab = 0
 clip_tabs = false
+tab_count = 2
 tab_0/title = "Workspace"
 tab_1/title = "Selection"
 
