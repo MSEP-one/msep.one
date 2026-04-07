@@ -52,7 +52,6 @@ offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
-current_tab = 0
 
 [node name="TabBarActiveWorkspaces" parent="MainContainer/WorkArea" instance=ExtResource("4_8puqg")]
 layout_mode = 1
