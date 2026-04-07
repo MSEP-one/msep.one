@@ -24,7 +24,7 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="25.90625"
-     inkscape:cx="-3.3196622"
+     inkscape:cx="-6.3498191"
      inkscape:cy="8.2991556"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
@@ -40,5 +40,6 @@
      stroke-width="2.67937"
      stroke="#e0e0e0"
      id="path2"
-     sodipodi:nodetypes="cccccc" />
+     sodipodi:nodetypes="cccccc"
+     style="stroke:#ffffff;stroke-opacity:1" />
 </svg>
