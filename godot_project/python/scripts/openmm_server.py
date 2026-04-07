@@ -1230,7 +1230,7 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 				forces.nonbonded_force.addParticle(0.0, 1.0, 0.0)
 			pos = state_payload.positions[i]
 			openff_initial_positions.append(pos)
-			k_constant: float = 500000.0
+			k_constant: float = 5e6
 			equilibrium_length: float = 0.0
 			if forces.nonbonded_force != None:
 				forces.nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)
@@ -1362,7 +1362,7 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 					forces.nonbonded_force.addParticle(0.0, 1.0, 0.0)
 				pos = state_payload.positions[i]
 				openff_initial_positions.append(pos)
-				k_constant: float = 500000.0
+				k_constant: float = 5e6
 				equilibrium_length: float = 0.0
 				if forces.nonbonded_force != None:
 					forces.nonbonded_force.addException(lock_particle_id, openff_atom_id, 0.0, 1.0, 0.0)

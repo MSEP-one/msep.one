@@ -1617,8 +1617,10 @@ static func _do_tween_atom_positions(
 	var editing_structures: Array[NanoStructure] = []
 	for i in range(in_target_positions.size()):
 		var structure_atom_pair: Array = in_payload.request_atom_id_to_structure_and_atom_id_map[i]
-		var structure: NanoStructure = out_workspace_context.workspace.get_structure_by_int_guid(structure_atom_pair[0])
+		var structure: AtomicStructure = out_workspace_context.workspace.get_structure_by_int_guid(structure_atom_pair[0]) as AtomicStructure
 		var atom_id: int = structure_atom_pair[1]
+		if structure.atom_is_locked(atom_id):
+			continue
 		var start_pos: Vector3 = in_payload.raw_initial_positions[i]
 		var end_pos: Vector3 = in_target_positions[i]
 		var pos: Vector3 = lerp(start_pos, end_pos, in_lerp)
