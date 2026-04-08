@@ -16,6 +16,7 @@ signal snap_to_shape_surface_changed(enabled: bool)
 signal spring_constant_force_changed(force: float)
 signal spring_equilibrium_length_is_auto_changed(is_auto: bool)
 signal spring_equilibrium_manual_length_changed(manual_length: float)
+signal spring_ignore_hydrogens_changed(enabled: bool)
 # validate_bonds_requested signal is used as intermediator between relax_tools_panel and validate_bonds_panel
 signal validate_bonds_requested(atom_set: AtomicStructure.AtomSet)
 
@@ -86,6 +87,8 @@ var _spring_constant_force: float = 5000000.0 # nN/nm
 var _spring_equilibrium_length_is_auto: bool = true
 
 var _spring_equilibrium_manual_length: float
+
+var _spring_ignore_hydrogens: bool = false
 
 var _default_shape: int = 0
 
@@ -298,3 +301,12 @@ func set_spring_equilibrium_manual_length(in_manual_length: float) -> void:
 
 func get_spring_equilibrium_manual_length() -> float:
 	return _spring_equilibrium_manual_length
+
+
+func set_spring_ignore_hydrogens(in_enabled: bool) -> void:
+	_spring_ignore_hydrogens = in_enabled
+	spring_ignore_hydrogens_changed.emit()
+
+
+func get_spring_ignore_hydrogen() -> bool:
+	return _spring_ignore_hydrogens
