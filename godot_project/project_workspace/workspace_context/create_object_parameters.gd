@@ -88,7 +88,7 @@ var _spring_equilibrium_length_is_auto: bool = true
 
 var _spring_equilibrium_manual_length: float
 
-var _spring_ignore_hydrogens: bool = false
+var _spring_ignore_hydrogens: bool = true
 
 var _default_shape: int = 0
 
