@@ -67,6 +67,7 @@ func _on_button_close_pressed() -> void:
 
 func appear(in_fade_time: float = 0.3) -> void:
 	show()
+	_button_close.focus_mode = Control.FOCUS_ALL
 	_button_close.grab_focus()
 	if in_fade_time <= 0:
 		_blur = 1

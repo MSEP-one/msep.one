@@ -18,6 +18,8 @@ func _on_node_added(node: Node) -> void:
 		if node.text_submitted.is_connected(_on_line_edit_text_submitted):
 			return
 		node.text_submitted.connect(_on_line_edit_text_submitted.bind(node), CONNECT_DEFERRED)
+	if node is Button and node.get_viewport() == get_tree().root:
+		node.focus_mode = Control.FOCUS_NONE
 	if node is AcceptDialog:
 		var child_count: int = node.get_child_count(true)
 		var buttons_container: HBoxContainer
