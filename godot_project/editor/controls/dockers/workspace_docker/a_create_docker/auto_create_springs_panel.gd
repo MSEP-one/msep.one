@@ -29,12 +29,13 @@ func _notification(what: int) -> void:
 
 func _ready() -> void:
 	_atom_to_anchor_button.button_group.pressed.connect(_on_spring_type_button_group_pressed.unbind(1))
-	_ignore_hydrogens_check_button.toggled.connect(_on_ignore_hydrogens_check_button_toggled.unbind(1))
+	_ignore_hydrogens_check_button.toggled.connect(_on_ignore_hydrogens_check_button_toggled)
 	_auto_create_springs_button.pressed.connect(_on_auto_create_springs_button_pressed)
 
 
 func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	_ensure_workspace_initialized(in_workspace_context)
+	_ignore_hydrogens_check_button.set_pressed_no_signal(_workspace_context.create_object_parameters.get_spring_ignore_hydrogen())
 	
 	if not in_workspace_context.get_current_structure_context().nano_structure.can_contain_child_structure():
 		return false
@@ -75,7 +76,8 @@ func _on_spring_type_button_group_pressed() -> void:
 	_update_selection_info_label()
 
 
-func _on_ignore_hydrogens_check_button_toggled() -> void:
+func _on_ignore_hydrogens_check_button_toggled(in_pressed: bool) -> void:
+	_workspace_context.create_object_parameters.set_spring_ignore_hydrogens(in_pressed)
 	_update_selection_info_label()
 
 

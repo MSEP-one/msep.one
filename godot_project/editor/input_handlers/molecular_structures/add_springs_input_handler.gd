@@ -5,6 +5,7 @@ var _render_candidates: bool = false
 var _candidate_spring_ends: PackedVector3Array = []
 var _springs_end_candidates_outdated: bool = false
 var _press_down_position: Vector2 = Vector2(-100, -100)
+var _ignore_hydrogens: bool = false
 
 # region virtual
 ## VIRTUAL: Returns true when the the input handler expects to process inputs
@@ -48,7 +49,6 @@ func handle_inputs_resume() -> void:
 	else:
 		const HIDEN_SPRINGS: PackedVector3Array = []
 		_get_rendering().virtual_anchor_preview_set_spring_ends(HIDEN_SPRINGS)
-		
 
 
 func handle_input_omission() -> void:
@@ -166,12 +166,21 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 
 
 func _update_springs_end_candidates() -> void:
+	var ignore_hydrogens: bool = get_workspace_context().create_object_parameters.get_spring_ignore_hydrogen()
+	if _ignore_hydrogens != ignore_hydrogens:
+		_ignore_hydrogens = ignore_hydrogens
+		_springs_end_candidates_outdated = true
 	if not _springs_end_candidates_outdated:
 		return
 	_candidate_spring_ends = PackedVector3Array()
 	for context: StructureContext in get_workspace_context().get_structure_contexts_with_selection():
+		var structure: AtomicStructure = context.nano_structure as AtomicStructure
+		if not structure:
+			continue
 		for atom_id: int in context.get_selected_atoms():
-			_candidate_spring_ends.push_back(context.nano_structure.atom_get_position(atom_id))
+			if _ignore_hydrogens and structure.atom_is_hydrogen(atom_id):
+				continue
+			_candidate_spring_ends.push_back(structure.atom_get_position(atom_id))
 	_springs_end_candidates_outdated = false
 
 
@@ -181,6 +190,8 @@ func _create_springs_for_atoms(in_nano_struct: AtomicStructure, in_atoms: Packed
 	out_created_springs.clear()
 	in_nano_struct.start_edit()
 	for atom_id: int in in_atoms:
+		if in_params.get_spring_ignore_hydrogen() and in_nano_struct.atom_is_hydrogen(atom_id):
+			continue
 		var spring_id: int = in_nano_struct.spring_create(in_anchor_id, atom_id,
 				in_params.get_spring_constant_force(),
 				in_params.get_spring_equilibrium_length_is_auto(),
