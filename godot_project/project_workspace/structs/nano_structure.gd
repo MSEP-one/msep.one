@@ -99,6 +99,11 @@ func get_visible() -> bool:
 	return _visible
 
 
+## Some auto-generated structures, (like dna) wont allow to manually add and remove atoms
+func can_create_and_delete_atoms() -> bool:
+	return false
+
+
 ## Does this object work as a group?
 func can_contain_child_structure() -> bool:
 	return false
