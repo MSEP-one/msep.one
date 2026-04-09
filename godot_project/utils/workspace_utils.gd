@@ -552,6 +552,8 @@ static func _select_connected(
 	var all_structures: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_selection()
 	var selection_changed: bool = false
 	for struct_context in all_structures:
+		if not struct_context.nano_structure is AtomicStructure:
+			continue
 		var result: AtomSelection.AtomSelectionResult = struct_context.select_connected(in_show_hidden_objects, in_linked_by_springs)
 		selection_changed = selection_changed or result.selection_changed
 	if selection_changed:
