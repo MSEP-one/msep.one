@@ -80,8 +80,9 @@ func _execute_action() -> void:
 			_complete_atom_valence(context, atom_id, new_atoms_selection, new_bonds_selection, delta_hydrogens)
 		context.nano_structure.end_edit()
 		
-		context.set_atom_selection(new_atoms_selection)
-		context.set_bond_selection(new_bonds_selection)
+		if only_apply_to_selection:
+			context.set_atom_selection(new_atoms_selection)
+			context.set_bond_selection(new_bonds_selection)
 	
 	if delta_hydrogens.added > 0 or delta_hydrogens.removed > 0:
 		hydrogen_atoms_count_changed.emit(delta_hydrogens.added, delta_hydrogens.removed)
