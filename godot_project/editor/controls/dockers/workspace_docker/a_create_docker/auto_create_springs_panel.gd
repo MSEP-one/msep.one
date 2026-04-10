@@ -64,7 +64,7 @@ func _on_workspace_context_history_changed() -> void:
 			_has_anchor_selection = true
 		elif selected_atoms.size() > 0:
 			_has_atom_selection = true
-			_remove_hydrogens(ctx, selected_atoms)
+			_remove_hydrogens(ctx.nano_structure, selected_atoms)
 			if selected_atoms.size() > 0:
 				_has_atom_selection_ignoring_hydrogens = true
 		if _has_anchor_selection and _has_atom_selection_ignoring_hydrogens:
@@ -113,7 +113,19 @@ func _on_auto_create_springs_button_pressed() -> void:
 		_create_atom_to_anchor_springs()
 		return
 	elif _atom_to_atom_button.button_pressed:
-		_create_atom_to_atom_springs()
+		var out_spring_count: Dictionary[StringName, int] = {count = 0}
+		var out_stopped: Dictionary[StringName, bool] = {value = false}
+		var promise: Promise = _create_atom_to_atom_springs(out_spring_count, out_stopped)
+		var _on_stop: Callable = func() -> void:
+			out_stopped.value = true
+		_workspace_context.start_async_work(
+			tr("Creating Springs"), Callable(), _on_stop
+		)
+		await promise.wait_for_fulfill()
+		if BusyIndicator.is_active():
+			_workspace_context.end_async_work()
+		if out_spring_count.count > 0:
+			_workspace_context.snapshot_moment("Create %d Springs" % out_spring_count.count)
 		return
 
 func _create_atom_to_anchor_springs() -> void:
@@ -125,7 +137,7 @@ func _create_atom_to_anchor_springs() -> void:
 			anchors.append(ctx)
 		var selected_atoms: PackedInt32Array = ctx.get_selected_atoms()
 		if _ignore_hydrogens_check_button.button_pressed:
-			_remove_hydrogens(ctx, selected_atoms)
+			_remove_hydrogens(ctx.nano_structure, selected_atoms)
 		if selected_atoms.size() > 0:
 			atoms[ctx] = selected_atoms
 	
@@ -161,18 +173,38 @@ func _create_atom_to_anchor_springs() -> void:
 	if new_spring_count > 0:
 		_workspace_context.snapshot_moment("Create %d Springs" % new_spring_count)
 
-func _create_atom_to_atom_springs() -> void:
+func _create_atom_to_atom_springs(out_spring_count: Dictionary[StringName, int], out_stopped: Dictionary[StringName,bool]) -> Promise:
+	var promise := Promise.new()
+	var selected_atoms: Dictionary[AtomicStructure, PackedInt32Array] = {}
+	for structure_context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
+		var atom_selection: PackedInt32Array = structure_context.get_selected_atoms()
+		if atom_selection.size() > 0:
+			selected_atoms[structure_context.nano_structure as AtomicStructure] = atom_selection
+	if selected_atoms.is_empty():
+		promise.fulfill(true)
+	else:
+		var thread := Thread.new()
+		thread.start(_create_atom_to_atom_springs_in_thread.bind(
+			thread, promise, selected_atoms, out_spring_count, out_stopped))
+	return promise
+
+
+func _create_atom_to_atom_springs_in_thread(
+		out_thread: Thread,
+		out_promise: Promise,
+		out_selected_atoms: Dictionary[AtomicStructure, PackedInt32Array],
+		out_spring_count: Dictionary[StringName, int],
+		out_stopped: Dictionary[StringName,bool]) -> void:
 	var max_distance_sqrd: float = _max_spring_length_slider.value * _max_spring_length_slider.value
 	var constant_force: float = _workspace_context.create_object_parameters.get_spring_constant_force()
 	var EQUILIBRIUM_LENGTH_IS_AUTO: bool = true
 	var MANUAL_EQUILIBRIUM_LENGTH: float = 0.1
-	var new_spring_count: int = 0
-	for ctx: StructureContext in _workspace_context.get_structure_contexts_with_selection():
-		var structure: AtomicStructure = ctx.nano_structure as AtomicStructure
-		var springs_added: PackedInt32Array = []
-		var atom_selection: PackedInt32Array = ctx.get_selected_atoms()
+	var flush_semaphore := Semaphore.new()
+	for structure: AtomicStructure in out_selected_atoms.keys():
+		var last_flush: float = Time.get_unix_time_from_system()
+		var atom_selection: PackedInt32Array = out_selected_atoms[structure]
 		if _ignore_hydrogens_check_button.button_pressed:
-			_remove_hydrogens(ctx, atom_selection)
+			_remove_hydrogens(structure, atom_selection)
 		if atom_selection.size() <= 1:
 			continue
 		var atom_pos: Dictionary[int, Vector3]
@@ -181,45 +213,71 @@ func _create_atom_to_atom_springs() -> void:
 		var out_molecule_map: Dictionary[int, PackedInt32Array] = {
 			# atom_id : atoms_in_molecule(array shared among all atom keys)
 		}
+		structure.start_edit()
 		for i in atom_selection.size() - 1:
 			for j in range(i + 1, atom_selection.size()):
 				var atom1: int = atom_selection[i]
 				var atom2: int = atom_selection[j]
-				if _no_springs_within_same_molecule_check_button.button_pressed \
-					and _are_atoms_within_same_molecule(atom1, atom2, structure, out_molecule_map):
-						continue
 				if atom_pos[atom1].distance_squared_to(atom_pos[atom2]) > max_distance_sqrd:
 					continue
 				if structure.spring_between_atoms_exists(atom1, atom2):
 					continue
-				var atom1_bonds: PackedInt32Array = structure.atom_get_bonds(atom1)
-				for bond_id: int in atom1_bonds:
-					if structure.atom_get_bond_target(atom1, bond_id) == atom2:
-						# Bond exists
+				if _no_springs_within_same_molecule_check_button.button_pressed \
+					and _are_atoms_within_same_molecule(atom1, atom2, structure, out_molecule_map):
 						continue
-				if not structure.is_being_edited():
-					structure.start_edit()
-				var new_spring: int = structure.spring_create_between_atoms(
+				else:
+					var atom1_bonds: PackedInt32Array = structure.atom_get_bonds(atom1)
+					for bond_id: int in atom1_bonds:
+						if structure.atom_get_bond_target(atom1, bond_id) == atom2:
+							# Bond exists
+							continue
+				structure.spring_create_between_atoms(
 					atom1, atom2, constant_force,
 					EQUILIBRIUM_LENGTH_IS_AUTO, MANUAL_EQUILIBRIUM_LENGTH
 				)
-				springs_added.append(new_spring)
-		if springs_added.size() > 0:
-			structure.end_edit()
-			ctx.select_springs(springs_added)
-			new_spring_count += springs_added.size()
-	if new_spring_count > 0:
-		_workspace_context.snapshot_moment("Create %d Springs" % new_spring_count)
+				out_spring_count.count += 1
+				var time: float = Time.get_unix_time_from_system()
+				if time - last_flush >= 1.0:
+					# Update main every 1 second
+					_flush_new_atom_to_atom_springs.call_deferred(structure, flush_semaphore)
+					flush_semaphore.wait()
+					if out_stopped.value:
+						# User aborted
+						out_promise.fulfill.call_deferred(true)
+						out_thread.wait_to_finish.call_deferred()
+						return
+					structure.start_edit()
+					# time may have passed after the lock
+					last_flush = Time.get_unix_time_from_system()
+		# Flush remainder since last flush
+		_flush_new_atom_to_atom_springs.call_deferred(structure, flush_semaphore)
+		flush_semaphore.wait()
+		if out_stopped.value:
+			# User aborted
+			out_promise.fulfill.call_deferred(true)
+			out_thread.wait_to_finish.call_deferred()
+			return
+	out_promise.fulfill.call_deferred(true)
+	out_thread.wait_to_finish.call_deferred()
+
+
+
+func _flush_new_atom_to_atom_springs(
+		out_structure: AtomicStructure,
+		out_semaphore: Semaphore) -> void:
+	out_structure.end_edit()
+	# wait for the renderer to update
+	await get_tree().process_frame
+	out_semaphore.post()
 
 
 func _remove_hydrogens(
-		in_structure_context: StructureContext,
+		in_structure: AtomicStructure,
 		out_selected_atoms: PackedInt32Array) -> void:
 	if out_selected_atoms.is_empty():
 		return
-	var structure: AtomicStructure = in_structure_context.nano_structure as AtomicStructure
 	for i in range(out_selected_atoms.size() - 1, -1, -1):
-		if structure.atom_is_hydrogen(out_selected_atoms[i]):
+		if in_structure.atom_is_hydrogen(out_selected_atoms[i]):
 			out_selected_atoms.remove_at(i)
 
 
