@@ -120,6 +120,11 @@ func _on_dna_sequence_text_edit_text_changed() -> void:
 	_update_create_button()
 
 
+func _sequence_button_button_group_pressed() -> void:
+	super._sequence_button_button_group_pressed()
+	_update_create_button.call_deferred()
+
+
 func _update_create_button() -> void:
 	if _rand_sequence_button.button_pressed:
 		# Assume slider value is always > 0

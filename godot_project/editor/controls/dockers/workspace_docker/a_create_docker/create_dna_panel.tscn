@@ -54,17 +54,17 @@ button_group = SubResource("ButtonGroup_t5a7f")
 [node name="SugarSameAsBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer3" index="2"]
 button_group = SubResource("ButtonGroup_t5a7f")
 
-[node name="DontColorizeBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2/HBoxContainer" index="1"]
+[node name="DontColorizeBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2/HBoxContainer" index="0"]
 button_pressed = false
 button_group = SubResource("ButtonGroup_t2pju")
 
-[node name="PerStrandBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2/HBoxContainer" index="2"]
+[node name="PerStrandBasesButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2/HBoxContainer" index="1"]
 button_group = SubResource("ButtonGroup_t2pju")
 
-[node name="PerGrooveButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2/HBoxContainer" index="3"]
+[node name="PerGrooveButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2/HBoxContainer" index="2"]
 button_group = SubResource("ButtonGroup_t2pju")
 
-[node name="PerBaseTypeButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2/HBoxContainer" index="4"]
+[node name="PerBaseTypeButton" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/HBoxContainer2/HBoxContainer" index="3"]
 button_pressed = true
 button_group = SubResource("ButtonGroup_t2pju")
 
