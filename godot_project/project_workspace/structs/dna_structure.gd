@@ -1820,9 +1820,6 @@ func is_spline_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> b
 	return true
 
 
-
-
-
 func create_state_snapshot() -> Dictionary:
 	var state_snapshot: Dictionary = super.create_state_snapshot()
 	

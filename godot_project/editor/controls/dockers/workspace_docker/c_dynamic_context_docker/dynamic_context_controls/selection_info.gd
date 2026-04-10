@@ -70,7 +70,7 @@ func _update_selected_info() -> void:
 			total_bonds_selected += context.get_selected_bonds().size()
 			total_springs_selected += context.get_selected_springs().size()
 			if context.nano_structure is DnaStructure:
-				total_control_points_selected += context.get_selected_dna_spline_countrol_points().size()
+				total_control_points_selected += context.get_selected_dna_spline_control_points().size()
 		elif context.nano_structure is NanoShape:
 			total_shapes_selected += 1
 		elif context.nano_structure is NanoVirtualMotor:

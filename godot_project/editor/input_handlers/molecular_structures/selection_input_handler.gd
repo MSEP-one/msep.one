@@ -568,7 +568,7 @@ func _screen_selection_logic(
 						need_to_create_snapshot = true
 				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
 					var hit_control_point: int = multi_structure_hit_result.closest_hit_dna_control_point_id
-					if hit_control_point in hit_context.get_selected_dna_spline_countrol_points():
+					if hit_control_point in hit_context.get_selected_dna_spline_control_points():
 						hit_context.deselect_dna_control_points([hit_control_point])
 						if not need_to_create_snapshot:
 							snapshot_name = "Unselect DNA control point"
