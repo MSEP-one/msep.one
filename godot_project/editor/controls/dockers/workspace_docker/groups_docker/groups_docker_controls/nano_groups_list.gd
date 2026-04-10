@@ -194,6 +194,8 @@ func _dissolve_structure(in_structure: NanoStructure) -> void:
 			Transform3D(), workspace)
 	
 	workspace.remove_structure(in_structure)
+	current_structure_context.clear_selection(true)
+	
 	var snapshot_name: String = "Merge group '%s' into '%s'" % [in_structure.get_structure_name(), parent_structure.get_structure_name()]
 	get_workspace_context().snapshot_moment(snapshot_name)
 
