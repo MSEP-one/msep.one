@@ -51,7 +51,7 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 					var editor: Control = NanoShapeUtils.create_shape_property_editor(property, true)
 					shape_dimensions[prop_name.capitalize() + suffix] = editor
 	elif nano_structure is DnaStructure:
-		for control_point: int in structure_context.get_selected_dna_spline_countrol_points():
+		for control_point: int in structure_context.get_selected_dna_spline_control_points():
 			const ALWAYS_EDITABLE = SelectionInfo.Type.READ_WRITE_PROPERTIES
 			info["Control Point #%d" % control_point] = {"": _create_dna_control_point_position_property(ALWAYS_EDITABLE, structure_context, control_point)}
 	elif nano_structure is NanoVirtualMotor and structure_context.is_motor_selected():

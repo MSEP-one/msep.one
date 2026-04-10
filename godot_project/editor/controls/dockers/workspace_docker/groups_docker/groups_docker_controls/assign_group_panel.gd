@@ -213,5 +213,3 @@ func _update_controls() -> void:
 
 func _generate_new_structure_name() -> String:
 	return tr(&"Group {0}").format([_highest_index + 1])
-
-

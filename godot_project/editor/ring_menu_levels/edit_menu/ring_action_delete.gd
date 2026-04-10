@@ -183,12 +183,12 @@ func _can_delete_dna_control_points(out_context: StructureContext, in_from_cut_c
 	if in_from_cut_command:
 		return false
 	return  out_context.nano_structure is DnaStructure \
-			and out_context.get_selected_dna_spline_countrol_points().size() > 0
+			and out_context.get_selected_dna_spline_control_points().size() > 0
 
 
 func _action_delete_dna_control_points(out_context: StructureContext) -> void:
 	assert(out_context.nano_structure is DnaStructure)
-	var selected_points: PackedInt32Array = out_context.get_selected_dna_spline_countrol_points()
+	var selected_points: PackedInt32Array = out_context.get_selected_dna_spline_control_points()
 	out_context.clear_selection()
 	assert(selected_points.size() > 0)
 	if !_did_create_undo_action:
@@ -277,7 +277,7 @@ func _can_delete_objects(in_context: StructureContext, in_from_cut_command: bool
 		if in_from_cut_command:
 			# Cannot cut individual control points, can only cut the entire structure
 			pass # already: dna_spline_selected == in_context.is_dna_structure_fully_selected()
-		elif in_context.get_selected_dna_spline_countrol_points().size() >= in_context.nano_structure.get_control_point_count() - 1:
+		elif in_context.get_selected_dna_spline_control_points().size() >= in_context.nano_structure.get_control_point_count() - 1:
 			# EXCEPTION: DnaStructure gets deleted if all but 1 control point are selected
 			dna_spline_selected = true
 	

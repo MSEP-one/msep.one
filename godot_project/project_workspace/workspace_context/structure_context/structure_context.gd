@@ -170,7 +170,7 @@ func has_selection(in_recursive: bool = false) -> bool:
 func has_transformable_selection() -> bool:
 	return is_any_atom_selected() \
 		or _selection_db.is_virtual_object_selected() \
-		or _selection_db.get_selected_dna_spline_countrol_points().size() > 0
+		or _selection_db.get_selected_dna_spline_control_points().size() > 0
 
 
 func has_cached_selection_set() -> bool:
@@ -208,7 +208,7 @@ func is_spring_selected(in_spring_id: int) -> bool:
 func dna_structure_has_selection() -> bool:
 	if not nano_structure is DnaStructure:
 		return false
-	if _selection_db.get_selected_dna_spline_countrol_points().size() > 0:
+	if _selection_db.get_selected_dna_spline_control_points().size() > 0:
 		return true
 	return false
 
@@ -217,7 +217,7 @@ func is_dna_structure_fully_selected() -> bool:
 	if not nano_structure is DnaStructure:
 		return false
 	var dna_structure := nano_structure as DnaStructure
-	return _selection_db.get_selected_dna_spline_countrol_points().size() == dna_structure.get_control_point_count()
+	return _selection_db.get_selected_dna_spline_control_points().size() == dna_structure.get_control_point_count()
 
 
 func is_virtual_object_selected() -> bool:
@@ -419,8 +419,8 @@ func deselect_dna_control_points(in_control_points_to_deselect: PackedInt32Array
 	return _selection_db.deselect_dna_control_points(in_control_points_to_deselect)
 
 
-func get_selected_dna_spline_countrol_points() -> PackedInt32Array:
-	return _selection_db.get_selected_dna_spline_countrol_points()
+func get_selected_dna_spline_control_points() -> PackedInt32Array:
+	return _selection_db.get_selected_dna_spline_control_points()
 
 
 func set_virtual_object_selected(in_selected: bool) -> void:
@@ -564,4 +564,3 @@ func _on_dna_control_points_selection_changed() -> void:
 
 func _on_dna_control_points_deselected(in_deselected_control_points: PackedInt32Array) -> void:
 	dna_control_points_deselected.emit(in_deselected_control_points)
-

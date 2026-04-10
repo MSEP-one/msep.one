@@ -122,7 +122,7 @@ func _init_initial_positions_and_determine_center() -> Vector3:
 			_structure_context_2_initial_object_transforms[context.get_int_guid()] = Transform3D(Basis(), context.nano_structure.get_position())
 		elif context.nano_structure is DnaStructure:
 			if context.has_selection():
-				var control_points: Array = context.get_selected_dna_spline_countrol_points()
+				var control_points: Array = context.get_selected_dna_spline_control_points()
 				selection_size += control_points.size()
 				for p: int in control_points:
 					center_pos += context.nano_structure.get_control_point_position(p)
@@ -257,7 +257,7 @@ func _apply_selection_transform() -> void:
 		elif nano_structure is DnaStructure:
 			var dna := nano_structure as DnaStructure
 			var sequence: String = dna.get_sequence()
-			var points_to_transform: PackedInt32Array = context.get_selected_dna_spline_countrol_points()
+			var points_to_transform: PackedInt32Array = context.get_selected_dna_spline_control_points()
 			dna.start_edit()
 			for p: int in points_to_transform:
 				action_created = true
@@ -341,7 +341,7 @@ func _get_gizmo_center_position() -> Vector3:
 			center_pos += atom_init_pos
 		
 		# Phase 1.1: DNA's control points
-		selection = context.get_selected_dna_spline_countrol_points()
+		selection = context.get_selected_dna_spline_control_points()
 		selection_size += selection.size()
 		for control_point_idx: int in selection:
 			var control_point_pos: Vector3 = context.nano_structure.get_control_point_position(control_point_idx)
@@ -459,7 +459,7 @@ func _force_gizmo_update() -> void:
 				selection_size += 1
 				# Anchors does not trigger `has_transformable_objects_selected = true` because they dont rotate
 			elif context.nano_structure is DnaStructure:
-				selection_size += context.get_selected_dna_spline_countrol_points().size()
+				selection_size += context.get_selected_dna_spline_control_points().size()
 			elif context.is_dna_structure_fully_selected():
 				selection_size += (context.nano_structure as DnaStructure).get_control_point_count()
 		

@@ -1355,6 +1355,11 @@ static func _can_move_selection_to_another_group(in_workspace_context: Workspace
 		if not context.nano_structure is AtomicStructure:
 			has_selection = true
 			continue
+		if context.nano_structure is DnaStructure:
+			if not context.is_dna_structure_fully_selected():
+				return false
+			else:
+				continue
 		var structure: AtomicStructure = context.nano_structure as AtomicStructure
 		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
 		var selected_bonds: PackedInt32Array = context.get_selected_bonds()

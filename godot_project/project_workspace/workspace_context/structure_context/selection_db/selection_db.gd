@@ -288,7 +288,7 @@ func invert_selection() -> void:
 	# ---- DNA Structures ----
 	if nano_structure is DnaStructure:
 		var dna_structure := nano_structure as DnaStructure
-		var selected_points: PackedInt32Array = _structure_context.get_selected_dna_spline_countrol_points()
+		var selected_points: PackedInt32Array = _structure_context.get_selected_dna_spline_control_points()
 		var new_selection: Array = PackedInt32Array(range(dna_structure.get_control_point_count()))
 		for p in selected_points:
 			new_selection.erase(p)
@@ -412,7 +412,7 @@ func deselect_dna_control_points(in_control_points: PackedInt32Array) -> void:
 		selection_changed.emit()
 
 
-func get_selected_dna_spline_countrol_points() -> PackedInt32Array:
+func get_selected_dna_spline_control_points() -> PackedInt32Array:
 	return _dna_control_point_selection.keys()
 
 

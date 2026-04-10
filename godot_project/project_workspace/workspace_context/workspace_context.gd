@@ -828,7 +828,7 @@ func _on_dna_path_changed(in_structure_context_id: int) -> void:
 		# There's an special case where changing the lenght of a sequence can trim the amount of
 		# control points, if those control points are selected this causes problems
 		var dna: DnaStructure = structure_context.nano_structure as DnaStructure
-		var points_to_unselect: PackedInt32Array = structure_context.get_selected_dna_spline_countrol_points()
+		var points_to_unselect: PackedInt32Array = structure_context.get_selected_dna_spline_control_points()
 		for i: int in range(points_to_unselect.size()-1, -1, -1):
 			var point_idx: int = points_to_unselect[i]
 			if point_idx < dna.get_control_point_count():
