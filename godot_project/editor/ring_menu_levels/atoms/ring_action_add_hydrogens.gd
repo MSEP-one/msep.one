@@ -31,27 +31,15 @@ func _validate() -> bool:
 	if !is_instance_valid(_workspace_context):
 		return false
 	var selected_contexts: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
-	if selected_contexts.is_empty():
-		# No Selection, try with all visible objects
-		for context in _workspace_context.get_visible_structure_contexts():
-			if context.nano_structure is AtomicStructure \
-					and context.nano_structure.can_create_and_delete_atoms() \
-					and context.nano_structure.get_valid_atoms_count() > 0:
-				return true
-			# No visible objects, cannot execute
-		return false
 	for context in selected_contexts:
 		if context.get_selected_atoms().size() > 0:
-			# Has selection, always can execute
 			return true
-	# There's selection, but not atoms (assume shapes) can't add hydrogens
 	return false
 
 
 func _execute_action() -> void:
 	_ring_menu.close()
 	var target_structures: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
-	var only_apply_to_selection: bool = !target_structures.is_empty()
 	if target_structures.is_empty():
 		target_structures = _workspace_context.get_visible_structure_contexts()
 	var delta_hydrogens: Dictionary = {
@@ -67,10 +55,7 @@ func _execute_action() -> void:
 		var new_atoms_selection: PackedInt32Array = context.get_selected_atoms()
 		var new_bonds_selection: PackedInt32Array = context.get_selected_bonds()
 		var atoms_to_check: PackedInt32Array = []
-		if only_apply_to_selection:
-			atoms_to_check = context.get_selected_atoms()
-		else:
-			atoms_to_check = context.nano_structure.get_visible_atoms()
+		atoms_to_check = context.get_selected_atoms()
 		atoms_to_check = Array(atoms_to_check).filter(_is_not_hydrogen.bind(context.nano_structure))
 		if atoms_to_check.is_empty():
 			continue
@@ -80,9 +65,8 @@ func _execute_action() -> void:
 			_complete_atom_valence(context, atom_id, new_atoms_selection, new_bonds_selection, delta_hydrogens)
 		context.nano_structure.end_edit()
 		
-		if only_apply_to_selection:
-			context.set_atom_selection(new_atoms_selection)
-			context.set_bond_selection(new_bonds_selection)
+		context.set_atom_selection(new_atoms_selection)
+		context.set_bond_selection(new_bonds_selection)
 	
 	if delta_hydrogens.added > 0 or delta_hydrogens.removed > 0:
 		hydrogen_atoms_count_changed.emit(delta_hydrogens.added, delta_hydrogens.removed)
