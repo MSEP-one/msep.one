@@ -13,6 +13,7 @@ var _workspace_context: WorkspaceContext
 var _structure_id: int = Workspace.INVALID_STRUCTURE_ID
 
 var _hovered_spring: int = AtomicStructure.INVALID_SPRING_ID
+var _hovered_all: bool = false
 var _anchors_to_related_springs: Dictionary = {
 	# anchor_id : PackedInt32Array<spring_id>
 }
@@ -168,6 +169,7 @@ func refresh_all() -> void:
 
 func clear() -> void:
 	_hovered_spring = AtomicStructure.INVALID_SPRING_ID
+	_hovered_all = false
 	_anchors_to_related_springs.clear()
 	_highlighted_atoms.clear()
 
@@ -281,22 +283,46 @@ func _update_is_selectable_uniform() -> void:
 	_spring_renderer.set_global_color(global_color)
 
 
-func handle_hover_structure_changed(_in_toplevel_hovered_structure_context: StructureContext,
+func handle_hover_structure_changed(in_toplevel_hovered_structure_context: StructureContext,
 			in_hovered_structure_context: StructureContext, _in_atom_id: int, _in_bond_id: int,
 			in_spring_id: int) -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
+	var hovered_as_a_group: bool = false
 	if in_hovered_structure_context != structure_context:
 		# Hovered bond is not part of this structure, remove roll over if needed
 		in_spring_id = AtomicStructure.INVALID_SPRING_ID
+		if in_toplevel_hovered_structure_context != null:
+			hovered_as_a_group = in_toplevel_hovered_structure_context == structure_context or \
+				_workspace_context.workspace.is_a_ancestor_of_b(
+					in_toplevel_hovered_structure_context.nano_structure, structure_context.nano_structure
+				)
+	else: # in_hovered_structure_context == structure_context
+		if in_toplevel_hovered_structure_context != null:
+			hovered_as_a_group = true
 	
 	if not structure_context.nano_structure.spring_has(_hovered_spring):
 		# Previous hovered spring was deleted
 		_hovered_spring = AtomicStructure.INVALID_SPRING_ID
 	
-	if _hovered_spring == in_spring_id:
+	if _hovered_spring == in_spring_id and hovered_as_a_group == _hovered_all:
 		return
 	
-	if _hovered_spring != AtomicStructure.INVALID_SPRING_ID:
+	if _hovered_all != hovered_as_a_group:
+		_hovered_all = hovered_as_a_group
+		_hovered_spring = in_spring_id
+		if hovered_as_a_group:
+			_spring_renderer.change_all_springs_color(COLOR_HOVER)
+		else:
+			var selected_as_a_group: bool = structure_context.is_fully_selected()
+			_spring_renderer.change_all_springs_color(
+				COLOR_HIGHLIGHT if selected_as_a_group else COLOR_LOWLIGHT
+			)
+			if in_spring_id != AtomicStructure.INVALID_SPRING_ID:
+				var is_spring_selected: bool = structure_context.is_spring_selected(in_spring_id)
+				_spring_renderer.change_spring_color(in_spring_id, COLOR_HOVER, is_spring_selected)
+		return
+	
+	if _hovered_spring != AtomicStructure.INVALID_SPRING_ID and not _hovered_all:
 		var is_hovered_selected: bool = structure_context.is_spring_selected(_hovered_spring)
 		var color := COLOR_HIGHLIGHT if is_hovered_selected else COLOR_LOWLIGHT
 		_spring_renderer.change_spring_color(_hovered_spring, color, is_hovered_selected)

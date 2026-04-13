@@ -157,6 +157,13 @@ func change_spring_color(in_spring_id: int, in_color: Color, is_selected: bool) 
 	_multimesh.update_particle_color(in_spring_id, in_color, Color())
 
 
+func change_all_springs_color(in_color: Color) -> void:
+	for spring_id: int in _multimesh.get_particles_ids():
+		# Preserve instance state
+		in_color.a = _multimesh.get_particle_color(spring_id).a
+		_multimesh.update_particle_color(spring_id, in_color, Color())
+
+
 func set_global_color(in_color: Color) -> void:
 	_material.set_color(in_color)
 
