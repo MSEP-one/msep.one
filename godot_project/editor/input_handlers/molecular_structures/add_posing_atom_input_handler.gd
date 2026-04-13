@@ -105,16 +105,21 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, out_context
 	rendering.atom_autopose_preview_show()
 	
 	if in_input_event is InputEventMouse:
-		_hovered_candidate = null
-		var hovered_distance_sqrd: float = INF
-		const MIN_DISTANCE_SQRD: float = 15*15
-		for candidate: AtomCandidate in _candidates:
-			var distance_sqrd: float = in_input_event.position.distance_squared_to(candidate.pos_2d_cache)
-			if distance_sqrd < MIN_DISTANCE_SQRD:
-				if distance_sqrd < hovered_distance_sqrd:
-					hovered_distance_sqrd = distance_sqrd
-					_hovered_candidate = candidate
-		rendering.atom_autopose_preview_set_hovered_candidate(_hovered_candidate)
+		var is_mouse_drag_not_from_candidate: bool = (
+			Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _hovered_candidate == null
+		)
+		# Do not "drag into" candidates
+		if not is_mouse_drag_not_from_candidate:
+			_hovered_candidate = null
+			var hovered_distance_sqrd: float = INF
+			const MIN_DISTANCE_SQRD: float = 15*15
+			for candidate: AtomCandidate in _candidates:
+				var distance_sqrd: float = in_input_event.position.distance_squared_to(candidate.pos_2d_cache)
+				if distance_sqrd < MIN_DISTANCE_SQRD:
+					if distance_sqrd < hovered_distance_sqrd:
+						hovered_distance_sqrd = distance_sqrd
+						_hovered_candidate = candidate
+			rendering.atom_autopose_preview_set_hovered_candidate(_hovered_candidate)
 	
 	# Discard atoms hovering if a candidate is hovered.
 	if _hovered_candidate != null:
