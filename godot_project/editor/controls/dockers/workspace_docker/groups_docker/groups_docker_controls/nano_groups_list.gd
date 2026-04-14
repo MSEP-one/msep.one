@@ -175,6 +175,7 @@ func _dissolve_structure(in_structure: NanoStructure) -> void:
 	var current_structure_context: StructureContext = get_workspace_context().get_current_structure_context()
 	if current_structure_context.nano_structure == in_structure:
 		_activate_parent_structure(in_structure)
+		current_structure_context = get_workspace_context().get_current_structure_context()
 	
 	# Structure will be deleted, reparent the direct children first.
 	for child_structure: NanoStructure in workspace.get_child_structures(in_structure):
