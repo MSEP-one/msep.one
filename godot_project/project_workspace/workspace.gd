@@ -442,14 +442,14 @@ func get_parent_structure(in_child: NanoStructure) -> NanoStructure:
 	return get_structure_by_int_guid(in_child.int_parent_guid)
 
 
-func is_a_ancestor_of_b(in_ancestor_candidate: NanoStructure, in_descendant_candidate: NanoStructure) -> bool:
-	assert(has_structure_with_int_guid(in_ancestor_candidate.int_guid), "in_ancestor_candidate is not part of the workspace")
-	assert(has_structure_with_int_guid(in_descendant_candidate.int_guid), "in_descendant_candidate is not part of the workspace")
-	if in_ancestor_candidate == in_descendant_candidate:
+func is_a_ancestor_of_b(in_parent_candidate: NanoStructure, in_child_candidate: NanoStructure) -> bool:
+	assert(has_structure_with_int_guid(in_parent_candidate.int_guid), "in_parent_candidate is not part of the workspace")
+	assert(has_structure_with_int_guid(in_child_candidate.int_guid), "in_child_candidate is not part of the workspace")
+	if in_parent_candidate == in_child_candidate:
 		return false
-	var structure: NanoStructure = get_parent_structure(in_descendant_candidate) as NanoStructure
+	var structure: NanoStructure = get_parent_structure(in_child_candidate) as NanoStructure
 	while structure != null:
-		if structure == in_ancestor_candidate:
+		if structure == in_parent_candidate:
 			return true
 		structure = get_parent_structure(structure)
 	return false

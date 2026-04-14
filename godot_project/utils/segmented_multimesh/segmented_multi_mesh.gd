@@ -83,6 +83,10 @@ func set_bias(new_bias: float) -> SegmentedMultimesh:
 	return self
 
 
+func get_particles_ids() -> PackedInt32Array:
+	return PackedInt32Array(_external_id_to_particle.keys())
+
+
 func get_particle_color(in_external_id: int) -> Color:
 	var particle_data: Particle = _external_id_to_particle[in_external_id]
 	return particle_data.color
