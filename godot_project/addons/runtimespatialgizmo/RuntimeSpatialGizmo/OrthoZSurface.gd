@@ -128,9 +128,9 @@ func move_on_camera_local_xy_axis() -> void:
 		var mouse_clamped_position: Vector2 = _mouse_position
 		if Input.is_key_pressed(KEY_SHIFT):
 			if abs(_mouse_position.x - _initial_gizmo_unprojected_pos.x) < abs(_mouse_position.y - _initial_gizmo_unprojected_pos.y):
-				mouse_clamped_position.x = _initial_gizmo_unprojected_pos.x
+				mouse_clamped_position.x = _initial_gizmo_unprojected_pos.x - _mouse_grab_offset.x
 			else:
-				mouse_clamped_position.y = _initial_gizmo_unprojected_pos.y
+				mouse_clamped_position.y = _initial_gizmo_unprojected_pos.y - _mouse_grab_offset.y
 		var new_position: Vector3 = camera.project_position(mouse_clamped_position + _mouse_grab_offset, \
 				distance_from_screen)
 		selected_node.global_position = new_position
