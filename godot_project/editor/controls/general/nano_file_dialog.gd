@@ -14,6 +14,7 @@ func _notification(what: int) -> void:
 			line_edit.gui_input.connect(_on_file_dialog_line_edit_gui_input.bind(line_edit))
 			line_edit.text_changed.connect(_on_file_dialog_line_edit_text_changed.bind(line_edit))
 		window_input.connect(_on_window_input)
+		visibility_changed.connect(_on_visibility_changed)
 
 
 
@@ -97,3 +98,8 @@ func _on_window_input(in_event: InputEvent) -> void:
 		return
 	if in_event.is_action_pressed(&"close_view", false, true):
 		hide()
+
+func _on_visibility_changed() -> void:
+	if visible == false:
+		# emiting this signal will ensure TopBar menu is updated
+		get_tree().root.focus_entered.emit()
