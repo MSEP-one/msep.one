@@ -1013,6 +1013,7 @@ func enable_hydrogens_visualization(clear_selection: bool = true) -> void:
 		return
 	
 	var rendering: Rendering = get_editor_viewport().get_rendering()
+	var active_context: StructureContext = get_current_structure_context()
 	for context: StructureContext in _structure_contexts.values():
 		if not context.nano_structure is AtomicStructure:
 			# Ignore virtual objects
@@ -1020,7 +1021,11 @@ func enable_hydrogens_visualization(clear_selection: bool = true) -> void:
 		context.nano_structure.enable_hydrogens_visibility()
 		if clear_selection:
 			context.clear_selection()
-	
+		else:
+			if context != active_context and context.has_selection():
+				# For consistency, hydrogens of selected child groups
+				# needs to be selected when becoming visible
+				context.select_all()
 	rendering.enable_hydrogens()
 	workspace.representation_settings.set_hydrogen_visibility_and_notify(true)
 

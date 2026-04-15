@@ -46,7 +46,10 @@ func _execute_action() -> void:
 		added = 0,
 		removed = 0
 	}
-	_workspace_context.enable_hydrogens_visualization(false)
+	var did_show_hydrogens: bool = false
+	if not _workspace_context.are_hydrogens_visualized():
+		did_show_hydrogens = true
+		_workspace_context.enable_hydrogens_visualization(false)
 	for context in target_structures:
 		if not context.nano_structure is AtomicStructure:
 			continue
@@ -71,6 +74,9 @@ func _execute_action() -> void:
 	if delta_hydrogens.added > 0 or delta_hydrogens.removed > 0:
 		hydrogen_atoms_count_changed.emit(delta_hydrogens.added, delta_hydrogens.removed)
 		_workspace_context.snapshot_moment(tr("Correct Hydrogens"))
+	elif did_show_hydrogens:
+		_workspace_context.snapshot_moment(tr("Change Hydrogen Visibility"))
+		
 
 
 func _complete_atom_valence(
