@@ -226,6 +226,10 @@ func change_representation(new_representation: Rendering.Representation) -> void
 	
 	_current_representation.refresh_all()
 	_current_representation.show()
+	if is_hydrogen_rendering_enabled():
+		_current_representation.hydrogens_rendering_on()
+	else:
+		_current_representation.hydrogens_rendering_off()
 	_refresh_label_visibility_state()
 	_reset_representation_highlight(old_representation, old_rendering_representation, new_representation)
 

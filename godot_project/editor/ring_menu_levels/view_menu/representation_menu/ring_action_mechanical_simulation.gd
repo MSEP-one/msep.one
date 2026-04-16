@@ -32,6 +32,5 @@ func _execute_action() -> void:
 	assert(_workspace_context)
 	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
 	representation_settings.set_rendering_representation(Rendering.Representation.MECHANICAL_SIMULATION)
-	_workspace_context.workspace.representation_settings.emit_changed()
 	_ring_menu.refresh_button_availability()
 	_workspace_context.snapshot_moment("Representation change to Mechanical Simulation")
