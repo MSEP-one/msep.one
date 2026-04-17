@@ -215,13 +215,11 @@ func select_connected(in_show_hidden_objects: bool = false, in_linked_by_springs
 		return AtomSelectionResult.new(false, PackedInt32Array(), PackedInt32Array(), PackedInt32Array())
 	
 	if should_show_hydrogens or not hidden_atoms_to_show.is_empty():
-		var editor_viewport: WorkspaceEditorViewport = get_viewport()
-		var workspace_context: WorkspaceContext = editor_viewport.get_workspace_context()
+		var workspace_context: WorkspaceContext = _structure_context.workspace_context
 		if should_show_hydrogens:
-			related_structure.enable_hydrogens_visibility()
+			workspace_context.enable_hydrogens_visualization(false)
 		if not hidden_atoms_to_show.is_empty():
 			related_structure.set_atoms_visibility(hidden_atoms_to_show, true)
-		workspace_context.snapshot_moment("Update Visibility")
 	
 	var atoms_list: PackedInt32Array = PackedInt32Array(atoms_to_select.keys())
 	clear_selection_layers()
