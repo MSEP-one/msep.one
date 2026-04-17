@@ -487,8 +487,12 @@ func _paste_atoms_and_bonds_in_structure(
 		out_pasted_atoms[in_entity_data.group_id] = {}
 	var old_atom_id_to_new_atom_id: Dictionary = out_pasted_atoms[in_entity_data.group_id]
 	var atoms_to_lock: PackedInt32Array = []
+	var are_hydrogen_visible: bool = out_workspace_context.are_hydrogens_visualized()
 	for idx in range(clipboard_atoms.size()):
 		var atom: ClipboardAtom = clipboard_atoms[idx]
+		if atom.atomic_number == PeriodicTable.ATOMIC_NUMBER_HYDROGEN and not are_hydrogen_visible:
+			out_workspace_context.enable_hydrogens_visualization(false)
+			are_hydrogen_visible = true
 		old_index_to_new_index[idx] = out_structure.add_atom(
 			AtomicStructure.AddAtomParameters.new(atom.atomic_number, 
 				(camera_transform * atom.position) + paste_position_offset
