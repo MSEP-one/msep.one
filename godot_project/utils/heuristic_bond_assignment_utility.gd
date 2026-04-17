@@ -309,12 +309,17 @@ func _sort_frozen_set(a: Atom, b: Atom) -> bool:
 ## Returns:
 ##     IndexedPriorityQueue: A priority queue containing links sorted by their acceptance costs.
 ## [/codeblock]
-func create_priority_queue(nodes: Dictionary, input_bonds: Array[Bond], neighborhoods: Array) -> IndexedPriorityQueue:
+func create_priority_queue(nodes: Dictionary, input_bonds: Array[Bond], in_springs: Array[Bond], neighborhoods: Array) -> IndexedPriorityQueue:
 	var input_bonds_set: Dictionary = {
 		#frozenset[atoms] = true
 	}
 	for bond in input_bonds:
 		input_bonds_set[frozenset(bond.atoms)] = true
+	var input_springs_set: Dictionary = {
+		#frozenset[atoms] = true
+	}
+	for spring in in_springs:
+		input_springs_set[frozenset(spring.atoms)] = true
 	var priority_queue: IndexedPriorityQueue = IndexedPriorityQueue.new()
 	priority_queue.start_batch_operation()
 	for nhood: Neighborhood in neighborhoods:
@@ -322,16 +327,16 @@ func create_priority_queue(nodes: Dictionary, input_bonds: Array[Bond], neighbor
 			var node1: AtomicNode = nhood.residents[i]
 			for j in range(i + 1, len(nhood.residents)):
 				var node2: AtomicNode = nhood.residents[j]
-				_evaluate_and_create_link(nodes, node1, node2, input_bonds_set, priority_queue)
+				_evaluate_and_create_link(nodes, node1, node2, input_bonds_set, input_springs_set, priority_queue)
 			for neighbor_node in nhood.neighbors:
-				_evaluate_and_create_link(nodes, node1, neighbor_node, input_bonds_set, priority_queue)
+				_evaluate_and_create_link(nodes, node1, neighbor_node, input_bonds_set, input_springs_set, priority_queue)
 	priority_queue.end_batch_operation()
 	return priority_queue
 
 
 func _evaluate_and_create_link(
 			nodes: Dictionary, node1: AtomicNode, node2: AtomicNode,
-			input_bonds_set: Dictionary, priority_queue: IndexedPriorityQueue) -> void:
+			input_bonds_set: Dictionary, input_springs_set: Dictionary, priority_queue: IndexedPriorityQueue) -> void:
 	var atom1: Atom = node1.atom
 	var atom2: Atom = node2.atom
 	var actual_length_squared: float = atom1.position.distance_squared_to(atom2.position)
@@ -343,7 +348,7 @@ func _evaluate_and_create_link(
 	if actual_length_squared < MAX_LENGTH_FACTOR * (REFERENCE_BOND_LENGTHS[atom_pair] ** 2):
 		var bond_key: Array[Atom] = frozenset([atom1, atom2])
 
-		if not input_bonds_set.has(bond_key):
+		if not input_bonds_set.has(bond_key) and not input_springs_set.has(bond_key):
 			var bond: Bond = Bond.new(atom1, atom2)
 			var link: Link = Link.new(bond, sqrt(actual_length_squared), 0, true)
 			update_link_acceptance_conditions_and_cost(link, nodes)
@@ -505,7 +510,7 @@ func update_link_acceptance_conditions_and_cost(link0: Link, nodes: Dictionary) 
 ##     Array: A list of Bond objects representing the updated bonds in the structure after
 ##            applying the heuristic bond assignment.
 ## [/codeblock]
-func heuristic_bond_assignment(atoms: Array[Atom], input_bonds: Array[Bond]) -> Array[Bond]:
+func heuristic_bond_assignment(atoms: Array[Atom], input_bonds: Array[Bond], in_springs: Array[Bond]) -> Array[Bond]:
 	MAX_LENGTH_FACTOR  = ProjectSettings.get_setting(&"msep/heuristic_bond_assignment/max_length_factor", 3.0)
 	TINY_LENGTH_FACTOR = ProjectSettings.get_setting(&"msep/heuristic_bond_assignment/tiny_length_factor", 0.3)
 	LENGTH_COST_FACTOR = ProjectSettings.get_setting(&"msep/heuristic_bond_assignment/length_cost_factor", 1.0)
@@ -519,7 +524,7 @@ func heuristic_bond_assignment(atoms: Array[Atom], input_bonds: Array[Bond]) -> 
 	var output_bonds: Array[Bond] = nodes_and_output_bonds["output_bonds"]
 
 	for n: Neighborhood in neighborhoods:
-		var priority_queue: IndexedPriorityQueue = create_priority_queue(nodes, input_bonds, [n])
+		var priority_queue: IndexedPriorityQueue = create_priority_queue(nodes, input_bonds, in_springs, [n])
 		while not priority_queue.is_empty():
 			var current_link: Link = priority_queue.pop()
 			var atom1: Atom = current_link.bond.atoms[0]
