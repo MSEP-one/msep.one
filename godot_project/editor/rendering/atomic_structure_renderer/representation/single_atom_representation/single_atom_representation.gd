@@ -42,8 +42,7 @@ func build(in_structure_context: StructureContext) -> void:
 	
 	var atom_state := Representation.InstanceState.new()
 	for atom_id in atoms_ids:
-		var bonds: PackedInt32Array = related_nanostructure.atom_get_bonds(atom_id)
-		if not bonds.is_empty():
+		if _is_bonded_atom(atom_id):
 			continue
 		var atom_position: Vector3 = related_nanostructure.atom_get_position(atom_id)
 		atom_state.is_selected = _highlighted_atoms.get(atom_id, false)
@@ -74,8 +73,7 @@ func build_for_preview(in_nano_structure: NanoStructure) -> void:
 	
 	var atom_state := Representation.InstanceState.new()
 	for atom_id in atoms_ids:
-		var bonds: PackedInt32Array = in_nano_structure.atom_get_bonds(atom_id)
-		if not bonds.is_empty():
+		if _is_bonded_atom(atom_id):
 			continue
 		var atom_position: Vector3 = in_nano_structure.atom_get_position(atom_id)
 		atom_state.is_selected = _highlighted_atoms.get(atom_id, false)
@@ -146,7 +144,13 @@ func _add_atom(in_atom_id: int) -> void:
 	var atom_transform: Transform3D = Transform3D()
 	atom_transform = atom_transform.scaled_local(atom_scale)
 	atom_transform.origin = atom_position
+	var atom_state := Representation.InstanceState.new()
+	atom_state.is_selected = _highlighted_atoms.get(in_atom_id, false)
+	atom_state.is_hovered = _hovered_atom_id == in_atom_id
+	atom_state.is_visible = not related_nanostructure.is_atom_hidden_by_user(in_atom_id)
+	atom_state.is_hydrogen = related_nanostructure.atom_is_hydrogen(in_atom_id)
 	var bond_color: Color = StickRepresentation.get_bond_color(in_atom_id, related_nanostructure)
+	bond_color.a = atom_state.to_float()
 	_segmented_multimesh.add_particle(in_atom_id, atom_transform, bond_color, bond_color)
 
 
@@ -209,9 +213,13 @@ func refresh_atoms_visibility(in_atoms_ids: PackedInt32Array) -> void:
 
 
 func refresh_all() -> void:
-	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
+	var related_nanostructure: AtomicStructure = _get_related_atomic_structure()
 	for atom_id: int in related_nanostructure.get_valid_atoms():
-		_refresh_atom(atom_id)
+		if _is_bonded_atom(atom_id):
+			_hide_atom(atom_id)
+		else:
+			_ensure_atom_rendered(atom_id)
+	_segmented_multimesh.rebuild_if_needed()
 
 
 func clear() -> void:
@@ -333,10 +341,15 @@ func _refresh_atom(in_atom_id: int) -> void:
 	_segmented_multimesh.update_particle(in_atom_id, atom_transform, atom_color)
 
 
+## Returns true if the atom is connected to another visible atom
 func _is_bonded_atom(in_atom_id: int) -> bool:
 	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	var bonds: PackedInt32Array = related_nanostructure.atom_get_bonds(in_atom_id)
-	return not bonds.is_empty()
+	for bond_id: int in bonds:
+		var other_atom: int = related_nanostructure.atom_get_bond_target(in_atom_id, bond_id)
+		if related_nanostructure.is_atom_visible(other_atom):
+			return true
+	return false
 
 
 func _update_multimesh_if_needed() -> void:
@@ -367,10 +380,12 @@ func set_transparency(in_transparency: float) -> void:
 
 
 func hydrogens_rendering_off() -> void:
+	refresh_all()
 	_material.disable_hydrogen_rendering()
 
 
 func hydrogens_rendering_on() -> void:
+	refresh_all()
 	_material.enable_hydrogen_rendering()
 
 
