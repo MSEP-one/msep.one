@@ -375,7 +375,22 @@ func _on_weak_workspace_structure_about_to_remove(in_structure: NanoStructure) -
 
 
 func _on_weak_workspace_structure_removed(in_structure: NanoStructure) -> void:
+	if _hovered_structure_context == null:
+		_clear_hover_tooltip()
+	elif _hovered_structure_context.int_guid == in_structure.int_guid:
+		_clear_hover_tooltip()
 	structure_removed.emit(in_structure)
+
+
+func _clear_hover_tooltip() -> void:
+	set_hovered_structure_context(
+		null,
+		AtomicStructure.INVALID_ATOMIC_NUMBER,
+		AtomicStructure.INVALID_BOND_ID,
+		AtomicStructure.INVALID_SPRING_ID,
+		DnaStructure.INVALID_CONTROL_POINT_IDX
+	)
+	get_viewport().push_input(InputEventMouseMotion.new(), true)
 
 
 func _on_weak_workspace_structure_renamed(in_structure: NanoStructure, in_new_name: String) -> void:
@@ -736,12 +751,15 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.atoms_added.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_added.connect(_on_structure_context_atoms_added.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_removed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.atoms_removed.connect(_on_structure_context_atoms_removed.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_moved.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_atomic_number_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_cleared.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.bonds_created.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.bonds_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.bonds_removed.connect(_on_structure_context_bonds_removed.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.atoms_locking_changed.connect(_on_nano_structure_atoms_locking_changed.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.springs_removed.connect(_on_structure_context_springs_removed.bind(structure_context.get_int_guid()))
 		if not structure_context.nano_structure.visibility_changed.is_connected(_on_nano_structure_visibility_changed):
 			structure_context.nano_structure.visibility_changed.connect(_on_nano_structure_visibility_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is DnaStructure \
@@ -791,6 +809,24 @@ func _on_structure_context_atoms_added(in_atoms: PackedInt32Array, in_structure_
 	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
 	if is_structure_context_valid(structure_context):
 		atoms_added_to_structure.emit(structure_context, in_atoms)
+
+
+func _on_structure_context_atoms_removed(in_atoms: PackedInt32Array, in_structure_context_id: int) -> void:
+	if _hovered_structure_context != null and _hovered_structure_context.int_guid == in_structure_context_id:
+		if _hovered_atom_id in in_atoms:
+			_clear_hover_tooltip()
+
+
+func _on_structure_context_bonds_removed(in_bonds: PackedInt32Array, in_structure_context_id: int) -> void:
+	if _hovered_structure_context != null and _hovered_structure_context.int_guid == in_structure_context_id:
+		if _hovered_bond_id in in_bonds:
+			_clear_hover_tooltip()
+
+
+func _on_structure_context_springs_removed(in_springs: PackedInt32Array, in_structure_context_id: int) -> void:
+	if _hovered_structure_context != null and _hovered_structure_context.int_guid == in_structure_context_id:
+		if _hovered_spring_id in in_springs:
+			_clear_hover_tooltip()
 
 
 func _on_structure_contents_modified_arg0(in_structure_context_id: int) -> void:
