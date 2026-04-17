@@ -91,7 +91,10 @@ func refresh_spring_position(in_spring_id: int, in_position_start: Vector3, in_p
 	var distance: float = in_position_start.distance_to(in_position_end)
 	var spring_transform := Transform3D(Basis(), in_position_start)
 	var scale_to_apply: Vector3 = Vector3(MODEL_THICKNESS,MODEL_THICKNESS,distance)
-	spring_transform = spring_transform.looking_at(in_position_end).scaled_local(scale_to_apply)
+	var up_vector: Vector3 = Vector3.UP
+	if in_position_start.direction_to(in_position_end).is_equal_approx(up_vector):
+		up_vector = Vector3.FORWARD
+	spring_transform = spring_transform.looking_at(in_position_end, up_vector).scaled_local(scale_to_apply)
 	_multimesh.update_particle_transform(in_spring_id, spring_transform)
 
 
