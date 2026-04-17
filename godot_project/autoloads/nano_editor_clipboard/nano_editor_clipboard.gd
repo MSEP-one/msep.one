@@ -35,10 +35,10 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 		
 		match nano_structure.get_type():
 			&"MolecularStructure":
-				_copy_selected_atoms(
+				_copy_atoms(
 					structure_context, nano_structure, atom_selection, new_content
 				)
-				_copy_selected_springs(
+				_copy_springs(
 					structure_context, nano_structure, spring_selection, atom_selection, new_content
 				)
 			&"Cylinder",&"Cone",&"Pyramid",&"Box",&"Capsule",&"Plane",&"Prism",&"Sphere",&"Torus":
@@ -50,7 +50,9 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 			&"ParticleEmitter":
 				_copy_particle_emitter(structure_context, nano_structure, new_content)
 			&"DnaStructure":
-				if structure_context.is_dna_structure_fully_selected():
+				if (structure_context.is_dna_structure_fully_selected() 
+						# Include hidden DNA objects
+						or structure_context.nano_structure.get_visible() == false):
 					_copy_dna_structure(structure_context, nano_structure, new_content)
 			_:
 				push_warning("Nano structure type not implemented for copy")
@@ -61,18 +63,26 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 
 
 func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext) -> Array[Dictionary]:
+	var active_strucutre_id: int = in_workspace_context.get_current_structure_context().get_int_guid()
 	var nano_structure: NanoStructure = null
 	var atom_selection: PackedInt32Array = []
 	var spring_selection: PackedInt32Array = []
 	var result: Array[Dictionary] = []
+	const SELECTION_WITH_EMPTY_GROUPS = true
+	const SELECTION_WITH_HIDDEN_OBJECTS = true
 	var selected_structures: Array[StructureContext] = \
-		in_workspace_context.get_structure_contexts_with_selection(true)
+		in_workspace_context.get_structure_contexts_with_selection(
+			SELECTION_WITH_EMPTY_GROUPS, SELECTION_WITH_HIDDEN_OBJECTS)
 	for structure_context in selected_structures:
 		nano_structure = structure_context.nano_structure
 		if !nano_structure:
 			continue
-		atom_selection = structure_context.get_selected_atoms()
-		spring_selection = structure_context.get_selected_springs()
+		if active_strucutre_id == structure_context.get_int_guid():
+			atom_selection = structure_context.get_selected_atoms()
+			spring_selection = structure_context.get_selected_springs()
+		elif nano_structure is AtomicStructure and not nano_structure is DnaStructure:
+			atom_selection = (nano_structure as AtomicStructure).get_valid_atoms()
+			spring_selection = (nano_structure as AtomicStructure).springs_get_all()
 		var context_selection: Dictionary = {
 			nano_structure = nano_structure,
 			atom_selection = atom_selection,
@@ -83,7 +93,7 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext) -
 	return result
 
 
-func _copy_selected_atoms(
+func _copy_atoms(
 	in_structure_context: StructureContext,
 	in_structure: NanoStructure,
 	in_atom_selection: PackedInt32Array,
@@ -137,7 +147,7 @@ func _copy_selected_atoms(
 	out_content.push_back(new_content)
 
 
-func _copy_selected_springs(
+func _copy_springs(
 	in_structure_context: StructureContext,
 	in_structure: AtomicStructure,
 	in_spring_selection: PackedInt32Array,
@@ -711,6 +721,8 @@ func paste_object(
 	out_workspace_context.workspace.add_structure(new_structure, in_parent_structure)
 	var new_structure_context: StructureContext = \
 		out_workspace_context.get_nano_structure_context(new_structure)
+	if not new_structure.get_visible():
+		new_structure.set_visible(true)
 	new_structure_context.select_all()
 	
 	return new_structure
