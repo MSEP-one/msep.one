@@ -978,12 +978,19 @@ func get_visible_structure_contexts(in_include_empty_structures: bool = false) -
 	return result
 
 
-func get_editable_structure_contexts() -> Array[StructureContext]:
+func get_editable_structure_contexts(in_include_hidden_virtual_objects: bool = false) -> Array[StructureContext]:
 	if ScriptUtils.is_callable_queued(_emit_new_editable_structures):
 		ScriptUtils.flush_now(_emit_new_editable_structures)
 	var editable_structure_contexts: Array[StructureContext] = []
 	for editable_id: int in _editable_structure_contexts_ids:
 		editable_structure_contexts.append(_structure_contexts[editable_id])
+		if in_include_hidden_virtual_objects and editable_id != _current_structure_context_id:
+			# hidden virtual objects are included as part of a subgroup
+			var childs: Array[NanoStructure] = workspace.get_child_structures(
+					_structure_contexts[editable_id].nano_structure)
+			for child: NanoStructure in childs:
+				if child.get_visible() == false and (child.is_virtual_object() or child is DnaStructure):
+					editable_structure_contexts.append(get_structure_context(child.int_guid))
 	return editable_structure_contexts
 
 
@@ -1174,12 +1181,30 @@ func get_selected_anchors_contexts() -> Array[StructureContext]:
 	return selected_anchors
 
 
-func get_structure_contexts_with_selection(in_include_empty_groups_with_selected_subgroups: bool = false) -> Array[StructureContext]:
+func get_structure_contexts_with_selection(
+		in_include_empty_groups_with_selected_subgroups: bool = false,
+		include_hidden_virtual_objects: bool = false) -> Array[StructureContext]:
 	var result: Array[StructureContext] = []
-	var editable := get_editable_structure_contexts()
+	var editable := get_editable_structure_contexts(include_hidden_virtual_objects)
 	for structure_context: StructureContext in editable:
 		if structure_context.nano_structure.get_visible() and structure_context.has_selection(in_include_empty_groups_with_selected_subgroups):
 			result.push_back(structure_context)
+		else:
+			if include_hidden_virtual_objects:
+				if not (structure_context.nano_structure.is_virtual_object() or 
+					structure_context.nano_structure is DnaStructure):
+						continue
+				# hidden object is returned as a part of a group that is selected
+				var should_include_hidden: bool = false
+				var current: NanoStructure = structure_context.nano_structure
+				while current != get_current_structure_context().nano_structure:
+					current = workspace.get_parent_structure(current)
+					var parent_context: StructureContext = get_structure_context(current.int_guid)
+					if current.get_visible() and parent_context.has_selection(in_include_empty_groups_with_selected_subgroups):
+						should_include_hidden = true
+						break
+				if should_include_hidden:
+					result.push_back(structure_context)
 	return result
 
 
