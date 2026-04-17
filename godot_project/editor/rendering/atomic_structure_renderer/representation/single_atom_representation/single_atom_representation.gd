@@ -42,7 +42,7 @@ func build(in_structure_context: StructureContext) -> void:
 	
 	var atom_state := Representation.InstanceState.new()
 	for atom_id in atoms_ids:
-		if _is_bonded_atom(atom_id):
+		if _is_bonded_atom(atom_id, related_nanostructure):
 			continue
 		var atom_position: Vector3 = related_nanostructure.atom_get_position(atom_id)
 		atom_state.is_selected = _highlighted_atoms.get(atom_id, false)
@@ -73,7 +73,7 @@ func build_for_preview(in_nano_structure: NanoStructure) -> void:
 	
 	var atom_state := Representation.InstanceState.new()
 	for atom_id in atoms_ids:
-		if _is_bonded_atom(atom_id):
+		if _is_bonded_atom(atom_id, in_nano_structure):
 			continue
 		var atom_position: Vector3 = in_nano_structure.atom_get_position(atom_id)
 		atom_state.is_selected = _highlighted_atoms.get(atom_id, false)
@@ -118,8 +118,9 @@ func _update_is_selectable_uniform() -> void:
 
 
 func add_atoms(in_atoms_ids: PackedInt32Array) -> void:
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id in in_atoms_ids:
-		if _is_bonded_atom(atom_id):
+		if _is_bonded_atom(atom_id, related_nanostructure):
 			continue
 		_add_atom(atom_id)
 	_segmented_multimesh.rebuild_if_needed()
@@ -136,9 +137,9 @@ func remove_atoms(in_atoms_ids: PackedInt32Array) -> void:
 
 
 func _add_atom(in_atom_id: int) -> void:
-	if _is_bonded_atom(in_atom_id):
-		return
 	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
+	if _is_bonded_atom(in_atom_id, related_nanostructure):
+		return
 	var atom_position: Vector3 = related_nanostructure.atom_get_position(in_atom_id)
 	var atom_scale: Vector3 = Vector3.ONE * BASE_SCALE
 	var atom_transform: Transform3D = Transform3D()
@@ -157,7 +158,7 @@ func _add_atom(in_atom_id: int) -> void:
 func refresh_atoms_positions(in_atoms_ids: PackedInt32Array) -> void:
 	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id in in_atoms_ids:
-		if _is_bonded_atom(atom_id):
+		if _is_bonded_atom(atom_id, related_nanostructure):
 			continue
 		var atom_position: Vector3 = related_nanostructure.atom_get_position(atom_id)
 		_segmented_multimesh.update_particle_position(atom_id, atom_position)
@@ -170,9 +171,10 @@ func refresh_atoms_locking(_in_atoms_ids: PackedInt32Array) -> void:
 
 
 func refresh_atoms_atomic_number(in_atoms_and_atomic_numbers: Array[Vector2i]) -> void:
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_element_pair in in_atoms_and_atomic_numbers:
 		var atom_id: int = atom_element_pair[0]
-		if _is_bonded_atom(atom_id):
+		if _is_bonded_atom(atom_id, related_nanostructure):
 			continue
 		_refresh_atom(atom_id)
 
@@ -215,7 +217,7 @@ func refresh_atoms_visibility(in_atoms_ids: PackedInt32Array) -> void:
 func refresh_all() -> void:
 	var related_nanostructure: AtomicStructure = _get_related_atomic_structure()
 	for atom_id: int in related_nanostructure.get_valid_atoms():
-		if _is_bonded_atom(atom_id):
+		if _is_bonded_atom(atom_id, related_nanostructure):
 			_hide_atom(atom_id)
 		else:
 			_ensure_atom_rendered(atom_id)
@@ -293,9 +295,10 @@ func set_material_overlay(in_material: Material) -> void:
 
 func highlight_atoms(in_atoms_ids: PackedInt32Array, _new_partially_influenced_bonds: PackedInt32Array,
 			_in_bonds_released_from_partial_influence: PackedInt32Array) -> void:
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id in in_atoms_ids:
 		_highlighted_atoms[atom_id] = true
-		if _is_bonded_atom(atom_id):
+		if _is_bonded_atom(atom_id, related_nanostructure):
 			continue
 		_refresh_atom(atom_id)
 
@@ -306,17 +309,16 @@ func lowlight_atoms(in_atoms_ids: PackedInt32Array,
 	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	for atom_id in in_atoms_ids:
 		_highlighted_atoms[atom_id] = false
-		if _is_bonded_atom(atom_id):
+		if _is_bonded_atom(atom_id, related_nanostructure):
 			continue
 		assert(related_nanostructure.is_atom_valid(atom_id), "atempt to lowlight a non existing atom")
 		_refresh_atom(atom_id)
 
 
 func _refresh_atom(in_atom_id: int) -> void:
-	if _is_bonded_atom(in_atom_id):
-		return
-	
 	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
+	if _is_bonded_atom(in_atom_id, related_nanostructure):
+		return
 	var can_refresh_atom: bool = true
 	if not related_nanostructure.is_atom_valid(in_atom_id):
 		can_refresh_atom = _segmented_multimesh.is_external_id_known(in_atom_id)
@@ -342,12 +344,11 @@ func _refresh_atom(in_atom_id: int) -> void:
 
 
 ## Returns true if the atom is connected to another visible atom
-func _is_bonded_atom(in_atom_id: int) -> bool:
-	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
-	var bonds: PackedInt32Array = related_nanostructure.atom_get_bonds(in_atom_id)
+func _is_bonded_atom(in_atom_id: int, in_nano_structure: AtomicStructure) -> bool:
+	var bonds: PackedInt32Array = in_nano_structure.atom_get_bonds(in_atom_id)
 	for bond_id: int in bonds:
-		var other_atom: int = related_nanostructure.atom_get_bond_target(in_atom_id, bond_id)
-		if related_nanostructure.is_atom_visible(other_atom):
+		var other_atom: int = in_nano_structure.atom_get_bond_target(in_atom_id, bond_id)
+		if in_nano_structure.is_atom_visible(other_atom):
 			return true
 	return false
 
