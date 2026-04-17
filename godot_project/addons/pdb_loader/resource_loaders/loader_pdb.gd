@@ -213,7 +213,7 @@ func _auto_create_bonds(out_atoms: Array[PdbAtom]):
 	var utility: HBAUtilityClass = Engine.get_main_loop().root.get_node("HeuristicBondAssignmentUtility")
 	assert(utility != null, "HeuristicBondAssignmentUtility could not be found")
 	var bond_candidates: Array[HBAUtilityClass.Bond] = \
-			utility.heuristic_bond_assignment(in_atoms, in_bonds)
+			utility.heuristic_bond_assignment(in_atoms, in_bonds, [])
 	for bond in bond_candidates:
 		var is_new: bool = not autobonder_bonds.has(bond)
 		if is_new:

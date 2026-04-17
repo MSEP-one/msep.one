@@ -15,8 +15,10 @@ static func generate_bonds_for_structure(out_context: StructureContext, in_selec
 		atoms = out_context.nano_structure.get_visible_atoms()
 	var autobonder_atoms: Dictionary[HeuristicBondAssignmentUtility.Atom, int] = {}
 	var autobonder_bonds: Dictionary[HeuristicBondAssignmentUtility.Bond, int]  = {}
+	var autobonder_springs: Dictionary[HeuristicBondAssignmentUtility.Bond, int] = {}
 	var in_atoms: Array[HeuristicBondAssignmentUtility.Atom] = []
 	var in_bonds: Array[HeuristicBondAssignmentUtility.Bond] = []
+	var in_atom_to_atom_springs: Array[HeuristicBondAssignmentUtility.Bond] = []
 	var atom_id_to_heuristic_atom: Dictionary[int, HeuristicBondAssignmentUtility.Atom] = {}
 	var nano_structure: NanoStructure = out_context.nano_structure
 	
@@ -53,9 +55,26 @@ static func generate_bonds_for_structure(out_context: StructureContext, in_selec
 			)
 			autobonder_bonds[bond] = bond_id
 			in_bonds.push_back(bond)
+		var known_spring_ids: PackedInt32Array = nano_structure.atom_get_springs(atom_id)
+		for spring_id: int in known_spring_ids:
+			if autobonder_springs.find_key(spring_id) != null:
+				# Was already added by the other atom_id
+				continue
+			if not nano_structure.spring_is_atom_to_atom(spring_id):
+				continue
+			var other_atom_id: int = nano_structure.spring_get_atom_id(spring_id)
+			if other_atom_id == atom_id:
+				other_atom_id = nano_structure.spring_get_second_atom_id(spring_id)
+			if !atoms.has(other_atom_id):
+				continue
+			var atom1: HeuristicBondAssignmentUtility.Atom = autobonder_atoms.find_key(atom_id)
+			var atom2: HeuristicBondAssignmentUtility.Atom = autobonder_atoms.find_key(other_atom_id)
+			var spring := HeuristicBondAssignmentUtility.Bond.new(atom1, atom2)
+			autobonder_springs[spring] = spring_id
+			in_atom_to_atom_springs.push_back(spring)
 	var promise: Promise = Promise.new()
 	var thread := Thread.new()
-	thread.start(_create_bonds_in_thread.bind(in_atoms, in_bonds, promise))
+	thread.start(_create_bonds_in_thread.bind(in_atoms, in_bonds, in_atom_to_atom_springs, promise))
 	await promise.wait_for_fulfill()
 	thread.wait_to_finish()
 	thread = null
@@ -102,7 +121,8 @@ static func generate_bonds_for_structure(out_context: StructureContext, in_selec
 static func _create_bonds_in_thread(
 		in_atoms: Array[HeuristicBondAssignmentUtility.Atom],
 		in_bonds: Array[HeuristicBondAssignmentUtility.Bond],
+		in_atom_to_atom_springs: Array[HeuristicBondAssignmentUtility.Bond],
 		out_promise: Promise) -> void:
 	var bond_candidates: Array[HeuristicBondAssignmentUtility.Bond] = \
-			HeuristicBondAssignmentUtility.heuristic_bond_assignment(in_atoms, in_bonds)
+			HeuristicBondAssignmentUtility.heuristic_bond_assignment(in_atoms, in_bonds, in_atom_to_atom_springs)
 	out_promise.fulfill.call_deferred(bond_candidates)
