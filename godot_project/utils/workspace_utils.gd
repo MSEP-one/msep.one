@@ -491,10 +491,13 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 
 
 static func show_hidden_objects(out_workspace_context: WorkspaceContext) -> void:
-	out_workspace_context.enable_hydrogens_visualization(false)
+	var visibility_changed: bool = false
+	if not out_workspace_context.are_hydrogens_visualized():
+		out_workspace_context.enable_hydrogens_visualization(false)
+		visibility_changed = true
+	
 	var hidden_structures: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_hidden_objects()
-	if hidden_structures.is_empty():
-		return
+	visibility_changed = visibility_changed or not hidden_structures.is_empty()
 	
 	for structure_context: StructureContext in hidden_structures:
 		var nano_structure: NanoStructure = structure_context.nano_structure
@@ -508,8 +511,9 @@ static func show_hidden_objects(out_workspace_context: WorkspaceContext) -> void
 			structure_context.set_bonds_visibility(hidden_bonds, true)
 			structure_context.set_springs_visibility(hidden_springs, true)
 	
-	out_workspace_context.notify_object_visibility_changed()
-	out_workspace_context.snapshot_moment("Show Hidden Objects")
+	if visibility_changed:
+		out_workspace_context.notify_object_visibility_changed()
+		out_workspace_context.snapshot_moment("Show Hidden Objects")
 
 
 static func _invert_selection(out_workspace_context: WorkspaceContext) -> void:
