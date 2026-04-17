@@ -1342,6 +1342,8 @@ func has_visible_objects() -> bool:
 
 
 func has_hidden_objects() -> bool:
+	if not are_hydrogens_visualized():
+		return true
 	for context: StructureContext in _structure_contexts.values():
 		if not context.nano_structure.get_visible() or context.has_hidden_atoms_bonds_springs_or_motor_links():
 			return true

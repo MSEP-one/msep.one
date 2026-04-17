@@ -491,6 +491,7 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 
 
 static func show_hidden_objects(out_workspace_context: WorkspaceContext) -> void:
+	out_workspace_context.enable_hydrogens_visualization(false)
 	var hidden_structures: Array[StructureContext] = out_workspace_context.get_structure_contexts_with_hidden_objects()
 	if hidden_structures.is_empty():
 		return
