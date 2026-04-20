@@ -1190,7 +1190,7 @@ func get_structure_contexts_with_selection(
 		if structure_context.nano_structure.get_visible() and structure_context.has_selection(in_include_empty_groups_with_selected_subgroups):
 			result.push_back(structure_context)
 		else:
-			if include_hidden_virtual_objects:
+			if not structure_context.nano_structure.get_visible() and include_hidden_virtual_objects:
 				if not (structure_context.nano_structure.is_virtual_object() or 
 					structure_context.nano_structure is DnaStructure):
 						continue
