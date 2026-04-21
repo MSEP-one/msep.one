@@ -16,12 +16,23 @@ enum ClipboardContentType {
 
 
 func copy(in_workspace_context: WorkspaceContext) -> void:
-	var selection_result: Array[Dictionary] = _get_selected_structure_and_atoms(in_workspace_context)
+	var could_copy_hidden_hydrogens: bool = _could_copy_hidden_hydrogens(in_workspace_context)
+	var copy_hidden_hydrogens: bool = false
+	if could_copy_hidden_hydrogens:
+		var promise: Promise = in_workspace_context.show_warning_dialog(
+			tr(&"Include hidden hydrogens attached to selection in the clipboard?"),
+			tr(&"Yes"), tr(&"No")
+		)
+		await promise.wait_for_fulfill()
+		copy_hidden_hydrogens = promise.get_result()
+	
+	var selection_result: Array[Dictionary] = _get_selected_structure_and_atoms(in_workspace_context, copy_hidden_hydrogens)
 	if selection_result.is_empty():
 		return
 	var camera_transform: Transform3D = in_workspace_context.get_camera_global_transform()
 	_latest_clipboard_action_camera_transform = camera_transform
 	_paste_count = 0
+	
 	
 	var new_content: Array[Dictionary] = []
 	for selection_data in selection_result:
@@ -62,7 +73,19 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 	_content.set_content(new_content, root_group_id)
 
 
-func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext) -> Array[Dictionary]:
+func _could_copy_hidden_hydrogens(in_workspace_context: WorkspaceContext) -> bool:
+	if in_workspace_context.are_hydrogens_visualized():
+		return false
+	var structure: AtomicStructure = in_workspace_context.get_current_structure_context().nano_structure as AtomicStructure
+	for atom_id in in_workspace_context.get_current_structure_context().get_selected_atoms():
+		for bond_id in structure.atom_get_bonds(atom_id):
+			var other_atom_id: int = structure.atom_get_bond_target(atom_id, bond_id)
+			if structure.atom_is_hydrogen(other_atom_id):
+				return true
+	return false
+
+
+func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, in_copy_hidden_hydrogens: bool) -> Array[Dictionary]:
 	var active_strucutre_id: int = in_workspace_context.get_current_structure_context().get_int_guid()
 	var nano_structure: NanoStructure = null
 	var atom_selection: PackedInt32Array = []
@@ -80,6 +103,14 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext) -
 		if active_strucutre_id == structure_context.get_int_guid():
 			atom_selection = structure_context.get_selected_atoms()
 			spring_selection = structure_context.get_selected_springs()
+			if in_copy_hidden_hydrogens and nano_structure is AtomicStructure:
+				assert(in_workspace_context.are_hydrogens_visualized() == false)
+				var structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
+				for atom_id in structure_context.get_selected_atoms():
+					for bond_id in structure.atom_get_bonds(atom_id):
+						var other_atom_id: int = structure.atom_get_bond_target(atom_id, bond_id)
+						if structure.atom_is_hydrogen(other_atom_id):
+							atom_selection.append(other_atom_id)
 		elif nano_structure is AtomicStructure and not nano_structure is DnaStructure:
 			atom_selection = (nano_structure as AtomicStructure).get_valid_atoms()
 			spring_selection = (nano_structure as AtomicStructure).springs_get_all()
