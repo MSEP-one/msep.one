@@ -51,6 +51,8 @@ var _atom_warning_messages : Dictionary = {
 @onready var _reset_distance_button: Button = %ResetDistanceButton as Button
 @onready var _spinbox_distance: SpinBoxSlider = $PanelContainerDistance/VBoxContainer/HBoxContainer/SpinBoxSlider
 @onready var _label_warnings: RichTextLabel = $PanelContainerDistance/VBoxContainer/Label
+@onready var _occupied_space_check_button: CheckButton = %OccupiedSpaceCheckButton
+@onready var _occupied_space_margin_spin_box: SpinBoxSlider = %OccupiedSpaceMarginSpinBox
 @onready var _button_cover: Button = %ButtonCover
 @onready var _button_fill: Button = %ButtonFill
 
@@ -363,15 +365,18 @@ func _get_atom_diameter(in_element_data: ElementData, in_representation_settings
 
 
 func _create_atoms(
-	in_atom_positions: PackedVector3Array, 
+	out_atom_positions: PackedVector3Array, 
 	in_element_number: int, 
 	in_nano_shape_transform: Transform3D,
 	out_target_structure: NanoStructure) -> PackedInt32Array:
+	for i in out_atom_positions.size():
+		out_atom_positions[i] = in_nano_shape_transform * out_atom_positions[i]
+	_apply_occupied_space_policy(out_atom_positions)
 	var add_atom_paramters: Array[NanoMolecularStructure.AddAtomParameters] = []
-	for atom_pos: Vector3 in in_atom_positions:
+	for atom_pos: Vector3 in out_atom_positions:
 		add_atom_paramters.push_back(
 			NanoMolecularStructure.AddAtomParameters.new(
-				in_element_number, in_nano_shape_transform * atom_pos
+				in_element_number, atom_pos
 			)
 		)
 	out_target_structure.start_edit()
@@ -381,20 +386,23 @@ func _create_atoms(
 
 
 func _create_molecules(
-	in_centroid_positions: PackedVector3Array, 
+	out_centroid_positions: PackedVector3Array, 
 	in_template: AtomicStructure, 
 	in_nano_shape_transform: Transform3D,
 	out_target_structure: AtomicStructure) -> PackedInt32Array:
+	for i in out_centroid_positions.size():
+		out_centroid_positions[i] = in_nano_shape_transform * out_centroid_positions[i]
+	_apply_occupied_space_policy(out_centroid_positions)
 	out_target_structure.start_edit()
 	var new_atom_ids: PackedInt32Array = []
-	for mol_pos: Vector3 in in_centroid_positions:
+	for mol_pos: Vector3 in out_centroid_positions:
 		var mol_instance_atom_map: Dictionary[int, int] = {}
 		for atom_id: int in in_template.get_valid_atoms():
 			var atomic_number: int = in_template.atom_get_atomic_number(atom_id)
 			var atom_pos: Vector3 = mol_pos + in_template.atom_get_position(atom_id)
 			var new_atom_id: int = out_target_structure.add_atom(
 				NanoMolecularStructure.AddAtomParameters.new(
-					atomic_number, in_nano_shape_transform * atom_pos
+					atomic_number, atom_pos
 				)
 			)
 			mol_instance_atom_map[atom_id] = new_atom_id
@@ -488,3 +496,23 @@ func _fill_shape(
 		new_atom_ids = _create_molecules(new_atom_positions, _selected_small_molecule, nano_shape.get_transform(), target_structure)
 	
 	_set_new_selection(new_atom_ids, target_context)
+
+
+func _apply_occupied_space_policy(out_positions: PackedVector3Array) -> void:
+	if _occupied_space_check_button.button_pressed == false:
+		return
+	var margin: float = _occupied_space_margin_spin_box.value
+	var margin_squared: float = margin * margin
+	var occupied_space := SpatialHashGrid.new(_occupied_space_margin_spin_box.value * 2)
+	for structure_context in _workspace_context.get_editable_structure_contexts():
+		var atomic_structure := structure_context.nano_structure as AtomicStructure
+		if atomic_structure == null or atomic_structure is DnaStructure:
+			continue
+		var all_atoms: PackedInt32Array = atomic_structure.get_valid_atoms()
+		for atom_id: int in all_atoms:
+			occupied_space.add_item(atomic_structure.atom_get_position(atom_id))
+	for i in range(out_positions.size()-1, -1, -1):
+		var neighbors: Array[SpatialHashGrid.Item] = occupied_space.get_items_around(out_positions[i], margin)
+		for n: SpatialHashGrid.Item in neighbors:
+			if n.position.distance_squared_to(out_positions[i]) < margin_squared:
+				out_positions.remove_at(i)

@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://ct60a47xpcr5q"]
+[gd_scene load_steps=11 format=3 uid="uid://ct60a47xpcr5q"]
 
 [ext_resource type="Script" uid="uid://do5wwid7ys6tl" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/apply_atoms_to_shape.gd" id="1_1hka1"]
 [ext_resource type="PackedScene" uid="uid://dx1gn0krp0avh" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/element_preview.tscn" id="3_tinpt"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="3_wm30c"]
 [ext_resource type="PackedScene" uid="uid://dp606sfgxdepk" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/small_molecules_picker/small_molecules_picker.tscn" id="5_twgh8"]
+[ext_resource type="Script" uid="uid://d2h7xyc1cxxeo" path="res://editor/controls/dockers/workspace_docker/shared_controls/toggle_button_controlled_visibility.gd" id="6_66w43"]
 [ext_resource type="PackedScene" uid="uid://dyadiqebvvyti" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/compact_element_picker_popup.tscn" id="6_tinpt"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_yoend"]
@@ -157,6 +158,43 @@ scroll_active = false
 autowrap_mode = 2
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="LabelDistance2" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Occupied Space"
+
+[node name="PanelContainerDistance2" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainerDistance2"]
+layout_mode = 2
+
+[node name="OccupiedSpaceCheckButton" type="CheckButton" parent="PanelContainerDistance2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Dont create atoms in occupied space"
+autowrap_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainerDistance2/VBoxContainer" node_paths=PackedStringArray("button")]
+layout_mode = 2
+script = ExtResource("6_66w43")
+button = NodePath("../OccupiedSpaceCheckButton")
+
+[node name="Label" type="Label" parent="PanelContainerDistance2/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Margin"
+
+[node name="OccupiedSpaceMarginSpinBox" parent="PanelContainerDistance2/VBoxContainer/HBoxContainer" instance=ExtResource("3_wm30c")]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "This is the maximum distance from center-to-center of atoms used for consideration when "
+step = 0.01
+value = 0.7
+allow_greater = true
+suffix = "nm"
+custom_arrow_step = 0.1
 
 [node name="ButtonCover" type="Button" parent="."]
 unique_name_in_owner = true
