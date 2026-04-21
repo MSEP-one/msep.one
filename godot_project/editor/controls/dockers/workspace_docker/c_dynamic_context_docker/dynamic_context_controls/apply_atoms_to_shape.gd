@@ -516,3 +516,4 @@ func _apply_occupied_space_policy(out_positions: PackedVector3Array) -> void:
 		for n: SpatialHashGrid.Item in neighbors:
 			if n.position.distance_squared_to(out_positions[i]) < margin_squared:
 				out_positions.remove_at(i)
+				break
