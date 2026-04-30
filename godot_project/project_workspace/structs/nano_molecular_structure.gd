@@ -570,7 +570,7 @@ func spring_invalidate(in_spring_id: int) -> void:
 
 func spring_is_visible(in_spring_id: int) -> bool:
 	var spring: NanoSpring = _springs[in_spring_id]
-	if not spring.anchor_is_visible:
+	if (not spring.is_atom_to_atom()) and not spring.anchor_is_visible:
 		return false
 	return super.spring_is_visible(in_spring_id)
 
@@ -816,6 +816,8 @@ func create_state_snapshot() -> Dictionary:
 	for spring_id: int in _springs:
 		var spring: NanoSpring = _springs[spring_id]
 		springs_dump[spring_id] = spring.duplicate()
+		# Non export variable is not affected by duplicate()
+		springs_dump[spring_id].anchor_is_visible = spring.anchor_is_visible
 	
 	state_snapshot["_atoms"] = atoms_dump
 	state_snapshot["_bonds"] = _bonds.duplicate(true)
@@ -842,6 +844,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	var springs_to_apply: Dictionary = in_state_snapshot["_springs"]
 	for spring_id: int in springs_to_apply:
 		var spring: NanoSpring = springs_to_apply[spring_id].duplicate()
+		# Non export variable is not affected by duplicate()
+		spring.anchor_is_visible = springs_to_apply[spring_id].anchor_is_visible
 		_springs[spring_id] = spring
 	
 	_bonds = in_state_snapshot["_bonds"].duplicate(true)
