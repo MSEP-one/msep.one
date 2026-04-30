@@ -260,6 +260,11 @@ func _can_delete_objects(in_context: StructureContext, in_from_cut_command: bool
 	if not in_context.workspace_context.workspace.has_structure(in_context.nano_structure):
 		return false
 	
+	if in_from_cut_command:
+		if in_context != _workspace_context.get_current_structure_context():
+			# When cutting a group, the entire group is deleted, even if has some hidden content
+			return in_context.has_selection()
+	
 	var all_atoms_selected: bool = (in_context.nano_structure is DnaStructure) or (not in_context.nano_structure is AtomicStructure) or \
 			in_context.get_selected_atoms().size() == in_context.nano_structure.get_valid_atoms_count()
 	var shape_selected: bool = true \
