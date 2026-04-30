@@ -1576,7 +1576,7 @@ static func _retry_relax(
 	out_workspace_context.clear_alerts()
 	# 1. revert atoms to their original position
 	_do_tween_atom_positions(0.0, out_workspace_context, out_relax_request.original_payload,
-			out_relax_request.original_payload.raw_initial_positions)
+			out_relax_request.original_payload.raw_initial_positions, out_relax_request.atom_set)
 	# 2. repeat relax request
 	var temperature_in_kelvins: float = out_relax_request.temperature_in_kelvins
 	var atom_set: AtomicStructure.AtomSet = out_relax_request.atom_set
@@ -1617,7 +1617,7 @@ static func _process_relax_request(
 		var result_positions: PackedVector3Array = relax_result.positions.duplicate()
 		tween.tween_method(
 			# method:
-			WorkspaceUtils._do_tween_atom_positions.bind(out_workspace_context, payload, result_positions),
+			WorkspaceUtils._do_tween_atom_positions.bind(out_workspace_context, payload, result_positions, out_request.atom_set),
 			0.0, # from (in_lerp)
 			1.0, # to (in_lerp)
 			tween_duration
@@ -1628,7 +1628,7 @@ static func _process_relax_request(
 			out_workspace_context.notify_atoms_relaxation_finished(out_request.promise.get_error())
 		tween.finished.connect(_on_relaxation_tween_finished)
 	else:
-		_do_tween_atom_positions(1.0, out_workspace_context, payload, relax_result.positions)
+		_do_tween_atom_positions(1.0, out_workspace_context, payload, relax_result.positions, out_request.atom_set)
 		_validate_relax_result(out_workspace_context, out_request)
 		out_workspace_context.notify_atoms_relaxation_finished(out_request.promise.get_error())
 
@@ -1637,14 +1637,25 @@ static func _do_tween_atom_positions(
 			in_lerp: float,
 			out_workspace_context: WorkspaceContext,
 			in_payload: OpenMMPayload,
-			in_target_positions: PackedVector3Array) -> void:
+			in_target_positions: PackedVector3Array,
+			in_atom_set: AtomicStructure.AtomSet) -> void:
 	var editing_structures: Array[NanoStructure] = []
+	var structure: AtomicStructure = null
+	var context: StructureContext = null
 	for i in range(in_target_positions.size()):
 		var structure_atom_pair: Array = in_payload.request_atom_id_to_structure_and_atom_id_map[i]
-		var structure: AtomicStructure = out_workspace_context.workspace.get_structure_by_int_guid(structure_atom_pair[0]) as AtomicStructure
+		if structure == null or structure.int_guid != structure_atom_pair[0]:
+			structure = out_workspace_context.workspace.get_structure_by_int_guid(structure_atom_pair[0]) as AtomicStructure
+			context = out_workspace_context.get_structure_context(structure_atom_pair[0])
 		var atom_id: int = structure_atom_pair[1]
 		if in_payload.lock_atoms and structure.atom_is_locked(atom_id):
 			continue
+		if in_atom_set == AtomicStructure.AtomSet.SELECTED_ONLY:
+			if not context.is_atom_selected(atom_id):
+				continue
+		if in_atom_set == AtomicStructure.AtomSet.ALL_VISIBLE:
+			if not structure.is_atom_visible(atom_id):
+				continue
 		var start_pos: Vector3 = in_payload.raw_initial_positions[i]
 		var end_pos: Vector3 = in_target_positions[i]
 		var pos: Vector3 = lerp(start_pos, end_pos, in_lerp)
