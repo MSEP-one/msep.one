@@ -448,8 +448,15 @@ func _add_spring(in_spring: int) -> void:
 	var start: Vector3 = atomic_structure.atom_get_position(atom_id)
 	var end: Vector3 = atomic_structure.spring_get_target_position(in_spring, _structure_context)
 	var atomic_nmb: int = atomic_structure.atom_get_atomic_number(atom_id)
-	var transform: Transform3D = _calculate_spring_transform(start, end, atomic_nmb)
+	var transform: Transform3D
 	var is_hydrogen: bool = atomic_nmb == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
+	if atomic_structure.spring_is_atom_to_atom(in_spring):
+		var atom_id2: int = atomic_structure.spring_get_second_atom_id(in_spring)
+		var atomic_nmb2: int = atomic_structure.atom_get_atomic_number(atom_id2)
+		transform = _calculate_atom_to_atom_spring_transform(start, end, atomic_nmb, atomic_nmb2)
+		is_hydrogen = is_hydrogen or atomic_nmb2 == PeriodicTable.ATOMIC_NUMBER_HYDROGEN
+	else:
+		transform = _calculate_spring_transform(start, end, atomic_nmb)
 	var collision_layer: int = CollisionLayer.HYDROGEN if is_hydrogen else CollisionLayer.DEFAULT
 	_spring_collision_space.add_collider(in_spring, _spring_shape_rid, transform, collision_layer)
 	if not atomic_structure.spring_is_visible(in_spring):
@@ -472,7 +479,13 @@ func _on_nano_structure_springs_moved(in_springs_moved: PackedInt32Array) -> voi
 		var end: Vector3 = nano_structure.spring_get_target_position(spring_id, _structure_context)
 		var atom_id: int = nano_structure.spring_get_atom_id(spring_id)
 		var atomic_nmb: int = nano_structure.atom_get_atomic_number(atom_id)
-		var transform: Transform3D = _calculate_spring_transform(start, end, atomic_nmb)
+		var transform: Transform3D
+		if nano_structure.spring_is_atom_to_atom(spring_id):
+			var atom_id2: int = nano_structure.spring_get_second_atom_id(spring_id)
+			var atomic_nmb2: int = nano_structure.atom_get_atomic_number(atom_id2)
+			transform = _calculate_atom_to_atom_spring_transform(start, end, atomic_nmb, atomic_nmb2)
+		else:
+			transform = _calculate_spring_transform(start, end, atomic_nmb)
 		_spring_collision_space.update_collider_transform(spring_id, transform)
 
 
@@ -581,6 +594,23 @@ func _calculate_spring_transform(in_atom_position: Vector3, in_anchor_position: 
 	var new_transform := Transform3D(Basis(), position).looking_at(end, up).scaled_local(scale)
 	return new_transform
 
+func _calculate_atom_to_atom_spring_transform(
+			in_atom_position: Vector3, in_atom2_position: Vector3,
+			in_atomic_nmb: int, in_atomic_nmb2: int) -> Transform3D:
+	# Calculates the scaled and rotated version of a BOX(1,1,1)
+	# returned transform is already multiplied by PHYSIC_SPACE_SIZE_FACTOR
+	var atom_radius: float = _atomic_nmb_to_radius[in_atomic_nmb]
+	var direction_from_atom_to_atom: Vector3 = in_atom_position.direction_to(in_atom2_position)
+	var begin: Vector3 = in_atom_position * PHYSIC_SPACE_SIZE_FACTOR + direction_from_atom_to_atom * atom_radius
+	var atom_radius2: float = _atomic_nmb_to_radius[in_atomic_nmb2]
+	var end: Vector3 = in_atom2_position * PHYSIC_SPACE_SIZE_FACTOR - direction_from_atom_to_atom * atom_radius2
+	var position: Vector3 = (begin + end) / 2.0
+	var length: float = begin.distance_to(end)
+	var thickness: float = SpringRenderer.MODEL_THICKNESS * 0.5 * PHYSIC_SPACE_SIZE_FACTOR
+	var scale := Vector3(thickness, thickness, length)
+	var up := Vector3.UP if position.x != end.x or position.z != position.z else Vector3.RIGHT
+	var new_transform := Transform3D(Basis(), position).looking_at(end, up).scaled_local(scale)
+	return new_transform
 
 func ray(in_screen_position: Vector2, in_camera: Camera3D) -> RaycastResult:
 	var ray_normal: Vector3 = in_camera.project_ray_normal(in_screen_position)
