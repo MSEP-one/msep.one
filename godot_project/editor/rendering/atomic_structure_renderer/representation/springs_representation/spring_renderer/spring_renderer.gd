@@ -80,9 +80,10 @@ func add_spring(in_spring_id: int, in_position_begin: Vector3, in_position_end: 
 	var distance: float = in_position_begin.distance_to(in_position_end)
 	var start_position := in_position_begin
 	var spring_transform := Transform3D(Basis(), start_position)
-	var up := Vector3.UP if start_position.x != in_position_end.x or start_position.z != in_position_end.z else Vector3.RIGHT
-	spring_transform = spring_transform.looking_at(in_position_end, up).scaled_local(Vector3(MODEL_THICKNESS, 
-			MODEL_THICKNESS, distance))
+	if not spring_transform.origin.is_equal_approx(in_position_end):
+		var up := Vector3.UP if start_position.x != in_position_end.x or start_position.z != in_position_end.z else Vector3.RIGHT
+		spring_transform = spring_transform.looking_at(in_position_end, up)
+	spring_transform = spring_transform.scaled_local(Vector3(MODEL_THICKNESS, MODEL_THICKNESS, distance))
 	var color: Color = Color(Color.WHITE, in_instance_state_as_alpha)
 	_multimesh.add_particle(in_spring_id, spring_transform, color, Color())
 
@@ -91,10 +92,12 @@ func refresh_spring_position(in_spring_id: int, in_position_start: Vector3, in_p
 	var distance: float = in_position_start.distance_to(in_position_end)
 	var spring_transform := Transform3D(Basis(), in_position_start)
 	var scale_to_apply: Vector3 = Vector3(MODEL_THICKNESS,MODEL_THICKNESS,distance)
-	var up_vector: Vector3 = Vector3.UP
-	if in_position_start.direction_to(in_position_end).is_equal_approx(up_vector):
-		up_vector = Vector3.FORWARD
-	spring_transform = spring_transform.looking_at(in_position_end, up_vector).scaled_local(scale_to_apply)
+	if not spring_transform.origin.is_equal_approx(in_position_end):
+		var up_vector: Vector3 = Vector3.UP
+		if in_position_start.direction_to(in_position_end).is_equal_approx(up_vector):
+			up_vector = Vector3.FORWARD
+		spring_transform = spring_transform.looking_at(in_position_end, up_vector)
+	spring_transform = spring_transform.scaled_local(scale_to_apply)
 	_multimesh.update_particle_transform(in_spring_id, spring_transform)
 
 

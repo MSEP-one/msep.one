@@ -607,9 +607,12 @@ func _calculate_atom_to_atom_spring_transform(
 	var position: Vector3 = (begin + end) / 2.0
 	var length: float = begin.distance_to(end)
 	var thickness: float = SpringRenderer.MODEL_THICKNESS * 0.5 * PHYSIC_SPACE_SIZE_FACTOR
-	var scale := Vector3(thickness, thickness, length)
+	var scale := Vector3(thickness, thickness, max(length, 0.001))
 	var up := Vector3.UP if position.x != end.x or position.z != position.z else Vector3.RIGHT
-	var new_transform := Transform3D(Basis(), position).looking_at(end, up).scaled_local(scale)
+	var new_transform := Transform3D(Basis(), position)
+	if position != end:
+		new_transform = new_transform.looking_at(end, up)
+	new_transform = new_transform.scaled_local(scale)
 	return new_transform
 
 func ray(in_screen_position: Vector2, in_camera: Camera3D) -> RaycastResult:
