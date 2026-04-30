@@ -259,6 +259,12 @@ func get_should_hide_virtual_object_during_simulation(in_type: Variant) -> bool:
 	return _hide_during_simulation.get(key, true)
 
 
+func get_final_background_color() -> Color:
+	if _custom_background_color_enabled:
+		return get_custom_background_color()
+	return _theme.get_background_color()
+
+
 func _variant_to_virtual_object_key(in_type: Variant) -> StringName:
 	var key := StringName()
 	if typeof(in_type) == TYPE_STRING_NAME:

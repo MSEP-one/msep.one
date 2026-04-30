@@ -7,7 +7,7 @@ const ICONS: Dictionary[AlertLevel, Texture2D] = {
 	AlertLevel.FIXED: preload("res://editor/icons/icon_valid_x16.svg"),
 	AlertLevel.INVALID: preload("res://editor/controls/menu_bar/menu_edit/icons/icon_delete.svg"),
 }
-const COLOR_OUTDATED: Color = Color.WEB_GRAY
+const COLOR_OUTDATED: Color = Color(0.64, 0.64, 0.64)
 
 enum AlertLevel {
 	WARNING,
@@ -24,6 +24,7 @@ var _close_button: Button
 var _tree: Tree
 var _data: Dictionary[int, AlertData] = {} # AlertID : Data
 var _highest_id: int = 0
+var _settings: RepresentationSettings
 
 
 func _notification(what: int) -> void:
@@ -47,6 +48,10 @@ func _notification(what: int) -> void:
 
 func initialize(workspace_context: WorkspaceContext) -> void:
 	workspace_context.register_snapshotable(self)
+	_settings = workspace_context.workspace.representation_settings
+	_settings.theme_changed.connect(_update_panel_color)
+	_settings.changed.connect(_update_panel_color)
+	_update_panel_color()
 
 
 ## Returns the number of alerts being displayed
@@ -159,6 +164,11 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 		alert_data.create_tree_item(_tree)
 		_highest_id = max(_highest_id, alert_id)
 	_update_mask_buttons()
+
+
+func _update_panel_color() -> void:
+	var background: Color = _settings.get_final_background_color()
+	self_modulate.v = remap(background.v, 0.0, 1.0, 1.0, 0.25)
 
 
 func _on_fixed_mask_button_toggled(in_button_pressed: bool) -> void:
