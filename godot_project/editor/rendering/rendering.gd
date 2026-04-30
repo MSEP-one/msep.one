@@ -100,6 +100,7 @@ func build_atomic_structure_rendering(in_structure_context: StructureContext,
 		atomic_structure_renderer.ensure_bond_rendering_on()
 	else:
 		atomic_structure_renderer.ensure_bond_rendering_off()
+	atomic_structure_renderer.apply_theme(representation_settings.get_theme())
 
 
 func build_dna_rendering(in_structure: DnaStructure) -> void:
