@@ -731,6 +731,14 @@ static func _move_selection_to_existing_structure(
 	if out_did_create_undo_action.value:
 		# Ready to commit changes
 		target_structure_context.nano_structure.end_edit()
+		var should_select: bool = workspace.is_a_ancestor_of_b(
+			out_workspace_context.get_current_structure_context().nano_structure,
+			target_structure
+		)
+		if should_select:
+			var toplevel_grup: StructureContext = \
+				out_workspace_context.get_toplevel_editable_context(target_structure_context)
+			toplevel_grup.select_all(true)
 		unselect_inactive_structure_contexts(out_workspace_context)
 		if target_structure_context.is_editable():
 			target_structure_context.select_atoms_and_get_auto_selected_bonds(new_atoms_to_select_when_done)
