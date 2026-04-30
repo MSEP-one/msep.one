@@ -10,7 +10,7 @@ ffmpeg -i "$1" \
 -c:v libtheora -q:v 7 \
 -vf "scale=1920:1080:flags=lanczos,format=yuv444p" \
 -pix_fmt yuv444p \
--color_range pc \
+-color_range tv \
 -colorspace bt709 \
 -color_primaries bt709 \
 -color_trc bt709 \
