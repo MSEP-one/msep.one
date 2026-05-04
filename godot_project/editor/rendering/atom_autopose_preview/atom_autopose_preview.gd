@@ -18,6 +18,8 @@ var _camera: Camera3D
 var _camera_last_transform: Transform3D
 var _camera_last_zoom: float
 var _camera_last_projection: Camera3D.ProjectionType
+var _hover_background_color := Color.WHITE
+var _hover_font_color := Color.DIM_GRAY
 
 
 func is_visible_in_msep_editor() -> bool:
@@ -54,6 +56,24 @@ func get_hovered_candidate_or_null() -> AtomCandidate:
 
 func _ready() -> void:
 	_camera = get_viewport().get_camera_3d()
+	_ready_deferred.call_deferred()
+
+
+func _ready_deferred() -> void:
+	var editor_viewport := get_viewport() as WorkspaceEditorViewport
+	if editor_viewport != null:
+		var representation_settings: RepresentationSettings = \
+			editor_viewport.get_workspace_context().workspace.representation_settings
+		representation_settings.changed.connect(_on_representation_changed.bind(representation_settings))
+		representation_settings.theme_changed.connect(_on_representation_changed.bind(representation_settings))
+		_on_representation_changed(representation_settings)
+
+
+func _on_representation_changed(in_representation_settings: RepresentationSettings) -> void:
+	_hover_background_color = in_representation_settings.get_theme().get_highlight_color()
+	if in_representation_settings.get_custom_selection_outline_color_enabled():
+		_hover_background_color = in_representation_settings.get_custom_selection_outline_color()
+	_hover_font_color = in_representation_settings.get_final_background_color()
 
 
 func _process(_delta: float) -> void:
@@ -139,9 +159,9 @@ func _draw() -> void:
 			# clip out of the view
 			continue
 		
-		var atom_color: Color = Color.WHITE if _hovered_candidate == candidate else candidate_element.color
-		var bond_color: Color = Color.WHITE if _hovered_candidate == candidate else candidate_element.bond_color
-		var label_color: Color = Color.DIM_GRAY if _hovered_candidate == candidate else candidate_element.font_color
+		var atom_color: Color = _hover_background_color if _hovered_candidate == candidate else candidate_element.color
+		var bond_color: Color = _hover_background_color if _hovered_candidate == candidate else candidate_element.bond_color
+		var label_color: Color = _hover_font_color if _hovered_candidate == candidate else candidate_element.font_color
 		for source: int in candidate.atom_ids:
 			var atom_pos: Vector3 = atomic_structure.atom_get_position(source) + position_delta
 			var atom_pos_2d: Vector2 = _camera.unproject_position(atom_pos)
