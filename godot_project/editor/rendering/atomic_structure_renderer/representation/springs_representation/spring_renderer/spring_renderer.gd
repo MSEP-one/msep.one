@@ -94,7 +94,7 @@ func refresh_spring_position(in_spring_id: int, in_position_start: Vector3, in_p
 	var scale_to_apply: Vector3 = Vector3(MODEL_THICKNESS,MODEL_THICKNESS,distance)
 	if not spring_transform.origin.is_equal_approx(in_position_end):
 		var up_vector: Vector3 = Vector3.UP
-		if in_position_start.direction_to(in_position_end).is_equal_approx(up_vector):
+		if in_position_start.direction_to(in_position_end).abs().is_equal_approx(up_vector):
 			up_vector = Vector3.FORWARD
 		spring_transform = spring_transform.looking_at(in_position_end, up_vector)
 	spring_transform = spring_transform.scaled_local(scale_to_apply)
