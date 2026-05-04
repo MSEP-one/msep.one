@@ -19,7 +19,7 @@ signal aborted_creating_object()
 signal object_tree_visibility_changed()
 signal atoms_relaxation_started()
 signal atoms_relaxation_finished(error_description_or_empty: String)
-# When simulaiton starts
+# When simulation starts
 signal simulation_started()
 # When last frame of simulation is received, or user stops simulation without aborting it
 signal simulation_background_processing_completed()
@@ -72,6 +72,7 @@ var ignored_warnings: Dictionary = {
 	overlapping_emitters_in_simulation = false,
 	convert_dna_to_atoms = false,
 	extend_dna_chain_length = false,
+	undo_aborts_simulation = false
 }
 
 var visible_object_tree: bool = false:
@@ -1701,6 +1702,10 @@ func can_redo() -> bool:
 
 func can_undo() -> bool:
 	return _history.can_undo()
+
+
+func would_undo_abort_simulation() -> bool:
+	return _history.would_undo_abort_simulation()
 
 
 func _on_history_changed() -> void:
