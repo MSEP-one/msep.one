@@ -87,6 +87,7 @@ func _ensure_workspace_initialized(out_workspace_context: WorkspaceContext) -> v
 		assert(TimeSpanPicker.Unit.NANOSECOND == SimulationParameters.PlaybackUnit.Nanoseconds,
 				"TimeSpanPicker.Unit and SimulationParameter.PlaybackUnit are out of sync!")
 		_on_simulation_parameters_changed()
+		_update_estimated_length()
 
 
 func _ready() -> void:
