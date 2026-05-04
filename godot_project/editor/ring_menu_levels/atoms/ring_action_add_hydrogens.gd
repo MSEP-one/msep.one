@@ -41,7 +41,50 @@ func _execute_action() -> void:
 	_ring_menu.close()
 	var target_structures: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection()
 	if target_structures.is_empty():
-		target_structures = _workspace_context.get_visible_structure_contexts()
+		return
+	var show_show_hidden_dialog: bool = false
+	for context: StructureContext in target_structures:
+		var atomic_structure := context.nano_structure as AtomicStructure
+		if atomic_structure == null or atomic_structure is DnaStructure:
+			continue
+		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
+		if selected_atoms.is_empty():
+			continue
+		for atom_id: int in atomic_structure.get_hidden_atoms():
+			var atomic_number: int = atomic_structure.atom_get_atomic_number(atom_id)
+			var element_data: ElementData = PeriodicTable.get_by_atomic_number(atomic_number)
+			var charge: int = _get_charge(atomic_structure, atom_id)
+			var stable_charge: int = _get_stable_charge(element_data)
+			if charge != stable_charge:
+				if context == _workspace_context.get_current_structure_context():
+					if _is_hidden_atom_bond_to_selection(atom_id, atomic_structure, selected_atoms):
+						show_show_hidden_dialog = true
+						break
+				else:
+					show_show_hidden_dialog = true
+					break
+		if show_show_hidden_dialog:
+			break
+	
+	if show_show_hidden_dialog:
+		var promise: Promise = _workspace_context.show_warning_dialog(
+			tr(&"Selected atoms are bond to hidden atoms with incomplete valence.\nMake them visible?"),
+			tr(&"Yes"), tr(&"No")
+		)
+		await promise.wait_for_fulfill()
+		if promise.get_result():
+			for context: StructureContext in target_structures:
+				var atomic_structure := context.nano_structure as AtomicStructure
+				if atomic_structure == null or atomic_structure is DnaStructure:
+					continue
+				if context == _workspace_context.get_current_structure_context():
+					context.select_connected(true)
+				else:
+					atomic_structure.set_atoms_visibility(atomic_structure.get_hidden_atoms(), true)
+					context.select_all()
+			_execute_action()
+			return
+	
 	var delta_hydrogens: Dictionary = {
 		added = 0,
 		removed = 0
@@ -185,6 +228,27 @@ func _invalidate_springs(out_nano_structure: NanoStructure, in_springs: PackedIn
 
 func _is_not_hydrogen(in_atom_id: int, in_nano_structure: AtomicStructure) -> bool:
 	return not in_nano_structure.atom_get_atomic_number(in_atom_id) in [1, AtomicStructure.INVALID_ATOMIC_NUMBER]
+
+
+func _is_hidden_atom_bond_to_selection(
+		in_atom_id: int,
+		in_atomic_structure: AtomicStructure,
+		in_selected_atoms: PackedInt32Array) -> bool:
+	var visited: Dictionary[int, bool] = {}
+	var next_scan: PackedInt32Array = [in_atom_id]
+	while not next_scan.is_empty():
+		var this_round: PackedInt32Array = next_scan
+		next_scan = PackedInt32Array()
+		for atom_id in this_round:
+			for bond_id in in_atomic_structure.atom_get_bonds(atom_id):
+				var other_atom: int = in_atomic_structure.atom_get_bond_target(atom_id, bond_id)
+				if other_atom in visited:
+					continue
+				if other_atom in in_selected_atoms:
+					return true
+				next_scan.append(other_atom)
+			visited[atom_id] = true
+	return false
 
 
 func _get_charge(in_nano_structure: NanoStructure, in_atom_id: int) -> int:
