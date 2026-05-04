@@ -122,7 +122,7 @@ func initialize(in_structure_context: StructureContext) -> void:
 		for bond_id in valid_bonds:
 			_add_bond(bond_id, nano_structure)
 		
-		var springs: PackedInt32Array = nano_structure.springs_get_valid()
+		var springs: PackedInt32Array = nano_structure.springs_get_visible()
 		for spring_id in springs:
 			_add_spring(spring_id)
 	
