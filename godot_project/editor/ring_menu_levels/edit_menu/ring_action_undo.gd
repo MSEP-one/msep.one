@@ -34,5 +34,14 @@ func get_description() -> String:
 
 
 func _execute_action() -> void:
+	if _workspace_context.ignored_warnings.undo_aborts_simulation == false \
+			and _workspace_context.would_undo_abort_simulation():
+		var promise: Promise = _workspace_context.show_warning_dialog(
+			tr(&"Performing an Undo step will abort current simulation"),
+			tr(&"Proceed"), tr(&"Cancel"), &"undo_aborts_simulation", true
+		)
+		await promise.wait_for_fulfill()
+		if promise.get_result() == false:
+			return
 	_workspace_context.apply_previous_snapshot()
 

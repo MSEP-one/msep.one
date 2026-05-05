@@ -493,7 +493,7 @@ class IgnoredSpring extends Metadata:
 		var symbol: String = PeriodicTable.get_by_atomic_number(atomic_number).symbol
 		spring_ids = in_atom_springs
 		var message: String = tr_n(
-			&"Spring attached to Locked {0} atom will be ignored during simulaitons",
+			&"Spring attached to Locked {0} atom will be ignored during simulations",
 			&"Springs attached to Locked {0} atom will be ignored during simulations", in_atom_springs.size())
 		text += message.format([symbol])
 

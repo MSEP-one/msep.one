@@ -92,6 +92,7 @@ var _last_snapshot_name: String = ""
 
 func initialize(in_workspace_context: WorkspaceContext) -> void:
 	_workspace_context = in_workspace_context
+	register_snapshotable(self)
 
 
 func register_snapshotable(in_system: Object) -> void:
@@ -161,6 +162,8 @@ func apply_previous_snapshot() -> void:
 		return
 	if _snapshot_stack.is_empty():
 		return
+	if would_undo_abort_simulation():
+		_workspace_context.abort_simulation_if_running()
 	var undone_snapshot_name: String = _name_stack[_stack_pointer]
 	_stack_pointer -= 1
 	_apply_snapshot_from_stack(_stack_pointer)
@@ -242,6 +245,14 @@ func get_version() -> int:
 	return _version_stack[_stack_pointer]
 
 
+func would_undo_abort_simulation() -> bool:
+	return (
+			can_undo()
+			and _workspace_context.is_simulating()
+			and _workspace_context.get_simulation_id() != _snapshot_stack[_stack_pointer-1][self]["current_simulation_id"]
+		)
+
+
 func get_last_snapshot_name() -> String:
 	return _last_snapshot_name
 
@@ -270,6 +281,18 @@ func _monitor_redundant_snapshots(in_snapshot_name: String) -> void:
 		return
 	push_error("Possibly redundant snapshot detected. previous: ", _last_snapshot_name,
 				" , current: ", in_snapshot_name)
+
+
+func create_state_snapshot() -> Dictionary:
+	return {
+		"current_simulation_id": _workspace_context.get_simulation_id()
+	}
+
+
+func apply_state_snapshot(_state: Dictionary) -> void:
+	# Ignore state, current_simulation_id is used to determine if Undo can be
+	# done without aborting simulation
+	pass
 
 
 static func create_signal_snapshot_for_object(in_object: Object) -> Dictionary:
