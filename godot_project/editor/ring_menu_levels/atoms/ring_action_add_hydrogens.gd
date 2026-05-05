@@ -68,7 +68,7 @@ func _execute_action() -> void:
 	
 	if show_show_hidden_dialog:
 		var promise: Promise = _workspace_context.show_warning_dialog(
-			tr(&"Selected atoms are bond to hidden atoms with incomplete valence.\nMake them visible?"),
+			tr(&"Some atoms are bonded to hidden atoms with incomplete valences.\nMake them visible?"),
 			tr(&"Yes"), tr(&"No")
 		)
 		await promise.wait_for_fulfill()
