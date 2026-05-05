@@ -1607,7 +1607,7 @@ func snapshot_moment(in_operation_name: String) -> void:
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
 		
 		# Go back just before starting the simulation
-		await _history.apply_previous_snapshot()
+		await _history.apply_previous_snapshot(true)
 		
 		# Rewind simulation to the latest point and create a snapshot.
 		# This will drop the user operation (final_snapshot) from history.

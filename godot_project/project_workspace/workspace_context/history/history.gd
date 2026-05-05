@@ -157,12 +157,12 @@ func _add_snapshot_to_stack(in_snapshot: Dictionary, in_snapshot_name: String) -
 	snapshot_created.emit(in_snapshot_name)
 
 
-func apply_previous_snapshot() -> void:
+func apply_previous_snapshot(in_applying_simulation_state: bool = false) -> void:
 	if _stack_pointer < 1:
 		return
 	if _snapshot_stack.is_empty():
 		return
-	if would_undo_abort_simulation():
+	if not in_applying_simulation_state and would_undo_abort_simulation():
 		_workspace_context.abort_simulation_if_running()
 	var undone_snapshot_name: String = _name_stack[_stack_pointer]
 	_stack_pointer -= 1
