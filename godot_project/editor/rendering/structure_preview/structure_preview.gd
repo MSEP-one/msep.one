@@ -7,6 +7,7 @@ const WorkspaceContextScn: String = "uid://xof5f45xkn2n"
 const StructureContextScn = preload("res://project_workspace/workspace_context/structure_context/structure_context.tscn")
 
 const DEFAULT_PREVIEW_TRANSPARENCY: float = 0.35
+const PREVIEW_TRANSPARENCY_ON_BRIGTH_BACKGROUND: float = 0.2
 const UNIFORM_BASE_SCALE: StringName = &"base_scale"
 const UNIFORM_ATOM_SCALE: StringName = &"atom_scale"
 
@@ -80,6 +81,11 @@ func set_structure(in_structure: NanoStructure) -> void:
 	_on_representation_settings_bond_visibility_changed(display_bonds)
 	
 	_atomic_structure_renderer.apply_theme(representation_settings.get_theme())
+
+
+func apply_theme(in_theme: Theme3D) -> void:
+	if is_instance_valid(_atomic_structure_renderer):
+		_atomic_structure_renderer.apply_theme(in_theme)
 
 
 func set_preview_transform(in_transform: Transform3D) -> void:

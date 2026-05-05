@@ -124,6 +124,18 @@ func transform_by_external_transform(in_selection_initial_pos: Vector3, in_initi
 		preview.set_preview_transform(global_transform.translated(emitter.calculate_instance_offset(i)))
 
 
+func apply_theme(in_theme: Theme3D) -> void:
+	for i: int in _structure_previews.size():
+		var preview: StructurePreview = _structure_previews[i]
+		preview.apply_theme(in_theme)
+		var background_color: Color = in_theme.get_background_color()
+		preview.set_transparency(
+			StructurePreview.DEFAULT_PREVIEW_TRANSPARENCY
+			if background_color.v < 0.8 else
+			StructurePreview.PREVIEW_TRANSPARENCY_ON_BRIGTH_BACKGROUND
+		)
+
+
 func _set_structure_preview_count(in_count: int) -> void:
 	const STRUCTURE_PREVIEW_SCN: PackedScene = preload("uid://dtf1gkl710hh8")
 	while in_count < _structure_previews.size():

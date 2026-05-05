@@ -388,6 +388,10 @@ func apply_theme(in_theme: Theme3D) -> void:
 		if structure_renderer is InstancePlaceholder:
 			continue
 		structure_renderer.apply_theme(in_theme)
+	for emitter_renderer: Node in _particle_emitter_renderers.get_children():
+		if emitter_renderer is InstancePlaceholder:
+			continue
+		emitter_renderer.apply_theme(in_theme)
 	
 	_atom_preview.apply_theme(in_theme)
 	_ballstick_bond_preview.apply_theme(in_theme)
