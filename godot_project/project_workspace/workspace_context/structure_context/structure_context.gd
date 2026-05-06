@@ -462,6 +462,17 @@ func get_selection_aabb() -> AABB:
 	return _selection_db.get_selection_aabb()
 
 
+
+var _print1: bool = false
+func get_selection_obb() -> OBB:
+	if not _print1:
+		push_warning("TODO: %s.get_selection_obb()" % nano_structure.get_structure_name())
+		_print1 = true;
+	# For now return AABB
+	var aabb: AABB = get_selection_aabb()
+	var obb := OBB.new(aabb.size, Transform3D(Basis(), aabb.get_center()))
+	return obb
+
 func get_selection_snapshot() -> Dictionary:
 	return _selection_db.get_selection_snapshot()
 
