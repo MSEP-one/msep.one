@@ -74,38 +74,6 @@ func _calculate_bond_transform(in_nano_structure: AtomicStructure, in_bond: Vect
 	return new_transform
 
 
-func set_atom_selection_position_delta(in_movement_delta: Vector3) -> void:
-	# TODO: implement GPU translation
-	var bonds_to_update: PackedInt32Array = PackedInt32Array()
-	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
-	var related_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
-	bonds_to_update.append_array(structure_context.get_selected_bonds())
-	bonds_to_update.append_array(_current_bond_partial_selection.keys())
-	for bond_id in bonds_to_update:
-		var bond: Vector3i = related_structure.get_bond(bond_id)
-		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
-		var related_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[particle_id.bond_order]
-		var bond_transform: Transform3D = _calculate_partial_selection_translation(bond, in_movement_delta)
-		related_multimesh.update_particle_transform(particle_id.bond_id, bond_transform)
-	update_segments_if_needed() 
-
-
-func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
-	# TODO: implement GPU rotation
-	var structure_context: StructureContext = _workspace_context.get_structure_context(_related_structure_id)
-	var related_structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
-	var bonds_to_update: PackedInt32Array = PackedInt32Array()
-	bonds_to_update.append_array(structure_context.get_selected_bonds())
-	bonds_to_update.append_array(_current_bond_partial_selection.keys())
-	for bond_id in bonds_to_update:
-		var bond: Vector3i = related_structure.get_bond(bond_id)
-		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
-		var related_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[particle_id.bond_order]
-		var bond_transform: Transform3D = _calculate_partial_selection_transform(bond, in_point, in_rotation_to_apply)
-		related_multimesh.update_particle_transform(particle_id.bond_id, bond_transform)
-	update_segments_if_needed() 
-
-
 func hydrogens_rendering_off() -> void:
 	_capsule_material.disable_hydrogen_rendering()
 	_init_material_uniforms()

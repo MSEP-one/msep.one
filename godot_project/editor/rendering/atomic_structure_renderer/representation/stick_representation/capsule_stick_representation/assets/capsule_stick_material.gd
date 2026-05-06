@@ -7,11 +7,15 @@ const UNIFORM_OUTLINE_THICKNESS = &"outline_thickness"
 const UNIFORM_IS_HOVERED = &"is_hovered"
 const UNIFORM_SATURATION = &"saturation"
 const UNIFORM_VALUE = &"value_correction"
+const UNIFORM_GIZMO_ORIGIN = &"gizmo_origin"
+const UNIFORM_GIZMO_ROTATION = &"gizmo_rotation"
+const UNIFORM_SELECTION_DELTA = &"selection_delta"
 
 const LOW_SATURATION = 0.5;
 const NORMAL_SATURATION = 1.0;
 const LOW_VALUE = 0.4;
 const NORMAL_VALUE = 1.0;
+
 
 func _init() -> void:
 	RenderingUtils.has_uniforms(self, [INSTANCE_UNIFORM_BASE_SCALE, UNIFORM_CAPS_STARTS_AT_LOCAL_Z,
@@ -20,6 +24,11 @@ func _init() -> void:
 
 func set_scale(new_scale: float) -> CapsuleStickMaterial:
 	set_shader_parameter(INSTANCE_UNIFORM_BASE_SCALE, new_scale)
+	return self
+
+
+func set_atom_scale(new_scale: float) -> CapsuleStickMaterial:
+	# Not applicable
 	return self
 
 
@@ -41,6 +50,21 @@ func set_hovered(in_is_hovered: bool) -> CapsuleStickMaterial:
 
 func set_caps_starts_at_local_z(in_start_distance: float) -> CapsuleStickMaterial:
 	set_shader_parameter(UNIFORM_CAPS_STARTS_AT_LOCAL_Z, in_start_distance)
+	return self
+
+
+func set_gizmo_origin(in_origin_position: Vector3) -> CapsuleStickMaterial:
+	set_shader_parameter(UNIFORM_GIZMO_ORIGIN, in_origin_position)
+	return self
+
+
+func set_gizmo_rotation(in_gizmo_rotation: Basis) -> CapsuleStickMaterial:
+	set_shader_parameter(UNIFORM_GIZMO_ROTATION, in_gizmo_rotation)
+	return self;
+
+
+func set_selection_delta(in_selection_delta: Vector3) -> CapsuleStickMaterial:
+	set_shader_parameter(UNIFORM_SELECTION_DELTA, in_selection_delta)
 	return self
 
 

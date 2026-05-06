@@ -450,9 +450,10 @@ func refresh_all() -> void:
 	_refresh_bond_partial_influence_status(related_structure.get_valid_bonds())
 
 
-func _apply_scale_factor(_new_scale_factor: float) -> void:
-	assert(false, "this method should be overwritten")
-	return
+func _apply_scale_factor(new_scale_factor: float) -> void:
+	_material_bond_1.set_atom_scale(new_scale_factor)
+	_material_bond_2.set_atom_scale(new_scale_factor)
+	_material_bond_3.set_atom_scale(new_scale_factor)
 
 
 func clear() -> void:
@@ -642,11 +643,21 @@ func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> vo
 	_refresh_bond_partial_influence_status(bonds_to_refresh.keys())
 
 
-func rotate_atom_selection_around_point(_in_point: Vector3, _in_rotation_to_apply: Basis) -> void:
-	# TODO: CapsuleStickRepresentation and CylinderStickRepresentation most probably will be able to
-	# share this when CapsuleStickRepresentation movement will be moved on the GPU
-	assert(false, "Should be overwritten")
-	return
+func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
+	_material_bond_1.set_gizmo_origin(in_point)
+	_material_bond_2.set_gizmo_origin(in_point)
+	_material_bond_3.set_gizmo_origin(in_point)
+	_material_bond_1.set_gizmo_rotation(in_rotation_to_apply)
+	_material_bond_2.set_gizmo_rotation(in_rotation_to_apply)
+	_material_bond_3.set_gizmo_rotation(in_rotation_to_apply)
+	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+	for bond_id: int in _current_bond_partial_selection:
+		var bond: Vector3i = related_nanostructure.get_bond(bond_id)
+		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
+		var related_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[particle_id.bond_order]
+		var bond_transform: Transform3D = _calculate_partial_selection_transform(bond, in_point, in_rotation_to_apply)
+		related_multimesh.update_particle_transform(particle_id.bond_id, bond_transform)
+	update_segments_if_needed()
 
 
 func _calculate_partial_selection_transform(in_bond: Vector3i, in_rotation_point: Vector3, in_rotation_to_apply: Basis) -> Transform3D:
@@ -680,11 +691,18 @@ func _calculate_partial_selection_transform(in_bond: Vector3i, in_rotation_point
 	return _particle_transform
 
 
-func set_atom_selection_position_delta(_in_movement_delta: Vector3) -> void:
-	# TODO: CapsuleStickRepresentation and CylinderStickRepresentation most probably will be able to
-	# share this when CapsuleStickRepresentation movement will be moved on the GPU
-	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
-	return
+func set_atom_selection_position_delta(in_movement_delta: Vector3) -> void:
+	_material_bond_1.set_selection_delta(in_movement_delta)
+	_material_bond_2.set_selection_delta(in_movement_delta)
+	_material_bond_3.set_selection_delta(in_movement_delta)
+	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
+	for bond_id: int in _current_bond_partial_selection:
+		var bond: Vector3i = related_nanostructure.get_bond(bond_id)
+		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
+		var related_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[particle_id.bond_order]
+		var bond_transform: Transform3D = _calculate_partial_selection_translation(bond, in_movement_delta)
+		related_multimesh.update_particle_transform(particle_id.bond_id, bond_transform)
+	update_segments_if_needed()
 
 
 func _calculate_partial_selection_translation(in_bond: Vector3i, in_delta_translation: Vector3) -> Transform3D:
