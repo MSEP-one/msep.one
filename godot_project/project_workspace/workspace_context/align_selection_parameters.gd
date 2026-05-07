@@ -37,6 +37,8 @@ var _selected_world_plane: WorldPlane
 var _align_to_group_int_guid: int = Workspace.INVALID_OBJECT_INDEX
 var _align_to_group_box_face := BoxFace.UNDEFINED
 var _biggest_obb: OBB = null
+var _biggest_obb_group_id: int = Workspace.INVALID_OBJECT_INDEX
+var _biggest_obb_box_face := BoxFace.UNDEFINED
 var _workspace_context: WorkspaceContext
 
 
@@ -110,12 +112,27 @@ func set_align_to_what_plane(in_plane: WorldPlane) -> void:
 		align_relative_to_changed.emit()
 
 
+func get_align_obb_target_id() -> int:
+	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
+		return Workspace.INVALID_OBJECT_INDEX
+	elif _align_relative_to == AlignRelativeTo.BIGGEST_BOX_PLANE:
+		if _biggest_obb == null:
+			_find_biggest_obb()
+		return _biggest_obb_group_id
+	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
+		if not _workspace_context.workspace.has_structure_with_int_guid(_align_to_group_int_guid):
+			return Workspace.INVALID_OBJECT_INDEX
+		_align_to_group_int_guid
+	assert(false, "unknown align relative to target %d" % [_align_relative_to])
+	return Workspace.INVALID_OBJECT_INDEX
+
+
 func get_align_obb_target() -> OBB:
 	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
 		return null
 	elif _align_relative_to == AlignRelativeTo.BIGGEST_BOX_PLANE:
 		if _biggest_obb == null:
-			_biggest_obb = _find_biggest_obb()
+			_find_biggest_obb()
 		return _biggest_obb
 	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 		if not _workspace_context.workspace.has_structure_with_int_guid(_align_to_group_int_guid):
@@ -126,6 +143,17 @@ func get_align_obb_target() -> OBB:
 
 
 func get_align_obb_face() -> BoxFace:
+	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
+		return BoxFace.UNDEFINED
+	elif _align_relative_to == AlignRelativeTo.BIGGEST_BOX_PLANE:
+		if _biggest_obb == null:
+			_find_biggest_obb()
+		return _biggest_obb_box_face
+	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
+		if not _workspace_context.workspace.has_structure_with_int_guid(_align_to_group_int_guid):
+			return BoxFace.UNDEFINED
+		_align_to_group_box_face
+	assert(false, "unknown align relative to target %d" % [_align_relative_to])
 	return BoxFace.UNDEFINED
 
 
@@ -142,12 +170,38 @@ func set_specific_obb_and_face(in_context: StructureContext, in_face: BoxFace) -
 			align_relative_to_changed.emit()
 
 
-var _print1: bool = false
-func _find_biggest_obb() -> OBB:
-	if not _print1:
-		push_warning("TODO: _find_biggest_obb()"); _print1 = true;
-	return null
+func _find_biggest_obb() -> void:
+	_biggest_obb = null
+	_biggest_obb_box_face = BoxFace.UNDEFINED
+	_biggest_obb_group_id = Workspace.INVALID_OBJECT_INDEX
+	var alignable_objects: Array[StructureContext] = get_alignable_structure_contexts()
+	if alignable_objects.size() == 0:
+		return
+	var biggest_face_area: float = 0
+	for context: StructureContext in alignable_objects:
+		var obb: OBB = context.get_selection_obb()
+		var size: Vector3 = obb.box.size
+		var top_face_area: float = size.x * size.z
+		if top_face_area > biggest_face_area:
+			biggest_face_area = top_face_area
+			_biggest_obb = obb
+			_biggest_obb_group_id = context.get_int_guid()
+			_biggest_obb_box_face = BoxFace.TOP_BOTTOM
+		var front_face_area: float = size.x * size.y
+		if front_face_area > biggest_face_area:
+			biggest_face_area = front_face_area
+			_biggest_obb = obb
+			_biggest_obb_group_id = context.get_int_guid()
+			_biggest_obb_box_face = BoxFace.FRONT_BACK
+		var side_face_area: float = size.y * size.z
+		if side_face_area > biggest_face_area:
+			biggest_face_area = side_face_area
+			_biggest_obb = obb
+			_biggest_obb_group_id = context.get_int_guid()
+			_biggest_obb_box_face = BoxFace.LEFT_RIGHT
+	return
 
 
 func _on_workspace_history_changed() -> void:
 	_biggest_obb = null
+	_biggest_obb_group_id = Workspace.INVALID_OBJECT_INDEX
