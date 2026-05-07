@@ -128,50 +128,6 @@ static func calc_bond_visual_radius(in_bond_order: int, in_smaller_atom_radius: 
 	return CYLINDER_MODEL_RADIUS * calc_bond_width_factor(in_bond_order, in_smaller_atom_radius)
 
 
-# *
-# | Shader related, most probably can be moved to StickRepresentation when
-# v CapsuleStickRepresentation supports GPU movement
-func _apply_scale_factor(new_scale_factor: float) -> void:
-	assert(_material_bond_1 is CylinderStickMaterial)
-	assert(_material_bond_2 is CylinderStickMaterial)
-	assert(_material_bond_3 is CylinderStickMaterial)
-	_material_bond_1.set_atom_scale(new_scale_factor)
-	_material_bond_2.set_atom_scale(new_scale_factor)
-	_material_bond_3.set_atom_scale(new_scale_factor)
-
-
-func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
-	_material_bond_1.set_gizmo_origin(in_point)
-	_material_bond_2.set_gizmo_origin(in_point)
-	_material_bond_3.set_gizmo_origin(in_point)
-	_material_bond_1.set_gizmo_rotation(in_rotation_to_apply)
-	_material_bond_2.set_gizmo_rotation(in_rotation_to_apply)
-	_material_bond_3.set_gizmo_rotation(in_rotation_to_apply)
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
-	for bond_id: int in _current_bond_partial_selection:
-		var bond: Vector3i = related_nanostructure.get_bond(bond_id)
-		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
-		var related_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[particle_id.bond_order]
-		var bond_transform: Transform3D = _calculate_partial_selection_transform(bond, in_point, in_rotation_to_apply)
-		related_multimesh.update_particle_transform(particle_id.bond_id, bond_transform)
-	update_segments_if_needed()
-
-
-func set_atom_selection_position_delta(in_movement_delta: Vector3) -> void:
-	_material_bond_1.set_selection_delta(in_movement_delta)
-	_material_bond_2.set_selection_delta(in_movement_delta)
-	_material_bond_3.set_selection_delta(in_movement_delta)
-	var related_nanostructure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_related_structure_id)
-	for bond_id: int in _current_bond_partial_selection:
-		var bond: Vector3i = related_nanostructure.get_bond(bond_id)
-		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
-		var related_multimesh: SegmentedMultimesh = _bond_order_to_segmented_multimesh[particle_id.bond_order]
-		var bond_transform: Transform3D = _calculate_partial_selection_translation(bond, in_movement_delta)
-		related_multimesh.update_particle_transform(particle_id.bond_id, bond_transform)
-	update_segments_if_needed()
-
-
-
 func apply_theme(in_theme: Theme3D) -> void:
 	var old_order_1_material: ShaderMaterial = _material_bond_1
 	var old_order_2_material: ShaderMaterial = _material_bond_2
