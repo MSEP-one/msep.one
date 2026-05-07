@@ -107,6 +107,29 @@ func get_shape_aabb() -> AABB:
 				aabb = aabb.expand(vertex)
 	return aabb.abs()
 
+func get_shape_obb() -> OBB:
+	var aabb := AABB()
+	var t: Transform3D = _transform
+	if _shape != null:
+		if _shape_data_tool == null:
+			var mesh_arrays: Array = _shape.get_mesh_arrays()
+			var array_mesh := ArrayMesh.new()
+			array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays)
+			_shape_data_tool = MeshDataTool.new()
+			_shape_data_tool.create_from_surface(array_mesh, 0)
+		var vertex_count: int = _shape_data_tool.get_vertex_count()
+		t.origin = Vector3.ZERO
+		if vertex_count > 0:
+			aabb.position = _shape_data_tool.get_vertex(0)
+			for i in range(vertex_count):
+				var vertex: Vector3 = _shape_data_tool.get_vertex(i)
+				aabb = aabb.expand(vertex)
+		var offset: Vector3 = aabb.get_center()
+		t = _transform
+		t.origin += offset
+	return OBB.new(aabb.size, t)
+
+
 ## Returns a PackedVector3Array with all hits that the ray projected from screen point
 func intersect_shape_with_screen_point(in_screen_position: Vector2, in_camera: Camera3D, faces_only: bool = false) -> PackedVector3Array:
 	var hits := PackedVector3Array()

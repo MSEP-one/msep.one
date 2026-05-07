@@ -94,8 +94,7 @@ func get_parameters() -> NanoVirtualMotorParameters:
 
 
 func get_aabb() -> AABB:
-	var aabb := AABB(_transform.origin, Vector3())
-	aabb = aabb.grow(0.5)
+	var aabb := AABB(_transform.origin, Vector3(0.5, 0.8, 0.8))
 	return aabb.abs()
 
 

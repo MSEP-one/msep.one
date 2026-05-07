@@ -468,7 +468,11 @@ func get_selection_obb() -> OBB:
 	if not _print1:
 		push_warning("TODO: %s.get_selection_obb()" % nano_structure.get_structure_name())
 		_print1 = true;
-	# For now return AABB
+	if nano_structure is NanoShape:
+		return nano_structure.get_shape_obb()
+	elif nano_structure.has_transform():
+		var aabb: AABB = get_selection_aabb()
+		return OBB.new(aabb.size, nano_structure.get_transform())
 	var aabb: AABB = get_selection_aabb()
 	var obb := OBB.new(aabb.size, Transform3D(Basis(), aabb.get_center()))
 	return obb
