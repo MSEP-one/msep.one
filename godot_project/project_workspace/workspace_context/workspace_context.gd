@@ -104,6 +104,8 @@ var _history: History
 
 # Editor Components
 var create_object_parameters: CreateObjectParameters = load("res://project_workspace/workspace_context/create_object_parameters.tres").duplicate(true)
+var align_selection_parameters := AlignSelectionParameters.new(self)
+
 
 var action_delete: RingActionDelete = null
 var action_undo: RingActionUndo = null

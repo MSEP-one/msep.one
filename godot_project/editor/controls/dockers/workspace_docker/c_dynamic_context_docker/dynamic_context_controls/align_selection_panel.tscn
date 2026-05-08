@@ -1,0 +1,136 @@
+[gd_scene load_steps=4 format=3 uid="uid://baq1asnarlxhd"]
+
+[ext_resource type="Texture2D" uid="uid://blj0l4apu5x71" path="res://editor/icons/ColorPick.svg" id="1_1pqnq"]
+[ext_resource type="Script" uid="uid://xvrmaqoedo2k" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/align_selection_panel.gd" id="1_nqyka"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_e616m"]
+
+[node name="AlignSelectionPanel" type="VBoxContainer"]
+offset_right = 286.0
+offset_bottom = 82.0
+script = ExtResource("1_nqyka")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "· Relative to"
+
+[node name="RelativeToOptionButton" type="OptionButton" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+selected = 0
+item_count = 4
+popup/item_0/text = "World Plane"
+popup/item_0/id = 0
+popup/item_1/text = "Camera Plane"
+popup/item_1/id = 1
+popup/item_2/text = "Biggest box plane"
+popup/item_2/id = 2
+popup/item_3/text = "Specific box plane"
+popup/item_3/id = 3
+
+[node name="WorldPlaneContainer" type="HBoxContainer" parent="HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="XY" type="Button" parent="HBoxContainer/WorldPlaneContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StructureSelectorButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_e616m")
+text = "XY"
+
+[node name="XZ" type="Button" parent="HBoxContainer/WorldPlaneContainer"]
+layout_mode = 2
+theme_type_variation = &"StructureSelectorTernary"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_e616m")
+text = "XZ"
+
+[node name="YZ" type="Button" parent="HBoxContainer/WorldPlaneContainer"]
+layout_mode = 2
+theme_type_variation = &"StructureSelectorMoreButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_e616m")
+text = "XY"
+
+[node name="PickPlaneButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("1_1pqnq")
+flat = true
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "· Align"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="AlignRotationButton" type="Button" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CrystalButton"
+text = "Align Rotation"
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+columns = 3
+
+[node name="AlignHBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "Left"
+
+[node name="AlignHCenterButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "HCenter"
+
+[node name="AlignHEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "Right"
+
+[node name="AlignVBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "Top"
+
+[node name="AlignVCenterButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "VCenter"
+
+[node name="AlignVEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CrystalButton"
+text = "Bottom"

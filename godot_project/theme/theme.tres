@@ -535,8 +535,6 @@ content_margin_top = 10.0
 content_margin_right = 10.0
 content_margin_bottom = 10.0
 bg_color = Color(0.501961, 0.501961, 0.501961, 0.470588)
-corner_radius_top_right = 999
-corner_radius_bottom_right = 999
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lo13j"]
 content_margin_left = 10.0
@@ -573,16 +571,14 @@ bg_color = Color(0.501961, 0.501961, 0.501961, 0.470588)
 corner_radius_top_right = 999
 corner_radius_bottom_right = 999
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d67so"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yw8fc"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
 content_margin_bottom = 10.0
-draw_center = false
-border_width_left = 1
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
+bg_color = Color(0.501961, 0.501961, 0.501961, 0.470588)
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rv1ty"]
 content_margin_left = 10.0
@@ -611,7 +607,7 @@ content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
 content_margin_bottom = 10.0
-bg_color = Color(1, 1, 1, 0.486275)
+bg_color = Color(0.501961, 0.501961, 0.501961, 0.470588)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rnnwo"]
 content_margin_left = 10.0
@@ -1148,7 +1144,7 @@ StructureSelectorMoreButton/styles/pressed = SubResource("StyleBoxFlat_4npje")
 StructureSelectorTernary/base_type = &"Button"
 StructureSelectorTernary/colors/font_color = Color(1, 1, 1, 1)
 StructureSelectorTernary/font_sizes/font_size = 16
-StructureSelectorTernary/styles/disabled = SubResource("StyleBoxFlat_d67so")
+StructureSelectorTernary/styles/disabled = SubResource("StyleBoxFlat_yw8fc")
 StructureSelectorTernary/styles/focus = SubResource("StyleBoxFlat_rv1ty")
 StructureSelectorTernary/styles/hover = SubResource("StyleBoxFlat_k6m3h")
 StructureSelectorTernary/styles/normal = SubResource("StyleBoxFlat_ij4bl")

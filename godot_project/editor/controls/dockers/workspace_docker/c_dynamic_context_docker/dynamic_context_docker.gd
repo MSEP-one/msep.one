@@ -51,6 +51,18 @@ const _DYNAMIC_CONTEXT_CONTROLS: Dictionary = {
 				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/change_bond_type.tscn"
 			]
 		},
+	&"Align Selection":
+		{
+			icon = "📐",
+			header = true,
+			scroll = false,
+			collapse = true,
+			start_collapsed = true,
+			stretch_ratio = 0.0,
+			controls = [
+				"res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/align_selection_panel.tscn"
+			]
+		},
 	&"Find Visible Atoms by Type":
 		{
 			icon = "🔍",
