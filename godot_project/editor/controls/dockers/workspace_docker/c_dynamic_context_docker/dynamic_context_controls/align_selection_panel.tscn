@@ -88,13 +88,25 @@ theme_type_variation = &"SubcategoryPanel"
 [node name="VBoxContainer" type="HBoxContainer" parent="PanelContainer"]
 layout_mode = 2
 
-[node name="AlignRotationButton" type="Button" parent="PanelContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="AlignRotationButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 6
+size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"CrystalButton"
-text = "Align Rotation"
+text = "Align Objects Rotation"
+
+[node name="AlignCameraButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"CrystalButton"
+text = "Align Camera"
 
 [node name="vSeparator" type="VSeparator" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2

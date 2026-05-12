@@ -16,6 +16,7 @@ var _world_plane_container: HBoxContainer
 var _plane_button_group: ButtonGroup
 var _pick_plane_button: Button
 var _align_rotation_button: Button
+var _align_camera_button: Button
 var _align_position_buttons: Array[Button]
 
 var _workspace_context: WorkspaceContext = null
@@ -52,6 +53,9 @@ func _notification(what: int) -> void:
 		
 		_align_rotation_button = %AlignRotationButton as Button
 		_align_rotation_button.pressed.connect(_on_align_rotation_button_pressed)
+		
+		_align_camera_button = %AlignCameraButton as Button
+		_align_camera_button.pressed.connect(_on_align_camera_button_pressed)
 		
 		var align_h_begin_v_begin_button := %AlignHBeginVBeginButton as Button
 		var align_v_begin_button := %AlignVBeginButton as Button
@@ -100,6 +104,7 @@ func _update_ui() -> void:
 	_pick_plane_button.visible = _align_selection_parameters.get_align_relative_to() \
 		== AlignRelativeTo.SPECIFIC_BOX_PLANE
 	_align_rotation_button.disabled = not _align_selection_parameters.can_align_rotations()
+	_align_camera_button.disabled = _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.CAMERA_PLANE
 	for button in _align_position_buttons:
 		button.disabled = not _align_selection_parameters.can_align_positions()
 
@@ -186,6 +191,43 @@ func _on_align_rotation_button_pressed() -> void:
 			something_changed = true
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Rotation")
+
+
+func _on_align_camera_button_pressed() -> void:
+	var align_basis: Basis
+	var relative_to: AlignRelativeTo = _align_selection_parameters.get_align_relative_to()
+	match relative_to:
+		AlignRelativeTo.WORLD_PLANE:
+			align_basis = Basis()
+			if relative_to == AlignRelativeTo.CAMERA_PLANE:
+				align_basis = _workspace_context.get_camera_global_transform().basis
+			var plane: WorldPlane = _align_selection_parameters.get_align_to_what_plane()
+			match plane:
+				WorldPlane.XY:
+					pass
+				WorldPlane.XZ:
+					align_basis = align_basis.rotated(align_basis[0], -PI * 0.5)
+				WorldPlane.YZ:
+					align_basis = align_basis.rotated(align_basis[1], PI * 0.5)
+		AlignRelativeTo.BIGGEST_BOX_PLANE, AlignRelativeTo.SPECIFIC_BOX_PLANE:
+			align_basis = _align_selection_parameters.get_align_obb_target().transform.basis
+			var face: BoxFace = _align_selection_parameters.get_align_obb_face()
+			match face:
+				BoxFace.FRONT_BACK:
+					pass
+				BoxFace.TOP_BOTTOM:
+					align_basis = align_basis.rotated(align_basis[0], -PI * 0.5)
+				BoxFace.LEFT_RIGHT:
+					align_basis = align_basis.rotated(align_basis[1], PI * 0.5)
+		AlignRelativeTo.CAMERA_PLANE:
+			assert(false, "Cannot align camera to camera's plane")
+			return
+	var orientation_widget: Control = (
+		_workspace_context.get_editor_viewport()
+		.get_orientation_widget()
+		.get_node_or_null("DrawOrientationWidget")
+	)
+	orientation_widget.snap_to_rotation(align_basis.get_euler())
 
 
 func _align_transform(in_transform: Transform3D, in_align_basis: Basis) -> Transform3D:
