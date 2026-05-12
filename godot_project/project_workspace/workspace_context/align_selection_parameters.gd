@@ -122,7 +122,7 @@ func get_align_obb_target_id() -> int:
 	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 		if not _workspace_context.workspace.has_structure_with_int_guid(_align_to_group_int_guid):
 			return Workspace.INVALID_OBJECT_INDEX
-		_align_to_group_int_guid
+		return _align_to_group_int_guid
 	assert(false, "unknown align relative to target %d" % [_align_relative_to])
 	return Workspace.INVALID_OBJECT_INDEX
 
@@ -137,7 +137,7 @@ func get_align_obb_target() -> OBB:
 	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 		if not _workspace_context.workspace.has_structure_with_int_guid(_align_to_group_int_guid):
 			return null
-		_workspace_context.get_structure_context(_align_to_group_int_guid).get_selection_obb()
+		return _workspace_context.get_structure_context(_align_to_group_int_guid).get_selection_obb()
 	assert(false, "unknown align relative to target %d" % [_align_relative_to])
 	return null
 
@@ -152,7 +152,7 @@ func get_align_obb_face() -> BoxFace:
 	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 		if not _workspace_context.workspace.has_structure_with_int_guid(_align_to_group_int_guid):
 			return BoxFace.UNDEFINED
-		_align_to_group_box_face
+		return _align_to_group_box_face
 	assert(false, "unknown align relative to target %d" % [_align_relative_to])
 	return BoxFace.UNDEFINED
 
