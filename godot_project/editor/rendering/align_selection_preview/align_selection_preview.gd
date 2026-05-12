@@ -69,7 +69,6 @@ func _draw() -> void:
 	
 	var alignable_objects: Array[StructureContext] = _align_selection_parameters.get_alignable_structure_contexts()
 	for context: StructureContext in alignable_objects:
-		var color: Color = _lowlight_color
 		var obb: OBB = context.get_selection_obb()
 		if obb == null or not obb.box.has_surface():
 			continue

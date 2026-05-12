@@ -26,7 +26,6 @@ const FEATURE_FLAGS_MSEP_ONLINE_STUB_SERVICE = &"feature_flags/msep_online_stub_
 const FEATURE_FLAGS_MSEP_ONLINE_RUN_TESTS = &"feature_flags/msep_online_run_tests"
 const FEATURE_FLAGS_DNA_BUILDER_DEV_TOOL = &"feature_flags/dna_builder_dev_tool"
 const FEATURE_FLAGS_TOOLTIP_SHOW_IDS = &"feature_flags/tooltip_show_ids"
-const FEATURE_FLAGS_ALIGN_SELECTION_PANEL = &"feature_flags/align_selection_panel"
 
 ## A map that holds a reference for the FeatureFlagView
 var _featureflag_view_map: Dictionary = {
