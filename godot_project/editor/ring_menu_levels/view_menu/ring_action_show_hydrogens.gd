@@ -28,6 +28,7 @@ func _execute_action() -> void:
 		_workspace_context.disable_hydrogens_visualization(true)
 	else:
 		_workspace_context.enable_hydrogens_visualization(false)
+	_workspace_context.snapshot_moment("Change Hydrogen Visibility")
 	_ring_menu.close()
 
 
