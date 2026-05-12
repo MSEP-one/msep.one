@@ -60,7 +60,7 @@ layout_mode = 2
 theme_type_variation = &"StructureSelectorMoreButton"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_e616m")
-text = "XY"
+text = "YZ"
 
 [node name="PickPlaneButton" type="Button" parent="HBoxContainer"]
 unique_name_in_owner = true
