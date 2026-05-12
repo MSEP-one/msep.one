@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://cd8ybm2fs1ox"]
+[gd_scene load_steps=18 format=3 uid="uid://cd8ybm2fs1ox"]
 
 [ext_resource type="Script" uid="uid://c27b08chswrkq" path="res://editor/rendering/rendering.gd" id="1_vymcv"]
 [ext_resource type="PackedScene" uid="uid://cyy5lagn5jes7" path="res://editor/rendering/world_environment.tscn" id="2_vyad3"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://b6snixhbqq57y" path="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.tscn" id="5_0gao3"]
 [ext_resource type="PackedScene" uid="uid://dtf1gkl710hh8" path="res://editor/rendering/structure_preview/structure_preview.tscn" id="5_b5mjk"]
 [ext_resource type="PackedScene" uid="uid://ctfn68xg0ok6x" path="res://editor/rendering/atom_autopose_preview/atom_autopose_preview.tscn" id="5_rcuke"]
+[ext_resource type="PackedScene" uid="uid://cps73cvfa7352" path="res://editor/rendering/align_selection_preview/align_selection_preview.tscn" id="6_ovvb3"]
 [ext_resource type="PackedScene" uid="uid://c1cjktftkuj1d" path="res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.tscn" id="8_mgnal"]
 [ext_resource type="Texture2D" uid="uid://vgwaelryj6lw" path="res://editor/rendering/virtual_motor_renderer/asset/linear_sprite.svg" id="9_ey5dj"]
 [ext_resource type="PackedScene" uid="uid://4hk2achugjb2" path="res://editor/rendering/virtual_anchor_and_spring_renderer/virtual_anchor_preview.tscn" id="9_hs37s"]
@@ -66,6 +67,8 @@ transform = Transform3D(1, 0, 0, 0, 0.707107, -0.707107, 0, 0.707107, 0.707107, 
 [node name="BallStickBondPreview" parent="." instance=ExtResource("4_gbq2t")]
 
 [node name="AtomAutoposePreview" parent="." instance=ExtResource("5_rcuke")]
+
+[node name="AlignSelectionPreview" parent="." instance=ExtResource("6_ovvb3")]
 
 [node name="StructurePreview" parent="." instance=ExtResource("5_b5mjk")]
 visible = false

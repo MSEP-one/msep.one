@@ -294,7 +294,7 @@ func has_structure(in_nano_structure: NanoStructure) -> bool:
 
 ## Returns true if the workspace contains a structure with matching int_guid
 func has_structure_with_int_guid(int_guid: int) -> bool:
-	assert(int_guid > INVALID_STRUCTURE_ID, "Invalid unique ID")
+	assert(int_guid == INVALID_OBJECT_INDEX or int_guid > INVALID_STRUCTURE_ID, "Invalid unique ID")
 	return _structures.has(int_guid)
 
 
