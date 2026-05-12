@@ -1,7 +1,16 @@
-[gd_scene load_steps=4 format=3 uid="uid://baq1asnarlxhd"]
+[gd_scene load_steps=13 format=3 uid="uid://baq1asnarlxhd"]
 
 [ext_resource type="Texture2D" uid="uid://blj0l4apu5x71" path="res://editor/icons/ColorPick.svg" id="1_1pqnq"]
 [ext_resource type="Script" uid="uid://xvrmaqoedo2k" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/align_selection_panel.gd" id="1_nqyka"]
+[ext_resource type="Texture2D" uid="uid://c77e5qul2tkqv" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopLeft.svg" id="3_jic2l"]
+[ext_resource type="Texture2D" uid="uid://b45sxkkgsr277" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterTop.svg" id="4_mspsa"]
+[ext_resource type="Texture2D" uid="uid://fck74h0h5c0a" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopRight.svg" id="5_hy18o"]
+[ext_resource type="Texture2D" uid="uid://b2fn02sqoaxyt" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterLeft.svg" id="6_ihegr"]
+[ext_resource type="Texture2D" uid="uid://bjpf56rmokkxm" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenter.svg" id="7_4mkos"]
+[ext_resource type="Texture2D" uid="uid://cl2flyuwhtmsa" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterRight.svg" id="8_rdc1k"]
+[ext_resource type="Texture2D" uid="uid://ciugaomjuvhdu" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomLeft.svg" id="9_8dinw"]
+[ext_resource type="Texture2D" uid="uid://t8lp7otk4sih" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterBottom.svg" id="10_hmbxh"]
+[ext_resource type="Texture2D" uid="uid://c37ttm1omuhhe" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomRight.svg" id="11_7b5f3"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_e616m"]
 
@@ -76,61 +85,83 @@ text = "· Align"
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="HBoxContainer" parent="PanelContainer"]
 layout_mode = 2
 
 [node name="AlignRotationButton" type="Button" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 6
+size_flags_vertical = 4
 theme_type_variation = &"CrystalButton"
 text = "Align Rotation"
 
-[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+[node name="vSeparator" type="VSeparator" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="HBoxContainer" type="GridContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 6
 columns = 3
 
-[node name="AlignHBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHBeginVBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"CrystalButton"
-text = "Left"
-
-[node name="AlignHCenterButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"CrystalButton"
-text = "HCenter"
-
-[node name="AlignHEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"CrystalButton"
-text = "Right"
+size_flags_vertical = 4
+icon = ExtResource("3_jic2l")
+flat = true
 
 [node name="AlignVBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"CrystalButton"
-text = "Top"
+size_flags_vertical = 4
+icon = ExtResource("4_mspsa")
+flat = true
 
-[node name="AlignVCenterButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHEndVBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"CrystalButton"
-text = "VCenter"
+size_flags_vertical = 4
+icon = ExtResource("5_hy18o")
+flat = true
+
+[node name="AlignHBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+icon = ExtResource("6_ihegr")
+flat = true
+
+[node name="AlignCenterButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("7_4mkos")
+flat = true
+
+[node name="AlignHEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+icon = ExtResource("8_rdc1k")
+flat = true
+
+[node name="AlignHBeginVEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+icon = ExtResource("9_8dinw")
+flat = true
 
 [node name="AlignVEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"CrystalButton"
-text = "Bottom"
+size_flags_vertical = 4
+icon = ExtResource("10_hmbxh")
+flat = true
+
+[node name="AlignHEndVEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+icon = ExtResource("11_7b5f3")
+flat = true

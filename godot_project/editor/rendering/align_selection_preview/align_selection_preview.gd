@@ -122,8 +122,6 @@ func _draw_obb(in_obb: OBB, in_color: Color = _lowlight_color) -> void:
 func _draw_highligted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
 	if in_obb == null or in_face == BoxFace.UNDEFINED:
 		return
-	var center: Vector3 = in_obb.transform.origin
-	var corners: PackedVector3Array = []
 	var flat_size: Vector3 = in_obb.box.size
 	var flat_transform: Transform3D = in_obb.transform
 	match in_face:

@@ -4,19 +4,19 @@ const AlignRelativeTo = AlignSelectionParameters.AlignRelativeTo
 const WorldPlane = AlignSelectionParameters.WorldPlane
 const BoxFace = AlignSelectionParameters.BoxFace
 
+enum Alignment {
+	BEGIN,
+	CENTER,
+	END,
+}
+
 
 var _relative_to_option_button: OptionButton
 var _world_plane_container: HBoxContainer
 var _plane_button_group: ButtonGroup
 var _pick_plane_button: Button
 var _align_rotation_button: Button
-var _align_h_begin_button: Button
-var _align_h_center_button: Button
-var _align_h_end_button: Button
-var _align_v_begin_button: Button
-var _align_v_center_button: Button
-var _align_v_end_button: Button
-
+var _align_position_buttons: Array[Button]
 
 var _workspace_context: WorkspaceContext = null
 var _align_selection_parameters: AlignSelectionParameters
@@ -45,23 +45,43 @@ func _notification(what: int) -> void:
 		_world_plane_container = %WorldPlaneContainer as HBoxContainer
 		_plane_button_group = (%XY as Button).button_group
 		_pick_plane_button = %PickPlaneButton as Button
-		_align_rotation_button = %AlignRotationButton as Button
-		_align_h_begin_button = %AlignHBeginButton as Button
-		_align_h_center_button = %AlignHCenterButton as Button
-		_align_h_end_button = %AlignHEndButton as Button
-		_align_v_begin_button = %AlignVBeginButton as Button
-		_align_v_center_button = %AlignVCenterButton as Button
-		_align_v_end_button = %AlignVEndButton as Button
+		
 		_relative_to_option_button.item_selected.connect(_on_relative_to_option_button_item_selected)
 		_plane_button_group.pressed.connect(_on_plane_button_group_pressed)
 		_pick_plane_button.pressed.connect(_on_pick_plane_button_pressed)
+		
+		_align_rotation_button = %AlignRotationButton as Button
 		_align_rotation_button.pressed.connect(_on_align_rotation_button_pressed)
-		_align_h_begin_button.pressed.connect(_on_align_h_button_pressed.bind(HORIZONTAL_ALIGNMENT_LEFT))
-		_align_h_center_button.pressed.connect(_on_align_h_button_pressed.bind(HORIZONTAL_ALIGNMENT_CENTER))
-		_align_h_end_button.pressed.connect(_on_align_h_button_pressed.bind(HORIZONTAL_ALIGNMENT_RIGHT))
-		_align_v_begin_button.pressed.connect(_on_align_v_button_pressed.bind(VERTICAL_ALIGNMENT_TOP))
-		_align_v_center_button.pressed.connect(_on_align_v_button_pressed.bind(VERTICAL_ALIGNMENT_CENTER))
-		_align_v_end_button.pressed.connect(_on_align_v_button_pressed.bind(VERTICAL_ALIGNMENT_BOTTOM))
+		
+		var align_h_begin_v_begin_button := %AlignHBeginVBeginButton as Button
+		var align_v_begin_button := %AlignVBeginButton as Button
+		var align_h_end_v_begin_button := %AlignHEndVBeginButton as Button
+		var align_h_begin_button := %AlignHBeginButton as Button
+		var align_center_button := %AlignCenterButton as Button
+		var align_h_end_button := %AlignHEndButton as Button
+		var align_h_begin_v_end_button := %AlignHBeginVEndButton as Button
+		var align_v_end_button := %AlignVEndButton as Button
+		var align_h_end_v_end_button := %AlignHEndVEndButton as Button
+		_align_position_buttons = [
+			align_h_begin_v_begin_button,
+			align_v_begin_button,
+			align_h_end_v_begin_button,
+			align_h_begin_button,
+			align_center_button,
+			align_h_end_button,
+			align_h_begin_v_end_button,
+			align_v_end_button,
+			align_h_end_v_end_button,
+		]
+		align_h_begin_v_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.BEGIN))
+		align_v_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.BEGIN))
+		align_h_end_v_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.BEGIN))
+		align_h_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.CENTER))
+		align_center_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.CENTER))
+		align_h_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.CENTER))
+		align_h_begin_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.END))
+		align_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.END))
+		align_h_end_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.END))
 
 
 func _on_align_relative_to_changed() -> void:
@@ -80,12 +100,8 @@ func _update_ui() -> void:
 	_pick_plane_button.visible = _align_selection_parameters.get_align_relative_to() \
 		== AlignRelativeTo.SPECIFIC_BOX_PLANE
 	_align_rotation_button.disabled = not _align_selection_parameters.can_align_rotations()
-	_align_h_begin_button.disabled = not _align_selection_parameters.can_align_positions()
-	_align_h_center_button.disabled = not _align_selection_parameters.can_align_positions()
-	_align_h_end_button.disabled = not _align_selection_parameters.can_align_positions()
-	_align_v_begin_button.disabled = not _align_selection_parameters.can_align_positions()
-	_align_v_center_button.disabled = not _align_selection_parameters.can_align_positions()
-	_align_v_end_button.disabled = not _align_selection_parameters.can_align_positions()
+	for button in _align_position_buttons:
+		button.disabled = not _align_selection_parameters.can_align_positions()
 
 
 func _on_relative_to_option_button_item_selected(in_index: int) -> void:
@@ -185,9 +201,119 @@ func _align_transform(in_transform: Transform3D, in_align_basis: Basis) -> Trans
 	return in_transform;
 
 
-func _on_align_h_button_pressed(in_alignment: HorizontalAlignment) -> void:
-	push_warning("TODO: _on_align_h_button_pressed(%d)" % in_alignment)
+func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignment) -> void:
+	var skip_id: int = Workspace.INVALID_OBJECT_INDEX
+	var relative_to: AlignRelativeTo = _align_selection_parameters.get_align_relative_to()
+	assert(not relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE],
+		"Cannot align position to global planes, they dont have boundaries")
+	var reference_obb: OBB = _align_selection_parameters.get_align_obb_target()
+	var align_transform: Transform3D
+	var face: BoxFace = _align_selection_parameters.get_align_obb_face()
+	align_transform = _align_selection_parameters.get_align_obb_target().transform
+	match face:
+		BoxFace.FRONT_BACK:
+			pass
+		BoxFace.TOP_BOTTOM:
+			align_transform = align_transform.rotated(align_transform[0], -PI * 0.5)
+		BoxFace.LEFT_RIGHT:
+			align_transform = align_transform.rotated(align_transform[1], PI * 0.5)
 
-
-func _on_align_v_button_pressed(in_alignment: VerticalAlignment) -> void:
-	push_warning("TODO: _on_align_v_button_pressed(%d)" % in_alignment)
+	var reference_point: Vector3 # in local space, relative to plane
+	match in_h_alignment:
+		Alignment.BEGIN:
+			reference_point.x = -reference_obb.box.size.x * 0.5
+		Alignment.CENTER:
+			reference_point.x = 0
+		Alignment.END:
+			reference_point.x = reference_obb.box.size.x * 0.5
+	match in_v_alignment:
+		Alignment.BEGIN:
+			reference_point.y = reference_obb.box.size.y * 0.5
+		Alignment.CENTER:
+			reference_point.y = 0
+		Alignment.END:
+			reference_point.y = -reference_obb.box.size.y * 0.5
+	skip_id = _align_selection_parameters.get_align_obb_target_id()
+	var something_changed: bool = false
+	for context: StructureContext in _align_selection_parameters.get_alignable_structure_contexts():
+		if context.get_int_guid() == skip_id:
+			continue
+		var nano_structure: NanoStructure = context.nano_structure
+		var old_transform: Transform3D = context.get_selection_obb().transform
+		var box_pos: Vector3 = old_transform.origin
+		var box_size: Vector3 = context.get_selection_obb().box.size
+		var obj_reference_pos: Vector3
+		var box_extents: Array[Vector3] = [
+			old_transform * Vector3(-box_size.x * 0.5, 0, 0),
+			old_transform * Vector3(box_size.x * 0.5, 0, 0),
+			old_transform * Vector3(0, box_size.y * 0.5, 0),
+			old_transform * Vector3(0, -box_size.y * 0.5, 0),
+			old_transform * Vector3(0, 0, box_size.z * 0.5),
+			old_transform * Vector3(0, 0, -box_size.z * 0.5),
+		]
+		var relative_extents: Array[Vector3] = []
+		for extent: Vector3 in box_extents:
+			var local_to_ref: Vector3 = align_transform.inverse() * extent
+			relative_extents.append(local_to_ref)
+		var leftmost_point := Vector3.INF
+		var rightmost_point := -Vector3.INF
+		var topmost_point := -Vector3.INF
+		var bottommost_point := Vector3.INF
+		for relative_point: Vector3 in relative_extents:
+			if relative_point.x < leftmost_point.x:
+				leftmost_point = relative_point
+			if relative_point.x > rightmost_point.x:
+				rightmost_point = relative_point
+			if relative_point.y > topmost_point.y:
+				topmost_point = relative_point
+			if relative_point.y < bottommost_point.y:
+				bottommost_point = relative_point
+		match in_h_alignment:
+			Alignment.BEGIN:
+				obj_reference_pos.x = leftmost_point.x
+			Alignment.CENTER:
+				obj_reference_pos.x = (align_transform.inverse() * box_pos).x
+			Alignment.END:
+				obj_reference_pos.x = rightmost_point.x
+		match in_v_alignment:
+			Alignment.BEGIN:
+				obj_reference_pos.y = topmost_point.y
+			Alignment.CENTER:
+				obj_reference_pos.y = (align_transform.inverse() * box_pos).y
+			Alignment.END:
+				obj_reference_pos.y = bottommost_point.y
+		var plane_offset := Vector3(
+			reference_point.x - obj_reference_pos.x,
+			reference_point.y - obj_reference_pos.y,
+			0.0
+		)
+		var world_offset: Vector3 = align_transform.basis * plane_offset
+		
+		var new_transform: Transform3D = old_transform.translated(world_offset)
+		var delta_transform: Transform3D = (old_transform.inverse() * new_transform).orthonormalized()
+		
+		var atoms_to_move: PackedInt32Array = []
+		var previous_positions: PackedVector3Array = []
+		var target_positions: PackedVector3Array = []
+		var nmb_of_moved_atoms: int = 0
+		for atom_id: int in context.get_selected_atoms():
+			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
+			var new_pos: Vector3 = delta_transform * old_pos
+			atoms_to_move.push_back(atom_id)
+			target_positions.push_back(new_pos)
+			previous_positions.push_back(old_pos)
+			nmb_of_moved_atoms += 1
+		
+		var atoms_changed: bool = nmb_of_moved_atoms > 0
+		var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
+		if atoms_changed or object_moved:
+			if atoms_changed:
+				nano_structure.start_edit()
+				nano_structure.atoms_set_positions(atoms_to_move, target_positions)
+				nano_structure.end_edit()
+			if object_moved:
+				nano_structure.set_transform(nano_structure.get_transform()* delta_transform)
+			
+			something_changed = true
+	if something_changed:
+		_workspace_context.snapshot_moment("Align Selection Position")
