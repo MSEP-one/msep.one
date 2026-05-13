@@ -120,10 +120,10 @@ offset_right = 228.0
 unique_name_in_owner = true
 visible = true
 layout_mode = 0
-offset_left = 37.0
-offset_top = 32.0
-offset_right = 85.0
-offset_bottom = 80.0
+offset_left = 29.0
+offset_top = 36.0
+offset_right = 77.0
+offset_bottom = 84.0
 
 [node name="ToggleRingMenuButton" parent="EditorViewportContainer/MainSplit/SecondarySplit/WorkspaceToolsContainer" instance=ExtResource("9_e0lvo")]
 unique_name_in_owner = true
