@@ -161,7 +161,7 @@ func _on_align_rotation_button_pressed() -> void:
 		if nano_structure.has_transform():
 			new_transform = Transform3D(align_basis, old_transform.origin)
 		else:
-			_align_transform(old_transform, align_basis)
+			new_transform = _align_transform(old_transform, align_basis)
 		var delta_transform: Transform3D = old_transform.inverse() * new_transform
 		
 		var atoms_to_move: PackedInt32Array = []
@@ -170,7 +170,7 @@ func _on_align_rotation_button_pressed() -> void:
 		var nmb_of_moved_atoms: int = 0
 		for atom_id: int in context.get_selected_atoms():
 			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-			var new_pos: Vector3 = delta_transform * old_pos
+			var new_pos: Vector3 = new_transform * (old_transform.inverse() * old_pos)
 			atoms_to_move.push_back(atom_id)
 			target_positions.push_back(new_pos)
 			previous_positions.push_back(old_pos)
@@ -237,8 +237,8 @@ func _align_transform(in_transform: Transform3D, in_align_basis: Basis) -> Trans
 			if abs(dir.dot(in_align_basis[j])) > best_alignment:
 				best_alignment = abs(dir.dot(in_align_basis[j]))
 				most_aligned_dir = j
-		in_transform.basis[i] = sign(in_transform.basis[i]) * in_align_basis[most_aligned_dir]
-	return in_transform;
+		in_transform.basis[i] = in_align_basis[most_aligned_dir]
+	return in_transform.orthonormalized();
 
 
 func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignment) -> void:
