@@ -14,6 +14,7 @@ shader = ExtResource("1_15atc")
 material = SubResource("ShaderMaterial_tuc5w")
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_force_pass_scroll_events = false
 theme_type_variation = &"BlurryPanel"
 script = ExtResource("2_se7m7")
 
