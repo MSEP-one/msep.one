@@ -72,6 +72,8 @@ func _add_menu_bar_path(in_menu: PopupMenu, in_path: String) -> void:
 
 func _on_visibility_changed() -> void:
 	_update_if_visible()
+	if is_visible_in_tree():
+		_line_edit_filter.grab_focus()
 
 func _update_if_visible() -> void:
 	if is_visible_in_tree():

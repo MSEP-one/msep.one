@@ -18,22 +18,24 @@ corner_detail = 5
 
 [node name="VisualMainMenu" type="PopupPanel"]
 own_world_3d = true
-transparent_bg = true
 size = Vector2i(300, 500)
 visible = true
 unresizable = false
-transparent = true
 min_size = Vector2i(250, 300)
 theme_override_styles/panel = SubResource("StyleBoxFlat_1oi6j")
 script = ExtResource("1_3tn00")
 
 [node name="VisualMenuContent" parent="." instance=ExtResource("1_7tjgu")]
+offset_right = 300.0
+offset_bottom = 500.0
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 300.0
+offset_bottom = 500.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
