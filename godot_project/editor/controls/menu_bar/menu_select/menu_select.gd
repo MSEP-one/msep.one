@@ -1,5 +1,7 @@
 extends NanoPopupMenu
 
+signal request_hide
+
 enum {
 	ID_SELECT_ALL      = 0,
 	ID_DESELECT_ALL    = 1,
@@ -7,7 +9,8 @@ enum {
 	ID_SELECT_CONNECTED= 3,
 	ID_GROW_SELECTION  = 4,
 	ID_SHRINK_SELECTION= 5,
-	ID_INVERT_SELECTION= 6
+	ID_INVERT_SELECTION= 6,
+	ID_ALIGN_SELECTION = 7,
 }
 
 @export var shortcut_select_all: Shortcut
@@ -45,6 +48,9 @@ func _update_menu() -> void:
 	set_item_disabled(get_item_index(ID_GROW_SELECTION), !has_selection)
 	set_item_disabled(get_item_index(ID_SHRINK_SELECTION), !can_shrink)
 	set_item_disabled(get_item_index(ID_INVERT_SELECTION), !has_visible_objects)
+	var can_align_selection: bool = is_instance_valid(workspace_context) and \
+		workspace_context.align_selection_parameters.can_align_selection()
+	set_item_disabled(get_item_index(ID_ALIGN_SELECTION), !can_align_selection)
 
 
 func _on_id_pressed(in_id: int) -> void:
@@ -66,3 +72,6 @@ func _on_id_pressed(in_id: int) -> void:
 			workspace_context.shrink_selection()
 		ID_INVERT_SELECTION:
 			workspace_context.invert_selection()
+		ID_ALIGN_SELECTION:
+			MolecularEditorContext.request_workspace_docker_focus(DynamicContextDocker.UNIQUE_DOCKER_NAME, &"Align Selection")
+			request_hide.emit()

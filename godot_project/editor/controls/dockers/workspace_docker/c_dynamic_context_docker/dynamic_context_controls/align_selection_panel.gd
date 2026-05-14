@@ -24,8 +24,6 @@ var _align_selection_parameters: AlignSelectionParameters
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
-	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_ALIGN_SELECTION_PANEL) == false:
-		return false
 	_ensure_workspace_initialized(in_workspace_context)
 	_update_ui()
 	return _align_selection_parameters.can_align_selection()

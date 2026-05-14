@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://biclwwtcsdrxo"]
+[gd_scene load_steps=24 format=3 uid="uid://biclwwtcsdrxo"]
 
 [ext_resource type="Texture2D" uid="uid://bjxt6e48fokpp" path="res://editor/icons/icon_select_all.svg" id="1_nnfuc"]
 [ext_resource type="Texture2D" uid="uid://cycavpfra34ii" path="res://editor/icons/icon_deselect_all.svg" id="2_4nrca"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://mwyjpkpia6kj" path="res://editor/icons/icon_shrink_selection_x16.svg" id="5_c27nw"]
 [ext_resource type="Texture2D" uid="uid://bgopntrcn4ncx" path="res://editor/icons/icon_invert_selection.svg" id="6_30lt3"]
 [ext_resource type="Texture2D" uid="uid://bue1auish0lpw" path="res://editor/icons/icon_select_by_type.svg" id="6_gx3je"]
+[ext_resource type="Texture2D" uid="uid://0shy0dkal6i8" path="res://editor/icons/icon_align_selection.svg" id="8_kch08"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_jcme1"]
 device = -1
@@ -78,7 +79,8 @@ events = [SubResource("InputEventKey_a1p75")]
 [node name="MenuSelect" type="PopupMenu"]
 size = Vector2i(1141, 777)
 visible = true
-item_count = 7
+unfocusable = true
+item_count = 8
 item_0/text = "Select All"
 item_0/icon = ExtResource("1_nnfuc")
 item_0/id = 0
@@ -100,6 +102,9 @@ item_5/id = 5
 item_6/text = "Invert Selection"
 item_6/icon = ExtResource("6_30lt3")
 item_6/id = 6
+item_7/text = "Align"
+item_7/icon = ExtResource("8_kch08")
+item_7/id = 7
 script = ExtResource("3_lycke")
 shortcut_select_all = SubResource("Shortcut_qsvkb")
 shortcut_deselect_all = SubResource("Shortcut_chdlg")

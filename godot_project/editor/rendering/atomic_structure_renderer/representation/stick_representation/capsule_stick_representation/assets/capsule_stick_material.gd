@@ -27,7 +27,7 @@ func set_scale(new_scale: float) -> CapsuleStickMaterial:
 	return self
 
 
-func set_atom_scale(new_scale: float) -> CapsuleStickMaterial:
+func set_atom_scale(_new_scale: float) -> CapsuleStickMaterial:
 	# Not applicable
 	return self
 
