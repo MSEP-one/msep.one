@@ -1,6 +1,6 @@
 class_name BallStickBondPreview extends Node
 
-
+const DEFAULT_PREVIEW_TRANSPARENCY: float = 0.35
 
 var _bond_order_to_mesh: Dictionary = {
 	1: preload("res://editor/rendering/atomic_structure_renderer/representation/stick_representation/cylinder_stick_representation/assets/cylinder_single.mesh"),
@@ -23,6 +23,7 @@ var _preview_alpha: float = 0.65
 func _ready() -> void:
 	_preview.hide()
 	_ready_deferred.call_deferred()
+	set_transparency(DEFAULT_PREVIEW_TRANSPARENCY)
 
 
 func _ready_deferred() -> void:
