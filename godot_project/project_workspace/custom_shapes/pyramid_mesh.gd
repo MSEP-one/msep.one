@@ -218,7 +218,7 @@ func get_cover_atoms_positions(in_minimum_distance_between_atoms: float, in_fill
 					_get_segment(current_radial_segment_length, angular_increment * side_idx)
 				var current_base_direction: Vector3 = \
 					(side_corner_pos - current_radial_segment).normalized()
-				for base_atom_idx: int in atoms_in_base:
+				for base_atom_idx: int in atoms_in_base - 1:
 					if vertical_atom_idx == 0 \
 						or apothema_atom_idx == (atoms_in_current_apothema - 1):
 						result.append(
@@ -316,7 +316,7 @@ func get_fill_atoms_positions(in_minimum_distance_between_atoms: float, in_fill_
 					_get_segment(current_radial_segment_length, angular_increment * side_idx)
 				var current_base_direction: Vector3 = \
 					(side_corner_pos - current_radial_segment).normalized()
-				for base_atom_idx: int in atoms_in_base:
+				for base_atom_idx: int in atoms_in_base - 1:
 					result.append(
 						current_height + current_radial_segment
 						+ current_base_direction * base_atom_idx * distance_between_atoms_in_base
