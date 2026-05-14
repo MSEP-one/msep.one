@@ -214,9 +214,9 @@ func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignme
 		BoxFace.FRONT_BACK:
 			pass
 		BoxFace.TOP_BOTTOM:
-			align_transform = align_transform.rotated(align_transform[0], -PI * 0.5)
+			align_transform = align_transform.rotated_local(align_transform.basis[0], -PI * 0.5)
 		BoxFace.LEFT_RIGHT:
-			align_transform = align_transform.rotated(align_transform[1], PI * 0.5)
+			align_transform = align_transform.rotated_local(align_transform.basis[1], PI * 0.5)
 
 	var reference_point: Vector3 # in local space, relative to plane
 	match in_h_alignment:
