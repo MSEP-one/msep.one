@@ -102,7 +102,15 @@ func _update_ui() -> void:
 	_pick_plane_button.visible = _align_selection_parameters.get_align_relative_to() \
 		== AlignRelativeTo.SPECIFIC_BOX_PLANE
 	_align_rotation_button.disabled = not _align_selection_parameters.can_align_rotations()
-	_align_camera_button.disabled = _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.CAMERA_PLANE
+	var can_align_camera: bool = true
+	if _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.CAMERA_PLANE:
+		can_align_camera = false
+	elif _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE:
+		if _align_selection_parameters.get_align_obb_target_id() == Workspace.INVALID_OBJECT_INDEX:
+			can_align_camera = false
+		if _align_selection_parameters.get_align_obb_face() == BoxFace.UNDEFINED:
+			can_align_camera = false
+	_align_camera_button.disabled = not can_align_camera
 	for button in _align_position_buttons:
 		button.disabled = not _align_selection_parameters.can_align_positions()
 
