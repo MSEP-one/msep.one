@@ -1,12 +1,14 @@
-[gd_scene load_steps=23 format=3 uid="uid://baq1asnarlxhd"]
+[gd_scene load_steps=25 format=3 uid="uid://baq1asnarlxhd"]
 
 [ext_resource type="Texture2D" uid="uid://blj0l4apu5x71" path="res://editor/icons/ColorPick.svg" id="1_1pqnq"]
 [ext_resource type="Script" uid="uid://xvrmaqoedo2k" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/align_selection_panel.gd" id="1_nqyka"]
+[ext_resource type="Texture2D" uid="uid://m4vremymr7x2" path="res://editor/controls/dock_area/icons/tab_arrow_left.svg" id="2_qogej"]
 [ext_resource type="Texture2D" uid="uid://bb0vlp3oracy6" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopWide.svg" id="3_8dinw"]
 [ext_resource type="Texture2D" uid="uid://bn78huwovol7m" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignRotation.svg" id="3_hy18o"]
 [ext_resource type="Texture2D" uid="uid://c77e5qul2tkqv" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopLeft.svg" id="3_jic2l"]
 [ext_resource type="Texture2D" uid="uid://cco7dvgkv71r5" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignLeftWide.svg" id="4_hmbxh"]
 [ext_resource type="Texture2D" uid="uid://b8h7wdot8t8l0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignCameraRotation.svg" id="4_ihegr"]
+[ext_resource type="Texture2D" uid="uid://dpy64yay6n15f" path="res://editor/controls/dock_area/icons/tab_arrow_right.svg" id="4_irqsl"]
 [ext_resource type="Texture2D" uid="uid://b45sxkkgsr277" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterTop.svg" id="4_mspsa"]
 [ext_resource type="Texture2D" uid="uid://fck74h0h5c0a" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopRight.svg" id="5_hy18o"]
 [ext_resource type="Texture2D" uid="uid://b2fn02sqoaxyt" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterLeft.svg" id="6_ihegr"]
@@ -88,10 +90,30 @@ toggle_mode = true
 button_group = SubResource("ButtonGroup_e616m")
 text = "YZ"
 
-[node name="PickPlaneButton" type="Button" parent="HBoxContainer"]
+[node name="SpecificBoxContainer" type="HBoxContainer" parent="HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="PrevFaceButton" type="Button" parent="HBoxContainer/SpecificBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Previous Face or Object"
+icon = ExtResource("2_qogej")
+flat = true
+
+[node name="PickPlaneButton" type="Button" parent="HBoxContainer/SpecificBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Pick Object and Face from the Viewport"
 icon = ExtResource("1_1pqnq")
+flat = true
+
+[node name="NextFaceButton" type="Button" parent="HBoxContainer/SpecificBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Next Face or Object"
+icon = ExtResource("4_irqsl")
 flat = true
 
 [node name="Label" type="Label" parent="."]
