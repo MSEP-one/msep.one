@@ -5,6 +5,7 @@ const WorldPlane = AlignSelectionParameters.WorldPlane
 const BoxFace = AlignSelectionParameters.BoxFace
 
 enum Alignment {
+	IGNORE = -1,
 	BEGIN,
 	CENTER,
 	END,
@@ -64,6 +65,13 @@ func _notification(what: int) -> void:
 		var align_h_begin_v_end_button := %AlignHBeginVEndButton as Button
 		var align_v_end_button := %AlignVEndButton as Button
 		var align_h_end_v_end_button := %AlignHEndVEndButton as Button
+		var align_top_button := %AlignTopButton as Button
+		var align_left_button := %AlignLeftButton as Button
+		var align_right_button := %AlignRightButton as Button
+		var align_bottom_button := %AlignBottomButton as Button
+		var align_v_center_button := %AlignVCenterButton as Button
+		var align_h_center_button := %AlignHCenterButton as Button
+
 		_align_position_buttons = [
 			align_h_begin_v_begin_button,
 			align_v_begin_button,
@@ -74,6 +82,12 @@ func _notification(what: int) -> void:
 			align_h_begin_v_end_button,
 			align_v_end_button,
 			align_h_end_v_end_button,
+			align_top_button,
+			align_left_button,
+			align_right_button,
+			align_bottom_button,
+			align_v_center_button,
+			align_h_center_button,
 		]
 		align_h_begin_v_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.BEGIN))
 		align_v_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.BEGIN))
@@ -84,6 +98,12 @@ func _notification(what: int) -> void:
 		align_h_begin_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.END))
 		align_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.END))
 		align_h_end_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.END))
+		align_top_button.pressed.connect(_on_align_button_pressed.bind(Alignment.IGNORE, Alignment.BEGIN))
+		align_left_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.IGNORE))
+		align_right_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.IGNORE))
+		align_bottom_button.pressed.connect(_on_align_button_pressed.bind(Alignment.IGNORE, Alignment.END))
+		align_v_center_button.pressed.connect(_on_align_button_pressed.bind(Alignment.IGNORE, Alignment.CENTER))
+		align_h_center_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.IGNORE))
 
 
 func _on_align_relative_to_changed() -> void:
