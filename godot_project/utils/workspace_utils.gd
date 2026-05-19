@@ -1257,7 +1257,14 @@ static func _generate_thumbnail(in_workspace: Workspace) -> Image:
 	return workspace_main_view.screen_capture_dialog.generate_thumbnail()
 
 
+static var _thumbnail_cache: Dictionary[String, Array] = {
+	# filepath : [file_md5, thumbnail]
+}
 static func _extract_embedded_thumbnail(in_filepath: String) -> Texture2D:
+	var md5: String = FileAccess.get_md5(in_filepath)
+	if in_filepath in _thumbnail_cache.keys():
+		if md5 == _thumbnail_cache[in_filepath][0]:
+			return _thumbnail_cache[in_filepath][1] as Texture2D
 	var f := FileAccess.open(in_filepath, FileAccess.READ)
 	if f == null:
 		return null
@@ -1269,7 +1276,9 @@ static func _extract_embedded_thumbnail(in_filepath: String) -> Texture2D:
 			var buffer: PackedByteArray = str_to_var(str_var)
 			var img := Image.new()
 			img.load_png_from_buffer(buffer)
-			return ImageTexture.create_from_image(img)
+			var texture := ImageTexture.create_from_image(img)
+			_thumbnail_cache[in_filepath] = [md5, texture]
+			return texture
 	return null
 
 
