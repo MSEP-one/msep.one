@@ -15,7 +15,10 @@ enum Alignment {
 var _relative_to_option_button: OptionButton
 var _world_plane_container: HBoxContainer
 var _plane_button_group: ButtonGroup
+var _specific_box_container: HBoxContainer
+var _prev_face_button: Button
 var _pick_plane_button: Button
+var _next_face_button: Button
 var _align_rotation_button: Button
 var _align_camera_button: Button
 var _align_position_buttons: Array[Button]
@@ -44,11 +47,17 @@ func _notification(what: int) -> void:
 		_relative_to_option_button = %RelativeToOptionButton as OptionButton
 		_world_plane_container = %WorldPlaneContainer as HBoxContainer
 		_plane_button_group = (%XY as Button).button_group
+		
+		_specific_box_container = %SpecificBoxContainer as HBoxContainer
+		_prev_face_button = %PrevFaceButton as Button
 		_pick_plane_button = %PickPlaneButton as Button
+		_next_face_button = %NextFaceButton as Button
 		
 		_relative_to_option_button.item_selected.connect(_on_relative_to_option_button_item_selected)
 		_plane_button_group.pressed.connect(_on_plane_button_group_pressed)
 		_pick_plane_button.pressed.connect(_on_pick_plane_button_pressed)
+		_prev_face_button.pressed.connect(_on_prev_face_button_pressed)
+		_next_face_button.pressed.connect(_on_next_face_button_pressed)
 		
 		_align_rotation_button = %AlignRotationButton as Button
 		_align_rotation_button.pressed.connect(_on_align_rotation_button_pressed)
@@ -119,7 +128,7 @@ func _update_ui() -> void:
 		AlignRelativeTo.WORLD_PLANE,
 		AlignRelativeTo.CAMERA_PLANE
 	]
-	_pick_plane_button.visible = _align_selection_parameters.get_align_relative_to() \
+	_specific_box_container.visible = _align_selection_parameters.get_align_relative_to() \
 		== AlignRelativeTo.SPECIFIC_BOX_PLANE
 	_align_rotation_button.disabled = not _align_selection_parameters.can_align_rotations()
 	var can_align_camera: bool = true
@@ -150,6 +159,40 @@ func _on_plane_button_group_pressed(in_button: Button) -> void:
 func _on_pick_plane_button_pressed() -> void:
 	_align_selection_parameters.start_picking_obb()
 
+
+func _on_prev_face_button_pressed() -> void:
+	_advance_specific_box_face(-1)
+
+
+func _on_next_face_button_pressed() -> void:
+	_advance_specific_box_face(+1)
+
+
+func _advance_specific_box_face(dir: int) -> void:
+	assert(_align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE)
+	var alignable_objects: Array[StructureContext] = _align_selection_parameters.get_alignable_structure_contexts()
+	
+	if alignable_objects.size() == 0:
+		return
+	var current_object_id: int = _align_selection_parameters.get_align_obb_target_id()
+	var current_context: StructureContext = null
+	for ctx: StructureContext in alignable_objects:
+		if ctx.get_int_guid() == current_object_id:
+			current_context = ctx
+			break
+	if current_context == null:
+		_align_selection_parameters.set_specific_obb_and_face(alignable_objects[0], BoxFace.FRONT_BACK)
+		return
+	var current_face: int = _align_selection_parameters.get_align_obb_face() as int
+	var select_face: int = current_face + dir
+	if select_face < 0 or select_face > 2:
+		# advance/wrap face
+		select_face = (select_face + 3) % 3
+		var obj_index: int = alignable_objects.find(current_context)
+		# advance/wrap object
+		obj_index = (obj_index + alignable_objects.size() + dir) % alignable_objects.size()
+		current_context = alignable_objects[obj_index]
+	_align_selection_parameters.set_specific_obb_and_face(current_context, select_face as BoxFace)
 
 func _on_align_rotation_button_pressed() -> void:
 	var align_basis: Basis
