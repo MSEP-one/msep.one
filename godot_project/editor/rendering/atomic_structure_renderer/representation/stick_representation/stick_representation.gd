@@ -118,7 +118,10 @@ func _update_is_selectable_uniform() -> void:
 	_material_bond_1.set_selectable(is_editable)
 	_material_bond_2.set_selectable(is_editable)
 	_material_bond_3.set_selectable(is_editable)
-
+	if not is_editable:
+		_material_bond_1.set_hovered(false)
+		_material_bond_2.set_hovered(false)
+		_material_bond_3.set_hovered(false)
 
 func _update_is_hovered_uniform(in_is_hovered: bool) -> void:
 	_material_bond_1.set_hovered(in_is_hovered)

@@ -57,6 +57,7 @@ func build(in_workspace_context: WorkspaceContext, in_shape: NanoShape) -> void:
 	shape_context.virtual_object_selection_changed.connect(_on_shape_context_virtual_object_selection_changed)
 	_on_shape_context_virtual_object_selection_changed(shape_context.is_shape_selected())
 	workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
+	workspace_context.editable_structure_context_list_changed.connect(_on_workspace_context_editable_structure_context_list_changed)
 	workspace_context.workspace.representation_settings \
 		.should_hide_virtual_object_during_simulation_changed \
 		.connect(_on_should_hide_virtual_object_during_simulation_changed)
@@ -223,6 +224,17 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 	elif not nano_shape.is_ghost and is_instance_valid(hovered_structure_context):
 		is_hovered = 1.0 if nano_shape == hovered_structure_context.nano_structure else 0.0
 	shape.set_instance_shader_parameter(&"hovered", is_hovered)
+
+
+func _on_workspace_context_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
+	var this_emitter_found: bool = false
+	for context: StructureContext in in_new_editable_structure_contexts:
+		if context.nano_structure.int_guid == _shape_id:
+			this_emitter_found = true
+			break
+	if not this_emitter_found:
+		const NOT_HOVERED = 0
+		shape.set_instance_shader_parameter(&"hovered", NOT_HOVERED)
 
 
 func create_state_snapshot() -> Dictionary:
