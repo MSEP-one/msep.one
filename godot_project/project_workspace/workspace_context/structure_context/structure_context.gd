@@ -463,19 +463,147 @@ func get_selection_aabb() -> AABB:
 
 
 
-var _print1: bool = false
 func get_selection_obb() -> OBB:
-	if not _print1:
-		push_warning("TODO: %s.get_selection_obb()" % nano_structure.get_structure_name())
-		_print1 = true;
 	if nano_structure is NanoShape:
 		return nano_structure.get_shape_obb()
 	elif nano_structure.has_transform():
 		var aabb: AABB = get_selection_aabb()
 		return OBB.new(aabb.size, nano_structure.get_transform())
+	elif nano_structure is AtomicStructure and not nano_structure is DnaStructure:
+		var atomic_structure := nano_structure as AtomicStructure
+		var selected_atoms: PackedInt32Array = get_selected_atoms()
+		var positions: Array[Vector3] = []
+		var centroid := Vector3()
+		# 1. Collect centroid and atoms positions
+		for atom_id: int in selected_atoms:
+			positions.append(atomic_structure.atom_get_position(atom_id))
+			centroid += positions[-1]
+		centroid /= positions.size()
+		# 3. calculate covariance matrix
+		var cov_matrix: Array[PackedFloat64Array] = _get_covariance_matrix(positions, centroid)
+		
+		# 3. Power Iteration to find Eigenvectors (Principal Axes)
+		var axes: Array[Vector3] = []
+
+		for _axis in 3:
+			# Power iteration
+			const MAX_ITERATIONS := 100
+			const CONVERGENCE_THRESHOLD_SQRD := 1e-12 # 1e-6 * 1e-6
+			var v := Vector3(1.0, 1.0, 1.0)
+			for _iter in MAX_ITERATIONS:
+				var va := [v.x, v.y, v.z]
+				var new_v := Vector3(
+					cov_matrix[0][0]*va[0] + cov_matrix[0][1]*va[1] + cov_matrix[0][2]*va[2],
+					cov_matrix[1][0]*va[0] + cov_matrix[1][1]*va[1] + cov_matrix[1][2]*va[2],
+					cov_matrix[2][0]*va[0] + cov_matrix[2][1]*va[1] + cov_matrix[2][2]*va[2]
+				).normalized()
+				if new_v.distance_squared_to(v) < CONVERGENCE_THRESHOLD_SQRD:
+					break
+				v = new_v
+			axes.append(v)
+			
+			if v == Vector3.ZERO:
+				continue  # skip deflation for degenerate axis
+			
+			# Deflation: A_next = A - lambda * v * vT
+			var va := [v.x, v.y, v.z]
+			var Av := [
+				cov_matrix[0][0]*va[0] + cov_matrix[0][1]*va[1] + cov_matrix[0][2]*va[2],
+				cov_matrix[1][0]*va[0] + cov_matrix[1][1]*va[1] + cov_matrix[1][2]*va[2],
+				cov_matrix[2][0]*va[0] + cov_matrix[2][1]*va[1] + cov_matrix[2][2]*va[2]
+			]
+			var lam: float = va[0]*Av[0] + va[1]*Av[1] + va[2]*Av[2]
+			for i in 3:
+				for j in 3:
+					cov_matrix[i][j] -= lam * va[i] * va[j]
+		
+		# 4. Orthonormalize
+		var basis := Basis(axes[0], axes[1], axes[2]).orthonormalized()
+		axes = [basis[0], basis[1], basis[2]]
+		
+		# 5. Find Min/Max by projecting points onto axes
+		var min_extents := Vector3.INF
+		var max_extents := -Vector3.INF
+		for p: Vector3 in positions:
+			for i in 3:
+				var projection := p.dot(axes[i])
+				min_extents[i] = min(min_extents[i], projection)
+				max_extents[i] = max(max_extents[i], projection)
+
+		# 6. Sort axes by extent size (largest to smallest)
+		var size: Vector3 = max_extents - min_extents
+		var axes_order: Array[int] = [0, 1, 2]
+		axes_order.sort_custom(
+			func(a: int, b:int) -> bool:
+				if is_equal_approx(size[a], size[b]):
+					return a < b
+				return size[a] >= size[b]
+		)
+		
+		axes = [axes[axes_order[0]], axes[axes_order[1]], axes[axes_order[2]]]
+		size = Vector3(size[axes_order[0]], size[axes_order[1]], size[axes_order[2]])
+		
+		# 7. Warrantee right-handiness
+		const DEGENERATE_AXIS_THRESHOLD := 1e-10
+		var axis_x := axes[0].normalized() if axes[0].length() > DEGENERATE_AXIS_THRESHOLD else Vector3.RIGHT
+		
+		var axis_z: Vector3
+		if axes[1].length() > DEGENERATE_AXIS_THRESHOLD:
+			axis_z = axis_x.cross(axes[1])
+			if axis_z.length() < DEGENERATE_AXIS_THRESHOLD:
+				axis_z = Vector3.ZERO  # axes[1] was parallel to axis_x
+		else:
+			axis_z = Vector3.ZERO  # axes[1] was degenerate
+		
+		if axis_z.length() < DEGENERATE_AXIS_THRESHOLD:
+			# Pick arbitrary perpendicular to axis_x
+			if abs(axis_x.dot(Vector3.RIGHT)) < 0.9:
+				axis_z = axis_x.cross(Vector3.RIGHT)
+			elif abs(axis_x.dot(Vector3.UP)) < 0.9:
+				axis_z = axis_x.cross(Vector3.UP)
+			else:
+				axis_z = axis_x.cross(Vector3.BACK)
+		
+		# If Y is also derivable, re-derive it too for full orthonormality
+		var axis_y := axis_z.cross(axis_x).normalized()
+
+		basis = Basis(axis_x, axis_y, axis_z)
+		axes = [basis[0], basis[1], basis[2]]
+
+		# 8. With handiness corrected, this breaks extents, so need to recalculate them
+		min_extents = Vector3.INF
+		max_extents = -Vector3.INF
+		for p: Vector3 in positions:
+			for i in 3:
+				var projection := p.dot(axes[i])
+				min_extents[i] = min(min_extents[i], projection)
+				max_extents[i] = max(max_extents[i], projection)
+		size = max_extents - min_extents
+
+		var center := Vector3.ZERO
+		center += ((min_extents.x + max_extents.x) / 2.0) * axes[0]
+		center += ((min_extents.y + max_extents.y) / 2.0) * axes[1]
+		center += ((min_extents.z + max_extents.z) / 2.0) * axes[2]
+		
+		return OBB.new(size, Transform3D(basis, center))
 	var aabb: AABB = get_selection_aabb()
 	var obb := OBB.new(aabb.size, Transform3D(Basis(), aabb.get_center()))
 	return obb
+
+
+func _get_covariance_matrix(in_atoms_positions: Array[Vector3], in_centroid: Vector3) -> Array[PackedFloat64Array]:
+	var cov_matrix: Array[PackedFloat64Array] = [
+		PackedFloat64Array([0.0, 0.0, 0.0]),
+		PackedFloat64Array([0.0, 0.0, 0.0]),
+		PackedFloat64Array([0.0, 0.0, 0.0])
+	]
+	for p: Vector3 in in_atoms_positions:
+		var local_pos := p - in_centroid
+		for i in 3:
+			for j in 3:
+				cov_matrix[i][j] += local_pos[i] * local_pos[j]
+	return cov_matrix
+
 
 func get_selection_snapshot() -> Dictionary:
 	return _selection_db.get_selection_snapshot()

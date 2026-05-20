@@ -228,12 +228,13 @@ func _on_align_rotation_button_pressed() -> void:
 			continue
 		var nano_structure: NanoStructure = context.nano_structure
 		var old_transform: Transform3D = context.get_selection_obb().transform
+		var to_local: Transform3D = old_transform.inverse()
 		var new_transform: Transform3D
 		if nano_structure.has_transform():
 			new_transform = Transform3D(align_basis, old_transform.origin)
 		else:
 			new_transform = _align_transform(old_transform, align_basis)
-		var delta_transform: Transform3D = old_transform.inverse() * new_transform
+		var delta_transform: Transform3D = to_local * new_transform
 		
 		var atoms_to_move: PackedInt32Array = []
 		var previous_positions: PackedVector3Array = []
@@ -241,7 +242,7 @@ func _on_align_rotation_button_pressed() -> void:
 		var nmb_of_moved_atoms: int = 0
 		for atom_id: int in context.get_selected_atoms():
 			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-			var new_pos: Vector3 = new_transform * (old_transform.inverse() * old_pos)
+			var new_pos: Vector3 = new_transform * (to_local * old_pos)
 			atoms_to_move.push_back(atom_id)
 			target_positions.push_back(new_pos)
 			previous_positions.push_back(old_pos)
@@ -401,7 +402,8 @@ func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignme
 		var world_offset: Vector3 = align_transform.basis * plane_offset
 		
 		var new_transform: Transform3D = old_transform.translated(world_offset)
-		var delta_transform: Transform3D = (old_transform.inverse() * new_transform).orthonormalized()
+		var to_local: Transform3D = old_transform.inverse()
+		var delta_transform: Transform3D = (to_local * new_transform).orthonormalized()
 		
 		var atoms_to_move: PackedInt32Array = []
 		var previous_positions: PackedVector3Array = []
@@ -409,7 +411,7 @@ func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignme
 		var nmb_of_moved_atoms: int = 0
 		for atom_id: int in context.get_selected_atoms():
 			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-			var new_pos: Vector3 = delta_transform * old_pos
+			var new_pos: Vector3 = new_transform * (to_local * old_pos)
 			atoms_to_move.push_back(atom_id)
 			target_positions.push_back(new_pos)
 			previous_positions.push_back(old_pos)
