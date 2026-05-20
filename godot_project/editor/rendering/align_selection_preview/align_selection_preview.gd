@@ -1,5 +1,14 @@
 class_name AlignSelectionPreview extends Control
 
+## This enum is used for debug purposes,
+## Set the value of DRAW_TRANSFORM_AT constant to enable it
+enum DrawTransformAt {
+	None            = 0x0,
+	BoxOrigin       = 0x1 << 0,
+	HighlightedFace = 0x1 << 1,
+	Both = BoxOrigin | HighlightedFace,
+}
+const DRAW_TRANSFORM_AT: DrawTransformAt = DrawTransformAt.None
 
 const AlignRelativeTo = AlignSelectionParameters.AlignRelativeTo
 const BoxFace = AlignSelectionParameters.BoxFace
@@ -73,6 +82,7 @@ func _draw() -> void:
 		if obb == null or not obb.box.has_surface():
 			continue
 		_draw_obb(obb)
+		_draw_transform(obb.transform, obb.box.size * 0.25, false)
 		if _align_selection_parameters.get_align_relative_to() in [
 				AlignRelativeTo.BIGGEST_BOX_PLANE, AlignRelativeTo.SPECIFIC_BOX_PLANE]:
 			if context.get_int_guid() == _align_selection_parameters.get_align_obb_target_id():
@@ -118,6 +128,22 @@ func _draw_obb(in_obb: OBB, in_color: Color = _lowlight_color) -> void:
 				draw_line(corners_2d[i], corners_2d[j], in_color, path_width)
 
 
+func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: bool) -> void:
+	var from: Vector3 = t.origin
+	var from2d: Vector2 = _camera.unproject_position(from)
+	const COLORS: Array[Color] = [Color.RED, Color.GREEN, Color.BLUE]
+	if is_highlighted_face and (DRAW_TRANSFORM_AT & DrawTransformAt.HighlightedFace == 0):
+		return
+	if (not is_highlighted_face) and (DRAW_TRANSFORM_AT & DrawTransformAt.BoxOrigin == 0):
+		return
+	for i in 3:
+		var to: Vector3 = from + t.basis[i] * handle_size
+		var to2d: Vector2 = _camera.unproject_position(to)
+		var col: Color = COLORS[i]
+		if !is_highlighted_face:
+			col *= 0.75
+		draw_line(from2d, to2d, col, 2)
+
 func _draw_highligted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
 	if in_obb == null or in_face == BoxFace.UNDEFINED:
 		return
@@ -154,7 +180,19 @@ func _draw_highligted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
 				flat_transform.origin -= in_obb.transform.basis[0] * in_obb.box.size.x * 0.5
 			else:
 				flat_transform.origin += in_obb.transform.basis[0] * in_obb.box.size.x * 0.5
+	if DRAW_TRANSFORM_AT & DrawTransformAt.HighlightedFace != 0:
+		var font := get_theme_font(&"Label", &"HeaderLarge")
+		var center: Vector2 = _camera.unproject_position(flat_transform.origin)
+		var face_name: String = str(BoxFace.find_key(in_face))
+		face_name = face_name.capitalize().replace(" ", "/")
+		var text_size: Vector2 = font.get_string_size(face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40)
+		center -= text_size / 2.0
+		for x: float in [-2, 2]:
+			for y: float in [-2, 2]:
+				draw_string(font, center + Vector2(x, y), face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40, Color.DARK_SLATE_GRAY)
+		draw_string(font, center, face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40, Color.FLORAL_WHITE)
 	_draw_obb(OBB.new(flat_size, flat_transform), _highlight_color)
+	_draw_transform(flat_transform, in_obb.box.size * 0.25, true)
 
 
 func _get_distance_to_camera_sqrd(in_global_pos: Vector3) -> float:
