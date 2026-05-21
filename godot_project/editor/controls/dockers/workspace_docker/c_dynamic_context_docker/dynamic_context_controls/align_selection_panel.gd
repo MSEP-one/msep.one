@@ -230,10 +230,7 @@ func _on_align_rotation_button_pressed() -> void:
 		var old_transform: Transform3D = context.get_selection_obb().transform
 		var to_local: Transform3D = old_transform.inverse()
 		var new_transform: Transform3D
-		if nano_structure.has_transform():
-			new_transform = Transform3D(align_basis, old_transform.origin)
-		else:
-			new_transform = _align_transform(old_transform, align_basis)
+		new_transform = Transform3D(align_basis, old_transform.origin)
 		var delta_transform: Transform3D = to_local * new_transform
 		
 		var atoms_to_move: PackedInt32Array = []
@@ -298,19 +295,6 @@ func _on_align_camera_button_pressed() -> void:
 		.get_node_or_null("DrawOrientationWidget")
 	)
 	orientation_widget.snap_to_rotation(align_basis.get_euler())
-
-
-func _align_transform(in_transform: Transform3D, in_align_basis: Basis) -> Transform3D:
-	for i in 3:
-		var most_aligned_dir: int = -1
-		var best_alignment: float = -1.0
-		for j in 3:
-			var dir: Vector3 = in_transform.basis[i]
-			if abs(dir.dot(in_align_basis[j])) > best_alignment:
-				best_alignment = abs(dir.dot(in_align_basis[j]))
-				most_aligned_dir = j
-		in_transform.basis[i] = in_align_basis[most_aligned_dir]
-	return in_transform.orthonormalized();
 
 
 func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignment) -> void:
