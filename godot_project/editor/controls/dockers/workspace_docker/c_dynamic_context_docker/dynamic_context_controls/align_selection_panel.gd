@@ -322,29 +322,33 @@ func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignme
 	var align_transform: Transform3D
 	var face: BoxFace = _align_selection_parameters.get_align_obb_face()
 	align_transform = _align_selection_parameters.get_align_obb_target().transform
+	var h_axis: int = Vector3.AXIS_X
+	var v_axis: int = Vector3.AXIS_Y
 	match face:
 		BoxFace.FRONT_BACK:
 			pass
 		BoxFace.TOP_BOTTOM:
-			align_transform = align_transform.rotated_local(align_transform.basis[1], PI * 0.5)
+			v_axis = Vector3.AXIS_Z
+			#align_transform = align_transform.rotated_local(align_transform.basis[0], PI * 0.5)
 		BoxFace.LEFT_RIGHT:
-			align_transform = align_transform.rotated_local(align_transform.basis[2], -PI * 0.5)
+			h_axis = Vector3.AXIS_Z
+			#align_transform = align_transform.rotated_local(align_transform.basis[1], -PI * 0.5)
 
 	var reference_point: Vector3 # in local space, relative to plane
 	match in_h_alignment:
 		Alignment.BEGIN:
-			reference_point.x = -reference_obb.box.size.x * 0.5
+			reference_point[h_axis] = -reference_obb.box.size[h_axis] * 0.5
 		Alignment.CENTER:
-			reference_point.x = 0
+			reference_point[h_axis] = 0
 		Alignment.END:
-			reference_point.x = reference_obb.box.size.x * 0.5
+			reference_point[h_axis] = reference_obb.box.size[h_axis] * 0.5
 	match in_v_alignment:
 		Alignment.BEGIN:
-			reference_point.y = reference_obb.box.size.y * 0.5
+			reference_point[v_axis] = reference_obb.box.size[v_axis] * 0.5
 		Alignment.CENTER:
-			reference_point.y = 0
+			reference_point[v_axis] = 0
 		Alignment.END:
-			reference_point.y = -reference_obb.box.size.y * 0.5
+			reference_point[v_axis] = -reference_obb.box.size[v_axis] * 0.5
 	skip_id = _align_selection_parameters.get_align_obb_target_id()
 	var something_changed: bool = false
 	for context: StructureContext in _align_selection_parameters.get_alignable_structure_contexts():
@@ -372,33 +376,31 @@ func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignme
 		var topmost_point := -Vector3.INF
 		var bottommost_point := Vector3.INF
 		for relative_point: Vector3 in relative_extents:
-			if relative_point.x < leftmost_point.x:
+			if relative_point[h_axis] < leftmost_point[h_axis]:
 				leftmost_point = relative_point
-			if relative_point.x > rightmost_point.x:
+			if relative_point[h_axis] > rightmost_point[h_axis]:
 				rightmost_point = relative_point
-			if relative_point.y > topmost_point.y:
+			if relative_point[v_axis] > topmost_point[v_axis]:
 				topmost_point = relative_point
-			if relative_point.y < bottommost_point.y:
+			if relative_point[v_axis] < bottommost_point[v_axis]:
 				bottommost_point = relative_point
 		match in_h_alignment:
 			Alignment.BEGIN:
-				obj_reference_pos.x = leftmost_point.x
+				obj_reference_pos[h_axis] = leftmost_point[h_axis]
 			Alignment.CENTER:
-				obj_reference_pos.x = (align_transform.inverse() * box_pos).x
+				obj_reference_pos[h_axis] = (align_transform.inverse() * box_pos)[h_axis]
 			Alignment.END:
-				obj_reference_pos.x = rightmost_point.x
+				obj_reference_pos[h_axis] = rightmost_point[h_axis]
 		match in_v_alignment:
 			Alignment.BEGIN:
-				obj_reference_pos.y = topmost_point.y
+				obj_reference_pos[v_axis] = topmost_point[v_axis]
 			Alignment.CENTER:
-				obj_reference_pos.y = (align_transform.inverse() * box_pos).y
+				obj_reference_pos[v_axis] = (align_transform.inverse() * box_pos)[v_axis]
 			Alignment.END:
-				obj_reference_pos.y = bottommost_point.y
-		var plane_offset := Vector3(
-			reference_point.x - obj_reference_pos.x,
-			reference_point.y - obj_reference_pos.y,
-			0.0
-		)
+				obj_reference_pos[v_axis] = bottommost_point[v_axis]
+		var plane_offset := Vector3()
+		plane_offset[h_axis] = reference_point[h_axis] - obj_reference_pos[h_axis]
+		plane_offset[v_axis] = reference_point[v_axis] - obj_reference_pos[v_axis]
 		var world_offset: Vector3 = align_transform.basis * plane_offset
 		
 		var new_transform: Transform3D = old_transform.translated(world_offset)
