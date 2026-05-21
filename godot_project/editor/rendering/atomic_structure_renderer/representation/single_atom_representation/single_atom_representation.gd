@@ -115,6 +115,8 @@ func _update_is_selectable_uniform() -> void:
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
 	var is_editable: bool = structure_context.is_editable()
 	_material.set_selectable(is_editable)
+	if not is_editable:
+		_material.set_hovered(false)
 
 
 func add_atoms(in_atoms_ids: PackedInt32Array) -> void:

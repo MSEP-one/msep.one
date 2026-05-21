@@ -231,7 +231,9 @@ func _on_workspace_context_editable_structure_context_list_changed(in_new_editab
 	const SELECTABLE_VALUE: float = 1.0
 	const UNSELECTABLE_VALUE: float = 0.0
 	_set_shader_uniform(&"is_selectable", SELECTABLE_VALUE if this_emitter_found else UNSELECTABLE_VALUE)
-
+	if not this_emitter_found:
+		const NOT_HOVERED = 0
+		_set_shader_uniform(&"is_hovered", NOT_HOVERED)
 
 func _on_workspace_context_selection_in_structures_changed(out_structure_contexts: Array[StructureContext]) -> void:
 	for context: StructureContext in out_structure_contexts:

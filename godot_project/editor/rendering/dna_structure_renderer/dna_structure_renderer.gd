@@ -475,6 +475,9 @@ func _on_editable_structure_context_list_changed(in_new_editable_structure_conte
 	const SELECTABLE_VALUE: float = 1.0
 	const UNSELECTABLE_VALUE: float = 0.0
 	_set_shader_uniform(&"is_selectable", SELECTABLE_VALUE if _is_selectable else UNSELECTABLE_VALUE)
+	if not _is_selectable:
+		_path_hovered = false
+		queue_redraw()
 	
 
 
