@@ -10,6 +10,7 @@ enum DrawTransformAt {
 }
 const DRAW_TRANSFORM_AT: DrawTransformAt = DrawTransformAt.None
 
+const AlignSelectionGroupingPolicy = AlignSelectionParameters.AlignSelectionGroupingPolicy
 const AlignRelativeTo = AlignSelectionParameters.AlignRelativeTo
 const BoxFace = AlignSelectionParameters.BoxFace
 
@@ -76,18 +77,17 @@ func _draw() -> void:
 	if not is_processing() or _align_selection_parameters == null:
 		return
 	
-	var alignable_objects: Array[StructureContext] = _align_selection_parameters.get_alignable_structure_contexts()
-	for context: StructureContext in alignable_objects:
-		var obb: OBB = context.get_selection_obb()
+	var alignable_boxes: Array[OBB] = _align_selection_parameters.get_alignable_boxes()
+	for obb: OBB in alignable_boxes:
 		if obb == null or not obb.box.has_surface():
 			continue
 		_draw_obb(obb)
 		_draw_transform(obb.transform, obb.box.size * 0.25, false)
-		if _align_selection_parameters.get_align_relative_to() in [
-				AlignRelativeTo.BIGGEST_BOX_PLANE, AlignRelativeTo.SPECIFIC_BOX_PLANE]:
-			if context.get_int_guid() == _align_selection_parameters.get_align_obb_target_id():
-				_draw_highligted_obb_face(obb, _align_selection_parameters.get_align_obb_face())
-				continue
+	if _align_selection_parameters.get_align_relative_to() in [
+			AlignRelativeTo.BIGGEST_BOX_PLANE, AlignRelativeTo.SPECIFIC_BOX_PLANE]:
+		var highligted_obb: OBB = _align_selection_parameters.get_align_obb_target()
+		if highligted_obb != null:
+			_draw_highligted_obb_face(highligted_obb, _align_selection_parameters.get_align_obb_face())
 
 
 func _draw_obb(in_obb: OBB, in_color: Color = _lowlight_color) -> void:
@@ -191,7 +191,7 @@ func _draw_highligted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
 			for y: float in [-2, 2]:
 				draw_string(font, center + Vector2(x, y), face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40, Color.DARK_SLATE_GRAY)
 		draw_string(font, center, face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40, Color.FLORAL_WHITE)
-	_draw_obb(OBB.new(flat_size, flat_transform), _highlight_color)
+	_draw_obb(OBB.new(flat_size, flat_transform, {}), _highlight_color)
 	_draw_transform(flat_transform, in_obb.box.size * 0.25, true)
 
 
