@@ -27,6 +27,7 @@ var int_guid: int
 var _lmdb: LightningMemoryMappedDatabase = null
 var _collision_engine: CollisionEngine
 var _selection_db: SelectionDB
+var _last_obb: OBB = null
 
 var _init_called: bool = false
 
@@ -62,6 +63,7 @@ func initialize(in_workspace_context: WorkspaceContext,
 			DirAccess.make_dir_absolute(path)
 		_lmdb.initialize(path)
 		in_nano_structure.initialize(_lmdb)
+	workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 		
 	if in_nano_structure.visibility_changed.is_connected(_on_nano_structure_visibility_changed):
 		in_nano_structure.visibility_changed.connect(_on_nano_structure_visibility_changed)
@@ -106,6 +108,10 @@ func is_active() -> bool:
 	if !is_instance_valid(workspace_context):
 		return false
 	return workspace_context.get_current_structure_context() == self
+
+
+func _on_workspace_context_history_changed() -> void:
+	_last_obb = null
 
 
 func _on_nano_structure_visibility_changed(_in_visible: bool) -> void:
@@ -464,11 +470,15 @@ func get_selection_aabb() -> AABB:
 
 
 func get_selection_obb() -> OBB:
+	if _last_obb != null:
+		return _last_obb
 	if nano_structure is NanoShape:
-		return nano_structure.get_shape_obb()
+		_last_obb = nano_structure.get_shape_obb()
+		return _last_obb
 	elif nano_structure.has_transform():
 		var aabb: AABB = get_selection_aabb()
-		return OBB.new(aabb.size, nano_structure.get_transform())
+		_last_obb = OBB.new(aabb.size, nano_structure.get_transform())
+		return _last_obb
 	elif nano_structure is AtomicStructure and not nano_structure is DnaStructure:
 		var atomic_structure := nano_structure as AtomicStructure
 		var selected_atoms: PackedInt32Array = get_selected_atoms()
@@ -585,10 +595,11 @@ func get_selection_obb() -> OBB:
 		center += ((min_extents.y + max_extents.y) / 2.0) * axes[1]
 		center += ((min_extents.z + max_extents.z) / 2.0) * axes[2]
 		
-		return OBB.new(size, Transform3D(basis, center))
+		_last_obb = OBB.new(size, Transform3D(basis, center))
+		return _last_obb
 	var aabb: AABB = get_selection_aabb()
-	var obb := OBB.new(aabb.size, Transform3D(Basis(), aabb.get_center()))
-	return obb
+	_last_obb = OBB.new(aabb.size, Transform3D(Basis(), aabb.get_center()))
+	return _last_obb
 
 
 func _get_covariance_matrix(in_atoms_positions: Array[Vector3], in_centroid: Vector3) -> Array[PackedFloat64Array]:
