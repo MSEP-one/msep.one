@@ -1,6 +1,5 @@
 [gd_scene load_steps=25 format=3 uid="uid://baq1asnarlxhd"]
 
-[ext_resource type="Texture2D" uid="uid://blj0l4apu5x71" path="res://editor/icons/ColorPick.svg" id="1_1pqnq"]
 [ext_resource type="Script" uid="uid://xvrmaqoedo2k" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/align_selection_panel.gd" id="1_nqyka"]
 [ext_resource type="Texture2D" uid="uid://m4vremymr7x2" path="res://editor/controls/dock_area/icons/tab_arrow_left.svg" id="2_qogej"]
 [ext_resource type="Texture2D" uid="uid://bb0vlp3oracy6" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopWide.svg" id="3_8dinw"]
@@ -21,6 +20,7 @@
 [ext_resource type="Texture2D" uid="uid://cxfa7ts8nr3lp" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignRightWide.svg" id="14_7b5f3"]
 [ext_resource type="Texture2D" uid="uid://dywijgvt8or8h" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomWide.svg" id="15_1qqv6"]
 [ext_resource type="Texture2D" uid="uid://n561qqbgqhlg" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignVCenterWide.svg" id="16_1qqv6"]
+[ext_resource type="Texture2D" uid="uid://c7xirdkbfbt8a" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignPosition.svg" id="19_qogej"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_e616m"]
 
@@ -38,6 +38,22 @@ offset_right = 286.0
 offset_bottom = 82.0
 script = ExtResource("1_nqyka")
 
+[node name="Label3" type="Label" parent="."]
+layout_mode = 2
+size_flags_vertical = 6
+text = "· Alignable Objects:"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="AlignableBoxesTree" type="Tree" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+allow_search = false
+scroll_horizontal_enabled = false
+scroll_vertical_enabled = false
+
 [node name="GridContainer" type="GridContainer" parent="."]
 layout_mode = 2
 columns = 2
@@ -45,7 +61,7 @@ columns = 2
 [node name="Label2" type="Label" parent="GridContainer"]
 layout_mode = 2
 size_flags_vertical = 6
-text = "· Relative to"
+text = "· Relative to:"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="GridContainer"]
 layout_mode = 2
@@ -56,15 +72,13 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 selected = 0
-item_count = 4
+item_count = 3
 popup/item_0/text = "World Plane"
 popup/item_0/id = 0
 popup/item_1/text = "Camera Plane"
 popup/item_1/id = 1
-popup/item_2/text = "Biggest box plane"
+popup/item_2/text = "Specific box plane"
 popup/item_2/id = 2
-popup/item_3/text = "Specific box plane"
-popup/item_3/id = 3
 
 [node name="WorldPlaneContainer" type="HBoxContainer" parent="GridContainer/HBoxContainer"]
 unique_name_in_owner = true
@@ -102,20 +116,15 @@ theme_override_constants/separation = 0
 
 [node name="PrevFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 tooltip_text = "Previous Face or Object"
 icon = ExtResource("2_qogej")
 flat = true
 
-[node name="PickPlaneButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-tooltip_text = "Pick Object and Face from the Viewport"
-icon = ExtResource("1_1pqnq")
-flat = true
-
 [node name="NextFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 tooltip_text = "Next Face or Object"
 icon = ExtResource("4_irqsl")
@@ -123,7 +132,7 @@ flat = true
 
 [node name="Label" type="Label" parent="GridContainer"]
 layout_mode = 2
-text = "· Grouping Policy"
+text = "· Grouping Policy:"
 
 [node name="GroupingPolicyOptionButton" type="OptionButton" parent="GridContainer"]
 unique_name_in_owner = true
@@ -138,28 +147,19 @@ popup/item_1/id = 0
 popup/item_2/text = "One box per Molecule"
 popup/item_2/id = 2
 
-[node name="Label3" type="Label" parent="GridContainer"]
-custom_minimum_size = Vector2(0, 27)
-layout_mode = 2
-text = "· Align Positions"
-vertical_alignment = 1
-
-[node name="PanelContainer" type="PanelContainer" parent="."]
-layout_mode = 2
-theme_type_variation = &"SubcategoryPanel"
-
-[node name="VBoxContainer" type="GridContainer" parent="PanelContainer"]
+[node name="VBoxContainer2" type="GridContainer" parent="."]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 columns = 3
 
-[node name="HBoxContainer" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+[node name="HBoxContainer" type="GridContainer" parent="VBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 columns = 3
 
-[node name="AlignHBeginVBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHBeginVBeginButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -169,7 +169,7 @@ icon = ExtResource("3_jic2l")
 flat = true
 icon_alignment = 1
 
-[node name="AlignVBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignVBeginButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -179,7 +179,7 @@ icon = ExtResource("4_mspsa")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHEndVBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHEndVBeginButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -189,7 +189,7 @@ icon = ExtResource("5_hy18o")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHBeginButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHBeginButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -199,7 +199,7 @@ icon = ExtResource("6_ihegr")
 flat = true
 icon_alignment = 1
 
-[node name="AlignCenterButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignCenterButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -208,7 +208,7 @@ icon = ExtResource("7_4mkos")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHEndButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -218,7 +218,7 @@ icon = ExtResource("8_rdc1k")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHBeginVEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHBeginVEndButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -228,7 +228,7 @@ icon = ExtResource("9_8dinw")
 flat = true
 icon_alignment = 1
 
-[node name="AlignVEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignVEndButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -238,7 +238,7 @@ icon = ExtResource("10_hmbxh")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHEndVEndButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHEndVEndButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -248,15 +248,15 @@ icon = ExtResource("11_7b5f3")
 flat = true
 icon_alignment = 1
 
-[node name="VSeparator" type="VSeparator" parent="PanelContainer/VBoxContainer"]
+[node name="VSeparator" type="VSeparator" parent="VBoxContainer2"]
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_8dinw")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="AlignTopButton" type="Button" parent="PanelContainer/VBoxContainer/VBoxContainer"]
+[node name="AlignTopButton" type="Button" parent="VBoxContainer2/VBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 custom_minimum_size = Vector2(16, 16)
@@ -264,35 +264,35 @@ layout_mode = 2
 icon = ExtResource("3_8dinw")
 flat = true
 
-[node name="AlignVCenterButton" type="Button" parent="PanelContainer/VBoxContainer/VBoxContainer"]
+[node name="AlignVCenterButton" type="Button" parent="VBoxContainer2/VBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 icon = ExtResource("13_7b5f3")
 flat = true
 
-[node name="AlignBottomButton" type="Button" parent="PanelContainer/VBoxContainer/VBoxContainer"]
+[node name="AlignBottomButton" type="Button" parent="VBoxContainer2/VBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 icon = ExtResource("15_1qqv6")
 flat = true
 
-[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer2"]
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_hmbxh")
 
-[node name="Control" type="Control" parent="PanelContainer/VBoxContainer"]
+[node name="Control" type="Control" parent="VBoxContainer2"]
 layout_mode = 2
 
-[node name="Control2" type="Control" parent="PanelContainer/VBoxContainer"]
+[node name="Control2" type="Control" parent="VBoxContainer2"]
 layout_mode = 2
 size_flags_stretch_ratio = 3.0
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer2"]
 layout_mode = 2
 
-[node name="AlignLeftButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
+[node name="AlignLeftButton" type="Button" parent="VBoxContainer2/HBoxContainer2"]
 unique_name_in_owner = true
 texture_filter = 1
 custom_minimum_size = Vector2(16, 16)
@@ -301,7 +301,7 @@ size_flags_horizontal = 6
 icon = ExtResource("4_hmbxh")
 flat = true
 
-[node name="AlignHCenterButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
+[node name="AlignHCenterButton" type="Button" parent="VBoxContainer2/HBoxContainer2"]
 unique_name_in_owner = true
 texture_filter = 1
 custom_minimum_size = Vector2(16, 16)
@@ -310,7 +310,7 @@ size_flags_horizontal = 6
 icon = ExtResource("16_1qqv6")
 flat = true
 
-[node name="AlignRightButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
+[node name="AlignRightButton" type="Button" parent="VBoxContainer2/HBoxContainer2"]
 unique_name_in_owner = true
 texture_filter = 1
 custom_minimum_size = Vector2(16, 16)
@@ -319,33 +319,39 @@ size_flags_horizontal = 6
 icon = ExtResource("14_7b5f3")
 flat = true
 
-[node name="Label2" type="Label" parent="."]
-layout_mode = 2
-text = "· Align Rotations"
-
-[node name="PanelContainer2" type="PanelContainer" parent="."]
-layout_mode = 2
-theme_type_variation = &"SubcategoryPanel"
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer2"]
+[node name="HSeparator" type="HSeparator" parent="."]
 layout_mode = 2
 
-[node name="AlignRotationButton" type="Button" parent="PanelContainer2/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="AlignPositionButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-text = "Align Object's Rotation"
-icon = ExtResource("3_hy18o")
-flat = true
+theme_type_variation = &"CrystalButton"
+text = "Align Positions"
+icon = ExtResource("19_qogej")
 alignment = 0
 
-[node name="AlignCameraButton" type="Button" parent="PanelContainer2/VBoxContainer"]
+[node name="AlignRotationButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-text = "Align Camera"
+theme_type_variation = &"CrystalButton"
+text = "Align Boxes' Rotation"
+icon = ExtResource("3_hy18o")
+alignment = 0
+
+[node name="AlignCameraButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"CrystalButton"
+text = "Align Camera to Reference"
 icon = ExtResource("4_ihegr")
-flat = true
 alignment = 0
