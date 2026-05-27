@@ -9,6 +9,8 @@ enum DrawTransformAt {
 	Both = BoxOrigin | HighlightedFace,
 }
 const DRAW_TRANSFORM_AT: DrawTransformAt = DrawTransformAt.None
+const FACE_HIGHLIGHT_TEXTURE: Texture2D = preload("res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/stripes.svg")
+const FACE_HIGHLIGHT_OPACITY: float = 0.35
 
 const AlignSelectionGroupingPolicy = AlignSelectionParameters.AlignSelectionGroupingPolicy
 const AlignRelativeTo = AlignSelectionParameters.AlignRelativeTo
@@ -30,6 +32,7 @@ var _align_selection_parameters: AlignSelectionParameters
 
 func _ready() -> void:
 	set_process(false)
+	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	_camera = get_viewport().get_camera_3d()
 	_ready_deferred.call_deferred()
 
@@ -85,9 +88,9 @@ func _draw() -> void:
 		_draw_transform(obb.transform, obb.box.size * 0.25, false)
 	if _align_selection_parameters.get_align_relative_to() in [
 			AlignRelativeTo.BIGGEST_BOX_PLANE, AlignRelativeTo.SPECIFIC_BOX_PLANE]:
-		var highligted_obb: OBB = _align_selection_parameters.get_align_obb_target()
-		if highligted_obb != null:
-			_draw_highligted_obb_face(highligted_obb, _align_selection_parameters.get_align_obb_face())
+		var highlighted_obb: OBB = _align_selection_parameters.get_align_obb_target()
+		if highlighted_obb != null:
+			_draw_highlighted_obb_face(highlighted_obb, _align_selection_parameters.get_align_obb_face())
 
 
 func _draw_obb(in_obb: OBB, in_color: Color = _lowlight_color) -> void:
@@ -144,42 +147,45 @@ func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: 
 			col *= 0.75
 		draw_line(from2d, to2d, col, 2)
 
-func _draw_highligted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
+
+func _draw_highlighted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
 	if in_obb == null or in_face == BoxFace.UNDEFINED:
 		return
-	var flat_size: Vector3 = in_obb.box.size
+	
 	var flat_transform: Transform3D = in_obb.transform
+	var face_corners: PackedVector3Array
 	match in_face:
 		BoxFace.TOP_BOTTOM:
-			flat_size.y = 0.0
-			var top_ref: Vector3 = in_obb.transform.origin + in_obb.transform.basis[1]
-			var bottom_ref: Vector3 = in_obb.transform.origin - in_obb.transform.basis[1]
-			var top_distance_sqrd: float = _get_distance_to_camera_sqrd(top_ref)
-			var bottom_distance_sqrd: float = _get_distance_to_camera_sqrd(bottom_ref)
-			if top_distance_sqrd > bottom_distance_sqrd:
-				flat_transform.origin -= in_obb.transform.basis[1] * in_obb.box.size.y * 0.5
+			if _camera.global_basis.z.dot(in_obb.transform.basis.y) < 0.0:
+				face_corners = in_obb.get_face_corners(Vector3.DOWN)
+				flat_transform.origin -= in_obb.transform.basis.y * in_obb.box.size.y * 0.5
 			else:
-				flat_transform.origin += in_obb.transform.basis[1] * in_obb.box.size.y * 0.5
+				face_corners = in_obb.get_face_corners(Vector3.UP)
+				flat_transform.origin += in_obb.transform.basis.y * in_obb.box.size.y * 0.5
 		BoxFace.FRONT_BACK:
-			flat_size.z = 0.0
-			var front_ref: Vector3 = in_obb.transform.origin + in_obb.transform.basis[2]
-			var back_ref: Vector3 = in_obb.transform.origin - in_obb.transform.basis[2]
-			var front_distance_sqrd: float = _get_distance_to_camera_sqrd(front_ref)
-			var back_distance_sqrd: float = _get_distance_to_camera_sqrd(back_ref)
-			if front_distance_sqrd > back_distance_sqrd:
-				flat_transform.origin -= in_obb.transform.basis[2] * in_obb.box.size.z * 0.5
+			if _camera.global_basis.z.dot(in_obb.transform.basis.z) < 0.0:
+				face_corners = in_obb.get_face_corners(Vector3.FORWARD)
+				flat_transform.origin -= in_obb.transform.basis.z * in_obb.box.size.z * 0.5
 			else:
-				flat_transform.origin += in_obb.transform.basis[2] * in_obb.box.size.z * 0.5
+				face_corners = in_obb.get_face_corners(Vector3.BACK)
+				flat_transform.origin += in_obb.transform.basis.z * in_obb.box.size.z * 0.5
 		BoxFace.LEFT_RIGHT:
-			flat_size.x = 0.0
-			var left_ref: Vector3 = in_obb.transform.origin + in_obb.transform.basis[0]
-			var right_ref: Vector3 = in_obb.transform.origin - in_obb.transform.basis[0]
-			var left_distance_sqrd: float = _get_distance_to_camera_sqrd(left_ref)
-			var right_distance_sqrd: float = _get_distance_to_camera_sqrd(right_ref)
-			if left_distance_sqrd > right_distance_sqrd:
-				flat_transform.origin -= in_obb.transform.basis[0] * in_obb.box.size.x * 0.5
+			if _camera.global_basis.z.dot(in_obb.transform.basis.x) < 0.0:
+				face_corners = in_obb.get_face_corners(Vector3.LEFT)
+				flat_transform.origin -= in_obb.transform.basis.x * in_obb.box.size.x * 0.5
 			else:
-				flat_transform.origin += in_obb.transform.basis[0] * in_obb.box.size.x * 0.5
+				face_corners = in_obb.get_face_corners(Vector3.RIGHT)
+				flat_transform.origin += in_obb.transform.basis.x * in_obb.box.size.x * 0.5
+		
+	# Draw half transparent face
+	var polygon := PackedVector2Array()
+	var uvs := PackedVector2Array()
+	for corner: Vector3 in face_corners:
+		var screen_pos: Vector2 = _camera.unproject_position(corner)
+		polygon.push_back(screen_pos)
+		uvs.push_back(screen_pos / DisplayServer.screen_get_dpi())
+	draw_colored_polygon(polygon, Color(_highlight_color, FACE_HIGHLIGHT_OPACITY), uvs, FACE_HIGHLIGHT_TEXTURE)
+	
 	if DRAW_TRANSFORM_AT & DrawTransformAt.HighlightedFace != 0:
 		var font := get_theme_font(&"Label", &"HeaderLarge")
 		var center: Vector2 = _camera.unproject_position(flat_transform.origin)
@@ -191,7 +197,6 @@ func _draw_highligted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
 			for y: float in [-2, 2]:
 				draw_string(font, center + Vector2(x, y), face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40, Color.DARK_SLATE_GRAY)
 		draw_string(font, center, face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40, Color.FLORAL_WHITE)
-	_draw_obb(OBB.new(flat_size, flat_transform, {}), _highlight_color)
 	_draw_transform(flat_transform, in_obb.box.size * 0.25, true)
 
 
