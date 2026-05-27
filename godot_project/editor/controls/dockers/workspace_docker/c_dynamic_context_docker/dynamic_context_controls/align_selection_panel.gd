@@ -153,6 +153,8 @@ func _on_relative_to_option_button_item_selected(in_index: int) -> void:
 	_align_selection_parameters.set_align_relative_to(
 		in_index as AlignRelativeTo
 	)
+	if (in_index as AlignRelativeTo) == AlignRelativeTo.SPECIFIC_BOX_PLANE:
+		_advance_specific_box_face(0)
 
 
 func _on_plane_button_group_pressed(in_button: Button) -> void:
