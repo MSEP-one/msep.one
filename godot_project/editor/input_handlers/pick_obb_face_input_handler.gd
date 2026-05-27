@@ -28,9 +28,9 @@ func _on_pick_specific_obb_requested() -> void:
 		BoxFace.TOP_BOTTOM : Vector3(0.95, 1, 0.95),
 		BoxFace.LEFT_RIGHT : Vector3(1, 0.95, 0.95),
 	}
-	for context: StructureContext in _parameters.get_alignable_structure_contexts():
-		var obb: OBB = context.get_selection_obb()
-		var id: int = context.get_int_guid() * 10
+	for i: int in _parameters.get_alignable_boxes().size():
+		var obb: OBB = _parameters.get_alignable_boxes()[i]
+		var id: int = i * 10
 		for face: BoxFace in [BoxFace.FRONT_BACK, BoxFace.TOP_BOTTOM, BoxFace.LEFT_RIGHT]:
 			var t: Transform3D = obb.transform.scaled_local(obb.box.size * FACE_SIZE_MULTIPLIER[face])
 			_space.add_collider(id + int(face), _box_rid, t)
@@ -66,10 +66,10 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, _in_context:
 		if collided_id == Workspace.INVALID_OBJECT_INDEX:
 			_parameters.set_specific_obb_and_face(null, AlignSelectionParameters.BoxFace.UNDEFINED)
 		else:
-			var int_guid: int = int(collided_id * 0.1)
-			var face: BoxFace = (collided_id - int_guid * 10) as BoxFace
+			var box_index: int = int(collided_id * 0.1)
+			var face: BoxFace = (collided_id - box_index * 10) as BoxFace
 			_parameters.set_specific_obb_and_face(
-				get_workspace_context().get_nano_structure_context_from_id(int_guid),
+				_parameters.get_alignable_boxes()[box_index],
 				face
 			)
 	if in_input_event is InputEventMouseButton and in_input_event.is_pressed():

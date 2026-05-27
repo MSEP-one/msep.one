@@ -38,14 +38,19 @@ offset_right = 286.0
 offset_bottom = 82.0
 script = ExtResource("1_nqyka")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="GridContainer" type="GridContainer" parent="."]
 layout_mode = 2
+columns = 2
 
-[node name="Label2" type="Label" parent="HBoxContainer"]
+[node name="Label2" type="Label" parent="GridContainer"]
 layout_mode = 2
+size_flags_vertical = 6
 text = "· Relative to"
 
-[node name="RelativeToOptionButton" type="OptionButton" parent="HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="GridContainer"]
+layout_mode = 2
+
+[node name="RelativeToOptionButton" type="OptionButton" parent="GridContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -61,13 +66,13 @@ popup/item_2/id = 2
 popup/item_3/text = "Specific box plane"
 popup/item_3/id = 3
 
-[node name="WorldPlaneContainer" type="HBoxContainer" parent="HBoxContainer"]
+[node name="WorldPlaneContainer" type="HBoxContainer" parent="GridContainer/HBoxContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="XY" type="Button" parent="HBoxContainer/WorldPlaneContainer"]
+[node name="XY" type="Button" parent="GridContainer/HBoxContainer/WorldPlaneContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StructureSelectorButton"
@@ -76,49 +81,68 @@ button_pressed = true
 button_group = SubResource("ButtonGroup_e616m")
 text = "XY"
 
-[node name="XZ" type="Button" parent="HBoxContainer/WorldPlaneContainer"]
+[node name="XZ" type="Button" parent="GridContainer/HBoxContainer/WorldPlaneContainer"]
 layout_mode = 2
 theme_type_variation = &"StructureSelectorTernary"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_e616m")
 text = "XZ"
 
-[node name="YZ" type="Button" parent="HBoxContainer/WorldPlaneContainer"]
+[node name="YZ" type="Button" parent="GridContainer/HBoxContainer/WorldPlaneContainer"]
 layout_mode = 2
 theme_type_variation = &"StructureSelectorMoreButton"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_e616m")
 text = "YZ"
 
-[node name="SpecificBoxContainer" type="HBoxContainer" parent="HBoxContainer"]
+[node name="SpecificBoxContainer" type="HBoxContainer" parent="GridContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="PrevFaceButton" type="Button" parent="HBoxContainer/SpecificBoxContainer"]
+[node name="PrevFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Previous Face or Object"
 icon = ExtResource("2_qogej")
 flat = true
 
-[node name="PickPlaneButton" type="Button" parent="HBoxContainer/SpecificBoxContainer"]
+[node name="PickPlaneButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Pick Object and Face from the Viewport"
 icon = ExtResource("1_1pqnq")
 flat = true
 
-[node name="NextFaceButton" type="Button" parent="HBoxContainer/SpecificBoxContainer"]
+[node name="NextFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Next Face or Object"
 icon = ExtResource("4_irqsl")
 flat = true
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "· Grouping Policy"
+
+[node name="GroupingPolicyOptionButton" type="OptionButton" parent="GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 3
+popup/item_0/text = "One box per Group"
+popup/item_0/id = 1
+popup/item_1/text = "One box per Subgroup"
+popup/item_1/id = 0
+popup/item_2/text = "One box per Molecule"
+popup/item_2/id = 2
+
+[node name="Label3" type="Label" parent="GridContainer"]
+custom_minimum_size = Vector2(0, 27)
 layout_mode = 2
 text = "· Align Positions"
+vertical_alignment = 1
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2

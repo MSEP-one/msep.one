@@ -1,5 +1,6 @@
 extends DynamicContextControl
 
+const AlignSelectionGroupingPolicy = AlignSelectionParameters.AlignSelectionGroupingPolicy
 const AlignRelativeTo = AlignSelectionParameters.AlignRelativeTo
 const WorldPlane = AlignSelectionParameters.WorldPlane
 const BoxFace = AlignSelectionParameters.BoxFace
@@ -19,6 +20,7 @@ var _specific_box_container: HBoxContainer
 var _prev_face_button: Button
 var _pick_plane_button: Button
 var _next_face_button: Button
+var _grouping_policy_option_button: OptionButton
 var _align_rotation_button: Button
 var _align_camera_button: Button
 var _align_position_buttons: Array[Button]
@@ -58,6 +60,9 @@ func _notification(what: int) -> void:
 		_pick_plane_button.pressed.connect(_on_pick_plane_button_pressed)
 		_prev_face_button.pressed.connect(_on_prev_face_button_pressed)
 		_next_face_button.pressed.connect(_on_next_face_button_pressed)
+		
+		_grouping_policy_option_button = %GroupingPolicyOptionButton as OptionButton
+		_grouping_policy_option_button.item_selected.connect(_on_grouping_policy_option_button_item_selected)
 		
 		_align_rotation_button = %AlignRotationButton as Button
 		_align_rotation_button.pressed.connect(_on_align_rotation_button_pressed)
@@ -135,7 +140,7 @@ func _update_ui() -> void:
 	if _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.CAMERA_PLANE:
 		can_align_camera = false
 	elif _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE:
-		if _align_selection_parameters.get_align_obb_target_id() == Workspace.INVALID_OBJECT_INDEX:
+		if _align_selection_parameters.get_align_obb_target() == null:
 			can_align_camera = false
 		if _align_selection_parameters.get_align_obb_face() == BoxFace.UNDEFINED:
 			can_align_camera = false
@@ -168,35 +173,35 @@ func _on_next_face_button_pressed() -> void:
 	_advance_specific_box_face(+1)
 
 
+func _on_grouping_policy_option_button_item_selected(index: int) -> void:
+	_align_selection_parameters.set_align_selection_grouping_policy(index as AlignSelectionGroupingPolicy)
+
+
 func _advance_specific_box_face(dir: int) -> void:
 	assert(_align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE)
-	var alignable_objects: Array[StructureContext] = _align_selection_parameters.get_alignable_structure_contexts()
+	var alignable_boxes: Array[OBB] = _align_selection_parameters.get_alignable_boxes()
 	
-	if alignable_objects.size() == 0:
+	if alignable_boxes.size() == 0:
 		return
-	var current_object_id: int = _align_selection_parameters.get_align_obb_target_id()
-	var current_context: StructureContext = null
-	for ctx: StructureContext in alignable_objects:
-		if ctx.get_int_guid() == current_object_id:
-			current_context = ctx
-			break
-	if current_context == null:
-		_align_selection_parameters.set_specific_obb_and_face(alignable_objects[0], BoxFace.FRONT_BACK)
+	var current_box: OBB = _align_selection_parameters.get_align_obb_target()
+	if current_box == null:
+		_align_selection_parameters.set_specific_obb_and_face(alignable_boxes[0], BoxFace.FRONT_BACK)
 		return
+	var box_index: int = alignable_boxes.find(current_box)
 	var current_face: int = _align_selection_parameters.get_align_obb_face() as int
 	var select_face: int = current_face + dir
 	if select_face < 0 or select_face > 2:
 		# advance/wrap face
 		select_face = (select_face + 3) % 3
-		var obj_index: int = alignable_objects.find(current_context)
 		# advance/wrap object
-		obj_index = (obj_index + alignable_objects.size() + dir) % alignable_objects.size()
-		current_context = alignable_objects[obj_index]
-	_align_selection_parameters.set_specific_obb_and_face(current_context, select_face as BoxFace)
+		box_index = (box_index + alignable_boxes.size() + dir) % alignable_boxes.size()
+		current_box = alignable_boxes[box_index]
+	_align_selection_parameters.set_specific_obb_and_face(current_box, select_face as BoxFace)
+
 
 func _on_align_rotation_button_pressed() -> void:
 	var align_basis: Basis
-	var skip_id: int = Workspace.INVALID_OBJECT_INDEX
+	var skip_idx: int = AlignSelectionParameters.INVALID_BOX_INDEX
 	var relative_to: AlignRelativeTo = _align_selection_parameters.get_align_relative_to()
 	match relative_to:
 		AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE:
@@ -221,41 +226,46 @@ func _on_align_rotation_button_pressed() -> void:
 					align_basis = align_basis.rotated(align_basis[0], -PI * 0.5)
 				BoxFace.LEFT_RIGHT:
 					align_basis = align_basis.rotated(align_basis[1], PI * 0.5)
-			skip_id = _align_selection_parameters.get_align_obb_target_id()
+			skip_idx = _align_selection_parameters.get_alignable_boxes().find(
+				_align_selection_parameters.get_align_obb_target()	
+			)
 	var something_changed: bool = false
-	for context: StructureContext in _align_selection_parameters.get_alignable_structure_contexts():
-		if context.get_int_guid() == skip_id:
+	var alignable_boxes: Array[OBB] = _align_selection_parameters.get_alignable_boxes()
+	for i: int in alignable_boxes.size():
+		if i == skip_idx:
 			continue
-		var nano_structure: NanoStructure = context.nano_structure
-		var old_transform: Transform3D = context.get_selection_obb().transform
-		var to_local: Transform3D = old_transform.inverse()
-		var new_transform: Transform3D
-		new_transform = Transform3D(align_basis, old_transform.origin)
-		var delta_transform: Transform3D = to_local * new_transform
-		
-		var atoms_to_move: PackedInt32Array = []
-		var previous_positions: PackedVector3Array = []
-		var target_positions: PackedVector3Array = []
-		var nmb_of_moved_atoms: int = 0
-		for atom_id: int in context.get_selected_atoms():
-			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-			var new_pos: Vector3 = new_transform * (to_local * old_pos)
-			atoms_to_move.push_back(atom_id)
-			target_positions.push_back(new_pos)
-			previous_positions.push_back(old_pos)
-			nmb_of_moved_atoms += 1
-		
-		var atoms_changed: bool = nmb_of_moved_atoms > 0
-		var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
-		if atoms_changed or object_moved:
-			if atoms_changed:
-				nano_structure.start_edit()
-				nano_structure.atoms_set_positions(atoms_to_move, target_positions)
-				nano_structure.end_edit()
-			if object_moved:
-				nano_structure.set_transform(nano_structure.get_transform()* delta_transform)
+		var obb: OBB = alignable_boxes[i]
+		for context: StructureContext in obb.point_cloud_source.keys():
+			var nano_structure: NanoStructure = context.nano_structure
+			var old_transform: Transform3D = obb.transform
+			var to_local: Transform3D = old_transform.inverse()
+			var new_transform: Transform3D
+			new_transform = Transform3D(align_basis, old_transform.origin)
+			var delta_transform: Transform3D = to_local * new_transform
 			
-			something_changed = true
+			var atoms_to_move: PackedInt32Array = []
+			var previous_positions: PackedVector3Array = []
+			var target_positions: PackedVector3Array = []
+			var nmb_of_moved_atoms: int = 0
+			for atom_id: int in obb.point_cloud_source[context]:
+				var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
+				var new_pos: Vector3 = new_transform * (to_local * old_pos)
+				atoms_to_move.push_back(atom_id)
+				target_positions.push_back(new_pos)
+				previous_positions.push_back(old_pos)
+				nmb_of_moved_atoms += 1
+			
+			var atoms_changed: bool = nmb_of_moved_atoms > 0
+			var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
+			if atoms_changed or object_moved:
+				if atoms_changed:
+					nano_structure.start_edit()
+					nano_structure.atoms_set_positions(atoms_to_move, target_positions)
+					nano_structure.end_edit()
+				if object_moved:
+					nano_structure.set_transform(nano_structure.get_transform()* delta_transform)
+				
+				something_changed = true
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Rotation")
 
@@ -298,7 +308,7 @@ func _on_align_camera_button_pressed() -> void:
 
 
 func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignment) -> void:
-	var skip_id: int = Workspace.INVALID_OBJECT_INDEX
+	var skip_idx: int = AlignSelectionParameters.INVALID_BOX_INDEX
 	var relative_to: AlignRelativeTo = _align_selection_parameters.get_align_relative_to()
 	assert(not relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE],
 		"Cannot align position to global planes, they dont have boundaries")
@@ -333,86 +343,88 @@ func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignme
 			reference_point[v_axis] = 0
 		Alignment.END:
 			reference_point[v_axis] = -reference_obb.box.size[v_axis] * 0.5
-	skip_id = _align_selection_parameters.get_align_obb_target_id()
+	var alignable_boxes: Array[OBB] = _align_selection_parameters.get_alignable_boxes()
+	skip_idx = alignable_boxes.find(_align_selection_parameters.get_align_obb_target())
 	var something_changed: bool = false
-	for context: StructureContext in _align_selection_parameters.get_alignable_structure_contexts():
-		if context.get_int_guid() == skip_id:
-			continue
-		var nano_structure: NanoStructure = context.nano_structure
-		var old_transform: Transform3D = context.get_selection_obb().transform
-		var box_pos: Vector3 = old_transform.origin
-		var box_size: Vector3 = context.get_selection_obb().box.size
-		var obj_reference_pos: Vector3
-		var box_extents: Array[Vector3] = [
-			old_transform * Vector3(-box_size.x * 0.5, 0, 0),
-			old_transform * Vector3(box_size.x * 0.5, 0, 0),
-			old_transform * Vector3(0, box_size.y * 0.5, 0),
-			old_transform * Vector3(0, -box_size.y * 0.5, 0),
-			old_transform * Vector3(0, 0, box_size.z * 0.5),
-			old_transform * Vector3(0, 0, -box_size.z * 0.5),
-		]
-		var relative_extents: Array[Vector3] = []
-		for extent: Vector3 in box_extents:
-			var local_to_ref: Vector3 = align_transform.inverse() * extent
-			relative_extents.append(local_to_ref)
-		var leftmost_point := Vector3.INF
-		var rightmost_point := -Vector3.INF
-		var topmost_point := -Vector3.INF
-		var bottommost_point := Vector3.INF
-		for relative_point: Vector3 in relative_extents:
-			if relative_point[h_axis] < leftmost_point[h_axis]:
-				leftmost_point = relative_point
-			if relative_point[h_axis] > rightmost_point[h_axis]:
-				rightmost_point = relative_point
-			if relative_point[v_axis] > topmost_point[v_axis]:
-				topmost_point = relative_point
-			if relative_point[v_axis] < bottommost_point[v_axis]:
-				bottommost_point = relative_point
-		match in_h_alignment:
-			Alignment.BEGIN:
-				obj_reference_pos[h_axis] = leftmost_point[h_axis]
-			Alignment.CENTER:
-				obj_reference_pos[h_axis] = (align_transform.inverse() * box_pos)[h_axis]
-			Alignment.END:
-				obj_reference_pos[h_axis] = rightmost_point[h_axis]
-		match in_v_alignment:
-			Alignment.BEGIN:
-				obj_reference_pos[v_axis] = topmost_point[v_axis]
-			Alignment.CENTER:
-				obj_reference_pos[v_axis] = (align_transform.inverse() * box_pos)[v_axis]
-			Alignment.END:
-				obj_reference_pos[v_axis] = bottommost_point[v_axis]
-		var plane_offset := Vector3()
-		plane_offset[h_axis] = reference_point[h_axis] - obj_reference_pos[h_axis]
-		plane_offset[v_axis] = reference_point[v_axis] - obj_reference_pos[v_axis]
-		var world_offset: Vector3 = align_transform.basis * plane_offset
-		
-		var new_transform: Transform3D = old_transform.translated(world_offset)
-		var to_local: Transform3D = old_transform.inverse()
-		var delta_transform: Transform3D = (to_local * new_transform).orthonormalized()
-		
-		var atoms_to_move: PackedInt32Array = []
-		var previous_positions: PackedVector3Array = []
-		var target_positions: PackedVector3Array = []
-		var nmb_of_moved_atoms: int = 0
-		for atom_id: int in context.get_selected_atoms():
-			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-			var new_pos: Vector3 = new_transform * (to_local * old_pos)
-			atoms_to_move.push_back(atom_id)
-			target_positions.push_back(new_pos)
-			previous_positions.push_back(old_pos)
-			nmb_of_moved_atoms += 1
-		
-		var atoms_changed: bool = nmb_of_moved_atoms > 0
-		var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
-		if atoms_changed or object_moved:
-			if atoms_changed:
-				nano_structure.start_edit()
-				nano_structure.atoms_set_positions(atoms_to_move, target_positions)
-				nano_structure.end_edit()
-			if object_moved:
-				nano_structure.set_transform(nano_structure.get_transform()* delta_transform)
+	for i: int in alignable_boxes.size():
+		if i == skip_idx:			continue
+		var obb: OBB = alignable_boxes[i]
+		for context: StructureContext in obb.point_cloud_source.keys():
+			var nano_structure: NanoStructure = context.nano_structure
+			var old_transform: Transform3D = obb.transform
+			var box_pos: Vector3 = old_transform.origin
+			var box_size: Vector3 = obb.box.size
+			var obj_reference_pos: Vector3
+			var box_extents: Array[Vector3] = [
+				old_transform * Vector3(-box_size.x * 0.5, 0, 0),
+				old_transform * Vector3(box_size.x * 0.5, 0, 0),
+				old_transform * Vector3(0, box_size.y * 0.5, 0),
+				old_transform * Vector3(0, -box_size.y * 0.5, 0),
+				old_transform * Vector3(0, 0, box_size.z * 0.5),
+				old_transform * Vector3(0, 0, -box_size.z * 0.5),
+			]
+			var relative_extents: Array[Vector3] = []
+			for extent: Vector3 in box_extents:
+				var local_to_ref: Vector3 = align_transform.inverse() * extent
+				relative_extents.append(local_to_ref)
+			var leftmost_point := Vector3.INF
+			var rightmost_point := -Vector3.INF
+			var topmost_point := -Vector3.INF
+			var bottommost_point := Vector3.INF
+			for relative_point: Vector3 in relative_extents:
+				if relative_point[h_axis] < leftmost_point[h_axis]:
+					leftmost_point = relative_point
+				if relative_point[h_axis] > rightmost_point[h_axis]:
+					rightmost_point = relative_point
+				if relative_point[v_axis] > topmost_point[v_axis]:
+					topmost_point = relative_point
+				if relative_point[v_axis] < bottommost_point[v_axis]:
+					bottommost_point = relative_point
+			match in_h_alignment:
+				Alignment.BEGIN:
+					obj_reference_pos[h_axis] = leftmost_point[h_axis]
+				Alignment.CENTER:
+					obj_reference_pos[h_axis] = (align_transform.inverse() * box_pos)[h_axis]
+				Alignment.END:
+					obj_reference_pos[h_axis] = rightmost_point[h_axis]
+			match in_v_alignment:
+				Alignment.BEGIN:
+					obj_reference_pos[v_axis] = topmost_point[v_axis]
+				Alignment.CENTER:
+					obj_reference_pos[v_axis] = (align_transform.inverse() * box_pos)[v_axis]
+				Alignment.END:
+					obj_reference_pos[v_axis] = bottommost_point[v_axis]
+			var plane_offset := Vector3()
+			plane_offset[h_axis] = reference_point[h_axis] - obj_reference_pos[h_axis]
+			plane_offset[v_axis] = reference_point[v_axis] - obj_reference_pos[v_axis]
+			var world_offset: Vector3 = align_transform.basis * plane_offset
 			
-			something_changed = true
+			var new_transform: Transform3D = old_transform.translated(world_offset)
+			var to_local: Transform3D = old_transform.inverse()
+			var delta_transform: Transform3D = (to_local * new_transform).orthonormalized()
+			
+			var atoms_to_move: PackedInt32Array = []
+			var previous_positions: PackedVector3Array = []
+			var target_positions: PackedVector3Array = []
+			var nmb_of_moved_atoms: int = 0
+			for atom_id: int in obb.point_cloud_source[context]:
+				var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
+				var new_pos: Vector3 = new_transform * (to_local * old_pos)
+				atoms_to_move.push_back(atom_id)
+				target_positions.push_back(new_pos)
+				previous_positions.push_back(old_pos)
+				nmb_of_moved_atoms += 1
+			
+			var atoms_changed: bool = nmb_of_moved_atoms > 0
+			var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
+			if atoms_changed or object_moved:
+				if atoms_changed:
+					nano_structure.start_edit()
+					nano_structure.atoms_set_positions(atoms_to_move, target_positions)
+					nano_structure.end_edit()
+				if object_moved:
+					nano_structure.set_transform(nano_structure.get_transform()* delta_transform)
+				
+				something_changed = true
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Position")
