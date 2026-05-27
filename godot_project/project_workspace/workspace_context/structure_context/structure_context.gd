@@ -536,6 +536,9 @@ func get_selection_obb() -> OBB:
 		return _last_obb
 	elif nano_structure.has_transform():
 		var aabb: AABB = get_selection_aabb()
+		if nano_structure is NanoVirtualMotor:
+			# Motors only needs the front plane, flatten the box
+			aabb.size.x = 0
 		_last_obb = OBB.new(aabb.size, nano_structure.get_transform(), {self : []})
 		return _last_obb
 	elif nano_structure is AtomicStructure and not nano_structure is DnaStructure:
