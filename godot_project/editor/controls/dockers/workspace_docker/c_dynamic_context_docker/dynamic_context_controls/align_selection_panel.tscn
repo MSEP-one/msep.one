@@ -1,14 +1,13 @@
-[gd_scene load_steps=25 format=3 uid="uid://baq1asnarlxhd"]
+[gd_scene load_steps=24 format=3 uid="uid://baq1asnarlxhd"]
 
 [ext_resource type="Script" uid="uid://xvrmaqoedo2k" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/align_selection_panel.gd" id="1_nqyka"]
-[ext_resource type="Texture2D" uid="uid://m4vremymr7x2" path="res://editor/controls/dock_area/icons/tab_arrow_left.svg" id="2_qogej"]
 [ext_resource type="Texture2D" uid="uid://bb0vlp3oracy6" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopWide.svg" id="3_8dinw"]
 [ext_resource type="Texture2D" uid="uid://bn78huwovol7m" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignRotation.svg" id="3_hy18o"]
 [ext_resource type="Texture2D" uid="uid://c77e5qul2tkqv" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopLeft.svg" id="3_jic2l"]
 [ext_resource type="Texture2D" uid="uid://cco7dvgkv71r5" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignLeftWide.svg" id="4_hmbxh"]
 [ext_resource type="Texture2D" uid="uid://b8h7wdot8t8l0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignCameraRotation.svg" id="4_ihegr"]
-[ext_resource type="Texture2D" uid="uid://dpy64yay6n15f" path="res://editor/controls/dock_area/icons/tab_arrow_right.svg" id="4_irqsl"]
 [ext_resource type="Texture2D" uid="uid://b45sxkkgsr277" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterTop.svg" id="4_mspsa"]
+[ext_resource type="Texture2D" uid="uid://d16yxekfb4k3h" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignableBoxFaceFront.svg" id="4_tq44g"]
 [ext_resource type="Texture2D" uid="uid://fck74h0h5c0a" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopRight.svg" id="5_hy18o"]
 [ext_resource type="Texture2D" uid="uid://b2fn02sqoaxyt" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterLeft.svg" id="6_ihegr"]
 [ext_resource type="Texture2D" uid="uid://bjpf56rmokkxm" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenter.svg" id="7_4mkos"]
@@ -50,7 +49,10 @@ theme_type_variation = &"SubcategoryPanel"
 [node name="AlignableBoxesTree" type="Tree" parent="PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+columns = 2
+column_titles_visible = true
 allow_search = false
+select_mode = 1
 scroll_horizontal_enabled = false
 scroll_vertical_enabled = false
 
@@ -114,21 +116,19 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="PrevFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
+[node name="AlignToBoxOptionButton" type="OptionButton" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
-tooltip_text = "Previous Face or Object"
-icon = ExtResource("2_qogej")
-flat = true
+selected = 0
 
-[node name="NextFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
+[node name="AlignToFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
-tooltip_text = "Next Face or Object"
-icon = ExtResource("4_irqsl")
+tooltip_text = "Select the object to which you'll align others by selecting its name in the list. Then choose the desired face by clicking this Cube icon."
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+icon = ExtResource("4_tq44g")
 flat = true
+icon_alignment = 1
 
 [node name="Label" type="Label" parent="GridContainer"]
 layout_mode = 2

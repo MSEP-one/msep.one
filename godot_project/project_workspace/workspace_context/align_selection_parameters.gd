@@ -8,7 +8,8 @@ signal alignment_tools_enabled_changed(in_enabled: bool)
 ## (world plane, box side, etc) or the selected target (biggest plane
 ## changed or user selected changed)
 signal align_relative_to_changed()
-
+## Emitted when soem change in the UI requires the viewport preview to be redrawn
+signal redraw_preview_requested()
 
 enum AlignRelativeTo {
 	WORLD_PLANE,
@@ -46,6 +47,10 @@ var _workspace_context: WorkspaceContext
 func _init(in_workspace_context: WorkspaceContext) -> void:
 	_workspace_context = in_workspace_context
 	_workspace_context.history_changed.connect(_on_workspace_history_changed)
+
+
+func request_redraw_preview() -> void:
+	redraw_preview_requested.emit()
 
 
 func set_alignment_tools_enabled(in_enabled: bool) -> void:
@@ -94,12 +99,17 @@ func get_alignable_boxes() -> Array[AlignableOBB]:
 func can_align_rotations() -> bool:
 	var alignable_boxes: Array[AlignableOBB] = get_alignable_boxes()
 	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
-		return alignable_boxes.size() >= 1
+		for box: AlignableOBB in alignable_boxes:
+			if box.selected_face != BoxFace.UNDEFINED:
+				return true
+		return false
 	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
-		if alignable_boxes.size() < 2:
+		var current_box: AlignableOBB = get_align_obb_target()
+		if current_box == null:
 			return false
-		if _align_to_box_index >= 0 and _align_to_box_index < alignable_boxes.size():
-			return true
+		for box: AlignableOBB in alignable_boxes:
+			if box != current_box and box.selected_face != BoxFace.UNDEFINED:
+				return true
 		return false
 	assert(false, "unknown align relative to target %d" % [_align_relative_to])
 	return false

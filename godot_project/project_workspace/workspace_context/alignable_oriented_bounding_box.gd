@@ -12,6 +12,8 @@ enum BoxFace {
 
 var selected_face := BoxFace.UNDEFINED
 var align_to_face := BoxFace.FRONT_BACK
+var offset_ratio_h: float = 0.0
+var offset_ratio_v: float = 0.0
 var description: String:
 	set(v):
 		assert(_initialized == false, "Value cannot be changed upon creation")
@@ -49,9 +51,13 @@ func advance_align_to_face(dir: int) -> void:
 	if new_face > BoxFace.LEFT_RIGHT:
 		new_face = BoxFace.FRONT_BACK
 	align_to_face = new_face as BoxFace
-	if not has_face(align_to_face):
+	if has_alignable_face() and not has_face(align_to_face):
 		# Face has no area, skip and continue to the next one
 		advance_align_to_face(dir)
+
+
+func has_alignable_face() -> bool:
+	return box.has_surface()
 
 
 func has_face(box_face: BoxFace) -> bool:
@@ -100,7 +106,7 @@ func align_rotation_to_box(in_box: AlignableOBB) -> bool:
 
 func align_rotation_to_basis(in_basis: Basis) -> bool:
 	if selected_face == BoxFace.UNDEFINED:
-		false
+		return false
 	var something_changed: bool = false
 	var old_transform: Transform3D = transform
 	
