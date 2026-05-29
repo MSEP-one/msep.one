@@ -1,43 +1,24 @@
-[gd_scene load_steps=24 format=3 uid="uid://baq1asnarlxhd"]
+[gd_scene load_steps=9 format=3 uid="uid://baq1asnarlxhd"]
 
 [ext_resource type="Script" uid="uid://xvrmaqoedo2k" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/align_selection_panel.gd" id="1_nqyka"]
-[ext_resource type="Texture2D" uid="uid://bb0vlp3oracy6" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopWide.svg" id="3_8dinw"]
+[ext_resource type="Texture2D" uid="uid://dtfepgaagdcj5" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/SettingsMenu.svg" id="3_16hnp"]
 [ext_resource type="Texture2D" uid="uid://bn78huwovol7m" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignRotation.svg" id="3_hy18o"]
-[ext_resource type="Texture2D" uid="uid://c77e5qul2tkqv" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopLeft.svg" id="3_jic2l"]
-[ext_resource type="Texture2D" uid="uid://cco7dvgkv71r5" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignLeftWide.svg" id="4_hmbxh"]
 [ext_resource type="Texture2D" uid="uid://b8h7wdot8t8l0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignCameraRotation.svg" id="4_ihegr"]
-[ext_resource type="Texture2D" uid="uid://b45sxkkgsr277" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterTop.svg" id="4_mspsa"]
 [ext_resource type="Texture2D" uid="uid://d16yxekfb4k3h" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignableBoxFaceFront.svg" id="4_tq44g"]
-[ext_resource type="Texture2D" uid="uid://fck74h0h5c0a" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopRight.svg" id="5_hy18o"]
-[ext_resource type="Texture2D" uid="uid://b2fn02sqoaxyt" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterLeft.svg" id="6_ihegr"]
-[ext_resource type="Texture2D" uid="uid://bjpf56rmokkxm" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenter.svg" id="7_4mkos"]
-[ext_resource type="Texture2D" uid="uid://cl2flyuwhtmsa" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterRight.svg" id="8_rdc1k"]
-[ext_resource type="Texture2D" uid="uid://ciugaomjuvhdu" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomLeft.svg" id="9_8dinw"]
-[ext_resource type="Texture2D" uid="uid://t8lp7otk4sih" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterBottom.svg" id="10_hmbxh"]
-[ext_resource type="Texture2D" uid="uid://c37ttm1omuhhe" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomRight.svg" id="11_7b5f3"]
-[ext_resource type="Texture2D" uid="uid://gsi43xerwel8" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignHCenterWide.svg" id="13_7b5f3"]
-[ext_resource type="Texture2D" uid="uid://cxfa7ts8nr3lp" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignRightWide.svg" id="14_7b5f3"]
-[ext_resource type="Texture2D" uid="uid://dywijgvt8or8h" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomWide.svg" id="15_1qqv6"]
-[ext_resource type="Texture2D" uid="uid://n561qqbgqhlg" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignVCenterWide.svg" id="16_1qqv6"]
+[ext_resource type="PackedScene" uid="uid://dokga2ppwbgnu" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/advanced_align_settings_popup.tscn" id="6_xr8ci"]
 [ext_resource type="Texture2D" uid="uid://c7xirdkbfbt8a" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignPosition.svg" id="19_qogej"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_e616m"]
-
-[sub_resource type="StyleBoxLine" id="StyleBoxLine_8dinw"]
-color = Color(0.458824, 0.458824, 0.458824, 1)
-grow_end = 36.0
-vertical = true
-
-[sub_resource type="StyleBoxLine" id="StyleBoxLine_hmbxh"]
-color = Color(0.458824, 0.458824, 0.458824, 1)
-grow_end = 40.0
 
 [node name="AlignSelectionPanel" type="VBoxContainer"]
 offset_right = 286.0
 offset_bottom = 82.0
 script = ExtResource("1_nqyka")
 
-[node name="Label3" type="Label" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 6
 text = "· Alignable Objects:"
@@ -119,7 +100,6 @@ theme_override_constants/separation = 0
 [node name="AlignToBoxOptionButton" type="OptionButton" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-selected = 0
 
 [node name="AlignToFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
 unique_name_in_owner = true
@@ -127,6 +107,15 @@ layout_mode = 2
 tooltip_text = "Select the object to which you'll align others by selecting its name in the list. Then choose the desired face by clicking this Cube icon."
 theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
 icon = ExtResource("4_tq44g")
+flat = true
+icon_alignment = 1
+
+[node name="AdvancedAlignToFaceButton" type="Button" parent="GridContainer/HBoxContainer/SpecificBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Select the object to which you'll align others by selecting its name in the list. Then choose the desired face by clicking this Cube icon."
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+icon = ExtResource("3_16hnp")
 flat = true
 icon_alignment = 1
 
@@ -146,178 +135,6 @@ popup/item_1/text = "One box per Subgroup"
 popup/item_1/id = 0
 popup/item_2/text = "One box per Molecule"
 popup/item_2/id = 2
-
-[node name="VBoxContainer2" type="GridContainer" parent="."]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-columns = 3
-
-[node name="HBoxContainer" type="GridContainer" parent="VBoxContainer2"]
-layout_mode = 2
-size_flags_horizontal = 3
-columns = 3
-
-[node name="AlignHBeginVBeginButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-icon = ExtResource("3_jic2l")
-flat = true
-icon_alignment = 1
-
-[node name="AlignVBeginButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-icon = ExtResource("4_mspsa")
-flat = true
-icon_alignment = 1
-
-[node name="AlignHEndVBeginButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-icon = ExtResource("5_hy18o")
-flat = true
-icon_alignment = 1
-
-[node name="AlignHBeginButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-icon = ExtResource("6_ihegr")
-flat = true
-icon_alignment = 1
-
-[node name="AlignCenterButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-icon = ExtResource("7_4mkos")
-flat = true
-icon_alignment = 1
-
-[node name="AlignHEndButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-icon = ExtResource("8_rdc1k")
-flat = true
-icon_alignment = 1
-
-[node name="AlignHBeginVEndButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-icon = ExtResource("9_8dinw")
-flat = true
-icon_alignment = 1
-
-[node name="AlignVEndButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-icon = ExtResource("10_hmbxh")
-flat = true
-icon_alignment = 1
-
-[node name="AlignHEndVEndButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-icon = ExtResource("11_7b5f3")
-flat = true
-icon_alignment = 1
-
-[node name="VSeparator" type="VSeparator" parent="VBoxContainer2"]
-layout_mode = 2
-theme_override_styles/separator = SubResource("StyleBoxLine_8dinw")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer2"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="AlignTopButton" type="Button" parent="VBoxContainer2/VBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-custom_minimum_size = Vector2(16, 16)
-layout_mode = 2
-icon = ExtResource("3_8dinw")
-flat = true
-
-[node name="AlignVCenterButton" type="Button" parent="VBoxContainer2/VBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(16, 16)
-layout_mode = 2
-icon = ExtResource("13_7b5f3")
-flat = true
-
-[node name="AlignBottomButton" type="Button" parent="VBoxContainer2/VBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(16, 16)
-layout_mode = 2
-icon = ExtResource("15_1qqv6")
-flat = true
-
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer2"]
-layout_mode = 2
-theme_override_styles/separator = SubResource("StyleBoxLine_hmbxh")
-
-[node name="Control" type="Control" parent="VBoxContainer2"]
-layout_mode = 2
-
-[node name="Control2" type="Control" parent="VBoxContainer2"]
-layout_mode = 2
-size_flags_stretch_ratio = 3.0
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer2"]
-layout_mode = 2
-
-[node name="AlignLeftButton" type="Button" parent="VBoxContainer2/HBoxContainer2"]
-unique_name_in_owner = true
-texture_filter = 1
-custom_minimum_size = Vector2(16, 16)
-layout_mode = 2
-size_flags_horizontal = 6
-icon = ExtResource("4_hmbxh")
-flat = true
-
-[node name="AlignHCenterButton" type="Button" parent="VBoxContainer2/HBoxContainer2"]
-unique_name_in_owner = true
-texture_filter = 1
-custom_minimum_size = Vector2(16, 16)
-layout_mode = 2
-size_flags_horizontal = 6
-icon = ExtResource("16_1qqv6")
-flat = true
-
-[node name="AlignRightButton" type="Button" parent="VBoxContainer2/HBoxContainer2"]
-unique_name_in_owner = true
-texture_filter = 1
-custom_minimum_size = Vector2(16, 16)
-layout_mode = 2
-size_flags_horizontal = 6
-icon = ExtResource("14_7b5f3")
-flat = true
 
 [node name="HSeparator" type="HSeparator" parent="."]
 layout_mode = 2
@@ -355,3 +172,7 @@ theme_type_variation = &"CrystalButton"
 text = "Align Camera to Reference"
 icon = ExtResource("4_ihegr")
 alignment = 0
+
+[node name="AdvancedAlignSettingsPopup" parent="." instance=ExtResource("6_xr8ci")]
+unique_name_in_owner = true
+visible = false
