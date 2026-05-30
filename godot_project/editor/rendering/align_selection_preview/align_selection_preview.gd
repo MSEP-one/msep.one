@@ -44,6 +44,7 @@ func _ready_deferred() -> void:
 		_align_selection_parameters = _workspace_context.align_selection_parameters
 		_align_selection_parameters.alignment_tools_enabled_changed.connect(_on_alignment_tools_enabled_changed)
 		_align_selection_parameters.align_relative_to_changed.connect(_on_align_relative_to_changed)
+		_align_selection_parameters.redraw_preview_requested.connect(queue_redraw)
 		_workspace_context.history_changed.connect(_on_history_changed)
 		var representation_settings: RepresentationSettings = \
 			editor_viewport.get_workspace_context().workspace.representation_settings

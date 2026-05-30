@@ -17,15 +17,16 @@ var _relative_to_option_button: OptionButton
 var _world_plane_container: HBoxContainer
 var _plane_button_group: ButtonGroup
 var _specific_box_container: HBoxContainer
-var _prev_face_button: Button
-var _next_face_button: Button
+var _align_to_box_option_button: OptionButton
+var _align_to_face_button: Button
 var _grouping_policy_option_button: OptionButton
+var _align_position_button: Button
 var _align_rotation_button: Button
 var _align_camera_button: Button
-var _align_position_buttons: Array[Button]
 
 var _workspace_context: WorkspaceContext = null
 var _align_selection_parameters: AlignSelectionParameters
+static var _empty_texture := AtlasTexture.new() # Behaves as a 0x0 texture
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
@@ -51,74 +52,27 @@ func _notification(what: int) -> void:
 		_world_plane_container = %WorldPlaneContainer as HBoxContainer
 		_plane_button_group = (%XY as Button).button_group
 		
-		_specific_box_container = %SpecificBoxContainer as HBoxContainer
-		_prev_face_button = %PrevFaceButton as Button
-		_next_face_button = %NextFaceButton as Button
-		
 		_alignable_boxes_tree.button_clicked.connect(_on_alignable_boxes_tree_button_clicked)
-		_alignable_boxes_tree.item_activated.connect(_alignable_boxes_tree_item_activated)
 		_relative_to_option_button.item_selected.connect(_on_relative_to_option_button_item_selected)
 		_plane_button_group.pressed.connect(_on_plane_button_group_pressed)
-		_prev_face_button.pressed.connect(_on_prev_face_button_pressed)
-		_next_face_button.pressed.connect(_on_next_face_button_pressed)
+		
+		_specific_box_container = %SpecificBoxContainer as HBoxContainer
+		_align_to_box_option_button = %AlignToBoxOptionButton as OptionButton
+		_align_to_face_button = %AlignToFaceButton as Button
+		
+		_align_to_box_option_button.item_selected.connect(_on_align_to_box_option_button_item_selected)
+		_align_to_face_button.pressed.connect(_on_align_to_face_button_pressed)
 		
 		_grouping_policy_option_button = %GroupingPolicyOptionButton as OptionButton
 		_grouping_policy_option_button.item_selected.connect(_on_grouping_policy_option_button_item_selected)
 		
+		_align_position_button = %AlignPositionButton as Button
 		_align_rotation_button = %AlignRotationButton as Button
+		_align_position_button.pressed.connect(_on_align_position_button_pressed)
 		_align_rotation_button.pressed.connect(_on_align_rotation_button_pressed)
 		
 		_align_camera_button = %AlignCameraButton as Button
 		_align_camera_button.pressed.connect(_on_align_camera_button_pressed)
-		
-		var align_h_begin_v_begin_button := %AlignHBeginVBeginButton as Button
-		var align_v_begin_button := %AlignVBeginButton as Button
-		var align_h_end_v_begin_button := %AlignHEndVBeginButton as Button
-		var align_h_begin_button := %AlignHBeginButton as Button
-		var align_center_button := %AlignCenterButton as Button
-		var align_h_end_button := %AlignHEndButton as Button
-		var align_h_begin_v_end_button := %AlignHBeginVEndButton as Button
-		var align_v_end_button := %AlignVEndButton as Button
-		var align_h_end_v_end_button := %AlignHEndVEndButton as Button
-		var align_top_button := %AlignTopButton as Button
-		var align_left_button := %AlignLeftButton as Button
-		var align_right_button := %AlignRightButton as Button
-		var align_bottom_button := %AlignBottomButton as Button
-		var align_v_center_button := %AlignVCenterButton as Button
-		var align_h_center_button := %AlignHCenterButton as Button
-
-		_align_position_buttons = [
-			align_h_begin_v_begin_button,
-			align_v_begin_button,
-			align_h_end_v_begin_button,
-			align_h_begin_button,
-			align_center_button,
-			align_h_end_button,
-			align_h_begin_v_end_button,
-			align_v_end_button,
-			align_h_end_v_end_button,
-			align_top_button,
-			align_left_button,
-			align_right_button,
-			align_bottom_button,
-			align_v_center_button,
-			align_h_center_button,
-		]
-		align_h_begin_v_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.BEGIN))
-		align_v_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.BEGIN))
-		align_h_end_v_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.BEGIN))
-		align_h_begin_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.CENTER))
-		align_center_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.CENTER))
-		align_h_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.CENTER))
-		align_h_begin_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.END))
-		align_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.END))
-		align_h_end_v_end_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.END))
-		align_top_button.pressed.connect(_on_align_button_pressed.bind(Alignment.IGNORE, Alignment.BEGIN))
-		align_left_button.pressed.connect(_on_align_button_pressed.bind(Alignment.BEGIN, Alignment.IGNORE))
-		align_right_button.pressed.connect(_on_align_button_pressed.bind(Alignment.END, Alignment.IGNORE))
-		align_bottom_button.pressed.connect(_on_align_button_pressed.bind(Alignment.IGNORE, Alignment.END))
-		align_v_center_button.pressed.connect(_on_align_button_pressed.bind(Alignment.IGNORE, Alignment.CENTER))
-		align_h_center_button.pressed.connect(_on_align_button_pressed.bind(Alignment.CENTER, Alignment.IGNORE))
 
 
 func _on_align_relative_to_changed() -> void:
@@ -143,11 +97,10 @@ func _update_ui() -> void:
 		can_align_camera = false
 	elif _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 		var reference_box: AlignableOBB = _align_selection_parameters.get_align_obb_target()
-		if reference_box == null or reference_box.selected_face == BoxFace.UNDEFINED:
+		if reference_box == null or reference_box.align_to_face == BoxFace.UNDEFINED:
 			can_align_camera = false
 	_align_camera_button.disabled = not can_align_camera
-	for button in _align_position_buttons:
-		button.disabled = not _align_selection_parameters.can_align_positions()
+	_align_position_button.disabled = not _align_selection_parameters.can_align_positions()
 
 
 var _last_alignable_boxes: Array[AlignableOBB] = []
@@ -158,43 +111,63 @@ func _update_tree() -> void:
 		# No need to update
 		return
 	_last_alignable_boxes = alignable_boxes
+	const COL_0 = 0
+	const COL_1 = 1
+	_alignable_boxes_tree.set_column_title(COL_0, tr(&"Object"))
+	_alignable_boxes_tree.set_column_title(COL_1, tr(&"Face to Align"))
+	_alignable_boxes_tree.set_column_expand(COL_1, false)
 	var current_box: AlignableOBB = _align_selection_parameters.get_align_obb_target()
 	_alignable_boxes_tree.clear()
+	_align_to_box_option_button.clear()
 	_alignable_boxes_tree.hide_root = true
 	var root: TreeItem = _alignable_boxes_tree.create_item()
 	for box: AlignableOBB in alignable_boxes:
-		var is_current: bool = box == current_box
+		var is_current: bool = box == current_box and current_box != null
 		var item: TreeItem = _alignable_boxes_tree.create_item(root)
-		const COL_0 = 0
 		item.set_metadata(COL_0, box)
 		item.set_text(COL_0, box.description)
 		if is_current:
-			const COLOR_SELECTED := Color.YELLOW
-			item.set_custom_color(COL_0, COLOR_SELECTED)
-		var selected_face: BoxFace = box.align_to_face if is_current else box.selected_face
-		item.add_button(COL_0, _get_box_face_icon(selected_face),
-			-1, false, tr(&"Select next face"))
+			item.set_custom_color(COL_0, Color.YELLOW)
+		item.add_button(COL_1, _empty_texture if is_current else _get_box_face_icon(box.selected_face),
+			-1, false, "" if is_current else tr(&"Select next face"))
+		item.set_button_disabled(COL_1, 0, is_current)
+		_align_to_box_option_button.add_item(box.description)
+		if is_current:
+			_align_to_box_option_button.select(_align_to_box_option_button.item_count - 1)
+			_align_to_face_button.icon = _get_box_face_icon(box.align_to_face)
 
 
 func _refresh_tree_items() -> void:
 	const COL_0 = 0
+	const COL_1 = 1
 	const BUTTON_IDX = 0
 	var current_box: AlignableOBB = _align_selection_parameters.get_align_obb_target()
+	var checked_icon: Texture2D = null#get_theme_icon(&"radio_checked", &"CheckBox")
+	var unchecked_icon: Texture2D = null#get_theme_icon(&"radio_unchecked", &"CheckBox")
 	for item: TreeItem in _alignable_boxes_tree.get_root().get_children():
 		var item_box: AlignableOBB = item.get_metadata(COL_0) as AlignableOBB
 		assert(item_box)
-		if item_box == current_box and current_box != null:
+		var is_current: bool = item_box == current_box and current_box != null
+		if item.get_button_count(COL_1) == 0:
+			print("No button: ", item.get_text(COL_0))
+		if is_current:
+			item.set_button(COL_1, BUTTON_IDX, _empty_texture)
 			item.set_custom_color(COL_0, Color.YELLOW)
-			item.set_button(COL_0, BUTTON_IDX, _get_box_face_icon(item_box.align_to_face))
+			_align_to_face_button.icon = _get_box_face_icon(item_box.align_to_face)
 		else:
+			item.set_button(COL_1, BUTTON_IDX, _get_box_face_icon(item_box.selected_face))
 			item.clear_custom_color(COL_0)
-			item.set_button(COL_0, BUTTON_IDX, _get_box_face_icon(item_box.selected_face))
+		item.set_button_disabled(COL_1, BUTTON_IDX, is_current)
+		if _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE:
+			item.set_icon(COL_0, checked_icon if is_current else unchecked_icon)
+		else:
+			item.set_icon(COL_0, null)
 
 
-func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, id: int, mouse_button_index: int) -> void:
+func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_index: int) -> void:
 	const COL_0 = 0
-	var alignable_box: AlignableOBB = item.get_metadata(COL_0) as AlignableOBB
-	assert(alignable_box)
+	var item_box: AlignableOBB = item.get_metadata(COL_0) as AlignableOBB
+	assert(item_box)
 	var advance_dir: int = 0
 	match mouse_button_index:
 		MOUSE_BUTTON_LEFT:
@@ -203,28 +176,11 @@ func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, id: i
 			advance_dir = -1
 	if advance_dir == 0:
 		return
-	var is_current: bool = item.get_custom_color(COL_0) == Color.YELLOW
-	if is_current:
-		alignable_box.advance_align_to_face(advance_dir)
-	else:
-		alignable_box.advance_selected_face(advance_dir)
-	var selected_face: BoxFace = alignable_box.align_to_face if is_current else alignable_box.selected_face
-	item.set_button(COL_0, id, _get_box_face_icon(selected_face))
+	assert(item_box != _align_selection_parameters.get_align_obb_target())
+	item_box.advance_selected_face(advance_dir)
 	# Force redraw preview
-	_align_selection_parameters.align_relative_to_changed.emit()
-
-
-func _alignable_boxes_tree_item_activated() -> void:
-	if _align_selection_parameters.get_align_relative_to() != AlignRelativeTo.SPECIFIC_BOX_PLANE:
-		_relative_to_option_button.select(int(AlignRelativeTo.SPECIFIC_BOX_PLANE))
-		_relative_to_option_button.item_selected.emit(int(AlignRelativeTo.SPECIFIC_BOX_PLANE))
-	var selected_item: TreeItem = _alignable_boxes_tree.get_selected()
-	if selected_item == null:
-		return
-	const COL_0 = 0
-	var box: AlignableOBB = selected_item.get_metadata(COL_0)
-	if box != null:
-		_align_selection_parameters.set_specific_obb(box)
+	_update_ui()
+	_align_selection_parameters.request_redraw_preview()
 
 
 func _get_box_face_icon(selected_face: BoxFace) -> Texture2D:
@@ -249,32 +205,22 @@ func _on_plane_button_group_pressed(in_button: Button) -> void:
 	)
 
 
-func _on_prev_face_button_pressed() -> void:
-	_advance_specific_box(-1)
+func _on_align_to_box_option_button_item_selected(index: int) -> void:
+	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
+	assert(index >= 0 and index < alignable_boxes.size())
+	_align_selection_parameters.set_specific_obb(alignable_boxes[index])
 
 
-func _on_next_face_button_pressed() -> void:
-	_advance_specific_box(+1)
+func _on_align_to_face_button_pressed() -> void:
+	var current_box: AlignableOBB = _align_selection_parameters.get_align_obb_target()
+	assert(current_box)
+	current_box.advance_align_to_face(+1)
+	_refresh_tree_items()
+	_align_selection_parameters.request_redraw_preview()
 
 
 func _on_grouping_policy_option_button_item_selected(index: int) -> void:
 	_align_selection_parameters.set_align_selection_grouping_policy(index as AlignSelectionGroupingPolicy)
-
-
-func _advance_specific_box(dir: int) -> void:
-	assert(_align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE)
-	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
-	
-	if alignable_boxes.size() == 0:
-		return
-	var current_box: OBB = _align_selection_parameters.get_align_obb_target()
-	if current_box == null:
-		_align_selection_parameters.set_specific_obb_and_face(alignable_boxes[0], BoxFace.FRONT_BACK)
-		return
-	var box_index: int = alignable_boxes.find(current_box)
-	box_index = (box_index + alignable_boxes.size() + dir) % alignable_boxes.size()
-	current_box = alignable_boxes[box_index]
-	_align_selection_parameters.set_specific_obb(current_box)
 
 
 func _on_align_rotation_button_pressed() -> void:
@@ -303,6 +249,7 @@ func _on_align_rotation_button_pressed() -> void:
 				something_changed = something_changed or alignable_boxes[i].align_rotation_to_box(align_target)
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Rotation")
+	_update_ui()
 
 
 func _on_align_camera_button_pressed() -> void:
@@ -342,7 +289,9 @@ func _on_align_camera_button_pressed() -> void:
 	orientation_widget.snap_to_rotation(align_basis.get_euler())
 
 
-func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignment) -> void:
+func _on_align_position_button_pressed() -> void:
+	DisplayServer.dialog_show("Unimplemented", "TODO: Align positions", [], Callable())
+	"""
 	var skip_idx: int = AlignSelectionParameters.INVALID_BOX_INDEX
 	var relative_to: AlignRelativeTo = _align_selection_parameters.get_align_relative_to()
 	assert(not relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE],
@@ -463,3 +412,4 @@ func _on_align_button_pressed(in_h_alignment: Alignment, in_v_alignment: Alignme
 				something_changed = true
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Position")
+	"""
