@@ -3,8 +3,8 @@ class_name AlignSelectionPreview extends Control
 ## This enum is used for debug purposes,
 ## Set the value of DRAW_TRANSFORM_AT constant to enable it
 enum DrawTransformAt {
-	None            = 0x0,
-	BoxOrigin       = 0x1 << 0,
+	None = 0x0,
+	BoxOrigin = 0x1 << 0,
 	HighlightedFace = 0x1 << 1,
 	Both = BoxOrigin | HighlightedFace,
 }
@@ -80,17 +80,16 @@ func _draw() -> void:
 	if not is_processing() or _align_selection_parameters == null:
 		return
 	
-	var alignable_boxes: Array[OBB] = _align_selection_parameters.get_alignable_boxes()
-	for obb: OBB in alignable_boxes:
+	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
+	for obb: AlignableOBB in alignable_boxes:
 		if obb == null or not obb.box.has_surface():
 			continue
-		_draw_obb(obb)
+		_draw_obb_face(obb, obb.selected_face)
 		_draw_transform(obb.transform, obb.box.size * 0.25, false)
-	if _align_selection_parameters.get_align_relative_to() in [
-			AlignRelativeTo.BIGGEST_BOX_PLANE, AlignRelativeTo.SPECIFIC_BOX_PLANE]:
-		var highlighted_obb: OBB = _align_selection_parameters.get_align_obb_target()
-		if highlighted_obb != null:
-			_draw_highlighted_obb_face(highlighted_obb, _align_selection_parameters.get_align_obb_face())
+	if _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE:
+		var highligted_obb: OBB = _align_selection_parameters.get_align_obb_target()
+		if highligted_obb != null:
+			_draw_obb_face(highligted_obb, highligted_obb.align_to_face, true)
 
 
 func _draw_obb(in_obb: OBB, in_color: Color = _lowlight_color) -> void:
@@ -147,8 +146,7 @@ func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: 
 			col *= 0.75
 		draw_line(from2d, to2d, col, 2)
 
-
-func _draw_highlighted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
+func _draw_obb_face(in_obb: OBB, in_face: BoxFace, in_highlighted: bool = false) -> void:
 	if in_obb == null or in_face == BoxFace.UNDEFINED:
 		return
 	
@@ -184,7 +182,13 @@ func _draw_highlighted_obb_face(in_obb: OBB, in_face: BoxFace) -> void:
 		var screen_pos: Vector2 = _camera.unproject_position(corner)
 		polygon.push_back(screen_pos)
 		uvs.push_back(screen_pos / DisplayServer.screen_get_dpi())
-	draw_colored_polygon(polygon, Color(_highlight_color, FACE_HIGHLIGHT_OPACITY), uvs, FACE_HIGHLIGHT_TEXTURE)
+	var color: Color = _highlight_color if in_highlighted else _lowlight_color
+	for i: int in polygon.size():
+		var from: Vector2 = polygon[i]
+		var to: Vector2 = polygon[(i + 1) % polygon.size()]
+		draw_line(from, to, color)
+	if in_highlighted:
+		draw_colored_polygon(polygon, Color(_highlight_color, FACE_HIGHLIGHT_OPACITY), uvs, FACE_HIGHLIGHT_TEXTURE)
 	
 	if DRAW_TRANSFORM_AT & DrawTransformAt.HighlightedFace != 0:
 		var font := get_theme_font(&"Label", &"HeaderLarge")

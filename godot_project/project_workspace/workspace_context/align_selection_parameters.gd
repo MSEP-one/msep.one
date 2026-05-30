@@ -8,14 +8,11 @@ signal alignment_tools_enabled_changed(in_enabled: bool)
 ## (world plane, box side, etc) or the selected target (biggest plane
 ## changed or user selected changed)
 signal align_relative_to_changed()
-## Emitted when the picker button is pressed in the AlignSelectionPalen is pressed
-signal pick_specific_obb_requested()
 
 
 enum AlignRelativeTo {
 	WORLD_PLANE,
 	CAMERA_PLANE,
-	BIGGEST_BOX_PLANE,
 	SPECIFIC_BOX_PLANE,
 }
 
@@ -25,12 +22,6 @@ enum WorldPlane {
 	YZ,
 }
 
-enum BoxFace {
-	UNDEFINED = -1,
-	FRONT_BACK = WorldPlane.XY,
-	TOP_BOTTOM = WorldPlane.XZ,
-	LEFT_RIGHT = WorldPlane.YZ,
-}
 
 enum AlignSelectionGroupingPolicy {
 	OneBoxPerGroup,
@@ -38,16 +29,17 @@ enum AlignSelectionGroupingPolicy {
 	OneBoxPerMolecule,
 }
 
+
+const BoxFace = AlignableOBB.BoxFace
+
+
 const INVALID_BOX_INDEX: int = -1
 
 var _align_relative_to: AlignRelativeTo
 var _selected_world_plane: WorldPlane
 var _align_selection_grouping_policy := AlignSelectionGroupingPolicy.OneBoxPerSubgroup
-var _alignable_boxes: Array[OBB] = []
+var _alignable_boxes: Array[AlignableOBB] = []
 var _align_to_box_index: int = INVALID_BOX_INDEX
-var _align_to_face := BoxFace.UNDEFINED
-var _biggest_obb: OBB = null
-var _biggest_obb_box_face := BoxFace.UNDEFINED
 var _workspace_context: WorkspaceContext
 
 
@@ -79,23 +71,30 @@ func get_alignable_structure_contexts() -> Array[StructureContext]:
 	return selected_groups
 
 
-func get_alignable_boxes() -> Array[OBB]:
+func get_alignable_boxes() -> Array[AlignableOBB]:
 	if _alignable_boxes.is_empty() and not _alignable_boxes.is_read_only():
 		var alignable_objects: Array[StructureContext] = get_alignable_structure_contexts()
 		for context: StructureContext in alignable_objects:
-			_alignable_boxes.append_array(
-				context.get_selection_obb_with_selection_policy(_align_selection_grouping_policy)
-			)
+			var group_boxes: Array[OBB] = context.get_selection_obb_with_selection_policy(_align_selection_grouping_policy)
+			if group_boxes.size() > 1:
+				for i in group_boxes.size():
+					_alignable_boxes.append(AlignableOBB.from_obb(
+						group_boxes[i],
+						context.nano_structure.get_structure_name() + (" Molecule %d" % [i + 1])
+					))
+			else:
+				_alignable_boxes.append(AlignableOBB.from_obb(
+					group_boxes[0],
+					context.nano_structure.get_structure_name()
+				))
 		_alignable_boxes.make_read_only()
 	return _alignable_boxes
 
 
 func can_align_rotations() -> bool:
-	var alignable_boxes: Array[OBB] = get_alignable_boxes()
+	var alignable_boxes: Array[AlignableOBB] = get_alignable_boxes()
 	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
 		return alignable_boxes.size() >= 1
-	elif _align_relative_to == AlignRelativeTo.BIGGEST_BOX_PLANE:
-		return alignable_boxes.size() >= 2
 	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 		if alignable_boxes.size() < 2:
 			return false
@@ -122,7 +121,6 @@ func set_align_relative_to(in_relative_to: AlignRelativeTo) -> void:
 	if _align_relative_to == in_relative_to:
 		return
 	_align_relative_to = in_relative_to
-	_alignable_boxes = []
 	align_relative_to_changed.emit()
 
 
@@ -134,7 +132,6 @@ func set_align_selection_grouping_policy(in_policy: AlignSelectionGroupingPolicy
 	if in_policy == _align_selection_grouping_policy:
 		return
 	_align_selection_grouping_policy = in_policy
-	_biggest_obb = null
 	_alignable_boxes = []
 	align_relative_to_changed.emit()
 
@@ -151,80 +148,30 @@ func set_align_to_what_plane(in_plane: WorldPlane) -> void:
 		align_relative_to_changed.emit()
 
 
-func get_align_obb_target() -> OBB:
+func get_align_obb_target() -> AlignableOBB:
 	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
 		return null
-	elif _align_relative_to == AlignRelativeTo.BIGGEST_BOX_PLANE:
-		if get_alignable_boxes().size() == 0:
-			return null
-		if _biggest_obb == null:
-			_find_biggest_obb()
-		return _biggest_obb
-	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
-		if _align_to_box_index >= 0 and _align_to_box_index < get_alignable_boxes().size():
-			return _alignable_boxes[_align_to_box_index]
-		return null
+	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE and get_alignable_boxes().size():
+		if _align_to_box_index < 0 or _align_to_box_index >= get_alignable_boxes().size():
+			_align_to_box_index = 0
+		return _alignable_boxes[_align_to_box_index]
 	assert(false, "unknown align relative to target %d" % [_align_relative_to])
 	return null
 
 
-func get_align_obb_face() -> BoxFace:
-	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
-		return BoxFace.UNDEFINED
-	elif _align_relative_to == AlignRelativeTo.BIGGEST_BOX_PLANE:
-		if get_alignable_boxes().size() == 0:
-			return BoxFace.UNDEFINED
-		if _biggest_obb == null:
-			_find_biggest_obb()
-		return _biggest_obb_box_face
-	elif _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
-		if _align_to_box_index >= 0 and _align_to_box_index < get_alignable_boxes().size():
-			return _align_to_face
-		return BoxFace.UNDEFINED
-	assert(false, "unknown align relative to target %d" % [_align_relative_to])
-	return BoxFace.UNDEFINED
-
-
-func start_picking_obb() -> void:
-	pick_specific_obb_requested.emit()
-
-
-func set_specific_obb_and_face(in_box: OBB, in_face: BoxFace) -> void:
-	var id: int = -1 if in_box == null else _alignable_boxes.find(in_box)
-	if _align_to_box_index != id or _align_to_face != in_face:
+func set_specific_obb(out_box: AlignableOBB) -> void:
+	var id: int = -1 if out_box == null else _alignable_boxes.find(out_box)
+	if _align_to_box_index != id:
 		_align_to_box_index = id
-		_align_to_face = in_face
+		if out_box.selected_face == BoxFace.UNDEFINED:
+			out_box.align_to_face = BoxFace.FRONT_BACK
+			if not out_box.has_face(BoxFace.FRONT_BACK):
+				out_box.advance_align_to_face(1)
+		else:
+			out_box.align_to_face = out_box.selected_face
 		if _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 			align_relative_to_changed.emit()
 
 
-func _find_biggest_obb() -> void:
-	_biggest_obb = null
-	_biggest_obb_box_face = BoxFace.UNDEFINED
-	var alignable_boxes: Array[OBB] = get_alignable_boxes()
-	if alignable_boxes.size() == 0:
-		return
-	var biggest_face_area: float = 0
-	for obb: OBB in alignable_boxes:
-		var size: Vector3 = obb.box.size
-		var top_face_area: float = size.x * size.z
-		if top_face_area > biggest_face_area:
-			biggest_face_area = top_face_area
-			_biggest_obb = obb
-			_biggest_obb_box_face = BoxFace.TOP_BOTTOM
-		var front_face_area: float = size.x * size.y
-		if front_face_area > biggest_face_area:
-			biggest_face_area = front_face_area
-			_biggest_obb = obb
-			_biggest_obb_box_face = BoxFace.FRONT_BACK
-		var side_face_area: float = size.y * size.z
-		if side_face_area > biggest_face_area:
-			biggest_face_area = side_face_area
-			_biggest_obb = obb
-			_biggest_obb_box_face = BoxFace.LEFT_RIGHT
-	return
-
-
 func _on_workspace_history_changed() -> void:
-	_biggest_obb = null
 	_alignable_boxes = []
