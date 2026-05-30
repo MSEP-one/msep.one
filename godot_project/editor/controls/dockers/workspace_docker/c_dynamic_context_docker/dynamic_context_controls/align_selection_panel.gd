@@ -290,126 +290,15 @@ func _on_align_camera_button_pressed() -> void:
 
 
 func _on_align_position_button_pressed() -> void:
-	DisplayServer.dialog_show("Unimplemented", "TODO: Align positions", [], Callable())
-	"""
-	var skip_idx: int = AlignSelectionParameters.INVALID_BOX_INDEX
-	var relative_to: AlignRelativeTo = _align_selection_parameters.get_align_relative_to()
-	assert(not relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE],
+	assert(_align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE,
 		"Cannot align position to global planes, they dont have boundaries")
 	var reference_obb: AlignableOBB = _align_selection_parameters.get_align_obb_target()
-	var align_transform: Transform3D
-	var face: BoxFace = reference_obb.selected_face
-	align_transform = _align_selection_parameters.get_align_obb_target().transform
-	var h_axis: int = Vector3.AXIS_X
-	var v_axis: int = Vector3.AXIS_Y
-	match face:
-		BoxFace.FRONT_BACK:
-			pass
-		BoxFace.TOP_BOTTOM:
-			v_axis = Vector3.AXIS_Z
-			#align_transform = align_transform.rotated_local(align_transform.basis[0], PI * 0.5)
-		BoxFace.LEFT_RIGHT:
-			h_axis = Vector3.AXIS_Z
-			#align_transform = align_transform.rotated_local(align_transform.basis[1], -PI * 0.5)
-
-	var reference_point: Vector3 # in local space, relative to plane
-	match in_h_alignment:
-		Alignment.BEGIN:
-			reference_point[h_axis] = -reference_obb.box.size[h_axis] * 0.5
-		Alignment.CENTER:
-			reference_point[h_axis] = 0
-		Alignment.END:
-			reference_point[h_axis] = reference_obb.box.size[h_axis] * 0.5
-	match in_v_alignment:
-		Alignment.BEGIN:
-			reference_point[v_axis] = reference_obb.box.size[v_axis] * 0.5
-		Alignment.CENTER:
-			reference_point[v_axis] = 0
-		Alignment.END:
-			reference_point[v_axis] = -reference_obb.box.size[v_axis] * 0.5
 	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
-	skip_idx = alignable_boxes.find(_align_selection_parameters.get_align_obb_target())
 	var something_changed: bool = false
 	for i: int in alignable_boxes.size():
-		if i == skip_idx:			continue
 		var obb: OBB = alignable_boxes[i]
-		for context: StructureContext in obb.point_cloud_source.keys():
-			var nano_structure: NanoStructure = context.nano_structure
-			var old_transform: Transform3D = obb.transform
-			var box_pos: Vector3 = old_transform.origin
-			var box_size: Vector3 = obb.box.size
-			var obj_reference_pos: Vector3
-			var box_extents: Array[Vector3] = [
-				old_transform * Vector3(-box_size.x * 0.5, 0, 0),
-				old_transform * Vector3(box_size.x * 0.5, 0, 0),
-				old_transform * Vector3(0, box_size.y * 0.5, 0),
-				old_transform * Vector3(0, -box_size.y * 0.5, 0),
-				old_transform * Vector3(0, 0, box_size.z * 0.5),
-				old_transform * Vector3(0, 0, -box_size.z * 0.5),
-			]
-			var relative_extents: Array[Vector3] = []
-			for extent: Vector3 in box_extents:
-				var local_to_ref: Vector3 = align_transform.inverse() * extent
-				relative_extents.append(local_to_ref)
-			var leftmost_point := Vector3.INF
-			var rightmost_point := -Vector3.INF
-			var topmost_point := -Vector3.INF
-			var bottommost_point := Vector3.INF
-			for relative_point: Vector3 in relative_extents:
-				if relative_point[h_axis] < leftmost_point[h_axis]:
-					leftmost_point = relative_point
-				if relative_point[h_axis] > rightmost_point[h_axis]:
-					rightmost_point = relative_point
-				if relative_point[v_axis] > topmost_point[v_axis]:
-					topmost_point = relative_point
-				if relative_point[v_axis] < bottommost_point[v_axis]:
-					bottommost_point = relative_point
-			match in_h_alignment:
-				Alignment.BEGIN:
-					obj_reference_pos[h_axis] = leftmost_point[h_axis]
-				Alignment.CENTER:
-					obj_reference_pos[h_axis] = (align_transform.inverse() * box_pos)[h_axis]
-				Alignment.END:
-					obj_reference_pos[h_axis] = rightmost_point[h_axis]
-			match in_v_alignment:
-				Alignment.BEGIN:
-					obj_reference_pos[v_axis] = topmost_point[v_axis]
-				Alignment.CENTER:
-					obj_reference_pos[v_axis] = (align_transform.inverse() * box_pos)[v_axis]
-				Alignment.END:
-					obj_reference_pos[v_axis] = bottommost_point[v_axis]
-			var plane_offset := Vector3()
-			plane_offset[h_axis] = reference_point[h_axis] - obj_reference_pos[h_axis]
-			plane_offset[v_axis] = reference_point[v_axis] - obj_reference_pos[v_axis]
-			var world_offset: Vector3 = align_transform.basis * plane_offset
-			
-			var new_transform: Transform3D = old_transform.translated(world_offset)
-			var to_local: Transform3D = old_transform.inverse()
-			var delta_transform: Transform3D = (to_local * new_transform).orthonormalized()
-			
-			var atoms_to_move: PackedInt32Array = []
-			var previous_positions: PackedVector3Array = []
-			var target_positions: PackedVector3Array = []
-			var nmb_of_moved_atoms: int = 0
-			for atom_id: int in obb.point_cloud_source[context]:
-				var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-				var new_pos: Vector3 = new_transform * (to_local * old_pos)
-				atoms_to_move.push_back(atom_id)
-				target_positions.push_back(new_pos)
-				previous_positions.push_back(old_pos)
-				nmb_of_moved_atoms += 1
-			
-			var atoms_changed: bool = nmb_of_moved_atoms > 0
-			var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
-			if atoms_changed or object_moved:
-				if atoms_changed:
-					nano_structure.start_edit()
-					nano_structure.atoms_set_positions(atoms_to_move, target_positions)
-					nano_structure.end_edit()
-				if object_moved:
-					nano_structure.set_transform(nano_structure.get_transform()* delta_transform)
-				
-				something_changed = true
+		something_changed = something_changed or obb.align_position_to(reference_obb)
+	
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Position")
-	"""
+		_update_ui()
