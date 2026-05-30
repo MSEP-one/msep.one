@@ -19,10 +19,12 @@ var _plane_button_group: ButtonGroup
 var _specific_box_container: HBoxContainer
 var _align_to_box_option_button: OptionButton
 var _align_to_face_button: Button
+var _advanced_align_to_face_button: Button
 var _grouping_policy_option_button: OptionButton
 var _align_position_button: Button
 var _align_rotation_button: Button
 var _align_camera_button: Button
+var _advanced_align_settings_popup: PopupPanel
 
 var _workspace_context: WorkspaceContext = null
 var _align_selection_parameters: AlignSelectionParameters
@@ -59,9 +61,11 @@ func _notification(what: int) -> void:
 		_specific_box_container = %SpecificBoxContainer as HBoxContainer
 		_align_to_box_option_button = %AlignToBoxOptionButton as OptionButton
 		_align_to_face_button = %AlignToFaceButton as Button
+		_advanced_align_to_face_button = %AdvancedAlignToFaceButton as Button
 		
 		_align_to_box_option_button.item_selected.connect(_on_align_to_box_option_button_item_selected)
 		_align_to_face_button.pressed.connect(_on_align_to_face_button_pressed)
+		_advanced_align_to_face_button.pressed.connect(_on_advanced_align_to_face_button_pressed)
 		
 		_grouping_policy_option_button = %GroupingPolicyOptionButton as OptionButton
 		_grouping_policy_option_button.item_selected.connect(_on_grouping_policy_option_button_item_selected)
@@ -73,6 +77,8 @@ func _notification(what: int) -> void:
 		
 		_align_camera_button = %AlignCameraButton as Button
 		_align_camera_button.pressed.connect(_on_align_camera_button_pressed)
+		
+		_advanced_align_settings_popup = %AdvancedAlignSettingsPopup as PopupPanel
 
 
 func _on_align_relative_to_changed() -> void:
@@ -131,6 +137,14 @@ func _update_tree() -> void:
 		item.add_button(COL_1, _empty_texture if is_current else _get_box_face_icon(box.selected_face),
 			-1, false, "" if is_current else tr(&"Select next face"))
 		item.set_button_disabled(COL_1, 0, is_current)
+		var show_more_button: bool = \
+			_align_selection_parameters.is_advanced_settings_enabled() and not is_current
+		if show_more_button:
+			if item.get_button_count(COL_1) < 2:
+				const ICON_SETTINGS_MENU = preload("uid://dtfepgaagdcj5")
+				item.add_button(COL_1, ICON_SETTINGS_MENU)
+			var MORE_OPTIONS_BUTTON_INDEX: int = 1
+			item.set_button_disabled(COL_1, MORE_OPTIONS_BUTTON_INDEX, box.selected_face == BoxFace.UNDEFINED)
 		_align_to_box_option_button.add_item(box.description)
 		if is_current:
 			_align_to_box_option_button.select(_align_to_box_option_button.item_count - 1)
@@ -157,30 +171,49 @@ func _refresh_tree_items() -> void:
 		else:
 			item.set_button(COL_1, BUTTON_IDX, _get_box_face_icon(item_box.selected_face))
 			item.clear_custom_color(COL_0)
-		item.set_button_disabled(COL_1, BUTTON_IDX, is_current)
+		var show_more_button: bool = \
+			_align_selection_parameters.is_advanced_settings_enabled() and not is_current
+		const MORE_OPTIONS_BUTTON_INDEX: int = 1
+		if show_more_button:
+			if item.get_button_count(COL_1) < 2:
+				const ICON_SETTINGS_MENU = preload("uid://dtfepgaagdcj5")
+				item.add_button(COL_1, ICON_SETTINGS_MENU)
+			item.set_button_disabled(COL_1, MORE_OPTIONS_BUTTON_INDEX, item_box.selected_face == BoxFace.UNDEFINED)
+		else:
+			if item.get_button_count(COL_1) >= 2:
+				item.erase_button(COL_1, MORE_OPTIONS_BUTTON_INDEX)
 		if _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 			item.set_icon(COL_0, checked_icon if is_current else unchecked_icon)
 		else:
 			item.set_icon(COL_0, null)
 
 
-func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_index: int) -> void:
+func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, id: int, mouse_button_index: int) -> void:
 	const COL_0 = 0
+	const ID_CYCLE_FACE = 0
+	const ID_ADVANCED_OPTIONS = 1
 	var item_box: AlignableOBB = item.get_metadata(COL_0) as AlignableOBB
 	assert(item_box)
-	var advance_dir: int = 0
-	match mouse_button_index:
-		MOUSE_BUTTON_LEFT:
-			advance_dir = +1
-		MOUSE_BUTTON_RIGHT:
-			advance_dir = -1
-	if advance_dir == 0:
-		return
 	assert(item_box != _align_selection_parameters.get_align_obb_target())
-	item_box.advance_selected_face(advance_dir)
-	# Force redraw preview
-	_update_ui()
-	_align_selection_parameters.request_redraw_preview()
+	if id == ID_CYCLE_FACE:
+		var advance_dir: int = 0
+		match mouse_button_index:
+			MOUSE_BUTTON_LEFT:
+				advance_dir = +1
+			MOUSE_BUTTON_RIGHT:
+				advance_dir = -1
+		if advance_dir == 0:
+			return
+		item_box.advance_selected_face(advance_dir)
+		# Force redraw preview
+		_update_ui()
+		_align_selection_parameters.request_redraw_preview()
+	if id == ID_ADVANCED_OPTIONS:
+		_advanced_align_settings_popup.setup(item_box, _align_selection_parameters)
+		const COL_1 = 1
+		var button_rect: Rect2 = _alignable_boxes_tree.get_item_area_rect(item, COL_1, ID_ADVANCED_OPTIONS)
+		button_rect.position += _alignable_boxes_tree.global_position
+		_advanced_align_settings_popup.popup_attached_to_global_rect(button_rect)
 
 
 func _get_box_face_icon(selected_face: BoxFace) -> Texture2D:
@@ -217,6 +250,14 @@ func _on_align_to_face_button_pressed() -> void:
 	current_box.advance_align_to_face(+1)
 	_refresh_tree_items()
 	_align_selection_parameters.request_redraw_preview()
+
+
+func _on_advanced_align_to_face_button_pressed() -> void:
+	_advanced_align_settings_popup.setup(
+		_align_selection_parameters.get_align_obb_target(),
+		_align_selection_parameters
+	)
+	_advanced_align_settings_popup.popup_attached_to_control(_advanced_align_to_face_button)
 
 
 func _on_grouping_policy_option_button_item_selected(index: int) -> void:

@@ -147,7 +147,7 @@ func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: 
 			col *= 0.75
 		draw_line(from2d, to2d, col, 2)
 
-func _draw_obb_face(in_obb: OBB, in_face: BoxFace, in_highlighted: bool = false) -> void:
+func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool = false) -> void:
 	if in_obb == null or in_face == BoxFace.UNDEFINED:
 		return
 	
@@ -190,6 +190,29 @@ func _draw_obb_face(in_obb: OBB, in_face: BoxFace, in_highlighted: bool = false)
 		draw_line(from, to, color)
 	if in_highlighted:
 		draw_colored_polygon(polygon, Color(_highlight_color, FACE_HIGHLIGHT_OPACITY), uvs, FACE_HIGHLIGHT_TEXTURE)
+	
+	if _align_selection_parameters.is_advanced_settings_enabled():
+		var origin: Vector3 = (face_corners[0] + face_corners[1] + face_corners[2] + face_corners[3]) / 4.0
+		var basis: Basis = in_obb.get_face_basis(in_face)
+		var h_axis: int; var v_axis: int
+		match in_face:
+			BoxFace.FRONT_BACK:
+				h_axis = Vector3.AXIS_X; v_axis = Vector3.AXIS_Y
+			BoxFace.TOP_BOTTOM:
+				h_axis = Vector3.AXIS_X; v_axis = Vector3.AXIS_Z
+			BoxFace.LEFT_RIGHT:
+				h_axis = Vector3.AXIS_Z; v_axis = Vector3.AXIS_Y
+		origin += basis[h_axis] * (in_obb.offset_ratio_h * in_obb.box.size[h_axis])
+		origin += basis[v_axis] * (in_obb.offset_ratio_v * in_obb.box.size[v_axis])
+		var origin_2d: Vector2 = _camera.unproject_position(origin)
+		var _h_dir_2d: Vector2 = _camera.unproject_position(origin + basis[h_axis] * 200).normalized()
+		var _v_dir_2d: Vector2 = _camera.unproject_position(origin + basis[v_axis] * 200).normalized()
+		var draw_h_from: Vector2 = origin_2d - _h_dir_2d * 20
+		var draw_h_to: Vector2 = origin_2d + _h_dir_2d * 20
+		var draw_v_from: Vector2 = origin_2d - _v_dir_2d * 20
+		var draw_v_to: Vector2 = origin_2d + _v_dir_2d * 20
+		draw_line(draw_h_from, draw_h_to, Color.RED, 4 if in_highlighted else 2)
+		draw_line(draw_v_from, draw_v_to, Color.GREEN, 4 if in_highlighted else 2)
 	
 	if DRAW_TRANSFORM_AT & DrawTransformAt.HighlightedFace != 0:
 		var font := get_theme_font(&"Label", &"HeaderLarge")

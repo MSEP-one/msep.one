@@ -123,6 +123,11 @@ func can_align_positions() -> bool:
 	return can_align_rotations()
 
 
+func is_advanced_settings_enabled() -> bool:
+	return _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE
+
+
+
 func get_align_relative_to() -> AlignRelativeTo:
 	return _align_relative_to
 
