@@ -647,9 +647,20 @@ func _get_obb_from_point_cloud(in_positions: Array[Vector3], in_source: Dictiona
 	
 	# If Y is also derivable, re-derive it too for full orthonormality
 	var axis_y := axis_z.cross(axis_x).normalized()
-
+	
 	basis = Basis(axis_x, axis_y, axis_z)
+	
+	const SQUARE_THRESSHOLD = 0.05
+	if abs(size.x - size.y) < SQUARE_THRESSHOLD:
+		# Surface is a square, therefore can be rotated arbitrarily
+		# Align the box to the Y world axis
+		var target_up: Vector3 = Plane(axis_z, 0).project(Vector3.UP).normalized()
+		if target_up != Vector3.ZERO:
+			var angle: float = axis_y.signed_angle_to(target_up, axis_z)
+			basis = basis.rotated(axis_z, angle)
+	
 	axes = [basis[0], basis[1], basis[2]]
+		
 
 	# 8. With handiness corrected, this breaks extents, so need to recalculate them
 	min_extents = Vector3.INF
