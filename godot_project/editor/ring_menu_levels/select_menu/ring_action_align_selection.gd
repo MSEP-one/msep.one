@@ -1,3 +1,4 @@
+class_name RingActionAlignSelection
 extends RingMenuAction
 
 const RingMenuSpriteIconScn = preload("res://editor/controls/ring_menu/ring_menu_icon/ring_menu_sprite_icon/ring_menu_sprite_icon.tscn")
