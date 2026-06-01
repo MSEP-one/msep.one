@@ -20,4 +20,4 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	add_action(_workspace_context.action_select_connected)
 	add_action(_workspace_context.action_grow_selection)
 	add_action(_workspace_context.action_shrink_selection)
-	add_action(load("uid://ct1lyvgg2b25q").new(_workspace_context, _ring_menu))
+	add_action(RingActionAlignSelection.new(_workspace_context, _ring_menu))
