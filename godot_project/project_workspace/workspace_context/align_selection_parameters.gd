@@ -81,17 +81,12 @@ func get_alignable_boxes() -> Array[AlignableOBB]:
 		var alignable_objects: Array[StructureContext] = get_alignable_structure_contexts()
 		for context: StructureContext in alignable_objects:
 			var group_boxes: Array[OBB] = context.get_selection_obb_with_selection_policy(_align_selection_grouping_policy)
-			if group_boxes.size() > 1:
-				for i in group_boxes.size():
-					_alignable_boxes.append(AlignableOBB.from_obb(
-						group_boxes[i],
-						context.nano_structure.get_structure_name() + (" Molecule %d" % [i + 1])
-					))
-			else:
+			for i in group_boxes.size():
+				var description: String = context.nano_structure.get_structure_name()
+				if group_boxes.size() > 1:
+					description += " Molecule %d" % [i + 1]
 				_alignable_boxes.append(AlignableOBB.from_obb(
-					group_boxes[0],
-					context.nano_structure.get_structure_name()
-				))
+					group_boxes[i], description))
 		_alignable_boxes.make_read_only()
 	return _alignable_boxes
 
