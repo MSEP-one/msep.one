@@ -44,8 +44,8 @@ func _ensure_workspace_initialized(in_workspace_context: WorkspaceContext) -> vo
 	_workspace_context = in_workspace_context
 	_align_selection_parameters = in_workspace_context.align_selection_parameters
 	_align_selection_parameters.align_relative_to_changed.connect(_on_align_relative_to_changed)
+	_workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 	visibility_changed.connect(_on_visibility_changed)
-
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -82,7 +82,11 @@ func _notification(what: int) -> void:
 
 
 func _on_align_relative_to_changed() -> void:
-	_update_ui()
+	ScriptUtils.call_deferred_once(_update_ui)
+
+
+func _on_workspace_context_history_changed() -> void:
+	ScriptUtils.call_deferred_once(_update_ui)
 
 
 func _on_visibility_changed() -> void:
@@ -113,8 +117,8 @@ var _last_alignable_boxes: Array[AlignableOBB] = []
 func _update_tree() -> void:
 	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
 	if alignable_boxes == _last_alignable_boxes:
-		_refresh_tree_items()
-		# No need to update
+		if not _last_alignable_boxes.is_empty():
+			_refresh_tree_items()
 		return
 	_last_alignable_boxes = alignable_boxes
 	const COL_0 = 0
