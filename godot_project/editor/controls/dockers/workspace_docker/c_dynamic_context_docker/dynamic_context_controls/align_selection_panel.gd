@@ -5,6 +5,13 @@ const AlignRelativeTo = AlignSelectionParameters.AlignRelativeTo
 const WorldPlane = AlignSelectionParameters.WorldPlane
 const BoxFace = AlignSelectionParameters.BoxFace
 
+const COL_0: int = 0
+const COL_1: int = 1
+const SELECT_FACE_BUTTON_IDX: int = 0
+const MORE_OPTIONS_BUTTON_IDX: int = 1
+const ICON_SETTINGS_MENU = preload("uid://dtfepgaagdcj5")
+
+
 enum Alignment {
 	IGNORE = -1,
 	BEGIN,
@@ -121,8 +128,6 @@ func _update_tree() -> void:
 			_refresh_tree_items()
 		return
 	_last_alignable_boxes = alignable_boxes
-	const COL_0 = 0
-	const COL_1 = 1
 	_alignable_boxes_tree.set_column_title(COL_0, tr(&"Object"))
 	_alignable_boxes_tree.set_column_title(COL_1, tr(&"Face to Align"))
 	_alignable_boxes_tree.set_column_expand(COL_1, false)
@@ -145,10 +150,8 @@ func _update_tree() -> void:
 			_align_selection_parameters.is_advanced_settings_enabled() and not is_current
 		if show_more_button:
 			if item.get_button_count(COL_1) < 2:
-				const ICON_SETTINGS_MENU = preload("uid://dtfepgaagdcj5")
 				item.add_button(COL_1, ICON_SETTINGS_MENU)
-			var MORE_OPTIONS_BUTTON_INDEX: int = 1
-			item.set_button_disabled(COL_1, MORE_OPTIONS_BUTTON_INDEX, box.selected_face == BoxFace.UNDEFINED)
+			item.set_button_disabled(COL_1, MORE_OPTIONS_BUTTON_IDX, box.selected_face == BoxFace.UNDEFINED)
 		_align_to_box_option_button.add_item(box.description)
 		if is_current:
 			_align_to_box_option_button.select(_align_to_box_option_button.item_count - 1)
@@ -156,9 +159,6 @@ func _update_tree() -> void:
 
 
 func _refresh_tree_items() -> void:
-	const COL_0 = 0
-	const COL_1 = 1
-	const BUTTON_IDX = 0
 	var current_box: AlignableOBB = _align_selection_parameters.get_align_obb_target()
 	var checked_icon: Texture2D = null#get_theme_icon(&"radio_checked", &"CheckBox")
 	var unchecked_icon: Texture2D = null#get_theme_icon(&"radio_unchecked", &"CheckBox")
@@ -168,24 +168,25 @@ func _refresh_tree_items() -> void:
 		var is_current: bool = item_box == current_box and current_box != null
 		if item.get_button_count(COL_1) == 0:
 			print("No button: ", item.get_text(COL_0))
+		item.set_button(COL_1, SELECT_FACE_BUTTON_IDX,
+			_empty_texture if is_current else _get_box_face_icon(item_box.selected_face))
+		item.set_button_disabled(COL_1, SELECT_FACE_BUTTON_IDX, is_current)
 		if is_current:
-			item.set_button(COL_1, BUTTON_IDX, _empty_texture)
 			item.set_custom_color(COL_0, Color.YELLOW)
 			_align_to_face_button.icon = _get_box_face_icon(item_box.align_to_face)
 		else:
-			item.set_button(COL_1, BUTTON_IDX, _get_box_face_icon(item_box.selected_face))
 			item.clear_custom_color(COL_0)
+		
 		var show_more_button: bool = \
 			_align_selection_parameters.is_advanced_settings_enabled() and not is_current
-		const MORE_OPTIONS_BUTTON_INDEX: int = 1
 		if show_more_button:
 			if item.get_button_count(COL_1) < 2:
-				const ICON_SETTINGS_MENU = preload("uid://dtfepgaagdcj5")
+				
 				item.add_button(COL_1, ICON_SETTINGS_MENU)
-			item.set_button_disabled(COL_1, MORE_OPTIONS_BUTTON_INDEX, item_box.selected_face == BoxFace.UNDEFINED)
+			item.set_button_disabled(COL_1, MORE_OPTIONS_BUTTON_IDX, item_box.selected_face == BoxFace.UNDEFINED)
 		else:
 			if item.get_button_count(COL_1) >= 2:
-				item.erase_button(COL_1, MORE_OPTIONS_BUTTON_INDEX)
+				item.erase_button(COL_1, MORE_OPTIONS_BUTTON_IDX)
 		if _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE:
 			item.set_icon(COL_0, checked_icon if is_current else unchecked_icon)
 		else:
@@ -193,13 +194,10 @@ func _refresh_tree_items() -> void:
 
 
 func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, id: int, mouse_button_index: int) -> void:
-	const COL_0 = 0
-	const ID_CYCLE_FACE = 0
-	const ID_ADVANCED_OPTIONS = 1
 	var item_box: AlignableOBB = item.get_metadata(COL_0) as AlignableOBB
 	assert(item_box)
 	assert(item_box != _align_selection_parameters.get_align_obb_target())
-	if id == ID_CYCLE_FACE:
+	if id == SELECT_FACE_BUTTON_IDX:
 		var advance_dir: int = 0
 		match mouse_button_index:
 			MOUSE_BUTTON_LEFT:
@@ -212,10 +210,9 @@ func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, id: i
 		# Force redraw preview
 		_update_ui()
 		_align_selection_parameters.request_redraw_preview()
-	if id == ID_ADVANCED_OPTIONS:
+	if id == MORE_OPTIONS_BUTTON_IDX:
 		_advanced_align_settings_popup.setup(item_box, _align_selection_parameters)
-		const COL_1 = 1
-		var button_rect: Rect2 = _alignable_boxes_tree.get_item_area_rect(item, COL_1, ID_ADVANCED_OPTIONS)
+		var button_rect: Rect2 = _alignable_boxes_tree.get_item_area_rect(item, COL_1, MORE_OPTIONS_BUTTON_IDX)
 		button_rect.position += _alignable_boxes_tree.global_position
 		_advanced_align_settings_popup.popup_attached_to_global_rect(button_rect)
 
