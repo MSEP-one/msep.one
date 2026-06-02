@@ -94,6 +94,8 @@ func _on_visibility_changed() -> void:
 
 
 func _update_ui() -> void:
+	if not is_visible_in_tree():
+		return
 	_update_tree()
 	_world_plane_container.visible = _align_selection_parameters.get_align_relative_to() in [
 		AlignRelativeTo.WORLD_PLANE,
