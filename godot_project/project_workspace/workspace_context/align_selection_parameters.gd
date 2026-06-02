@@ -93,6 +93,8 @@ func get_alignable_boxes() -> Array[AlignableOBB]:
 
 func can_align_rotations() -> bool:
 	var alignable_boxes: Array[AlignableOBB] = get_alignable_boxes()
+	if alignable_boxes.is_empty():
+		return false
 	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
 		for box: AlignableOBB in alignable_boxes:
 			if box.selected_face != BoxFace.UNDEFINED:
