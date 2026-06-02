@@ -56,8 +56,14 @@ func advance_align_to_face(dir: int) -> void:
 		advance_align_to_face(dir)
 
 
+## At least 2 of the 3 size dimensions needs to be greater than 0 for the
+## box to have a valid surface.
 func has_alignable_face() -> bool:
-	return box.has_surface()
+	var zero_length_count: int = 0
+	for i in 3:
+		if is_zero_approx(box.size[i]):
+			zero_length_count += 1
+	return zero_length_count <= 1
 
 
 func has_face(box_face: BoxFace) -> bool:
@@ -238,6 +244,3 @@ func align_position_to(reference_obb: AlignableOBB) -> bool:
 			something_changed = true
 	
 	return something_changed
-
-
-
