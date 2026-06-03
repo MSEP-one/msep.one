@@ -40,8 +40,6 @@ static var _empty_texture := AtlasTexture.new() # Behaves as a 0x0 texture
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	_ensure_workspace_initialized(in_workspace_context)
-	if _align_selection_parameters.can_align_selection():
-		_update_ui()
 	return _align_selection_parameters.can_align_selection()
 
 
@@ -98,6 +96,8 @@ func _on_workspace_context_history_changed() -> void:
 
 func _on_visibility_changed() -> void:
 	_align_selection_parameters.set_alignment_tools_enabled(is_visible_in_tree())
+	if is_visible_in_tree():
+		ScriptUtils.call_deferred_once(_update_tree)
 
 
 func _update_ui() -> void:
