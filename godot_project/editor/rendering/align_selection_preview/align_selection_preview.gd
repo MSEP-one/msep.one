@@ -82,15 +82,14 @@ func _draw() -> void:
 		return
 	
 	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
+	var highlighted_obb: OBB = _align_selection_parameters.get_align_obb_target()
 	for obb: AlignableOBB in alignable_boxes:
-		if obb == null or not obb.box.has_surface():
+		if obb == null or not obb.box.has_surface() or obb == highlighted_obb:
 			continue
 		_draw_obb_face(obb, obb.selected_face)
 		_draw_transform(obb.transform, obb.box.size * 0.25, false)
-	if _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE:
-		var highligted_obb: OBB = _align_selection_parameters.get_align_obb_target()
-		if highligted_obb != null:
-			_draw_obb_face(highligted_obb, highligted_obb.align_to_face, true)
+	if highlighted_obb != null:
+		_draw_obb_face(highlighted_obb, highlighted_obb.align_to_face, true)
 
 
 func _draw_obb(in_obb: OBB, in_color: Color = _lowlight_color) -> void:
