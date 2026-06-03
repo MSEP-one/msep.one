@@ -314,7 +314,7 @@ func _on_align_camera_button_pressed() -> void:
 					align_basis = align_basis.rotated(align_basis[1], PI * 0.5)
 		AlignRelativeTo.SPECIFIC_BOX_PLANE:
 			align_basis = _align_selection_parameters.get_align_obb_target().transform.basis
-			var face: BoxFace = _align_selection_parameters.get_align_obb_target().selected_face
+			var face: BoxFace = _align_selection_parameters.get_align_obb_target().align_to_face
 			match face:
 				BoxFace.FRONT_BACK:
 					pass
