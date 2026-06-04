@@ -158,6 +158,16 @@ func _update_tree() -> void:
 		if is_current:
 			_align_to_box_option_button.select(_align_to_box_option_button.item_count - 1)
 			_align_to_face_button.icon = _get_box_face_icon(box.align_to_face)
+	_alignable_boxes_tree.scroll_vertical_enabled = false
+	_alignable_boxes_tree.custom_minimum_size = Vector2.ZERO
+	# Hide and show to force recalculate size
+	_alignable_boxes_tree.hide()
+	_alignable_boxes_tree.show()
+	const MAX_TREE_HEIGTH: float = 300.0
+	if _alignable_boxes_tree.size.y > MAX_TREE_HEIGTH:
+		_alignable_boxes_tree.custom_minimum_size = Vector2(0, MAX_TREE_HEIGTH)
+		_alignable_boxes_tree.scroll_vertical_enabled = true
+	_alignable_boxes_tree.mouse_force_pass_scroll_events = not _alignable_boxes_tree.scroll_vertical_enabled
 
 
 func _refresh_tree_items() -> void:
