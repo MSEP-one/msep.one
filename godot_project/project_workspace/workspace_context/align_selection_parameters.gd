@@ -58,7 +58,7 @@ func set_alignment_tools_enabled(in_enabled: bool) -> void:
 
 
 func can_align_selection() -> bool:
-	return get_alignable_boxes().size() > 0
+	return count_alignable_boxes() > 0
 
 
 func get_alignable_structure_contexts() -> Array[StructureContext]:
@@ -74,6 +74,16 @@ func get_alignable_structure_contexts() -> Array[StructureContext]:
 			)
 		)
 	return selected_groups
+
+
+func count_alignable_boxes() -> int:
+	if not _alignable_boxes.is_empty() or _alignable_boxes.is_read_only():
+		return _alignable_boxes.size()
+	var alignable_objects: Array[StructureContext] = get_alignable_structure_contexts()
+	var count: int = 0
+	for context: StructureContext in alignable_objects:
+		count += context.count_obb_with_selection_policy(_align_selection_grouping_policy)
+	return count
 
 
 var _previous_query: Dictionary[int, Array] = {
@@ -139,7 +149,6 @@ func can_align_positions() -> bool:
 
 func is_advanced_settings_enabled() -> bool:
 	return _align_relative_to == AlignRelativeTo.SPECIFIC_BOX_PLANE
-
 
 
 func get_align_relative_to() -> AlignRelativeTo:

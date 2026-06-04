@@ -470,6 +470,23 @@ func get_selection_aabb() -> AABB:
 	return _selection_db.get_selection_aabb()
 
 
+func count_obb_with_selection_policy(in_policy: AlignSelectionGroupingPolicy) -> int:
+	match in_policy:
+		AlignSelectionGroupingPolicy.OneBoxPerGroup:
+			if workspace_context.get_current_structure_context() == self:
+				return 1 if has_atom_selection(false) else 0
+			return 1 if has_selection(true) else 0
+		AlignSelectionGroupingPolicy.OneBoxPerSubgroup:
+			return 1 if has_selection() else 0
+		AlignSelectionGroupingPolicy.OneBoxPerMolecule:
+			if not nano_structure is AtomicStructure or nano_structure is DnaStructure:
+				return 1
+			var molecules: Array[PackedInt32Array] = _subdivide_molecules(get_selected_atoms())
+			return molecules.size()
+	assert(false, "Unhandled grouping policy: %d" % in_policy)
+	return 0
+
+
 func get_selection_obb_with_selection_policy(in_policy: AlignSelectionGroupingPolicy) -> Array[OBB]:
 	match in_policy:
 		AlignSelectionGroupingPolicy.OneBoxPerGroup:
@@ -564,7 +581,9 @@ func _get_obb_from_point_cloud(in_positions: Array[Vector3], in_source: Dictiona
 	var cov_matrix: Array[PackedFloat64Array] = _get_covariance_matrix(in_positions, centroid)
 	
 	# 2. Power Iteration to find Eigenvectors (Principal Axes)
-	var axes: Array[Vector3] = _get_eigenvalues(cov_matrix).eigenvectors
+	var eigen: Dictionary = _get_eigenvalues(cov_matrix)
+	var axes: Array[Vector3] = eigen.eigenvectors
+	var eigenvalues: Array[float] = eigen.eigenvalues
 	
 	# 4. Orthonormalize
 	var basis := Basis(axes[0], axes[1], axes[2]).orthonormalized()
@@ -616,20 +635,39 @@ func _get_obb_from_point_cloud(in_positions: Array[Vector3], in_source: Dictiona
 	# If Y is also derivable, re-derive it too for full orthonormality
 	var axis_y := axis_z.cross(axis_x).normalized()
 	basis = Basis(axis_x, axis_y, axis_z).orthonormalized()
-	
-	# 8. Find simetry axis and align them to world axis
-	for axis: Vector3.Axis in [Vector3.AXIS_Y, Vector3.AXIS_X, Vector3.AXIS_Z]:
-		if _is_symmetry_axis(axis, basis, in_positions):
-			const AXIS_TO_ROTATE = {
-				Vector3.AXIS_X : Vector3.AXIS_Z,
-				Vector3.AXIS_Y : Vector3.AXIS_X,
-				Vector3.AXIS_Z : Vector3.AXIS_Y,
-			}
-			var target_dir: Vector3 = Plane(basis[axis], 0).project(Basis()[AXIS_TO_ROTATE[axis]]).normalized()
-			var angle: float = axis_y.signed_angle_to(target_dir, axis_z)
-			basis = basis.rotated(axis_z, angle)
-	
 	axes = [basis[0], basis[1], basis[2]]
+	
+	# 8. Volume minimization
+	const PLANAR_THRESHOLD: float = 0.01
+	var sorted_eigen: Array[float] = eigenvalues.duplicate()
+	sorted_eigen.sort()
+	var is_planar: bool = sorted_eigen[0] < PLANAR_THRESHOLD
+	var is_isotropic: bool = sorted_eigen[0] / max(sorted_eigen[2], 1e-10) > 0.95
+	
+	if is_isotropic:
+		for axis: Vector3.Axis in [Vector3.AXIS_Z, Vector3.AXIS_X, Vector3.AXIS_Y, Vector3.AXIS_Z]:
+			# Repeated Z axis is intentional, I'm not sure why but it fails otherwise
+			axes = _minimize_obb_volume(in_positions, axes.duplicate(), axis, centroid)
+		basis = Basis(axes[0], axes[1], axes[2]).orthonormalized()
+		axes = [basis[0], basis[1], basis[2]]
+	elif is_planar:
+		var shorter_axis: int = eigenvalues.find(sorted_eigen[0])
+		assert(shorter_axis in [0, 1, 2])
+		axes = _minimize_obb_volume(in_positions, axes.duplicate(), shorter_axis, centroid)
+		basis = Basis(axes[0], axes[1], axes[2]).orthonormalized()
+		axes = [basis[0], basis[1], basis[2]]
+	else:
+		for axis: Vector3.Axis in [Vector3.AXIS_Z, Vector3.AXIS_X, Vector3.AXIS_Y]:
+			if _is_symmetry_axis(axis, basis, in_positions):
+				const AXIS_TO_ROTATE = {
+					Vector3.AXIS_X : Vector3.AXIS_Z,
+					Vector3.AXIS_Y : Vector3.AXIS_X,
+					Vector3.AXIS_Z : Vector3.AXIS_Y,
+				}
+				var target_dir: Vector3 = Plane(basis[axis], 0).project(Basis()[AXIS_TO_ROTATE[axis]]).normalized()
+				var angle: float = axis_y.signed_angle_to(target_dir, axis_z)
+				basis = basis.rotated(axis_z, angle)
+		axes = [basis[0], basis[1], basis[2]]
 
 	# 9. With handiness corrected, this breaks extents, so need to recalculate them
 	min_extents = Vector3.INF
@@ -669,9 +707,6 @@ func _get_eigenvalues(cov_matrix: Array[PackedFloat64Array]) -> Dictionary:
 			v = new_v
 		eigenvectors.append(v)
 		
-		if v == Vector3.ZERO:
-			continue  # skip deflation for degenerate axis
-		
 		# Deflation: A_next = A - lambda * v * vT
 		var va := [v.x, v.y, v.z]
 		var Av := [
@@ -684,6 +719,9 @@ func _get_eigenvalues(cov_matrix: Array[PackedFloat64Array]) -> Dictionary:
 		
 		if v == Vector3.ZERO:
 			continue
+		
+		if v == Vector3.ZERO:
+			continue  # skip deflation for degenerate axis
 		
 		for i in 3:
 			for j in 3:
@@ -731,6 +769,75 @@ func _is_symmetry_axis(axis: Vector3.Axis, basis: Basis, in_positions: Array[Vec
 	var max_plane_eigen: float = max(eigen_values[other_axes[0]], eigen_values[other_axes[1]])
 	var is_isotropic: bool = abs(eigen_values[other_axes[0]] - eigen_values[other_axes[1]]) < SYMMETRY_THRESHOLD * max_plane_eigen
 	return is_isotropic
+
+
+func _minimize_obb_volume(positions: Array[Vector3], initial_axes: Array[Vector3], rotation_axis: int, centroid: Vector3) -> Array[Vector3]:
+	const ANGLE_STEPS := 3
+	var angle_range_min: float = 0.0
+	var angle_range_max: float = PI / 2.0
+	
+	
+	var other_axes: Array[int] = [0, 1, 2]
+	other_axes = other_axes.filter(func(a: int) -> bool: return a != rotation_axis)
+	
+	var best_axes := initial_axes
+	var best_volume := INF
+	
+	# Calculate original volume
+	var axis_min: float = INF
+	var axis_max: float = -INF
+	var local_points: Array[Vector3]
+	for p in positions:
+		local_points.append(p - centroid)
+		for i in 3:
+			var proj := local_points[-1].dot(initial_axes[i])
+			axis_min = min(axis_min, proj)
+			axis_max = max(axis_max, proj)
+	
+	
+	const BEST_ANGLE_THRESSHOLD = deg_to_rad(0.1)
+	var iteration_count:int = 0
+	var is_first_iteration: bool = true
+	while angle_range_max - angle_range_min > BEST_ANGLE_THRESSHOLD:
+		iteration_count += 1
+		var sub_range: float = (angle_range_max - angle_range_min) / float(ANGLE_STEPS)
+		var best_step: int = -1
+		for step: float in ANGLE_STEPS: # find the best of 3 slices
+			if not is_first_iteration and step == 1:
+				#This angle was tested previous iteration
+				if best_step == -1:
+					best_step = 1
+				continue
+			var angle := angle_range_min + (step + 0.5) * sub_range
+			var rotated_axes := initial_axes.duplicate()
+			rotated_axes[other_axes[0]] = initial_axes[other_axes[0]].rotated(initial_axes[rotation_axis], angle)
+			rotated_axes[other_axes[1]] = initial_axes[other_axes[1]].rotated(initial_axes[rotation_axis], angle)
+			
+			# Compute volume for this orientation
+			var min_e := Vector3.INF
+			var max_e := -Vector3.INF
+			min_e[rotation_axis] = axis_min
+			max_e[rotation_axis] = axis_max
+			for local in local_points:
+				for i in other_axes:
+					var proj := local.dot(rotated_axes[i])
+					min_e[i] = min(min_e[i], proj)
+					max_e[i] = max(max_e[i], proj)
+			var size := max_e - min_e
+			var volume := size.x * size.y * size.z
+			
+			if volume < best_volume:
+				best_volume = volume
+				best_axes = rotated_axes
+				best_step = int(step)
+		is_first_iteration = false
+		if best_step == -1:
+			print("break after ", iteration_count, " and range ", rad_to_deg(angle_range_max - angle_range_min))
+			break
+		angle_range_min += best_step * sub_range
+		angle_range_max = angle_range_min + sub_range
+	var basis := Basis(best_axes[0], best_axes[1], best_axes[2]).orthonormalized()
+	return [basis[0], basis[1], basis[2]]
 
 
 func _subdivide_molecules(in_atoms: PackedInt32Array) -> Array[PackedInt32Array]:
