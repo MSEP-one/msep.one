@@ -97,7 +97,7 @@ func _on_workspace_context_history_changed() -> void:
 func _on_visibility_changed() -> void:
 	_align_selection_parameters.set_alignment_tools_enabled(is_visible_in_tree())
 	if is_visible_in_tree():
-		ScriptUtils.call_deferred_once(_update_tree)
+		ScriptUtils.call_deferred_once(_update_ui)
 
 
 func _update_ui() -> void:
