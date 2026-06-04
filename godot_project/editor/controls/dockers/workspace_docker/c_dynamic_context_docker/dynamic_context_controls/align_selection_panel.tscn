@@ -30,6 +30,7 @@ theme_type_variation = &"SubcategoryPanel"
 [node name="AlignableBoxesTree" type="Tree" parent="PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+focus_mode = 0
 columns = 2
 column_titles_visible = true
 allow_search = false
