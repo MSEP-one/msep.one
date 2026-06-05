@@ -96,25 +96,23 @@ func _on_sign_in_button_pressed() -> void:
 		push_error("Login is unimplemented!")
 		return
 	# This is a dummy implementation of login, will be replaced in the future
-	DisplayServer.dialog_input_text("Log In (Temporal UI)", "Username", "", _on_username_entered.call_deferred)
+	DisplayServer.dialog_input_text("Log In (Temporal UI)", "Email", "", _on_email_entered.call_deferred)
 
 
-func _on_username_entered(in_username: String) -> void:
-	if in_username.is_empty():
-		_on_authentication_failed()
+func _on_email_entered(in_email: String) -> void:
+	const EMAIL_REGEX: StringName = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+	var regex := RegEx.new()
+	regex.compile(EMAIL_REGEX)
+	var result: RegExMatch = regex.search(in_email)
+	if in_email.is_empty() or result == null or result.get_string() != in_email:
+		_on_authentication_failed("Invalid username or password")
 		return
-	DisplayServer.dialog_input_text("Log In (Temporal UI)", "Password", "", _on_password_entered.bind(in_username).call_deferred)
+	var username: String = in_email.get_slice("@", 0).replace(".", "-").replace("_","-")
+	MolecularEditorContext.authenticator.login(username, in_email)
 
 
-func _on_password_entered(in_password: String, in_username: String) -> void:
-	if in_password.is_empty():
-		_on_authentication_failed()
-		return
-	MolecularEditorContext.authenticator.login(in_username, in_password)
-
-
-func _on_authentication_failed() -> void:
-	DisplayServer.dialog_show("Failed", "Invalid username or password", ["OK"], Callable())
+func _on_authentication_failed(in_error: String) -> void:
+	DisplayServer.dialog_show("Failed", in_error, ["OK"], Callable())
 
 
 func _on_user_menu_button_popup_id_pressed(in_id: int) -> void:

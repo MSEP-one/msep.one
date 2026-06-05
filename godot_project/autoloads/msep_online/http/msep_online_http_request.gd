@@ -22,7 +22,7 @@ func _init(in_method: HTTPClient.Method, subpath: String, request_body: String =
 	request_completed.connect(_on_request_completed)
 
 	var headers: PackedStringArray
-	if request_body.is_empty():
+	if not request_body.is_empty():
 		headers.append("Content-Type: application/json")
 	var authenticator: MsepOnlineAuthenticator = MolecularEditorContext.authenticator
 	headers.append_array(authenticator.get_authentication_headers())
@@ -31,7 +31,7 @@ func _init(in_method: HTTPClient.Method, subpath: String, request_body: String =
 		# Is a full path, in example the url of an image or binary file
 		url = subpath
 	else:
-		url = get_base_url() + subpath
+		url = get_base_url().path_join(subpath)
 	const METHODS = {
 		HTTPClient.Method.METHOD_GET : "GET",
 		HTTPClient.Method.METHOD_HEAD : "HEAD",

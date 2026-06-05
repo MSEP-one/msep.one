@@ -33,7 +33,10 @@ func set_project_data(in_data: Dictionary) -> void:
 	# Name
 	_name_label.text = _project_data.get("name", "")
 	# Thumbnail
-	var thumbnail_uuid: String = _project_data.get("latest_version", {}).get("uuid", "")
+	var latest_version: Dictionary = {}
+	if _project_data.get("latest_version_info") != null:
+		latest_version = _project_data.get("latest_version_info")
+	var thumbnail_uuid: String = latest_version.get("uuid", "")
 	if thumbnail_uuid.is_empty():
 		_thumbnail_texture_rect.texture = _FALLBACK_THUMBNAIL
 	else:

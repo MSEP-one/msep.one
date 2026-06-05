@@ -379,7 +379,7 @@ rendering/van_der_waals/outline_thickness=0.8
 rendering/mechanical_simulation/outline_thickness=0.8
 rendering/balls_and_sticks/outline_thickness=0.3
 msep_online/baseurl="https://api.msep.one"
-msep_online/test_baseurl="http://127.0.0.1:8000"
+msep_online/test_baseurl="https://api-dev.msep.one"
 
 [network]
 

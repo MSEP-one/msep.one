@@ -4,7 +4,7 @@ class_name MsepOnlineAuthenticator extends Node
 
 signal logged_in()
 signal avatar_loaded()
-signal authentication_failed()
+signal authentication_failed(error: String)
 signal logged_out()
 
 
@@ -28,7 +28,9 @@ func _randomize_test_name() -> void:
 var _is_authenticated: bool = false
 var _auth_token: String = ""
 var _refresh_token: String = ""
+var _auth_uuid: String = ""
 var _username: String = ""
+var _expire_time: float = 0
 var _avatar_background_color := Color.BLACK
 var _avatar: Texture2D = null
 var _user_public_data: Dictionary
@@ -75,7 +77,9 @@ func _authenticate_from_cache() -> void:
 		_is_authenticated = true
 		_auth_token = auth_file.get_pascal_string()
 		_refresh_token = auth_file.get_pascal_string()
+		_auth_uuid = auth_file.get_pascal_string()
 		_username = auth_file.get_pascal_string()
+		_expire_time = auth_file.get_float()
 		_avatar_background_color = _gen_avatar_background_color(_username)
 		var avatar_buffer_length: int = auth_file.get_64()
 		if avatar_buffer_length > 0:
@@ -96,7 +100,7 @@ func _authenticate_from_cache() -> void:
 
 func _revalidate_tokens() -> void:
 	# TODO: use http request to revalidate auth and refresh tokens
-	if _auth_token == "abcd" and _refresh_token == "abcd":
+	if _expire_time > Time.get_unix_time_from_system():
 		print("Tokens are valid. Welcome ", _username)
 		return
 	else:
@@ -110,36 +114,47 @@ func is_authenticated() -> bool:
 
 func get_authentication_headers() -> PackedStringArray:
 	if is_authenticated():
-		return ["Bearer: " + _auth_token]
+		return ["Authorization: Bearer " + _auth_token]
 	return []
 
 
-func login(in_username: String, in_password: String) -> Promise:
+func login(in_username: String, in_email: String) -> Promise:
 	var promise: Promise = AuthenticationPromise.new(self)
 	# Arguments could change in the future
 	# For now any password equal to the username in lower case will work
 	if not OS.is_debug_build():
 		# FIXME: Delete this when real authentication is implemented
-		push_error("Authentication is not implemented!")
-		authentication_failed.emit()
+		authentication_failed.emit("Authentication is not implemented!")
 		return promise
-	if in_password == in_username.to_lower():
+	var msep_service: MsepOnlineService = MolecularEditorContext.msep_online_service
+	var login_promise: DownloadPromise = msep_service.dev_login(in_username, in_email)
+	_handle_login_promise(login_promise)
+	return promise
+
+
+func _handle_login_promise(in_login_promise: DownloadPromise) -> void:
+	await in_login_promise.wait_for_fulfill()
+	if in_login_promise.has_error():
+		authentication_failed.emit(in_login_promise.get_error())
+	else:
+		var response: Dictionary = in_login_promise.get_result().body as Dictionary
+		if response.has("error"):
+			authentication_failed.emit(response.get("message", response.get("error")))
+			return
 		_is_authenticated = true
-		_auth_token = "abcd"
-		_refresh_token = "abcd"
-		_username = in_username
-		_avatar_background_color = _gen_avatar_background_color(in_username)
+		_auth_token = response["token"]
+		_refresh_token = response["token"]
+		_auth_uuid = response["auth_uuid"]
+		_username = response["username"]
+		_expire_time = Time.get_unix_time_from_system() + response["expires_in"]
+		_avatar_background_color = _gen_avatar_background_color(_username)
 		_avatar = null
 		if _write_auth_cache():
 			logged_in.emit()
 			# TODO: Load avatar from url
 			avatar_loaded.emit()
 		else:
-			authentication_failed.emit()
-	else:
-		authentication_failed.emit()
-	return promise
-
+			authentication_failed.emit("Failed to store credentials")
 
 func logout() -> void:
 	if FileAccess.file_exists(AUTH_CACHE_FILE):
@@ -154,7 +169,7 @@ class AuthenticationPromise extends Promise:
 	var _auth: MsepOnlineAuthenticator
 	func _init(authenticator: MsepOnlineAuthenticator) -> void:
 		authenticator.logged_in.connect(_on_result.bind(true))
-		authenticator.authentication_failed.connect(_on_result.bind(false))
+		authenticator.authentication_failed.connect(_on_result.unbind(1).bind(false))
 		_auth = authenticator
 	func _on_result(in_success: bool) -> void:
 		if in_success:
@@ -187,7 +202,9 @@ func _write_auth_cache() -> bool:
 		return false
 	auth_file.store_pascal_string(_auth_token)
 	auth_file.store_pascal_string(_refresh_token)
+	auth_file.store_pascal_string(_auth_uuid)
 	auth_file.store_pascal_string(_username)
+	auth_file.store_float(_expire_time)
 	if _avatar == null:
 		var avatar_buffer_length: int = 0
 		auth_file.store_64(avatar_buffer_length)
