@@ -201,11 +201,11 @@ func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool
 				h_axis = Vector3.AXIS_X; v_axis = Vector3.AXIS_Z
 			BoxFace.LEFT_RIGHT:
 				h_axis = Vector3.AXIS_Z; v_axis = Vector3.AXIS_Y
-		origin += basis[h_axis] * (in_obb.offset_ratio_h * in_obb.box.size[h_axis])
-		origin += basis[v_axis] * (in_obb.offset_ratio_v * in_obb.box.size[v_axis])
+		origin += basis[0] * (in_obb.offset_ratio_h * in_obb.box.size[h_axis])
+		origin += basis[1] * (in_obb.offset_ratio_v * in_obb.box.size[v_axis])
 		var origin_2d: Vector2 = _camera.unproject_position(origin)
-		var _h_dir_2d: Vector2 = _camera.unproject_position(origin + basis[h_axis] * 200).normalized()
-		var _v_dir_2d: Vector2 = _camera.unproject_position(origin + basis[v_axis] * 200).normalized()
+		var _h_dir_2d: Vector2 = (_camera.unproject_position(origin + basis[0] * 200)-origin_2d).normalized()
+		var _v_dir_2d: Vector2 = (_camera.unproject_position(origin + basis[1] * 200)-origin_2d).normalized()
 		var draw_h_from: Vector2 = origin_2d - _h_dir_2d * 20
 		var draw_h_to: Vector2 = origin_2d + _h_dir_2d * 20
 		var draw_v_from: Vector2 = origin_2d - _v_dir_2d * 20
