@@ -560,43 +560,11 @@ func _get_obb_from_point_cloud(in_positions: Array[Vector3], in_source: Dictiona
 	for pos in in_positions:
 		centroid += pos
 	centroid /= in_positions.size()
-	# 3. calculate covariance matrix
+	# 1. calculate covariance matrix
 	var cov_matrix: Array[PackedFloat64Array] = _get_covariance_matrix(in_positions, centroid)
 	
-	# 3. Power Iteration to find Eigenvectors (Principal Axes)
-	var axes: Array[Vector3] = []
-
-	for _axis in 3:
-		# Power iteration
-		const MAX_ITERATIONS := 100
-		const CONVERGENCE_THRESHOLD_SQRD := 1e-12 # 1e-6 * 1e-6
-		var v := Vector3(1.0, 1.0, 1.0)
-		for _iter in MAX_ITERATIONS:
-			var va := [v.x, v.y, v.z]
-			var new_v := Vector3(
-				cov_matrix[0][0]*va[0] + cov_matrix[0][1]*va[1] + cov_matrix[0][2]*va[2],
-				cov_matrix[1][0]*va[0] + cov_matrix[1][1]*va[1] + cov_matrix[1][2]*va[2],
-				cov_matrix[2][0]*va[0] + cov_matrix[2][1]*va[1] + cov_matrix[2][2]*va[2]
-			).normalized()
-			if new_v.distance_squared_to(v) < CONVERGENCE_THRESHOLD_SQRD:
-				break
-			v = new_v
-		axes.append(v)
-		
-		if v == Vector3.ZERO:
-			continue  # skip deflation for degenerate axis
-		
-		# Deflation: A_next = A - lambda * v * vT
-		var va := [v.x, v.y, v.z]
-		var Av := [
-			cov_matrix[0][0]*va[0] + cov_matrix[0][1]*va[1] + cov_matrix[0][2]*va[2],
-			cov_matrix[1][0]*va[0] + cov_matrix[1][1]*va[1] + cov_matrix[1][2]*va[2],
-			cov_matrix[2][0]*va[0] + cov_matrix[2][1]*va[1] + cov_matrix[2][2]*va[2]
-		]
-		var lam: float = va[0]*Av[0] + va[1]*Av[1] + va[2]*Av[2]
-		for i in 3:
-			for j in 3:
-				cov_matrix[i][j] -= lam * va[i] * va[j]
+	# 2. Power Iteration to find Eigenvectors (Principal Axes)
+	var axes: Array[Vector3] = _get_eigenvalues(cov_matrix).eigenvectors
 	
 	# 4. Orthonormalize
 	var basis := Basis(axes[0], axes[1], axes[2]).orthonormalized()
@@ -647,11 +615,23 @@ func _get_obb_from_point_cloud(in_positions: Array[Vector3], in_source: Dictiona
 	
 	# If Y is also derivable, re-derive it too for full orthonormality
 	var axis_y := axis_z.cross(axis_x).normalized()
-
-	basis = Basis(axis_x, axis_y, axis_z)
+	basis = Basis(axis_x, axis_y, axis_z).orthonormalized()
+	
+	# 8. Find simetry axis and align them to world axis
+	for axis: Vector3.Axis in [Vector3.AXIS_Y, Vector3.AXIS_X, Vector3.AXIS_Z]:
+		if _is_symmetry_axis(axis, basis, in_positions):
+			const AXIS_TO_ROTATE = {
+				Vector3.AXIS_X : Vector3.AXIS_Z,
+				Vector3.AXIS_Y : Vector3.AXIS_X,
+				Vector3.AXIS_Z : Vector3.AXIS_Y,
+			}
+			var target_dir: Vector3 = Plane(basis[axis], 0).project(Basis()[AXIS_TO_ROTATE[axis]]).normalized()
+			var angle: float = axis_y.signed_angle_to(target_dir, axis_z)
+			basis = basis.rotated(axis_z, angle)
+	
 	axes = [basis[0], basis[1], basis[2]]
 
-	# 8. With handiness corrected, this breaks extents, so need to recalculate them
+	# 9. With handiness corrected, this breaks extents, so need to recalculate them
 	min_extents = Vector3.INF
 	max_extents = -Vector3.INF
 	for p: Vector3 in in_positions:
@@ -669,6 +649,51 @@ func _get_obb_from_point_cloud(in_positions: Array[Vector3], in_source: Dictiona
 	return OBB.new(size, Transform3D(basis, center), in_source)
 
 
+func _get_eigenvalues(cov_matrix: Array[PackedFloat64Array]) -> Dictionary:
+	var eigenvectors: Array[Vector3]
+	var eigenvalues: Array[float]
+	for _axis in 3:
+		# Power iteration
+		const MAX_ITERATIONS := 100
+		const CONVERGENCE_THRESHOLD_SQRD := 1e-12 # 1e-6 * 1e-6
+		var v := Vector3(1.0, 1.0, 1.0)
+		for _iter in MAX_ITERATIONS:
+			var va := [v.x, v.y, v.z]
+			var new_v := Vector3(
+				cov_matrix[0][0]*va[0] + cov_matrix[0][1]*va[1] + cov_matrix[0][2]*va[2],
+				cov_matrix[1][0]*va[0] + cov_matrix[1][1]*va[1] + cov_matrix[1][2]*va[2],
+				cov_matrix[2][0]*va[0] + cov_matrix[2][1]*va[1] + cov_matrix[2][2]*va[2]
+			).normalized()
+			if new_v.distance_squared_to(v) < CONVERGENCE_THRESHOLD_SQRD:
+				break
+			v = new_v
+		eigenvectors.append(v)
+		
+		if v == Vector3.ZERO:
+			continue  # skip deflation for degenerate axis
+		
+		# Deflation: A_next = A - lambda * v * vT
+		var va := [v.x, v.y, v.z]
+		var Av := [
+			cov_matrix[0][0]*va[0] + cov_matrix[0][1]*va[1] + cov_matrix[0][2]*va[2],
+			cov_matrix[1][0]*va[0] + cov_matrix[1][1]*va[1] + cov_matrix[1][2]*va[2],
+			cov_matrix[2][0]*va[0] + cov_matrix[2][1]*va[1] + cov_matrix[2][2]*va[2]
+		]
+		var lam: float = va[0]*Av[0] + va[1]*Av[1] + va[2]*Av[2]
+		eigenvalues.append(lam)
+		
+		if v == Vector3.ZERO:
+			continue
+		
+		for i in 3:
+			for j in 3:
+				cov_matrix[i][j] -= lam * va[i] * va[j]
+	return {
+		&"eigenvectors" : eigenvectors,
+		&"eigenvalues" : eigenvalues,
+	}
+
+
 func _get_covariance_matrix(in_atoms_positions: Array[Vector3], in_centroid: Vector3) -> Array[PackedFloat64Array]:
 	var cov_matrix: Array[PackedFloat64Array] = [
 		PackedFloat64Array([0.0, 0.0, 0.0]),
@@ -681,6 +706,32 @@ func _get_covariance_matrix(in_atoms_positions: Array[Vector3], in_centroid: Vec
 			for j in 3:
 				cov_matrix[i][j] += local_pos[i] * local_pos[j]
 	return cov_matrix
+
+
+func _is_symmetry_axis(axis: Vector3.Axis, basis: Basis, in_positions: Array[Vector3]) -> bool:
+	var plane_points: Array[Vector3] = []
+	plane_points.assign(in_positions.map(
+		func(point: Vector3) -> Vector3:
+			point = basis.inverse() * point
+			point[axis] = 0
+			return point
+	))
+	
+	# Centroid of projected points
+	var centroid := Vector3.ZERO
+	for point: Vector3 in plane_points:
+		centroid += point
+	centroid /= plane_points.size()
+	
+	var cov: Array[PackedFloat64Array] = _get_covariance_matrix(plane_points, centroid)
+	var eigen_values: Array[float] = _get_eigenvalues(cov).eigenvalues
+	var other_axes: Array[int] = [0, 1, 2]
+	other_axes.erase(axis)
+	const SYMMETRY_THRESHOLD: float = 0.1
+	var max_plane_eigen: float = max(eigen_values[other_axes[0]], eigen_values[other_axes[1]])
+	var is_isotropic: bool = abs(eigen_values[other_axes[0]] - eigen_values[other_axes[1]]) < SYMMETRY_THRESHOLD * max_plane_eigen
+	return is_isotropic
+
 
 func _subdivide_molecules(in_atoms: PackedInt32Array) -> Array[PackedInt32Array]:
 	var molecules: Array[PackedInt32Array] = []
