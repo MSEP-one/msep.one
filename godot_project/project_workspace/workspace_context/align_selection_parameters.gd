@@ -76,17 +76,34 @@ func get_alignable_structure_contexts() -> Array[StructureContext]:
 	return selected_groups
 
 
+var _previous_query: Dictionary[int, Array] = {
+	# int_guid = Array[AlignableOBB]
+}
 func get_alignable_boxes() -> Array[AlignableOBB]:
 	if _alignable_boxes.is_empty() and not _alignable_boxes.is_read_only():
 		var alignable_objects: Array[StructureContext] = get_alignable_structure_contexts()
+		var this_query: Dictionary[int, Array] = {}
 		for context: StructureContext in alignable_objects:
+			this_query[context.get_int_guid()] = []
 			var group_boxes: Array[OBB] = context.get_selection_obb_with_selection_policy(_align_selection_grouping_policy)
 			for i in group_boxes.size():
 				var description: String = context.nano_structure.get_structure_name()
 				if group_boxes.size() > 1:
 					description += " Molecule %d" % [i + 1]
-				_alignable_boxes.append(AlignableOBB.from_obb(
-					group_boxes[i], description))
+				var alignable_box: AlignableOBB = AlignableOBB.from_obb(group_boxes[i], description)
+				if _previous_query.get(context.get_int_guid(), []).size() > i:
+					var selected_face: BoxFace = _previous_query[context.get_int_guid()][i].selected_face
+					var align_to_face: BoxFace = _previous_query[context.get_int_guid()][i].align_to_face
+					if alignable_box.has_face(selected_face):
+						alignable_box.selected_face = selected_face
+					if alignable_box.has_face(align_to_face):
+						alignable_box.align_to_face = align_to_face
+					alignable_box.offset_ratio_h = _previous_query[context.get_int_guid()][i].offset_ratio_h
+					alignable_box.offset_ratio_v = _previous_query[context.get_int_guid()][i].offset_ratio_v
+				this_query[context.get_int_guid()].append(alignable_box)
+				_alignable_boxes.append(alignable_box)
+		_previous_query = this_query
+		_previous_query.make_read_only()
 		_alignable_boxes.make_read_only()
 	return _alignable_boxes
 
