@@ -351,7 +351,9 @@ func _on_align_position_button_pressed() -> void:
 	var something_changed: bool = false
 	for i: int in alignable_boxes.size():
 		var obb: OBB = alignable_boxes[i]
-		something_changed = something_changed or obb.align_position_to(reference_obb)
+		# IMPORTANT: The order of this comparison matters
+		# obb.align_position_to() needs to be first, otherwise will be skipped when something_changed is true
+		something_changed = obb.align_position_to(reference_obb) or something_changed
 	
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Position")
