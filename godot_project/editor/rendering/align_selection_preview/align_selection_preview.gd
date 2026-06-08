@@ -139,7 +139,7 @@ func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: 
 	if (not is_highlighted_face) and (DRAW_TRANSFORM_AT & DrawTransformAt.BoxOrigin == 0):
 		return
 	for i in 3:
-		var to: Vector3 = from + t.basis[i] * handle_size[i]
+		var to: Vector3 = from + t.basis[i] * max(handle_size[i], 0.1)
 		var to2d: Vector2 = _camera.unproject_position(to)
 		var col: Color = COLORS[i]
 		if !is_highlighted_face:

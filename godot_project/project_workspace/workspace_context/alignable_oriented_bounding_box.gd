@@ -33,28 +33,66 @@ func _init(in_description: String, in_size: Vector3, in_transform: Transform3D, 
 
 
 func advance_selected_face(dir: int) -> void:
-	var new_face: int = int(selected_face) + dir
-	if new_face < BoxFace.UNDEFINED:
-		new_face = BoxFace.LEFT_RIGHT
-	if new_face > BoxFace.LEFT_RIGHT:
-		new_face = BoxFace.UNDEFINED
-	selected_face = new_face as BoxFace
-	if not has_face(selected_face):
-		# Face has no area, skip and continue to the next one
-		advance_selected_face(dir)
+	var selectable_faces :Array[BoxFace] = get_selectable_faces()
+	assert(selectable_faces.size() > 0)
+	var idx: int = selectable_faces.find(selected_face)
+	if idx == -1:
+		idx = 0
+	else:
+		idx = (idx + selectable_faces.size() + dir) % selectable_faces.size()
+	selected_face = selectable_faces[idx] as BoxFace
+	assert(has_face(selected_face))
 
 
 func advance_align_to_face(dir: int) -> void:
-	var new_face: int = int(align_to_face) + dir
-	if new_face < BoxFace.FRONT_BACK:
-		new_face = BoxFace.LEFT_RIGHT
-	if new_face > BoxFace.LEFT_RIGHT:
-		new_face = BoxFace.FRONT_BACK
-	align_to_face = new_face as BoxFace
-	if has_alignable_face() and not has_face(align_to_face):
-		# Face has no area, skip and continue to the next one
-		advance_align_to_face(dir)
+	var alignable_faces :Array[BoxFace] = get_alignable_faces()
+	assert(alignable_faces.size() > 0)
+	var idx: int = alignable_faces.find(align_to_face)
+	if idx == -1:
+		idx = 0
+	else:
+		idx = (idx + alignable_faces.size() + dir) % alignable_faces.size()
+	align_to_face = alignable_faces[idx]
 
+
+func get_selectable_faces() -> Array[BoxFace]:
+	var faces: Array[BoxFace] = [BoxFace.UNDEFINED]
+	faces.append_array(get_alignable_faces())
+	return faces
+
+
+func get_alignable_faces() -> Array[BoxFace]:
+	var zero_len_axes_count: int = 0
+	var non_zero_len_axes: Array[int] = []
+	for i: int in 3:
+		if is_zero_approx(box.size[i]):
+			zero_len_axes_count += 1
+		else:
+			non_zero_len_axes.append(i)
+	match zero_len_axes_count:
+		3:
+			# Empty box, align to an arbitrary face (front)
+			return [BoxFace.FRONT_BACK]
+		2:
+			# A straight line, likely 2 atoms, this would make 2 faces valid, but we only send one
+			match non_zero_len_axes[0]: # The only axis with size
+				Vector3.AXIS_X:
+					return [BoxFace.FRONT_BACK]
+				Vector3.AXIS_Y:
+					return [BoxFace.FRONT_BACK]
+				Vector3.AXIS_Z:
+					return [BoxFace.TOP_BOTTOM]
+		1:
+			match non_zero_len_axes: # size is 2
+				[Vector3.AXIS_X, Vector3.AXIS_Y]:
+					return [BoxFace.FRONT_BACK]
+				[Vector3.AXIS_X, Vector3.AXIS_Z]:
+					return [BoxFace.TOP_BOTTOM]
+				[Vector3.AXIS_Y, Vector3.AXIS_Z]:
+					return [BoxFace.LEFT_RIGHT]
+		_:
+			pass # default
+	return [BoxFace.FRONT_BACK, BoxFace.TOP_BOTTOM, BoxFace.LEFT_RIGHT]
 
 ## At least 2 of the 3 size dimensions needs to be greater than 0 for the
 ## box to have a valid surface.
@@ -67,18 +105,7 @@ func has_alignable_face() -> bool:
 
 
 func has_face(box_face: BoxFace) -> bool:
-	var area: float = 0
-	match box_face:
-		BoxFace.UNDEFINED:
-			return true
-		BoxFace.FRONT_BACK:
-			area = box.size.x * box.size.y
-		BoxFace.TOP_BOTTOM:
-			area = box.size.x * box.size.z
-		BoxFace.LEFT_RIGHT:
-			area = box.size.y * box.size.z
-	const MIN_AREA: float = 0.001
-	return area > MIN_AREA
+	return box_face in get_selectable_faces()
 
 
 func get_face_basis(in_face: BoxFace) -> Basis:
@@ -159,7 +186,6 @@ func align_rotation_to_basis(in_basis: Basis) -> bool:
 				nano_structure.set_transform(new_transform)
 				something_changed = true
 	return something_changed
-			
 
 
 func align_position_to(reference_obb: AlignableOBB) -> bool:
@@ -232,14 +258,23 @@ func align_position_to(reference_obb: AlignableOBB) -> bool:
 			nmb_of_moved_atoms += 1
 		
 		var atoms_changed: bool = nmb_of_moved_atoms > 0
-		var object_moved: bool = context.is_shape_selected() or context.is_motor_selected() or context.is_particle_emitter_selected()
-		if atoms_changed or object_moved:
+		var transform_moved: bool = false
+		var position_moved: bool = false
+		if context.nano_structure.is_virtual_object() and context.is_virtual_object_selected():
+			if context.nano_structure.has_transform():
+				transform_moved = true
+			else:
+				position_moved = true
+		if atoms_changed or transform_moved or position_moved:
 			if atoms_changed:
 				nano_structure.start_edit()
 				nano_structure.atoms_set_positions(atoms_to_move, target_positions)
 				nano_structure.end_edit()
-			if object_moved:
+			if transform_moved:
 				nano_structure.set_transform(nano_structure.get_transform()* delta_transform)
+			if position_moved:
+				var t := Transform3D(Basis(), nano_structure.get_position()) * delta_transform
+				nano_structure.set_position(t.origin)
 			
 			something_changed = true
 	
