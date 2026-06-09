@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="16"
+   height="16"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="ControlAlignCustom.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs12" />
+  <sodipodi:namedview
+     id="namedview10"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     showgrid="false"
+     inkscape:zoom="25.90625"
+     inkscape:cx="2.3160434"
+     inkscape:cy="2.2002413"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg8" />
+  <path
+     fill="#919191"
+     d="m0 0h16v16h-16z"
+     id="path2" />
+  <path
+     fill="#474747"
+     d="m2 2h12v12h-12z"
+     id="path4" />
+  <g
+     aria-label="?"
+     id="text359"
+     style="font-size:15.3408px;font-family:HYGothic-Extra;-inkscape-font-specification:HYGothic-Extra;text-align:center;text-anchor:middle;fill:#d6d6d6;stroke-width:0.059925;paint-order:fill markers stroke"
+     transform="matrix(0.84602966,0,0,0.84602966,1.2342332,1.2355129)">
+    <path
+       d="M 9.2059909,11.685388 H 6.8838971 V 13.9925 H 9.2059909 Z M 9.0561784,10.591757 q 0,-0.8389505 0.2247187,-1.2584255 Q 9.4606721,8.9887627 10.02996,8.5992502 11.018722,7.865169 11.438197,7.2359564 11.94756,6.4868939 11.94756,5.4831502 q 0,-2.0823938 -1.692882,-2.9513063 -1.0187246,-0.5243438 -2.3670372,-0.5243438 -1.5430687,0 -2.5917563,0.83895 -1.2434437,1.0037438 -1.2434437,2.9662876 h 2.2471875 v -0.014981 q 0,-0.7490625 0.3146063,-1.2284625 0.4344562,-0.6441938 1.4082375,-0.6441938 0.59925,0 1.018725,0.3146063 0.5243438,0.4344563 0.5243438,1.31835 0,0.5543063 -0.2696625,0.9887625 -0.2247188,0.3895125 -0.7191,0.7640438 -1.0486876,0.7191 -1.3632938,1.4232188 -0.2696625,0.5842687 -0.2696625,1.8576752 z"
+       id="path1317" />
+  </g>
+</svg>
