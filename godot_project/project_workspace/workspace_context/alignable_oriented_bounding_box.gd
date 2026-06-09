@@ -4,14 +4,17 @@ extends OBB
 
 enum BoxFace {
 	UNDEFINED = -1,
-	FRONT_BACK = 0,
-	TOP_BOTTOM = 1,
-	LEFT_RIGHT = 2,
+	FRONT  = 0,
+	BACK   = 1,
+	TOP    = 2,
+	BOTTOM = 3,
+	LEFT   = 4,
+	RIGHT  = 5,
 }
 
 
 var selected_face := BoxFace.UNDEFINED
-var align_to_face := BoxFace.FRONT_BACK
+var align_to_face := BoxFace.FRONT
 var offset_ratio_h: float = 0.0
 var offset_ratio_v: float = 0.0
 var description: String:
@@ -72,27 +75,27 @@ func get_alignable_faces() -> Array[BoxFace]:
 	match zero_len_axes_count:
 		3:
 			# Empty box, align to an arbitrary face (front)
-			return [BoxFace.FRONT_BACK]
+			return [BoxFace.FRONT, BoxFace.BACK]
 		2:
 			# A straight line, likely 2 atoms, this would make 2 faces valid, but we only send one
 			match non_zero_len_axes[0]: # The only axis with size
 				Vector3.AXIS_X:
-					return [BoxFace.FRONT_BACK]
+					return [BoxFace.FRONT, BoxFace.BACK]
 				Vector3.AXIS_Y:
-					return [BoxFace.FRONT_BACK]
+					return [BoxFace.FRONT, BoxFace.BACK]
 				Vector3.AXIS_Z:
-					return [BoxFace.TOP_BOTTOM]
+					return [BoxFace.TOP, BoxFace.BOTTOM]
 		1:
 			match non_zero_len_axes: # size is 2
 				[Vector3.AXIS_X, Vector3.AXIS_Y]:
-					return [BoxFace.FRONT_BACK]
+					return [BoxFace.FRONT, BoxFace.BACK]
 				[Vector3.AXIS_X, Vector3.AXIS_Z]:
-					return [BoxFace.TOP_BOTTOM]
+					return [BoxFace.TOP, BoxFace.BOTTOM]
 				[Vector3.AXIS_Y, Vector3.AXIS_Z]:
-					return [BoxFace.LEFT_RIGHT]
+					return [BoxFace.LEFT, BoxFace.RIGHT]
 		_:
 			pass # default
-	return [BoxFace.FRONT_BACK, BoxFace.TOP_BOTTOM, BoxFace.LEFT_RIGHT]
+	return [BoxFace.FRONT, BoxFace.BACK, BoxFace.TOP, BoxFace.BOTTOM, BoxFace.LEFT, BoxFace.RIGHT]
 
 ## At least 2 of the 3 size dimensions needs to be greater than 0 for the
 ## box to have a valid surface.
@@ -110,22 +113,57 @@ func has_face(box_face: BoxFace) -> bool:
 
 func get_face_basis(in_face: BoxFace) -> Basis:
 	match in_face:
-		BoxFace.FRONT_BACK:
-			return transform.basis.orthonormalized()
-		BoxFace.TOP_BOTTOM:
+		BoxFace.FRONT:
+			return transform.basis
+		BoxFace.BACK:
+			var basis: Basis = transform.basis.orthonormalized()
 			return Basis(
-				transform.basis[0],
-				-transform.basis[2],
-				transform.basis[1]
-			).orthonormalized()
-		BoxFace.LEFT_RIGHT:
+				-basis[0],
+				basis[1],
+				-basis[2],
+			)
+		BoxFace.TOP:
+			var basis: Basis = transform.basis.orthonormalized()
 			return Basis(
-				-transform.basis[2],
-				transform.basis[1],
-				transform.basis[0]
-			).orthonormalized()
+				basis[0],
+				-basis[2],
+				basis[1],
+			)
+		BoxFace.BOTTOM:
+			var basis: Basis = transform.basis.orthonormalized()
+			return Basis(
+				basis[0],
+				basis[2],
+				-basis[1],
+			)
+		BoxFace.LEFT:
+			var basis: Basis = transform.basis.orthonormalized()
+			return Basis(
+				-basis[2],
+				basis[1],
+				basis[0],
+			)
+		BoxFace.RIGHT:
+			var basis: Basis = transform.basis.orthonormalized()
+			return Basis(
+				basis[2],
+				basis[1],
+				-basis[0],
+			)
 	push_error("Invalid face %d" % in_face)
 	return transform.basis
+
+
+## Returns the width and heigth of the face as X and Y components, and the depth of the box in the Z
+func get_face_size(in_face: BoxFace) -> Vector3:
+	match in_face:
+		BoxFace.FRONT, BoxFace.BACK:
+			return Vector3(box.size.x, box.size.y, box.size.z)
+		BoxFace.TOP, BoxFace.BOTTOM:
+			return Vector3(box.size.x, box.size.z, box.size.y)
+		BoxFace.LEFT, BoxFace.RIGHT:
+			return Vector3(box.size.z, box.size.y, box.size.x)
+	return Vector3()
 
 
 func align_rotation_to_box(in_box: AlignableOBB) -> bool:
@@ -141,26 +179,13 @@ func align_rotation_to_basis(in_basis: Basis) -> bool:
 	if selected_face == BoxFace.UNDEFINED:
 		return false
 	var something_changed: bool = false
-	var old_transform: Transform3D = transform
+	var old_transform: Transform3D = Transform3D(get_face_basis(selected_face), transform.origin)
 	
-	var fwd := -in_basis.z                         # forward
-	var right := fwd.cross(in_basis.y).normalized()    # right
-	var up := right.cross(fwd).normalized()                 # up (reorthogonalized)
-	
-	var new_basis: Basis
-	match selected_face:
-		BoxFace.LEFT_RIGHT:
-			new_basis = Basis(fwd,  up, -right)
-		BoxFace.TOP_BOTTOM:
-			new_basis = Basis(right,  fwd, -up)
-		_:
-			new_basis = Basis(right,  up, -fwd)
-	
-	if old_transform.basis == new_basis:
+	if old_transform.basis == in_basis:
 		return false
 	var to_local: Transform3D = old_transform.inverse()
 	var new_transform: Transform3D
-	new_transform = Transform3D(new_basis, old_transform.origin)
+	new_transform = Transform3D(in_basis, old_transform.origin)
 	for context: StructureContext in point_cloud_source.keys():
 		var nano_structure: NanoStructure = context.nano_structure
 		var atoms_to_move: PackedInt32Array = point_cloud_source[context]
@@ -192,52 +217,35 @@ func align_position_to(reference_obb: AlignableOBB) -> bool:
 	if reference_obb == self or selected_face == BoxFace.UNDEFINED or point_cloud_source.size() == 0:
 		return false
 	var something_changed: bool = false
-	var align_transform: Transform3D
-	align_transform = reference_obb.transform
 	
-	var workspace_context := point_cloud_source.keys()[0].workspace_context as WorkspaceContext
-	var camera_basis: Basis = workspace_context.get_camera_global_transform().basis
+	const HALF_BOX_SIZE: float = 0.5
+	var ref_face_basis: Basis = reference_obb.get_face_basis(reference_obb.align_to_face)
+	var ref_face_size: Vector3 = reference_obb.get_face_size(reference_obb.align_to_face)
+	var reference_point := Vector3() # in local space, relative to plane
+	reference_point += ref_face_basis.x * ref_face_size.x * reference_obb.offset_ratio_h
+	reference_point += ref_face_basis.y * ref_face_size.y * reference_obb.offset_ratio_v
+	reference_point += ref_face_basis.z * ref_face_size.z * HALF_BOX_SIZE
 	
-	var ref_h_axis: int = Vector3.AXIS_X
-	var ref_v_axis: int = Vector3.AXIS_Y
-	match reference_obb.align_to_face:
-		BoxFace.FRONT_BACK:
-			pass
-		BoxFace.TOP_BOTTOM:
-			ref_v_axis = Vector3.AXIS_Z
-		BoxFace.LEFT_RIGHT:
-			ref_h_axis = Vector3.AXIS_Z
-	var reference_point: Vector3 # in local space, relative to plane
-	reference_point[ref_h_axis] = reference_obb.box.size[ref_h_axis] * reference_obb.offset_ratio_h
-	reference_point[ref_v_axis] = reference_obb.box.size[ref_v_axis] * reference_obb.offset_ratio_v
+	var align_origin: Vector3 = reference_obb.transform.origin
+	align_origin += reference_point
+	var align_transform := Transform3D(ref_face_basis, align_origin)
 	
-	var h_axis: int = Vector3.AXIS_X
-	var v_axis: int = Vector3.AXIS_Y
-	var other_axis: int = Vector3.AXIS_Z
-	match selected_face:
-		BoxFace.FRONT_BACK:
-			pass
-		BoxFace.TOP_BOTTOM:
-			v_axis = Vector3.AXIS_Z
-			other_axis = Vector3.AXIS_Y
-		BoxFace.LEFT_RIGHT:
-			h_axis = Vector3.AXIS_Z
-			other_axis = Vector3.AXIS_X
+	
+	var obj_face_basis: Basis = self.get_face_basis(self.selected_face)
+	var obj_face_size: Vector3 = self.get_face_size(self.selected_face)
+	var obj_reference_pos := Vector3()
+	obj_reference_pos += obj_face_basis.x * obj_face_size.x * self.offset_ratio_h
+	obj_reference_pos += obj_face_basis.y * obj_face_size.y * self.offset_ratio_v
+	obj_reference_pos += obj_face_basis.z * obj_face_size.z * HALF_BOX_SIZE
 	var old_transform: Transform3D = transform
-	var obj_reference_pos: Vector3
-	obj_reference_pos[h_axis] = self.box.size[h_axis] * self.offset_ratio_h
-	obj_reference_pos[v_axis] = self.box.size[v_axis] * self.offset_ratio_v
-	if camera_basis.z.dot(old_transform.basis[other_axis]) < 0.0:
-		obj_reference_pos[other_axis] = -self.box.size[other_axis] * 0.5
-	else:
-		obj_reference_pos[other_axis] = +self.box.size[other_axis] * 0.5
 	
-	var local_to_ref: Vector3 = align_transform.inverse() * (old_transform * obj_reference_pos)
+	var global_obj_reference_pos: Vector3 = transform.origin
+	global_obj_reference_pos += obj_reference_pos
 	
-	var plane_offset := Vector3()
-	plane_offset[ref_h_axis] = reference_point[ref_h_axis] - local_to_ref[ref_h_axis]
-	plane_offset[ref_v_axis] = reference_point[ref_v_axis] - local_to_ref[ref_v_axis]
-	var world_offset: Vector3 = align_transform.basis * plane_offset
+	var local_to_align_origin: Vector3 = align_transform.inverse() * global_obj_reference_pos
+	
+	var world_offset := -Vector3(local_to_align_origin.x, local_to_align_origin.y, 0)
+	world_offset = ref_face_basis.inverse() * world_offset
 	
 	var new_transform: Transform3D = old_transform.translated(world_offset)
 	var to_local: Transform3D = old_transform.inverse()
