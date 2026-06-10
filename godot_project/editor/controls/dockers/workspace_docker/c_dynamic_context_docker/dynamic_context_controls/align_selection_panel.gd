@@ -69,6 +69,7 @@ func _notification(what: int) -> void:
 		_advanced_align_to_face_button = %AdvancedAlignToFaceButton as Button
 		
 		_align_to_box_option_button.item_selected.connect(_on_align_to_box_option_button_item_selected)
+		_align_to_face_button.gui_input.connect(_on_align_to_face_gui_input)
 		_align_to_face_button.pressed.connect(_on_align_to_face_button_pressed)
 		_advanced_align_to_face_button.pressed.connect(_on_advanced_align_to_face_button_pressed)
 		
@@ -232,9 +233,12 @@ func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, id: i
 func _get_box_face_icon(selected_face: BoxFace) -> Texture2D:
 	const ICONS: Dictionary[BoxFace, Texture2D] = {
 		BoxFace.UNDEFINED : preload("uid://dr6k8q285dgls"),
-		BoxFace.FRONT_BACK : preload("uid://d16yxekfb4k3h"),
-		BoxFace.TOP_BOTTOM : preload("uid://de1hnqihu4ugw"),
-		BoxFace.LEFT_RIGHT : preload("uid://c01w40g4dq4eg"),
+		BoxFace.FRONT  : preload("uid://d16yxekfb4k3h"),
+		BoxFace.BACK   : preload("uid://0vpkfnqii60i"),
+		BoxFace.TOP    : preload("uid://de1hnqihu4ugw"),
+		BoxFace.BOTTOM : preload("uid://b8qwlg7asmnsf"),
+		BoxFace.LEFT   : preload("uid://deu8o23ue70ft"),
+		BoxFace.RIGHT  : preload("uid://c01w40g4dq4eg"),
 	}
 	return ICONS[selected_face]
 
@@ -257,10 +261,21 @@ func _on_align_to_box_option_button_item_selected(index: int) -> void:
 	_align_selection_parameters.set_specific_obb(alignable_boxes[index])
 
 
+func _on_align_to_face_gui_input(in_event: InputEvent) -> void:
+	if in_event is InputEventMouseButton:
+		const ADVANCE_DIR: Dictionary[MouseButton, int] = {
+			MOUSE_BUTTON_LEFT: 1,
+			MOUSE_BUTTON_RIGHT: -1,
+		}
+		if in_event.button_index in ADVANCE_DIR and in_event.pressed:
+			_align_to_face_button.set_meta(&"dir", ADVANCE_DIR[in_event.button_index])
+
+
 func _on_align_to_face_button_pressed() -> void:
 	var current_box: AlignableOBB = _align_selection_parameters.get_align_obb_target()
 	assert(current_box)
-	current_box.advance_align_to_face(+1)
+	var dir: int = _align_to_face_button.get_meta(&"dir", +1)
+	current_box.advance_align_to_face(dir)
 	_refresh_tree_items()
 	_align_selection_parameters.request_redraw_preview()
 
@@ -323,15 +338,8 @@ func _on_align_camera_button_pressed() -> void:
 				WorldPlane.YZ:
 					align_basis = align_basis.rotated(align_basis[1], PI * 0.5)
 		AlignRelativeTo.SPECIFIC_BOX_PLANE:
-			align_basis = _align_selection_parameters.get_align_obb_target().transform.basis
-			var face: BoxFace = _align_selection_parameters.get_align_obb_target().align_to_face
-			match face:
-				BoxFace.FRONT_BACK:
-					pass
-				BoxFace.TOP_BOTTOM:
-					align_basis = align_basis.rotated(align_basis[0], -PI * 0.5)
-				BoxFace.LEFT_RIGHT:
-					align_basis = align_basis.rotated(align_basis[1], PI * 0.5)
+			var align_to_box: AlignableOBB = _align_selection_parameters.get_align_obb_target()
+			align_basis = align_to_box.get_face_basis(align_to_box.align_to_face)
 		AlignRelativeTo.CAMERA_PLANE:
 			assert(false, "Cannot align camera to camera's plane")
 			return

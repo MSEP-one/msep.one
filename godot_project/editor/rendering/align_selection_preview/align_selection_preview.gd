@@ -153,27 +153,24 @@ func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool
 	var flat_transform: Transform3D = in_obb.transform
 	var face_corners: PackedVector3Array
 	match in_face:
-		BoxFace.TOP_BOTTOM:
-			if _camera.global_basis.z.dot(in_obb.transform.basis.y) < 0.0:
-				face_corners = in_obb.get_face_corners(Vector3.DOWN)
-				flat_transform.origin -= in_obb.transform.basis.y * in_obb.box.size.y * 0.5
-			else:
-				face_corners = in_obb.get_face_corners(Vector3.UP)
-				flat_transform.origin += in_obb.transform.basis.y * in_obb.box.size.y * 0.5
-		BoxFace.FRONT_BACK:
-			if _camera.global_basis.z.dot(in_obb.transform.basis.z) < 0.0:
-				face_corners = in_obb.get_face_corners(Vector3.FORWARD)
-				flat_transform.origin -= in_obb.transform.basis.z * in_obb.box.size.z * 0.5
-			else:
-				face_corners = in_obb.get_face_corners(Vector3.BACK)
-				flat_transform.origin += in_obb.transform.basis.z * in_obb.box.size.z * 0.5
-		BoxFace.LEFT_RIGHT:
-			if _camera.global_basis.z.dot(in_obb.transform.basis.x) < 0.0:
-				face_corners = in_obb.get_face_corners(Vector3.LEFT)
-				flat_transform.origin -= in_obb.transform.basis.x * in_obb.box.size.x * 0.5
-			else:
-				face_corners = in_obb.get_face_corners(Vector3.RIGHT)
-				flat_transform.origin += in_obb.transform.basis.x * in_obb.box.size.x * 0.5
+		BoxFace.TOP:
+			face_corners = in_obb.get_face_corners(Vector3.UP)
+			flat_transform.origin += in_obb.transform.basis.y * in_obb.box.size.y * 0.5
+		BoxFace.BOTTOM:
+			face_corners = in_obb.get_face_corners(Vector3.DOWN)
+			flat_transform.origin -= in_obb.transform.basis.y * in_obb.box.size.y * 0.5
+		BoxFace.FRONT:
+			face_corners = in_obb.get_face_corners(Vector3.BACK)
+			flat_transform.origin += in_obb.transform.basis.z * in_obb.box.size.z * 0.5
+		BoxFace.BACK:
+			face_corners = in_obb.get_face_corners(Vector3.FORWARD)
+			flat_transform.origin -= in_obb.transform.basis.z * in_obb.box.size.z * 0.5
+		BoxFace.LEFT:
+			face_corners = in_obb.get_face_corners(Vector3.RIGHT)
+			flat_transform.origin += in_obb.transform.basis.x * in_obb.box.size.x * 0.5
+		BoxFace.RIGHT:
+			face_corners = in_obb.get_face_corners(Vector3.LEFT)
+			flat_transform.origin -= in_obb.transform.basis.x * in_obb.box.size.x * 0.5
 		
 	# Draw half transparent face
 	var polygon := PackedVector2Array()
@@ -193,16 +190,16 @@ func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool
 	if _align_selection_parameters.is_advanced_settings_enabled():
 		var origin: Vector3 = (face_corners[0] + face_corners[1] + face_corners[2] + face_corners[3]) / 4.0
 		var basis: Basis = in_obb.get_face_basis(in_face)
-		var h_axis: int; var v_axis: int
+		var face_size: Vector2
 		match in_face:
-			BoxFace.FRONT_BACK:
-				h_axis = Vector3.AXIS_X; v_axis = Vector3.AXIS_Y
-			BoxFace.TOP_BOTTOM:
-				h_axis = Vector3.AXIS_X; v_axis = Vector3.AXIS_Z
-			BoxFace.LEFT_RIGHT:
-				h_axis = Vector3.AXIS_Z; v_axis = Vector3.AXIS_Y
-		origin += basis[0] * (in_obb.offset_ratio_h * in_obb.box.size[h_axis])
-		origin += basis[1] * (in_obb.offset_ratio_v * in_obb.box.size[v_axis])
+			BoxFace.FRONT, BoxFace.BACK:
+				face_size = Vector2(in_obb.box.size.x, in_obb.box.size.y)
+			BoxFace.TOP, BoxFace.BOTTOM:
+				face_size = Vector2(in_obb.box.size.x, in_obb.box.size.z)
+			BoxFace.LEFT, BoxFace.RIGHT:
+				face_size = Vector2(in_obb.box.size.z, in_obb.box.size.y)
+		origin += basis[0] * (in_obb.offset_ratio_h * face_size.x)
+		origin += basis[1] * (in_obb.offset_ratio_v * face_size.y)
 		var origin_2d: Vector2 = _camera.unproject_position(origin)
 		var _h_dir_2d: Vector2 = (_camera.unproject_position(origin + basis[0] * 200)-origin_2d).normalized()
 		var _v_dir_2d: Vector2 = (_camera.unproject_position(origin + basis[1] * 200)-origin_2d).normalized()

@@ -202,8 +202,8 @@ func set_specific_obb(out_box: AlignableOBB) -> void:
 	if _align_to_box_index != id:
 		_align_to_box_index = id
 		if out_box.selected_face == BoxFace.UNDEFINED:
-			out_box.align_to_face = BoxFace.FRONT_BACK
-			if not out_box.has_face(BoxFace.FRONT_BACK):
+			out_box.align_to_face = BoxFace.FRONT
+			if not out_box.has_face(BoxFace.FRONT):
 				out_box.advance_align_to_face(1)
 		else:
 			out_box.align_to_face = out_box.selected_face

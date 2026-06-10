@@ -107,6 +107,7 @@ unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Select the object to which you'll align others by selecting its name in the list. Then choose the desired face by clicking this Cube icon."
 theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+button_mask = 3
 icon = ExtResource("4_tq44g")
 flat = true
 icon_alignment = 1

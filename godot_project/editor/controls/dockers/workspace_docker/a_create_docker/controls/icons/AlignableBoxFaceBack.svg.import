@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c01w40g4dq4eg"
-path="res://.godot/imported/AlignableBoxFaceSide.svg-f92953bbecb23a8fed9b877d0f38abb0.ctex"
+uid="uid://0vpkfnqii60i"
+path="res://.godot/imported/AlignableBoxFaceBack.svg-506c3966f6429217e08bb707ba2af8ea.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignableBoxFaceSide.svg"
-dest_files=["res://.godot/imported/AlignableBoxFaceSide.svg-f92953bbecb23a8fed9b877d0f38abb0.ctex"]
+source_file="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignableBoxFaceBack.svg"
+dest_files=["res://.godot/imported/AlignableBoxFaceBack.svg-506c3966f6429217e08bb707ba2af8ea.ctex"]
 
 [params]
 
