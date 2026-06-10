@@ -32,6 +32,16 @@ func _test_msep_online() -> void:
 	await test.perform_tests()
 	print("----DONE----")
 
+#region : Authentication
+## Login with dev credentials
+func dev_login(username: String, email:String) -> DownloadPromise:
+	var body: Dictionary = {
+		"username" : username,
+		"email" : email,
+	}
+	return MsepOnlineHTTPRequest.new(HTTPClient.METHOD_POST, "dev/token", JSON.stringify(body)).get_promise()
+#endregion
+
 
 #region : Current User Endpoints
 ## Get current authenticated user metadata
@@ -393,7 +403,7 @@ func post_namespace_project_version(
 		"project_name" : project_name,
 		"description" : description
 	}
-	return _post_uploads("avatar", "user", "application/octet-stream", file, additional_fields)
+	return _post_uploads("version", "user", "application/octet-stream", file, additional_fields)
 
 
 ## Get version metadata
