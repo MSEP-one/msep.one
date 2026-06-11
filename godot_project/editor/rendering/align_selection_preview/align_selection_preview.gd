@@ -12,6 +12,7 @@ enum DrawTransformAt {
 const DRAW_TRANSFORM_AT: DrawTransformAt = DrawTransformAt.None
 const FACE_HIGHLIGHT_TEXTURE: Texture2D = preload("res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/stripes.svg")
 const FACE_HIGHLIGHT_OPACITY: float = 0.35
+const FACE_LOWLIGHT_OPACITY: float = 0.15
 
 const AlignSelectionGroupingPolicy = AlignSelectionParameters.AlignSelectionGroupingPolicy
 const AlignRelativeTo = AlignSelectionParameters.AlignRelativeTo
@@ -24,7 +25,9 @@ var _camera_last_zoom: float
 var _camera_last_projection: Camera3D.ProjectionType
 
 var _highlight_color: Color
+var _highlight_thickness: float = -1.0
 var _lowlight_color: Color
+var _lowlight_thickness: float = -1.0
 
 
 var _workspace_context: WorkspaceContext
@@ -36,6 +39,10 @@ func _ready() -> void:
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	_camera = get_viewport().get_camera_3d()
 	_ready_deferred.call_deferred()
+	
+	var window: Window = get_tree().root as Window
+	window.dpi_changed.connect(_adjust_lines_thickness)
+	_adjust_lines_thickness()
 
 
 func _ready_deferred() -> void:
@@ -80,13 +87,13 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	const OPPOSITE_FACE: Dictionary[BoxFace, BoxFace] = {
-		BoxFace.UNDEFINED : BoxFace.UNDEFINED,
-		BoxFace.FRONT     : BoxFace.BACK,
-		BoxFace.BACK      : BoxFace.FRONT,
-		BoxFace.TOP       : BoxFace.BOTTOM,
-		BoxFace.BOTTOM    : BoxFace.TOP,
-		BoxFace.LEFT      : BoxFace.RIGHT,
-		BoxFace.RIGHT     : BoxFace.LEFT,
+		BoxFace.UNDEFINED: BoxFace.UNDEFINED,
+		BoxFace.FRONT: BoxFace.BACK,
+		BoxFace.BACK: BoxFace.FRONT,
+		BoxFace.TOP: BoxFace.BOTTOM,
+		BoxFace.BOTTOM: BoxFace.TOP,
+		BoxFace.LEFT: BoxFace.RIGHT,
+		BoxFace.RIGHT: BoxFace.LEFT,
 	}
 	if not is_processing() or _align_selection_parameters == null:
 		return
@@ -96,9 +103,9 @@ func _draw() -> void:
 	for obb: AlignableOBB in alignable_boxes:
 		if obb == null or not obb.box.has_surface() or obb == highlighted_obb:
 			continue
-		_draw_obb_face(obb, obb.selected_face)
+		_draw_obb_face(obb, obb.selected_face, false, true)
 		if _align_selection_parameters.is_align_depth_enabled():
-			_draw_obb_face(obb, OPPOSITE_FACE[obb.selected_face])
+			_draw_obb_face(obb, OPPOSITE_FACE[obb.selected_face], false, false)
 		_draw_obb_reference_point(obb, obb.selected_face, false)
 		_draw_transform(obb.transform, obb.box.size * 0.25, false)
 	if highlighted_obb != null:
@@ -106,44 +113,6 @@ func _draw() -> void:
 		if _align_selection_parameters.is_align_depth_enabled():
 			_draw_obb_face(highlighted_obb, OPPOSITE_FACE[highlighted_obb.align_to_face], false)
 		_draw_obb_reference_point(highlighted_obb, highlighted_obb.align_to_face, true)
-
-
-func _draw_obb(in_obb: OBB, in_color: Color = _lowlight_color) -> void:
-	var path_width: int = 2
-	var aabb: AABB = in_obb.box
-	var start: Vector3 = aabb.position
-	var end: Vector3 = aabb.end
-	var corners: PackedVector3Array = [start, end]
-	var xformed_corners: PackedVector3Array = []
-	var corners_2d: PackedVector2Array = []
-	for c in 3:
-		var p2: Vector3 = start
-		p2[c] = end[c]
-		corners.append(p2)
-		p2 = end
-		p2[c] = start[c]
-		corners.append(p2)
-	for i: int in corners.size():
-		xformed_corners.append(in_obb.transform * corners[i])
-		corners_2d.append(_camera.unproject_position(xformed_corners[i]))
-		
-	var farthest_idx: int = -1
-	var fathest_distance_sqrd: float = 0
-	for i in corners.size():
-		var corner_distance_sqrd: float = _get_distance_to_camera_sqrd(xformed_corners[i])
-		if corner_distance_sqrd > fathest_distance_sqrd:
-			farthest_idx = i
-			fathest_distance_sqrd = corner_distance_sqrd
-	corners.remove_at(farthest_idx)
-	corners_2d.remove_at(farthest_idx)
-	for i: int in range(corners_2d.size() - 1):
-		for j: int in range(i, corners_2d.size()):
-			var common: int = 0
-			for c in 3:
-				if corners[i][c] == corners[j][c]:
-					common += 1
-			if common > 1:
-				draw_line(corners_2d[i], corners_2d[j], in_color, path_width)
 
 
 func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: bool) -> void:
@@ -162,10 +131,10 @@ func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: 
 		var col: Color = COLORS[i]
 		if !is_highlighted_face:
 			col *= 0.75
-		draw_line(from2d, to2d, col, 2)
+		draw_line(from2d, to2d, col, _lowlight_thickness)
 
 
-func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool = false) -> void:
+func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool = false, in_filled: bool = in_highlighted) -> void:
 	if in_obb == null or in_face == BoxFace.UNDEFINED:
 		return
 	
@@ -190,14 +159,20 @@ func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool
 	for corner: Vector3 in face_corners:
 		var screen_pos: Vector2 = _camera.unproject_position(corner)
 		polygon.push_back(screen_pos)
-		uvs.push_back(screen_pos / DisplayServer.screen_get_dpi())
+		var uv: Vector2 = screen_pos / DisplayServer.screen_get_dpi()
+		if not in_highlighted:
+			# squash texture more to differentiate faces easier
+			uv *= 5.0
+		uvs.push_back(uv)
 	var color: Color = _highlight_color if in_highlighted else _lowlight_color
+	var thickness: float = _highlight_thickness if in_highlighted else _lowlight_thickness
+	if in_filled:
+		var opacity: float = FACE_HIGHLIGHT_OPACITY if in_highlighted else FACE_LOWLIGHT_OPACITY
+		draw_colored_polygon(polygon, Color(_highlight_color, opacity), uvs, FACE_HIGHLIGHT_TEXTURE)
 	for i: int in polygon.size():
 		var from: Vector2 = polygon[i]
 		var to: Vector2 = polygon[(i + 1) % polygon.size()]
-		draw_line(from, to, color)
-	if in_highlighted:
-		draw_colored_polygon(polygon, Color(_highlight_color, FACE_HIGHLIGHT_OPACITY), uvs, FACE_HIGHLIGHT_TEXTURE)
+		draw_line(from, to, color, thickness)
 
 
 func _draw_obb_reference_point(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool) -> void:
@@ -216,20 +191,21 @@ func _draw_obb_reference_point(in_obb: AlignableOBB, in_face: BoxFace, in_highli
 		else:
 			ref_point += basis.z * (face_size.z * 0.5)
 		var ref_point_2d: Vector2 = _camera.unproject_position(ref_point)
-		var _h_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[0] * 200)-ref_point_2d).normalized()
-		var _v_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[1] * 200)-ref_point_2d).normalized()
+		var _h_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[0] * 200) - ref_point_2d).normalized()
+		var _v_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[1] * 200) - ref_point_2d).normalized()
 		var draw_h_from: Vector2 = ref_point_2d - _h_dir_2d * 20
 		var draw_h_to: Vector2 = ref_point_2d + _h_dir_2d * 20
 		var draw_v_from: Vector2 = ref_point_2d - _v_dir_2d * 20
 		var draw_v_to: Vector2 = ref_point_2d + _v_dir_2d * 20
 		if _align_selection_parameters.is_align_depth_enabled():
 			var depth_line_from: Vector3 = no_depth_ref_point + basis.z * (face_size.z * 0.5)
-			var depth_line_to: Vector3   = no_depth_ref_point - basis.z * (face_size.z * 0.5)
+			var depth_line_to: Vector3 = no_depth_ref_point - basis.z * (face_size.z * 0.5)
 			var depth_line_from_2d: Vector2 = _camera.unproject_position(depth_line_from)
-			var depth_line_to_2d: Vector2   = _camera.unproject_position(depth_line_to)
+			var depth_line_to_2d: Vector2 = _camera.unproject_position(depth_line_to)
 			draw_dashed_line(depth_line_from_2d, depth_line_to_2d, Color.BLUE, 2, 15)
-		draw_line(draw_h_from, draw_h_to, Color.RED, 4 if in_highlighted else 2)
-		draw_line(draw_v_from, draw_v_to, Color.GREEN, 4 if in_highlighted else 2)
+		var thickness: float = _highlight_thickness if in_highlighted else _lowlight_thickness
+		draw_line(draw_h_from, draw_h_to, Color.RED, thickness)
+		draw_line(draw_v_from, draw_v_to, Color.GREEN, thickness)
 	
 	if DRAW_TRANSFORM_AT & (DrawTransformAt.HighlightedFace | DrawTransformAt.LowlightedFace) != 0:
 		var basis: Basis = in_obb.get_face_basis(in_face)
@@ -280,3 +256,12 @@ func _on_representation_changed(in_representation_settings: RepresentationSettin
 	else:
 		_lowlight_color = _highlight_color.darkened(0.5)
 	queue_redraw()
+
+
+func _adjust_lines_thickness() -> void:
+	var dpi: int = DisplayServer.screen_get_dpi()
+	const MILIMETERS_PER_INCHES: float = 25.4
+	const LOWLIGHT_THICKNESS_MILIMETERS: float = 0.60
+	const HIGHLIGHT_THICKNESS_MILIMETERS: float = 1.0
+	_lowlight_thickness = dpi * (LOWLIGHT_THICKNESS_MILIMETERS / MILIMETERS_PER_INCHES)
+	_highlight_thickness = dpi * (HIGHLIGHT_THICKNESS_MILIMETERS / MILIMETERS_PER_INCHES)
