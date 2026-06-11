@@ -41,6 +41,7 @@ var _selected_world_plane: WorldPlane
 var _align_selection_grouping_policy := AlignSelectionGroupingPolicy.OneBoxPerSubgroup
 var _alignable_boxes: Array[AlignableOBB] = []
 var _align_to_box_index: int = INVALID_BOX_INDEX
+var _align_depth_enabled: bool = false
 var _workspace_context: WorkspaceContext
 
 
@@ -110,6 +111,7 @@ func get_alignable_boxes() -> Array[AlignableOBB]:
 						alignable_box.align_to_face = align_to_face
 					alignable_box.offset_ratio_h = _previous_query[context.get_int_guid()][i].offset_ratio_h
 					alignable_box.offset_ratio_v = _previous_query[context.get_int_guid()][i].offset_ratio_v
+					alignable_box.offset_ratio_d = _previous_query[context.get_int_guid()][i].offset_ratio_d
 				this_query[context.get_int_guid()].append(alignable_box)
 				_alignable_boxes.append(alignable_box)
 		_previous_query = this_query
@@ -184,6 +186,17 @@ func set_align_to_what_plane(in_plane: WorldPlane) -> void:
 	_selected_world_plane = in_plane
 	if _align_relative_to in [AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE]:
 		align_relative_to_changed.emit()
+
+
+func set_align_depth_enabled(in_enabled: bool) -> void:
+	if in_enabled == _align_depth_enabled:
+		return
+	_align_depth_enabled = in_enabled
+	request_redraw_preview()
+
+
+func is_align_depth_enabled() -> bool:
+	return _align_depth_enabled
 
 
 func get_align_obb_target() -> AlignableOBB:

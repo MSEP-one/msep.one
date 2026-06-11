@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dokga2ppwbgnu"]
+[gd_scene load_steps=19 format=3 uid="uid://dokga2ppwbgnu"]
 
 [ext_resource type="Script" uid="uid://ccp5eg20ei08" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/advanced_align_settings_popup.gd" id="1_ov5gt"]
 [ext_resource type="Texture2D" uid="uid://c77e5qul2tkqv" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopLeft.svg" id="1_xosw5"]
@@ -11,12 +11,20 @@
 [ext_resource type="Texture2D" uid="uid://t8lp7otk4sih" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCenterBottom.svg" id="8_766fo"]
 [ext_resource type="Texture2D" uid="uid://c37ttm1omuhhe" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomRight.svg" id="9_u7jpn"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="10_ogeke"]
+[ext_resource type="Texture2D" uid="uid://bb0vlp3oracy6" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopWide.svg" id="11_3jtxt"]
+[ext_resource type="Texture2D" uid="uid://gsi43xerwel8" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignHCenterWide.svg" id="12_5nxtq"]
+[ext_resource type="Texture2D" uid="uid://dywijgvt8or8h" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomWide.svg" id="13_1r74a"]
+[ext_resource type="Texture2D" uid="uid://ds16kmxqdlik0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCustom.svg" id="14_5nxtq"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_rdc1k"]
 
+[sub_resource type="ButtonGroup" id="ButtonGroup_3jtxt"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_766fo"]
+
 [node name="AdvancedAlignSettingsPopup" type="PopupPanel"]
 auto_translate_mode = 1
-size = Vector2i(210, 211)
+size = Vector2i(210, 242)
 visible = true
 script = ExtResource("1_ov5gt")
 
@@ -34,12 +42,16 @@ grow_vertical = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="HBoxContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 6
 columns = 3
 
-[node name="AlignHBeginVBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHBeginVBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -52,7 +64,7 @@ icon = ExtResource("1_xosw5")
 flat = true
 icon_alignment = 1
 
-[node name="AlignVBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignVBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -65,7 +77,7 @@ icon = ExtResource("2_ov5gt")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHEndVBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHEndVBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -78,7 +90,7 @@ icon = ExtResource("3_m60t0")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -91,7 +103,7 @@ icon = ExtResource("4_spfto")
 flat = true
 icon_alignment = 1
 
-[node name="AlignCenterButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignCenterButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -104,7 +116,7 @@ icon = ExtResource("5_3jtxt")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -117,7 +129,7 @@ icon = ExtResource("6_5nxtq")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHBeginVEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHBeginVEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -130,7 +142,7 @@ icon = ExtResource("7_1r74a")
 flat = true
 icon_alignment = 1
 
-[node name="AlignVEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignVEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -143,7 +155,7 @@ icon = ExtResource("8_766fo")
 flat = true
 icon_alignment = 1
 
-[node name="AlignHEndVEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AlignHEndVEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 2
@@ -156,12 +168,83 @@ icon = ExtResource("9_u7jpn")
 flat = true
 icon_alignment = 1
 
-[node name="CustomAlignCheckButton" type="CheckButton" parent="MarginContainer/VBoxContainer"]
+[node name="DepthControlsContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/HBoxContainer2/DepthControlsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2/DepthControlsContainer"]
+layout_mode = 2
+text = "Depth"
+
+[node name="DepthTogglesContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2/DepthControlsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DBeginButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/DepthControlsContainer/DepthTogglesContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 focus_mode = 0
+toggle_mode = true
+button_group = SubResource("ButtonGroup_3jtxt")
+icon = ExtResource("11_3jtxt")
+flat = true
+icon_alignment = 1
+
+[node name="DCenterButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/DepthControlsContainer/DepthTogglesContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+focus_mode = 0
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_3jtxt")
+icon = ExtResource("12_5nxtq")
+flat = true
+icon_alignment = 1
+
+[node name="DEndButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2/DepthControlsContainer/DepthTogglesContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("ButtonGroup_3jtxt")
+icon = ExtResource("13_1r74a")
+flat = true
+icon_alignment = 1
+
+[node name="DCustomSlider" type="VSlider" parent="MarginContainer/VBoxContainer/HBoxContainer2/DepthControlsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/grabber_area = SubResource("StyleBoxEmpty_766fo")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxEmpty_766fo")
+min_value = -100.0
+step = 0.0
+value = 100.0
+tick_count = 3
+ticks_on_borders = true
+
+[node name="CustomAlignCheckButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+toggle_mode = true
 button_group = SubResource("ButtonGroup_rdc1k")
 text = "Custom"
+icon = ExtResource("14_5nxtq")
+flat = true
+alignment = 0
 
 [node name="HCustomSpinBoxSlider" parent="MarginContainer/VBoxContainer" instance=ExtResource("10_ogeke")]
 unique_name_in_owner = true
@@ -188,3 +271,12 @@ allow_lesser = true
 prefix = "Vertical:    "
 suffix = "%"
 custom_arrow_step = 5.0
+
+[node name="DCustomSpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -100.0
+step = 0.0
+value = -100.0
+prefix = "Depth:      "
+suffix = "%"

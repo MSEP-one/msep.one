@@ -5,8 +5,9 @@ class_name AlignSelectionPreview extends Control
 enum DrawTransformAt {
 	None = 0x0,
 	BoxOrigin = 0x1 << 0,
-	HighlightedFace = 0x1 << 1,
-	Both = BoxOrigin | HighlightedFace,
+	LowlightedFace = 0x1 << 1,
+	HighlightedFace = 0x1 << 2,
+	All = BoxOrigin | HighlightedFace | LowlightedFace,
 }
 const DRAW_TRANSFORM_AT: DrawTransformAt = DrawTransformAt.None
 const FACE_HIGHLIGHT_TEXTURE: Texture2D = preload("res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/stripes.svg")
@@ -78,6 +79,15 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
+	const OPPOSITE_FACE: Dictionary[BoxFace, BoxFace] = {
+		BoxFace.UNDEFINED : BoxFace.UNDEFINED,
+		BoxFace.FRONT     : BoxFace.BACK,
+		BoxFace.BACK      : BoxFace.FRONT,
+		BoxFace.TOP       : BoxFace.BOTTOM,
+		BoxFace.BOTTOM    : BoxFace.TOP,
+		BoxFace.LEFT      : BoxFace.RIGHT,
+		BoxFace.RIGHT     : BoxFace.LEFT,
+	}
 	if not is_processing() or _align_selection_parameters == null:
 		return
 	
@@ -87,9 +97,15 @@ func _draw() -> void:
 		if obb == null or not obb.box.has_surface() or obb == highlighted_obb:
 			continue
 		_draw_obb_face(obb, obb.selected_face)
+		if _align_selection_parameters.is_align_depth_enabled():
+			_draw_obb_face(obb, OPPOSITE_FACE[obb.selected_face])
+		_draw_obb_reference_point(obb, obb.selected_face, false)
 		_draw_transform(obb.transform, obb.box.size * 0.25, false)
 	if highlighted_obb != null:
 		_draw_obb_face(highlighted_obb, highlighted_obb.align_to_face, true)
+		if _align_selection_parameters.is_align_depth_enabled():
+			_draw_obb_face(highlighted_obb, OPPOSITE_FACE[highlighted_obb.align_to_face], false)
+		_draw_obb_reference_point(highlighted_obb, highlighted_obb.align_to_face, true)
 
 
 func _draw_obb(in_obb: OBB, in_color: Color = _lowlight_color) -> void:
@@ -136,6 +152,8 @@ func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: 
 	const COLORS: Array[Color] = [Color.RED, Color.GREEN, Color.BLUE]
 	if is_highlighted_face and (DRAW_TRANSFORM_AT & DrawTransformAt.HighlightedFace == 0):
 		return
+	if (not is_highlighted_face) and (DRAW_TRANSFORM_AT & DrawTransformAt.LowlightedFace == 0):
+		return
 	if (not is_highlighted_face) and (DRAW_TRANSFORM_AT & DrawTransformAt.BoxOrigin == 0):
 		return
 	for i in 3:
@@ -146,31 +164,25 @@ func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: 
 			col *= 0.75
 		draw_line(from2d, to2d, col, 2)
 
+
 func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool = false) -> void:
 	if in_obb == null or in_face == BoxFace.UNDEFINED:
 		return
 	
-	var flat_transform: Transform3D = in_obb.transform
 	var face_corners: PackedVector3Array
 	match in_face:
 		BoxFace.TOP:
 			face_corners = in_obb.get_face_corners(Vector3.UP)
-			flat_transform.origin += in_obb.transform.basis.y * in_obb.box.size.y * 0.5
 		BoxFace.BOTTOM:
 			face_corners = in_obb.get_face_corners(Vector3.DOWN)
-			flat_transform.origin -= in_obb.transform.basis.y * in_obb.box.size.y * 0.5
 		BoxFace.FRONT:
 			face_corners = in_obb.get_face_corners(Vector3.BACK)
-			flat_transform.origin += in_obb.transform.basis.z * in_obb.box.size.z * 0.5
 		BoxFace.BACK:
 			face_corners = in_obb.get_face_corners(Vector3.FORWARD)
-			flat_transform.origin -= in_obb.transform.basis.z * in_obb.box.size.z * 0.5
 		BoxFace.LEFT:
-			face_corners = in_obb.get_face_corners(Vector3.RIGHT)
-			flat_transform.origin += in_obb.transform.basis.x * in_obb.box.size.x * 0.5
-		BoxFace.RIGHT:
 			face_corners = in_obb.get_face_corners(Vector3.LEFT)
-			flat_transform.origin -= in_obb.transform.basis.x * in_obb.box.size.x * 0.5
+		BoxFace.RIGHT:
+			face_corners = in_obb.get_face_corners(Vector3.RIGHT)
 		
 	# Draw half transparent face
 	var polygon := PackedVector2Array()
@@ -186,33 +198,46 @@ func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool
 		draw_line(from, to, color)
 	if in_highlighted:
 		draw_colored_polygon(polygon, Color(_highlight_color, FACE_HIGHLIGHT_OPACITY), uvs, FACE_HIGHLIGHT_TEXTURE)
-	
+
+
+func _draw_obb_reference_point(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool) -> void:
+	if in_face == BoxFace.UNDEFINED:
+		return
 	if _align_selection_parameters.is_advanced_settings_enabled():
-		var origin: Vector3 = (face_corners[0] + face_corners[1] + face_corners[2] + face_corners[3]) / 4.0
 		var basis: Basis = in_obb.get_face_basis(in_face)
-		var face_size: Vector2
-		match in_face:
-			BoxFace.FRONT, BoxFace.BACK:
-				face_size = Vector2(in_obb.box.size.x, in_obb.box.size.y)
-			BoxFace.TOP, BoxFace.BOTTOM:
-				face_size = Vector2(in_obb.box.size.x, in_obb.box.size.z)
-			BoxFace.LEFT, BoxFace.RIGHT:
-				face_size = Vector2(in_obb.box.size.z, in_obb.box.size.y)
-		origin += basis[0] * (in_obb.offset_ratio_h * face_size.x)
-		origin += basis[1] * (in_obb.offset_ratio_v * face_size.y)
-		var origin_2d: Vector2 = _camera.unproject_position(origin)
-		var _h_dir_2d: Vector2 = (_camera.unproject_position(origin + basis[0] * 200)-origin_2d).normalized()
-		var _v_dir_2d: Vector2 = (_camera.unproject_position(origin + basis[1] * 200)-origin_2d).normalized()
-		var draw_h_from: Vector2 = origin_2d - _h_dir_2d * 20
-		var draw_h_to: Vector2 = origin_2d + _h_dir_2d * 20
-		var draw_v_from: Vector2 = origin_2d - _v_dir_2d * 20
-		var draw_v_to: Vector2 = origin_2d + _v_dir_2d * 20
+		var origin: Vector3 = in_obb.transform.origin
+		var face_size: Vector3 = in_obb.get_face_size(in_face)
+		var ref_point: Vector3 = origin
+		ref_point += basis.x * (in_obb.offset_ratio_h * face_size.x)
+		ref_point += basis.y * (in_obb.offset_ratio_v * face_size.y)
+		var no_depth_ref_point: Vector3 = ref_point
+		if _align_selection_parameters.is_align_depth_enabled():
+			ref_point += basis.z * (in_obb.offset_ratio_d * face_size.z)
+		else:
+			ref_point += basis.z * (face_size.z * 0.5)
+		var ref_point_2d: Vector2 = _camera.unproject_position(ref_point)
+		var _h_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[0] * 200)-ref_point_2d).normalized()
+		var _v_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[1] * 200)-ref_point_2d).normalized()
+		var draw_h_from: Vector2 = ref_point_2d - _h_dir_2d * 20
+		var draw_h_to: Vector2 = ref_point_2d + _h_dir_2d * 20
+		var draw_v_from: Vector2 = ref_point_2d - _v_dir_2d * 20
+		var draw_v_to: Vector2 = ref_point_2d + _v_dir_2d * 20
+		if _align_selection_parameters.is_align_depth_enabled():
+			var depth_line_from: Vector3 = no_depth_ref_point + basis.z * (face_size.z * 0.5)
+			var depth_line_to: Vector3   = no_depth_ref_point - basis.z * (face_size.z * 0.5)
+			var depth_line_from_2d: Vector2 = _camera.unproject_position(depth_line_from)
+			var depth_line_to_2d: Vector2   = _camera.unproject_position(depth_line_to)
+			draw_dashed_line(depth_line_from_2d, depth_line_to_2d, Color.BLUE, 2, 15)
 		draw_line(draw_h_from, draw_h_to, Color.RED, 4 if in_highlighted else 2)
 		draw_line(draw_v_from, draw_v_to, Color.GREEN, 4 if in_highlighted else 2)
 	
-	if DRAW_TRANSFORM_AT & DrawTransformAt.HighlightedFace != 0:
+	if DRAW_TRANSFORM_AT & (DrawTransformAt.HighlightedFace | DrawTransformAt.LowlightedFace) != 0:
+		var basis: Basis = in_obb.get_face_basis(in_face)
+		var origin: Vector3 = in_obb.transform.origin
+		var face_transform := Transform3D(basis, origin)
+		face_transform.origin += basis.z * (in_obb.get_face_size(in_face).z * 0.5)
 		var font := get_theme_font(&"Label", &"HeaderLarge")
-		var center: Vector2 = _camera.unproject_position(flat_transform.origin)
+		var center: Vector2 = _camera.unproject_position(face_transform.origin)
 		var face_name: String = str(BoxFace.find_key(in_face))
 		face_name = face_name.capitalize().replace(" ", "/")
 		var text_size: Vector2 = font.get_string_size(face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40)
@@ -221,7 +246,7 @@ func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool
 			for y: float in [-2, 2]:
 				draw_string(font, center + Vector2(x, y), face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40, Color.DARK_SLATE_GRAY)
 		draw_string(font, center, face_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 40, Color.FLORAL_WHITE)
-	_draw_transform(flat_transform, in_obb.box.size * 0.25, true)
+		_draw_transform(face_transform, in_obb.box.size * 0.25, in_highlighted)
 
 
 func _get_distance_to_camera_sqrd(in_global_pos: Vector3) -> float:

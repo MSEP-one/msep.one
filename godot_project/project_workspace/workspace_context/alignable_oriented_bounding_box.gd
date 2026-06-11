@@ -17,6 +17,7 @@ var selected_face := BoxFace.UNDEFINED
 var align_to_face := BoxFace.FRONT
 var offset_ratio_h: float = 0.0
 var offset_ratio_v: float = 0.0
+var offset_ratio_d: float = 0.0
 var description: String:
 	set(v):
 		assert(_initialized == false, "Value cannot be changed upon creation")
@@ -114,7 +115,7 @@ func has_face(box_face: BoxFace) -> bool:
 func get_face_basis(in_face: BoxFace) -> Basis:
 	match in_face:
 		BoxFace.FRONT:
-			return transform.basis
+			return transform.basis.orthonormalized()
 		BoxFace.BACK:
 			var basis: Basis = transform.basis.orthonormalized()
 			return Basis(
@@ -141,14 +142,14 @@ func get_face_basis(in_face: BoxFace) -> Basis:
 			return Basis(
 				-basis[2],
 				basis[1],
-				basis[0],
+				-basis[0],
 			)
 		BoxFace.RIGHT:
 			var basis: Basis = transform.basis.orthonormalized()
 			return Basis(
 				basis[2],
 				basis[1],
-				-basis[0],
+				basis[0],
 			)
 	push_error("Invalid face %d" % in_face)
 	return transform.basis
@@ -213,22 +214,25 @@ func align_rotation_to_basis(in_basis: Basis) -> bool:
 	return something_changed
 
 
-func align_position_to(reference_obb: AlignableOBB) -> bool:
+func align_position_to(reference_obb: AlignableOBB, in_align_depth: bool) -> bool:
 	if reference_obb == self or selected_face == BoxFace.UNDEFINED or point_cloud_source.size() == 0:
 		return false
 	var something_changed: bool = false
 	
-	const HALF_BOX_SIZE: float = 0.5
+	const DEFAULT_DEPTH_RATIO: float = 0.5
 	var ref_face_basis: Basis = reference_obb.get_face_basis(reference_obb.align_to_face)
 	var ref_face_size: Vector3 = reference_obb.get_face_size(reference_obb.align_to_face)
 	var reference_point := Vector3() # in local space, relative to plane
 	reference_point += ref_face_basis.x * ref_face_size.x * reference_obb.offset_ratio_h
 	reference_point += ref_face_basis.y * ref_face_size.y * reference_obb.offset_ratio_v
-	reference_point += ref_face_basis.z * ref_face_size.z * HALF_BOX_SIZE
+	if in_align_depth:
+		reference_point += ref_face_basis.z * ref_face_size.z * reference_obb.offset_ratio_d
+	else:
+		reference_point += ref_face_basis.z * ref_face_size.z * DEFAULT_DEPTH_RATIO
 	
 	var align_origin: Vector3 = reference_obb.transform.origin
 	align_origin += reference_point
-	var align_transform := Transform3D(ref_face_basis, align_origin)
+	var align_transform := Transform3D(ref_face_basis, align_origin).orthonormalized()
 	
 	
 	var obj_face_basis: Basis = self.get_face_basis(self.selected_face)
@@ -236,36 +240,33 @@ func align_position_to(reference_obb: AlignableOBB) -> bool:
 	var obj_reference_pos := Vector3()
 	obj_reference_pos += obj_face_basis.x * obj_face_size.x * self.offset_ratio_h
 	obj_reference_pos += obj_face_basis.y * obj_face_size.y * self.offset_ratio_v
-	obj_reference_pos += obj_face_basis.z * obj_face_size.z * HALF_BOX_SIZE
-	var old_transform: Transform3D = transform
+	if in_align_depth:
+		obj_reference_pos += obj_face_basis.z * obj_face_size.z * self.offset_ratio_d
+	else:
+		obj_reference_pos += obj_face_basis.z * obj_face_size.z * DEFAULT_DEPTH_RATIO
 	
 	var global_obj_reference_pos: Vector3 = transform.origin
 	global_obj_reference_pos += obj_reference_pos
 	
-	var local_to_align_origin: Vector3 = align_transform.inverse() * global_obj_reference_pos
-	
-	var world_offset := -Vector3(local_to_align_origin.x, local_to_align_origin.y, 0)
-	world_offset = ref_face_basis.inverse() * world_offset
-	
-	var new_transform: Transform3D = old_transform.translated(world_offset)
-	var to_local: Transform3D = old_transform.inverse()
-	var delta_transform: Transform3D = (to_local * new_transform).orthonormalized()
+	var offset := Vector3()
+	if in_align_depth:
+		offset = align_transform.origin - global_obj_reference_pos
+	else:
+		var align_plane := Plane(ref_face_basis.z, align_transform.origin)
+		var ref_point_in_plane: Vector3 = align_plane.project(global_obj_reference_pos)
+		offset = align_transform.origin - ref_point_in_plane
 	
 	for context: StructureContext in point_cloud_source.keys():
 		var nano_structure: NanoStructure = context.nano_structure
 		var atoms_to_move: PackedInt32Array = []
-		var previous_positions: PackedVector3Array = []
 		var target_positions: PackedVector3Array = []
-		var nmb_of_moved_atoms: int = 0
 		for atom_id: int in point_cloud_source[context]:
 			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-			var new_pos: Vector3 = new_transform * (to_local * old_pos)
+			var new_pos: Vector3 = old_pos + offset
 			atoms_to_move.push_back(atom_id)
 			target_positions.push_back(new_pos)
-			previous_positions.push_back(old_pos)
-			nmb_of_moved_atoms += 1
 		
-		var atoms_changed: bool = nmb_of_moved_atoms > 0
+		var atoms_changed: bool = atoms_to_move.size() > 0
 		var transform_moved: bool = false
 		var position_moved: bool = false
 		if context.nano_structure.is_virtual_object() and context.is_virtual_object_selected():
@@ -279,10 +280,12 @@ func align_position_to(reference_obb: AlignableOBB) -> bool:
 				nano_structure.atoms_set_positions(atoms_to_move, target_positions)
 				nano_structure.end_edit()
 			if transform_moved:
-				nano_structure.set_transform(nano_structure.get_transform()* delta_transform)
+				var t: Transform3D = nano_structure.get_transform()
+				t.origin += offset
+				nano_structure.set_transform(t)
 			if position_moved:
-				var t := Transform3D(Basis(), nano_structure.get_position()) * delta_transform
-				nano_structure.set_position(t.origin)
+				var pos: Vector3 = nano_structure.get_position()
+				nano_structure.set_position(pos + offset)
 			
 			something_changed = true
 	
