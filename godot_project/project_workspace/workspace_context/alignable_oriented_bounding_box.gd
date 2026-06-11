@@ -184,9 +184,7 @@ func align_rotation_to_basis(in_basis: Basis) -> bool:
 	
 	if old_transform.basis == in_basis:
 		return false
-	var to_local: Transform3D = old_transform.inverse()
-	var new_transform: Transform3D
-	new_transform = Transform3D(in_basis, old_transform.origin)
+	var relative_basis: Basis = in_basis * get_face_basis(selected_face).inverse()
 	for context: StructureContext in point_cloud_source.keys():
 		var nano_structure: NanoStructure = context.nano_structure
 		var atoms_to_move: PackedInt32Array = point_cloud_source[context]
@@ -195,7 +193,8 @@ func align_rotation_to_basis(in_basis: Basis) -> bool:
 		var nmb_of_moved_atoms: int = 0
 		for atom_id: int in point_cloud_source[context]:
 			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-			var new_pos: Vector3 = new_transform * (to_local * old_pos)
+			var rel_pos: Vector3 = old_pos - transform.origin
+			var new_pos: Vector3 = (relative_basis * rel_pos) + transform.origin
 			target_positions.push_back(new_pos)
 			previous_positions.push_back(old_pos)
 			nmb_of_moved_atoms += 1
@@ -209,7 +208,9 @@ func align_rotation_to_basis(in_basis: Basis) -> bool:
 				nano_structure.end_edit()
 				something_changed = true
 			if object_moved:
-				nano_structure.set_transform(new_transform)
+				var t: Transform3D = nano_structure.get_transform()
+				t.basis = relative_basis * t.basis
+				nano_structure.set_transform(t)
 				something_changed = true
 	return something_changed
 
