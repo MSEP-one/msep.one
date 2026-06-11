@@ -311,11 +311,13 @@ func _on_align_rotation_button_pressed() -> void:
 				WorldPlane.YZ:
 					align_basis = align_basis.rotated(align_basis[1], PI * 0.5)
 			for i: int in alignable_boxes.size():
-				something_changed = something_changed or alignable_boxes[i].align_rotation_to_basis(align_basis)
+				# IMPORTANT: The order of this comparison matters
+				# obb.align_position_to() needs to be first, otherwise will be skipped when something_changed is true
+				something_changed = alignable_boxes[i].align_rotation_to_basis(align_basis) or something_changed
 		AlignRelativeTo.SPECIFIC_BOX_PLANE:
 			var align_target: AlignableOBB = _align_selection_parameters.get_align_obb_target()
 			for i: int in alignable_boxes.size():
-				something_changed = something_changed or alignable_boxes[i].align_rotation_to_box(align_target)
+				something_changed = alignable_boxes[i].align_rotation_to_box(align_target) or something_changed
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Rotation")
 	_update_ui()
