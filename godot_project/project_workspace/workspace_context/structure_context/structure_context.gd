@@ -867,12 +867,12 @@ func _subdivide_molecules(in_atoms: PackedInt32Array) -> Array[PackedInt32Array]
 				var pos_in_queue: int = remaining_atoms.find(atom_id)
 				if pos_in_queue != -1:
 					remaining_atoms.remove_at(pos_in_queue)
-				mol.append(atom_id)
-				for bond_id: int in atomic_structure.atom_get_bonds(atom_id):
-					var other_atom: int = atomic_structure.atom_get_bond_target(atom_id, bond_id)
-					if visited.get(other_atom, false) == true:
-						continue
-					next_round.append(other_atom)
+					mol.append(atom_id)
+					for bond_id: int in atomic_structure.atom_get_bonds(atom_id):
+						var other_atom: int = atomic_structure.atom_get_bond_target(atom_id, bond_id)
+						if visited.get(other_atom, false) == true:
+							continue
+						next_round.append(other_atom)
 	return molecules
 
 func get_selection_snapshot() -> Dictionary:
