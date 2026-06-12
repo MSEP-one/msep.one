@@ -259,9 +259,19 @@ func _on_representation_changed(in_representation_settings: RepresentationSettin
 
 
 func _adjust_lines_thickness() -> void:
-	var dpi: int = DisplayServer.screen_get_dpi()
-	const MILIMETERS_PER_INCHES: float = 25.4
-	const LOWLIGHT_THICKNESS_MILIMETERS: float = 0.60
-	const HIGHLIGHT_THICKNESS_MILIMETERS: float = 1.0
-	_lowlight_thickness = dpi * (LOWLIGHT_THICKNESS_MILIMETERS / MILIMETERS_PER_INCHES)
-	_highlight_thickness = dpi * (HIGHLIGHT_THICKNESS_MILIMETERS / MILIMETERS_PER_INCHES)
+	# NOTE: This formula is a best effort to get line thickness in different monitor sizes and resolutions
+	# We cannot use DisplayServer.get_screen_dpi() because is reported to be unreliable
+	# and has already produced wrong results in some of our machines
+	# So we calculate the thickness for a 15.5 inches monitor, which is more or less the median value
+	# for notebooks systems (ranging from 13 to 24 inches)
+	# In desktop systems using bigger monitors line will look thinner,
+	# but screen space will be larger, so should be noticeble enough
+	var screen_index: int = DisplayServer.window_get_current_screen()
+	var resolution: Vector2 = DisplayServer.screen_get_size(screen_index)
+	const ASSUMED_MONITOR_SIZE_INCHES := 15.5
+	const INCHES_TO_MILLIMETERS := 25.4
+	var dpm: float = resolution.length() / (ASSUMED_MONITOR_SIZE_INCHES * INCHES_TO_MILLIMETERS)
+	const LOWLIGHT_THICKNESS_MILLIMETERS: float = 0.55
+	const HIGHLIGHT_THICKNESS_MILLIMETERS: float = 0.7
+	_lowlight_thickness = dpm * LOWLIGHT_THICKNESS_MILLIMETERS
+	_highlight_thickness = dpm * HIGHLIGHT_THICKNESS_MILLIMETERS
