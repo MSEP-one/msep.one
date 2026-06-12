@@ -41,7 +41,7 @@ var _selected_world_plane: WorldPlane
 var _align_selection_grouping_policy := AlignSelectionGroupingPolicy.OneBoxPerSubgroup
 var _alignable_boxes: Array[AlignableOBB] = []
 var _align_to_box_index: int = INVALID_BOX_INDEX
-var _align_depth_enabled: bool = false
+var _align_depth_enabled: bool = true
 var _workspace_context: WorkspaceContext
 
 
