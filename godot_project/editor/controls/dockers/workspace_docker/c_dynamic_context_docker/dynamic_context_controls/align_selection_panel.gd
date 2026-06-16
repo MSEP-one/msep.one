@@ -53,6 +53,7 @@ func _ensure_workspace_initialized(in_workspace_context: WorkspaceContext) -> vo
 	_workspace_context.history_changed.connect(_on_workspace_context_history_changed)
 	visibility_changed.connect(_on_visibility_changed)
 
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_alignable_boxes_tree = %AlignableBoxesTree as Tree
