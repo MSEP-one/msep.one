@@ -36,7 +36,7 @@ const BoxFace = AlignableOBB.BoxFace
 
 const INVALID_BOX_INDEX: int = -1
 
-var _align_relative_to: AlignRelativeTo
+var _align_relative_to: AlignRelativeTo = AlignRelativeTo.SPECIFIC_BOX_PLANE
 var _selected_world_plane: WorldPlane
 var _align_selection_grouping_policy := AlignSelectionGroupingPolicy.OneBoxPerSubgroup
 var _alignable_boxes: Array[AlignableOBB] = []
