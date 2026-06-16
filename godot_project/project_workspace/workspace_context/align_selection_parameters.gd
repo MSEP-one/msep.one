@@ -101,7 +101,7 @@ func get_alignable_boxes() -> Array[AlignableOBB]:
 				var description: String = context.nano_structure.get_structure_name()
 				if group_boxes.size() > 1:
 					description += " Molecule %d" % [i + 1]
-				var alignable_box: AlignableOBB = AlignableOBB.from_obb(group_boxes[i], description)
+				var alignable_box: AlignableOBB = AlignableOBB.from_obb(group_boxes[i], description, self)
 				if _previous_query.get(context.get_int_guid(), []).size() > i:
 					var selected_face: BoxFace = _previous_query[context.get_int_guid()][i].selected_face
 					var align_to_face: BoxFace = _previous_query[context.get_int_guid()][i].align_to_face
@@ -112,6 +112,7 @@ func get_alignable_boxes() -> Array[AlignableOBB]:
 					alignable_box.offset_ratio_h = _previous_query[context.get_int_guid()][i].offset_ratio_h
 					alignable_box.offset_ratio_v = _previous_query[context.get_int_guid()][i].offset_ratio_v
 					alignable_box.offset_ratio_d = _previous_query[context.get_int_guid()][i].offset_ratio_d
+					alignable_box.align_to_center_of_mass = _previous_query[context.get_int_guid()][i].align_to_center_of_mass
 				this_query[context.get_int_guid()].append(alignable_box)
 				_alignable_boxes.append(alignable_box)
 		_previous_query = this_query
@@ -192,6 +193,17 @@ func set_align_depth_enabled(in_enabled: bool) -> void:
 	if in_enabled == _align_depth_enabled:
 		return
 	_align_depth_enabled = in_enabled
+	if in_enabled == true:
+		# Some of the selectable faces gets removed
+		# Make sure faces selection are valid
+		for box: AlignableOBB in get_alignable_boxes():
+			const INVALID_TO_VALID_FACE: Dictionary[BoxFace, BoxFace] = {
+				BoxFace.BACK : BoxFace.FRONT,
+				BoxFace.BOTTOM : BoxFace.TOP,
+				BoxFace.LEFT : BoxFace.RIGHT,
+			}
+			box.align_to_face = INVALID_TO_VALID_FACE.get(box.align_to_face, box.align_to_face)
+			box.selected_face = INVALID_TO_VALID_FACE.get(box.selected_face, box.selected_face)
 	request_redraw_preview()
 
 

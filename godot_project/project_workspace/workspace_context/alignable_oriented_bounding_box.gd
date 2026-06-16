@@ -15,25 +15,61 @@ enum BoxFace {
 
 var selected_face := BoxFace.UNDEFINED
 var align_to_face := BoxFace.FRONT
+var align_to_center_of_mass: bool = true
 var offset_ratio_h: float = 0.0
 var offset_ratio_v: float = 0.0
 var offset_ratio_d: float = 0.0
+var world_center_of_mass: Vector3:
+	set(v):
+		assert(_initialized == false, "Value cannot be changed upon creation")
+		world_center_of_mass = v
 var description: String:
 	set(v):
 		assert(_initialized == false, "Value cannot be changed upon creation")
 		description = v
 
 
-static func from_obb(obb: OBB, in_description: String) -> AlignableOBB:
-	return AlignableOBB.new(in_description, obb.box.size, obb.transform, obb.point_cloud_source)
+var _params: AlignSelectionParameters
 
 
-func _init(in_description: String, in_size: Vector3, in_transform: Transform3D, in_source: Dictionary[StructureContext, PackedInt32Array]) -> void:
+static func from_obb(obb: OBB, in_description: String, align_parameters: AlignSelectionParameters) -> AlignableOBB:
+	return AlignableOBB.new(in_description, obb.box.size, obb.transform, obb.point_cloud_source, align_parameters)
+
+
+func _init(
+		in_description: String,
+		in_size: Vector3,
+		in_transform: Transform3D,
+		in_source: Dictionary[StructureContext, PackedInt32Array],
+		in_align_parameters: AlignSelectionParameters
+	) -> void:
 	description = in_description
 	super._init(in_size, in_transform,in_source)
+	_initialized = false
+	world_center_of_mass = _calculate_center_of_mass_from_source()
+	_params = in_align_parameters
 	if not has_face(align_to_face):
 		advance_align_to_face(1)
 	_initialized = true
+
+
+func _calculate_center_of_mass_from_source() -> Vector3:
+	var center := Vector3()
+	var total_mass: float = 0
+	var atom_type_masses: Dictionary[int, float]
+	for source: StructureContext in point_cloud_source:
+		if source.nano_structure is AtomicStructure and not source.nano_structure is DnaStructure:
+			var atomic_structure := source.nano_structure as AtomicStructure
+			for atom_id: int in point_cloud_source[source]:
+				var atomic_number: int = atomic_structure.atom_get_atomic_number(atom_id)
+				if not atomic_number in atom_type_masses:
+					atom_type_masses[atomic_number] = PeriodicTable.get_by_atomic_number(atomic_number).mass
+				center += atomic_structure.atom_get_position(atom_id) * atom_type_masses[atomic_number]
+				total_mass += atom_type_masses[atomic_number]
+	if is_zero_approx(total_mass):
+		return transform.origin
+	center /= total_mass
+	return center
 
 
 func advance_selected_face(dir: int) -> void:
@@ -76,26 +112,29 @@ func get_alignable_faces() -> Array[BoxFace]:
 	match zero_len_axes_count:
 		3:
 			# Empty box, align to an arbitrary face (front)
-			return [BoxFace.FRONT, BoxFace.BACK]
+			return [BoxFace.FRONT]
 		2:
 			# A straight line, likely 2 atoms, this would make 2 faces valid, but we only send one
 			match non_zero_len_axes[0]: # The only axis with size
 				Vector3.AXIS_X:
-					return [BoxFace.FRONT, BoxFace.BACK]
+					return [BoxFace.FRONT]
 				Vector3.AXIS_Y:
-					return [BoxFace.FRONT, BoxFace.BACK]
+					return [BoxFace.FRONT]
 				Vector3.AXIS_Z:
-					return [BoxFace.TOP, BoxFace.BOTTOM]
+					return [BoxFace.TOP]
 		1:
-			match non_zero_len_axes: # size is 2
+			match non_zero_len_axes: # box is a plane, only 1 face is needed
 				[Vector3.AXIS_X, Vector3.AXIS_Y]:
-					return [BoxFace.FRONT, BoxFace.BACK]
+					return [BoxFace.FRONT]
 				[Vector3.AXIS_X, Vector3.AXIS_Z]:
-					return [BoxFace.TOP, BoxFace.BOTTOM]
+					return [BoxFace.TOP]
 				[Vector3.AXIS_Y, Vector3.AXIS_Z]:
-					return [BoxFace.LEFT, BoxFace.RIGHT]
+					return [BoxFace.LEFT]
 		_:
 			pass # default
+	if _params.is_align_depth_enabled():
+		# We dont need the secondary side of each main face
+		return [BoxFace.FRONT, BoxFace.TOP, BoxFace.RIGHT]
 	return [BoxFace.FRONT, BoxFace.BACK, BoxFace.TOP, BoxFace.BOTTOM, BoxFace.LEFT, BoxFace.RIGHT]
 
 ## At least 2 of the 3 size dimensions needs to be greater than 0 for the
@@ -220,42 +259,18 @@ func align_position_to(reference_obb: AlignableOBB, in_align_depth: bool) -> boo
 		return false
 	var something_changed: bool = false
 	
-	const DEFAULT_DEPTH_RATIO: float = 0.5
-	var ref_face_basis: Basis = reference_obb.get_face_basis(reference_obb.align_to_face)
-	var ref_face_size: Vector3 = reference_obb.get_face_size(reference_obb.align_to_face)
-	var reference_point := Vector3() # in local space, relative to plane
-	reference_point += ref_face_basis.x * ref_face_size.x * reference_obb.offset_ratio_h
-	reference_point += ref_face_basis.y * ref_face_size.y * reference_obb.offset_ratio_v
-	if in_align_depth:
-		reference_point += ref_face_basis.z * ref_face_size.z * reference_obb.offset_ratio_d
-	else:
-		reference_point += ref_face_basis.z * ref_face_size.z * DEFAULT_DEPTH_RATIO
+	var align_origin: Vector3 = reference_obb._get_align_reference_point(reference_obb.align_to_face, in_align_depth)
 	
-	var align_origin: Vector3 = reference_obb.transform.origin
-	align_origin += reference_point
-	var align_transform := Transform3D(ref_face_basis, align_origin).orthonormalized()
-	
-	
-	var obj_face_basis: Basis = self.get_face_basis(self.selected_face)
-	var obj_face_size: Vector3 = self.get_face_size(self.selected_face)
-	var obj_reference_pos := Vector3()
-	obj_reference_pos += obj_face_basis.x * obj_face_size.x * self.offset_ratio_h
-	obj_reference_pos += obj_face_basis.y * obj_face_size.y * self.offset_ratio_v
-	if in_align_depth:
-		obj_reference_pos += obj_face_basis.z * obj_face_size.z * self.offset_ratio_d
-	else:
-		obj_reference_pos += obj_face_basis.z * obj_face_size.z * DEFAULT_DEPTH_RATIO
-	
-	var global_obj_reference_pos: Vector3 = transform.origin
-	global_obj_reference_pos += obj_reference_pos
+	var global_obj_reference_pos: Vector3 = _get_align_reference_point(selected_face, in_align_depth)
 	
 	var offset := Vector3()
 	if in_align_depth:
-		offset = align_transform.origin - global_obj_reference_pos
+		offset = align_origin - global_obj_reference_pos
 	else:
-		var align_plane := Plane(ref_face_basis.z, align_transform.origin)
+		var ref_face_basis: Basis = reference_obb.get_face_basis(reference_obb.align_to_face)
+		var align_plane := Plane(ref_face_basis.z, align_origin)
 		var ref_point_in_plane: Vector3 = align_plane.project(global_obj_reference_pos)
-		offset = align_transform.origin - ref_point_in_plane
+		offset = align_origin - ref_point_in_plane
 	
 	for context: StructureContext in point_cloud_source.keys():
 		var nano_structure: NanoStructure = context.nano_structure
@@ -291,3 +306,22 @@ func align_position_to(reference_obb: AlignableOBB, in_align_depth: bool) -> boo
 			something_changed = true
 	
 	return something_changed
+
+
+## Returns the alignment reference point in world coordinates
+func _get_align_reference_point(reference_face: BoxFace, in_align_depth: bool) -> Vector3:
+	if align_to_center_of_mass:
+		return world_center_of_mass
+	
+	const DEFAULT_DEPTH_RATIO: float = 0.5
+	var basis: Basis = get_face_basis(reference_face)
+	var size: Vector3 = get_face_size(reference_face)
+	var reference_point := Vector3() # in local space, relative to plane
+	reference_point += basis.x * size.x * offset_ratio_h
+	reference_point += basis.y * size.y * offset_ratio_v
+	if in_align_depth:
+		reference_point += basis.z * size.z * offset_ratio_d
+	else:
+		reference_point += basis.z * size.z * DEFAULT_DEPTH_RATIO
+	
+	return transform.origin + reference_point
