@@ -101,7 +101,7 @@ func _draw() -> void:
 	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
 	var highlighted_obb: OBB = _align_selection_parameters.get_align_obb_target()
 	for obb: AlignableOBB in alignable_boxes:
-		if obb == null or not obb.box.has_surface() or obb == highlighted_obb:
+		if obb == null or obb == highlighted_obb:
 			continue
 		_draw_obb_face(obb, obb.selected_face, false, true)
 		if _align_selection_parameters.is_align_depth_enabled():
@@ -109,9 +109,9 @@ func _draw() -> void:
 		_draw_obb_reference_point(obb, obb.selected_face, false)
 		_draw_transform(obb.transform, obb.box.size * 0.25, false)
 	if highlighted_obb != null:
-		_draw_obb_face(highlighted_obb, highlighted_obb.align_to_face, true)
 		if _align_selection_parameters.is_align_depth_enabled():
 			_draw_obb_face(highlighted_obb, OPPOSITE_FACE[highlighted_obb.align_to_face], false)
+		_draw_obb_face(highlighted_obb, highlighted_obb.align_to_face, true)
 		_draw_obb_reference_point(highlighted_obb, highlighted_obb.align_to_face, true)
 
 
@@ -166,7 +166,9 @@ func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool
 		uvs.push_back(uv)
 	var color: Color = _highlight_color if in_highlighted else _lowlight_color
 	var thickness: float = _highlight_thickness if in_highlighted else _lowlight_thickness
-	if in_filled:
+	var face_size: Vector3 = in_obb.get_face_size(in_face)
+	var has_surface: bool = face_size.x * face_size.y > 0
+	if in_filled and has_surface:
 		var opacity: float = FACE_HIGHLIGHT_OPACITY if in_highlighted else FACE_LOWLIGHT_OPACITY
 		draw_colored_polygon(polygon, Color(_highlight_color, opacity), uvs, FACE_HIGHLIGHT_TEXTURE)
 	for i: int in polygon.size():
