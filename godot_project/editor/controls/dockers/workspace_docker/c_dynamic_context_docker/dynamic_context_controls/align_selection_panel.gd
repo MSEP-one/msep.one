@@ -29,6 +29,7 @@ var _align_to_face_button: Button
 var _advanced_align_to_face_button: Button
 var _grouping_policy_option_button: OptionButton
 var _align_depth_check_button: CheckButton
+var _align_position_and_rotation_button: Button
 var _align_position_button: Button
 var _align_rotation_button: Button
 var _align_camera_button: Button
@@ -81,8 +82,10 @@ func _notification(what: int) -> void:
 		_align_depth_check_button = %AlignDepthCheckButton as CheckButton
 		_align_depth_check_button.toggled.connect(_on_align_depth_check_button_toggled)
 		
+		_align_position_and_rotation_button = %AlignPositionAndRotationButton as Button
 		_align_position_button = %AlignPositionButton as Button
 		_align_rotation_button = %AlignRotationButton as Button
+		_align_position_and_rotation_button.pressed.connect(_on_align_position_and_rotation_button_pressed)
 		_align_position_button.pressed.connect(_on_align_position_button_pressed)
 		_align_rotation_button.pressed.connect(_on_align_rotation_button_pressed)
 		
@@ -126,6 +129,7 @@ func _update_ui() -> void:
 		if reference_box == null or reference_box.align_to_face == BoxFace.UNDEFINED:
 			can_align_camera = false
 	_align_camera_button.disabled = not can_align_camera
+	_align_position_and_rotation_button.disabled = not _align_selection_parameters.can_align_positions()
 	_align_position_button.disabled = not _align_selection_parameters.can_align_positions()
 	_align_depth_check_button.disabled = not _align_selection_parameters.can_align_positions()
 
@@ -362,6 +366,21 @@ func _on_align_camera_button_pressed() -> void:
 		.get_node_or_null("DrawOrientationWidget")
 	)
 	orientation_widget.snap_to_rotation(align_basis.get_euler())
+
+
+func _on_align_position_and_rotation_button_pressed() -> void:
+	assert(_align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE,
+		"Cannot align position to global planes, they dont have boundaries")
+	var reference_obb: AlignableOBB = _align_selection_parameters.get_align_obb_target()
+	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
+	var align_depth: bool = _align_selection_parameters.is_align_depth_enabled()
+	var something_changed: bool = false
+	for i: int in alignable_boxes.size():
+		something_changed = alignable_boxes[i].align_rotation_to_box(reference_obb) or something_changed
+		something_changed = alignable_boxes[i].align_position_to(reference_obb, align_depth) or something_changed
+	if something_changed:
+		_workspace_context.snapshot_moment("Align Selection Position and Rotation")
+	_update_ui()
 
 
 func _on_align_position_button_pressed() -> void:

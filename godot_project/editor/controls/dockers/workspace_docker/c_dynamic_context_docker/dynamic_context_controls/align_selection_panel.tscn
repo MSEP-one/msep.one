@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://baq1asnarlxhd"]
+[gd_scene load_steps=10 format=3 uid="uid://baq1asnarlxhd"]
 
 [ext_resource type="Script" uid="uid://xvrmaqoedo2k" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/align_selection_panel.gd" id="1_nqyka"]
 [ext_resource type="Texture2D" uid="uid://dtfepgaagdcj5" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/SettingsMenu.svg" id="3_16hnp"]
 [ext_resource type="Texture2D" uid="uid://bn78huwovol7m" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignRotation.svg" id="3_hy18o"]
 [ext_resource type="Texture2D" uid="uid://b8h7wdot8t8l0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignCameraRotation.svg" id="4_ihegr"]
 [ext_resource type="Texture2D" uid="uid://d16yxekfb4k3h" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignableBoxFaceFront.svg" id="4_tq44g"]
+[ext_resource type="Texture2D" uid="uid://buuuu7al8kehu" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignPositionAndRotation.svg" id="4_upeha"]
 [ext_resource type="PackedScene" uid="uid://dokga2ppwbgnu" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/advanced_align_settings_popup.tscn" id="6_xr8ci"]
 [ext_resource type="Texture2D" uid="uid://c7xirdkbfbt8a" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignPosition.svg" id="19_qogej"]
 
@@ -150,39 +151,59 @@ focus_mode = 0
 [node name="HSeparator" type="HSeparator" parent="."]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Align:"
+
+[node name="PanelContainer2" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer2"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="AlignPositionButton" type="Button" parent="VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer2/VBoxContainer"]
+layout_mode = 2
+
+[node name="AlignPositionButton" type="Button" parent="PanelContainer2/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"CrystalButton"
-text = "Align Positions"
+text = "Position"
 icon = ExtResource("19_qogej")
 alignment = 0
 
-[node name="AlignRotationButton" type="Button" parent="VBoxContainer"]
+[node name="AlignRotationButton" type="Button" parent="PanelContainer2/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"CrystalButton"
-text = "Align Boxes' Rotation"
+text = "Rotation"
 icon = ExtResource("3_hy18o")
 alignment = 0
 
-[node name="AlignCameraButton" type="Button" parent="VBoxContainer"]
+[node name="AlignPositionAndRotationButton" type="Button" parent="PanelContainer2/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"CrystalButton"
-text = "Align Camera to Reference"
+text = "Position and Rotation"
+icon = ExtResource("4_upeha")
+
+[node name="AlignCameraButton" type="Button" parent="PanelContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"CrystalButton"
+text = "Camera"
 icon = ExtResource("4_ihegr")
-alignment = 0
 
 [node name="AdvancedAlignSettingsPopup" parent="." instance=ExtResource("6_xr8ci")]
 unique_name_in_owner = true
