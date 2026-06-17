@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dokga2ppwbgnu"]
+[gd_scene load_steps=20 format=3 uid="uid://dokga2ppwbgnu"]
 
 [ext_resource type="Script" uid="uid://ccp5eg20ei08" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/advanced_align_settings_popup.gd" id="1_ov5gt"]
 [ext_resource type="Texture2D" uid="uid://c77e5qul2tkqv" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopLeft.svg" id="1_xosw5"]
@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://bb0vlp3oracy6" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignTopWide.svg" id="11_3jtxt"]
 [ext_resource type="Texture2D" uid="uid://gsi43xerwel8" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignHCenterWide.svg" id="12_5nxtq"]
 [ext_resource type="Texture2D" uid="uid://dywijgvt8or8h" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignBottomWide.svg" id="13_1r74a"]
+[ext_resource type="Texture2D" uid="uid://50i08nr176no" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/AlignCenterOfMass.svg" id="14_1r74a"]
 [ext_resource type="Texture2D" uid="uid://ds16kmxqdlik0" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/ControlAlignCustom.svg" id="14_5nxtq"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_rdc1k"]
@@ -24,7 +25,7 @@
 
 [node name="AdvancedAlignSettingsPopup" type="PopupPanel"]
 auto_translate_mode = 1
-size = Vector2i(210, 242)
+size = Vector2i(210, 273)
 visible = true
 script = ExtResource("1_ov5gt")
 
@@ -34,8 +35,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
 offset_top = 10.0
-offset_right = 200.0
-offset_bottom = 232.0
+offset_right = -10.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -110,7 +111,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 focus_mode = 0
 toggle_mode = true
-button_pressed = true
 button_group = SubResource("ButtonGroup_rdc1k")
 icon = ExtResource("5_3jtxt")
 flat = true
@@ -233,6 +233,19 @@ step = 0.0
 value = 100.0
 tick_count = 3
 ticks_on_borders = true
+
+[node name="CenterOfMassCheckButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_rdc1k")
+text = "Center of Mass"
+icon = ExtResource("14_1r74a")
+flat = true
+alignment = 0
 
 [node name="CustomAlignCheckButton" type="Button" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true

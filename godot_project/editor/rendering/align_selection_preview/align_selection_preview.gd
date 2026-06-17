@@ -185,13 +185,18 @@ func _draw_obb_reference_point(in_obb: AlignableOBB, in_face: BoxFace, in_highli
 		var origin: Vector3 = in_obb.transform.origin
 		var face_size: Vector3 = in_obb.get_face_size(in_face)
 		var ref_point: Vector3 = origin
-		ref_point += basis.x * (in_obb.offset_ratio_h * face_size.x)
-		ref_point += basis.y * (in_obb.offset_ratio_v * face_size.y)
-		var no_depth_ref_point: Vector3 = ref_point
-		if _align_selection_parameters.is_align_depth_enabled():
-			ref_point += basis.z * (in_obb.offset_ratio_d * face_size.z)
+		var no_depth_ref_point: Vector3
+		if in_obb.align_to_center_of_mass:
+			ref_point = in_obb.world_center_of_mass
+			no_depth_ref_point = in_obb.world_center_of_mass
 		else:
-			ref_point += basis.z * (face_size.z * 0.5)
+			ref_point += basis.x * (in_obb.offset_ratio_h * face_size.x)
+			ref_point += basis.y * (in_obb.offset_ratio_v * face_size.y)
+			no_depth_ref_point = ref_point
+			if _align_selection_parameters.is_align_depth_enabled():
+				ref_point += basis.z * (in_obb.offset_ratio_d * face_size.z)
+			else:
+				ref_point += basis.z * (face_size.z * 0.5)
 		var ref_point_2d: Vector2 = _camera.unproject_position(ref_point)
 		var _h_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[0] * 200) - ref_point_2d).normalized()
 		var _v_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[1] * 200) - ref_point_2d).normalized()

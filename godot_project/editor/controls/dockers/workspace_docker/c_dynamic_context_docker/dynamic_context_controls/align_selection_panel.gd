@@ -131,7 +131,7 @@ func _update_ui() -> void:
 	_align_camera_button.disabled = not can_align_camera
 	_align_position_and_rotation_button.disabled = not _align_selection_parameters.can_align_positions()
 	_align_position_button.disabled = not _align_selection_parameters.can_align_positions()
-	_align_depth_check_button.disabled = not _align_selection_parameters.can_align_positions()
+	_align_depth_check_button.disabled = not _align_selection_parameters.get_align_relative_to() == AlignRelativeTo.SPECIFIC_BOX_PLANE
 
 
 var _last_alignable_boxes: Array[AlignableOBB] = []
@@ -305,6 +305,7 @@ func _on_grouping_policy_option_button_item_selected(index: int) -> void:
 
 func _on_align_depth_check_button_toggled(in_button_pressed: bool) -> void:
 	_align_selection_parameters.set_align_depth_enabled(in_button_pressed)
+	_refresh_tree_items()
 
 
 func _on_align_rotation_button_pressed() -> void:
