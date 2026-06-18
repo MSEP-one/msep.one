@@ -1,0 +1,42 @@
+[gd_scene load_steps=4 format=3 uid="uid://df3xtgtlaxjo7"]
+
+[ext_resource type="Script" uid="uid://djni31yg3aabw" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/graphene_lattice_preview.gd" id="1_v8jga"]
+
+[sub_resource type="Shader" id="Shader_v8jga"]
+code = "shader_type canvas_item;
+
+uniform vec3 color_src: source_color;
+uniform vec3 color_dst: source_color;
+uniform sampler2D screen: hint_screen_texture;
+
+void fragment() {
+	vec3 color = texture(screen, SCREEN_UV).rgb;
+	if (length(color - color_src) < 0.01) {
+		color = color_dst;
+	}
+	COLOR.rgb = color;
+}
+
+//void light() {
+//	// Called for every pixel for every light affecting the CanvasItem.
+//	// Uncomment to replace the default light processing function with this one.
+//}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_od5b7"]
+resource_local_to_scene = true
+shader = SubResource("Shader_v8jga")
+shader_parameter/color_src = Color(0.46121, 0.46121, 0.46121, 1)
+shader_parameter/color_dst = Color(1, 1, 1, 1)
+
+[node name="GrapheneLaticePreview" type="Control"]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_v8jga")
+n = 4
+m = 3
+lattice_color = Color(0.46121, 0.46121, 0.46121, 1)
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+material = SubResource("ShaderMaterial_od5b7")

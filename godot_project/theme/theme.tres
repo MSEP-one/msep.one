@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=101 format=3 uid="uid://d3fnr4sbrd6ik"]
+[gd_resource type="Theme" load_steps=102 format=3 uid="uid://d3fnr4sbrd6ik"]
 
 [ext_resource type="FontFile" uid="uid://b3jkav4yxw06w" path="res://theme/Gidole-Regular.ttf" id="1_8indu"]
 [ext_resource type="Texture2D" uid="uid://bh1ju2ymvv1co" path="res://theme/icons/icon_on.svg" id="1_n28s0"]
@@ -182,6 +182,18 @@ corner_radius_top_left = 15
 corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hj1r4"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_4ytkp"]
 content_margin_left = 4.0
@@ -1063,6 +1075,8 @@ EraseTagButton/styles/normal = SubResource("StyleBoxFlat_rucdj")
 EraseTagButton/styles/normal_mirrored = SubResource("StyleBoxFlat_rucdj")
 EraseTagButton/styles/pressed = SubResource("StyleBoxFlat_5wxyd")
 EraseTagButton/styles/pressed_mirrored = SubResource("StyleBoxFlat_5wxyd")
+GrapheneLatticePreview/base_type = &"Control"
+GrapheneLatticePreview/styles/bg = SubResource("StyleBoxFlat_hj1r4")
 HSeparator/styles/separator = SubResource("StyleBoxLine_4ytkp")
 HeaderSmallCheckBox/base_type = &"CheckBox"
 HeaderSmallCheckBox/colors/font_color = Color(1, 1, 1, 1)

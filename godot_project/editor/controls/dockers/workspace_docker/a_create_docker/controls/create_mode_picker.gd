@@ -1,7 +1,7 @@
 extends DynamicContextControl
 
 
-var _weak_create_object_parameters: WeakRef = weakref(null)
+var _workspace_context: WorkspaceContext
 
 @onready var _option_button: OptionButton = %OptionButton
 
@@ -23,13 +23,19 @@ func set_create_mode_type(in_create_mode: int) -> void:
 
 
 func _ensure_workspace_initialized(in_workspace_context: WorkspaceContext) -> void:
-	if in_workspace_context == null:
+	if _workspace_context:
 		return
+	_workspace_context = in_workspace_context
 	var create_object_parameters: CreateObjectParameters = in_workspace_context.create_object_parameters as CreateObjectParameters
 	assert(create_object_parameters != null, "Workspace Context should always have CreateObjectParameters component")
-	_weak_create_object_parameters = weakref(create_object_parameters)
 	if !create_object_parameters.create_mode_type_changed.is_connected(_on_create_object_parameters_create_mode_changed):
 		create_object_parameters.create_mode_type_changed.connect(_on_create_object_parameters_create_mode_changed)
+	FeatureFlagManager.on_feature_flag_toggled.connect(_on_feature_flag_toggled)
+	if FeatureFlagManager.get_flag_value("feature_flags/carbon_nanotube") == false:
+			var idx: int = _option_button.get_item_index(
+				CreateObjectParameters.CreateModeType.CREATE_CARBON_NANOTUBE)
+			if idx != -1:
+				_option_button.remove_item(idx)
 
 
 func _on_create_object_parameters_create_mode_changed(in_new_create_mode: int) -> void:
@@ -37,6 +43,23 @@ func _on_create_object_parameters_create_mode_changed(in_new_create_mode: int) -
 
 
 func _on_option_button_id_pressed(id: int) -> void:
-	var create_object_parameters: CreateObjectParameters = _weak_create_object_parameters.get_ref() as CreateObjectParameters
+	var create_object_parameters: CreateObjectParameters = _workspace_context.create_object_parameters
 	if create_object_parameters != null:
 		create_object_parameters.set_create_mode_type(id as CreateObjectParameters.CreateModeType)
+
+
+func _on_feature_flag_toggled(path: String, new_value: bool) -> void:
+	if path == "feature_flags/carbon_nanotube":
+		if new_value:
+			if not _workspace_context.is_active():
+				return
+			DisplayServer.dialog_show(
+				"DISCLAIMER",
+				"Create a new workspace for this feature flag to take effect",
+				["OK"], Callable()
+			)
+		else:
+			var idx: int = _option_button.get_item_index(
+				CreateObjectParameters.CreateModeType.CREATE_CARBON_NANOTUBE)
+			if idx != -1:
+				_option_button.remove_item(idx)

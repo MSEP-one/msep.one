@@ -85,6 +85,7 @@ msep_online_stub_service=true
 msep_online_run_tests=false
 dna_builder_dev_tool=false
 tooltip_show_ids=false
+carbon_nanotube=false
 
 [file_customization]
 
