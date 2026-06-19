@@ -33,6 +33,7 @@ signal representation_changed(new_representation: Representation)
 @onready var _virtual_anchor_renderers: Node = $VirtualAnchorRenderers
 @onready var _atom_preview: AtomPreview = $AtomPreview
 @onready var _atom_autopose_preview: AtomAutoposePreview = $AtomAutoposePreview
+@onready var _carbon_nanotube_preview: CarbonNanotubePreview = $CarbonNanotubePreview
 @onready var _ballstick_bond_preview: BallStickBondPreview = $BallStickBondPreview
 @onready var _structure_preview: StructurePreview = $StructurePreview
 @onready var _reference_shape_preview: NanoShapeRenderer = $ReferenceShapePreview
@@ -777,6 +778,41 @@ func atom_autopose_get_hovered_candidate_or_null() -> AtomAutoposePreview.AtomCa
 	return _atom_autopose_preview.get_hovered_candidate_or_null()
 #endregion
 
+
+#region carbon_nanotube_preview
+func is_carbon_nanotube_preview_visible() -> bool:
+	if not enabled: return false
+	return _carbon_nanotube_preview.is_visible()
+
+
+func is_carbon_nanotube_preview_visible_and_valid() -> bool:
+	if not enabled: return false
+	return _carbon_nanotube_preview.is_visible_and_valid()
+
+
+func carbon_nanotube_preview_show() -> Rendering:
+	if enabled:
+		_carbon_nanotube_preview.show()
+	return self
+
+
+func carbon_nanotube_preview_hide() -> Rendering:
+	if enabled:
+		_carbon_nanotube_preview.hide()
+	return self
+
+
+func carbon_nanotube_preview_set_start_pos(start_pos: Vector3) -> Rendering:
+	if enabled:
+		_carbon_nanotube_preview.set_start_pos(start_pos)
+	return self
+
+
+func carbon_nanotube_preview_set_end_pos(end_pos: Vector3) -> Rendering:
+	if enabled:
+		_carbon_nanotube_preview.set_end_pos(end_pos)
+	return self
+#endregion carbon_nanotube_preview
 
 #region structure_preview
 func is_structure_preview_visible() -> bool:
