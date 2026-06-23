@@ -78,26 +78,43 @@ func update_preview_position() -> void:
 static func calculate_preview_position(in_workspace_context: WorkspaceContext) -> Vector3:
 	return calculate_preview_position_and_method(in_workspace_context)[0]
 
+
+static func calculate_preview_position_at_pos(in_workspace_context: WorkspaceContext, in_screen_pos: Vector2) -> Vector3:
+	var snap_to_shapes: bool = in_workspace_context.create_object_parameters.get_snap_to_shape_surface()
+	var ignore_shape_snap: bool = !snap_to_shapes
+	return calculate_preview_position_and_method(in_workspace_context, ignore_shape_snap, in_screen_pos)[0]
+
+
 ## Retuns an Array where [0] is the position and [1] is the CreateObjectParameters.CreateDistanceSource
-static func calculate_preview_position_and_method(in_workspace_context: WorkspaceContext, in_ignore_shape_snap: bool = false) -> Array:
-	var main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
-	var working_area: Control = main_view.get_working_area_rect_control()
-	var screen_center: Vector2 = working_area.get_global_rect().get_center()
+static func calculate_preview_position_and_method(
+	in_workspace_context: WorkspaceContext,
+	in_ignore_shape_snap: bool = false,
+	in_screen_position_or_null: Variant = null
+	) -> Array:
+	var screen_pos: Vector2
+	if typeof(in_screen_position_or_null) == TYPE_VECTOR2:
+		screen_pos = in_screen_position_or_null
+	else:
+		assert(typeof(in_screen_position_or_null) == TYPE_NIL)
+		var main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
+		var working_area: Control = main_view.get_working_area_rect_control()
+		var screen_center: Vector2 = working_area.get_global_rect().get_center()
+		screen_pos = screen_center
 	if BusyIndicator.is_active():
-		return [_get_preview_position_to_distance(in_workspace_context, 10000.0, screen_center), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
+		return [_get_preview_position_to_distance(in_workspace_context, 10000.0, screen_pos), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
 		
 	
 	if (not in_ignore_shape_snap) and is_snap_to_shape_surface_enabled(in_workspace_context):
 		var distance_to_shape_surface: float = get_distance_to_shape_surface_under_mouse(in_workspace_context)
 		if not is_nan(distance_to_shape_surface):
-			return [_get_preview_position_to_distance(in_workspace_context, distance_to_shape_surface, screen_center), CreateObjectParameters.CreateDistanceSource.SNAPPED_TO_SHAPE]
+			return [_get_preview_position_to_distance(in_workspace_context, distance_to_shape_surface, screen_pos), CreateObjectParameters.CreateDistanceSource.SNAPPED_TO_SHAPE]
 			
 	
 	var method: CreateObjectParameters.CreateDistanceMethod = \
 		in_workspace_context.create_object_parameters.get_create_distance_method()
 	match method:
 		CreateObjectParameters.CreateDistanceMethod.CLOSEST_OBJECT_TO_POINTER:
-			var pos: Vector3 = _try_get_preview_position_to_closest_object(in_workspace_context, screen_center)
+			var pos: Vector3 = _try_get_preview_position_to_closest_object(in_workspace_context, screen_pos)
 			if not is_nan(pos.x):
 				return [pos, CreateObjectParameters.CreateDistanceSource.CLOSEST_OBJECT_TO_POINTER]
 		CreateObjectParameters.CreateDistanceMethod.CENTER_OF_SELECTION:
@@ -108,7 +125,7 @@ static func calculate_preview_position_and_method(in_workspace_context: Workspac
 				pos = _try_get_preview_position_to_center_of_selection(
 					in_workspace_context,
 					center_of_selection,
-					screen_center
+					screen_pos
 				)
 			if not is_nan(pos.x):
 				return [pos, CreateObjectParameters.CreateDistanceSource.CENTER_OF_SELECTION]
@@ -117,7 +134,7 @@ static func calculate_preview_position_and_method(in_workspace_context: Workspac
 	return [_get_preview_position_to_distance(
 		in_workspace_context,
 		in_workspace_context.create_object_parameters.drop_distance,
-		screen_center
+		screen_pos
 	), CreateObjectParameters.CreateDistanceSource.FIXED_DISTANCE_TO_CAMERA]
 
 

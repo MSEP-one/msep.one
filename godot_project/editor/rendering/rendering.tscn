@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://cd8ybm2fs1ox"]
+[gd_scene load_steps=19 format=3 uid="uid://cd8ybm2fs1ox"]
 
 [ext_resource type="Script" uid="uid://c27b08chswrkq" path="res://editor/rendering/rendering.gd" id="1_vymcv"]
 [ext_resource type="PackedScene" uid="uid://cyy5lagn5jes7" path="res://editor/rendering/world_environment.tscn" id="2_vyad3"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bi1vulexoa6mv" path="res://editor/rendering/ballstick_bond_preview/ballstick_bond_preview.tscn" id="4_gbq2t"]
 [ext_resource type="PackedScene" uid="uid://b6snixhbqq57y" path="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.tscn" id="5_0gao3"]
 [ext_resource type="PackedScene" uid="uid://dtf1gkl710hh8" path="res://editor/rendering/structure_preview/structure_preview.tscn" id="5_b5mjk"]
+[ext_resource type="PackedScene" uid="uid://bmin7dk0a1uhk" path="res://editor/rendering/carbon_nanotube_preview/carbon_nanotube_preview.tscn" id="5_dcj7c"]
 [ext_resource type="PackedScene" uid="uid://ctfn68xg0ok6x" path="res://editor/rendering/atom_autopose_preview/atom_autopose_preview.tscn" id="5_rcuke"]
 [ext_resource type="PackedScene" uid="uid://cps73cvfa7352" path="res://editor/rendering/align_selection_preview/align_selection_preview.tscn" id="6_ovvb3"]
 [ext_resource type="PackedScene" uid="uid://c1cjktftkuj1d" path="res://editor/rendering/virtual_motor_renderer/virtual_motor_renderer.tscn" id="8_mgnal"]
@@ -65,6 +66,8 @@ transform = Transform3D(1, 0, 0, 0, 0.707107, -0.707107, 0, 0.707107, 0.707107, 
 [node name="AtomPreview" parent="." instance=ExtResource("3_1ppds")]
 
 [node name="BallStickBondPreview" parent="." instance=ExtResource("4_gbq2t")]
+
+[node name="CarbonNanotubePreview" parent="." instance=ExtResource("5_dcj7c")]
 
 [node name="AtomAutoposePreview" parent="." instance=ExtResource("5_rcuke")]
 
