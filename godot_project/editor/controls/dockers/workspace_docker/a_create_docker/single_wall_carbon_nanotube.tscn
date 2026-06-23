@@ -1,0 +1,93 @@
+[gd_scene load_steps=5 format=3 uid="uid://cxjnuem6rkel8"]
+
+[ext_resource type="Script" uid="uid://3f3stylsqoje" path="res://editor/controls/dockers/workspace_docker/a_create_docker/single_wall_carbon_nanotube.gd" id="1_srk0s"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_l1ivr"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="3_ja8sf"]
+[ext_resource type="PackedScene" uid="uid://df3xtgtlaxjo7" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/graphene_latice_preview.tscn" id="4_ja8sf"]
+
+[node name="SingleWallCarbonNanotube" type="MarginContainer"]
+offset_right = 204.0
+offset_bottom = 421.0
+script = ExtResource("1_srk0s")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Chiral Indices"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/VBoxContainer/PanelContainer/GridContainer"]
+layout_mode = 2
+text = "n"
+
+[node name="NSpinBoxSlider" parent="VBoxContainer/VBoxContainer/PanelContainer/GridContainer" instance=ExtResource("2_l1ivr")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 31)
+layout_mode = 2
+min_value = 2.0
+max_value = 50.0
+value = 2.0
+allow_greater = true
+
+[node name="Label4" type="Label" parent="VBoxContainer/VBoxContainer/PanelContainer/GridContainer"]
+layout_mode = 2
+text = "m"
+
+[node name="MSpinBoxSlider" parent="VBoxContainer/VBoxContainer/PanelContainer/GridContainer" instance=ExtResource("2_l1ivr")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 31)
+layout_mode = 2
+max_value = 50.0
+value = 2.0
+allow_greater = true
+
+[node name="GrapheneLaticePreview" parent="VBoxContainer/VBoxContainer" instance=ExtResource("4_ja8sf")]
+unique_name_in_owner = true
+layout_mode = 2
+n = 5
+m = 5
+
+[node name="GridContainer2" type="GridContainer" parent="VBoxContainer/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label2" type="Label" parent="VBoxContainer/VBoxContainer/GridContainer2"]
+layout_mode = 2
+text = "· Estimated Diameter:"
+
+[node name="DiameterLabel" type="Label" parent="VBoxContainer/VBoxContainer/GridContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "0.5 nm"
+
+[node name="Label3" type="Label" parent="VBoxContainer/VBoxContainer/GridContainer2"]
+layout_mode = 2
+text = "· Estimated Circunference:"
+
+[node name="CircunferenceLabel" type="Label" parent="VBoxContainer/VBoxContainer/GridContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "1.2 nm"
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="InfoLabel" parent="VBoxContainer/VBoxContainer" instance=ExtResource("3_ja8sf")]
+layout_mode = 2
+text = "[center]ℹ Click and drag to draw desired nanotube, then release.[/center]"
+message = &"Click and drag to draw desired nanotube, then release."
+effect = "none"

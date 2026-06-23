@@ -23,13 +23,14 @@ signal validate_bonds_requested(atom_set: AtomicStructure.AtomSet)
 
 enum CreateModeType {
 	CREATE_ATOMS_AND_BONDS     = 0,
-	CREATE_SHAPES              = 1,
 	CREATE_FRAGMENT            = 2,
+	CREATE_CARBON_NANOTUBE     = 7,
+	CREATE_SHAPES              = 1,
 	CREATE_DNA_CHAIN           = 6,
 	CREATE_VIRTUAL_MOTORS      = 3,
 	CREATE_PARTICLE_EMITTERS   = 4,
 	CREATE_ANCHORS_AND_SPRINGS = 5,
-	CREATE_CUSTOM
+	CREATE_CUSTOM = 8
 }
 
 
@@ -66,6 +67,7 @@ var _selected_shape_for_new_objects: PrimitiveMesh
 var _selected_virtual_motor_parameters: NanoVirtualMotorParameters
 var _new_particle_emitter_parameters := NanoParticleEmitterParameters.new()
 
+
 var drop_distance: float = 20:
 	get = get_drop_distance
 
@@ -73,6 +75,9 @@ var _new_atom_element: int = PeriodicTable.ATOMIC_NUMBER_CARBON
 var _new_bond_order: int = 1
 
 var _new_structure: NanoStructure = null
+
+var _nanotube_n_index: int = 2
+var _nanotube_m_index: int = 2
 
 var _create_distance_method := CreateDistanceMethod.CENTER_OF_SELECTION
 
@@ -224,6 +229,22 @@ func set_new_structure(in_structure: NanoStructure) -> void:
 
 func get_new_structure() -> NanoStructure:
 	return _new_structure
+
+
+func set_nanotube_n_index(in_n: int) -> void:
+	_nanotube_n_index = in_n
+
+
+func get_nanotube_n_index() -> int:
+	return _nanotube_n_index
+
+
+func set_nanotube_m_index(in_m: int) -> void:
+	_nanotube_m_index = in_m
+
+
+func get_nanotube_m_index() -> int:
+	return _nanotube_m_index
 
 
 func set_create_distance_method(in_new_method: CreateDistanceMethod) -> void:
