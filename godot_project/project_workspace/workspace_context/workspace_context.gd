@@ -961,7 +961,7 @@ func get_all_structure_contexts(in_include_empty_structures: bool = false) -> Ar
 	var result: Array[StructureContext] = []
 	for context: StructureContext in _structure_contexts.values():
 		var structure_has_data: bool = context.nano_structure.is_virtual_object() \
-				or (context.nano_structure is DnaStructure) \
+				or (context.nano_structure is AtomicVirtualStructure) \
 				or context.nano_structure.get_valid_atoms_count() > 0
 		if structure_has_data or in_include_empty_structures:
 			result.push_back(context)
@@ -974,7 +974,7 @@ func get_visible_structure_contexts(in_include_empty_structures: bool = false) -
 	for context: StructureContext in _structure_contexts.values():
 		if context.nano_structure.get_visible():
 			var structure_has_data: bool = context.nano_structure.is_virtual_object() \
-					or (context.nano_structure is DnaStructure) \
+					or (context.nano_structure is AtomicVirtualStructure) \
 					or context.nano_structure.get_valid_atoms_count() > 0
 			if structure_has_data or in_include_empty_structures:
 				result.push_back(context)
@@ -992,7 +992,7 @@ func get_editable_structure_contexts(in_include_hidden_virtual_objects: bool = f
 			var childs: Array[NanoStructure] = workspace.get_child_structures(
 					_structure_contexts[editable_id].nano_structure)
 			for child: NanoStructure in childs:
-				if child.get_visible() == false and (child.is_virtual_object() or child is DnaStructure):
+				if child.get_visible() == false and (child.is_virtual_object() or child is AtomicVirtualStructure):
 					editable_structure_contexts.append(get_structure_context(child.int_guid))
 	return editable_structure_contexts
 
@@ -1143,7 +1143,7 @@ func has_selection() -> bool:
 func has_hiddable_selection() -> bool:
 	for context: StructureContext in _structure_contexts.values():
 		if context.nano_structure.get_visible() and context.has_selection():
-			if context.nano_structure is DnaStructure and not context.is_fully_selected():
+			if context.nano_structure is AtomicVirtualStructure and not context.is_fully_selected():
 				continue
 			return true
 	return false
@@ -1195,7 +1195,7 @@ func get_structure_contexts_with_selection(
 		else:
 			if not structure_context.nano_structure.get_visible() and include_hidden_virtual_objects:
 				if not (structure_context.nano_structure.is_virtual_object() or 
-					structure_context.nano_structure is DnaStructure):
+					structure_context.nano_structure is AtomicVirtualStructure):
 						continue
 				# hidden object is returned as a part of a group that is selected
 				var should_include_hidden: bool = false
@@ -1416,7 +1416,7 @@ func has_hidden_objects() -> bool:
 
 func has_valid_atoms() -> bool:
 	for context: StructureContext in get_visible_structure_contexts():
-		if not context.nano_structure is AtomicStructure or context.nano_structure is DnaStructure:
+		if not context.nano_structure is AtomicStructure or context.nano_structure is AtomicVirtualStructure:
 			continue
 		var nano_structure: AtomicStructure = context.nano_structure
 		if not nano_structure.get_valid_atoms().is_empty():

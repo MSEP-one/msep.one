@@ -45,7 +45,7 @@ func _execute_action() -> void:
 	var show_show_hidden_dialog: bool = false
 	for context: StructureContext in target_structures:
 		var atomic_structure := context.nano_structure as AtomicStructure
-		if atomic_structure == null or atomic_structure is DnaStructure:
+		if atomic_structure == null or atomic_structure is AtomicVirtualStructure:
 			continue
 		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
 		if selected_atoms.is_empty():
@@ -75,7 +75,7 @@ func _execute_action() -> void:
 		if promise.get_result():
 			for context: StructureContext in target_structures:
 				var atomic_structure := context.nano_structure as AtomicStructure
-				if atomic_structure == null or atomic_structure is DnaStructure:
+				if atomic_structure == null or atomic_structure is AtomicVirtualStructure:
 					continue
 				if context == _workspace_context.get_current_structure_context():
 					context.select_connected(true)

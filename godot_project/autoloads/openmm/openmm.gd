@@ -890,7 +890,7 @@ func _create_payload(
 			in_lock_atoms: bool,
 			in_passivate_molecules: bool,
 			in_nudge_atoms_fix: bool = false,
-			in_include_dna: bool = false) -> OpenMMPayload:
+			in_include_virtual_atomic: bool = false) -> OpenMMPayload:
 	var structure_contexts: Array[StructureContext] = in_workspace_context.get_all_structure_contexts()
 	var virtual_object_contexts: Array[StructureContext] = structure_contexts.filter(_is_virtual_object_context)
 	match in_atom_set:
@@ -910,11 +910,11 @@ func _create_payload(
 	for context: StructureContext in structure_contexts:
 		var structure: NanoStructure = context.nano_structure
 		var should_include: bool = structure is AtomicStructure
-		if not in_include_dna:
-			should_include = should_include and not structure is DnaStructure
+		if not in_include_virtual_atomic:
+			should_include = should_include and not structure is AtomicVirtualStructure
 		
 		if should_include:
-			if structure is DnaStructure:
+			if structure is AtomicVirtualStructure:
 				structure.set_block_signals(true)
 				structure.set_force_track_atoms(true)
 			
@@ -946,7 +946,7 @@ func _create_payload(
 			if in_include_springs:
 				payload.add_springs(context, springs_ids)
 			
-			if structure is DnaStructure:
+			if structure is AtomicVirtualStructure:
 				structure.set_force_track_atoms(false)
 				structure.set_block_signals(false)
 	
@@ -970,7 +970,7 @@ func _has_selected_atoms(in_structure_context: StructureContext) -> bool:
 
 func _has_visible_atoms(in_structure_context: StructureContext) -> bool:
 	var structure: AtomicStructure = in_structure_context.nano_structure as AtomicStructure
-	if not structure or structure is DnaStructure:
+	if not structure or structure is AtomicVirtualStructure:
 		return false
 	return structure.get_visible() and structure.get_visible_atoms().size() > 0
 

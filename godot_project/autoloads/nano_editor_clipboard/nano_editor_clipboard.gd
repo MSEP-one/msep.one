@@ -111,7 +111,7 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 						var other_atom_id: int = structure.atom_get_bond_target(atom_id, bond_id)
 						if structure.atom_is_hydrogen(other_atom_id):
 							atom_selection.append(other_atom_id)
-		elif nano_structure is AtomicStructure and not nano_structure is DnaStructure:
+		elif nano_structure is AtomicStructure and not nano_structure is AtomicVirtualStructure:
 			atom_selection = (nano_structure as AtomicStructure).get_valid_atoms()
 			spring_selection = (nano_structure as AtomicStructure).springs_get_all()
 		var context_selection: Dictionary = {
@@ -332,7 +332,7 @@ func paste(out_workspace_context: WorkspaceContext, in_auto_bond_order: int) -> 
 	var did_create_undo_action: bool = false
 	if out_workspace_context.get_current_structure_context() != null:
 		target_structure = out_workspace_context.get_current_structure_context().nano_structure
-	assert(not target_structure is DnaStructure, "Cannot paste atoms and objects inside a DNA structure.")
+	assert(not target_structure is AtomicVirtualStructure, "Cannot paste atoms and objects inside a Virtual structure.")
 	var original_to_new_structure_id: Dictionary[int, int] = {}
 	# reference root to allow pasting direct childs
 	var current_structure_id: int = out_workspace_context.get_current_structure_context().nano_structure.int_guid

@@ -111,7 +111,7 @@ func _on_workspace_context_structure_added(in_structure: NanoStructure) -> void:
 func _can_appear_in_tree(in_structure: NanoStructure) -> bool:
 	if in_structure.is_virtual_object():
 		return false
-	if in_structure is DnaStructure:
+	if in_structure is AtomicVirtualStructure:
 		return false
 	return true
 
