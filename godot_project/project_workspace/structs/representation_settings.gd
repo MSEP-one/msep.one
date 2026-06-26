@@ -9,6 +9,7 @@ signal bond_visibility_changed(are_visible: bool)
 signal hydrogen_visibility_changed(are_visible: bool)
 signal atom_labels_visibility_changed(are_visible: bool)
 signal dna_representation_changed(representation: DnaRepresentation)
+signal nanotube_representation_changed(representation: NanotubeRepresentation)
 signal theme_changed()
 signal color_schema_changed(new_color_schema: PeriodicTable.ColorSchema)
 
@@ -24,6 +25,11 @@ enum UserAtomSizeSource {
 }
 
 enum DnaRepresentation {
+	SIMPLIFIED = 0,
+	ATOMS_AND_BONDS = 1,
+}
+
+enum NanotubeRepresentation {
 	SIMPLIFIED = 0,
 	ATOMS_AND_BONDS = 1,
 }
@@ -49,9 +55,15 @@ enum DnaRepresentation {
 
 @export var _display_auto_posing: bool = ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT
 
+
 @export var _display_simulation_boundaries: bool = SIMULATION_BOUNDARIES_VISIBLE_BY_DEFAULT
 
+
 @export var _dna_representation := DnaRepresentation.SIMPLIFIED
+
+
+@export var _nanotube_representation := NanotubeRepresentation.ATOMS_AND_BONDS
+
 
 @export var _custom_selection_outline_color_enabled: bool = false
 
@@ -156,6 +168,18 @@ func set_dna_representation(in_representation: DnaRepresentation) -> void:
 
 func get_dna_representation() -> DnaRepresentation:
 	return _dna_representation
+
+
+func set_nanotube_representation(in_representation: NanotubeRepresentation) -> void:
+	if _nanotube_representation != in_representation:
+		_nanotube_representation = in_representation
+		emit_changed()
+		nanotube_representation_changed.emit(in_representation)
+
+
+func get_nanotube_representation() -> NanotubeRepresentation:
+	return _nanotube_representation
+
 
 
 func set_bond_visibility_and_notify(new_bond_visibility: bool) -> void:

@@ -37,6 +37,9 @@ func _notification(what: int) -> void:
 		
 		_n_spin_box_slider.value_changed.connect(_on_n_spin_box_slider_value_changed)
 		_m_spin_box_slider.value_changed.connect(_on_m_spin_box_slider_value_changed)
+		
+		var create_as_virtual_group_button: Button = %CreateAsVirtualGroupButton as Button
+		create_as_virtual_group_button.toggled.connect(_on_create_as_virtual_group_button_toggled)
 
 
 func _on_n_spin_box_slider_value_changed(in_value: int) -> void:
@@ -49,6 +52,10 @@ func _on_m_spin_box_slider_value_changed(in_value: int) -> void:
 	_graphene_latice_preview.m = in_value
 	_workspace_context.create_object_parameters.set_nanotube_m_index(in_value)
 	_update_estimates()
+
+
+func _on_create_as_virtual_group_button_toggled(in_button_pressed: bool) -> void:
+	_workspace_context.create_object_parameters.set_create_nanotube_as_virtual_group(in_button_pressed)
 
 
 func _update_estimates() -> void:

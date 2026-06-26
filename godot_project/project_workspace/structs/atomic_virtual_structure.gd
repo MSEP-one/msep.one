@@ -1,14 +1,6 @@
 "@abstract_class"
 class_name AtomicVirtualStructure extends AtomicStructure
 
-var _track_atoms: bool = false
-
-func is_tracking_atoms() -> bool:
-	return _track_atoms
-
-func set_force_track_atoms(in_force_track: bool) -> void:
-	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
-	_track_atoms = in_force_track
 
 
 ## UNUSED [s]Removes every atom, bond, and spring from this structure[/s]

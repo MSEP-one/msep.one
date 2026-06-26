@@ -78,6 +78,7 @@ var _new_structure: NanoStructure = null
 
 var _nanotube_n_index: int = 2
 var _nanotube_m_index: int = 2
+var _create_nanotube_as_virtual_group: bool = true
 
 var _create_distance_method := CreateDistanceMethod.CENTER_OF_SELECTION
 
@@ -245,6 +246,14 @@ func set_nanotube_m_index(in_m: int) -> void:
 
 func get_nanotube_m_index() -> int:
 	return _nanotube_m_index
+
+
+func set_create_nanotube_as_virtual_group(in_create_as_group: bool) -> void:
+	_create_nanotube_as_virtual_group = in_create_as_group
+
+
+func get_create_nanotube_as_virtual_group() -> bool:
+	return _create_nanotube_as_virtual_group
 
 
 func set_create_distance_method(in_new_method: CreateDistanceMethod) -> void:

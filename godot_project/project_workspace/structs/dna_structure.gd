@@ -60,6 +60,7 @@ var _baked_path: PackedVector3Array = []
 var _adjust_path_length_queued: bool = false
 var _adjust_path_sequence_changed: bool = false
 var _aabb_cache := AABB()
+var _track_atoms: bool = false
 
 @export var _springs: Dictionary = {
 	# id<int> : NanoSpring
@@ -172,6 +173,10 @@ func _on_dna_representation_changed(in_dna_representation: DnaRepresentation) ->
 	start_edit()
 	_signal_queue_path_changed = true
 	end_edit()
+
+
+func is_tracking_atoms() -> bool:
+	return _track_atoms
 
 
 func _set_curve(in_curve: Curve3D) -> void:
@@ -374,7 +379,7 @@ func _get_atom_expected_color(in_atom_id: int) -> Color:
 
 
 func set_force_track_atoms(in_force_track: bool) -> void:
-	# NOTE: This is used exclusively for when converting DNA Object to a group
+	# NOTE: This is used exclusively for when converting Object to a group
 	if in_force_track:
 		_track_hydrogen_bonds = true
 		if _track_atoms:
