@@ -57,7 +57,7 @@ func _on_auto_create_bonds_button_pressed() -> void:
 	_workspace_context.start_async_work(tr("Creating Bonds"))
 	var new_bonds_count: int = 0
 	for context: StructureContext in visible_structure_contexts:
-		if context.nano_structure is AtomicStructure and not context.nano_structure is DnaStructure:
+		if context.nano_structure is AtomicStructure and not context.nano_structure is AtomicVirtualStructure:
 			var new_bonds: PackedInt32Array = PackedInt32Array()
 			new_bonds = await AutoBonder.generate_bonds_for_structure(context, _option_selected_atoms.button_pressed)
 			new_bonds_count += new_bonds.size()

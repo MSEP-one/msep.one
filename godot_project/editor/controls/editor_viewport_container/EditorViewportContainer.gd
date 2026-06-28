@@ -249,7 +249,7 @@ func _on_workspace_context_bonds_auto_created(in_added: int) -> void:
 func _on_workspace_context_atoms_added_to_structure(
 		in_structure_context: StructureContext,
 		in_atom_ids: PackedInt32Array) -> void:
-	if in_structure_context.nano_structure is DnaStructure:
+	if in_structure_context.nano_structure is AtomicVirtualStructure:
 		#ignore DNA
 		return
 	# 1. "Grow" the list of atoms to include R1 atoms connected to this atoms

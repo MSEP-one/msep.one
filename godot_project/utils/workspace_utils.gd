@@ -200,7 +200,7 @@ static func _has_bad_tetrahedral_angle(in_workspace_context: WorkspaceContext, i
 		in_workspace_context.get_visible_structure_contexts()
 	for structure_ctx: StructureContext in structure_contexts:
 		var structure: AtomicStructure = structure_ctx.nano_structure as AtomicStructure
-		if not is_instance_valid(structure) or structure is DnaStructure:
+		if not is_instance_valid(structure) or structure is AtomicVirtualStructure:
 			# not atomic structure, is a virtual object
 			continue
 		var atom_ids: PackedInt32Array = []
@@ -301,7 +301,7 @@ static func collect_drastically_invalid_tetrahedral_structure(
 	]
 	for structure_ctx: StructureContext in in_visible_strucutre_contexts:
 		var structure: AtomicStructure = structure_ctx.nano_structure as AtomicStructure
-		if not is_instance_valid(structure) or structure is DnaStructure:
+		if not is_instance_valid(structure) or structure is AtomicVirtualStructure:
 			# not atomic structure, is a virtual object
 			continue
 		var atom_ids: PackedInt32Array = []
@@ -374,7 +374,7 @@ static func collect_invalid_bond_angles(in_visible_strucutre_contexts: Array[Str
 	#	}, ...
 	]
 	for context: StructureContext in in_visible_strucutre_contexts:
-		if context.nano_structure is AtomicStructure and not context.nano_structure is DnaStructure:
+		if context.nano_structure is AtomicStructure and not context.nano_structure is AtomicVirtualStructure:
 			_collect_invalid_bond_angles_atom_groups(context, in_atom_set, out_invalid_angle_atom_groups)
 	return out_invalid_angle_atom_groups
 
@@ -501,7 +501,7 @@ static func show_hidden_objects(out_workspace_context: WorkspaceContext) -> void
 	
 	for structure_context: StructureContext in hidden_structures:
 		var nano_structure: NanoStructure = structure_context.nano_structure
-		if nano_structure.is_virtual_object() or nano_structure is DnaStructure:
+		if nano_structure.is_virtual_object() or nano_structure is AtomicVirtualStructure:
 			structure_context.nano_structure.set_visible(true)
 		else:
 			var hidden_atoms: PackedInt32Array = structure_context.get_hidden_atoms()
@@ -1350,7 +1350,7 @@ static func _can_relax_all_visible(in_workspace_context: WorkspaceContext) -> bo
 	for context in visible_structures:
 		if not context.nano_structure is AtomicStructure:
 			continue
-		if context.nano_structure is DnaStructure:
+		if context.nano_structure is AtomicVirtualStructure:
 			continue
 		if context.nano_structure.get_valid_atoms_count() > 0:
 			# At least 1 visible atom
@@ -1364,7 +1364,7 @@ static func _can_relax_all(in_workspace_context: WorkspaceContext) -> bool:
 	for context in visible_structures:
 		if not context.nano_structure is AtomicStructure:
 			continue
-		if context.nano_structure is DnaStructure:
+		if context.nano_structure is AtomicVirtualStructure:
 			continue
 		if context.nano_structure.get_valid_atoms_count() > 0:
 			return true
@@ -1428,7 +1428,7 @@ static func _can_create_particle_emitter_from_selection(in_workspace_context: Wo
 	if context != in_workspace_context.get_current_structure_context():
 		# Selection is not coming from active group
 		return false
-	if context.nano_structure is DnaStructure:
+	if context.nano_structure is AtomicVirtualStructure:
 		return false
 	var structure: NanoStructure = context.nano_structure
 	var selected_atoms: PackedInt32Array = context.get_selected_atoms()

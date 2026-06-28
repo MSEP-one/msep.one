@@ -58,7 +58,7 @@ func _calculate_center_of_mass_from_source() -> Vector3:
 	var total_mass: float = 0
 	var atom_type_masses: Dictionary[int, float]
 	for source: StructureContext in point_cloud_source:
-		if source.nano_structure is AtomicStructure and not source.nano_structure is DnaStructure:
+		if source.nano_structure is AtomicStructure and not source.nano_structure is AtomicVirtualStructure:
 			var atomic_structure := source.nano_structure as AtomicStructure
 			for atom_id: int in point_cloud_source[source]:
 				var atomic_number: int = atomic_structure.atom_get_atomic_number(atom_id)

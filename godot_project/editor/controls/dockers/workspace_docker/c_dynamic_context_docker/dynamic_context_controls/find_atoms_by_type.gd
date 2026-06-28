@@ -55,7 +55,7 @@ func _refresh_groups_tree() -> void:
 	var root: TreeItem = _groups_tree.create_item()
 	_groups_tree.hide_root = true
 	for structure: NanoStructure in _workspace_context.workspace.get_root_child_structures():
-		if not structure is AtomicStructure or structure is DnaStructure:
+		if not structure is AtomicStructure or structure is AtomicVirtualStructure:
 			# DNA is intentionally ignored because their atoms are not interactible
 			continue
 		_add_groups_recursively(structure, root)
@@ -70,7 +70,7 @@ func _add_groups_recursively(in_structure: AtomicStructure, in_parent_item: Tree
 	group_item.set_meta(&"count", count)
 	group_item.set_selectable(COL_0, count > 0)
 	for structure: NanoStructure in _workspace_context.workspace.get_child_structures(in_structure):
-		if not structure is AtomicStructure or structure is DnaStructure:
+		if not structure is AtomicStructure or structure is AtomicVirtualStructure:
 			# DNA is intentionally ignored because their atoms are not interactible
 			continue
 		_add_groups_recursively(structure, group_item)

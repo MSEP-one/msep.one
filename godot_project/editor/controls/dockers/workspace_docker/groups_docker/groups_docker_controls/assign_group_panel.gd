@@ -67,7 +67,7 @@ func _on_structure_picker_nano_structure_clicked(_in_structure_id: int) -> void:
 
 
 func _on_nano_structure_added(in_nano_structure: NanoStructure) -> void:
-	if in_nano_structure.is_virtual_object() or in_nano_structure is DnaStructure:
+	if in_nano_structure.is_virtual_object() or in_nano_structure is AtomicVirtualStructure:
 		# Virtual objects are not meant to be shown in the graph
 		return
 	var need_to_update_structure_name: bool = \

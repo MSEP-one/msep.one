@@ -506,7 +506,7 @@ func _apply_occupied_space_policy(out_positions: PackedVector3Array) -> void:
 	var occupied_space := SpatialHashGrid.new(_occupied_space_margin_spin_box.value * 2)
 	for structure_context in _workspace_context.get_editable_structure_contexts():
 		var atomic_structure := structure_context.nano_structure as AtomicStructure
-		if atomic_structure == null or atomic_structure is DnaStructure:
+		if atomic_structure == null or atomic_structure is AtomicVirtualStructure:
 			continue
 		var all_atoms: PackedInt32Array = atomic_structure.get_valid_atoms()
 		for atom_id: int in all_atoms:

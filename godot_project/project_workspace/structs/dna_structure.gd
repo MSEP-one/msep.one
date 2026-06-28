@@ -1,4 +1,4 @@
-class_name DnaStructure extends AtomicStructure
+class_name DnaStructure extends AtomicVirtualStructure
 
 # Path related signals
 signal bases_count_changed(new_count: int)
@@ -45,7 +45,6 @@ var _bonds_count_cache: int = -1
 var _bonds_ids_cache: Dictionary[Strand, PackedInt32Array] = {}
 var _bonds_cache: Dictionary[int, Vector3i]
 var _highest_spring_id: int = -1
-var _track_atoms: bool = false
 var _track_hydrogen_bonds: bool = false
 static var _unpacked_atom_ids: Dictionary[int, UnpackedAtomId]
 static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
@@ -374,10 +373,6 @@ func _get_atom_expected_color(in_atom_id: int) -> Color:
 	return Color.TRANSPARENT
 
 
-func is_tracking_atoms() -> bool:
-	return _track_atoms
-
-
 func set_force_track_atoms(in_force_track: bool) -> void:
 	# NOTE: This is used exclusively for when converting DNA Object to a group
 	if in_force_track:
@@ -402,12 +397,6 @@ func set_force_track_atoms(in_force_track: bool) -> void:
 		start_edit()
 		_signal_queue_path_changed = true
 		end_edit()
-
-
-## UNUSED [s]Removes every atom, bond, and spring from this structure[/s]
-func clear() -> void:
-	assert(false, "Cannot delete atoms and bonds in this structure")
-	return
 #endregion: Edit tracking
 
 
@@ -863,12 +852,6 @@ func _adjust_path_length() -> void:
 
 
 #region: Atoms and Bonds
-## DNA Structure does not allow creating, removing, or modifying atoms and bonds
-## so this function always returns false
-func can_create_and_delete_atoms() -> bool:
-	return false
-
-
 ## Returns number of atoms that has been created in this NanoStructure
 func get_valid_atoms_count() -> int:
 	assert(not _is_being_edited, "I'm being edited, performing operations on atoms in this state is unrecommended")
@@ -950,24 +933,6 @@ func get_valid_atoms() -> PackedInt32Array:
 	return _atoms_ids_cache[Strand.BOTH]
 
 
-## UNUSED
-func add_atom(_in_args: Variant = null) -> int:
-	assert(false, "Dna Structure cannot modify atoms")
-	return INVALID_ATOM_ID
-
-
-## UNUSED
-func revalidate_atom(_in_atom_idx: int) -> bool:
-	assert(false, "Dna Structure cannot modify atoms")
-	return false
-
-
-## UNUSED
-func remove_atom(_in_atom_id: int) -> bool:
-	assert(false, "Dna Structure cannot modify atoms")
-	return false
-
-
 func is_atom_valid(in_atom_id: int) -> bool:
 	if not _track_atoms:
 		return false
@@ -989,12 +954,6 @@ func atom_get_atomic_number(in_atom_id: int) -> int:
 	return _get_atom_data(in_atom_id).atomic_number
 
 
-## UNUSED
-func atom_set_atomic_number(_in_atom_id: int, _in_atomic_number: int) -> void:
-	assert(false, "Dna Structure cannot modify atoms")
-	return
-
-
 ## Calculate the [url=https://en.wikipedia.org/wiki/Formal_charge]formal charge[/url] of a given atom
 func atom_get_formal_charge(_in_atom_id: int) -> int:
 	# TODO: for now assume 0
@@ -1006,29 +965,6 @@ func atom_get_position(in_atom_id: int) -> Vector3:
 	if not _track_atoms:
 		return Vector3.ONE * NAN
 	return _get_atom_data(in_atom_id).position
-
-
-## Sets the position of a given atom, relative to structure's transform
-## Returs true if succeeds or false if something prevents the change
-## This is uniquely supported to update atoms positions during simulation
-func atom_set_position(in_atom_id: int, in_pos: Vector3) -> bool:
-	assert(_is_being_edited)
-	if not _track_atoms:
-		return false
-	const TO_UPDATE_POSITION = true
-	_get_atom_data(in_atom_id, TO_UPDATE_POSITION).position = in_pos
-	_signal_queue_atoms_moved.push_back(in_atom_id)
-	return true
-
-
-## Should be used instead of [code]atom_set_position()[/code] in cases where there is many atoms to move,
-## for performance reasons - this way [code]changed[/code] signal is emitted only once
-func atoms_set_positions(in_atoms: PackedInt32Array, in_positions: PackedVector3Array) -> void:
-	assert(in_atoms.size() == in_positions.size())
-	if not _track_atoms:
-		return
-	for i in in_atoms.size():
-		atom_set_position(in_atoms[i], in_positions[i])
 
 
 ## returns IDs of the bonds that given atom is participating in
@@ -1133,24 +1069,6 @@ func atoms_count_visible_by_type(types_to_count: PackedInt32Array) -> int:
 		if atom.atomic_number in types_to_count and is_atom_visible(atom_id):
 			count += 1
 	return count
-
-
-## UNUSED
-func add_bond(_in_atom_id_a: int, _in_atom_id_b: int, _in_bond_order: int) -> int:
-	assert(false, "Dna Structure cannot modify bonds")
-	return INVALID_ATOM_ID
-
-
-## UNUSED
-func remove_bond(_in_bond_id: int) -> void:
-	assert(false, "Dna Structure cannot modify bonds")
-	return
-
-
-## UNUSED
-func revalidate_bond(_in_bond_id: int) -> bool:
-	assert(false, "Dna Structure cannot modify bonds")
-	return false
 
 
 ## Returns wether or not a bond has been removed from the structure
@@ -1334,12 +1252,6 @@ func get_bond(in_bond_id: int) -> Vector3i:
 				bond_data.z = template_bond.z
 		_bonds_cache[in_bond_id] = bond_data
 	return _bonds_cache[in_bond_id]
-
-
-## Sets the bond order
-func bond_set_order(_in_bond_id: int, _in_bond_order: int) -> void:
-	assert(false, "Dna Structure cannot modify bonds")
-	return
 
 
 func _get_atom_data(in_atom_id: int, in_to_update_data: bool = false) -> AtomData:
@@ -1683,7 +1595,6 @@ func springs_count() -> int:
 	if not _track_atoms:
 		return 0
 	return _springs.size()
-
 
 
 func atom_get_springs(in_atom_id: int) -> PackedInt32Array:

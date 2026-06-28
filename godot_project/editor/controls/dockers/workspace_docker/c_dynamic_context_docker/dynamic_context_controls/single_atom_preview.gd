@@ -15,7 +15,7 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	var selected_contexts: Array[StructureContext] =  \
 			in_workspace_context.get_structure_contexts_with_selection()
 	for context in selected_contexts:
-		if context.nano_structure.is_virtual_object() or context.nano_structure is DnaStructure:
+		if context.nano_structure.is_virtual_object() or context.nano_structure is AtomicVirtualStructure:
 			return false
 		selected_atoms_count += context.get_selected_atoms().size()
 		if selected_atoms_count > 2 or not context.get_selected_bonds().is_empty():

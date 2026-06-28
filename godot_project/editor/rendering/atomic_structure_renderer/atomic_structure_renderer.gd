@@ -157,7 +157,7 @@ func _ensure_selectable_property_tracked(in_structure_context: StructureContext)
 	var workspace_context: WorkspaceContext = in_structure_context.workspace_context
 	if not workspace_context.editable_structure_context_list_changed.is_connected(_on_workspace_context_editable_structure_context_list_changed):
 		workspace_context.editable_structure_context_list_changed.connect(_on_workspace_context_editable_structure_context_list_changed)
-		if in_structure_context.nano_structure is DnaStructure:
+		if in_structure_context.nano_structure is AtomicVirtualStructure:
 			# Dna structure should not highlight when hovered
 			pass
 		else:

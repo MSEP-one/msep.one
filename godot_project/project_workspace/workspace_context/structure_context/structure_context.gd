@@ -289,7 +289,7 @@ func has_atom_selection(include_children: bool = true) -> bool:
 
 
 func is_empty() -> bool:
-	if nano_structure is DnaStructure:
+	if nano_structure is AtomicVirtualStructure:
 		return false
 	if nano_structure is AtomicStructure:
 		return nano_structure.get_valid_atoms_count() == 0
@@ -479,7 +479,7 @@ func count_obb_with_selection_policy(in_policy: AlignSelectionGroupingPolicy) ->
 		AlignSelectionGroupingPolicy.OneBoxPerSubgroup:
 			return 1 if has_selection() else 0
 		AlignSelectionGroupingPolicy.OneBoxPerMolecule:
-			if not nano_structure is AtomicStructure or nano_structure is DnaStructure:
+			if not nano_structure is AtomicStructure or nano_structure is AtomicVirtualStructure:
 				return 1
 			var molecules: Array[PackedInt32Array] = _subdivide_molecules(get_selected_atoms())
 			return molecules.size()
@@ -530,7 +530,7 @@ func get_selection_obb_with_selection_policy(in_policy: AlignSelectionGroupingPo
 		AlignSelectionGroupingPolicy.OneBoxPerSubgroup:
 			return [get_selection_obb()]
 		AlignSelectionGroupingPolicy.OneBoxPerMolecule:
-			if not nano_structure is AtomicStructure or nano_structure is DnaStructure:
+			if not nano_structure is AtomicStructure or nano_structure is AtomicVirtualStructure:
 				return [get_selection_obb()]
 			var atomic_structure := nano_structure as AtomicStructure
 			var molecules: Array[PackedInt32Array] = _subdivide_molecules(get_selected_atoms())
@@ -558,7 +558,7 @@ func get_selection_obb() -> OBB:
 			aabb.size.x = 0
 		_last_obb = OBB.new(aabb.size, nano_structure.get_transform(), {self : []})
 		return _last_obb
-	elif nano_structure is AtomicStructure and not nano_structure is DnaStructure:
+	elif nano_structure is AtomicStructure and not nano_structure is AtomicVirtualStructure:
 		var atomic_structure := nano_structure as AtomicStructure
 		var selected_atoms: PackedInt32Array = get_selected_atoms()
 		var positions: Array[Vector3] = []
