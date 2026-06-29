@@ -197,13 +197,15 @@ func _draw_obb_reference_point(in_obb: AlignableOBB, in_face: BoxFace, in_highli
 				ref_point += basis.z * (in_obb.offset_ratio_d * face_size.z)
 			else:
 				ref_point += basis.z * (face_size.z * 0.5)
-		var ref_point_2d: Vector2 = _camera.unproject_position(ref_point)
-		var _h_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[0] * 200) - ref_point_2d).normalized()
-		var _v_dir_2d: Vector2 = (_camera.unproject_position(ref_point + basis[1] * 200) - ref_point_2d).normalized()
-		var draw_h_from: Vector2 = ref_point_2d - _h_dir_2d * 20
-		var draw_h_to: Vector2 = ref_point_2d + _h_dir_2d * 20
-		var draw_v_from: Vector2 = ref_point_2d - _v_dir_2d * 20
-		var draw_v_to: Vector2 = ref_point_2d + _v_dir_2d * 20
+				
+		var line_size: float = 0.01
+		var camera: Camera3D = get_viewport().get_camera_3d()
+		if camera.projection == Camera3D.ProjectionType.PROJECTION_PERSPECTIVE:
+			line_size *= camera.global_position.distance_to(ref_point)
+		var draw_h_from: Vector2 = _camera.unproject_position(ref_point - basis.x * line_size)
+		var draw_h_to: Vector2 = _camera.unproject_position(ref_point + basis.x * line_size)
+		var draw_v_from: Vector2 = _camera.unproject_position(ref_point - basis.y * line_size)
+		var draw_v_to: Vector2 = _camera.unproject_position(ref_point + basis.y * line_size)
 		if _align_selection_parameters.is_align_depth_enabled():
 			var depth_line_from: Vector3 = no_depth_ref_point + basis.z * (face_size.z * 0.5)
 			var depth_line_to: Vector3 = no_depth_ref_point - basis.z * (face_size.z * 0.5)
