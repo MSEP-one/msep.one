@@ -28,7 +28,7 @@ var _bonds_ids_cache: PackedInt32Array = []
 var _bonds_cache: Dictionary[int, Vector2i] = {}
 var _tube_direction: Vector3
 static var _unpacked_atom_ids: Dictionary[int, UnpackedAtomId]
-#static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
+static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
 
 var _track_atoms: bool = false
 
@@ -224,7 +224,9 @@ func set_force_track_atoms(in_force_track: bool) -> void:
 
 #region: Atoms and Bonds
 func get_valid_atoms_count() -> int:
-	return get_valid_atoms().size()
+	if _atoms_count_cache == -1:
+		_atoms_count_cache = get_valid_atoms().size()
+	return _atoms_count_cache
 
 
 func is_atom_valid(in_atom_id: int) -> bool:
@@ -237,8 +239,12 @@ func is_atom_valid(in_atom_id: int) -> bool:
 	if unpacked.repetition_idx >= get_repetition_count():
 		return false
 	if unpacked.repetition_idx == get_repetition_count() - 1:
-		# last repetition, atom may overshoot the tube
-		pass
+		var atom: CarbonTubuleBasis.AtomCoordinate = _template.basis[unpacked.sub_atom_id]
+		var z_pos: float = _template.fractional_to_cartesian_position(atom.position).z
+		z_pos += _basis.get_translational_vector_length() * unpacked.repetition_idx
+		var tube_len_sqrd: float = _position_begin.distance_squared_to(_position_end)
+		if z_pos ** 2 > tube_len_sqrd:
+			return false
 	return true
 
 
@@ -290,19 +296,65 @@ func atom_get_position(in_atom_id: int) -> Vector3:
 	return _get_atom_data(in_atom_id).position
 
 
-func atom_get_bonds(_in_atom_id: int) -> PackedInt32Array:
-	assert(false, "TODO")
-	return []
+func atom_get_bonds(in_atom_id: int) -> PackedInt32Array:
+	var unpacked_id: UnpackedAtomId = _unpack_atom_id(in_atom_id)
+	var atom_bonds: PackedInt32Array = []
+	for i: int in _template.bonds.size():
+		var bond: CarbonTubuleBasis.Bond = _template.bonds[i]
+		if bond.from_coordinate == in_atom_id or bond.to_coordinate == in_atom_id:
+			atom_bonds.append(_get_bond_id(unpacked_id.repetition_idx, i))
+	return atom_bonds
 
 
-func atom_get_bond_target(_in_atom_id: int, _in_bond_id: int) -> int:
-	assert(false, "TODO")
-	return INVALID_ATOM_ID
+func atom_get_bond_target(in_atom_id: int, in_bond_id: int) -> int:
+	var unpacked_atom_id: UnpackedAtomId = _unpack_atom_id(in_atom_id)
+	var unpacked_bond_id: UnpackedBondId = _unpack_bond_id(in_bond_id)
+	var bond: CarbonTubuleBasis.Bond = _template.bonds[unpacked_bond_id.sub_bond_id]
+	var other_atom_sub_id: int = -1
+	var other_atom_repetition_idx: int = unpacked_atom_id.repetition_idx
+	if bond.from_coordinate == unpacked_atom_id.sub_atom_id:
+		other_atom_sub_id = bond.to_coordinate
+		if bond.is_glue: # bonded to the previous repetition
+			other_atom_repetition_idx -= 1
+	elif bond.from_coordinate == unpacked_atom_id.sub_atom_id:
+		other_atom_sub_id = bond.from_coordinate
+		if bond.is_glue: # bonded to the next repetition
+			other_atom_repetition_idx += 1
+	else:
+		assert(false, "Bond id doesn't match atom id!")
+		return INVALID_ATOM_ID
+	return _get_atom_id(other_atom_repetition_idx, other_atom_sub_id)
 
 
-func atom_find_bond_between(_in_atom_id_a: int, _in_atom_id_b: int) -> int:
-	assert(false, "TODO")
-	return INVALID_BOND_ID
+func atom_find_bond_between(in_atom_id_a: int, in_atom_id_b: int) -> int:
+	assert(in_atom_id_a != in_atom_id_b)
+	var unpacked_a: UnpackedAtomId = _unpack_atom_id(in_atom_id_a)
+	var unpacked_b: UnpackedAtomId = _unpack_atom_id(in_atom_id_b)
+	match abs(unpacked_a.repetition_idx - unpacked_b.repetition_idx):
+		0: # Same repetition index, not a glue bond
+			var pair: PackedInt32Array = [unpacked_a.sub_atom_id, unpacked_b.sub_atom_id]
+			for i: int in _template.bonds.size():
+				var bond: CarbonTubuleBasis.Bond = _template.bonds[i]
+				if bond.is_glue:
+					continue
+				if bond.from_coordinate in pair and bond.to_coordinate in pair:
+					return _get_bond_id(unpacked_a.repetition_idx, i)
+			return INVALID_BOND_ID
+		1: # Glue bond, connecting 2 neighbor crystals
+			var rep_a: int = unpacked_a.repetition_idx
+			var rep_b: int = unpacked_b.repetition_idx
+			var from: int = unpacked_a.sub_atom_id if rep_a > rep_b else unpacked_b.sub_atom_id
+			var to: int = unpacked_a.sub_atom_id if rep_a < rep_b else unpacked_b.sub_atom_id
+			for i: int in _template.bonds.size():
+				var bond: CarbonTubuleBasis.Bond = _template.bonds[i]
+				if bond.is_glue == false:
+					continue
+				if bond.from_coordinate == from and bond.to_coordinate == to:
+					var rep_idx: int = maxi(rep_a, rep_b)
+					return _get_bond_id(rep_idx, i)
+			return INVALID_BOND_ID
+		_: # Not neighbor crystals, cannot exists bond
+			return INVALID_BOND_ID
 
 
 func atoms_count_visible_by_type(types_to_count: PackedInt32Array) -> int:
@@ -318,16 +370,32 @@ func atoms_count_visible_by_type(types_to_count: PackedInt32Array) -> int:
 
 
 ## Returns wether or not a bond has been removed from the structure
-func is_bond_valid(_in_bond_id: int) -> bool:
-	assert(false, "TODO")
-	return false
+func is_bond_valid(in_bond_id: int) -> bool:
+	var unpacked: UnpackedBondId = _unpack_bond_id(in_bond_id)
+	if unpacked.repetition_idx >= get_repetition_count():
+		return false
+	if unpacked.sub_bond_id >= _template.bonds.size():
+		return false
+	elif unpacked.repetition_idx < get_repetition_count() - 1 and unpacked.repetition_idx != 0:
+		return unpacked.sub_bond_id < _template.bonds.size()
+	var bond: CarbonTubuleBasis.Bond = _template.bonds[unpacked.sub_bond_id]
+	if bond.is_glue and unpacked.repetition_idx == 0:
+		# First repetition doesn't have glue bonds
+		return false
+	var from_id: int = _get_atom_id(unpacked.repetition_idx, bond.from_coordinate)
+	var to_id: int = _get_atom_id(unpacked.repetition_idx - (1 if bond.is_glue else 0), bond.to_coordinate)
+	return is_atom_valid(from_id) and is_atom_valid(to_id)
 
 
 func get_valid_bonds() -> PackedInt32Array:
 	if _track_atoms == false:
 		return []
-	#assert(false, "TODO")
-	return []
+	if _bonds_ids_cache.is_empty():
+		for repetition_idx: int in get_repetition_count():
+			for i: int in _template.bonds.size():
+				if is_bond_valid(_get_bond_id(repetition_idx, i)):
+					_bonds_ids_cache.append(_get_bond_id(repetition_idx, i))
+	return _bonds_ids_cache.duplicate()
 
 
 ## Returns the list with all existing bonds ids
@@ -339,9 +407,14 @@ func get_bonds_ids() -> PackedInt32Array:
 ## x component: ID of the first atom participating in bond
 ## y component: ID of the second atom participating in bond
 ## z component: bond order
-func get_bond(_in_bond_id: int) -> Vector3i:
-	assert(false, "TODO")
-	return Vector3i()
+func get_bond(in_bond_id: int) -> Vector3i:
+	var unpacked: UnpackedBondId = _unpack_bond_id(in_bond_id)
+	assert(unpacked.sub_bond_id < _template.bonds.size(), "Invalid bond id")
+	var bond: CarbonTubuleBasis.Bond = _template.bonds[unpacked.sub_bond_id]
+	var from_id: int = _get_atom_id(unpacked.repetition_idx, bond.from_coordinate)
+	var to_id: int = _get_atom_id(unpacked.repetition_idx - (1 if bond.is_glue else 0), bond.to_coordinate)
+	const BOND_ORDER_ONE = 1
+	return Vector3i(from_id, to_id, BOND_ORDER_ONE)
 
 
 ## Returns number of bonds that has been created in this NanoStructure
@@ -352,8 +425,30 @@ func get_valid_bonds_count() -> int:
 	if not _track_atoms:
 		return 0
 	
-	assert(false, "TODO")
-	return 0
+	if _bonds_count_cache == -1:
+		var glue_bonds: Array[CarbonTubuleBasis.Bond] = _template.bonds.filter(
+			func(bond: CarbonTubuleBasis.Bond) -> bool: return bond.is_glue
+		)
+		var non_glue_count: int = _template.bonds.size() - glue_bonds.size()
+		var glue_count: int = glue_bonds.size()
+		var total_count: int = 0
+		# all non glue bonds except last repetition
+		total_count += non_glue_count * get_repetition_count() - 1
+		# all glue bonds except last repetition, firest repetition doesn't have glue bonds
+		total_count += glue_count * maxi(get_repetition_count() - 2, 0)
+		# bonds of the last repetition
+		var repetition_idx: int = get_repetition_count() - 1
+		for i in _template.bonds.size():
+			var bond: CarbonTubuleBasis.Bond = _template.bonds[i]
+			if bond.is_glue and repetition_idx == 0:
+				# First repetition doesn't have glue bonds
+				continue
+			var from_id: int = _get_atom_id(repetition_idx, bond.from_coordinate)
+			var to_id: int = _get_atom_id(repetition_idx - (1 if bond.is_glue else 0), bond.to_coordinate)
+			if is_atom_valid(from_id) and is_atom_valid(to_id):
+				total_count += 1
+		_bonds_count_cache = total_count
+	return _bonds_count_cache
 
 
 func _get_atom_data(in_atom_id: int) -> AtomData:
@@ -371,6 +466,16 @@ static func _unpack_atom_id(in_atom_id: int) -> UnpackedAtomId:
 
 static func _get_atom_id(repetition_idx: int, sub_atom_id: int) -> int:
 	return repetition_idx * 100000 + sub_atom_id
+
+
+static func _unpack_bond_id(in_bond_id: int) -> UnpackedBondId:
+	if not _unpacked_bond_ids.has(in_bond_id):
+		_unpacked_bond_ids[in_bond_id] = UnpackedBondId.new(in_bond_id)
+	return _unpacked_bond_ids[in_bond_id]
+
+
+static func _get_bond_id(repetition_idx: int, sub_bond_id: int) -> int:
+	return repetition_idx * 100000 + sub_bond_id
 #endregion: Atoms and Bonds
 
 
@@ -575,6 +680,31 @@ class UnpackedAtomId:
 				push_error("Attempted to change value '%s' in read only DnaStructure.UnpackedAtomId object" % property)
 			return true
 		return false
+
+
+class UnpackedBondId:
+	var original_id: int = 0
+	var repetition_idx: int = 0
+	var sub_bond_id: int = 0
+	var _read_only: bool = false
+	func _init(bond_id: int) -> void:
+		original_id = bond_id
+		repetition_idx = floori(bond_id / 100000.0)
+		bond_id -= repetition_idx * 100000
+		sub_bond_id = bond_id
+		assert(CarbonNanotubeStructure._get_bond_id(repetition_idx, sub_bond_id) == original_id,
+			"Failed to unpack atom id %d" % original_id)
+		_read_only = true
+	func _set(property: StringName, _value: Variant) -> bool:
+		if _read_only and property in [&"original_id", &"repetition_idx", &"sub_bond_id"]:
+			if OS.is_debug_build():
+				assert(false, "Attempted to change value '%s' in read only DnaStructure.UnpackedBondId object" % property)
+				pass
+			else:
+				push_error("Attempted to change value '%s' in read only DnaStructure.UnpackedBondId object" % property)
+			return true
+		return false
+	
 
 
 class AtomData:
