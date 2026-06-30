@@ -94,7 +94,7 @@ func _ready() -> void:
 	_camera = get_viewport().get_camera_3d()
 
 
-func _process(_delta: float) -> void:
+func update(_delta: float) -> void:
 	# Redraw if the camera is moving
 	if is_instance_valid(_camera) and (
 			_camera.global_transform != _camera_last_transform

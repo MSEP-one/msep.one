@@ -4,6 +4,7 @@ class_name Rendering extends Node
 
 const AtomicStructureRendererScn: PackedScene = preload("uid://ddis4g64f3o04")
 const DnaStructureRendererScn: PackedScene = preload("uid://2uelg2pe8don")
+const CarbonNanotubeRendererScn: PackedScene = preload("uid://d0ef7o1122hpg")
 const NanoShapeRendererScn: PackedScene = preload("uid://b6snixhbqq57y")
 const NanoVirtualMotorRendererScn: PackedScene = preload("uid://c1cjktftkuj1d")
 const NanoParticleEmitterRendererScn: PackedScene = preload("uid://b0jv0ex0g4qmp")
@@ -27,6 +28,7 @@ signal representation_changed(new_representation: Representation)
 @export var enabled: bool = true
 @onready var _atomic_structure_renderers: Node = $AtomicStructureRenderers
 @onready var _dna_structure_renderers: Node = $DnaStructureRenderers
+@onready var _nanotube_structure_renderers: Node = $NanotubeStructureRenderers
 @onready var _reference_shape_renderers: Node = $NanoShapeRenderers
 @onready var _virtual_motor_renderers: Node = $VirtualMotorRenderers
 @onready var _particle_emitter_renderers: Node = $ParticleEmitterRenderers
@@ -111,6 +113,13 @@ func build_dna_rendering(in_structure: DnaStructure) -> void:
 	if _hover_disabled:
 		dna_renderer.disable_hover()
 
+
+func build_nanotube_rendering(in_structure: CarbonNanotubeStructure) -> void:
+	if not enabled: return
+	var nanotube_renderer: CarbonNanotubeRenderer = _get_renderer_for_nanotube_structure(in_structure.get_int_guid())
+	nanotube_renderer.build(_workspace_context, in_structure)
+	if _hover_disabled:
+		nanotube_renderer.disable_hover()
 
 func build_reference_shape_rendering(in_shape: NanoShape) -> void:
 	if not enabled: return
@@ -252,6 +261,7 @@ func remove_with_id(in_structure_id: int) -> void:
 	var containers: Array[Node] = [
 		_atomic_structure_renderers,
 		_dna_structure_renderers,
+		_nanotube_structure_renderers,
 		_virtual_motor_renderers,
 		_particle_emitter_renderers,
 		_reference_shape_renderers,
@@ -432,6 +442,20 @@ func _get_renderer_for_dna_structure(in_structure_id: int) -> DnaStructureRender
 	else:
 		dna_renderer = _dna_structure_renderers.get_node(dna_renderer_name)
 	return dna_renderer
+
+
+func _get_renderer_for_nanotube_structure(in_structure_id: int) -> CarbonNanotubeRenderer:
+	if not enabled: return null
+	var nanotube_renderer_name: String = str(in_structure_id)
+	var nanotube_renderer: CarbonNanotubeRenderer
+	var need_to_create_nanotube_renderer: bool = not _nanotube_structure_renderers.has_node(nanotube_renderer_name)
+	if need_to_create_nanotube_renderer:
+		nanotube_renderer = CarbonNanotubeRendererScn.instantiate()
+		nanotube_renderer.set_name(nanotube_renderer_name)
+		_nanotube_structure_renderers.add_child(nanotube_renderer)
+	else:
+		nanotube_renderer = _nanotube_structure_renderers.get_node(nanotube_renderer_name)
+	return nanotube_renderer
 
 func _get_renderer_for_reference_shape(in_structure_id: int) -> NanoShapeRenderer:
 	if not enabled: return null
@@ -636,6 +660,12 @@ func update(in_delta: float) -> void:
 	if not enabled: return
 	for renderer in _atomic_structure_renderers.get_children():
 		if renderer is AtomicStructureRenderer:
+			renderer.update(in_delta)
+	for renderer in _dna_structure_renderers.get_children():
+		if renderer is DnaStructureRenderer:
+			renderer.update(in_delta)
+	for renderer in _nanotube_structure_renderers.get_children():
+		if renderer is CarbonNanotubeRenderer:
 			renderer.update(in_delta)
 	for renderer in _virtual_motor_renderers.get_children():
 		if renderer is VirtualMotorRenderer:
@@ -1020,6 +1050,9 @@ func _refresh_outline_color() -> void:
 	for dna_renderer: Node in _dna_structure_renderers.get_children():
 		if dna_renderer is DnaStructureRenderer:
 			dna_renderer.queue_redraw()
+	for nanotube_renderer: Node in _nanotube_structure_renderers.get_children():
+		if nanotube_renderer is CarbonNanotubeRenderer:
+			nanotube_renderer.queue_redraw()
 
 
 func _refresh_viewport_background() -> void:
@@ -1120,12 +1153,14 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_default_representation"] = _default_representation
 	var renderers_data: Dictionary = _collect_renderer_snapshot_data(_atomic_structure_renderers.get_children())
 	var dna_data: Dictionary = _collect_renderer_snapshot_data(_dna_structure_renderers.get_children())
+	var nanotubes_data: Dictionary = _collect_renderer_snapshot_data(_nanotube_structure_renderers.get_children())
 	var anchors_data: Dictionary = _collect_renderer_snapshot_data(_virtual_anchor_renderers.get_children())
 	var motors_data: Dictionary = _collect_renderer_snapshot_data(_virtual_motor_renderers.get_children())
 	var emitters_data: Dictionary = _collect_renderer_snapshot_data(_particle_emitter_renderers.get_children())
 	var shapes_data: Dictionary = _collect_renderer_snapshot_data(_reference_shape_renderers.get_children())
 	snapshot["renderers_data"] = renderers_data
 	snapshot["dna_data"] = dna_data
+	snapshot["nanotubes_data"] = nanotubes_data
 	snapshot["anchors_data"] = anchors_data
 	snapshot["motors_data"] = motors_data
 	snapshot["emitters_data"] = emitters_data
@@ -1184,6 +1219,19 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 			renderer = _get_renderer_for_dna_structure(renderer_name.to_int())
 		renderer.apply_state_snapshot(dna_renderer_snapshot)
 	
+	var nanotubes_data: Dictionary = in_snapshot["nanotubes_data"]
+	var nanotubes_renderers: Dictionary = nanotubes_data["renderers"]
+	var nanotubes_renderers_snapshots: Dictionary = nanotubes_data["renderers_snapshots"]
+	for renderer_name: String in nanotubes_renderers:
+		var renderer: CarbonNanotubeRenderer
+		var nanotube_renderer_snapshot: Dictionary = nanotubes_renderers_snapshots[renderer_name]
+		if is_instance_valid(nanotubes_renderers[renderer_name]) \
+				and not nanotubes_renderers[renderer_name].is_queued_for_deletion():
+			renderer = nanotubes_renderers[renderer_name]
+		else:
+			# create new one
+			renderer = _get_renderer_for_nanotube_structure(renderer_name.to_int())
+		renderer.apply_state_snapshot(nanotube_renderer_snapshot)
 	#
 	var anchors_data: Dictionary = in_snapshot["anchors_data"]
 	var anchor_renderers: Dictionary = anchors_data["renderers"]
