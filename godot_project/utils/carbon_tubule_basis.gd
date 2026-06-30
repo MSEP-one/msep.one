@@ -44,6 +44,12 @@ func setup(index_n: int = 3, index_m: int = 3) -> void:
 func get_translational_vector_length() -> float:
 	return _T_len
 
+func get_estimated_circunference() -> float:
+	return _Ch_len
+
+func get_estimated_diameter() -> float:
+	return _Ch_len / PI
+
 func generate() -> CrystalCell:
 	const FLT_EPSILON = 1e-10
 	var a: float; var b: float; var c: float
@@ -202,6 +208,7 @@ class CrystalCell:
 	var av: PackedVector3Array = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
 	var bv: PackedVector3Array = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
 	var volume: float
+	var xy_center: Vector3
 	
 	var metric_tensor: PackedFloat64Array = [0, 0, 0, 0, 0, 0]
 	
@@ -366,4 +373,9 @@ class CrystalCell:
 			for j: int in i+1:
 				metric_tensor[idx] = av[i].dot(av[j])
 				idx += 1
-
+		
+		xy_center = Vector3(
+			(av[0].x + av[1].x) * 0.5,
+			(av[0].y + av[1].y) * 0.5,
+			0.0
+		)

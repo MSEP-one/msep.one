@@ -92,7 +92,10 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, _out_contex
 			var drop_pos: Vector3 = InputHandlerCreateObjectBase.calculate_preview_position_at_pos(
 					get_workspace_context(), in_input_event.global_position
 				)
-			_create_tube(_drag_started_at, drop_pos)
+			if _workspace_context.create_object_parameters.get_create_nanotube_as_virtual_group():
+				_create_tube_structure(_drag_started_at, drop_pos)
+			else:
+				_create_tube_as_atoms(_drag_started_at, drop_pos)
 			_gesture_reset()
 			return true
 		elif in_input_event.button_index == MOUSE_BUTTON_LEFT and mouse_down:
@@ -118,7 +121,25 @@ func _hide_preview() -> void:
 	rendering.carbon_nanotube_preview_hide()
 
 
-func _create_tube(from_pos: Vector3, to_pos: Vector3) -> void:
+func _create_tube_structure(from_pos: Vector3, to_pos: Vector3) -> void:
+	var rendering: Rendering = get_workspace_context().get_rendering()
+	if not rendering.is_carbon_nanotube_preview_visible_and_valid():
+		return
+	
+	var n: int = _workspace_context.create_object_parameters.get_nanotube_n_index()
+	var m: int = _workspace_context.create_object_parameters.get_nanotube_m_index()
+	var structure_context: StructureContext = _workspace_context.get_current_structure_context()
+	var structure: NanoStructure = structure_context.nano_structure
+	
+	var nanotube := CarbonNanotubeStructure.create_nanotube(n, m, from_pos, to_pos)
+	var obj_name: String = nanotube.get_readable_type()
+	obj_name += " %d" % _workspace_context.workspace.get_structures().size()
+	nanotube.set_structure_name(obj_name)
+	_workspace_context.workspace.add_structure(nanotube, structure)
+	_workspace_context.snapshot_moment("Create Single Wall Carbom Nanotube")
+
+
+func _create_tube_as_atoms(from_pos: Vector3, to_pos: Vector3) -> void:
 	var rendering: Rendering = get_workspace_context().get_rendering()
 	if not rendering.is_carbon_nanotube_preview_visible_and_valid():
 		return
@@ -163,16 +184,16 @@ func _create_tube_in_thread(
 	var tube_direction: Vector3 = tube_axis / tube_length
 
 	# The cell generates atoms with the tube axis along +Z = Vector3.BACK.
-	var cell_z_axis := Vector3.BACK  # (0, 0, 1)
+	const CELL_Z_AXIS := Vector3.BACK  # (0, 0, 1)
 
 	var axis_rotation := Basis()
-	if tube_direction.is_equal_approx(cell_z_axis):
+	if tube_direction.is_equal_approx(CELL_Z_AXIS):
 		pass  # already aligned, identity rotation
-	elif tube_direction.is_equal_approx(-cell_z_axis):
+	elif tube_direction.is_equal_approx(-CELL_Z_AXIS):
 		axis_rotation = Basis(Vector3.RIGHT, PI)  # 180 degrees flip
 	else:
-		var rotation_axis: Vector3 = cell_z_axis.cross(tube_direction).normalized()
-		var rotation_angle: float = cell_z_axis.angle_to(tube_direction)
+		var rotation_axis: Vector3 = CELL_Z_AXIS.cross(tube_direction).normalized()
+		var rotation_angle: float = CELL_Z_AXIS.angle_to(tube_direction)
 		axis_rotation = Basis(rotation_axis, rotation_angle)
 
 	# --- Repetition along tube axis ---
@@ -188,14 +209,6 @@ func _create_tube_in_thread(
 	# X and Y are already Cartesian (the tube cross-section is circular in XY).
 	var atom_positions: Array[Vector3] = []
 	
-	# The cell centers the tube at (a/2, b/2) in XY by design.
-	# Extract that offset from the cell basis vectors so we can remove it.
-	var cell_xy_center := Vector3(
-		(cell.av[0].x + cell.av[1].x) * 0.5,
-		(cell.av[0].y + cell.av[1].y) * 0.5,
-		0.0
-	)
-	
 	for atom: CarbonTubuleBasis.AtomCoordinate in cell.basis:
 		# atom.position is in fractional coordinates.
 		# Convert to Cartesian: XY are via the cell's av[0]/av[1],
@@ -205,7 +218,10 @@ func _create_tube_in_thread(
 			cell.av[1] * atom.position.y +
 			cell.av[2] * atom.position.z
 		)
-		cartesian -= cell_xy_center
+		
+		# The cell centers the tube at (a/2, b/2) in XY by design.
+		# Extract that offset from the cell basis vectors so we can remove it.
+		cartesian -= cell.xy_center
 		for repeat in repeat_count:
 			var z_offset: float = repeat * cell_length
 			# Stop adding atoms once they exceed the requested tube length
