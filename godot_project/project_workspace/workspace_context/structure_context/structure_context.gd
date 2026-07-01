@@ -6,8 +6,8 @@ signal selection_changed()
 signal atom_selection_changed()
 signal atoms_deselected(in_deselected_atoms: PackedInt32Array)
 signal virtual_object_selection_changed(is_selected: bool)
-signal dna_control_points_selection_changed()
-signal dna_control_points_deselected(in_deselected_control_points: PackedInt32Array)
+signal control_points_selection_changed()
+signal control_points_deselected(in_deselected_control_points: PackedInt32Array)
 
 const AlignSelectionGroupingPolicy = AlignSelectionParameters.AlignSelectionGroupingPolicy
 
@@ -45,8 +45,8 @@ func _notification(what: int) -> void:
 		_selection_db.atom_selection_changed.connect(_on_selection_db_atom_selection_changed)
 		_selection_db.atoms_deselected.connect(_on_selection_db_atoms_deselected)
 		_selection_db.virtual_object_selection_changed.connect(_on_virtual_object_selection_changed)
-		_selection_db.dna_control_points_selection_changed.connect(_on_dna_control_points_selection_changed)
-		_selection_db.dna_control_points_deselected.connect(_on_dna_control_points_deselected)
+		_selection_db.control_points_selection_changed.connect(_on_control_points_selection_changed)
+		_selection_db.control_points_deselected.connect(_on_control_points_deselected)
 	if what == NOTIFICATION_READY:
 		assert(_init_called)
 		pass
@@ -416,7 +416,7 @@ func set_spring_selection(in_springs_to_select: PackedInt32Array) -> void:
 
 
 func set_dna_control_point_selection(in_control_points_to_select: PackedInt32Array) -> void:
-	return _selection_db.set_dna_control_point_selection(in_control_points_to_select)
+	return _selection_db.set_control_point_selection(in_control_points_to_select)
 
 
 func select_dna_control_points(in_control_points_to_select: PackedInt32Array) -> void:
@@ -429,6 +429,22 @@ func deselect_dna_control_points(in_control_points_to_deselect: PackedInt32Array
 
 func get_selected_dna_spline_control_points() -> PackedInt32Array:
 	return _selection_db.get_selected_dna_spline_control_points()
+
+
+func set_nanotube_control_point_selection(in_control_points_to_select: PackedInt32Array) -> void:
+	return _selection_db.set_control_point_selection(in_control_points_to_select)
+
+
+func select_nanotube_control_points(in_control_points_to_select: PackedInt32Array) -> void:
+	return _selection_db.select_nanotube_control_points(in_control_points_to_select)
+
+
+func deselect_nanotube_control_points(in_control_points_to_deselect: PackedInt32Array) -> void:
+	return _selection_db.deselect_nanotube_control_points(in_control_points_to_deselect)
+
+
+func get_selected_nanotube_control_points() -> PackedInt32Array:
+	return _selection_db.get_selected_nanotube_control_points()
 
 
 func set_virtual_object_selected(in_selected: bool) -> void:
@@ -971,9 +987,9 @@ func _on_virtual_object_selection_changed(is_selected: bool) -> void:
 	virtual_object_selection_changed.emit(is_selected)
 
 
-func _on_dna_control_points_selection_changed() -> void:
-	dna_control_points_selection_changed.emit()
+func _on_control_points_selection_changed() -> void:
+	control_points_selection_changed.emit()
 
 
-func _on_dna_control_points_deselected(in_deselected_control_points: PackedInt32Array) -> void:
-	dna_control_points_deselected.emit(in_deselected_control_points)
+func _on_control_points_deselected(in_deselected_control_points: PackedInt32Array) -> void:
+	control_points_deselected.emit(in_deselected_control_points)

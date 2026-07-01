@@ -3,16 +3,16 @@ class_name SelectionDB extends Node
 # and holding atom selection data (that part is delegated to _atom_selection: AtomSelection object)
 
 signal atom_selection_changed
-signal dna_control_points_selection_changed
+signal control_points_selection_changed
 signal selection_changed
 signal atoms_deselected(in_deselected_atoms: PackedInt32Array)
-signal dna_control_points_deselected(in_deselected_control_points: PackedInt32Array)
+signal control_points_deselected(in_deselected_control_points: PackedInt32Array)
 signal virtual_object_selection_changed(is_selected: bool)
 signal springs_deselected(in_deselected_springs: PackedInt32Array)
 
 
 var _atom_selection: AtomSelection
-var _dna_control_point_selection: Dictionary[int, bool]
+var _control_point_selection: Dictionary[int, bool]
 var _structure_context: StructureContext
 var _spring_selection: SpringSelection
 
@@ -49,7 +49,7 @@ func has_selection() -> bool:
 	return _atom_selection.has_selection() \
 			or _is_virtual_object_selected \
 			or _spring_selection.has_selection() \
-			or _dna_control_point_selection.size() > 0
+			or _control_point_selection.size() > 0
 
 
 func has_cached_selection_set() -> bool:
@@ -292,7 +292,7 @@ func invert_selection() -> void:
 		var new_selection: Array = PackedInt32Array(range(dna_structure.get_control_point_count()))
 		for p in selected_points:
 			new_selection.erase(p)
-		set_dna_control_point_selection(PackedInt32Array(new_selection))
+		set_control_point_selection(PackedInt32Array(new_selection))
 	
 	# ---- Virtual Objects ----
 	if nano_structure.is_virtual_object():
@@ -303,8 +303,8 @@ func select_all() -> void:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
 	if nano_structure.is_virtual_object():
 		set_virtual_object_selected(true)
-	elif  nano_structure is DnaStructure:
-		set_dna_control_point_selection(range(nano_structure.get_control_point_count()))
+	elif nano_structure is DnaStructure or nano_structure is CarbonNanotubeStructure:
+		set_control_point_selection(range(nano_structure.get_control_point_count()))
 	else:
 		assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 		set_atom_selection(nano_structure.get_visible_atoms())
@@ -353,44 +353,55 @@ func set_virtual_object_selected(in_selected: bool) -> void:
 	virtual_object_selection_changed.emit(in_selected)
 
 
-func set_dna_control_point_selection(in_control_points_to_select: PackedInt32Array) -> void:
-	var dna_structure: DnaStructure = _structure_context.nano_structure as DnaStructure
-	assert(!dna_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
-	_validate_dna_control_point_selection(in_control_points_to_select)
+func set_control_point_selection(in_control_points_to_select: PackedInt32Array) -> void:
+	assert(!_structure_context.nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
+	var is_dna: bool = _structure_context.nano_structure is DnaStructure
+	var is_nanotube: bool = _structure_context.nano_structure is CarbonNanotubeStructure
+	if is_dna:
+		_validate_control_point_selection(in_control_points_to_select)
+	elif is_nanotube:
+		_validate_nanotube_control_point_selection(in_control_points_to_select)
+	else:
+		assert(false, "Unexpected call to set_control_point_selection for object of type %s" % _structure_context.nano_structure.get_type())
 	
-	var previous_selection := PackedInt32Array(_dna_control_point_selection.keys())
-	_dna_control_point_selection = {}
+	var previous_selection := PackedInt32Array(_control_point_selection.keys())
+	_control_point_selection = {}
 	for p in in_control_points_to_select:
-		_dna_control_point_selection[p] = true
+		_control_point_selection[p] = true
 	
 	var deselected_control_points: PackedInt32Array = PackedInt32Array()
 	for prev_control_point in previous_selection:
-		var is_valid_deselection: bool = _dna_control_point_selection.get(prev_control_point, false) == false \
-			and dna_structure.is_control_point_valid(prev_control_point)
+		var is_valid_deselection: bool = _control_point_selection.get(prev_control_point, false) == false
 		if is_valid_deselection:
 			deselected_control_points.append(prev_control_point)
 	
 	var rendering: Rendering = _structure_context.get_rendering()
-	rendering.highlight_dna_control_points(_dna_control_point_selection.keys(), dna_structure)
+	if is_dna:
+		rendering.highlight_dna_control_points(_control_point_selection.keys(), _structure_context.nano_structure)
+	elif is_nanotube:
+		rendering.highlight_nanotube_control_points(_control_point_selection.keys(), _structure_context.nano_structure)
 	if not deselected_control_points.is_empty():
-		rendering.lowlight_dna_control_points(deselected_control_points, dna_structure)
-		dna_control_points_deselected.emit(deselected_control_points)
-	if previous_selection != PackedInt32Array(_dna_control_point_selection.keys()):
-		dna_control_points_selection_changed.emit()
+		if is_dna:
+			rendering.lowlight_dna_control_points(deselected_control_points, _structure_context.nano_structure)
+		elif is_nanotube:
+			rendering.lowlight_nanotube_control_points(deselected_control_points, _structure_context.nano_structure)
+		control_points_deselected.emit(deselected_control_points)
+	if previous_selection != PackedInt32Array(_control_point_selection.keys()):
+		control_points_selection_changed.emit()
 		selection_changed.emit()
 
 
 func select_dna_control_points(in_control_points: PackedInt32Array) -> void:
 	var dna_structure: DnaStructure = _structure_context.nano_structure as DnaStructure
-	_validate_dna_control_point_selection(in_control_points)
+	_validate_control_point_selection(in_control_points)
 	var changed: bool = false
 	for p: int in in_control_points:
-		changed = changed or _dna_control_point_selection.get(p, false) == false
-		_dna_control_point_selection[p] = true
+		changed = changed or _control_point_selection.get(p, false) == false
+		_control_point_selection[p] = true
 	if changed:
 		var rendering: Rendering = _structure_context.get_rendering()
 		rendering.highlight_dna_control_points(in_control_points, dna_structure)
-		dna_control_points_selection_changed.emit()
+		control_points_selection_changed.emit()
 		selection_changed.emit()
 
 
@@ -401,19 +412,55 @@ func deselect_dna_control_points(in_control_points: PackedInt32Array) -> void:
 		return
 	var deselected_points: PackedInt32Array = []
 	for p: int in in_control_points:
-		if _dna_control_point_selection.has(p):
+		if _control_point_selection.has(p):
 			deselected_points.append(p)
-			_dna_control_point_selection.erase(p)
+			_control_point_selection.erase(p)
 	if not deselected_points.is_empty():
 		var rendering: Rendering = _structure_context.get_rendering()
 		rendering.lowlight_dna_control_points(deselected_points, dna_structure)
-		dna_control_points_deselected.emit(deselected_points)
-		dna_control_points_selection_changed.emit()
+		control_points_deselected.emit(deselected_points)
+		control_points_selection_changed.emit()
 		selection_changed.emit()
 
 
 func get_selected_dna_spline_control_points() -> PackedInt32Array:
-	return _dna_control_point_selection.keys()
+	return _control_point_selection.keys()
+
+
+func select_nanotube_control_points(in_control_points: PackedInt32Array) -> void:
+	var nanotube_structure: CarbonNanotubeStructure = _structure_context.nano_structure as CarbonNanotubeStructure
+	_validate_nanotube_control_point_selection(in_control_points)
+	var changed: bool = false
+	for p: int in in_control_points:
+		changed = changed or _control_point_selection.get(p, false) == false
+		_control_point_selection[p] = true
+	if changed:
+		var rendering: Rendering = _structure_context.get_rendering()
+		rendering.highlight_nanotube_control_points(in_control_points, nanotube_structure)
+		control_points_selection_changed.emit()
+		selection_changed.emit()
+
+
+func deselect_nanotube_control_points(in_control_points: PackedInt32Array) -> void:
+	var nanotube_structure: CarbonNanotubeStructure = _structure_context.nano_structure as CarbonNanotubeStructure
+	assert(!nanotube_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
+	if in_control_points.is_empty():
+		return
+	var deselected_points: PackedInt32Array = []
+	for p: int in in_control_points:
+		if _control_point_selection.has(p):
+			deselected_points.append(p)
+			_control_point_selection.erase(p)
+	if not deselected_points.is_empty():
+		var rendering: Rendering = _structure_context.get_rendering()
+		rendering.lowlight_nanotube_control_points(deselected_points, nanotube_structure)
+		control_points_deselected.emit(deselected_points)
+		control_points_selection_changed.emit()
+		selection_changed.emit()
+
+
+func get_selected_nanotube_control_points() -> PackedInt32Array:
+	return _control_point_selection.keys()
 
 
 func set_spring_selection(in_springs_to_select: PackedInt32Array) -> void:
@@ -444,13 +491,13 @@ func clear_selection() -> void:
 	var bonds_selection_to_lowlight: PackedInt32Array = _atom_selection.get_bonds_selection()
 	var bonds_released_from_partial_influence: PackedInt32Array = _atom_selection.get_bonds_partially_influenced_by_selection()
 	var bonds_released_from_full_influence: PackedInt32Array = _atom_selection.get_non_selected_bonds_fully_influenced_by_selection()
-	var dna_control_points_to_lowlight: PackedInt32Array = _dna_control_point_selection.keys()
+	var control_points_to_lowlight: PackedInt32Array = _control_point_selection.keys()
 	var spring_selection_to_lowlight: PackedInt32Array = _spring_selection.get_spring_selection()
 	
 	_atom_selection.clear_atom_selection()
 	_atom_selection.clear_bond_selection()
 	_spring_selection.clear_selection()
-	_dna_control_point_selection.clear()
+	_control_point_selection.clear()
 	
 	var rendering: Rendering = _structure_context.get_rendering()
 	set_virtual_object_selected(false)
@@ -464,9 +511,14 @@ func clear_selection() -> void:
 		
 		atoms_deselected.emit(deselected_atoms)
 		atom_selection_changed.emit()
-	if not dna_control_points_to_lowlight.is_empty():
-		rendering.lowlight_dna_control_points(dna_control_points_to_lowlight, nano_structure)
-		dna_control_points_deselected.emit(dna_control_points_to_lowlight)
+	if not control_points_to_lowlight.is_empty():
+		if nano_structure is DnaStructure:
+			rendering.lowlight_dna_control_points(control_points_to_lowlight, nano_structure)
+		elif nano_structure is CarbonNanotubeStructure:
+			rendering.lowlight_nanotube_control_points(control_points_to_lowlight, nano_structure)
+		else:
+			assert(false, "Unexpected control point deselection in object of type %s" % nano_structure.get_type())
+		control_points_deselected.emit(control_points_to_lowlight)
 	selection_changed.emit()
 
 
@@ -479,13 +531,23 @@ func get_selection_aabb() -> AABB:
 		selections_aabbs.push_back(object_aabb)
 	
 	if nano_structure is DnaStructure:
-		if not _dna_control_point_selection.is_empty():
+		if not _control_point_selection.is_empty():
 			var dna_structure := _structure_context.nano_structure as DnaStructure
-			var points: PackedInt32Array = _dna_control_point_selection.keys()
+			var points := PackedInt32Array(_control_point_selection.keys())
 			var aabb := AABB(dna_structure.get_control_point_position(points[0]), Vector3.ZERO)
 			for i in range(1, points.size()):
 				aabb = aabb.expand(dna_structure.get_control_point_position(points[i]))
 			selections_aabbs.push_back(aabb)
+	
+	if nano_structure is CarbonNanotubeStructure:
+		if not _control_point_selection.is_empty():
+			var nanotube := _structure_context.nano_structure as CarbonNanotubeStructure
+			var points := PackedInt32Array(_control_point_selection.keys())
+			var aabb := AABB(nanotube.get_control_point_position(points[0]), Vector3.ZERO)
+			for i in range(1, points.size()):
+				aabb = aabb.expand(nanotube.get_control_point_position(points[i]))
+			selections_aabbs.push_back(aabb)
+			
 	
 	if _atom_selection.has_selection():
 		selections_aabbs.push_back(_atom_selection.get_aabb())
@@ -509,12 +571,20 @@ func _validate_atom_selection(in_atoms_to_select: PackedInt32Array) -> void:
 			pass
 
 
-func _validate_dna_control_point_selection(in_control_points: PackedInt32Array) -> void:
+func _validate_control_point_selection(in_control_points: PackedInt32Array) -> void:
 	# This check is very intensive, so it is meant to be skipped on release
 	if _application_is_editor_build:
 		var dna_structure: DnaStructure = _structure_context.nano_structure as DnaStructure
 		for p in in_control_points:
 			assert(dna_structure.is_control_point_valid(p), "Cannot set selection to an invalid control point")
+			pass
+
+
+func _validate_nanotube_control_point_selection(in_control_points: PackedInt32Array) -> void:
+	# This check is very intensive, so it is meant to be skipped on release
+	if _application_is_editor_build:
+		for p in in_control_points:
+			assert(p >= 0 and p < 2, "Cannot set selection to an invalid control point")
 			pass
 
 
@@ -552,14 +622,14 @@ func get_selection_snapshot() -> Dictionary:
 		atom_snapshot = _atom_selection.get_snapshot(),
 		spring_snapshot = _spring_selection.get_snapshot(),
 		is_virtual_object_selected = _is_virtual_object_selected,
-		dna_control_points_snapshot = _dna_control_point_selection.duplicate()
+		dna_control_points_snapshot = _control_point_selection.duplicate()
 	}
 	return result_data
 
 
 func apply_selection_snapshot(in_snapshot: Dictionary) -> void:
 	_is_virtual_object_selected = in_snapshot.is_virtual_object_selected
-	_dna_control_point_selection = in_snapshot.dna_control_points_snapshot.duplicate()
+	_control_point_selection = in_snapshot.dna_control_points_snapshot.duplicate()
 	var atom_snapshot: Array = in_snapshot.atom_snapshot
 	var spring_snapshot: Array = in_snapshot.spring_snapshot
 	var _apply_result: AtomSelection.ApplySnapshotResult = _atom_selection.apply_snapshot(atom_snapshot)
