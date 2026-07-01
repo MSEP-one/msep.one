@@ -35,6 +35,8 @@ func handles_structure_context(in_structure_context: StructureContext) -> bool:
 	if (workspace_context.create_object_parameters.get_create_mode_type()
 		!= CreateObjectParameters.CreateModeType.CREATE_CARBON_NANOTUBE):
 			return false
+	if workspace_context.create_object_parameters.get_create_mode_enabled() == false:
+		return false
 	if workspace_context.is_creating_object():
 		workspace_context.abort_creating_object()
 	return true

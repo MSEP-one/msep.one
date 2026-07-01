@@ -83,7 +83,10 @@ func apply_selection() -> void:
 				context.select_springs(selected_springs)
 		if context.nano_structure is DnaStructure:
 			var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
-			context.set_dna_control_point_selection(control_points_in_box)
+			context.select_dna_control_points(control_points_in_box)
+		if context.nano_structure is CarbonNanotubeStructure:
+			var control_points_in_box: PackedInt32Array = _get_nanotube_control_points_within_screen_rect(context, camera)
+			context.select_nanotube_control_points(control_points_in_box)
 		if context.nano_structure.is_virtual_object() and _is_virtual_object_within_screen_rect(context, camera):
 			context.set_virtual_object_selected(true)
 
@@ -149,6 +152,9 @@ func apply_deselection() -> void:
 		if context.nano_structure is DnaStructure:
 			var control_points_in_box: PackedInt32Array = _get_dna_control_points_within_screen_rect(context, camera)
 			context.deselect_dna_control_points(control_points_in_box)
+		if context.nano_structure is CarbonNanotubeStructure:
+			var control_points_in_box: PackedInt32Array = _get_nanotube_control_points_within_screen_rect(context, camera)
+			context.deselect_nanotube_control_points(control_points_in_box)
 		if context.nano_structure.is_virtual_object() and _is_virtual_object_within_screen_rect(context, camera):
 			context.set_virtual_object_selected(false)
 	
@@ -176,6 +182,22 @@ func _get_dna_control_points_within_screen_rect(in_context: StructureContext, in
 	var control_points_in_box: PackedInt32Array = []
 	for p: int in dna.get_control_point_count():
 		var control_point_3d: Vector3 = dna.get_control_point_position(p)
+		var control_point_2d: Vector2 = in_camera.unproject_position(control_point_3d)
+		if _rect.abs().has_point(control_point_2d):
+			control_points_in_box.append(p)
+	return control_points_in_box
+
+
+func _get_nanotube_control_points_within_screen_rect(in_context: StructureContext, in_camera: Camera3D) -> PackedInt32Array:
+	assert(in_context.nano_structure is CarbonNanotubeStructure)
+	var is_simulating: bool = in_context.workspace_context.is_simulating()
+	if is_simulating:
+		# individual atoms and bonds not considered in this API
+		return []
+	var nanotube: CarbonNanotubeStructure = in_context.nano_structure
+	var control_points_in_box: PackedInt32Array = []
+	for p: int in nanotube.get_control_point_count():
+		var control_point_3d: Vector3 = nanotube.get_control_point_position(p)
 		var control_point_2d: Vector2 = in_camera.unproject_position(control_point_3d)
 		if _rect.abs().has_point(control_point_2d):
 			control_points_in_box.append(p)
