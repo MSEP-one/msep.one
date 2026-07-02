@@ -56,9 +56,11 @@ func set_representation_settings(in_representation_settings: RepresentationSetti
 
 func _on_nanotube_representation_changed(in_representation: NanotubeRepresentation) -> void:
 	_track_atoms = in_representation == NanotubeRepresentation.ATOMS_AND_BONDS
-	start_edit()
-	_signal_queue_path_changed = true
-	end_edit()
+	var has_valid_state: bool = _chiral_index_n >= 2 and _chiral_index_m >= 0
+	if has_valid_state:
+		start_edit()
+		_signal_queue_path_changed = true
+		end_edit()
 
 
 #region: Parameters
@@ -82,6 +84,25 @@ func get_chiral_index_m() -> int:
 
 
 #region: Path
+func set_control_point(in_index: int, in_position: Vector3) -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	assert(in_index >= 0 and in_index < 2, "Invalid control point index")
+	if in_index == 0:
+		if _position_begin == in_position:
+			return
+		_position_begin = in_position
+	else:
+		if _position_end == in_position:
+			return
+		_position_end = in_position
+	_signal_queue_path_changed = true
+
+
+func get_control_point(in_index: int) -> Vector3:
+	assert(in_index >= 0 and in_index < 2, "Invalid control point index")
+	return _position_begin if in_index == 0 else _position_end
+
+
 func get_repetition_count() -> int:
 	var tube_length: float = _position_begin.distance_to(_position_end)
 	var cell_length: float = _basis.get_translational_vector_length()

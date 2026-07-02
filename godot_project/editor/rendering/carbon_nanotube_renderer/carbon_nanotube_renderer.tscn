@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://d0ef7o1122hpg"]
+
+[ext_resource type="Script" uid="uid://b4n1o7lvx0okr" path="res://editor/rendering/carbon_nanotube_renderer/carbon_nanotube_renderer.gd" id="1_g3dfl"]
+
+[node name="CarbonNanotubeRenderer" type="Node3D"]
+script = ExtResource("1_g3dfl")
+
+[node name="PathRepresentation" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

@@ -337,6 +337,8 @@ func add_nano_structure(in_structure: NanoStructure) -> void:
 	
 	if in_structure is DnaStructure:
 		rendering.build_dna_rendering(in_structure)
+	if in_structure is CarbonNanotubeStructure:
+		rendering.build_nanotube_rendering(in_structure)
 	if in_structure is NanoShape:
 		rendering.build_reference_shape_rendering(in_structure)
 	if in_structure is NanoVirtualMotor:
