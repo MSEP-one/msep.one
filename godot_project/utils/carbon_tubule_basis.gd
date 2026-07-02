@@ -77,7 +77,7 @@ func setup(index_n: int = 3, index_m: int = 3) -> void:
 func get_translational_vector_length() -> float:
 	return _T_len
 
-func get_estimated_circunference() -> float:
+func get_estimated_circumference() -> float:
 	return _Ch_len
 
 func get_estimated_diameter() -> float:

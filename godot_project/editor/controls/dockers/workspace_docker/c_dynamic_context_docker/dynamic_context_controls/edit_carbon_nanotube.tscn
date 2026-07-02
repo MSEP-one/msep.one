@@ -73,9 +73,9 @@ text = "0.5 nm"
 
 [node name="Label3" type="Label" parent="EditorContainer/GridContainer2"]
 layout_mode = 2
-text = "· Estimated Circunference:"
+text = "· Estimated Circumference:"
 
-[node name="CircunferenceLabel" type="Label" parent="EditorContainer/GridContainer2"]
+[node name="CircumferenceLabel" type="Label" parent="EditorContainer/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
