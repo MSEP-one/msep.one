@@ -25,7 +25,7 @@ var _atoms_ids_cache: PackedInt32Array
 var _atoms_cache: Dictionary[int, AtomData] = {}
 var _bonds_count_cache: int = -1
 var _bonds_ids_cache: PackedInt32Array = []
-var _bonds_cache: Dictionary[int, Vector2i] = {}
+var _bonds_cache: Dictionary[int, Vector3i] = {}
 var _tube_direction: Vector3
 static var _unpacked_atom_ids: Dictionary[int, UnpackedAtomId]
 static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
@@ -84,7 +84,7 @@ func get_chiral_index_m() -> int:
 
 
 #region: Path
-func set_control_point(in_index: int, in_position: Vector3) -> void:
+func set_control_point_position(in_index: int, in_position: Vector3) -> void:
 	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
 	assert(in_index >= 0 and in_index < 2, "Invalid control point index")
 	if in_index == 0:
@@ -162,7 +162,7 @@ func end_edit() -> void:
 			_template = _basis.generate()
 		if _track_atoms:
 			var prev_atoms_cache: Dictionary[int, AtomData] = _atoms_cache.duplicate()
-			var prev_bonds_cache: Dictionary[int, Vector2i] = _bonds_cache.duplicate()
+			var prev_bonds_cache: Dictionary[int, Vector3i] = _bonds_cache.duplicate()
 			_atoms_count_cache = -1
 			_atoms_ids_cache = []
 			_atoms_cache = {}
@@ -193,6 +193,9 @@ func end_edit() -> void:
 			# NOTE: prev_atoms_cache.is_empty() means user just started tracking atoms
 			# Track Bonds
 			var all_new_bonds: PackedInt32Array = get_valid_bonds()
+			# Update cache
+			for bond_id: int in all_new_bonds:
+				_bonds_cache[bond_id] = _get_bond_data(bond_id)
 			var all_old_bonds: PackedInt32Array = prev_bonds_cache.keys()
 			var was_bond_removed: Callable = func (old_bond_id: int) -> bool:
 				return not (old_bond_id in all_new_bonds)
@@ -205,7 +208,7 @@ func end_edit() -> void:
 			super.end_edit()
 		else:
 			var prev_atoms_cache: Dictionary[int, AtomData] = _atoms_cache.duplicate()
-			var prev_bonds_cache: Dictionary[int, Vector2i] = _bonds_cache.duplicate()
+			var prev_bonds_cache: Dictionary[int, Vector3i] = _bonds_cache.duplicate()
 			_atoms_count_cache = -1
 			_atoms_ids_cache = []
 			_atoms_cache = {}
@@ -327,8 +330,12 @@ func atom_get_bonds(in_atom_id: int) -> PackedInt32Array:
 	var atom_bonds: PackedInt32Array = []
 	for i: int in _template.bonds.size():
 		var bond: CarbonTubuleBasis.Bond = _template.bonds[i]
-		if bond.from_coordinate == in_atom_id or bond.to_coordinate == in_atom_id:
-			atom_bonds.append(_get_bond_id(unpacked_id.repetition_idx, i))
+		if (bond.from_coordinate == unpacked_id.sub_atom_id or bond.to_coordinate == unpacked_id.sub_atom_id):
+			var repetition_idx: int = unpacked_id.repetition_idx
+			if bond.is_glue and bond.to_coordinate == unpacked_id.sub_atom_id:
+				repetition_idx += 1
+			if is_bond_valid(_get_bond_id(repetition_idx, i)):
+				atom_bonds.append(_get_bond_id(repetition_idx, i))
 	return atom_bonds
 
 
@@ -434,13 +441,7 @@ func get_bonds_ids() -> PackedInt32Array:
 ## y component: ID of the second atom participating in bond
 ## z component: bond order
 func get_bond(in_bond_id: int) -> Vector3i:
-	var unpacked: UnpackedBondId = _unpack_bond_id(in_bond_id)
-	assert(unpacked.sub_bond_id < _template.bonds.size(), "Invalid bond id")
-	var bond: CarbonTubuleBasis.Bond = _template.bonds[unpacked.sub_bond_id]
-	var from_id: int = _get_atom_id(unpacked.repetition_idx, bond.from_coordinate)
-	var to_id: int = _get_atom_id(unpacked.repetition_idx - (1 if bond.is_glue else 0), bond.to_coordinate)
-	const BOND_ORDER_ONE = 1
-	return Vector3i(from_id, to_id, BOND_ORDER_ONE)
+	return _get_bond_data(in_bond_id)
 
 
 ## Returns number of bonds that has been created in this NanoStructure
@@ -483,6 +484,17 @@ func _get_atom_data(in_atom_id: int) -> AtomData:
 		_atoms_cache[in_atom_id] = AtomData.new(_unpack_atom_id(in_atom_id), self)
 	return _atoms_cache[in_atom_id]
 
+
+func _get_bond_data(in_bond_id: int) -> Vector3i:
+	if not in_bond_id in _bonds_cache:
+		var unpacked: UnpackedBondId = _unpack_bond_id(in_bond_id)
+		assert(unpacked.sub_bond_id < _template.bonds.size(), "Invalid bond id")
+		var bond: CarbonTubuleBasis.Bond = _template.bonds[unpacked.sub_bond_id]
+		var from_id: int = _get_atom_id(unpacked.repetition_idx, bond.from_coordinate)
+		var to_id: int = _get_atom_id(unpacked.repetition_idx - (1 if bond.is_glue else 0), bond.to_coordinate)
+		const BOND_ORDER_ONE = 1
+		_bonds_cache[in_bond_id] = Vector3i(from_id, to_id, BOND_ORDER_ONE)
+	return _bonds_cache[in_bond_id]
 
 static func _unpack_atom_id(in_atom_id: int) -> UnpackedAtomId:
 	if not _unpacked_atom_ids.has(in_atom_id):
