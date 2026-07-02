@@ -80,8 +80,8 @@ func generate() -> CrystalCell:
 	j_max = max((m - _mprime), m)
 	j_max = max(j_max, -_mprime)
 	
-	for i: float in range(i_min, i_max + 1):#( i = i_min ; i <= i_max ; i++ ) {
-		for j: float in range(j_min, j_max + 1):#( j = j_min ; j <= j_max ; j++) {
+	for i: float in range(i_min, i_max + 1):
+		for j: float in range(j_min, j_max + 1):
 			# And finally, we loop over the two atoms in the
 			# hexagonal graphite basis, giving us
 			# i(a1) + j(a2)   and   i(a1) + j(a2) + <C-C,0,0>
@@ -127,7 +127,22 @@ func generate() -> CrystalCell:
 					p.y = _r * sin(theta) + center.y;
 					p.z *= _h;
 					cell.did_add_atom_at_cartesian_point(_element[k],p);
-
+	
+	## Generate bond templates
+	var bond_len_sqrd: float = (bond_length * bond_scale) ** 2
+	for atom_a: int in cell.basis.size():
+		for atom_b: int in cell.basis.size():
+			var pos_a: Vector3 = cell.fractional_to_cartesian_position(cell.basis[atom_a].position)
+			var pos_b: Vector3 = cell.fractional_to_cartesian_position(cell.basis[atom_b].position)
+			# Non glue bonds
+			const BOND_LEN_THRESSHOLD = 0.003
+			if atom_b > atom_a: # This cheaper check avoids registering twice the same bond
+				if abs(pos_a.distance_squared_to(pos_b) - bond_len_sqrd) < BOND_LEN_THRESSHOLD:
+					cell.did_add_bond(atom_a, atom_b, false)
+			# Glue bonds
+			pos_b.z -= get_translational_vector_length()
+			if abs(pos_a.distance_squared_to(pos_b) - bond_len_sqrd) < BOND_LEN_THRESSHOLD:
+				cell.did_add_bond(atom_a, atom_b, true)
 	return cell
 
 func _calculate_graphitic_basis_vectors() -> void:
@@ -197,6 +212,18 @@ class AtomCoordinate:
 		element = in_element
 		position = in_position
 
+class Bond:
+	var from_coordinate: int
+	var to_coordinate: int
+	var is_glue: bool
+	func _init(in_from_coordinate: int, in_to_coordinate: int, in_is_glue: bool) -> void:
+		from_coordinate = in_from_coordinate
+		to_coordinate = in_to_coordinate
+		is_glue = in_is_glue
+	func to_vec3i() -> Vector3i:
+		return Vector3i(from_coordinate, to_coordinate, int(is_glue))
+
+
 class CrystalCell:
 	var a: float
 	var b: float
@@ -213,6 +240,8 @@ class CrystalCell:
 	var metric_tensor: PackedFloat64Array = [0, 0, 0, 0, 0, 0]
 	
 	var basis: Array[AtomCoordinate]
+	var bonds: Array[Bond]
+	var _registered_bonds: PackedVector3Array
 	
 	func _init(
 		in_a: float, in_b: float, in_c: float,
@@ -249,6 +278,13 @@ class CrystalCell:
 		return bv[1]
 	func get_reciprocal_basis_vector3() -> Vector3:
 		return bv[2]
+	func fractional_to_cartesian_position(in_fractional: Vector3) -> Vector3:
+		var cartesian: Vector3 = (
+			av[0] * in_fractional.x +
+			av[1] * in_fractional.y +
+			av[2] * in_fractional.z
+		)
+		return cartesian
 	
 	func did_add_atom_at_cartesian_point(in_element: int, in_cartesian: Vector3) -> int:
 		return did_add_atom_at_fractional_point(in_element,_cartesian_to_fractional(in_cartesian))
@@ -285,6 +321,18 @@ class CrystalCell:
 			basis.push_back(AtomCoordinate.new(in_element, pt))
 			return 1
 		return 0
+	
+	## Register a bond between atoms, if is_glue is true, means "to_basis" corresponds to
+	## an atom of the previous repeated array
+	func did_add_bond(from_basis: int, to_basis: int, is_glue: bool) -> int:
+		if from_basis < 0 or from_basis >= basis.size():
+			return 0
+		var bond := Bond.new(from_basis, to_basis, is_glue)
+		if _registered_bonds.has(bond.to_vec3i()):
+			return 0
+		bonds.append(bond)
+		_registered_bonds.append(bond.to_vec3i())
+		return 1
 	
 	func _cartesian_to_fractional(in_cartesian: Vector3) -> Vector3:
 		var p_f := Vector3.ZERO
