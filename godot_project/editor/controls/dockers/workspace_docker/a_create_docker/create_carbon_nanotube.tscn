@@ -1,13 +1,13 @@
 [gd_scene load_steps=6 format=3 uid="uid://cxjnuem6rkel8"]
 
-[ext_resource type="Script" uid="uid://3f3stylsqoje" path="res://editor/controls/dockers/workspace_docker/a_create_docker/single_wall_carbon_nanotube.gd" id="1_srk0s"]
+[ext_resource type="Script" uid="uid://3f3stylsqoje" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_carbon_nanotube.gd" id="1_srk0s"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_l1ivr"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="3_ja8sf"]
 [ext_resource type="PackedScene" uid="uid://df3xtgtlaxjo7" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/graphene_latice_preview.tscn" id="4_ja8sf"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_ja8sf"]
 
-[node name="SingleWallCarbonNanotube" type="MarginContainer"]
+[node name="CreateCarbonNanotube" type="MarginContainer"]
 offset_right = 204.0
 offset_bottom = 421.0
 script = ExtResource("1_srk0s")
@@ -19,22 +19,19 @@ layout_mode = 2
 layout_mode = 2
 text = "Chiral Indices"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/VBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 
-[node name="GridContainer" type="GridContainer" parent="VBoxContainer/VBoxContainer/PanelContainer"]
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/PanelContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/VBoxContainer/PanelContainer/GridContainer"]
+[node name="Label" type="Label" parent="VBoxContainer/PanelContainer/GridContainer"]
 layout_mode = 2
 text = "n"
 
-[node name="NSpinBoxSlider" parent="VBoxContainer/VBoxContainer/PanelContainer/GridContainer" instance=ExtResource("2_l1ivr")]
+[node name="NSpinBoxSlider" parent="VBoxContainer/PanelContainer/GridContainer" instance=ExtResource("2_l1ivr")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(130, 31)
 layout_mode = 2
@@ -43,11 +40,11 @@ max_value = 50.0
 value = 2.0
 allow_greater = true
 
-[node name="Label4" type="Label" parent="VBoxContainer/VBoxContainer/PanelContainer/GridContainer"]
+[node name="Label4" type="Label" parent="VBoxContainer/PanelContainer/GridContainer"]
 layout_mode = 2
 text = "m"
 
-[node name="MSpinBoxSlider" parent="VBoxContainer/VBoxContainer/PanelContainer/GridContainer" instance=ExtResource("2_l1ivr")]
+[node name="MSpinBoxSlider" parent="VBoxContainer/PanelContainer/GridContainer" instance=ExtResource("2_l1ivr")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(130, 31)
 layout_mode = 2
@@ -55,49 +52,49 @@ max_value = 50.0
 value = 2.0
 allow_greater = true
 
-[node name="GrapheneLaticePreview" parent="VBoxContainer/VBoxContainer" instance=ExtResource("4_ja8sf")]
+[node name="GrapheneLaticePreview" parent="VBoxContainer" instance=ExtResource("4_ja8sf")]
 unique_name_in_owner = true
 layout_mode = 2
 n = 5
 m = 5
 
-[node name="GridContainer2" type="GridContainer" parent="VBoxContainer/VBoxContainer"]
+[node name="GridContainer2" type="GridContainer" parent="VBoxContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="Label2" type="Label" parent="VBoxContainer/VBoxContainer/GridContainer2"]
+[node name="Label2" type="Label" parent="VBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "· Estimated Diameter:"
 
-[node name="DiameterLabel" type="Label" parent="VBoxContainer/VBoxContainer/GridContainer2"]
+[node name="DiameterLabel" type="Label" parent="VBoxContainer/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "0.5 nm"
 
-[node name="Label3" type="Label" parent="VBoxContainer/VBoxContainer/GridContainer2"]
+[node name="Label3" type="Label" parent="VBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "· Estimated Circunference:"
 
-[node name="CircunferenceLabel" type="Label" parent="VBoxContainer/VBoxContainer/GridContainer2"]
+[node name="CircunferenceLabel" type="Label" parent="VBoxContainer/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "1.2 nm"
 
-[node name="Label2" type="Label" parent="VBoxContainer/VBoxContainer"]
+[node name="Label2" type="Label" parent="VBoxContainer"]
 layout_mode = 2
 text = "Create as:"
 
-[node name="PanelContainer2" type="PanelContainer" parent="VBoxContainer/VBoxContainer"]
+[node name="PanelContainer2" type="PanelContainer" parent="VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"SubcategoryPanel"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/VBoxContainer/PanelContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer2"]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="CreateAsVirtualGroupButton" type="Button" parent="VBoxContainer/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="CreateAsVirtualGroupButton" type="Button" parent="VBoxContainer/PanelContainer2/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StructureSelectorButton"
@@ -106,17 +103,17 @@ button_pressed = true
 button_group = SubResource("ButtonGroup_ja8sf")
 text = "Virtual Group"
 
-[node name="Button2" type="Button" parent="VBoxContainer/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="Button2" type="Button" parent="VBoxContainer/PanelContainer2/HBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"StructureSelectorMoreButton"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_ja8sf")
 text = "Atoms and Bonds"
 
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="InfoLabel" parent="VBoxContainer/VBoxContainer" instance=ExtResource("3_ja8sf")]
+[node name="InfoLabel" parent="VBoxContainer" instance=ExtResource("3_ja8sf")]
 layout_mode = 2
 text = "[center]ℹ Click and drag to draw desired nanotube, then release.[/center]"
 message = &"Click and drag to draw desired nanotube, then release."
