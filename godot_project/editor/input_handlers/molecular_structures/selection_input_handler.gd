@@ -2,7 +2,18 @@ extends SelectionInputHandlerBase
 
 
 const MAX_MOVEMENT_PIXEL_THRESHOLD_TO_DETECT_SELECTION_SQUARED = 20 * 20
-
+const HIT_NOTHING = MultiStructureHitResult.HitType.HIT_NOTHING
+const HIT_ATOM = MultiStructureHitResult.HitType.HIT_ATOM
+const HIT_BOND = MultiStructureHitResult.HitType.HIT_BOND
+const HIT_SHAPE = MultiStructureHitResult.HitType.HIT_SHAPE
+const HIT_MOTOR = MultiStructureHitResult.HitType.HIT_MOTOR
+const HIT_EMITTER = MultiStructureHitResult.HitType.HIT_EMITTER
+const HIT_ANCHOR = MultiStructureHitResult.HitType.HIT_ANCHOR
+const HIT_SPRING = MultiStructureHitResult.HitType.HIT_SPRING
+const HIT_DNA_PATH = MultiStructureHitResult.HitType.HIT_DNA_PATH
+const HIT_DNA_CONTROL_POINT = MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT
+const HIT_NANOTUBE_PATH = MultiStructureHitResult.HitType.HIT_NANOTUBE_PATH
+const HIT_NANOTUBE_CONTROL_POINT = MultiStructureHitResult.HitType.HIT_NANOTUBE_CONTROL_POINT
 
 var _select_connected_queued_at: int = 0
 var _press_down_position: Vector2 = Vector2(-100, -100)
@@ -145,50 +156,52 @@ func forward_input(in_input_event: InputEvent, in_camera: Camera3D, in_context: 
 		var hovering_atom_id: int = -1
 		var hovering_bond_id: int = -1
 		var hovering_spring_id: int = -1
-		var hovering_dna_control_point_idx: int = -1
+		var hovering_path_control_point_idx: int = -1
 		var hover_position: Vector3 = Vector3(INF, INF, INF)
 		if not editable_structures.is_empty():
 			var multi_structure_hit_result := MultiStructureHitResult.new(in_camera, in_input_event.position, editable_structures)
 			match multi_structure_hit_result.hit_type:
-				MultiStructureHitResult.HitType.HIT_ATOM:
+				HIT_ATOM:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hovering_atom_id = multi_structure_hit_result.closest_hit_atom_id
 					hover_position = hovering_object.nano_structure.atom_get_position(hovering_atom_id)
-				MultiStructureHitResult.HitType.HIT_BOND:
+				HIT_BOND:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hovering_bond_id = multi_structure_hit_result.closest_hit_bond_id
 					var bond_data: Vector3i = hovering_object.nano_structure.get_bond(hovering_bond_id)
 					hover_position = (hovering_object.nano_structure.atom_get_position(bond_data.x) + \
 							hovering_object.nano_structure.atom_get_position(bond_data.y)) / 2.0
-				MultiStructureHitResult.HitType.HIT_SPRING:
+				HIT_SPRING:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hovering_spring_id = multi_structure_hit_result.closest_hit_spring_id
 					hover_position = (hovering_object.nano_structure.spring_get_atom_position(hovering_spring_id) + \
 							hovering_object.nano_structure.spring_get_target_position(hovering_spring_id, hovering_object)) / 2.0
-				MultiStructureHitResult.HitType.HIT_MOTOR, MultiStructureHitResult.HitType.HIT_EMITTER:
+				HIT_MOTOR, HIT_EMITTER:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hover_position = hovering_object.nano_structure.get_transform().origin
-				MultiStructureHitResult.HitType.HIT_ANCHOR:
+				HIT_ANCHOR:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
 					hover_position = hovering_object.nano_structure.get_position()
-				MultiStructureHitResult.HitType.HIT_SHAPE:
+				HIT_SHAPE:
 					if _is_shape_selectable():
 						hovering_object = multi_structure_hit_result.closest_hit_structure_context
 						hover_position = hovering_object.nano_structure.get_position()
-				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
+				HIT_DNA_CONTROL_POINT, \
+				HIT_NANOTUBE_CONTROL_POINT:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
-					hovering_dna_control_point_idx =  multi_structure_hit_result.closest_hit_dna_control_point_id
-					hover_position = hovering_object.nano_structure.get_control_point_position(hovering_dna_control_point_idx)
-				MultiStructureHitResult.HitType.HIT_DNA_PATH:
+					hovering_path_control_point_idx =  multi_structure_hit_result.closest_hit_path_control_point_id
+					hover_position = hovering_object.nano_structure.get_control_point_position(hovering_path_control_point_idx)
+				HIT_DNA_PATH, \
+				HIT_NANOTUBE_PATH:
 					hovering_object = multi_structure_hit_result.closest_hit_structure_context
-					hover_position = multi_structure_hit_result.closest_hit_dna_pos
-				MultiStructureHitResult.HitType.HIT_NOTHING:
+					hover_position = multi_structure_hit_result.closest_hit_path_pos
+				HIT_NOTHING:
 					pass
 				_:
 					# do nothing
 					assert(false, "Unhandled hit type: " + MultiStructureHitResult.HitType.find_key(multi_structure_hit_result.hit_type))
 					pass
-		get_workspace_context().set_hovered_structure_context(hovering_object, hovering_atom_id, hovering_bond_id, hovering_spring_id, hovering_dna_control_point_idx)
+		get_workspace_context().set_hovered_structure_context(hovering_object, hovering_atom_id, hovering_bond_id, hovering_spring_id, hovering_path_control_point_idx)
 		var selection_center: Vector3 = workspace_context.get_selection_aabb().get_center() if \
 				workspace_context.has_selection() else Vector3(INF, INF,INF)
 		_update_distance_message(workspace_context, hover_position, selection_center)
@@ -340,16 +353,16 @@ func _activate_selection_logic(
 
 func _activate_dna_structure(multi_structure_hit_result: MultiStructureHitResult) -> void:
 	assert(multi_structure_hit_result.hit_type in [
-		MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT,
-		MultiStructureHitResult.HitType.HIT_DNA_PATH
+		HIT_DNA_CONTROL_POINT,
+		HIT_DNA_PATH
 	])
 	var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
 	var dna_structure: DnaStructure = hit_context.nano_structure as DnaStructure
-	if multi_structure_hit_result.hit_type == MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
+	if multi_structure_hit_result.hit_type == HIT_DNA_CONTROL_POINT:
 		hit_context.select_all()
-	elif multi_structure_hit_result.hit_type == MultiStructureHitResult.HitType.HIT_DNA_PATH:
+	elif multi_structure_hit_result.hit_type == HIT_DNA_PATH:
 		# insert control point
-		var pos: Vector3 = multi_structure_hit_result.closest_hit_dna_pos
+		var pos: Vector3 = multi_structure_hit_result.closest_hit_path_pos
 		var closest_segment: int = -1
 		var closest_distance_sqrd: float = INF
 		var control_points: PackedVector3Array
@@ -390,7 +403,7 @@ func _select_connected_selection_logic(
 		var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
 		if hit_context != get_workspace_context().get_current_structure_context():
 			return false
-		if multi_structure_hit_result.hit_type != MultiStructureHitResult.HitType.HIT_ATOM:
+		if multi_structure_hit_result.hit_type != HIT_ATOM:
 			# Bonds doesn't count
 			return false
 		var hit_atom: int = multi_structure_hit_result.closest_hit_atom_id
@@ -468,9 +481,11 @@ func _screen_selection_logic(
 		var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
 		var current: StructureContext = get_workspace_context().get_current_structure_context()
 		var is_toplevel_dna: bool = hit_context.nano_structure is DnaStructure and (hit_context == current or _workspace_context.get_toplevel_editable_context(hit_context) == hit_context)
+		var is_toplevel_nanotube: bool = hit_context.nano_structure is CarbonNanotubeStructure and (hit_context == current or _workspace_context.get_toplevel_editable_context(hit_context) == hit_context)
 		const GROUP_SELECTION_BLACKLIST = [&"Spring"]
 		if hit_context != get_workspace_context().get_current_structure_context() \
 				and not is_toplevel_dna \
+				and not is_toplevel_nanotube \
 				and not hit_context.nano_structure.get_type() in GROUP_SELECTION_BLACKLIST:
 			# Clicked an object that is a child of current edited structure, select the entire group
 			if not need_to_create_snapshot:
@@ -483,7 +498,7 @@ func _screen_selection_logic(
 				affected_context.select_all(true)
 		else:
 			match multi_structure_hit_result.hit_type:
-				MultiStructureHitResult.HitType.HIT_ATOM:
+				HIT_ATOM:
 					var selected_atom: int = multi_structure_hit_result.closest_hit_atom_id
 					var new_selection: PackedInt32Array = [selected_atom]
 					if not need_to_create_snapshot:
@@ -493,7 +508,7 @@ func _screen_selection_logic(
 						hit_context.deselect_atoms(new_selection)
 					else:
 						hit_context.select_atoms(new_selection)
-				MultiStructureHitResult.HitType.HIT_BOND:
+				HIT_BOND:
 					var selected_bond_id: int = multi_structure_hit_result.closest_hit_bond_id
 					var new_selection: PackedInt32Array = [selected_bond_id]
 					if not need_to_create_snapshot:
@@ -503,7 +518,7 @@ func _screen_selection_logic(
 						hit_context.deselect_bonds(new_selection)
 					else:
 						hit_context.select_bonds(new_selection)
-				MultiStructureHitResult.HitType.HIT_SPRING:
+				HIT_SPRING:
 					var selected_spring_id: int = multi_structure_hit_result.closest_hit_spring_id
 					var new_selection: PackedInt32Array = PackedInt32Array([selected_spring_id])
 					if not need_to_create_snapshot:
@@ -514,7 +529,7 @@ func _screen_selection_logic(
 						hit_context.deselect_springs(new_selection)
 					else:
 						hit_context.select_springs(new_selection)
-				MultiStructureHitResult.HitType.HIT_SHAPE:
+				HIT_SHAPE:
 					if _is_shape_selectable():
 						if hit_context.is_shape_selected():
 							if not need_to_create_snapshot:
@@ -526,7 +541,7 @@ func _screen_selection_logic(
 								snapshot_name = "Select Shape"
 								need_to_create_snapshot = true
 							hit_context.set_shape_selected(true)
-				MultiStructureHitResult.HitType.HIT_MOTOR:
+				HIT_MOTOR:
 					if _is_select_mode_enabled():
 						if hit_context.is_motor_selected():
 							if not need_to_create_snapshot:
@@ -538,7 +553,7 @@ func _screen_selection_logic(
 								snapshot_name = "Select Motor"
 								need_to_create_snapshot = true
 							hit_context.set_motor_selected(true)
-				MultiStructureHitResult.HitType.HIT_EMITTER:
+				HIT_EMITTER:
 					if _is_select_mode_enabled():
 						if hit_context.is_particle_emitter_selected():
 							if not need_to_create_snapshot:
@@ -550,7 +565,7 @@ func _screen_selection_logic(
 								snapshot_name = "Select Particle Emitter"
 								need_to_create_snapshot = true
 							hit_context.set_particle_emitter_selected(true)
-				MultiStructureHitResult.HitType.HIT_ANCHOR:
+				HIT_ANCHOR:
 					if hit_context.is_anchor_selected():
 						if not need_to_create_snapshot:
 							snapshot_name = "Deselect Anchor"
@@ -561,13 +576,13 @@ func _screen_selection_logic(
 							snapshot_name = "Select Anchor"
 							need_to_create_snapshot = true
 						hit_context.set_anchor_selected(true)
-				MultiStructureHitResult.HitType.HIT_DNA_PATH:
+				HIT_DNA_PATH:
 					hit_context.select_all()
 					if not need_to_create_snapshot:
 						snapshot_name = "Select DNA Object"
 						need_to_create_snapshot = true
-				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
-					var hit_control_point: int = multi_structure_hit_result.closest_hit_dna_control_point_id
+				HIT_DNA_CONTROL_POINT:
+					var hit_control_point: int = multi_structure_hit_result.closest_hit_path_control_point_id
 					if hit_control_point in hit_context.get_selected_dna_spline_control_points():
 						hit_context.deselect_dna_control_points([hit_control_point])
 						if not need_to_create_snapshot:
@@ -578,8 +593,26 @@ func _screen_selection_logic(
 						if not need_to_create_snapshot:
 							snapshot_name = "Select DNA control point"
 							need_to_create_snapshot = true
+				HIT_NANOTUBE_PATH:
+					hit_context.select_all()
+					if not need_to_create_snapshot:
+						snapshot_name = "Select Nanotube Object"
+						need_to_create_snapshot = true
+				HIT_NANOTUBE_CONTROL_POINT:
+					var hit_control_point: int = multi_structure_hit_result.closest_hit_path_control_point_id
+					if hit_control_point in hit_context.get_selected_nanotube_control_points():
+						hit_context.deselect_nanotube_control_points([hit_control_point])
+						if not need_to_create_snapshot:
+							snapshot_name = "Unselect Nanotube control point"
+							need_to_create_snapshot = true
+					else:
+						hit_context.select_nanotube_control_points([hit_control_point])
+						if not need_to_create_snapshot:
+							snapshot_name = "Select Nanotube control point"
+							need_to_create_snapshot = true
 				_:
 					assert(false, "Invalid hit result")
+					pass
 	if need_to_create_snapshot:
 		_workspace_context.refresh_group_saturation()
 		_workspace_context.snapshot_moment(snapshot_name)
@@ -602,7 +635,10 @@ func _screen_deselection_logic(
 	if multi_structure_hit_result.did_hit():
 		var hit_context: StructureContext = multi_structure_hit_result.closest_hit_structure_context
 		var is_toplevel_dna: bool = hit_context.nano_structure is DnaStructure and _workspace_context.get_toplevel_editable_context(hit_context) == hit_context
-		if hit_context != get_workspace_context().get_current_structure_context() and not is_toplevel_dna:
+		var is_toplevel_nanotube: bool = hit_context.nano_structure is CarbonNanotubeStructure and _workspace_context.get_toplevel_editable_context(hit_context) == hit_context
+		if hit_context != get_workspace_context().get_current_structure_context() and \
+				not is_toplevel_dna and \
+				not is_toplevel_nanotube:
 			if not did_create_undo_action:
 				snapshot_name = "Deselect Group"
 				did_create_undo_action = true
@@ -610,44 +646,52 @@ func _screen_deselection_logic(
 			affected_context.clear_selection(true)
 		else:
 			match multi_structure_hit_result.hit_type:
-				MultiStructureHitResult.HitType.HIT_ATOM:
+				HIT_ATOM:
 					snapshot_name = "Deselect Atom"
 					did_create_undo_action = true
 					var deselected_atom_id: int = multi_structure_hit_result.closest_hit_atom_id
 					var deselected_atom: PackedInt32Array = [deselected_atom_id]
 					hit_context.deselect_atoms(deselected_atom)
-				MultiStructureHitResult.HitType.HIT_BOND:
+				HIT_BOND:
 					snapshot_name = "Deselect Bond"
 					did_create_undo_action = true
 					var deselected_bond_id: int = multi_structure_hit_result.closest_hit_bond_id
 					var deselected_bond: PackedInt32Array = [deselected_bond_id]
 					hit_context.deselect_bonds(deselected_bond)
-				MultiStructureHitResult.HitType.HIT_SHAPE:
+				HIT_SHAPE:
 					snapshot_name = "Deselect Shape"
 					did_create_undo_action = true
 					hit_context.set_shape_selected(false)
-				MultiStructureHitResult.HitType.HIT_MOTOR:
+				HIT_MOTOR:
 					snapshot_name = "Deselect Motor"
 					did_create_undo_action = true
 					hit_context.set_motor_selected(false)
-				MultiStructureHitResult.HitType.HIT_EMITTER:
+				HIT_EMITTER:
 					snapshot_name = "Deselect Particle Emitter"
 					did_create_undo_action = true
 					hit_context.set_particle_emitter_selected(false)
-				MultiStructureHitResult.HitType.HIT_SPRING:
+				HIT_SPRING:
 					snapshot_name = "Deselect Spring"
 					did_create_undo_action = true
 					var deselected_spring_id: int = multi_structure_hit_result.closest_hit_spring_id
 					var deselected_spring: PackedInt32Array = [deselected_spring_id]
 					hit_context.deselect_springs(deselected_spring)
-				MultiStructureHitResult.HitType.HIT_DNA_PATH:
+				HIT_DNA_PATH:
 					snapshot_name = "Deselect DNA Object"
 					did_create_undo_action = true
 					hit_context.clear_selection()
-				MultiStructureHitResult.HitType.HIT_DNA_CONTROL_POINT:
+				HIT_DNA_CONTROL_POINT:
 					snapshot_name = "Unselect DNA control point"
-					var hit_control_point: int = multi_structure_hit_result.closest_hit_dna_control_point_id
+					var hit_control_point: int = multi_structure_hit_result.closest_hit_path_control_point_id
 					hit_context.deselect_dna_control_points([hit_control_point])
+				HIT_NANOTUBE_PATH:
+					snapshot_name = "Deselect Nanotube Object"
+					did_create_undo_action = true
+					hit_context.clear_selection()
+				HIT_NANOTUBE_CONTROL_POINT:
+					snapshot_name = "Unselect Nanotube control point"
+					var hit_control_point: int = multi_structure_hit_result.closest_hit_path_control_point_id
+					hit_context.deselect_nanotube_control_points([hit_control_point])
 				_:
 					assert(false, "Invalid hit result")
 		if did_create_undo_action:

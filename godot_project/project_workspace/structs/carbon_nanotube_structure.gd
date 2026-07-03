@@ -98,7 +98,12 @@ func set_control_point(in_index: int, in_position: Vector3) -> void:
 	_signal_queue_path_changed = true
 
 
-func get_control_point(in_index: int) -> Vector3:
+func get_control_point_count() -> int:
+	const CONTROL_POINT_COUNT = 2
+	return CONTROL_POINT_COUNT
+
+
+func get_control_point_position(in_index: int) -> Vector3:
 	assert(in_index >= 0 and in_index < 2, "Invalid control point index")
 	return _position_begin if in_index == 0 else _position_end
 

@@ -385,6 +385,18 @@ func lowlight_dna_control_points(in_control_points_to_lowlight: PackedInt32Array
 	dna_renderer.lowlight_control_points(in_control_points_to_lowlight)
 
 
+func highlight_nanotube_control_points(in_control_points_to_highlight: PackedInt32Array, in_nanotube_structure: CarbonNanotubeStructure) -> void:
+	if not enabled: return
+	var nanotube_renderer: CarbonNanotubeRenderer = _get_renderer_for_nanotube_structure(in_nanotube_structure.get_int_guid())
+	nanotube_renderer.highlight_control_points(in_control_points_to_highlight)
+
+
+func lowlight_nanotube_control_points(in_control_points_to_lowlight: PackedInt32Array, in_nanotube_structure: CarbonNanotubeStructure) -> void:
+	if not enabled: return
+	var nanotube_renderer: CarbonNanotubeRenderer = _get_renderer_for_nanotube_structure(in_nanotube_structure.get_int_guid())
+	nanotube_renderer.lowlight_control_points(in_control_points_to_lowlight)
+
+
 func apply_theme(in_theme: Theme3D) -> void:
 	if _theme_in_use == in_theme:
 		_refresh_viewport_background()
@@ -456,6 +468,7 @@ func _get_renderer_for_nanotube_structure(in_structure_id: int) -> CarbonNanotub
 	else:
 		nanotube_renderer = _nanotube_structure_renderers.get_node(nanotube_renderer_name)
 	return nanotube_renderer
+
 
 func _get_renderer_for_reference_shape(in_structure_id: int) -> NanoShapeRenderer:
 	if not enabled: return null
