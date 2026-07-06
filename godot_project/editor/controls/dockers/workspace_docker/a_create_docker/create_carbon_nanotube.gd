@@ -5,7 +5,7 @@ var _n_spin_box_slider: SpinBoxSlider
 var _m_spin_box_slider: SpinBoxSlider
 var _graphene_latice_preview: GrapheneLatticePreview
 var _diameter_label: Label
-var _circunference_label: Label
+var _circumference_label: Label
 
 
 var _workspace_context: WorkspaceContext
@@ -33,7 +33,7 @@ func _notification(what: int) -> void:
 		_m_spin_box_slider = %MSpinBoxSlider as SpinBoxSlider
 		_graphene_latice_preview = %GrapheneLaticePreview as GrapheneLatticePreview
 		_diameter_label = %DiameterLabel as Label
-		_circunference_label = %CircunferenceLabel as Label
+		_circumference_label = %CircumferenceLabel as Label
 		
 		_n_spin_box_slider.value_changed.connect(_on_n_spin_box_slider_value_changed)
 		_m_spin_box_slider.value_changed.connect(_on_m_spin_box_slider_value_changed)
@@ -59,5 +59,5 @@ func _on_create_as_virtual_group_button_toggled(in_button_pressed: bool) -> void
 
 
 func _update_estimates() -> void:
-	_circunference_label.text = tr(&"%.3f nm") % _graphene_latice_preview.get_estimated_circunference()
+	_circumference_label.text = tr(&"%.3f nm") % _graphene_latice_preview.get_estimated_circumference()
 	_diameter_label.text = tr(&"%.3f nm") % _graphene_latice_preview.get_estimated_diameter()

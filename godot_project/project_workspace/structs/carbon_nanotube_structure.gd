@@ -107,6 +107,17 @@ func get_control_point_position(in_index: int) -> Vector3:
 	assert(in_index >= 0 and in_index < 2, "Invalid control point index")
 	return _position_begin if in_index == 0 else _position_end
 
+func get_tube_length() -> float:
+	return _position_begin.distance_to(_position_end)
+
+
+func get_estimated_diameter() -> float:
+	return _basis.get_estimated_diameter()
+
+
+func get_estimated_circumference() -> float:
+	return _basis.get_estimated_circumference()
+
 
 func get_repetition_count() -> int:
 	var tube_length: float = _position_begin.distance_to(_position_end)

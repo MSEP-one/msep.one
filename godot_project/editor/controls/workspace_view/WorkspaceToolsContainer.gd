@@ -21,7 +21,7 @@ func _on_hovered_structure_context_changed(
 			in_atom_id: int,
 			in_bond_id: int,
 			in_spring_id: int,
-			in_dna_control_point_idx: int) -> void:
+			in_control_point_idx: int) -> void:
 	if in_hovered_structure_context != null and in_hovered_structure_context.nano_structure.is_virtual_object():
 		_show_virtual_object_tooltip(in_hovered_structure_context)
 	elif in_toplevel_hovered_structure_context == null:
@@ -34,11 +34,17 @@ func _on_hovered_structure_context_changed(
 		else:
 			tooltip_text = ""
 	elif in_hovered_structure_context.nano_structure is DnaStructure:
-		if in_dna_control_point_idx == DnaStructure.INVALID_CONTROL_POINT_IDX:
+		if in_control_point_idx == DnaStructure.INVALID_CONTROL_POINT_IDX:
 			tooltip_text = _get_path_to_context(in_hovered_structure_context).rstrip("\n")
 			tooltip_text += " (%s)" % in_hovered_structure_context.nano_structure.get_tooltip_text()
 		else:
-			_show_hovered_dna_control_point_tooltip(in_hovered_structure_context, in_dna_control_point_idx)
+			_show_hovered_control_point_tooltip(in_hovered_structure_context, in_control_point_idx)
+	elif in_hovered_structure_context.nano_structure is CarbonNanotubeStructure:
+		if in_control_point_idx == DnaStructure.INVALID_CONTROL_POINT_IDX:
+			tooltip_text = _get_path_to_context(in_hovered_structure_context).rstrip("\n")
+			tooltip_text += " (%s)" % in_hovered_structure_context.nano_structure.get_tooltip_text()
+		else:
+			_show_hovered_control_point_tooltip(in_hovered_structure_context, in_control_point_idx)
 	elif in_spring_id != AtomicStructure.INVALID_SPRING_ID:
 		_show_hovered_spring_tooltip(in_hovered_structure_context, in_spring_id)
 		var group_path: String = _get_path_to_context(in_hovered_structure_context)
@@ -111,14 +117,15 @@ func _show_hovered_spring_tooltip(in_hovered_structure_context: StructureContext
 	tooltip_text = tooltip
 
 
-func _show_hovered_dna_control_point_tooltip(in_hovered_structure_context: StructureContext, in_dna_control_point_idx: int) -> void:
-	var dna_structure: DnaStructure = in_hovered_structure_context.nano_structure as DnaStructure
+func _show_hovered_control_point_tooltip(in_hovered_structure_context: StructureContext, in_dna_control_point_idx: int) -> void:
+	var nano_structure: NanoStructure = in_hovered_structure_context.nano_structure
+	assert(nano_structure is DnaStructure or nano_structure is CarbonNanotubeStructure)
 	var tooltip: String = _get_path_to_context(in_hovered_structure_context).rstrip("\n")
 	if FeatureFlagManager.get_flag_value(FeatureFlagManager.FEATURE_FLAGS_TOOLTIP_SHOW_IDS):
-		tooltip += " (%s) #%d\n" % [dna_structure.get_tooltip_text(), in_dna_control_point_idx]
+		tooltip += " (%s) #%d\n" % [nano_structure.get_tooltip_text(), in_dna_control_point_idx]
 	else:
-		tooltip += " (%s)\n" % dna_structure.get_tooltip_text()
-	var pos: Vector3 = dna_structure.get_control_point_position(in_dna_control_point_idx)
+		tooltip += " (%s)\n" % nano_structure.get_tooltip_text()
+	var pos: Vector3 = nano_structure.get_control_point_position(in_dna_control_point_idx)
 	tooltip += tr("Control Point #%d: %s\n") % [in_dna_control_point_idx, str(pos)]
 	tooltip_text = tooltip
 

@@ -76,19 +76,19 @@ func _draw() -> void:
 	draw_dashed_line(c_draw_from + c, t_to + c, Color.GREEN, 2, 8)
 
 
-func get_estimated_circunference() -> float:
+func get_estimated_circumference() -> float:
 	# formula extracted from https://en.wikipedia.org/wiki/Carbon_nanotube#Circumference_and_diameter
 	const CARBON_BOND_LENGTH_NM = 0.148
 	var root_three: float = sqrt(3.0)
 	var rel_a1 := Vector2(1.5, root_three / 2.0).normalized()
 	var rel_a2 := Vector2(1.5, -root_three / 2.0).normalized()
 	var u: Vector2 = (rel_a1 + rel_a2) * CARBON_BOND_LENGTH_NM
-	var circunference: float = u.length() * sqrt(n ** 2 + n * m + m ** 2)
-	return circunference
+	var circumference: float = u.length() * sqrt(n ** 2 + n * m + m ** 2)
+	return circumference
 
 
 func get_estimated_diameter() -> float:
-	return get_estimated_circunference() / PI
+	return get_estimated_circumference() / PI
 
 
 func _on_resized() -> void:
