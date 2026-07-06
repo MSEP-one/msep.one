@@ -12,6 +12,7 @@ var _visible: bool = true
 var _is_selectable: bool = true
 var _tube_start: Vector3
 var _tube_end: Vector3
+var _control_point_override: Dictionary[int, Vector3]
 
 var _hover_disabled: bool = false
 var _hovered_control_point: int = -1
@@ -79,6 +80,34 @@ func lowlight_control_points(in_control_points_to_lowlight: PackedInt32Array) ->
 	queue_redraw()
 
 
+func set_control_point_selection_position_delta(in_selection_delta: Vector3) -> void:
+	queue_redraw()
+	if in_selection_delta == Vector3():
+		_control_point_override.clear()
+		return
+	var points_to_transform: PackedInt32Array = _highlighted_control_points.keys()
+	var original_positions := PackedVector3Array([_tube_start, _tube_end])
+	for p: int in points_to_transform:
+		var original_pos: Vector3 = original_positions[p]
+		var transformed_pos: Vector3 = original_pos + in_selection_delta
+		_control_point_override[p] = transformed_pos
+
+
+func rotate_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis) -> void:
+	queue_redraw()
+	if in_rotation_to_apply == Basis():
+		_control_point_override.clear()
+		return
+	var points_to_transform: PackedInt32Array = _highlighted_control_points.keys()
+	var original_positions := PackedVector3Array([_tube_start, _tube_end])
+	for p: int in points_to_transform:
+		var original_pos: Vector3 = original_positions[p]
+		var local_to_axis: Vector3 = original_pos - in_point
+		var rotated: Vector3 = in_rotation_to_apply * local_to_axis
+		var transformed_pos: Vector3 = rotated + in_point
+		_control_point_override[p] = transformed_pos
+
+
 func queue_redraw() -> void:
 	if is_queued_for_deletion() or not is_inside_tree():
 		return
@@ -96,8 +125,10 @@ func _on_path_representation_drawn() -> void:
 		return
 	#if (_is_simulating and _should_hide_in_simulation):
 		#return
-	var from: Vector2 = _camera.unproject_position(_tube_start)
-	var to: Vector2 = _camera.unproject_position(_tube_end)
+	var from_3d: Vector3 = _control_point_override.get(0, _tube_start)
+	var to_3d: Vector3 = _control_point_override.get(1, _tube_end)
+	var from: Vector2 = _camera.unproject_position(from_3d)
+	var to: Vector2 = _camera.unproject_position(to_3d)
 	var path_width: int = 2
 	if _highlighted_control_points.size() > 0:
 		path_width = 4

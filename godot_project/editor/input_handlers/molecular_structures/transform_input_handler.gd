@@ -128,6 +128,14 @@ func _init_initial_positions_and_determine_center() -> Vector3:
 					center_pos += context.nano_structure.get_control_point_position(p)
 				# Renderer global position is always set to (0, 0, 0)
 				_structure_context_2_initial_object_transforms[context.get_int_guid()] = Transform3D()
+		elif context.nano_structure is CarbonNanotubeStructure:
+			if context.has_selection():
+				var control_points: Array = context.get_selected_nanotube_control_points()
+				selection_size += control_points.size()
+				for p: int in control_points:
+					center_pos += context.nano_structure.get_control_point_position(p)
+				# Renderer global position is always set to (0, 0, 0)
+				_structure_context_2_initial_object_transforms[context.get_int_guid()] = Transform3D()
 	
 	assert(selection_size > 0, "selection is empty, gizmo should be disabled and this function should not be called")
 	return center_pos / selection_size
@@ -236,9 +244,9 @@ func _apply_selection_transform() -> void:
 		if nano_structure is AtomicStructure:
 			rendering.set_atom_selection_position_delta(Vector3(), nano_structure)
 			rendering.rotate_atom_selection_around_point(_helper.global_transform.origin, Basis(), nano_structure)
-		if nano_structure is DnaStructure:
-			rendering.set_dna_selection_position_delta(Vector3(), nano_structure)
-			rendering.rotate_dna_selection_around_point(_helper.global_transform.origin, Basis(), nano_structure)
+		if nano_structure is DnaStructure or nano_structure is CarbonNanotubeStructure:
+			rendering.set_control_point_selection_position_delta(Vector3(), nano_structure)
+			rendering.rotate_control_point_selection_around_point(_helper.global_transform.origin, Basis(), nano_structure)
 		
 		var object_old_transform: Transform3D
 		var object_new_transform: Transform3D
@@ -268,6 +276,17 @@ func _apply_selection_transform() -> void:
 			dna.end_edit()
 			if sequence.length() < dna.get_sequence().length():
 				caused_dna_chain_extension = true
+		elif nano_structure is CarbonNanotubeStructure:
+			var nanotube := nano_structure as CarbonNanotubeStructure
+			var points_to_transform: PackedInt32Array = context.get_selected_nanotube_control_points()
+			nanotube.start_edit()
+			for p: int in points_to_transform:
+				action_created = true
+				var original_pos: Vector3 = nanotube.get_control_point_position(p)
+				var delta_pos: Vector3 = original_pos - _selection_initial_position
+				var new_pos: Vector3 = _helper.global_position + _helper.global_transform.basis * delta_pos
+				nanotube.set_control_point_position(p, new_pos)
+			nanotube.end_edit()
 		elif nano_structure is NanoVirtualAnchor:
 			# Anchors have position but not rotation and scale
 			assert(_structure_context_2_initial_object_transforms.has(context.get_int_guid()), "initial transform should be prepared in '_prepare_gizmo_for_structure()'")
@@ -381,11 +400,11 @@ func _on_helper_transform_changed(in_translation_changed: bool, in_rotation_chan
 			var initial_nano_struct_transform: Transform3D = _structure_context_2_initial_object_transforms[context.get_int_guid()]
 			rendering.transform_object_by_external_transform(context.nano_structure, _selection_initial_position,
 					initial_nano_struct_transform, _helper.global_transform)
-		elif nano_structure is DnaStructure:
+		elif nano_structure is DnaStructure or nano_structure is CarbonNanotubeStructure:
 			if in_translation_changed:
-				rendering.set_dna_selection_position_delta(-delta, nano_structure)
+				rendering.set_control_point_selection_position_delta(-delta, nano_structure)
 			if in_rotation_changed:
-				rendering.rotate_dna_selection_around_point(_helper.global_transform.origin,
+				rendering.rotate_control_point_selection_around_point(_helper.global_transform.origin,
 						_helper.global_transform.basis, nano_structure)
 		else:
 			if in_translation_changed:
@@ -460,6 +479,8 @@ func _force_gizmo_update() -> void:
 				# Anchors does not trigger `has_transformable_objects_selected = true` because they dont rotate
 			elif context.nano_structure is DnaStructure:
 				selection_size += context.get_selected_dna_spline_control_points().size()
+			elif context.nano_structure is CarbonNanotubeStructure:
+				selection_size += context.get_selected_nanotube_control_points().size()
 			elif context.is_dna_structure_fully_selected():
 				selection_size += (context.nano_structure as DnaStructure).get_control_point_count()
 		

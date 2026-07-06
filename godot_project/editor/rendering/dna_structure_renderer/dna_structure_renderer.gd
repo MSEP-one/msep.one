@@ -283,7 +283,7 @@ func _refresh_selection_preview(in_is_selected: bool, in_starting_from_base: int
 	_set_shader_uniform(&"is_selected", 1.0 if in_is_selected else 0.0)
 
 
-func set_selection_position_delta(in_selection_delta: Vector3) -> void:
+func set_control_point_selection_position_delta(in_selection_delta: Vector3) -> void:
 	queue_redraw()
 	if in_selection_delta == Vector3():
 		_reset_temp_curve()

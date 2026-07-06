@@ -627,16 +627,24 @@ func rotate_atom_selection_around_point(in_point: Vector3, in_rotation_to_apply:
 	atomic_structure_renderer.rotate_atom_selection_around_point(in_point, in_rotation_to_apply)
 
 
-func set_dna_selection_position_delta(in_selection_delta: Vector3, in_structure: DnaStructure) -> void:
+func set_control_point_selection_position_delta(in_selection_delta: Vector3, in_structure: NanoStructure) -> void:
 	if not enabled: return
-	var dna_structure_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.int_guid)
-	dna_structure_renderer.set_selection_position_delta(in_selection_delta)
+	if in_structure is DnaStructure:
+		var dna_structure_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.int_guid)
+		dna_structure_renderer.set_control_point_selection_position_delta(in_selection_delta)
+	elif in_structure is CarbonNanotubeStructure:
+		var nanotube_renderer: CarbonNanotubeRenderer = _get_renderer_for_nanotube_structure(in_structure.int_guid)
+		nanotube_renderer.set_control_point_selection_position_delta(in_selection_delta)
 
 
-func rotate_dna_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis, in_structure: DnaStructure) -> void:
+func rotate_control_point_selection_around_point(in_point: Vector3, in_rotation_to_apply: Basis, in_structure: NanoStructure) -> void:
 	if not enabled: return
-	var dna_structure_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.int_guid)
-	dna_structure_renderer.rotate_selection_around_point(in_point, in_rotation_to_apply)
+	if in_structure is DnaStructure:
+		var dna_structure_renderer: DnaStructureRenderer = _get_renderer_for_dna_structure(in_structure.int_guid)
+		dna_structure_renderer.rotate_selection_around_point(in_point, in_rotation_to_apply)
+	elif in_structure is CarbonNanotubeStructure:
+		var nanotube_renderer: CarbonNanotubeRenderer = _get_renderer_for_nanotube_structure(in_structure.int_guid)
+		nanotube_renderer.rotate_selection_around_point(in_point, in_rotation_to_apply)
 
 
 func transform_object_by_external_transform(in_structure: NanoStructure, in_selection_initial_pos: Vector3,
