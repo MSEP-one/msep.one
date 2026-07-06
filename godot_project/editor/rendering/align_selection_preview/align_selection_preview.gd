@@ -86,15 +86,6 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	const OPPOSITE_FACE: Dictionary[BoxFace, BoxFace] = {
-		BoxFace.UNDEFINED: BoxFace.UNDEFINED,
-		BoxFace.FRONT: BoxFace.BACK,
-		BoxFace.BACK: BoxFace.FRONT,
-		BoxFace.TOP: BoxFace.BOTTOM,
-		BoxFace.BOTTOM: BoxFace.TOP,
-		BoxFace.LEFT: BoxFace.RIGHT,
-		BoxFace.RIGHT: BoxFace.LEFT,
-	}
 	if not is_processing() or _align_selection_parameters == null:
 		return
 	
@@ -104,13 +95,9 @@ func _draw() -> void:
 		if obb == null or obb == highlighted_obb:
 			continue
 		_draw_obb_face(obb, obb.selected_face, false, true)
-		if _align_selection_parameters.is_align_depth_enabled():
-			_draw_obb_face(obb, OPPOSITE_FACE[obb.selected_face], false, false)
 		_draw_obb_reference_point(obb, obb.selected_face, false)
 		_draw_transform(obb.transform, obb.box.size * 0.25, false)
 	if highlighted_obb != null:
-		if _align_selection_parameters.is_align_depth_enabled():
-			_draw_obb_face(highlighted_obb, OPPOSITE_FACE[highlighted_obb.align_to_face], false)
 		_draw_obb_face(highlighted_obb, highlighted_obb.align_to_face, true)
 		_draw_obb_reference_point(highlighted_obb, highlighted_obb.align_to_face, true)
 
@@ -137,23 +124,9 @@ func _draw_transform(t: Transform3D, handle_size: Vector3, is_highlighted_face: 
 func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool = false, in_filled: bool = in_highlighted) -> void:
 	if in_obb == null or in_face == BoxFace.UNDEFINED:
 		return
-	
-	var face_corners: PackedVector3Array
-	match in_face:
-		BoxFace.TOP:
-			face_corners = in_obb.get_face_corners(Vector3.UP)
-		BoxFace.BOTTOM:
-			face_corners = in_obb.get_face_corners(Vector3.DOWN)
-		BoxFace.FRONT:
-			face_corners = in_obb.get_face_corners(Vector3.BACK)
-		BoxFace.BACK:
-			face_corners = in_obb.get_face_corners(Vector3.FORWARD)
-		BoxFace.LEFT:
-			face_corners = in_obb.get_face_corners(Vector3.LEFT)
-		BoxFace.RIGHT:
-			face_corners = in_obb.get_face_corners(Vector3.RIGHT)
-		
 	# Draw half transparent face
+	var align_depth: bool = _align_selection_parameters.is_align_depth_enabled()
+	var face_corners: PackedVector3Array = in_obb.get_face_corners(in_face, align_depth)
 	var polygon := PackedVector2Array()
 	var uvs := PackedVector2Array()
 	for corner: Vector3 in face_corners:
@@ -195,9 +168,6 @@ func _draw_obb_reference_point(in_obb: AlignableOBB, in_face: BoxFace, in_highli
 			no_depth_ref_point = ref_point
 			if _align_selection_parameters.is_align_depth_enabled():
 				ref_point += basis.z * (in_obb.offset_ratio_d * face_size.z)
-			else:
-				ref_point += basis.z * (face_size.z * 0.5)
-				
 		var line_size: float = 0.01
 		var camera: Camera3D = get_viewport().get_camera_3d()
 		if camera.projection == Camera3D.ProjectionType.PROJECTION_PERSPECTIVE:
