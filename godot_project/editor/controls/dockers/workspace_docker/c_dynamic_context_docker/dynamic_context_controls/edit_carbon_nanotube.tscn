@@ -1,0 +1,89 @@
+[gd_scene load_steps=5 format=3 uid="uid://bs3i6otffe4h6"]
+
+[ext_resource type="Script" uid="uid://trfroctpi6tc" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_carbon_nanotube.gd" id="1_ryuhn"]
+[ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_ijhll"]
+[ext_resource type="PackedScene" uid="uid://df3xtgtlaxjo7" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/graphene_latice_preview.tscn" id="3_vb1s5"]
+[ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="4_bokfn"]
+
+[node name="EditCarbonNanotube" type="MarginContainer"]
+offset_right = 204.0
+offset_bottom = 421.0
+script = ExtResource("1_ryuhn")
+
+[node name="EditorContainer" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="EditorContainer"]
+layout_mode = 2
+text = "Chiral Indices"
+
+[node name="PanelContainer" type="PanelContainer" parent="EditorContainer"]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="GridContainer" type="GridContainer" parent="EditorContainer/PanelContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="EditorContainer/PanelContainer/GridContainer"]
+layout_mode = 2
+text = "n"
+
+[node name="NSpinBoxSlider" parent="EditorContainer/PanelContainer/GridContainer" instance=ExtResource("2_ijhll")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 31)
+layout_mode = 2
+min_value = 2.0
+max_value = 50.0
+value = 2.0
+allow_greater = true
+
+[node name="Label4" type="Label" parent="EditorContainer/PanelContainer/GridContainer"]
+layout_mode = 2
+text = "m"
+
+[node name="MSpinBoxSlider" parent="EditorContainer/PanelContainer/GridContainer" instance=ExtResource("2_ijhll")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 31)
+layout_mode = 2
+max_value = 50.0
+value = 2.0
+allow_greater = true
+
+[node name="GrapheneLaticePreview" parent="EditorContainer" instance=ExtResource("3_vb1s5")]
+unique_name_in_owner = true
+layout_mode = 2
+n = 5
+m = 5
+
+[node name="GridContainer2" type="GridContainer" parent="EditorContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label2" type="Label" parent="EditorContainer/GridContainer2"]
+layout_mode = 2
+text = "· Estimated Diameter:"
+
+[node name="DiameterLabel" type="Label" parent="EditorContainer/GridContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "0.5 nm"
+
+[node name="Label3" type="Label" parent="EditorContainer/GridContainer2"]
+layout_mode = 2
+text = "· Estimated Circunference:"
+
+[node name="CircunferenceLabel" type="Label" parent="EditorContainer/GridContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "1.2 nm"
+
+[node name="SelectOneInfoLabel" parent="." instance=ExtResource("4_bokfn")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[center]ℹ Select only one Carbon Nanotube Object at a time to edit it[/center]"
+message = &"Select only one Carbon Nanotube Object at a time to edit it"
+effect = "none"

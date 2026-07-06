@@ -137,7 +137,9 @@ func _create_tube_structure(from_pos: Vector3, to_pos: Vector3) -> void:
 	var obj_name: String = nanotube.get_readable_type()
 	obj_name += " %d" % _workspace_context.workspace.get_structures().size()
 	nanotube.set_structure_name(obj_name)
+	_workspace_context.clear_all_selection()
 	_workspace_context.workspace.add_structure(nanotube, structure)
+	_workspace_context.get_nano_structure_context(nanotube).select_all()
 	_workspace_context.snapshot_moment("Create Single Wall Carbom Nanotube")
 
 

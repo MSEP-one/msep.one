@@ -76,7 +76,7 @@ const _CREATE_OBJECT_CONTROLS: Dictionary = {
 			collapse = false,
 			start_collapsed = false,
 			controls = [
-				"res://editor/controls/dockers/workspace_docker/a_create_docker/single_wall_carbon_nanotube.tscn"
+				"res://editor/controls/dockers/workspace_docker/a_create_docker/create_carbon_nanotube.tscn"
 			]
 		},
 	&"DNA Object":
