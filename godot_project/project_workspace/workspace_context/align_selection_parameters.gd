@@ -193,17 +193,6 @@ func set_align_depth_enabled(in_enabled: bool) -> void:
 	if in_enabled == _align_depth_enabled:
 		return
 	_align_depth_enabled = in_enabled
-	if in_enabled == true:
-		# Some of the selectable faces gets removed
-		# Make sure faces selection are valid
-		for box: AlignableOBB in get_alignable_boxes():
-			const INVALID_TO_VALID_FACE: Dictionary[BoxFace, BoxFace] = {
-				BoxFace.BACK : BoxFace.FRONT,
-				BoxFace.BOTTOM : BoxFace.TOP,
-				BoxFace.LEFT : BoxFace.RIGHT,
-			}
-			box.align_to_face = INVALID_TO_VALID_FACE.get(box.align_to_face, box.align_to_face)
-			box.selected_face = INVALID_TO_VALID_FACE.get(box.selected_face, box.selected_face)
 	request_redraw_preview()
 
 
@@ -227,8 +216,8 @@ func set_specific_obb(out_box: AlignableOBB) -> void:
 	if _align_to_box_index != id:
 		_align_to_box_index = id
 		if out_box.selected_face == BoxFace.UNDEFINED:
-			out_box.align_to_face = BoxFace.FRONT
-			if not out_box.has_face(BoxFace.FRONT):
+			out_box.align_to_face = BoxFace.XY
+			if not out_box.has_face(BoxFace.XY):
 				out_box.advance_align_to_face(1)
 		else:
 			out_box.align_to_face = out_box.selected_face

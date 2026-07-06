@@ -2,19 +2,17 @@ class_name AlignableOBB
 extends OBB
 
 
+## Each indices matches the plane's normal index (X -> 0, Y -> 1, Z -> 2)
 enum BoxFace {
 	UNDEFINED = -1,
-	FRONT  = 0,
-	BACK   = 1,
-	TOP    = 2,
-	BOTTOM = 3,
-	LEFT   = 4,
-	RIGHT  = 5,
+	YZ = 0,
+	XZ = 1,
+	XY = 2,
 }
 
 
 var selected_face := BoxFace.UNDEFINED
-var align_to_face := BoxFace.FRONT
+var align_to_face := BoxFace.YZ
 var align_to_center_of_mass: bool = true
 var offset_ratio_h: float = 0.0
 var offset_ratio_v: float = 0.0
@@ -28,7 +26,7 @@ var description: String:
 		assert(_initialized == false, "Value cannot be changed upon creation")
 		description = v
 
-
+var _local_center_of_mass: Vector3
 var _params: AlignSelectionParameters
 
 
@@ -47,6 +45,7 @@ func _init(
 	super._init(in_size, in_transform,in_source)
 	_initialized = false
 	world_center_of_mass = _calculate_center_of_mass_from_source()
+	_local_center_of_mass = transform.affine_inverse() * world_center_of_mass
 	_params = in_align_parameters
 	if not has_face(align_to_face):
 		advance_align_to_face(1)
@@ -112,30 +111,55 @@ func get_alignable_faces() -> Array[BoxFace]:
 	match zero_len_axes_count:
 		3:
 			# Empty box, align to an arbitrary face (front)
-			return [BoxFace.FRONT]
+			return [BoxFace.YZ]
 		2:
 			# A straight line, likely 2 atoms, this would make 2 faces valid, but we only send one
 			match non_zero_len_axes[0]: # The only axis with size
 				Vector3.AXIS_X:
-					return [BoxFace.FRONT]
+					return [BoxFace.XY]
 				Vector3.AXIS_Y:
-					return [BoxFace.FRONT]
+					return [BoxFace.XY]
 				Vector3.AXIS_Z:
-					return [BoxFace.TOP]
+					return [BoxFace.XZ]
 		1:
 			match non_zero_len_axes: # box is a plane, only 1 face is needed
 				[Vector3.AXIS_X, Vector3.AXIS_Y]:
-					return [BoxFace.FRONT]
+					return [BoxFace.XY]
 				[Vector3.AXIS_X, Vector3.AXIS_Z]:
-					return [BoxFace.TOP]
+					return [BoxFace.XZ]
 				[Vector3.AXIS_Y, Vector3.AXIS_Z]:
-					return [BoxFace.LEFT]
+					return [BoxFace.YZ]
 		_:
 			pass # default
-	if _params.is_align_depth_enabled():
-		# We dont need the secondary side of each main face
-		return [BoxFace.FRONT, BoxFace.TOP, BoxFace.RIGHT]
-	return [BoxFace.FRONT, BoxFace.BACK, BoxFace.TOP, BoxFace.BOTTOM, BoxFace.LEFT, BoxFace.RIGHT]
+
+	return [BoxFace.XY, BoxFace.XZ, BoxFace.YZ]
+
+
+func get_face_corners(face: BoxFace, depth_enabled: bool = false) -> PackedVector3Array:
+	var corners: Array[Vector3]
+	var offset: Vector3 = Vector3.ZERO
+	match face:
+		BoxFace.XZ:
+			corners = [Vector3(-1, 0, 1), Vector3(1, 0, 1), Vector3(1, 0, -1), Vector3(-1, 0, -1)]
+			offset = Vector3.UP
+		BoxFace.XY:
+			corners = [Vector3(-1, 1, 0), Vector3(1, 1, 0), Vector3(1, -1, 0), Vector3(-1, -1, 0)]
+			offset = Vector3.BACK
+		BoxFace.YZ:
+			corners = [Vector3(0, 1, 1), Vector3(0, 1, -1), Vector3(0, -1, -1), Vector3(0, -1, 1)]
+			offset = Vector3.RIGHT
+	if align_to_center_of_mass:
+		offset *= _local_center_of_mass
+	elif depth_enabled:
+		offset *= box.size * offset_ratio_d
+	else:
+		offset = Vector3.ZERO
+	var result := PackedVector3Array()
+	var half_size: Vector3 = box.size * .5
+	for local_point in corners:
+		result.push_back(transform * (local_point * half_size + offset))
+	return result
+
 
 ## At least 2 of the 3 size dimensions needs to be greater than 0 for the
 ## box to have a valid surface.
@@ -153,37 +177,16 @@ func has_face(box_face: BoxFace) -> bool:
 
 func get_face_basis(in_face: BoxFace) -> Basis:
 	match in_face:
-		BoxFace.FRONT:
+		BoxFace.XY:
 			return transform.basis.orthonormalized()
-		BoxFace.BACK:
-			var basis: Basis = transform.basis.orthonormalized()
-			return Basis(
-				-basis[0],
-				basis[1],
-				-basis[2],
-			)
-		BoxFace.TOP:
+		BoxFace.XZ:
 			var basis: Basis = transform.basis.orthonormalized()
 			return Basis(
 				basis[0],
 				-basis[2],
 				basis[1],
 			)
-		BoxFace.BOTTOM:
-			var basis: Basis = transform.basis.orthonormalized()
-			return Basis(
-				basis[0],
-				basis[2],
-				-basis[1],
-			)
-		BoxFace.LEFT:
-			var basis: Basis = transform.basis.orthonormalized()
-			return Basis(
-				-basis[2],
-				basis[1],
-				-basis[0],
-			)
-		BoxFace.RIGHT:
+		BoxFace.YZ:
 			var basis: Basis = transform.basis.orthonormalized()
 			return Basis(
 				basis[2],
@@ -197,11 +200,11 @@ func get_face_basis(in_face: BoxFace) -> Basis:
 ## Returns the width and heigth of the face as X and Y components, and the depth of the box in the Z
 func get_face_size(in_face: BoxFace) -> Vector3:
 	match in_face:
-		BoxFace.FRONT, BoxFace.BACK:
+		BoxFace.XY:
 			return Vector3(box.size.x, box.size.y, box.size.z)
-		BoxFace.TOP, BoxFace.BOTTOM:
+		BoxFace.XZ:
 			return Vector3(box.size.x, box.size.z, box.size.y)
-		BoxFace.LEFT, BoxFace.RIGHT:
+		BoxFace.YZ:
 			return Vector3(box.size.z, box.size.y, box.size.x)
 	return Vector3()
 
@@ -212,7 +215,6 @@ func align_rotation_to_box(in_box: AlignableOBB) -> bool:
 	if in_box == self:
 		return false
 	return align_rotation_to_basis(in_box.get_face_basis(in_box.align_to_face))
-	
 
 
 func align_rotation_to_basis(in_basis: Basis) -> bool:

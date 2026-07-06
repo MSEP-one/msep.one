@@ -244,12 +244,9 @@ func _on_alignable_boxes_tree_button_clicked(item: TreeItem, _column: int, id: i
 func _get_box_face_icon(selected_face: BoxFace) -> Texture2D:
 	const ICONS: Dictionary[BoxFace, Texture2D] = {
 		BoxFace.UNDEFINED : preload("uid://dr6k8q285dgls"),
-		BoxFace.FRONT  : preload("uid://d16yxekfb4k3h"),
-		BoxFace.BACK   : preload("uid://0vpkfnqii60i"),
-		BoxFace.TOP    : preload("uid://de1hnqihu4ugw"),
-		BoxFace.BOTTOM : preload("uid://b8qwlg7asmnsf"),
-		BoxFace.LEFT   : preload("uid://deu8o23ue70ft"),
-		BoxFace.RIGHT  : preload("uid://c01w40g4dq4eg"),
+		BoxFace.XY : preload("uid://d16yxekfb4k3h"),
+		BoxFace.XZ : preload("uid://de1hnqihu4ugw"),
+		BoxFace.YZ : preload("uid://c01w40g4dq4eg"),
 	}
 	return ICONS[selected_face]
 
