@@ -707,6 +707,56 @@ func get_aabb(_in_bounds_type := AABB_BoundsType.AtomsPositions) -> AABB:
 	return _aabb_cache
 
 
+#region: UndoRedo
+
+func create_state_snapshot() -> Dictionary:
+	var state_snapshot: Dictionary = super.create_state_snapshot()
+
+	state_snapshot["script.resource_path"] = get_script().resource_path
+	state_snapshot["_basis"] = _basis
+	state_snapshot["_template"] = _template
+	state_snapshot["_track_atoms"] = _track_atoms
+	state_snapshot["_chiral_index_n"] = _chiral_index_n
+	state_snapshot["_chiral_index_m"] = _chiral_index_m
+	state_snapshot["_position_begin"] = _position_begin
+	state_snapshot["_position_end"] = _position_end
+	state_snapshot["_tube_direction"] = _tube_direction
+	state_snapshot["_atoms_count_cache"] = _atoms_count_cache
+	state_snapshot["_atoms_ids_cache"] = _atoms_ids_cache.duplicate()
+	var atom_cache_state: Dictionary = {}
+	for id: int in _atoms_cache.keys():
+		atom_cache_state[id] = AtomData.to_state(_atoms_cache[id])
+	state_snapshot["_atoms_cache"] = atom_cache_state
+	state_snapshot["_bonds_count_cache"] = _bonds_count_cache
+	state_snapshot["_bonds_ids_cache"] = _bonds_ids_cache.duplicate()
+	state_snapshot["_bonds_cache"] = _bonds_cache.duplicate()
+	state_snapshot["_aabb_cache"] = _aabb_cache
+	return state_snapshot
+
+
+func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
+	_basis = in_state_snapshot["_basis"]
+	_template = in_state_snapshot["_template"]
+	_track_atoms = in_state_snapshot["_track_atoms"]
+	_chiral_index_n = in_state_snapshot["_chiral_index_n"]
+	_chiral_index_m = in_state_snapshot["_chiral_index_m"]
+	_position_begin = in_state_snapshot["_position_begin"]
+	_position_end = in_state_snapshot["_position_end"]
+	_tube_direction = in_state_snapshot["_tube_direction"]
+	_atoms_count_cache = in_state_snapshot["_atoms_count_cache"]
+	_atoms_ids_cache = in_state_snapshot["_atoms_ids_cache"].duplicate()
+	_atoms_cache = {}
+	for id: int in in_state_snapshot["_atoms_cache"].keys():
+		_atoms_cache[id] = AtomData.from_state(in_state_snapshot["_atoms_cache"][id])
+	_bonds_count_cache = in_state_snapshot["_bonds_count_cache"]
+	_bonds_ids_cache = in_state_snapshot["_bonds_ids_cache"].duplicate()
+	_bonds_cache = in_state_snapshot["_bonds_cache"].duplicate()
+	_aabb_cache = in_state_snapshot["_aabb_cache"]
+	
+	super.apply_state_snapshot(in_state_snapshot)
+#endregion: UndoRedo
+
+
 class UnpackedAtomId:
 	var original_id: int = 0
 	var repetition_idx: int = 0
