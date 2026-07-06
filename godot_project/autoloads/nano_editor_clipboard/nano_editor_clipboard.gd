@@ -65,6 +65,11 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 						# Include hidden DNA objects
 						or structure_context.nano_structure.get_visible() == false):
 					_copy_dna_structure(structure_context, nano_structure, new_content)
+			&"CarbonNanotubeStructure":
+				if (structure_context.is_nanotube_fully_selected()
+						# Include hidden DNA objects
+						or structure_context.nano_structure.get_visible() == false):
+					_copy_nanotube_structure(structure_context, nano_structure, new_content)
 			_:
 				push_warning("Nano structure type not implemented for copy")
 	var root_group_id: int = -1
@@ -274,12 +279,12 @@ func _copy_structure(
 	if in_structure is NanoVirtualAnchor: # Anchors don't have a transform but have a position
 		new_content[&"data"][&"local_to_camera_transform"] = \
 			camera_transform.inverse() * Transform3D(Basis(), in_structure.get_position())
-	if in_structure is DnaStructure: # Dna Objects have several individual positions
+	if in_structure is DnaStructure or in_structure is CarbonNanotubeStructure:
+		# These structures have several individual positions
 		new_content[&"data"][&"local_to_camera_control_points"] = PackedVector3Array()
 		for i: int in in_structure.get_control_point_count():
 			new_content[&"data"][&"local_to_camera_control_points"] \
 				.append(camera_transform.inverse() * in_structure.get_control_point_position(i))
-	
 	out_content.push_back(new_content)
 
 
@@ -312,9 +317,15 @@ func _copy_particle_emitter(
 
 
 func _copy_dna_structure(in_structure_context: StructureContext,
-	in_emitter: DnaStructure,
+	in_dna_object: DnaStructure,
 	out_content: Array[Dictionary]) -> void:
-	_copy_structure(in_structure_context, in_emitter, out_content)
+	_copy_structure(in_structure_context, in_dna_object, out_content)
+
+
+func _copy_nanotube_structure(in_structure_context: StructureContext,
+	in_nanotube_object: CarbonNanotubeStructure,
+	out_content: Array[Dictionary]) -> void:
+	_copy_structure(in_structure_context, in_nanotube_object, out_content)
 
 
 func cut(out_workspace_context: WorkspaceContext) -> void:
@@ -744,7 +755,7 @@ func paste_object(
 			new_structure.set_position(new_transform.origin)
 		else:
 			new_structure.set_transform(new_transform)
-	if new_structure is DnaStructure:
+	if new_structure is DnaStructure or new_structure is CarbonNanotubeStructure:
 		var local_to_camera_control_points: PackedVector3Array = in_entity_data[&"local_to_camera_control_points"]
 		assert(new_structure.get_control_point_count() == local_to_camera_control_points.size())
 		var camera_transform: Transform3D = out_workspace_context.get_camera_global_transform()

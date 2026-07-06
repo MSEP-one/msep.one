@@ -228,6 +228,13 @@ func is_dna_structure_fully_selected() -> bool:
 	return _selection_db.get_selected_dna_spline_control_points().size() == dna_structure.get_control_point_count()
 
 
+func is_nanotube_fully_selected() -> bool:
+	if not nano_structure is CarbonNanotubeStructure:
+		return false
+	var carbon_structure := nano_structure as CarbonNanotubeStructure
+	return _selection_db.get_selected_nanotube_control_points().size() == carbon_structure.get_control_point_count()
+
+
 func is_virtual_object_selected() -> bool:
 	assert(nano_structure.is_virtual_object())
 	# This method does not care of the type of virtual object, use with care
@@ -271,6 +278,8 @@ func is_fully_selected() -> bool:
 		return true
 	if nano_structure is DnaStructure:
 		return is_dna_structure_fully_selected()
+	if nano_structure is CarbonNanotubeStructure:
+		return is_nanotube_fully_selected()
 	assert(nano_structure is AtomicStructure, "NanoStructure seems to be an untracked kind of virtual object (%s)" % nano_structure.get_type())
 	return _selection_db.get_selected_atoms().size() == nano_structure.get_valid_atoms_count() \
 			and _selection_db.get_selected_bonds().size() == nano_structure.get_valid_bonds_count() \
