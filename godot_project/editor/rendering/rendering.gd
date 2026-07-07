@@ -415,6 +415,10 @@ func apply_theme(in_theme: Theme3D) -> void:
 		if emitter_renderer is InstancePlaceholder:
 			continue
 		emitter_renderer.apply_theme(in_theme)
+	for nanotube_renderer: Node in _nanotube_structure_renderers.get_children():
+		if nanotube_renderer is InstancePlaceholder:
+			continue
+		nanotube_renderer.apply_theme(in_theme)
 	
 	_atom_preview.apply_theme(in_theme)
 	_ballstick_bond_preview.apply_theme(in_theme)
@@ -1166,6 +1170,9 @@ func _on_representation_settings_color_schema_changed(in_new_color_schema: Perio
 	for structure_renderer: Node in structure_renderers:
 		if structure_renderer is AtomicStructureRenderer:
 			structure_renderer.rebuild()
+	for nanotube_renderer: Node in _nanotube_structure_renderers.get_children():
+		if nanotube_renderer is CarbonNanotubeRenderer:
+			nanotube_renderer.apply_schema(in_new_color_schema)
 	_selection_preview.refresh()
 
 

@@ -2,13 +2,18 @@ class_name CarbonNanotubeRenderer
 extends Node3D
 
 
+@export var material: ShaderMaterial
+
+
 @onready var _camera: Camera3D = get_viewport().get_camera_3d()
 @onready var _path_representation: Control = %PathRepresentation
+@onready var _tube: Node3D = $Tube
 
 
 var _workspace_context: WorkspaceContext
 var _structure_id: int
 var _visible: bool = true
+var _simplified_representation_visible: bool = true
 var _is_selectable: bool = true
 var _tube_start: Vector3
 var _tube_end: Vector3
@@ -32,10 +37,13 @@ func _enter_tree() -> void:
 	if not workspace_context.editable_structure_context_list_changed.is_connected(_on_editable_structure_context_list_changed):
 		workspace_context.editable_structure_context_list_changed.connect(_on_editable_structure_context_list_changed)
 		workspace_context.hovered_structure_context_changed.connect(_on_hovered_structure_context_changed)
-
+		var representation_settings: RepresentationSettings = workspace_context.workspace.representation_settings
+		representation_settings.nanotube_representation_changed.connect(_on_nanotube_representation_changed)
+		_on_nanotube_representation_changed(representation_settings.get_nanotube_representation())
 
 func _ready() -> void:
 	_path_representation.draw.connect(_on_path_representation_drawn)
+	_tube.get_node("Cylinder").material_override = material
 
 
 func build(in_workspace_context: WorkspaceContext, in_structure: CarbonNanotubeStructure) -> void:
@@ -44,7 +52,17 @@ func build(in_workspace_context: WorkspaceContext, in_structure: CarbonNanotubeS
 	_tube_start = in_structure.get_control_point_position(0)
 	_tube_end = in_structure.get_control_point_position(1)
 	in_structure.path_changed.connect(_on_tube_path_changed)
+	in_structure.chiral_indices_changed.connect(_on_tube_chiral_indices_changed.unbind(2))
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
+	ScriptUtils.call_deferred_once(_update_simplified_representation_colors)
+
+
+func apply_theme(_in_theme: Theme3D) -> void:
+	_update_simplified_representation_colors()
+
+
+func apply_schema(_in_new_color_schema: PeriodicTable.ColorSchema) -> void:
+	_update_simplified_representation_colors()
 
 
 func update(_delta: float) -> void:
@@ -69,6 +87,7 @@ func highlight_control_points(in_control_points_to_highlight: PackedInt32Array) 
 	for p in in_control_points_to_highlight:
 		_highlighted_control_points[p] = true
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
+	_update_simplified_representation_selection()
 	queue_redraw()
 
 
@@ -77,6 +96,7 @@ func lowlight_control_points(in_control_points_to_lowlight: PackedInt32Array) ->
 	for p in in_control_points_to_lowlight:
 		_highlighted_control_points.erase(p)
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
+	_update_simplified_representation_selection()
 	queue_redraw()
 
 
@@ -115,8 +135,44 @@ func queue_redraw() -> void:
 
 
 func _update_simplified_representation() -> void:
-	# TODO
-	pass
+	if !_visible or !_simplified_representation_visible or is_queued_for_deletion():
+		_tube.hide()
+		return
+	_tube.show()
+	var nanotube_structure: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
+	var radius: float = nanotube_structure.get_estimated_diameter() / 2.0
+	_tube.global_transform = nanotube_structure.get_repetition_transform(0)
+	_tube.global_transform.basis.x *= radius
+	_tube.global_transform.basis.y *= radius
+	_tube.global_transform.basis.z *= nanotube_structure.get_tube_length()
+	var t_len: float = nanotube_structure._basis.get_translational_vector_length()
+	var rep: float = nanotube_structure.get_tube_length() / t_len
+	material.set_shader_parameter(&"n", nanotube_structure.get_chiral_index_n())
+	material.set_shader_parameter(&"m", nanotube_structure.get_chiral_index_m())
+	material.set_shader_parameter(&"nprime", nanotube_structure._basis._nprime)
+	material.set_shader_parameter(&"mprime", nanotube_structure._basis._mprime)
+	material.set_shader_parameter(&"repetitions", rep)
+
+
+func _update_simplified_representation_colors() -> void:
+	var nanotube_structure: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
+	var representation_settings: RepresentationSettings = nanotube_structure.get_representation_settings()
+	var color_schema: PeriodicTable.ColorSchema = representation_settings.get_color_schema()
+	var color_palette: PeriodicTableColorPalette = PeriodicTable.PALETTES[color_schema]
+	var bond_color: Color = color_palette.get_bond_color_for_element(PeriodicTable.ATOMIC_NUMBER_CARBON)
+	var theme: Theme3D = representation_settings.get_theme()
+	var highlight_color: Color = theme.get_highlight_color()
+	if representation_settings.get_custom_selection_outline_color_enabled():
+		highlight_color = representation_settings.get_custom_selection_outline_color()
+	material.set_shader_parameter(&"atom_color", bond_color)
+	material.set_shader_parameter(&"highlight_color", highlight_color)
+
+
+func _update_simplified_representation_selection() -> void:
+	var selection: PackedFloat32Array
+	selection.append(_highlighted_control_points.get(0, 0.0))
+	selection.append(_highlighted_control_points.get(1, 0.0))
+	material.set_shader_parameter(&"selection", selection)
 
 
 #region: SignalHandlers
@@ -172,6 +228,15 @@ func _on_tube_path_changed(from: Vector3, to: Vector3) -> void:
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 
 
+func _on_tube_chiral_indices_changed() -> void:
+	ScriptUtils.call_deferred_once(_update_simplified_representation)
+
+
+func _on_nanotube_representation_changed(representation: RepresentationSettings.NanotubeRepresentation) -> void:
+	_simplified_representation_visible = representation == RepresentationSettings.NanotubeRepresentation.SIMPLIFIED
+	ScriptUtils.call_deferred_once(_update_simplified_representation)
+
+
 func _on_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
 	_is_selectable = false
 	for context: StructureContext in in_new_editable_structure_contexts:
@@ -210,6 +275,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["_structure_id"] = _structure_id
 	snapshot["_visible"] = _visible
+	snapshot["_simplified_representation_visible"] = _simplified_representation_visible
 	snapshot["_is_selectable"] = _is_selectable
 	snapshot["_tube_start"] = _tube_start
 	snapshot["_tube_end"] = _tube_end
@@ -221,8 +287,12 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_workspace_context = in_state_snapshot["_workspace_context"]
 	_structure_id = in_state_snapshot["_structure_id"]
 	_visible = in_state_snapshot["_visible"]
+	_simplified_representation_visible = in_state_snapshot["_simplified_representation_visible"]
 	_is_selectable = in_state_snapshot["_is_selectable"]
 	_tube_start = in_state_snapshot["_tube_start"]
 	_tube_end = in_state_snapshot["_tube_end"]
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
+	ScriptUtils.call_deferred_once(_update_simplified_representation)
+	ScriptUtils.call_deferred_once(_update_simplified_representation_colors)
+	ScriptUtils.call_deferred_once(_update_simplified_representation_selection)
 #endregion: UndoRedo

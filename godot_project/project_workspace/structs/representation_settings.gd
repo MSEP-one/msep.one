@@ -62,7 +62,7 @@ enum NanotubeRepresentation {
 @export var _dna_representation := DnaRepresentation.SIMPLIFIED
 
 
-@export var _nanotube_representation := NanotubeRepresentation.ATOMS_AND_BONDS
+@export var _nanotube_representation := NanotubeRepresentation.SIMPLIFIED
 
 
 @export var _custom_selection_outline_color_enabled: bool = false

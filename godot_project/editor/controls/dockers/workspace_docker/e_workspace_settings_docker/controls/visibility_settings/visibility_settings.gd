@@ -5,6 +5,7 @@ var _bonds_toggle: CheckButton
 var _labels_toggle: CheckButton
 var _hydrogens_toggle: CheckButton
 var _dna_representation_option_button: OptionButton
+var _nanotube_representation_option_button: OptionButton
 var _hide_simulation_boundaries_toggle: CheckButton
 var _hide_reference_shapes_toggle: CheckButton
 var _hide_dna_objects_toggle: CheckButton
@@ -21,6 +22,7 @@ func _notification(what: int) -> void:
 		_labels_toggle = $Settings/PanelContainer/VBoxContainer/ShowLabelsToggle
 		_hydrogens_toggle = $Settings/PanelContainer/VBoxContainer/ShowHydrogensToggle
 		_dna_representation_option_button = %DnaRepresentationOptionButton
+		_nanotube_representation_option_button = %NanotubeRepresentationOptionButton
 		_hide_simulation_boundaries_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle
 		_hide_reference_shapes_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle
 		_hide_dna_objects_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideDnaObjectsToggle
@@ -41,6 +43,8 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 		settings.hydrogen_visibility_changed.connect(_on_hydrogen_visibility_changed)
 	if not settings.dna_representation_changed.is_connected(_on_dna_representation_changed):
 		settings.dna_representation_changed.connect(_on_dna_representation_changed)
+	if not settings.nanotube_representation_changed.is_connected(_on_nanotube_representation_changed):
+		settings.nanotube_representation_changed.connect(_on_nanotube_representation_changed)
 	if not settings.atom_labels_visibility_changed.is_connected(_on_atom_labels_visibility_changed):
 		settings.atom_labels_visibility_changed.connect(_on_atom_labels_visibility_changed)
 	if not in_workspace_context.history_changed.is_connected(_on_workspace_context_history_changed):
@@ -49,6 +53,7 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 	_labels_toggle.set_pressed_no_signal(_workspace_context.are_atom_labels_visualised())
 	_hydrogens_toggle.set_pressed_no_signal(_workspace_context.are_hydrogens_visualized())
 	_on_dna_representation_changed(settings.get_dna_representation())
+	_on_nanotube_representation_changed(settings.get_nanotube_representation())
 	_hide_simulation_boundaries_toggle.set_pressed_no_signal(not settings.get_display_simulation_boundaries())
 	_update_visibility_during_representation_toggles()
 	return true
@@ -93,6 +98,12 @@ func _on_dna_representation_changed(in_representation: RepresentationSettings.Dn
 	_dna_representation_option_button.set_block_signals(false)
 
 
+func _on_nanotube_representation_changed(in_representation: RepresentationSettings.NanotubeRepresentation) -> void:
+	_nanotube_representation_option_button.set_block_signals(true)
+	_nanotube_representation_option_button.select(in_representation)
+	_nanotube_representation_option_button.set_block_signals(false)
+
+
 func _on_atom_labels_visibility_changed(in_visible: bool) -> void:
 	_labels_toggle.set_pressed_no_signal(in_visible)
 
@@ -134,6 +145,15 @@ func _on_dna_representation_option_button_item_selected(index: int) -> void:
 	_workspace_context.workspace.representation_settings \
 		.set_dna_representation(dna_representation)
 	_workspace_context.snapshot_moment("Change DNA Representation")
+
+
+func _on_nanotube_representation_option_button_item_selected(index: int) -> void:
+	var nanotube_representation := index as RepresentationSettings.NanotubeRepresentation
+	if nanotube_representation == _workspace_context.workspace.representation_settings.get_nanotube_representation():
+		return
+	_workspace_context.workspace.representation_settings \
+		.set_nanotube_representation(nanotube_representation)
+	_workspace_context.snapshot_moment("Change Carbon Nanotube Representation")
 
 
 func _on_hide_simulation_boundaries_toggle_toggled(button_pressed: bool) -> void:
