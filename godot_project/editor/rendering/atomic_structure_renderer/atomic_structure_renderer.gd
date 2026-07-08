@@ -79,8 +79,8 @@ func build(in_structure_context: StructureContext, in_representation: Rendering.
 	_rendering_representation = in_representation
 	_current_representation = _representation_to_node_map[in_representation]
 	_nano_structure_id = in_structure_context.get_int_guid()
-	if in_structure_context.nano_structure is DnaStructure:
-		# Only DNA Structure cares if there's an ongoing simulation to hide this object
+	if in_structure_context.nano_structure is DnaStructure or in_structure_context.nano_structure is CarbonNanotubeStructure:
+		# Only DNA and Nanotube Objects cares if there's an ongoing simulation to hide this object
 		_workspace_context.workspace.representation_settings \
 			.should_hide_virtual_object_during_simulation_changed \
 			.connect(_on_should_hide_virtual_object_during_simulation_changed)
@@ -88,7 +88,8 @@ func build(in_structure_context: StructureContext, in_representation: Rendering.
 		_workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
 		_is_simulating = in_structure_context.workspace_context.is_simulating()
 		_should_hide_dna_in_simulation = _workspace_context.workspace.representation_settings \
-			.get_should_hide_virtual_object_during_simulation(DnaStructure)
+			.get_should_hide_virtual_object_during_simulation(in_structure_context.nano_structure.get_script())
+	
 	_internal_build()
 	_refresh_label_visibility_state()
 	refresh_atom_sizes()
@@ -309,7 +310,8 @@ func _on_nanostructure_visibility_changed(new_visibility: bool) -> void:
 
 func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
 	# NOTE: This method is only connected for DNA Objects
-	if in_type == RepresentationSettings.script_to_virtual_object_key(DnaStructure):
+	var nano_structure: NanoStructure = _workspace_context.workspace.get_structure_by_int_guid(_nano_structure_id) as NanoStructure
+	if in_type == RepresentationSettings.script_to_virtual_object_key(nano_structure.get_script()):
 		_should_hide_dna_in_simulation = in_should_hide
 		_update_visibility()
 

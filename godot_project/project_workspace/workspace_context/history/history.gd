@@ -47,6 +47,7 @@ const ACTION_WHITELIST_DURING_SIMULATION: Dictionary = {
 	"Invert Selection" : true,
 	"Change Hydrogen Visibility" : true,
 	"Change DNA Representation" : true,
+	"Change Carbon Nanotube Representation" : true,
 	"Show Bonds" : true,
 	"Hide Bonds" : true,
 	"Show Atom Labels" : true,

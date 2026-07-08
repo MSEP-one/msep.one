@@ -86,6 +86,7 @@ enum NanotubeRepresentation {
 @export var _hide_during_simulation: Dictionary[StringName, bool] = {
 	reference_shapes = true,
 	dna_objects = true,
+	nanotube_objects = true,
 	virtual_motors = true,
 	particle_emitters = true,
 	anchors_and_springs = true,
@@ -304,22 +305,24 @@ static func script_to_virtual_object_key(in_script: Script) -> StringName:
 	var SCRIPT_TO_KEY_MAP: Dictionary[Script, StringName] = {
 		NanoShape: &"reference_shapes",
 		DnaStructure: &"dna_objects",
+		CarbonNanotubeStructure: &"nanotube_objects",
 		NanoVirtualMotor: &"virtual_motors",
 		NanoParticleEmitter: &"particle_emitters",
 		NanoVirtualAnchor: &"anchors_and_springs",
 	}
-	return SCRIPT_TO_KEY_MAP[in_script]
+	return SCRIPT_TO_KEY_MAP.get(in_script, StringName())
 
 
 static func virtual_object_key_to_script(in_type: StringName) -> Script:
 	var KEY_TO_SCRIPT_MAP: Dictionary[StringName, Script] = {
 		&"reference_shapes": NanoShape,
 		&"dna_objects": DnaStructure,
+		&"nanotube_objects": CarbonNanotubeStructure,
 		&"virtual_motors": NanoVirtualMotor,
 		&"particle_emitters": NanoParticleEmitter,
 		&"anchors_and_springs": NanoVirtualAnchor,
 	}
-	return KEY_TO_SCRIPT_MAP[in_type]
+	return KEY_TO_SCRIPT_MAP.get(in_type, null)
 
 
 func deep_copy() -> RepresentationSettings:
@@ -348,6 +351,8 @@ func create_state_snapshot() -> Dictionary:
 		"_hydrogens_visible" : _hydrogens_visible,
 		"_display_bonds" : _display_bonds,
 		"_display_atom_labels" : _display_atom_labels,
+		"_dna_representation" : _dna_representation,
+		"_nanotube_representation" : _nanotube_representation,
 		"_custom_selection_outline_color_enabled" : _custom_selection_outline_color_enabled,
 		"_custom_selection_outline_color" : _custom_selection_outline_color,
 		"_custom_background_color_enabled" : _custom_background_color_enabled,
@@ -366,6 +371,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_hydrogens_visible = in_state_snapshot["_hydrogens_visible"]
 	_display_bonds = in_state_snapshot["_display_bonds"]
 	_display_atom_labels = in_state_snapshot["_display_atom_labels"]
+	_dna_representation = in_state_snapshot["_dna_representation"]
+	_nanotube_representation = in_state_snapshot["_nanotube_representation"]
 	_custom_selection_outline_color_enabled = in_state_snapshot["_custom_selection_outline_color_enabled"]
 	_custom_selection_outline_color = in_state_snapshot["_custom_selection_outline_color"]
 	_custom_background_color_enabled = in_state_snapshot["_custom_background_color_enabled"]

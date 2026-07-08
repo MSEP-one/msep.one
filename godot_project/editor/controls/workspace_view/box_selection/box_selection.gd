@@ -174,11 +174,11 @@ func _is_dna_structure_within_screen_rect(in_context: StructureContext, in_camer
 
 func _get_dna_control_points_within_screen_rect(in_context: StructureContext, in_camera: Camera3D) -> PackedInt32Array:
 	assert(in_context.nano_structure is DnaStructure)
+	var dna: DnaStructure = in_context.nano_structure
 	var is_simulating: bool = in_context.workspace_context.is_simulating()
-	if is_simulating:
+	if is_simulating and dna.get_representation_settings().get_should_hide_virtual_object_during_simulation(DnaStructure):
 		# individual atoms and bonds not considered in this API
 		return []
-	var dna: DnaStructure = in_context.nano_structure
 	var control_points_in_box: PackedInt32Array = []
 	for p: int in dna.get_control_point_count():
 		var control_point_3d: Vector3 = dna.get_control_point_position(p)
@@ -190,11 +190,11 @@ func _get_dna_control_points_within_screen_rect(in_context: StructureContext, in
 
 func _get_nanotube_control_points_within_screen_rect(in_context: StructureContext, in_camera: Camera3D) -> PackedInt32Array:
 	assert(in_context.nano_structure is CarbonNanotubeStructure)
+	var nanotube: CarbonNanotubeStructure = in_context.nano_structure
 	var is_simulating: bool = in_context.workspace_context.is_simulating()
-	if is_simulating:
+	if is_simulating and nanotube.get_representation_settings().get_should_hide_virtual_object_during_simulation(CarbonNanotubeStructure):
 		# individual atoms and bonds not considered in this API
 		return []
-	var nanotube: CarbonNanotubeStructure = in_context.nano_structure
 	var control_points_in_box: PackedInt32Array = []
 	for p: int in nanotube.get_control_point_count():
 		var control_point_3d: Vector3 = nanotube.get_control_point_position(p)
