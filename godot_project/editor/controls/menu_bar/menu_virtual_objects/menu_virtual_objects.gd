@@ -10,7 +10,8 @@ enum {
 	ID_LINEAR_MOTOR = 2,
 	ID_SPRINGS      = 3,
 	ID_PARTICLE_EMITTERS = 4,
-	ID_DNA_OBJECT = 5,
+	ID_DNA_OBJECT   = 5,
+	ID_CARBON_NANOTUBE_OBJECT = 6
 }
 
 @onready var shapes: NanoPopupMenu = $Shapes
@@ -57,4 +58,8 @@ func _on_id_pressed(in_id: int) -> void:
 		ID_DNA_OBJECT:
 			workspace_context.create_object_parameters.set_create_mode_type(CreateObjectParameters.CreateModeType.CREATE_DNA_CHAIN)
 			MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME, &"DNA Object")
+			request_hide.emit()
+		ID_CARBON_NANOTUBE_OBJECT:
+			workspace_context.create_object_parameters.set_create_mode_type(CreateObjectParameters.CreateModeType.CREATE_CARBON_NANOTUBE)
+			MolecularEditorContext.request_workspace_docker_focus(CreateDocker.UNIQUE_DOCKER_NAME, &"Single-Walled Carbon Nanotube")
 			request_hide.emit()
