@@ -1,9 +1,28 @@
-[gd_scene load_steps=2 format=3 uid="uid://d0ef7o1122hpg"]
+[gd_scene load_steps=6 format=3 uid="uid://d0ef7o1122hpg"]
 
 [ext_resource type="Script" uid="uid://b4n1o7lvx0okr" path="res://editor/rendering/carbon_nanotube_renderer/carbon_nanotube_renderer.gd" id="1_g3dfl"]
+[ext_resource type="PackedScene" uid="uid://byeq0kmtb11t5" path="res://editor/rendering/carbon_nanotube_renderer/assets/tube.glb" id="2_48sc7"]
+[ext_resource type="Shader" uid="uid://bajn0ektqcm8h" path="res://editor/rendering/carbon_nanotube_renderer/assets/carbon_nanotube.gdshader" id="2_vkvbt"]
+[ext_resource type="Texture2D" uid="uid://dem62og3vbgpd" path="res://editor/rendering/carbon_nanotube_renderer/assets/hex-grid.svg" id="3_8isn1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8isn1"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("2_vkvbt")
+shader_parameter/n = 5.0
+shader_parameter/m = 5.0
+shader_parameter/nprime = 2.0
+shader_parameter/mprime = 2.0
+shader_parameter/repetitions = 1.0
+shader_parameter/u_offset = 0.0
+shader_parameter/atom_color = Color(0.898438, 0.271853, 0.372872, 1)
+shader_parameter/highlight_color = Color(1, 1, 1, 1)
+shader_parameter/selection = PackedFloat32Array(0, 0)
+shader_parameter/pattern = ExtResource("3_8isn1")
 
 [node name="CarbonNanotubeRenderer" type="Node3D"]
 script = ExtResource("1_g3dfl")
+material = SubResource("ShaderMaterial_8isn1")
 
 [node name="PathRepresentation" type="Control" parent="."]
 unique_name_in_owner = true
@@ -13,3 +32,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Tube" parent="." instance=ExtResource("2_48sc7")]
+
+[node name="Cylinder" parent="Tube" index="0"]
+material_override = SubResource("ShaderMaterial_8isn1")
+
+[editable path="Tube"]
