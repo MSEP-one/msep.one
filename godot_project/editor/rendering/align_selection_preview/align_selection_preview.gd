@@ -28,7 +28,7 @@ var _highlight_color: Color
 var _highlight_thickness: float = -1.0
 var _lowlight_color: Color
 var _lowlight_thickness: float = -1.0
-
+var _is_transform_gizmo_in_use: bool
 
 var _workspace_context: WorkspaceContext
 var _align_selection_parameters: AlignSelectionParameters
@@ -39,6 +39,8 @@ func _ready() -> void:
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	_camera = get_viewport().get_camera_3d()
 	_ready_deferred.call_deferred()
+	GizmoRoot.transform_started.connect(_on_gizmo_root_transform_started)
+	GizmoRoot.transform_ended.connect(_on_gizmo_root_transform_ended)
 	
 	var window: Window = get_tree().root as Window
 	window.dpi_changed.connect(_adjust_lines_thickness)
@@ -86,7 +88,7 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	if not is_processing() or _align_selection_parameters == null:
+	if not is_processing() or _align_selection_parameters == null or _is_transform_gizmo_in_use == true:
 		return
 	
 	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
@@ -234,6 +236,20 @@ func _on_representation_changed(in_representation_settings: RepresentationSettin
 		_lowlight_color = _highlight_color.lightened(0.5)
 	else:
 		_lowlight_color = _highlight_color.darkened(0.5)
+	queue_redraw()
+
+
+func _on_gizmo_root_transform_started() -> void:
+	if not is_visible_in_tree():
+		return
+	_is_transform_gizmo_in_use = true
+	queue_redraw()
+
+
+func _on_gizmo_root_transform_ended() -> void:
+	if not is_visible_in_tree():
+		return
+	_is_transform_gizmo_in_use = false
 	queue_redraw()
 
 
