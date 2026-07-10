@@ -107,8 +107,16 @@ func get_control_point_position(in_index: int) -> Vector3:
 	assert(in_index >= 0 and in_index < 2, "Invalid control point index")
 	return _position_begin if in_index == 0 else _position_end
 
+
 func get_tube_length() -> float:
 	return _position_begin.distance_to(_position_end)
+
+
+func set_tube_length(in_length: float) -> void:
+	assert(_is_being_edited, "I'm not being edited currently, make sure start_edit() is called first")
+	if _tube_direction == Vector3.ZERO:
+		_tube_direction = Vector3.RIGHT
+	set_control_point_position(1, _position_begin + _tube_direction.normalized() * in_length)
 
 
 func get_estimated_diameter() -> float:

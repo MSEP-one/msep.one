@@ -6,6 +6,7 @@ var _m_spin_box_slider: SpinBoxSlider
 var _graphene_latice_preview: GrapheneLatticePreview
 var _diameter_label: Label
 var _circumference_label: Label
+var _length_spin_box_slider: SpinBoxSlider
 var _convert_to_atoms_button: Button
 var _change_representation_button: RichTextLabel
 
@@ -38,6 +39,7 @@ func _notification(what: int) -> void:
 		_graphene_latice_preview = %GrapheneLaticePreview as GrapheneLatticePreview
 		_diameter_label = %DiameterLabel as Label
 		_circumference_label = %CircumferenceLabel as Label
+		_length_spin_box_slider = %LengthSpinBoxSlider as SpinBoxSlider
 		_convert_to_atoms_button = %ConvertToAtomsButton as Button
 		_change_representation_button = %ChangeRepresentationButton as RichTextLabel
 		
@@ -45,6 +47,7 @@ func _notification(what: int) -> void:
 		_m_spin_box_slider.value_changed.connect(_on_m_spin_box_slider_value_changed)
 		_n_spin_box_slider.value_confirmed.connect(_on_n_spin_box_slider_value_confirmed)
 		_m_spin_box_slider.value_confirmed.connect(_on_m_spin_box_slider_value_confirmed)
+		_length_spin_box_slider.value_confirmed.connect(_on_length_spin_box_slider_value_confirmed)
 		_convert_to_atoms_button.pressed.connect(_on_convert_to_atoms_button_pressed)
 		_change_representation_button.meta_clicked.connect(_on_change_representation_button_meta_clicked)
 
@@ -52,12 +55,16 @@ func _notification(what: int) -> void:
 func _set_selected_context(out_nanotube_or_null: CarbonNanotubeStructure) -> void:
 	%SelectOneInfoLabel.visible = out_nanotube_or_null == null
 	%EditorContainer.visible = not out_nanotube_or_null == null
+	if _edited_nanotube and _edited_nanotube.path_changed.is_connected(_on_edited_nanotube_path_changed):
+		_edited_nanotube.path_changed.disconnect(_on_edited_nanotube_path_changed)
 	_edited_nanotube = out_nanotube_or_null
 	if _edited_nanotube != null:
 		_graphene_latice_preview.n = _edited_nanotube.get_chiral_index_n()
 		_graphene_latice_preview.m = _edited_nanotube.get_chiral_index_m()
 		_n_spin_box_slider.set_value_no_signal(_graphene_latice_preview.n)
 		_m_spin_box_slider.set_value_no_signal(_graphene_latice_preview.m)
+		_length_spin_box_slider.set_value_no_signal(_edited_nanotube.get_tube_length())
+		_edited_nanotube.path_changed.connect(_on_edited_nanotube_path_changed.unbind(2))
 		_update_estimates()
 
 
@@ -85,6 +92,19 @@ func _on_m_spin_box_slider_value_confirmed(in_value: int) -> void:
 		_edited_nanotube.set_chiral_index_m(in_value)
 		_edited_nanotube.end_edit()
 		_workspace_context.snapshot_moment("Set: Nanotube Chiral Index")
+
+
+func _on_length_spin_box_slider_value_confirmed(in_value: float) -> void:
+	if _edited_nanotube:
+		_edited_nanotube.start_edit()
+		_edited_nanotube.set_tube_length(in_value)
+		_edited_nanotube.end_edit()
+		_workspace_context.snapshot_moment("Set: Nanotube Length")
+
+
+func _on_edited_nanotube_path_changed() -> void:
+	if _edited_nanotube:
+		_length_spin_box_slider.set_value_no_signal(_edited_nanotube.get_tube_length())
 
 
 func _on_convert_to_atoms_button_pressed() -> void:

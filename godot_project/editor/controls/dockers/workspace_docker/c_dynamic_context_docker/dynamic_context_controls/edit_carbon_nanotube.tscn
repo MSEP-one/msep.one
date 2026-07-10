@@ -98,9 +98,11 @@ text = "· Estimated Diameter:"
 
 [node name="DiameterLabel" type="Label" parent="EditorContainer/GridContainer2"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 31)
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "0.5 nm"
+vertical_alignment = 1
 
 [node name="Label3" type="Label" parent="EditorContainer/GridContainer2"]
 layout_mode = 2
@@ -108,9 +110,25 @@ text = "· Estimated Circumference:"
 
 [node name="CircumferenceLabel" type="Label" parent="EditorContainer/GridContainer2"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 31)
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "1.2 nm"
+vertical_alignment = 1
+
+[node name="Label4" type="Label" parent="EditorContainer/GridContainer2"]
+layout_mode = 2
+text = "· Length"
+
+[node name="LengthSpinBoxSlider" parent="EditorContainer/GridContainer2" instance=ExtResource("2_ijhll")]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.05
+step = 0.05
+value = 0.05
+allow_greater = true
+suffix = "nm"
+slider_exp_edit = true
 
 [node name="AdvancedOptionsButton" type="Button" parent="EditorContainer" node_paths=PackedStringArray("panel")]
 unique_name_in_owner = true
