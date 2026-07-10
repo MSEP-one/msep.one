@@ -1,5 +1,7 @@
 extends Node
 
+signal transform_started()
+signal transform_ended()
 signal rotation_changing(dir_vec: Vector3, degrees: float, degrees_formatted_string: String)
 signal rotation_ended()
 

@@ -168,12 +168,14 @@ func forward_input(in_input_event: InputEvent, _in_camera: Camera3D, in_context:
 				_is_grabbed = true
 				_stop_exclusivity = false
 				_prepare_gizmo_for_structures([in_context])
+				GizmoRoot.transform_started.emit()
 			
 			var just_released: bool = not in_input_event.is_pressed() and _is_grabbed
 			if just_released:
 				_is_grabbed = false
 				_stop_exclusivity = true
 				_apply_selection_transform()
+				GizmoRoot.transform_ended.emit()
 			
 		return true
 	
