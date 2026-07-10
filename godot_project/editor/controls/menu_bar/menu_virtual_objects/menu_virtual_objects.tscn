@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bk8h3hla8tqrp"]
+[gd_scene load_steps=10 format=3 uid="uid://bk8h3hla8tqrp"]
 
 [ext_resource type="Texture2D" uid="uid://bfkvb82wyvqq0" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_groups_x16.svg" id="1_4t6op"]
 [ext_resource type="Script" uid="uid://db0okwwkskwnp" path="res://editor/controls/menu_bar/menu_virtual_objects/menu_virtual_objects.gd" id="1_uqyrh"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://dmlgge26svgiq" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_linear_motor_x16.svg" id="3_dn7d5"]
 [ext_resource type="Texture2D" uid="uid://cnvp4yb4ipx51" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_dna_object_x16.svg" id="4_1euca"]
 [ext_resource type="Texture2D" uid="uid://dcofsgdplm752" path="res://editor/controls/menu_bar/menu_virtual_objects/icons/icon_spring_x16.svg" id="4_7vc16"]
+[ext_resource type="Texture2D" uid="uid://t23bdg17mobr" path="res://editor/icons/icon_CarbonNanotube_16px.svg" id="5_f2hty"]
 [ext_resource type="Texture2D" uid="uid://dgqd0cvd34isw" path="res://editor/icons/icon_particle_emitter_x16.svg" id="5_ke7co"]
 [ext_resource type="PackedScene" uid="uid://bb0hihcpok2qx" path="res://editor/controls/menu_bar/menu_create/menu_shapes/menu_shapes.tscn" id="7_x12rd"]
 
@@ -13,7 +14,7 @@
 size = Vector2i(285, 186)
 visible = true
 unfocusable = true
-item_count = 6
+item_count = 7
 item_0/text = "Groups"
 item_0/icon = ExtResource("1_4t6op")
 item_0/id = 0
@@ -26,12 +27,15 @@ item_2/id = 2
 item_3/text = "Dna Object"
 item_3/icon = ExtResource("4_1euca")
 item_3/id = 5
-item_4/text = "Anchors and Springs"
-item_4/icon = ExtResource("4_7vc16")
-item_4/id = 3
-item_5/text = "Particle Emitters"
-item_5/icon = ExtResource("5_ke7co")
-item_5/id = 4
+item_4/text = "Carbon Nanotube"
+item_4/icon = ExtResource("5_f2hty")
+item_4/id = 6
+item_5/text = "Anchors and Springs"
+item_5/icon = ExtResource("4_7vc16")
+item_5/id = 3
+item_6/text = "Particle Emitters"
+item_6/icon = ExtResource("5_ke7co")
+item_6/id = 4
 script = ExtResource("1_uqyrh")
 
 [node name="Shapes" parent="." instance=ExtResource("7_x12rd")]

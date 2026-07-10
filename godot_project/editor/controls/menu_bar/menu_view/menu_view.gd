@@ -48,6 +48,7 @@ func _update_for_context(in_context: WorkspaceContext) -> void:
 	set_item_disabled(get_item_index(ID_SHOW_HIDDEN_OBJECTS), !has_context)
 	set_item_disabled(get_item_index(ID_OVERRIDE_DEFAULT_COLORS), !has_context)
 	set_item_disabled(get_item_index(ID_DNA_REPRESENTATION), !has_context)
+	set_item_disabled(get_item_index(ID_NANOTUBE_REPRESENTATION), !has_context)
 	var visible_object_tree: bool = false
 	if has_context:
 		visible_object_tree = in_context.visible_object_tree
@@ -179,6 +180,17 @@ func _on_id_pressed(in_id: int) -> void:
 					workspace_context.workspace.representation_settings.set_dna_representation(DnaRepresentation.SIMPLIFIED)
 			workspace_context.snapshot_moment("Change DNA Representation")
 			request_hide.emit()
+		ID_NANOTUBE_REPRESENTATION:
+			const NanotubeRepresentation = RepresentationSettings.NanotubeRepresentation
+			var current_representation: NanotubeRepresentation = \
+				workspace_context.workspace.representation_settings.get_nanotube_representation()
+			match current_representation:
+				NanotubeRepresentation.SIMPLIFIED:
+					workspace_context.workspace.representation_settings.set_nanotube_representation(NanotubeRepresentation.ATOMS_AND_BONDS)
+				NanotubeRepresentation.ATOMS_AND_BONDS:
+					workspace_context.workspace.representation_settings.set_nanotube_representation(NanotubeRepresentation.SIMPLIFIED)
+			workspace_context.snapshot_moment("Change Carbon Nanotube Representation")
+			request_hide.emit()
 
 
 enum {
@@ -204,4 +216,5 @@ enum {
 	ID_OVERRIDE_DEFAULT_COLORS         = 20,
 	ID_THEME_3D                        = 21,
 	ID_DNA_REPRESENTATION              = 22,
+	ID_NANOTUBE_REPRESENTATION         = 23,
 }
