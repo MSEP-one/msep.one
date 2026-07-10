@@ -25,8 +25,6 @@ func _update_workspaces_list() -> void:
 	if !is_visible_in_tree():
 		return
 	for child in known_workspaces_box.get_children():
-		if child in [new_workspace, load_workspace_from_disk]:
-			continue
 		child.queue_free()
 	var d: DirAccess = DirAccess.open("user://")
 	var workspace_to_activate: Workspace = null
@@ -60,8 +58,7 @@ func _update_workspaces_list() -> void:
 			if not opening_workspace:
 				MolecularEditorContext.create_workspace()
 	_first_run = false
-	known_workspaces_box.move_child(load_workspace_from_disk, known_workspaces_box.get_child_count() - 1)
-	known_workspaces_box.move_child(new_workspace, known_workspaces_box.get_child_count() - 1)
+
 
 func _ensure_settings_exists() -> void:
 	var d: DirAccess = DirAccess.open("user://")

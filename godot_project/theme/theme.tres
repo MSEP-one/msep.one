@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=102 format=3 uid="uid://d3fnr4sbrd6ik"]
+[gd_resource type="Theme" load_steps=106 format=3 uid="uid://d3fnr4sbrd6ik"]
 
 [ext_resource type="FontFile" uid="uid://b3jkav4yxw06w" path="res://theme/Gidole-Regular.ttf" id="1_8indu"]
 [ext_resource type="Texture2D" uid="uid://bh1ju2ymvv1co" path="res://theme/icons/icon_on.svg" id="1_n28s0"]
@@ -975,6 +975,40 @@ content_margin_bottom = 4.0
 color = Color(1, 1, 1, 0.227451)
 vertical = true
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_id6tf"]
+bg_color = Color(0.572038, 0, 0.138905, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7md78"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8wk80"]
+content_margin_left = 20.0
+bg_color = Color(1, 1, 1, 0.392157)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p4hxb"]
+content_margin_left = 20.0
+bg_color = Color(1, 1, 1, 0.341176)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ruent"]
 content_margin_left = 10.0
 content_margin_top = 4.0
@@ -1263,6 +1297,26 @@ TreeCrystal/colors/font_color = Color(1, 1, 1, 1)
 VBoxContainerLarge/base_type = &"VBoxContainer"
 VBoxContainerLarge/constants/separation = 24
 VSeparator/styles/separator = SubResource("StyleBoxLine_rucdj")
+WelcomeButton/base_type = &"Button"
+WelcomeButton/colors/font_color = Color(0.95, 0.95, 0.95, 1)
+WelcomeButton/colors/font_hover_color = Color(1, 1, 1, 1)
+WelcomeButton/colors/font_pressed_color = Color(1, 1, 1, 1)
+WelcomeButton/colors/icon_hover_color = Color(1, 1, 1, 1)
+WelcomeButton/colors/icon_normal_color = Color(0.95, 0.95, 0.95, 1)
+WelcomeButton/colors/icon_pressed_color = Color(1, 1, 1, 1)
+WelcomeButton/constants/icon_max_width = 48
+WelcomeButton/font_sizes/font_size = 28
+WelcomeButton/styles/disabled = SubResource("StyleBoxFlat_id6tf")
+WelcomeButton/styles/disabled_mirrored = SubResource("StyleBoxFlat_id6tf")
+WelcomeButton/styles/focus = SubResource("StyleBoxFlat_7md78")
+WelcomeButton/styles/hover = SubResource("StyleBoxFlat_8wk80")
+WelcomeButton/styles/hover_mirrored = SubResource("StyleBoxFlat_8wk80")
+WelcomeButton/styles/hover_pressed = SubResource("StyleBoxFlat_p4hxb")
+WelcomeButton/styles/hover_pressed_mirrored = SubResource("StyleBoxFlat_p4hxb")
+WelcomeButton/styles/normal = SubResource("StyleBoxFlat_p4hxb")
+WelcomeButton/styles/normal_mirrored = SubResource("StyleBoxFlat_p4hxb")
+WelcomeButton/styles/pressed = SubResource("StyleBoxFlat_p4hxb")
+WelcomeButton/styles/pressed_mirrored = SubResource("StyleBoxFlat_p4hxb")
 WorkspaceTabBar/base_type = &"TabBar"
 WorkspaceTabBar/styles/tab_disabled = SubResource("StyleBoxFlat_ruent")
 WorkspaceTabBar/styles/tab_focus = SubResource("StyleBoxFlat_wnj71")
