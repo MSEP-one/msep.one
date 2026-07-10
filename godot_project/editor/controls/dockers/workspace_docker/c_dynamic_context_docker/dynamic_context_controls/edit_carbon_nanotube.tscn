@@ -1,9 +1,40 @@
-[gd_scene load_steps=5 format=3 uid="uid://bs3i6otffe4h6"]
+[gd_scene load_steps=7 format=3 uid="uid://bs3i6otffe4h6"]
 
 [ext_resource type="Script" uid="uid://trfroctpi6tc" path="res://editor/controls/dockers/workspace_docker/c_dynamic_context_docker/dynamic_context_controls/edit_carbon_nanotube.gd" id="1_ryuhn"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_ijhll"]
 [ext_resource type="PackedScene" uid="uid://df3xtgtlaxjo7" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/graphene_latice_preview.tscn" id="3_vb1s5"]
+[ext_resource type="Texture2D" uid="uid://b2w2wxk2bb4wg" path="res://editor/controls/category_container/icons/collapsed.svg" id="4_6gamt"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="4_bokfn"]
+
+[sub_resource type="GDScript" id="GDScript_qna0w"]
+script/source = "# This builtin script works to toggle a pannel visibility by pressing a button
+extends Button
+
+@export var panel: PanelContainer
+
+
+func _ready() -> void:
+	assert(panel != null)
+	focus_mode = Control.FOCUS_NONE
+	_update_icon()
+	pressed.connect(_on_pressed)
+
+
+func ensure_panel_hidden() -> void:
+	panel.visible = false
+	_update_icon()
+
+
+func _on_pressed() -> void:
+	panel.visible = not panel.visible
+	_update_icon()
+
+
+func _update_icon() -> void:
+	const COLLAPSED_ICON: Texture2D = preload(\"uid://b2w2wxk2bb4wg\")
+	const EXPANDED_ICON: Texture2D = preload(\"uid://gl1hqwiod5y0\")
+	icon = EXPANDED_ICON if panel.visible else COLLAPSED_ICON
+"
 
 [node name="EditCarbonNanotube" type="MarginContainer"]
 offset_right = 204.0
@@ -80,6 +111,56 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "1.2 nm"
+
+[node name="AdvancedOptionsButton" type="Button" parent="EditorContainer" node_paths=PackedStringArray("panel")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Advanced Options"
+icon = ExtResource("4_6gamt")
+flat = true
+alignment = 0
+script = SubResource("GDScript_qna0w")
+panel = NodePath("../AdvancedOptionsPanel")
+
+[node name="AdvancedOptionsPanel" type="PanelContainer" parent="EditorContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="EditorContainer/AdvancedOptionsPanel"]
+layout_mode = 2
+
+[node name="ConvertToAtomsButton" type="Button" parent="EditorContainer/AdvancedOptionsPanel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CrystalButton"
+text = "Convert Nanotube to Atoms and Bonds"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="EditorContainer/AdvancedOptionsPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="EditorContainer/AdvancedOptionsPanel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HSeparator" type="HSeparator" parent="EditorContainer/AdvancedOptionsPanel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="Control2" type="Control" parent="EditorContainer/AdvancedOptionsPanel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ChangeRepresentationButton" type="RichTextLabel" parent="EditorContainer/AdvancedOptionsPanel/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+bbcode_enabled = true
+text = "[url]Change Nanotube Visual Representation[/url]"
+fit_content = true
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="SelectOneInfoLabel" parent="." instance=ExtResource("4_bokfn")]
 unique_name_in_owner = true

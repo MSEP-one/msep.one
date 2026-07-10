@@ -46,9 +46,8 @@ layout_mode = 2
 button_pressed = true
 text = "Show Potential Atom Positions"
 
-[node name="DnaSettingsContainer" type="GridContainer" parent="Settings/PanelContainer/VBoxContainer"]
+[node name="DnaSettingsContainer" type="HBoxContainer" parent="Settings/PanelContainer/VBoxContainer"]
 layout_mode = 2
-columns = 3
 
 [node name="Control" type="Control" parent="Settings/PanelContainer/VBoxContainer/DnaSettingsContainer"]
 custom_minimum_size = Vector2(1, 0)
@@ -69,15 +68,18 @@ popup/item_0/id = 0
 popup/item_1/text = "Atoms and Bonds"
 popup/item_1/id = 1
 
-[node name="Control2" type="Control" parent="Settings/PanelContainer/VBoxContainer/DnaSettingsContainer"]
+[node name="NanotubeSettingsContainer" type="HBoxContainer" parent="Settings/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="Settings/PanelContainer/VBoxContainer/NanotubeSettingsContainer"]
 custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="Settings/PanelContainer/VBoxContainer/DnaSettingsContainer"]
+[node name="Label2" type="Label" parent="Settings/PanelContainer/VBoxContainer/NanotubeSettingsContainer"]
 layout_mode = 2
 text = "Carbon Nanotube Representation"
 
-[node name="NanotubeRepresentationOptionButton" type="OptionButton" parent="Settings/PanelContainer/VBoxContainer/DnaSettingsContainer"]
+[node name="NanotubeRepresentationOptionButton" type="OptionButton" parent="Settings/PanelContainer/VBoxContainer/NanotubeSettingsContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 10
@@ -142,7 +144,7 @@ text = "Anchors and Springs
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowHydrogensToggle" to="." method="_on_show_hydrogens_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/ShowPotentialAtomsToggle" to="." method="_on_show_potential_atoms_toggle_toggled"]
 [connection signal="item_selected" from="Settings/PanelContainer/VBoxContainer/DnaSettingsContainer/DnaRepresentationOptionButton" to="." method="_on_dna_representation_option_button_item_selected"]
-[connection signal="item_selected" from="Settings/PanelContainer/VBoxContainer/DnaSettingsContainer/NanotubeRepresentationOptionButton" to="." method="_on_nanotube_representation_option_button_item_selected"]
+[connection signal="item_selected" from="Settings/PanelContainer/VBoxContainer/NanotubeSettingsContainer/NanotubeRepresentationOptionButton" to="." method="_on_nanotube_representation_option_button_item_selected"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle" to="." method="_on_hide_simulation_boundaries_toggle_toggled"]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"reference_shapes"]]
 [connection signal="toggled" from="Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideDnaObjectsToggle" to="." method="_on_hide_virtual_objects_toggle" binds= [&"dna_objects"]]
