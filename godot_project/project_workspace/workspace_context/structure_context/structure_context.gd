@@ -591,6 +591,16 @@ func get_selection_obb() -> OBB:
 			positions.append(atomic_structure.atom_get_position(atom_id))
 		_last_obb = _get_obb_from_point_cloud(positions, {self : selected_atoms})
 		return _last_obb
+	elif nano_structure is CarbonNanotubeStructure:
+		var nanotube := nano_structure as CarbonNanotubeStructure
+		var basis: Basis = nanotube.get_repetition_transform(0).basis
+		var begin: Vector3 = nanotube.get_control_point_position(0)
+		var end: Vector3 = nanotube.get_control_point_position(1)
+		var center: Vector3 = (begin + end) / 2.0
+		var diameter: float = nanotube.get_estimated_diameter()
+		var size: Vector3 = Vector3(diameter, diameter, begin.distance_to(end))
+		_last_obb = OBB.new(size, Transform3D(basis, center), {self : []})
+		return _last_obb
 	var aabb: AABB = get_selection_aabb()
 	var obb := OBB.new(aabb.size, Transform3D(Basis(), aabb.get_center()), {self: []})
 	return obb
