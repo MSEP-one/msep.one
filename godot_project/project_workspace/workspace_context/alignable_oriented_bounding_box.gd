@@ -229,15 +229,14 @@ func align_rotation_to_basis(in_basis: Basis) -> bool:
 		return false
 	var relative_basis: Basis = in_basis * get_face_basis(selected_face).inverse()
 	for context: StructureContext in point_cloud_source.keys():
-		if context.nano_structure is CarbonNanotubeStructure:
-			var nanotube := context.nano_structure as CarbonNanotubeStructure
-			nanotube.start_edit()
-			for p: int in nanotube.get_control_point_count():
-				var old_pos: Vector3 = nanotube.get_control_point_position(p)
+		if context.nano_structure is CarbonNanotubeStructure or context.nano_structure is DnaStructure:
+			context.nano_structure.start_edit()
+			for p: int in context.nano_structure.get_control_point_count():
+				var old_pos: Vector3 = context.nano_structure.get_control_point_position(p)
 				var rel_pos: Vector3 = old_pos - transform.origin
 				var new_pos: Vector3 = (relative_basis * rel_pos) + transform.origin
-				nanotube.set_control_point_position(p, new_pos)
-			nanotube.end_edit()
+				context.nano_structure.set_control_point_position(p, new_pos)
+			context.nano_structure.end_edit()
 			something_changed = true
 			continue
 		var nano_structure: NanoStructure = context.nano_structure
@@ -286,14 +285,13 @@ func align_position_to(reference_obb: AlignableOBB, in_align_depth: bool) -> boo
 		offset = align_origin - ref_point_in_plane
 	
 	for context: StructureContext in point_cloud_source.keys():
-		if context.nano_structure is CarbonNanotubeStructure:
-			var nanotube := context.nano_structure as CarbonNanotubeStructure
-			nanotube.start_edit()
-			for p: int in nanotube.get_control_point_count():
-				var old_pos: Vector3 = nanotube.get_control_point_position(p)
+		if context.nano_structure is CarbonNanotubeStructure or context.nano_structure is DnaStructure:
+			context.nano_structure.start_edit()
+			for p: int in context.nano_structure.get_control_point_count():
+				var old_pos: Vector3 = context.nano_structure.get_control_point_position(p)
 				var new_pos: Vector3 = old_pos + offset
-				nanotube.set_control_point_position(p, new_pos)
-			nanotube.end_edit()
+				context.nano_structure.set_control_point_position(p, new_pos)
+			context.nano_structure.end_edit()
 			something_changed = true
 			continue
 		var nano_structure: NanoStructure = context.nano_structure
