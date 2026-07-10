@@ -178,7 +178,8 @@ func has_selection(in_recursive: bool = false) -> bool:
 func has_transformable_selection() -> bool:
 	return is_any_atom_selected() \
 		or _selection_db.is_virtual_object_selected() \
-		or _selection_db.get_selected_dna_spline_control_points().size() > 0
+		or _selection_db.get_selected_dna_spline_control_points().size() > 0 \
+		or _selection_db.get_selected_nanotube_control_points().size() > 0
 
 
 func has_cached_selection_set() -> bool:
@@ -540,12 +541,10 @@ func get_selection_obb_with_selection_policy(in_policy: AlignSelectionGroupingPo
 				elif nano_structure.has_transform():
 					obb_source[ctx] = PackedInt32Array()
 					point_cloud.append(nano_structure.get_transform().origin)
-				elif ctx.nano_structure is DnaStructure:
-					var dna_structure := ctx.nano_structure as DnaStructure
+				elif ctx.nano_structure is DnaStructure or ctx.nano_structure is CarbonNanotubeStructure:
 					obb_source[ctx] = PackedInt32Array()
-					for p: int in dna_structure.get_control_point_count():
-						point_cloud.append(dna_structure.get_control_point_position(p))
-					point_cloud.append(nano_structure.get_transform().origin)
+					for p: int in ctx.nano_structure.get_control_point_count():
+						point_cloud.append(ctx.nano_structure.get_control_point_position(p))
 				elif ctx.nano_structure is AtomicStructure:
 					obb_source[ctx] = ctx.get_selected_atoms()
 					var atomic_structure: AtomicStructure = ctx.nano_structure as AtomicStructure

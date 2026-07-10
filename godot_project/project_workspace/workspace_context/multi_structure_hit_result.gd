@@ -218,7 +218,7 @@ func _calculate_dna_path_sqrd_distance_to_camera(in_camera: Camera3D, in_screen_
 		closest_control_point = -1,
 		distance_sqrd_to_closest_control_point = INF,
 	}
-	if _is_simulating  and _representation_settings.get_should_hide_virtual_object_during_simulation(DnaStructure):
+	if _is_simulating and _representation_settings.get_should_hide_virtual_object_during_simulation(DnaStructure):
 		# path cannot be querried during simulation
 		return result
 	var dna_structure: DnaStructure = in_context.nano_structure as DnaStructure
@@ -269,7 +269,7 @@ func _calculate_nanotube_path_sqrd_distance_to_camera(in_camera: Camera3D, in_sc
 		closest_control_point = -1,
 		distance_sqrd_to_closest_control_point = INF,
 	}
-	if _is_simulating  and _representation_settings.get_should_hide_virtual_object_during_simulation(DnaStructure):
+	if _is_simulating and _representation_settings.get_should_hide_virtual_object_during_simulation(CarbonNanotubeStructure):
 		# path cannot be querried during simulation
 		return result
 	var nanotube_structure: CarbonNanotubeStructure = in_context.nano_structure as CarbonNanotubeStructure

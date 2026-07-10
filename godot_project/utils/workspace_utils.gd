@@ -474,6 +474,10 @@ static func hide_selected_objects(out_workspace_context: WorkspaceContext) -> vo
 				and structure_context.is_dna_structure_fully_selected():
 			structure_context.clear_selection()
 			structure_context.nano_structure.set_visible(false)
+		elif  structure_context.nano_structure is CarbonNanotubeStructure \
+				and structure_context.is_nanotube_fully_selected():
+			structure_context.clear_selection()
+			structure_context.nano_structure.set_visible(false)
 		elif structure_context.nano_structure.is_virtual_object() and structure_context.is_virtual_object_selected():
 			structure_context.set_virtual_object_selected(false)
 			structure_context.nano_structure.set_visible(false)
@@ -1383,6 +1387,11 @@ static func _can_move_selection_to_another_group(in_workspace_context: Workspace
 			continue
 		if context.nano_structure is DnaStructure:
 			if not context.is_dna_structure_fully_selected():
+				return false
+			else:
+				continue
+		if context.nano_structure is CarbonNanotubeStructure:
+			if not context.is_nanotube_fully_selected():
 				return false
 			else:
 				continue

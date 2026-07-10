@@ -294,6 +294,15 @@ func invert_selection() -> void:
 			new_selection.erase(p)
 		set_control_point_selection(PackedInt32Array(new_selection))
 	
+	#---- Carbon Nanotube ----
+	if nano_structure is CarbonNanotubeStructure:
+		var nanotube := nano_structure as CarbonNanotubeStructure
+		var selected_points: PackedInt32Array = _structure_context.get_selected_nanotube_control_points()
+		var new_selection: Array = PackedInt32Array(range(nanotube.get_control_point_count()))
+		for p in selected_points:
+			new_selection.erase(p)
+		set_control_point_selection(PackedInt32Array(new_selection))
+	
 	# ---- Virtual Objects ----
 	if nano_structure.is_virtual_object():
 		set_virtual_object_selected(!is_virtual_object_selected())

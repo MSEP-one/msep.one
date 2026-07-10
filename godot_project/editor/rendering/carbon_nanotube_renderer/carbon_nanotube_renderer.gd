@@ -14,6 +14,8 @@ var _workspace_context: WorkspaceContext
 var _structure_id: int
 var _visible: bool = true
 var _simplified_representation_visible: bool = true
+var _is_simulating: bool = false
+var _should_hide_in_simulation: bool = false
 var _is_selectable: bool = true
 var _tube_start: Vector3
 var _tube_end: Vector3
@@ -51,10 +53,25 @@ func build(in_workspace_context: WorkspaceContext, in_structure: CarbonNanotubeS
 	_workspace_context = in_workspace_context
 	_tube_start = in_structure.get_control_point_position(0)
 	_tube_end = in_structure.get_control_point_position(1)
-	in_structure.path_changed.connect(_on_tube_path_changed)
-	in_structure.chiral_indices_changed.connect(_on_tube_chiral_indices_changed.unbind(2))
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 	ScriptUtils.call_deferred_once(_update_simplified_representation_colors)
+	_ensure_structure_signal_connections(in_structure)
+	
+	_is_simulating = _workspace_context.is_simulating()
+	_should_hide_in_simulation = _workspace_context.workspace.representation_settings \
+			.get_should_hide_virtual_object_during_simulation(CarbonNanotubeStructure)
+	_workspace_context.workspace.representation_settings \
+		.should_hide_virtual_object_during_simulation_changed \
+		.connect(_on_should_hide_virtual_object_during_simulation_changed)
+	_workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
+	_workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+
+
+func _ensure_structure_signal_connections(in_structure: CarbonNanotubeStructure) -> void:
+	if not in_structure.visibility_changed.is_connected(_on_object_visibility_changed):
+		in_structure.path_changed.connect(_on_tube_path_changed)
+		in_structure.chiral_indices_changed.connect(_on_tube_chiral_indices_changed.unbind(2))
+		in_structure.visibility_changed.connect(_on_object_visibility_changed)
 
 
 func apply_theme(_in_theme: Theme3D) -> void:
@@ -138,6 +155,9 @@ func _update_simplified_representation() -> void:
 	if !_visible or !_simplified_representation_visible or is_queued_for_deletion():
 		_tube.hide()
 		return
+	if _is_simulating and _should_hide_in_simulation:
+		_tube.hide()
+		return
 	_tube.show()
 	var nanotube_structure: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
 	var radius: float = nanotube_structure.get_estimated_diameter() / 2.0
@@ -179,8 +199,8 @@ func _update_simplified_representation_selection() -> void:
 func _on_path_representation_drawn() -> void:
 	if is_queued_for_deletion() or not _visible or not _is_selectable:
 		return
-	#if (_is_simulating and _should_hide_in_simulation):
-		#return
+	if (_is_simulating and _should_hide_in_simulation):
+		return
 	var from_3d: Vector3 = _control_point_override.get(0, _tube_start)
 	var to_3d: Vector3 = _control_point_override.get(1, _tube_end)
 	var from: Vector2 = _camera.unproject_position(from_3d)
@@ -189,6 +209,8 @@ func _on_path_representation_drawn() -> void:
 	if _highlighted_control_points.size() > 0:
 		path_width = 4
 	_path_representation.draw_line(from, to, _get_outline_color(), path_width)
+	if not _path_hovered and _hovered_control_point == -1 and _highlighted_control_points.is_empty():
+		return
 	const CONTROL_POINT_RADIUS: float = 5
 	_path_representation.draw_circle(from, CONTROL_POINT_RADIUS + 1, Color.BLACK)
 	_path_representation.draw_circle(from, CONTROL_POINT_RADIUS, _get_control_point_color(0))
@@ -221,9 +243,29 @@ func _get_control_point_color(in_index: int) -> Color:
 	return color
 
 
+func _on_should_hide_virtual_object_during_simulation_changed(in_type: StringName, in_should_hide: bool) -> void:
+	if in_type == RepresentationSettings.script_to_virtual_object_key(CarbonNanotubeStructure):
+		_should_hide_in_simulation = in_should_hide
+		if _is_simulating:
+			queue_redraw()
+			ScriptUtils.call_deferred_once(_update_simplified_representation)
+
+
+func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
+	_is_simulating = in_is_simulating
+	queue_redraw()
+	ScriptUtils.call_deferred_once(_update_simplified_representation)
+
+
 func _on_tube_path_changed(from: Vector3, to: Vector3) -> void:
 	_tube_start = from
 	_tube_end = to
+	queue_redraw()
+	ScriptUtils.call_deferred_once(_update_simplified_representation)
+
+
+func _on_object_visibility_changed(in_is_visible: bool) -> void:
+	_visible = in_is_visible
 	queue_redraw()
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 
@@ -275,6 +317,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_workspace_context"] = _workspace_context
 	snapshot["_structure_id"] = _structure_id
 	snapshot["_visible"] = _visible
+	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["_simplified_representation_visible"] = _simplified_representation_visible
 	snapshot["_is_selectable"] = _is_selectable
 	snapshot["_tube_start"] = _tube_start
@@ -287,6 +330,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_workspace_context = in_state_snapshot["_workspace_context"]
 	_structure_id = in_state_snapshot["_structure_id"]
 	_visible = in_state_snapshot["_visible"]
+	_should_hide_in_simulation = in_state_snapshot["_should_hide_in_simulation"]
 	_simplified_representation_visible = in_state_snapshot["_simplified_representation_visible"]
 	_is_selectable = in_state_snapshot["_is_selectable"]
 	_tube_start = in_state_snapshot["_tube_start"]
@@ -295,4 +339,6 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 	ScriptUtils.call_deferred_once(_update_simplified_representation_colors)
 	ScriptUtils.call_deferred_once(_update_simplified_representation_selection)
+	var nanotube: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
+	_ensure_structure_signal_connections(nanotube)
 #endregion: UndoRedo

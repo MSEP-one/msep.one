@@ -261,6 +261,7 @@ func _try_deselect_hidden_virtual_objects() -> bool:
 	var types_to_evaluate: Array[Script] = [
 		NanoShape,
 		DnaStructure,
+		CarbonNanotubeStructure,
 		NanoVirtualMotor,
 		NanoParticleEmitter,
 		NanoVirtualAnchor,
@@ -276,9 +277,10 @@ func _try_deselect_hidden_virtual_objects_of_type(object_type: StringName) -> bo
 	var contexts_with_selection: Array[StructureContext] = get_structure_contexts_with_selection()
 	for ctx: StructureContext in contexts_with_selection:
 		if ctx.nano_structure is AtomicStructure:
-			if ctx.nano_structure is DnaStructure:
-				deselect_all()
-			elif RepresentationSettings.virtual_object_key_to_script(object_type) == NanoVirtualAnchor:
+			if RepresentationSettings.script_to_virtual_object_key(ctx.nano_structure.get_script()) == object_type:
+				# DnaStructure and CarbonNanotubeStructure
+				ctx.clear_selection()
+			elif RepresentationSettings.script_to_virtual_object_key(NanoVirtualAnchor) == object_type:
 				# Unselect any selected spring
 				var selected_springs: PackedInt32Array = ctx.get_selected_springs()
 				if selected_springs.size() > 0:
@@ -774,6 +776,10 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.parameters_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.path_changed.connect(_on_dna_path_changed.bind(structure_context.get_int_guid()))
+		if structure_context.nano_structure is CarbonNanotubeStructure \
+				and not structure_context.nano_structure.path_changed.is_connected(_on_structure_contents_modified_arg0):
+			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()).unbind(2))
+			structure_context.nano_structure.chiral_indices_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()).unbind(2))
 		if structure_context.nano_structure is NanoShape:
 			structure_context.nano_structure.shape_properties_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure.is_virtual_object():
