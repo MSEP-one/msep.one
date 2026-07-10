@@ -49,6 +49,8 @@ func _init(
 	_params = in_align_parameters
 	if not has_face(align_to_face):
 		advance_align_to_face(1)
+	align_to_face = _get_squarest_face()
+	selected_face = align_to_face
 	_initialized = true
 
 
@@ -327,3 +329,22 @@ func _get_align_reference_point(reference_face: BoxFace, in_align_depth: bool) -
 		reference_point += basis.z * size.z * DEFAULT_DEPTH_RATIO
 	
 	return transform.origin + reference_point
+
+
+## Returns the most square face (aspect ratio closest to 1.0) as it's the most
+## likely face to align a rotary motor with.
+## Returns BoxFace.UNDEFINED with the OBB has no valid surfaces.
+func _get_squarest_face() -> BoxFace:
+	var face: BoxFace = BoxFace.UNDEFINED
+	var squarest_ratio: float = INF
+	for idx in range(3):
+		var face_size: Vector3 = get_face_size(idx)
+		var smallest: float = min(face_size.x, face_size.y)
+		var largest: float = max(face_size.x, face_size.y)
+		if is_zero_approx(smallest):
+			continue # Skip division by zero
+		var ratio: float = largest / smallest
+		if face == BoxFace.UNDEFINED or ratio < squarest_ratio:
+			face = idx as BoxFace
+			squarest_ratio = ratio
+	return face
