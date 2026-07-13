@@ -19,6 +19,8 @@ var _should_hide_in_simulation: bool = false
 var _is_selectable: bool = true
 var _tube_start: Vector3
 var _tube_end: Vector3
+var _tube_basis: Basis
+var _tube_radius: float = 1.0
 var _control_point_override: Dictionary[int, Vector3]
 
 var _hover_disabled: bool = false
@@ -53,6 +55,7 @@ func build(in_workspace_context: WorkspaceContext, in_structure: CarbonNanotubeS
 	_workspace_context = in_workspace_context
 	_tube_start = in_structure.get_control_point_position(0)
 	_tube_end = in_structure.get_control_point_position(1)
+	_tube_basis = in_structure.get_repetition_transform(0).basis
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 	ScriptUtils.call_deferred_once(_update_simplified_representation_colors)
 	_ensure_structure_signal_connections(in_structure)
@@ -160,10 +163,10 @@ func _update_simplified_representation() -> void:
 		return
 	_tube.show()
 	var nanotube_structure: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
-	var radius: float = nanotube_structure.get_estimated_diameter() / 2.0
+	_tube_radius = nanotube_structure.get_estimated_diameter() / 2.0
 	_tube.global_transform = nanotube_structure.get_repetition_transform(0)
-	_tube.global_transform.basis.x *= radius
-	_tube.global_transform.basis.y *= radius
+	_tube.global_transform.basis.x *= _tube_radius
+	_tube.global_transform.basis.y *= _tube_radius
 	_tube.global_transform.basis.z *= nanotube_structure.get_tube_length()
 	var t_len: float = nanotube_structure._basis.get_translational_vector_length()
 	var rep: float = nanotube_structure.get_tube_length() / t_len
@@ -203,12 +206,26 @@ func _on_path_representation_drawn() -> void:
 		return
 	var from_3d: Vector3 = _control_point_override.get(0, _tube_start)
 	var to_3d: Vector3 = _control_point_override.get(1, _tube_end)
+	if _simplified_representation_visible:
+		var atom_color: Color = material.get_shader_parameter(&"atom_color")
+		var highlight_color: Color = material.get_shader_parameter(&"highlight_color")
+		var col: Color = highlight_color if _highlighted_control_points.get(0, false) else atom_color
+		var width: int = 3 if _highlighted_control_points.get(0, false) else 2
+		_draw_cylinder_cap(from_3d, col, width)
+		col = highlight_color if _highlighted_control_points.get(1, false) else atom_color
+		width = 3 if _highlighted_control_points.get(1, false) else 2
+		_draw_cylinder_cap(to_3d, col, width)
 	var from: Vector2 = _camera.unproject_position(from_3d)
 	var to: Vector2 = _camera.unproject_position(to_3d)
 	var path_width: int = 2
 	if _highlighted_control_points.size() > 0:
 		path_width = 4
-	_path_representation.draw_line(from, to, _get_outline_color(), path_width)
+	const ONE_PIXEL_SQUARED = 1.0
+	if from.distance_squared_to(to) < ONE_PIXEL_SQUARED:
+		# Watching from the side, ensure axis is visible why drawing a dot
+		_path_representation.draw_circle(from, 1, _get_outline_color())
+	else:
+		_path_representation.draw_line(from, to, _get_outline_color(), path_width)
 	if not _path_hovered and _hovered_control_point == -1 and _highlighted_control_points.is_empty():
 		return
 	const CONTROL_POINT_RADIUS: float = 5
@@ -216,6 +233,29 @@ func _on_path_representation_drawn() -> void:
 	_path_representation.draw_circle(from, CONTROL_POINT_RADIUS, _get_control_point_color(0))
 	_path_representation.draw_circle(to, CONTROL_POINT_RADIUS + 1, Color.BLACK)
 	_path_representation.draw_circle(to, CONTROL_POINT_RADIUS, _get_control_point_color(1))
+
+
+func _draw_cylinder_cap(in_position: Vector3, in_color: Color, in_width: int) -> void:
+	const MIN_STEPS: float = 8
+	var step_size: float = (2.0 * PI) / MIN_STEPS
+	var angle: float = 0
+	var points: PackedVector2Array
+	var colors: PackedColorArray
+	while angle < 2.0 * PI:
+		var offset: Vector3 = _tube_basis.y.rotated(_tube_basis.z, angle) * _tube_radius
+		var next_point: Vector2 = _camera.unproject_position(in_position + offset)
+		const MAX_BAKE_DISTANCE_IN_PIXELS_SQUARED = 6.0
+		while points.size() > 0 and points[-1].distance_squared_to(next_point) > MAX_BAKE_DISTANCE_IN_PIXELS_SQUARED:
+			# Divide the arc in more steps
+			# This should ensure smothness without sacrifice performance
+			step_size *= 0.5
+			angle -= step_size
+			offset = _tube_basis.y.rotated(_tube_basis.z, angle) * _tube_radius
+			next_point = _camera.unproject_position(in_position + offset)
+		points.append(next_point)
+		colors.append(in_color)
+		angle += step_size
+	_path_representation.draw_polyline_colors(points, colors, in_width)
 
 
 func _get_outline_color() -> Color:
@@ -260,6 +300,9 @@ func _on_simulation_started_or_finished(in_is_simulating: bool) -> void:
 func _on_tube_path_changed(from: Vector3, to: Vector3) -> void:
 	_tube_start = from
 	_tube_end = to
+	var nanotube: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
+	if nanotube:
+		_tube_basis = nanotube.get_repetition_transform(0).basis
 	queue_redraw()
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 
@@ -271,6 +314,7 @@ func _on_object_visibility_changed(in_is_visible: bool) -> void:
 
 
 func _on_tube_chiral_indices_changed() -> void:
+	queue_redraw()
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 
 
@@ -322,6 +366,8 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_is_selectable"] = _is_selectable
 	snapshot["_tube_start"] = _tube_start
 	snapshot["_tube_end"] = _tube_end
+	snapshot["_tube_basis"] = _tube_basis
+	snapshot["_tube_radius"] = _tube_radius
 	snapshot["_highlighted_control_points"] = _highlighted_control_points.duplicate()
 	return snapshot
 
@@ -335,6 +381,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_is_selectable = in_state_snapshot["_is_selectable"]
 	_tube_start = in_state_snapshot["_tube_start"]
 	_tube_end = in_state_snapshot["_tube_end"]
+	_tube_basis = in_state_snapshot["_tube_basis"]
+	_tube_radius = in_state_snapshot["_tube_radius"]
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 	ScriptUtils.call_deferred_once(_update_simplified_representation_colors)

@@ -1,8 +1,10 @@
-[gd_scene load_steps=19 format=3 uid="uid://cd8ybm2fs1ox"]
+[gd_scene load_steps=22 format=3 uid="uid://cd8ybm2fs1ox"]
 
 [ext_resource type="Script" uid="uid://c27b08chswrkq" path="res://editor/rendering/rendering.gd" id="1_vymcv"]
+[ext_resource type="Shader" uid="uid://bajn0ektqcm8h" path="res://editor/rendering/carbon_nanotube_renderer/assets/carbon_nanotube.gdshader" id="2_hgrxu"]
 [ext_resource type="PackedScene" uid="uid://cyy5lagn5jes7" path="res://editor/rendering/world_environment.tscn" id="2_vyad3"]
 [ext_resource type="PackedScene" uid="uid://dtpr0fry1c4if" path="res://editor/rendering/atom_preview/atom_preview.tscn" id="3_1ppds"]
+[ext_resource type="Texture2D" uid="uid://dem62og3vbgpd" path="res://editor/rendering/carbon_nanotube_renderer/assets/hex-grid.svg" id="3_488dq"]
 [ext_resource type="PackedScene" uid="uid://bi1vulexoa6mv" path="res://editor/rendering/ballstick_bond_preview/ballstick_bond_preview.tscn" id="4_gbq2t"]
 [ext_resource type="PackedScene" uid="uid://b6snixhbqq57y" path="res://editor/rendering/reference_shape_renderer/reference_shape_renderer.tscn" id="5_0gao3"]
 [ext_resource type="PackedScene" uid="uid://dtf1gkl710hh8" path="res://editor/rendering/structure_preview/structure_preview.tscn" id="5_b5mjk"]
@@ -16,6 +18,21 @@
 [ext_resource type="PackedScene" uid="uid://dmf7a8rad2ixj" path="res://editor/rendering/spring_preview/spring_preview.tscn" id="10_cxht2"]
 [ext_resource type="PackedScene" uid="uid://d38yfchnnwvt" path="res://editor/rendering/selection_preview/selection_preview.tscn" id="12_n4gg0"]
 [ext_resource type="PackedScene" uid="uid://bamvuoulrst7s" path="res://editor/rendering/simulation_boundaries_representation/simulation_boundaries_representation.tscn" id="13_nh7yk"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hgrxu"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("2_hgrxu")
+shader_parameter/n = 5.0
+shader_parameter/m = 5.0
+shader_parameter/nprime = 2.0
+shader_parameter/mprime = 2.0
+shader_parameter/repetitions = 1.0
+shader_parameter/u_offset = 0.0
+shader_parameter/atom_color = Color(0.898438, 0.271853, 0.372872, 1)
+shader_parameter/highlight_color = Color(1, 1, 1, 1)
+shader_parameter/selection = PackedFloat32Array(0, 0)
+shader_parameter/pattern = ExtResource("3_488dq")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_17w4n"]
 resource_local_to_scene = true
@@ -47,6 +64,7 @@ script = ExtResource("1_vymcv")
 [node name="NanotubeStructureRenderers" type="Node" parent="."]
 
 [node name="CarbonNanotubeRenderer" parent="NanotubeStructureRenderers" instance_placeholder="res://editor/rendering/carbon_nanotube_renderer/carbon_nanotube_renderer.tscn"]
+material = SubResource("ShaderMaterial_hgrxu")
 
 [node name="NanoShapeRenderers" type="Node" parent="."]
 
