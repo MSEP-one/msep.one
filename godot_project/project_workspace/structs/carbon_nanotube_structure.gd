@@ -10,12 +10,14 @@ signal chiral_indices_changed(n: int, m: int)
 @export var _chiral_index_m: int
 @export var _position_begin: Vector3
 @export var _position_end: Vector3
+@export var _trim_invalid_valence_carbons: bool = true
 
 
 var _signal_queue_path_changed: bool
 
 var _last_n: int
 var _last_m: int
+var _last_trim_invalid_valence_carbons: bool
 var _basis: CarbonTubuleBasis
 var _template: CarbonTubuleBasis.CrystalCell
 
@@ -33,12 +35,13 @@ static var _unpacked_bond_ids: Dictionary[int, UnpackedBondId]
 var _track_atoms: bool = false
 
 
-static func create_nanotube(n: int, m: int, from_pos: Vector3, to_pos: Vector3) -> CarbonNanotubeStructure:
+static func create_nanotube(n: int, m: int, from_pos: Vector3, to_pos: Vector3, in_trim_invalid_valence_carbons: bool) -> CarbonNanotubeStructure:
 	var tube := CarbonNanotubeStructure.new()
 	tube._chiral_index_n = n
 	tube._chiral_index_m = m
 	tube._position_begin = from_pos
 	tube._position_end = to_pos
+	tube._trim_invalid_valence_carbons = in_trim_invalid_valence_carbons
 	tube.start_edit()
 	tube._signal_queue_path_changed = true
 	tube.end_edit()
@@ -80,6 +83,15 @@ func set_chiral_index_m(in_m: int) -> void:
 
 func get_chiral_index_m() -> int:
 	return _chiral_index_m
+
+
+func set_trim_invalid_valence_carbons(in_trim: bool) -> void:
+	assert(_is_being_edited, "Parameters can only be changed while structure is being edited")
+	_trim_invalid_valence_carbons = in_trim
+
+
+func is_trim_invalid_valence_carbons_enabled() -> bool:
+	return _trim_invalid_valence_carbons
 #endregion: Parameters
 
 
@@ -160,6 +172,7 @@ func start_edit() -> void:
 	super.start_edit()
 	_last_n = _chiral_index_n
 	_last_m = _chiral_index_m
+	_last_trim_invalid_valence_carbons = _trim_invalid_valence_carbons
 	return
 
 
@@ -169,6 +182,7 @@ func end_edit() -> void:
 		_signal_queue_path_changed
 		or _last_n != _chiral_index_n
 		or _last_m != _chiral_index_m
+		or _last_trim_invalid_valence_carbons != _trim_invalid_valence_carbons
 	)
 	if has_changed:
 		_aabb_cache = AABB()
@@ -277,7 +291,7 @@ func get_valid_atoms_count() -> int:
 	return _atoms_count_cache
 
 
-func is_atom_valid(in_atom_id: int) -> bool:
+func is_atom_valid(in_atom_id: int, check_trimmed: bool = true) -> bool:
 	if _track_atoms == false:
 		return false
 	var unpacked := UnpackedAtomId.new(in_atom_id)
@@ -293,6 +307,9 @@ func is_atom_valid(in_atom_id: int) -> bool:
 		var tube_len_sqrd: float = _position_begin.distance_squared_to(_position_end)
 		if z_pos ** 2 > tube_len_sqrd:
 			return false
+	if check_trimmed and _trim_invalid_valence_carbons and \
+			_should_trim_unpacked_atom(unpacked.repetition_idx, unpacked.sub_atom_id):
+		return false
 	return true
 
 
@@ -310,20 +327,65 @@ func get_valid_atoms() -> PackedInt32Array:
 		var cell_length: float = _basis.get_translational_vector_length()
 		var repeat_count: int = ceili(tube_length / cell_length)
 		
-		var _atom_exceeds_tube_len: Callable = func(repetition_idx: int, sub_atom_id: int) -> bool:
+		var atom_exceeds_tube_len: Callable = func(repetition_idx: int, sub_atom_id: int) -> bool:
 			if repetition_idx < (repeat_count - 1):
 				return false
 			var repetition_offset: float = repetition_idx * cell_length
 			var z_pos: float = _template.basis[sub_atom_id].position.z * cell_length
 			return repetition_offset + z_pos > tube_length
-		
 		for repetition_idx: int in repeat_count:
 			for sub_atom_id: int in template_atom_count:
-				if _atom_exceeds_tube_len.call(repetition_idx, sub_atom_id):
+				if atom_exceeds_tube_len.call(repetition_idx, sub_atom_id):
+					continue
+				if _should_trim_unpacked_atom(repetition_idx, sub_atom_id):
 					continue
 				assert(not _get_atom_id(repetition_idx, sub_atom_id) in _atoms_ids_cache, "Math failed and there are repeated atom ids!")
 				_atoms_ids_cache.append(_get_atom_id(repetition_idx, sub_atom_id))
 	return _atoms_ids_cache.duplicate()
+
+
+func _should_trim_atom(in_atom_id: int) -> bool:
+	if _trim_invalid_valence_carbons == false:
+		return false
+	var unpacked_id: UnpackedAtomId = _unpack_atom_id(in_atom_id)
+	return _should_trim_unpacked_atom(unpacked_id.repetition_idx, unpacked_id.sub_atom_id)
+
+
+func _should_trim_unpacked_atom(repetition_idx: int, sub_atom_id: int) -> bool:
+	if _trim_invalid_valence_carbons == false:
+		return false
+	if repetition_idx == 0:
+		# first repetition, count non glue bond 
+		var bond_count: int = 0
+		for bond: CarbonTubuleBasis.Bond in _template.bonds:
+			if bond.is_glue: continue
+			if not sub_atom_id in [bond.from_coordinate, bond.to_coordinate]: continue
+			bond_count += 1
+		return bond_count <= 1
+	if repetition_idx >= (get_repetition_count() - 1):
+		# last repetition, count bonds targeting valid atoms
+		var bond_count: int = 0
+		for bond: CarbonTubuleBasis.Bond in _template.bonds:
+			if not sub_atom_id in [bond.from_coordinate, bond.to_coordinate]: continue
+			var other_sub_atom_id: int
+			var other_repetition_idx: int
+			match sub_atom_id:
+				bond.from_coordinate when bond.is_glue:
+					other_sub_atom_id = bond.to_coordinate
+					other_repetition_idx = repetition_idx - 1
+				bond.to_coordinate when bond.is_glue:
+					other_sub_atom_id = bond.from_coordinate
+					other_repetition_idx = repetition_idx + 1
+				bond.from_coordinate when not bond.is_glue:
+					other_sub_atom_id = bond.to_coordinate
+					other_repetition_idx = repetition_idx
+				bond.to_coordinate when not bond.is_glue:
+					other_sub_atom_id = bond.from_coordinate
+					other_repetition_idx = repetition_idx
+			if is_atom_valid(_get_atom_id(other_repetition_idx, other_sub_atom_id), false):
+				bond_count += 1
+		return bond_count <= 1
+	return false
 
 
 func atom_get_atomic_number(in_atom_id: int) -> int:

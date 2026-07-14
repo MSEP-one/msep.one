@@ -79,6 +79,7 @@ var _new_structure: NanoStructure = null
 var _nanotube_n_index: int = 2
 var _nanotube_m_index: int = 2
 var _create_nanotube_as_virtual_group: bool = true
+var _trim_invalid_valence_carbons: bool = true
 
 var _create_distance_method := CreateDistanceMethod.CENTER_OF_SELECTION
 
@@ -254,6 +255,14 @@ func set_create_nanotube_as_virtual_group(in_create_as_group: bool) -> void:
 
 func get_create_nanotube_as_virtual_group() -> bool:
 	return _create_nanotube_as_virtual_group
+
+
+func is_trim_invalid_valence_carbons_enabled() -> bool:
+	return _trim_invalid_valence_carbons
+
+
+func set_trim_invalid_valence_carbons_enabled(in_enabled: bool) -> void:
+	_trim_invalid_valence_carbons = in_enabled
 
 
 func set_create_distance_method(in_new_method: CreateDistanceMethod) -> void:

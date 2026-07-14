@@ -82,6 +82,15 @@ layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "1.2 nm"
 
+[node name="Label4" type="Label" parent="VBoxContainer/GridContainer2"]
+layout_mode = 2
+text = "· Trim Atoms with Invalid Valence"
+
+[node name="TrimInvalidValenceCarbonsCheckButton" type="CheckButton" parent="VBoxContainer/GridContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+
 [node name="Label2" type="Label" parent="VBoxContainer"]
 layout_mode = 2
 text = "Create as:"
