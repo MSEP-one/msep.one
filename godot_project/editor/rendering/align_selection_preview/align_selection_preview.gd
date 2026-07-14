@@ -143,7 +143,8 @@ func _draw_obb_face(in_obb: AlignableOBB, in_face: BoxFace, in_highlighted: bool
 	var thickness: float = _highlight_thickness if in_highlighted else _lowlight_thickness
 	var face_size: Vector3 = in_obb.get_face_size(in_face)
 	var has_surface: bool = face_size.x * face_size.y > 0
-	if in_filled and has_surface:
+	var is_valid_polygon: bool = not Geometry2D.triangulate_polygon(polygon).is_empty()
+	if in_filled and has_surface and is_valid_polygon:
 		var opacity: float = FACE_HIGHLIGHT_OPACITY if in_highlighted else FACE_LOWLIGHT_OPACITY
 		draw_colored_polygon(polygon, Color(_highlight_color, opacity), uvs, FACE_HIGHLIGHT_TEXTURE)
 	for i: int in polygon.size():
