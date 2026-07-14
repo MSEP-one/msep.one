@@ -211,22 +211,22 @@ func get_face_size(in_face: BoxFace) -> Vector3:
 	return Vector3()
 
 
-func align_rotation_to_box(in_box: AlignableOBB) -> bool:
+func align_rotation_to_box(in_box: AlignableOBB, in_align_depth: bool) -> bool:
 	if selected_face == BoxFace.UNDEFINED:
 		return false
 	if in_box == self:
 		return false
-	return align_rotation_to_basis(in_box.get_face_basis(in_box.align_to_face))
+	return align_rotation_to_basis(in_box.get_face_basis(in_box.align_to_face), in_align_depth)
 
 
-func align_rotation_to_basis(in_basis: Basis) -> bool:
+func align_rotation_to_basis(in_basis: Basis, in_align_depth: bool) -> bool:
 	if selected_face == BoxFace.UNDEFINED:
 		return false
 	var something_changed: bool = false
-	var old_transform: Transform3D = Transform3D(get_face_basis(selected_face), transform.origin)
-	
-	if old_transform.basis == in_basis:
+	if get_face_basis(selected_face) == in_basis:
 		return false
+	
+	var pivot_point: Vector3 = _get_align_reference_point(selected_face, in_align_depth)
 	var relative_basis: Basis = in_basis * get_face_basis(selected_face).inverse()
 	for context: StructureContext in point_cloud_source.keys():
 		var nano_structure: NanoStructure = context.nano_structure
@@ -236,8 +236,8 @@ func align_rotation_to_basis(in_basis: Basis) -> bool:
 		var nmb_of_moved_atoms: int = 0
 		for atom_id: int in point_cloud_source[context]:
 			var old_pos: Vector3 = nano_structure.atom_get_position(atom_id)
-			var rel_pos: Vector3 = old_pos - transform.origin
-			var new_pos: Vector3 = (relative_basis * rel_pos) + transform.origin
+			var rel_pos: Vector3 = old_pos - pivot_point
+			var new_pos: Vector3 = (relative_basis * rel_pos) + pivot_point
 			target_positions.push_back(new_pos)
 			previous_positions.push_back(old_pos)
 			nmb_of_moved_atoms += 1

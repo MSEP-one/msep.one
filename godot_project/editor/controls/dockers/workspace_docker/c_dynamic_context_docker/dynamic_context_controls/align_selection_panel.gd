@@ -309,6 +309,7 @@ func _on_align_rotation_button_pressed() -> void:
 	var align_basis: Basis
 	var relative_to: AlignRelativeTo = _align_selection_parameters.get_align_relative_to()
 	var alignable_boxes: Array[AlignableOBB] = _align_selection_parameters.get_alignable_boxes()
+	var align_depth: bool = _align_selection_parameters.is_align_depth_enabled()
 	var something_changed: bool = false
 	match relative_to:
 		AlignRelativeTo.WORLD_PLANE, AlignRelativeTo.CAMERA_PLANE:
@@ -326,11 +327,11 @@ func _on_align_rotation_button_pressed() -> void:
 			for i: int in alignable_boxes.size():
 				# IMPORTANT: The order of this comparison matters
 				# obb.align_position_to() needs to be first, otherwise will be skipped when something_changed is true
-				something_changed = alignable_boxes[i].align_rotation_to_basis(align_basis) or something_changed
+				something_changed = alignable_boxes[i].align_rotation_to_basis(align_basis, align_depth) or something_changed
 		AlignRelativeTo.SPECIFIC_BOX_PLANE:
 			var align_target: AlignableOBB = _align_selection_parameters.get_align_obb_target()
 			for i: int in alignable_boxes.size():
-				something_changed = alignable_boxes[i].align_rotation_to_box(align_target) or something_changed
+				something_changed = alignable_boxes[i].align_rotation_to_box(align_target, align_depth) or something_changed
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Rotation")
 	_update_ui()
@@ -374,7 +375,7 @@ func _on_align_position_and_rotation_button_pressed() -> void:
 	var align_depth: bool = _align_selection_parameters.is_align_depth_enabled()
 	var something_changed: bool = false
 	for i: int in alignable_boxes.size():
-		something_changed = alignable_boxes[i].align_rotation_to_box(reference_obb) or something_changed
+		something_changed = alignable_boxes[i].align_rotation_to_box(reference_obb, align_depth) or something_changed
 		something_changed = alignable_boxes[i].align_position_to(reference_obb, align_depth) or something_changed
 	if something_changed:
 		_workspace_context.snapshot_moment("Align Selection Position and Rotation")
