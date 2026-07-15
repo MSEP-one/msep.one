@@ -117,13 +117,7 @@ func _reparent_structure(in_child_structure: NanoStructure, in_new_parent: NanoS
 	var current_nano_structure: NanoStructure = get_workspace_context().get_current_structure_context().nano_structure
 	if not workspace.is_a_ancestor_of_b(current_nano_structure, in_new_parent):
 		# New parent is outside of the active group, 
-		_workspace_context.get_nano_structure_context(in_child_structure).clear_selection()
-		for structure_context: StructureContext in get_workspace_context().get_structure_contexts_with_selection():
-			var nano_structure: NanoStructure = structure_context.nano_structure
-			if not workspace.is_a_ancestor_of_b(in_child_structure, nano_structure) and \
-					in_child_structure != nano_structure:
-				continue # Not the reparented structure or one of its children, ignore.
-			structure_context.clear_selection()
+		_workspace_context.get_nano_structure_context(in_child_structure).clear_selection(true)
 	else:
 		_workspace_context.clear_all_selection()
 		var structure_context: StructureContext = _workspace_context.get_nano_structure_context(in_child_structure)
