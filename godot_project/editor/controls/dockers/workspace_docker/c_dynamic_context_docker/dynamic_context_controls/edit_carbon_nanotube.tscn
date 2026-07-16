@@ -116,6 +116,15 @@ theme_type_variation = &"HeaderSmall"
 text = "1.2 nm"
 vertical_alignment = 1
 
+[node name="Label5" type="Label" parent="EditorContainer/GridContainer2"]
+layout_mode = 2
+text = "· Trim Atoms with Invalid Valence"
+
+[node name="TrimInvalidValenceCarbonsCheckButton" type="CheckButton" parent="EditorContainer/GridContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+
 [node name="Label4" type="Label" parent="EditorContainer/GridContainer2"]
 layout_mode = 2
 text = "· Length"

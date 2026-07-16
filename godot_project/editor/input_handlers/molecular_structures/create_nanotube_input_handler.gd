@@ -130,10 +130,11 @@ func _create_tube_structure(from_pos: Vector3, to_pos: Vector3) -> void:
 	
 	var n: int = _workspace_context.create_object_parameters.get_nanotube_n_index()
 	var m: int = _workspace_context.create_object_parameters.get_nanotube_m_index()
+	var trim_invalid_valence_carbons: bool = _workspace_context.create_object_parameters.is_trim_invalid_valence_carbons_enabled()
 	var structure_context: StructureContext = _workspace_context.get_current_structure_context()
 	var structure: NanoStructure = structure_context.nano_structure
 	
-	var nanotube := CarbonNanotubeStructure.create_nanotube(n, m, from_pos, to_pos)
+	var nanotube := CarbonNanotubeStructure.create_nanotube(n, m, from_pos, to_pos, trim_invalid_valence_carbons)
 	var obj_name: String = nanotube.get_readable_type()
 	obj_name += " %d" % _workspace_context.workspace.get_structures().size()
 	nanotube.set_structure_name(obj_name)
