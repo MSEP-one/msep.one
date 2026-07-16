@@ -790,6 +790,7 @@ func create_state_snapshot() -> Dictionary:
 	state_snapshot["_chiral_index_m"] = _chiral_index_m
 	state_snapshot["_position_begin"] = _position_begin
 	state_snapshot["_position_end"] = _position_end
+	state_snapshot["_trim_invalid_valence_carbons"] = _trim_invalid_valence_carbons
 	state_snapshot["_tube_direction"] = _tube_direction
 	state_snapshot["_atoms_count_cache"] = _atoms_count_cache
 	state_snapshot["_atoms_ids_cache"] = _atoms_ids_cache.duplicate()
@@ -812,6 +813,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_chiral_index_m = in_state_snapshot["_chiral_index_m"]
 	_position_begin = in_state_snapshot["_position_begin"]
 	_position_end = in_state_snapshot["_position_end"]
+	_trim_invalid_valence_carbons = in_state_snapshot["_trim_invalid_valence_carbons"]
 	_tube_direction = in_state_snapshot["_tube_direction"]
 	_atoms_count_cache = in_state_snapshot["_atoms_count_cache"]
 	_atoms_ids_cache = in_state_snapshot["_atoms_ids_cache"].duplicate()
