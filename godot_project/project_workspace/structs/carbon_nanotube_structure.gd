@@ -358,10 +358,14 @@ func _should_trim_unpacked_atom(repetition_idx: int, sub_atom_id: int) -> bool:
 		# first repetition, count non glue bond 
 		var bond_count: int = 0
 		for bond: CarbonTubuleBasis.Bond in _template.bonds:
-			if bond.is_glue: continue
-			if not sub_atom_id in [bond.from_coordinate, bond.to_coordinate]: continue
+			if bond.is_glue:
+				if not sub_atom_id in [bond.to_coordinate]: continue
+			else:
+				if not sub_atom_id in [bond.from_coordinate, bond.to_coordinate]: continue
 			bond_count += 1
-		return bond_count <= 1
+			if bond_count >= 2:
+				return false
+		return true
 	if repetition_idx >= (get_repetition_count() - 1):
 		# last repetition, count bonds targeting valid atoms
 		var bond_count: int = 0
