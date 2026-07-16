@@ -11,7 +11,7 @@ extends Control
 	get():  return lattice_color
 
 
-@onready var _polygon_2d: Polygon2D = $Polygon2D
+@onready var _polygon_2d: Polygon2D = %Polygon2D
 
 
 func _ready() -> void:

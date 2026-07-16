@@ -38,5 +38,9 @@ n = 4
 m = 3
 lattice_color = Color(0.46121, 0.46121, 0.46121, 1)
 
-[node name="Polygon2D" type="Polygon2D" parent="."]
+[node name="BackBufferCopy" type="BackBufferCopy" parent="."]
+copy_mode = 2
+
+[node name="Polygon2D" type="Polygon2D" parent="BackBufferCopy"]
+unique_name_in_owner = true
 material = SubResource("ShaderMaterial_od5b7")
