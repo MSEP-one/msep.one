@@ -62,7 +62,7 @@ popup/item_0/text = "World Plane"
 popup/item_0/id = 0
 popup/item_1/text = "Camera Plane"
 popup/item_1/id = 1
-popup/item_2/text = "Specific box plane"
+popup/item_2/text = "Specific group plane"
 popup/item_2/id = 2
 
 [node name="WorldPlaneContainer" type="HBoxContainer" parent="GridContainer/HBoxContainer"]
@@ -132,11 +132,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 selected = 1
 item_count = 3
-popup/item_0/text = "One box per Group"
+popup/item_0/text = "One plane per Group"
 popup/item_0/id = 1
-popup/item_1/text = "One box per Subgroup"
+popup/item_1/text = "One plane per Subgroup"
 popup/item_1/id = 0
-popup/item_2/text = "One box per Molecule"
+popup/item_2/text = "One plane per Molecule"
 popup/item_2/id = 2
 
 [node name="Label3" type="Label" parent="GridContainer"]
@@ -146,6 +146,7 @@ text = "· Align Depth:"
 [node name="AlignDepthCheckButton" type="CheckButton" parent="GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 0
 focus_mode = 0
 
 [node name="HSeparator" type="HSeparator" parent="."]
