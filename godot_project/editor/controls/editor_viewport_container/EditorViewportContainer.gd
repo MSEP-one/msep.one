@@ -239,11 +239,11 @@ func _create_selection_message(in_new_region: Rect2) -> String:
 
 
 func _on_object_hydrogen_atoms_count_change(in_added: int, in_removed: int) -> void:
-	_message_bar.show_message(_describe_hydrogen_atoms_correction_action(in_added, in_removed))
+	_message_bar.show_hint(_describe_hydrogen_atoms_correction_action(in_added, in_removed))
 
 
 func _on_workspace_context_bonds_auto_created(in_added: int) -> void:
-	_message_bar.show_message("%s Bond%s created." % [in_added, "" if in_added == 1 else "s"])
+	_message_bar.show_hint("%s Bond%s created." % [in_added, "" if in_added == 1 else "s"])
 
 
 func _on_workspace_context_atoms_added_to_structure(
@@ -331,15 +331,15 @@ func _process(delta: float) -> void:
 
 
 func _on_history_snapshot_created(in_snapshot_name: String) -> void:
-	_message_bar.show_message(in_snapshot_name)
+	_message_bar.show_action(in_snapshot_name)
 
 
 func _on_history_previous_snapshot_applied(in_snapshot_name: String) -> void:
-	_message_bar.show_message("Undo: " + in_snapshot_name)
+	_message_bar.show_action("Undo: " + in_snapshot_name)
 
 
 func _on_history_next_snapshot_applied(in_snapshot_name: String) -> void:
-	_message_bar.show_message("Redo: " + in_snapshot_name)
+	_message_bar.show_action("Redo: " + in_snapshot_name)
 
 
 func _on_history_changed() -> void:
