@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://df3xtgtlaxjo7"]
+
+[ext_resource type="Script" uid="uid://djni31yg3aabw" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/graphene_lattice_preview.gd" id="1_v8jga"]
+
+[node name="GrapheneLatticePreview" type="Control"]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_v8jga")
+n = 4
+m = 3
+lattice_color = Color(0.46121, 0.46121, 0.46121, 1)
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(1, 1, 1, 0.117647)

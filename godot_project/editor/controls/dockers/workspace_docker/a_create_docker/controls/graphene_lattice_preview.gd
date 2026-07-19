@@ -17,7 +17,6 @@ extends Control
 func _ready() -> void:
 	resized.connect(_on_resized)
 	clip_contents = true
-	_polygon_2d.material.set_shader_parameter(&"color_src", lattice_color)
 
 
 func _validate_property(property: Dictionary) -> void:

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://3f3stylsqoje" path="res://editor/controls/dockers/workspace_docker/a_create_docker/create_carbon_nanotube.gd" id="1_srk0s"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="2_l1ivr"]
 [ext_resource type="PackedScene" uid="uid://b2b25o2443x3b" path="res://editor/controls/general/info_label.tscn" id="3_ja8sf"]
-[ext_resource type="PackedScene" uid="uid://df3xtgtlaxjo7" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/graphene_latice_preview.tscn" id="4_ja8sf"]
+[ext_resource type="PackedScene" uid="uid://df3xtgtlaxjo7" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/graphene_lattice_preview.tscn" id="4_ja8sf"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_ja8sf"]
 
@@ -52,7 +52,7 @@ max_value = 50.0
 value = 2.0
 allow_greater = true
 
-[node name="GrapheneLaticePreview" parent="VBoxContainer" instance=ExtResource("4_ja8sf")]
+[node name="GrapheneLatticePreview" parent="VBoxContainer" instance=ExtResource("4_ja8sf")]
 unique_name_in_owner = true
 layout_mode = 2
 n = 5
