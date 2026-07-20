@@ -777,9 +777,9 @@ func get_nano_structure_context(in_nano_structure: NanoStructure) -> StructureCo
 			structure_context.nano_structure.parameters_changed.connect(_on_structure_contents_modified_arg1.bind(structure_context.get_int_guid()))
 			structure_context.nano_structure.path_changed.connect(_on_dna_path_changed.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is CarbonNanotubeStructure \
-				and not structure_context.nano_structure.path_changed.is_connected(_on_structure_contents_modified_arg0):
-			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()).unbind(2))
-			structure_context.nano_structure.chiral_indices_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()).unbind(2))
+				and not structure_context.nano_structure.path_changed.is_connected(_on_structure_contents_modified_arg2):
+			structure_context.nano_structure.path_changed.connect(_on_structure_contents_modified_arg2.bind(structure_context.get_int_guid()))
+			structure_context.nano_structure.chiral_indices_changed.connect(_on_structure_contents_modified_arg2.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure is NanoShape:
 			structure_context.nano_structure.shape_properties_changed.connect(_on_structure_contents_modified_arg0.bind(structure_context.get_int_guid()))
 		if structure_context.nano_structure.is_virtual_object():
@@ -850,12 +850,11 @@ func _on_structure_contents_modified_arg0(in_structure_context_id: int) -> void:
 
 
 func _on_structure_contents_modified_arg1(_ignore_arg1: Variant, in_structure_context_id: int) -> void:
-	if not workspace.has_structure_with_int_guid(in_structure_context_id):
-		return
-	var structure_context: StructureContext = get_structure_context(in_structure_context_id)
-	if structure_context != null:
-		_modified_structure_contexts[in_structure_context_id] = true
-	_check_for_empty_workspace()
+	_on_structure_contents_modified_arg0(in_structure_context_id)
+
+
+func _on_structure_contents_modified_arg2(_ignore_arg1: Variant, _ignore_arg2: Variant, in_structure_context_id: int) -> void:
+	_on_structure_contents_modified_arg0(in_structure_context_id)
 
 
 func _on_virtual_object_transform_changed(_ignore_arg1: Variant, in_structure_context_id: int) -> void:

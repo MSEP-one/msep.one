@@ -229,9 +229,19 @@ func align_rotation_to_basis(in_basis: Basis, in_align_depth: bool) -> bool:
 	var pivot_point: Vector3 = _get_align_reference_point(selected_face, in_align_depth)
 	var relative_basis: Basis = in_basis * get_face_basis(selected_face).inverse()
 	for context: StructureContext in point_cloud_source.keys():
+		if context.nano_structure is CarbonNanotubeStructure:
+			var nanotube := context.nano_structure as CarbonNanotubeStructure
+			nanotube.start_edit()
+			for p: int in nanotube.get_control_point_count():
+				var old_pos: Vector3 = nanotube.get_control_point_position(p)
+				var rel_pos: Vector3 = old_pos - transform.origin
+				var new_pos: Vector3 = (relative_basis * rel_pos) + transform.origin
+				nanotube.set_control_point_position(p, new_pos)
+			nanotube.end_edit()
+			something_changed = true
+			continue
 		var nano_structure: NanoStructure = context.nano_structure
 		var atoms_to_move: PackedInt32Array = point_cloud_source[context]
-		var previous_positions: PackedVector3Array = []
 		var target_positions: PackedVector3Array = []
 		var nmb_of_moved_atoms: int = 0
 		for atom_id: int in point_cloud_source[context]:
@@ -239,7 +249,6 @@ func align_rotation_to_basis(in_basis: Basis, in_align_depth: bool) -> bool:
 			var rel_pos: Vector3 = old_pos - pivot_point
 			var new_pos: Vector3 = (relative_basis * rel_pos) + pivot_point
 			target_positions.push_back(new_pos)
-			previous_positions.push_back(old_pos)
 			nmb_of_moved_atoms += 1
 		
 		var atoms_changed: bool = nmb_of_moved_atoms > 0
@@ -277,6 +286,16 @@ func align_position_to(reference_obb: AlignableOBB, in_align_depth: bool) -> boo
 		offset = align_origin - ref_point_in_plane
 	
 	for context: StructureContext in point_cloud_source.keys():
+		if context.nano_structure is CarbonNanotubeStructure:
+			var nanotube := context.nano_structure as CarbonNanotubeStructure
+			nanotube.start_edit()
+			for p: int in nanotube.get_control_point_count():
+				var old_pos: Vector3 = nanotube.get_control_point_position(p)
+				var new_pos: Vector3 = old_pos + offset
+				nanotube.set_control_point_position(p, new_pos)
+			nanotube.end_edit()
+			something_changed = true
+			continue
 		var nano_structure: NanoStructure = context.nano_structure
 		var atoms_to_move: PackedInt32Array = []
 		var target_positions: PackedVector3Array = []
