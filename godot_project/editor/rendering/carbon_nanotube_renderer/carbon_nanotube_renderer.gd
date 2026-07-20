@@ -25,6 +25,7 @@ var _control_point_override: Dictionary[int, Vector3]
 
 var _hover_disabled: bool = false
 var _hovered_control_point: int = -1
+var _is_top_level: bool = true
 var _path_hovered: bool = false
 var _highlighted_control_points: Dictionary[int, bool] = {}
 
@@ -226,6 +227,8 @@ func _on_path_representation_drawn() -> void:
 		_path_representation.draw_circle(from, 1, _get_outline_color())
 	else:
 		_path_representation.draw_line(from, to, _get_outline_color(), path_width)
+	if _is_top_level == false:
+		return
 	if not _path_hovered and _hovered_control_point == -1 and _highlighted_control_points.is_empty():
 		return
 	const CONTROL_POINT_RADIUS: float = 5
@@ -324,10 +327,13 @@ func _on_nanotube_representation_changed(representation: RepresentationSettings.
 
 
 func _on_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
+	_is_top_level = false
 	_is_selectable = false
+	var current: StructureContext = _workspace_context.get_current_structure_context()
 	for context: StructureContext in in_new_editable_structure_contexts:
 		if context.get_int_guid() == _structure_id:
 			_is_selectable = true
+			_is_top_level = context == current or _workspace_context.get_toplevel_editable_context(context) == context
 			break
 	#const SELECTABLE_VALUE: float = 1.0
 	#const UNSELECTABLE_VALUE: float = 0.0
@@ -364,6 +370,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["_simplified_representation_visible"] = _simplified_representation_visible
 	snapshot["_is_selectable"] = _is_selectable
+	snapshot["_is_top_level"] = _is_top_level
 	snapshot["_tube_start"] = _tube_start
 	snapshot["_tube_end"] = _tube_end
 	snapshot["_tube_basis"] = _tube_basis
@@ -379,6 +386,7 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_should_hide_in_simulation = in_state_snapshot["_should_hide_in_simulation"]
 	_simplified_representation_visible = in_state_snapshot["_simplified_representation_visible"]
 	_is_selectable = in_state_snapshot["_is_selectable"]
+	_is_top_level = in_state_snapshot["_is_top_level"]
 	_tube_start = in_state_snapshot["_tube_start"]
 	_tube_end = in_state_snapshot["_tube_end"]
 	_tube_basis = in_state_snapshot["_tube_basis"]
