@@ -70,7 +70,8 @@ func _set_selected_context(out_nanotube_or_null: CarbonNanotubeStructure) -> voi
 			_edited_nanotube.is_trim_invalid_valence_carbons_enabled()
 		)
 		_length_spin_box_slider.set_value_no_signal(_edited_nanotube.get_tube_length())
-		_edited_nanotube.path_changed.connect(_on_edited_nanotube_path_changed.unbind(2))
+		if not _edited_nanotube.path_changed.is_connected(_on_edited_nanotube_path_changed):
+			_edited_nanotube.path_changed.connect(_on_edited_nanotube_path_changed.unbind(2))
 		_update_estimates()
 
 
