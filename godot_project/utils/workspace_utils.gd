@@ -1389,11 +1389,13 @@ static func _can_move_selection_to_another_group(in_workspace_context: Workspace
 			if not context.is_dna_structure_fully_selected():
 				return false
 			else:
+				has_selection = true
 				continue
 		if context.nano_structure is CarbonNanotubeStructure:
 			if not context.is_nanotube_fully_selected():
 				return false
 			else:
+				has_selection = true
 				continue
 		var structure: AtomicStructure = context.nano_structure as AtomicStructure
 		var selected_atoms: PackedInt32Array = context.get_selected_atoms()
