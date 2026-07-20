@@ -144,7 +144,7 @@ func generate() -> CrystalCell:
 					if (abs(p.x) < FLT_EPSILON): p.x = 0.0;
 					if (abs(p.z) < FLT_EPSILON): p.z = 0.0;
 				# If point "p" is within [0,1) in x and z, we have a point:
-				if ((p.x < 1.0) and (p.x >= 0.0) and (p.z < 1.0) and (p.z >= 0.0)):
+				if ((p.x <= 1.0) and (p.x >= 0.0) and (p.z <= 1.0) and (p.z >= 0.0)):
 					# Check if we're too close to 1.0:
 					if ((1.0 - p.x > FLT_EPSILON) and (1.0 - p.z > FLT_EPSILON)):
 					# Recalculate in terms of Ch and Tprime:
