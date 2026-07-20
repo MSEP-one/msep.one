@@ -490,7 +490,7 @@ func is_bond_valid(in_bond_id: int) -> bool:
 		return false
 	if unpacked.sub_bond_id >= _template.bonds.size():
 		return false
-	elif unpacked.repetition_idx < get_repetition_count() - 1 and unpacked.repetition_idx != 0:
+	elif unpacked.repetition_idx < get_repetition_count() - 2 and unpacked.repetition_idx >= 2:
 		return unpacked.sub_bond_id < _template.bonds.size()
 	var bond: CarbonTubuleBasis.Bond = _template.bonds[unpacked.sub_bond_id]
 	if bond.is_glue and unpacked.repetition_idx == 0:
