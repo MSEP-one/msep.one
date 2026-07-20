@@ -3,7 +3,7 @@ extends DynamicContextControl
 
 var _n_spin_box_slider: SpinBoxSlider
 var _m_spin_box_slider: SpinBoxSlider
-var _graphene_latice_preview: GrapheneLatticePreview
+var _graphene_lattice_preview: GrapheneLatticePreview
 var _diameter_label: Label
 var _circumference_label: Label
 var _trim_invalid_valence_carbons_check_button: CheckButton
@@ -37,7 +37,7 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_n_spin_box_slider = %NSpinBoxSlider as SpinBoxSlider
 		_m_spin_box_slider = %MSpinBoxSlider as SpinBoxSlider
-		_graphene_latice_preview = %GrapheneLaticePreview as GrapheneLatticePreview
+		_graphene_lattice_preview = %GrapheneLatticePreview as GrapheneLatticePreview
 		_diameter_label = %DiameterLabel as Label
 		_circumference_label = %CircumferenceLabel as Label
 		_trim_invalid_valence_carbons_check_button = %TrimInvalidValenceCarbonsCheckButton as CheckButton
@@ -62,10 +62,10 @@ func _set_selected_context(out_nanotube_or_null: CarbonNanotubeStructure) -> voi
 		_edited_nanotube.path_changed.disconnect(_on_edited_nanotube_path_changed)
 	_edited_nanotube = out_nanotube_or_null
 	if _edited_nanotube != null:
-		_graphene_latice_preview.n = _edited_nanotube.get_chiral_index_n()
-		_graphene_latice_preview.m = _edited_nanotube.get_chiral_index_m()
-		_n_spin_box_slider.set_value_no_signal(_graphene_latice_preview.n)
-		_m_spin_box_slider.set_value_no_signal(_graphene_latice_preview.m)
+		_graphene_lattice_preview.n = _edited_nanotube.get_chiral_index_n()
+		_graphene_lattice_preview.m = _edited_nanotube.get_chiral_index_m()
+		_n_spin_box_slider.set_value_no_signal(_graphene_lattice_preview.n)
+		_m_spin_box_slider.set_value_no_signal(_graphene_lattice_preview.m)
 		_trim_invalid_valence_carbons_check_button.set_pressed_no_signal(
 			_edited_nanotube.is_trim_invalid_valence_carbons_enabled()
 		)
@@ -75,12 +75,12 @@ func _set_selected_context(out_nanotube_or_null: CarbonNanotubeStructure) -> voi
 
 
 func _on_n_spin_box_slider_value_changed(in_value: int) -> void:
-	_graphene_latice_preview.n = in_value
+	_graphene_lattice_preview.n = in_value
 	_update_estimates()
 
 
 func _on_m_spin_box_slider_value_changed(in_value: int) -> void:
-	_graphene_latice_preview.m = in_value
+	_graphene_lattice_preview.m = in_value
 	_update_estimates()
 	
 
@@ -159,5 +159,5 @@ func _on_change_representation_button_meta_clicked(_meta: Variant) -> void:
 
 
 func _update_estimates() -> void:
-	_circumference_label.text = tr(&"%.3f nm") % _graphene_latice_preview.get_estimated_circumference()
-	_diameter_label.text = tr(&"%.3f nm") % _graphene_latice_preview.get_estimated_diameter()
+	_circumference_label.text = tr(&"%.3f nm") % _graphene_lattice_preview.get_estimated_circumference()
+	_diameter_label.text = tr(&"%.3f nm") % _graphene_lattice_preview.get_estimated_diameter()
