@@ -566,6 +566,11 @@ static func _select_connected(
 		for struct_context in all_structures:
 			if not struct_context.nano_structure is AtomicStructure:
 				continue
+			if struct_context.nano_structure is DnaStructure or struct_context.nano_structure is CarbonNanotubeStructure:
+				if not struct_context.is_fully_selected():
+					struct_context.select_all()
+					selection_changed = true
+					continue
 			var result: AtomSelection.AtomSelectionResult = struct_context.select_connected(in_show_hidden_objects, in_linked_by_springs)
 			selection_changed = selection_changed or result.selection_changed
 			continue_selecting = in_linked_by_springs and result.selection_changed

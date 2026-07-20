@@ -16,6 +16,8 @@ var _control_point_selection: Dictionary[int, bool]
 var _structure_context: StructureContext
 var _spring_selection: SpringSelection
 
+var _control_point_selection_layers: Array[PackedInt32Array] = []
+
 var _application_is_editor_build: bool = OS.has_feature("editor")
 var _is_virtual_object_selected: bool = false
 var _is_initialized: bool = false
@@ -53,7 +55,7 @@ func has_selection() -> bool:
 
 
 func has_cached_selection_set() -> bool:
-	return _atom_selection.has_cached_selection_set()
+	return (not _control_point_selection_layers.is_empty()) or _atom_selection.has_cached_selection_set()
 
 
 func is_any_atom_selected() -> bool:
@@ -197,6 +199,11 @@ func select_by_type(types_to_select: PackedInt32Array) -> void:
 
 func select_connected(in_show_hidden_objects: bool, in_linked_by_springs: bool) -> AtomSelection.AtomSelectionResult:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
+	if nano_structure is DnaStructure or nano_structure is CarbonNanotubeStructure:
+		if has_selection() and _control_point_selection.size() != nano_structure.get_control_point_count():
+			select_all()
+			_control_point_selection_layers.clear()
+		return AtomSelection.AtomSelectionResult.new(false, [], [], [])
 	assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 	var result: AtomSelection.AtomSelectionResult = _atom_selection.select_connected(in_show_hidden_objects, in_linked_by_springs)
 	_process_atom_selection_result(result)
@@ -210,12 +217,37 @@ func can_grow_selection() -> bool:
 func grow_selection() -> void:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
 	assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
+	if nano_structure is DnaStructure or nano_structure is CarbonNanotubeStructure:
+		var to_select: Dictionary[int, bool]
+		var can_select: Callable = func(control_point: int) -> bool:
+			return control_point >= 0 \
+				and control_point < nano_structure.get_control_point_count() \
+				and _control_point_selection.get(control_point, false) == false
+		for selected_idx: int in _control_point_selection.keys():
+			if can_select.call(selected_idx - 1):
+				to_select[selected_idx - 1] = true
+			if can_select.call(selected_idx + 1):
+				to_select[selected_idx + 1] = true
+		if nano_structure is DnaStructure:
+			select_dna_control_points(to_select.keys())
+		elif  nano_structure is CarbonNanotubeStructure:
+			select_nanotube_control_points(to_select.keys())
+		_control_point_selection_layers.append(PackedInt32Array(to_select.keys()))
+		return
 	var result: AtomSelection.AtomSelectionResult = _atom_selection.grow_selection()
 	_process_atom_selection_result(result)
 
 
 func shrink_selection() -> void:
 	var nano_structure: NanoStructure = _structure_context.nano_structure
+	if nano_structure is DnaStructure or nano_structure is CarbonNanotubeStructure:
+		if not _control_point_selection_layers.is_empty():
+			var deselect_points: PackedInt32Array = _control_point_selection_layers.pop_back()
+			if nano_structure is DnaStructure:
+				deselect_dna_control_points(deselect_points)
+			elif nano_structure is CarbonNanotubeStructure:
+				deselect_nanotube_control_points(deselect_points)
+		return
 	assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 	var result: AtomSelection.AtomDeselectionResult = _atom_selection.shrink_selection()
 	_process_atom_deselection_result(result)
@@ -395,6 +427,7 @@ func set_control_point_selection(in_control_points_to_select: PackedInt32Array) 
 		elif is_nanotube:
 			rendering.lowlight_nanotube_control_points(deselected_control_points, _structure_context.nano_structure)
 		control_points_deselected.emit(deselected_control_points)
+	_control_point_selection_layers.clear()
 	if previous_selection != PackedInt32Array(_control_point_selection.keys()):
 		control_points_selection_changed.emit()
 		selection_changed.emit()
@@ -507,6 +540,7 @@ func clear_selection() -> void:
 	_atom_selection.clear_bond_selection()
 	_spring_selection.clear_selection()
 	_control_point_selection.clear()
+	_control_point_selection_layers.clear()
 	
 	var rendering: Rendering = _structure_context.get_rendering()
 	set_virtual_object_selected(false)
@@ -631,7 +665,8 @@ func get_selection_snapshot() -> Dictionary:
 		atom_snapshot = _atom_selection.get_snapshot(),
 		spring_snapshot = _spring_selection.get_snapshot(),
 		is_virtual_object_selected = _is_virtual_object_selected,
-		dna_control_points_snapshot = _control_point_selection.duplicate()
+		dna_control_points_snapshot = _control_point_selection.duplicate(),
+		control_point_selection_layers = _control_point_selection_layers.duplicate(true)
 	}
 	return result_data
 
@@ -639,6 +674,7 @@ func get_selection_snapshot() -> Dictionary:
 func apply_selection_snapshot(in_snapshot: Dictionary) -> void:
 	_is_virtual_object_selected = in_snapshot.is_virtual_object_selected
 	_control_point_selection = in_snapshot.dna_control_points_snapshot.duplicate()
+	_control_point_selection_layers = in_snapshot.control_point_selection_layers.duplicate(true)
 	var atom_snapshot: Array = in_snapshot.atom_snapshot
 	var spring_snapshot: Array = in_snapshot.spring_snapshot
 	var _apply_result: AtomSelection.ApplySnapshotResult = _atom_selection.apply_snapshot(atom_snapshot)
