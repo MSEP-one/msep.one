@@ -601,6 +601,15 @@ func get_selection_obb() -> OBB:
 		var size: Vector3 = Vector3(diameter, diameter, begin.distance_to(end))
 		_last_obb = OBB.new(size, Transform3D(basis, center), {self : []})
 		return _last_obb
+	elif nano_structure is DnaStructure:
+		var dna := nano_structure as DnaStructure
+		var positions: Array[Vector3] = []
+		for strand: DnaStructure.Strand in dna.get_strands():
+			for base_idx: int in dna.get_sequence_length():
+				var base_transform: Transform3D = dna.get_backbone_transform(strand, base_idx)
+				positions.append(base_transform.origin)
+		_last_obb = _get_obb_from_point_cloud(positions, {self : []})
+		return _last_obb
 	var aabb: AABB = get_selection_aabb()
 	var obb := OBB.new(aabb.size, Transform3D(Basis(), aabb.get_center()), {self: []})
 	return obb
