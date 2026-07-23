@@ -39,6 +39,7 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 		var structure_context: StructureContext = selection_data.structure_context
 		var nano_structure: NanoStructure = selection_data.nano_structure
 		var atom_selection: PackedInt32Array = selection_data.atom_selection
+		var bond_selection: PackedInt32Array = selection_data.bond_selection
 		var spring_selection: PackedInt32Array = selection_data.spring_selection
 	
 		if nano_structure == null or nano_structure.get_type() == StringName():
@@ -47,7 +48,7 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 		match nano_structure.get_type():
 			&"MolecularStructure":
 				_copy_atoms(
-					structure_context, nano_structure, atom_selection, new_content
+					structure_context, nano_structure, atom_selection, bond_selection, new_content
 				)
 				_copy_springs(
 					structure_context, nano_structure, spring_selection, atom_selection, new_content
@@ -95,6 +96,7 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 	var nano_structure: NanoStructure = null
 	var atom_selection: PackedInt32Array = []
 	var spring_selection: PackedInt32Array = []
+	var bond_selection: PackedInt32Array = []
 	var result: Array[Dictionary] = []
 	const SELECTION_WITH_EMPTY_GROUPS = true
 	const SELECTION_WITH_HIDDEN_OBJECTS = true
@@ -108,6 +110,7 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 		if active_strucutre_id == structure_context.get_int_guid():
 			atom_selection = structure_context.get_selected_atoms()
 			spring_selection = structure_context.get_selected_springs()
+			bond_selection = structure_context.get_selected_bonds()
 			if in_copy_hidden_hydrogens and nano_structure is AtomicStructure:
 				assert(in_workspace_context.are_hydrogens_visualized() == false)
 				var structure: AtomicStructure = structure_context.nano_structure as AtomicStructure
@@ -116,12 +119,14 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 						var other_atom_id: int = structure.atom_get_bond_target(atom_id, bond_id)
 						if structure.atom_is_hydrogen(other_atom_id):
 							atom_selection.append(other_atom_id)
+							bond_selection.append(bond_id)
 		elif nano_structure is AtomicStructure and not nano_structure is AtomicVirtualStructure:
 			atom_selection = (nano_structure as AtomicStructure).get_valid_atoms()
 			spring_selection = (nano_structure as AtomicStructure).springs_get_all()
 		var context_selection: Dictionary = {
 			nano_structure = nano_structure,
 			atom_selection = atom_selection,
+			bond_selection = bond_selection,
 			spring_selection = spring_selection,
 			structure_context = structure_context
 		}
@@ -131,8 +136,9 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 
 func _copy_atoms(
 	in_structure_context: StructureContext,
-	in_structure: NanoStructure,
+	in_structure: AtomicStructure,
 	in_atom_selection: PackedInt32Array,
+	in_bond_selection: PackedInt32Array,
 	out_content: Array[Dictionary]) -> void:
 	
 	var camera_transform: Transform3D = \
@@ -159,18 +165,14 @@ func _copy_atoms(
 		clipboard_atoms.push_back(atom)
 	
 	var clipboard_bonds: Array[ClipboardBond] = []
-	for atom_idx: int in range(atom_selection.size()):
-		for bond_id: int in in_structure.atom_get_bonds(atom_selection[atom_idx]):
-			var other_atom_idx: int = in_structure.atom_get_bond_target(atom_selection[atom_idx], bond_id)
-			if atom_selection.find(other_atom_idx) == -1:
-				continue
-			var atom_a: int = atom_idx
-			var atom_b: int = atom_selection.find(other_atom_idx)
-			# Prevents adding duplicated bonds
-			if atom_b < atom_a:
-				continue
-			var order: int = in_structure.get_bond(bond_id).z
-			clipboard_bonds.push_back(ClipboardBond.new(atom_a, atom_b, order))
+	for bond_id: int in in_bond_selection:
+		var bond_data: Vector3i = in_structure.get_bond(bond_id)
+		var atom_a: int = atom_selection.find(bond_data[0])
+		var atom_b: int = atom_selection.find(bond_data[1])
+		if -1 in [atom_a, atom_b]:
+			continue
+		var order: int = bond_data[2]
+		clipboard_bonds.push_back(ClipboardBond.new(atom_a, atom_b, order))
 	
 	var new_content: Dictionary = {}
 	new_content[&"type"] = ClipboardContentType.ATOMS_AND_BONDS
