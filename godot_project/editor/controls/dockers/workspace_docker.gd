@@ -191,6 +191,7 @@ func highlight_category(in_id: StringName, in_focus_control_path: Array[NodePath
 			assert(c != null, "Invalid NodePath: %s " % [node_path])
 			control = c
 	var overlay := Control.new()
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(overlay)
 	overlay.draw.connect(_on_category_control_draw.bind(control, overlay))
 	

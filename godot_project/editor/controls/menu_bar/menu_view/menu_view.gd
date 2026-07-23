@@ -157,19 +157,24 @@ func _on_id_pressed(in_id: int) -> void:
 			workspace_context.snapshot_moment("Representation change to Enhanced Balls and Sticks")
 		ID_REPRESENTATION_SIZE_SETTINGS:
 			request_hide.emit()
-			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
+			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+				&"Representation Settings", [^"AtomSizeSettings"])
 		ID_THEME_3D:
 			request_hide.emit()
-			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
+			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+				&"Representation Settings", [^"ThemeSettings"])
 		ID_REPRESENTATION_SHOW_BONDS:
 			request_hide.emit()
-			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
+			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+				&"Representation Settings", [^"VisibilitySettings", ^"%ShowBondsToggle"])
 		ID_REPRESENTATION_SHOW_ELEMENTS_LABEL:
 			request_hide.emit()
-			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
+			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+				&"Representation Settings", [^"VisibilitySettings", ^"%ShowLabelsToggle"])
 		ID_REPRESENTATION_SHOW_HYDROGENS:
 			request_hide.emit()
-			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
+			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+				&"Representation Settings", [^"VisibilitySettings", ^"%ShowHydrogensToggle"])
 		ID_DNA_REPRESENTATION:
 			const DnaRepresentation = RepresentationSettings.DnaRepresentation
 			var current_representation: DnaRepresentation = representation_settings.get_dna_representation()

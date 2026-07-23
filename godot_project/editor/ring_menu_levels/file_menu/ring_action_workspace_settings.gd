@@ -28,5 +28,8 @@ func can_show_settings() -> bool:
 
 func _execute_action() -> void:
 	if can_show_settings():
-		MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME)
+		MolecularEditorContext.request_workspace_docker_focus(
+			WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+			&"General Settings"
+		 )
 		_menu.hide()
