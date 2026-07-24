@@ -381,6 +381,8 @@ func find_atoms_and_bonds_connected_to(in_atom_id: int) -> Dictionary[StringName
 
 
 func can_grow_selection() -> bool:
+	if nano_structure is DnaStructure or nano_structure is CarbonNanotubeStructure:
+		return not is_fully_selected()
 	if _selection_db.has_cached_selection_set():
 		return true
 	return _selection_db.can_grow_selection()
