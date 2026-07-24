@@ -42,7 +42,8 @@ func _on_id_pressed(in_id: int) -> void:
 			WorkspaceUtils.open_screen_capture_dialog(workspace_context)
 		ID_CAMERA_PROJECTION:
 			request_hide.emit()
-			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"MSEP Settings")
+			MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+				&"MSEP Settings", [^"CameraSettings"])
 		ID_EDIT_CAMERA:
 			request_hide.emit()
 			WorkspaceUtils.open_camera_position_dialog()

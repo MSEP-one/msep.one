@@ -29,5 +29,6 @@ func _can_activate() -> bool:
 
 
 func _execute_action() -> void:
-	MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME, &"Representation Settings")
+	MolecularEditorContext.request_workspace_docker_focus(WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+		&"Representation Settings", [^"AtomSizeSettings"])
 	_ring_menu.close()
