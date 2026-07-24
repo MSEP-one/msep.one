@@ -329,7 +329,7 @@ func _copy_nanotube_structure(in_structure_context: StructureContext,
 
 
 func cut(out_workspace_context: WorkspaceContext) -> void:
-	copy(out_workspace_context)
+	await copy(out_workspace_context)
 	if out_workspace_context.has_selection():
 		out_workspace_context.action_delete.execute_from_cut_command()
 
