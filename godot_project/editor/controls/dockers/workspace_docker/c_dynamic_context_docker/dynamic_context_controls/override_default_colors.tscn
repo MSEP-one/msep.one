@@ -25,3 +25,4 @@ text = "Restore default colors"
 [node name="ConfirmationColorPopup" parent="." instance=ExtResource("2_e554l")]
 unique_name_in_owner = true
 visible = false
+edit_alpha = false

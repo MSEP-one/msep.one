@@ -8,6 +8,8 @@ signal color_reset
 
 @export var show_reset_button: bool = true
 @export var show_apply_button: bool = true
+@export var edit_alpha: bool = true:
+	set = _set_edit_alpha
 @export var color: Color = Color.WHITE:
 	set = set_color,
 	get = get_color
@@ -23,6 +25,13 @@ func _ready() -> void:
 	_confirmation_color_popup.set_default_button_visible(show_reset_button)
 	_confirmation_color_popup.set_apply_button_visible(show_apply_button)
 	set_color(color)
+
+
+func _set_edit_alpha(in_edit_alpha: bool) -> void:
+	edit_alpha = in_edit_alpha
+	if not is_node_ready():
+		await ready
+	_confirmation_color_popup.edit_alpha = edit_alpha
 
 
 func set_color(in_color: Color) -> void:
