@@ -121,7 +121,6 @@ step = 2.0
 value = 24.0
 allow_greater = true
 suffix = " px"
-select_all_on_focus = true
 
 [node name="LabelAdvanced" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls" index="8"]
 layout_mode = 2

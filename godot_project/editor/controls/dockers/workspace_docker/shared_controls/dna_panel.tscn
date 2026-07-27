@@ -316,6 +316,7 @@ text = "A Strand Backbone"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBackboneContainer/GridContainer"]
 layout_mode = 2
@@ -326,6 +327,7 @@ text = "B Strand Backbone"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer"]
 layout_mode = 2
@@ -423,6 +425,7 @@ text = "A Strand Bases"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerStrandContainer"]
 layout_mode = 2
@@ -433,6 +436,7 @@ text = "B Strand Bases"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="PerGrooveContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
 visible = false
@@ -458,6 +462,7 @@ text = "Major Groove"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="Label1" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerGrooveContainer/HBoxContainer2"]
 layout_mode = 2
@@ -468,6 +473,7 @@ text = "Minor Groove"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="PerBaseTypeContainer" type="VBoxContainer" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer" node_paths=PackedStringArray("button")]
 visible = false
@@ -514,6 +520,7 @@ text = "A"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
 layout_mode = 2
@@ -524,6 +531,7 @@ text = "T"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="Label3" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
 layout_mode = 2
@@ -534,6 +542,7 @@ text = "C"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false
 
 [node name="Label4" type="Label" parent="VBoxContainer/ColorizeMainContainer/VBoxContainer/ColorizeBasesContainer/PerBaseTypeContainer/HBoxContainer2"]
 layout_mode = 2
@@ -544,3 +553,4 @@ text = "G"
 unique_name_in_owner = true
 layout_mode = 2
 show_reset_button = false
+edit_alpha = false

@@ -4,6 +4,9 @@ extends PopupPanel
 const SINGLE_COLOR_BUTTON := preload("./single_color_button.tscn")
 const DEFAULT_COLOR: Color = Color.BLACK
 
+@export var edit_alpha: bool = true:
+	set = _set_edit_alpha
+
 @onready var _apply_btn: Button = %ApplyBtn
 @onready var _default_btn: Button = %DefaultBtn
 @onready var _color_picker: ColorPicker = %ColorPicker
@@ -68,6 +71,13 @@ func _update_recent_colors() -> void:
 		_preset_colors.add_child(color_button)
 		color_button.color = color
 		color_button.pressed.connect(_on_recent_color_selected.bind(color))
+
+
+func _set_edit_alpha(in_edit_alpha: bool) -> void:
+	edit_alpha = in_edit_alpha
+	if not is_node_ready():
+		await ready
+	_color_picker.edit_alpha = edit_alpha
 
 
 func _on_recent_color_selected(in_color: Color) -> void:
