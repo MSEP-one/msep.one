@@ -24,13 +24,13 @@ func _notification(what: int) -> void:
 		_hydrogens_toggle = $Settings/PanelContainer/VBoxContainer/ShowHydrogensToggle
 		_dna_representation_option_button = %DnaRepresentationOptionButton
 		_nanotube_representation_option_button = %NanotubeRepresentationOptionButton
-		_hide_simulation_boundaries_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle
-		_hide_reference_shapes_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle
-		_hide_dna_objects_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideDnaObjectsToggle
-		_hide_nanotube_objects_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideNanotubeObjectsToggle
-		_hide_virtual_motors_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle
-		_hide_particle_emitters_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle
-		_hide_anchors_and_springs_toggle = $Settings/PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle
+		_hide_simulation_boundaries_toggle = %HideDuringSimulationContainer/PanelContainer/VBoxContainer/HideSimulationBoundariesToggle
+		_hide_reference_shapes_toggle = %HideDuringSimulationContainer/PanelContainer/VBoxContainer/HideReferenceShapesToggle
+		_hide_dna_objects_toggle = %HideDuringSimulationContainer/PanelContainer/VBoxContainer/HideDnaObjectsToggle
+		_hide_nanotube_objects_toggle = %HideDuringSimulationContainer/PanelContainer/VBoxContainer/HideNanotubeObjectsToggle
+		_hide_virtual_motors_toggle = %HideDuringSimulationContainer/PanelContainer/VBoxContainer/HideVirtualMotorsToggle
+		_hide_particle_emitters_toggle = %HideDuringSimulationContainer/PanelContainer/VBoxContainer/HideParticleEmittersToggle
+		_hide_anchors_and_springs_toggle = %HideDuringSimulationContainer/PanelContainer/VBoxContainer/HideAnchorsAndSpringsToggle
 
 
 func should_show(in_workspace_context: WorkspaceContext)-> bool:

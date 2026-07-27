@@ -220,6 +220,14 @@ text = "❌ Project is empty. Create atoms before running a simulation."
 horizontal_alignment = 1
 autowrap_mode = 2
 
+[node name="ManageHiddenRichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[url=manage]Manage Visibility of Virtual Objects[/url]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -261,3 +269,5 @@ text = "View 4 Alerts..."
 
 [node name="OpenMMFailureTracker" parent="." instance=ExtResource("9_6sv07")]
 unique_name_in_owner = true
+
+[connection signal="meta_clicked" from="MarginContainer/VBoxContainer/ManageHiddenRichTextLabel" to="." method="_on_manage_hidden_rich_text_label_meta_clicked"]

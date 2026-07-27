@@ -793,6 +793,14 @@ func _on_open_mm_failure_tracker_results_collected() -> void:
 	_update_view_alerts_button()
 
 
+func _on_manage_hidden_rich_text_label_meta_clicked(meta: Variant) -> void:
+	if meta == "manage":
+		MolecularEditorContext.request_workspace_docker_focus(
+			WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+			&"Representation Settings", [^"VisibilitySettings", ^"%HideDuringSimulationContainer"]
+		)
+
+
 func _physics_process(_delta: float) -> void:
 	if not _workspace_context.is_active():
 		return
