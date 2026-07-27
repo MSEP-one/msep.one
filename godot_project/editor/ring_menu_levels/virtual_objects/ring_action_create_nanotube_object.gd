@@ -12,9 +12,9 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 	_workspace_context = in_workspace_context
 	_ring_menu = in_menu
 	super._init(
-		tr("DNA Object"),
+		tr("Carbon Nanotube"),
 		_execute_action,
-		tr("Create a high level representation of a DNA chain.")
+		tr("Create a high level representation of a Single Wall Carbon Nanotube.")
 	)
 
 
