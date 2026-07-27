@@ -27,16 +27,19 @@ theme_type_variation = &"SubcategoryPanel"
 layout_mode = 2
 
 [node name="ShowBondsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
 text = "Show Bonds"
 
 [node name="ShowLabelsToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
 text = "Show Elements Labels"
 
 [node name="ShowHydrogensToggle" type="CheckButton" parent="Settings/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
 text = "Show Hydrogens"
