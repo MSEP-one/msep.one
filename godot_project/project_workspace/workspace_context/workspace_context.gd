@@ -269,7 +269,7 @@ func _try_deselect_hidden_virtual_objects() -> bool:
 	for type: Script in types_to_evaluate:
 		var type_str: StringName = RepresentationSettings.script_to_virtual_object_key(type)
 		if workspace.representation_settings.get_should_hide_virtual_object_during_simulation(type_str):
-			selection_changed = selection_changed or _try_deselect_hidden_virtual_objects_of_type(type_str)
+			selection_changed = _try_deselect_hidden_virtual_objects_of_type(type_str) or selection_changed
 	return selection_changed
 
 func _try_deselect_hidden_virtual_objects_of_type(object_type: StringName) -> bool:
@@ -280,7 +280,7 @@ func _try_deselect_hidden_virtual_objects_of_type(object_type: StringName) -> bo
 			if RepresentationSettings.script_to_virtual_object_key(ctx.nano_structure.get_script()) == object_type:
 				# DnaStructure and CarbonNanotubeStructure
 				ctx.clear_selection()
-			elif RepresentationSettings.script_to_virtual_object_key(NanoVirtualAnchor) == object_type:
+			if RepresentationSettings.script_to_virtual_object_key(NanoVirtualAnchor) == object_type:
 				# Unselect any selected spring
 				var selected_springs: PackedInt32Array = ctx.get_selected_springs()
 				if selected_springs.size() > 0:
@@ -605,6 +605,7 @@ func start_simulating(in_simulation_data: SimulationData) -> void:
 	_simulation = in_simulation_data
 	if _try_deselect_hidden_virtual_objects():
 		snapshot_moment("Change Selection")
+	_queue_emit_new_editable_structures()
 	simulation_started.emit()
 
 
@@ -678,6 +679,7 @@ func abort_simulation_if_running() -> void:
 	seek_simulation(0.0)
 	_simulation = null
 	_is_simulation_playback_running = false
+	_queue_emit_new_editable_structures()
 	simulation_finished.emit()
 
 

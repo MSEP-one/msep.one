@@ -310,12 +310,15 @@ func invert_selection() -> void:
 		set_bond_selection(inverted_bonds)
 		
 		# ---- Springs ----
-		var visible_springs: PackedInt32Array = nano_structure.springs_get_visible()
-		var springs_to_select: PackedInt32Array = PackedInt32Array()
-		for spring_id: int in visible_springs:
-			if not _spring_selection.is_spring_selected(spring_id):
-				springs_to_select.append(spring_id)
-		set_spring_selection(springs_to_select)
+		if _structure_context.workspace_context.is_simulating() == false or \
+				nano_structure.get_representation_settings() \
+				.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor) == false:
+			var visible_springs: PackedInt32Array = nano_structure.springs_get_visible()
+			var springs_to_select: PackedInt32Array = PackedInt32Array()
+			for spring_id: int in visible_springs:
+				if not _spring_selection.is_spring_selected(spring_id):
+					springs_to_select.append(spring_id)
+			set_spring_selection(springs_to_select)
 	
 	# ---- DNA Structures ----
 	if nano_structure is DnaStructure:
@@ -350,7 +353,12 @@ func select_all() -> void:
 		assert(!nano_structure.is_being_edited(), "Setting the selection while structure is changing is insecure and should be avoided")
 		set_atom_selection(nano_structure.get_visible_atoms())
 		set_bond_selection(nano_structure.get_visible_bonds())
-		set_spring_selection(nano_structure.springs_get_visible())
+		var visible_springs: PackedInt32Array = nano_structure.springs_get_visible()
+		if _structure_context.workspace_context.is_simulating() and \
+				nano_structure.get_representation_settings() \
+				.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor):
+			visible_springs = []
+		set_spring_selection(visible_springs)
 
 
 func set_atom_selection(in_atoms_to_select: PackedInt32Array) -> void:

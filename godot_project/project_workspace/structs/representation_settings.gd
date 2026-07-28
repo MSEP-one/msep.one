@@ -18,6 +18,16 @@ const HYDROGENS_VISIBLE_BY_DEFAULT = true
 const BONDS_VISIBLE_BY_DEFAULT = true
 const ATOMS_AUTO_POSING_VISIBLE_BY_DEFAULT = true
 const SIMULATION_BOUNDARIES_VISIBLE_BY_DEFAULT = false
+const HIDE_DURING_SIMULATION_DEFAULT: Dictionary[StringName, bool] = {
+	group = false,
+	reference_shapes = true,
+	dna_objects = true,
+	nanotube_objects = true,
+	virtual_motors = true,
+	particle_emitters = true,
+	anchors_and_springs = true,
+}
+
 
 enum UserAtomSizeSource {
 	PHYSICAL_RADIUS,
@@ -83,14 +93,7 @@ enum NanotubeRepresentation {
 @export var _color_schema: PeriodicTable.ColorSchema = PeriodicTable.ColorSchema.MSEP
 
 
-@export var _hide_during_simulation: Dictionary[StringName, bool] = {
-	reference_shapes = true,
-	dna_objects = true,
-	nanotube_objects = true,
-	virtual_motors = true,
-	particle_emitters = true,
-	anchors_and_springs = true,
-}
+@export var _hide_during_simulation: Dictionary[StringName, bool] = HIDE_DURING_SIMULATION_DEFAULT.duplicate()
 
 
 func set_balls_and_sticks_size_source(in_size_souce: UserAtomSizeSource) -> void:
@@ -273,6 +276,7 @@ func get_color_schema() -> PeriodicTable.ColorSchema:
 
 func set_should_hide_virtual_object_during_simulation(in_type: StringName, in_should_hide: bool) -> void:
 	var key: StringName = _variant_to_virtual_object_key(in_type)
+	assert(key != &"group", "Do not change this value")
 	if _hide_during_simulation[key] == in_should_hide:
 		return
 	_hide_during_simulation[key] = in_should_hide
@@ -281,7 +285,19 @@ func set_should_hide_virtual_object_during_simulation(in_type: StringName, in_sh
 
 func get_should_hide_virtual_object_during_simulation(in_type: Variant) -> bool:
 	var key: StringName = _variant_to_virtual_object_key(in_type)
+	_sanitize_list()
 	return _hide_during_simulation.get(key, true)
+
+
+func _sanitize_list() -> void:
+	if _hide_during_simulation.size() == HIDE_DURING_SIMULATION_DEFAULT.size():
+		return
+	# This inserts missing values when a file is loaded from disk and was saved without
+	#values that was added afterwards
+	for key: StringName in HIDE_DURING_SIMULATION_DEFAULT:
+		if not key in _hide_during_simulation:
+			_hide_during_simulation[key] = HIDE_DURING_SIMULATION_DEFAULT[key]
+	assert(_hide_during_simulation.size() == HIDE_DURING_SIMULATION_DEFAULT.size())
 
 
 func get_final_background_color() -> Color:
@@ -303,6 +319,8 @@ func _variant_to_virtual_object_key(in_type: Variant) -> StringName:
 
 static func script_to_virtual_object_key(in_script: Script) -> StringName:
 	var SCRIPT_TO_KEY_MAP: Dictionary[Script, StringName] = {
+		NanoMolecularStructure: &"group",
+		LMDBNanoStruct: &"group",
 		NanoShape: &"reference_shapes",
 		DnaStructure: &"dna_objects",
 		CarbonNanotubeStructure: &"nanotube_objects",

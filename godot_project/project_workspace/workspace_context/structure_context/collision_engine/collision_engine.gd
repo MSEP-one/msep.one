@@ -123,6 +123,10 @@ func initialize(in_structure_context: StructureContext) -> void:
 			_add_bond(bond_id, nano_structure)
 		
 		var springs: PackedInt32Array = nano_structure.springs_get_visible()
+		if _structure_context.workspace_context.is_simulating() and \
+				nano_structure.get_representation_settings()\
+				.get_should_hide_virtual_object_during_simulation(NanoVirtualAnchor):
+			springs = []
 		for spring_id in springs:
 			_add_spring(spring_id)
 	
