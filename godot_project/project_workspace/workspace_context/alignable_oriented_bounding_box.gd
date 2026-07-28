@@ -47,9 +47,9 @@ func _init(
 	world_center_of_mass = _calculate_center_of_mass_from_source()
 	_local_center_of_mass = transform.affine_inverse() * world_center_of_mass
 	_params = in_align_parameters
-	if not has_face(align_to_face):
-		advance_align_to_face(1)
 	align_to_face = _get_squarest_face()
+	if not align_to_face in get_alignable_faces():
+		advance_align_to_face(1)
 	selected_face = align_to_face
 	_initialized = true
 
@@ -355,6 +355,7 @@ func _get_squarest_face() -> BoxFace:
 	var face: BoxFace = BoxFace.UNDEFINED
 	var squarest_ratio: float = INF
 	for idx in range(3):
+		if not has_face(face): continue
 		var face_size: Vector3 = get_face_size(idx)
 		var smallest: float = min(face_size.x, face_size.y)
 		var largest: float = max(face_size.x, face_size.y)
