@@ -793,12 +793,11 @@ func _on_open_mm_failure_tracker_results_collected() -> void:
 	_update_view_alerts_button()
 
 
-func _on_manage_hidden_rich_text_label_meta_clicked(meta: Variant) -> void:
-	if meta == "manage":
-		MolecularEditorContext.request_workspace_docker_focus(
-			WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
-			&"Representation Settings", [^"VisibilitySettings", ^"%HideDuringSimulationContainer"]
-		)
+func _on_manage_hidden_button_pressed() -> void:
+	MolecularEditorContext.request_workspace_docker_focus(
+		WorkspaceSettingsDocker.UNIQUE_DOCKER_NAME,
+		&"Representation Settings", [^"VisibilitySettings", ^"%HideDuringSimulationContainer"]
+	)
 
 
 func _physics_process(_delta: float) -> void:
@@ -808,3 +807,6 @@ func _physics_process(_delta: float) -> void:
 	if _playback_delta >= _spin_box_timeline.step:
 		_spin_box_timeline.set_value(min(_spin_box_timeline.value + _playback_delta, _spin_box_timeline.max_value))
 		_playback_delta = 0.0
+
+
+
