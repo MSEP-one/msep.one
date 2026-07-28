@@ -327,21 +327,25 @@ func get_valid_atoms() -> PackedInt32Array:
 		var cell_length: float = _basis.get_translational_vector_length()
 		var repeat_count: int = ceili(tube_length / cell_length)
 		
-		var atom_exceeds_tube_len: Callable = func(repetition_idx: int, sub_atom_id: int) -> bool:
-			if repetition_idx < (repeat_count - 1):
-				return false
-			var repetition_offset: float = repetition_idx * cell_length
-			var z_pos: float = _template.basis[sub_atom_id].position.z * cell_length
-			return repetition_offset + z_pos > tube_length
 		for repetition_idx: int in repeat_count:
 			for sub_atom_id: int in template_atom_count:
-				if atom_exceeds_tube_len.call(repetition_idx, sub_atom_id):
+				if _atom_exceeds_tube_len(repetition_idx, sub_atom_id):
 					continue
 				if _should_trim_unpacked_atom(repetition_idx, sub_atom_id):
 					continue
 				assert(not _get_atom_id(repetition_idx, sub_atom_id) in _atoms_ids_cache, "Math failed and there are repeated atom ids!")
 				_atoms_ids_cache.append(_get_atom_id(repetition_idx, sub_atom_id))
 	return _atoms_ids_cache.duplicate()
+
+
+func _atom_exceeds_tube_len(repetition_idx: int, sub_atom_id: int) -> bool:
+	if repetition_idx < get_repetition_count() - 1:
+		return false
+	var cell_length: float = _basis.get_translational_vector_length()
+	var tube_length: float = _position_begin.distance_to(_position_end)
+	var repetition_offset: float = repetition_idx * cell_length
+	var z_pos: float = _template.basis[sub_atom_id].position.z * cell_length
+	return repetition_offset + z_pos > tube_length
 
 
 func _should_trim_atom(in_atom_id: int) -> bool:
@@ -354,42 +358,36 @@ func _should_trim_atom(in_atom_id: int) -> bool:
 func _should_trim_unpacked_atom(repetition_idx: int, sub_atom_id: int) -> bool:
 	if _trim_invalid_valence_carbons == false:
 		return false
-	if repetition_idx == 0:
-		# first repetition, count non glue bond 
-		var bond_count: int = 0
-		for bond: CarbonTubuleBasis.Bond in _template.bonds:
-			if bond.is_glue:
-				if not sub_atom_id in [bond.to_coordinate]: continue
-			else:
-				if not sub_atom_id in [bond.from_coordinate, bond.to_coordinate]: continue
+	if not repetition_idx in [0, get_repetition_count() - 1]:
+		return false
+	var bond_count: int = 0
+	for bond: CarbonTubuleBasis.Bond in _template.bonds:
+		if repetition_idx == 0 and bond.is_glue and not sub_atom_id in [bond.to_coordinate]:
+			continue
+		if not sub_atom_id in [bond.from_coordinate, bond.to_coordinate]:
+			continue
+		var other_sub_atom_id: int
+		var other_repetition_idx: int
+		match sub_atom_id:
+			bond.from_coordinate when bond.is_glue:
+				other_sub_atom_id = bond.to_coordinate
+				other_repetition_idx = repetition_idx - 1
+			bond.to_coordinate when bond.is_glue:
+				other_sub_atom_id = bond.from_coordinate
+				other_repetition_idx = repetition_idx + 1
+			bond.from_coordinate when not bond.is_glue:
+				other_sub_atom_id = bond.to_coordinate
+				other_repetition_idx = repetition_idx
+			bond.to_coordinate when not bond.is_glue:
+				other_sub_atom_id = bond.from_coordinate
+				other_repetition_idx = repetition_idx
+		if _atom_exceeds_tube_len(other_repetition_idx, other_sub_atom_id):
+			continue
+		if is_atom_valid(_get_atom_id(other_repetition_idx, other_sub_atom_id), false):
 			bond_count += 1
-			if bond_count >= 2:
-				return false
-		return true
-	if repetition_idx >= (get_repetition_count() - 1):
-		# last repetition, count bonds targeting valid atoms
-		var bond_count: int = 0
-		for bond: CarbonTubuleBasis.Bond in _template.bonds:
-			if not sub_atom_id in [bond.from_coordinate, bond.to_coordinate]: continue
-			var other_sub_atom_id: int
-			var other_repetition_idx: int
-			match sub_atom_id:
-				bond.from_coordinate when bond.is_glue:
-					other_sub_atom_id = bond.to_coordinate
-					other_repetition_idx = repetition_idx - 1
-				bond.to_coordinate when bond.is_glue:
-					other_sub_atom_id = bond.from_coordinate
-					other_repetition_idx = repetition_idx + 1
-				bond.from_coordinate when not bond.is_glue:
-					other_sub_atom_id = bond.to_coordinate
-					other_repetition_idx = repetition_idx
-				bond.to_coordinate when not bond.is_glue:
-					other_sub_atom_id = bond.from_coordinate
-					other_repetition_idx = repetition_idx
-			if is_atom_valid(_get_atom_id(other_repetition_idx, other_sub_atom_id), false):
-				bond_count += 1
-		return bond_count <= 1
-	return false
+		if bond_count >= 2:
+			return false
+	return true
 
 
 func atom_get_atomic_number(in_atom_id: int) -> int:
