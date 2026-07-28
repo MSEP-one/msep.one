@@ -113,9 +113,9 @@ func _on_auto_create_springs_button_pressed() -> void:
 		_create_atom_to_anchor_springs()
 		return
 	elif _atom_to_atom_button.button_pressed:
-		var out_spring_count: Dictionary[StringName, int] = {count = 0}
+		var out_new_springs: Dictionary[int, PackedInt32Array] = {}
 		var out_stopped: Dictionary[StringName, bool] = {value = false}
-		var promise: Promise = _create_atom_to_atom_springs(out_spring_count, out_stopped)
+		var promise: Promise = _create_atom_to_atom_springs(out_new_springs, out_stopped)
 		var _on_stop: Callable = func() -> void:
 			out_stopped.value = true
 		_workspace_context.start_async_work(
@@ -124,8 +124,13 @@ func _on_auto_create_springs_button_pressed() -> void:
 		await promise.wait_for_fulfill()
 		if BusyIndicator.is_active():
 			_workspace_context.end_async_work()
-		if out_spring_count.count > 0:
-			_workspace_context.snapshot_moment("Create %d Springs" % out_spring_count.count)
+		if out_new_springs.size() > 0:
+			var count: int = 0
+			for structure_id: int in out_new_springs:
+				var structure_context: StructureContext = _workspace_context.get_structure_context(structure_id)
+				structure_context.select_springs(out_new_springs[structure_id])
+				count += out_new_springs[structure_id].size()
+			_workspace_context.snapshot_moment("Create %d Springs" % count)
 		return
 
 func _create_atom_to_anchor_springs() -> void:
@@ -173,7 +178,7 @@ func _create_atom_to_anchor_springs() -> void:
 	if new_spring_count > 0:
 		_workspace_context.snapshot_moment("Create %d Springs" % new_spring_count)
 
-func _create_atom_to_atom_springs(out_spring_count: Dictionary[StringName, int], out_stopped: Dictionary[StringName,bool]) -> Promise:
+func _create_atom_to_atom_springs(out_new_springs: Dictionary[int, PackedInt32Array], out_stopped: Dictionary[StringName,bool]) -> Promise:
 	var promise := Promise.new()
 	var selected_atoms: Dictionary[AtomicStructure, PackedInt32Array] = {}
 	for structure_context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
@@ -185,7 +190,7 @@ func _create_atom_to_atom_springs(out_spring_count: Dictionary[StringName, int],
 	else:
 		var thread := Thread.new()
 		thread.start(_create_atom_to_atom_springs_in_thread.bind(
-			thread, promise, selected_atoms, out_spring_count, out_stopped))
+			thread, promise, selected_atoms, out_new_springs, out_stopped))
 	return promise
 
 
@@ -193,7 +198,7 @@ func _create_atom_to_atom_springs_in_thread(
 		out_thread: Thread,
 		out_promise: Promise,
 		out_selected_atoms: Dictionary[AtomicStructure, PackedInt32Array],
-		out_spring_count: Dictionary[StringName, int],
+		out_new_springs: Dictionary[int, PackedInt32Array],
 		out_stopped: Dictionary[StringName,bool]) -> void:
 	var max_distance_sqrd: float = _max_spring_length_slider.value * _max_spring_length_slider.value
 	var constant_force: float = _workspace_context.create_object_parameters.get_spring_constant_force()
@@ -201,6 +206,7 @@ func _create_atom_to_atom_springs_in_thread(
 	var MANUAL_EQUILIBRIUM_LENGTH: float = 0.1
 	var flush_semaphore := Semaphore.new()
 	for structure: AtomicStructure in out_selected_atoms.keys():
+		var first_created: bool = false
 		var last_flush: float = Time.get_unix_time_from_system()
 		var atom_selection: PackedInt32Array = out_selected_atoms[structure]
 		if _ignore_hydrogens_check_button.button_pressed:
@@ -231,11 +237,14 @@ func _create_atom_to_atom_springs_in_thread(
 						if structure.atom_get_bond_target(atom1, bond_id) == atom2:
 							# Bond exists
 							continue
-				structure.spring_create_between_atoms(
+				var spring_id: int = structure.spring_create_between_atoms(
 					atom1, atom2, constant_force,
 					EQUILIBRIUM_LENGTH_IS_AUTO, MANUAL_EQUILIBRIUM_LENGTH
 				)
-				out_spring_count.count += 1
+				if not first_created:
+					first_created = true
+					out_new_springs[structure.get_int_guid()] = PackedInt32Array()
+				out_new_springs[structure.get_int_guid()].append(spring_id)
 				var time: float = Time.get_unix_time_from_system()
 				if time - last_flush >= 1.0:
 					# Update main every 1 second
