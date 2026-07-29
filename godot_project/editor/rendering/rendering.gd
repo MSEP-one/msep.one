@@ -454,6 +454,7 @@ func _get_renderer_for_dna_structure(in_structure_id: int) -> DnaStructureRender
 	if need_to_create_dna_renderer:
 		dna_renderer = DnaStructureRendererScn.instantiate()
 		dna_renderer.set_name(dna_renderer_name)
+		dna_renderer.set_atomic_renderer(_get_renderer_for_atomic_structure_id(in_structure_id))
 		_dna_structure_renderers.add_child(dna_renderer)
 	else:
 		dna_renderer = _dna_structure_renderers.get_node(dna_renderer_name)
