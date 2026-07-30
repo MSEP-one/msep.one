@@ -190,6 +190,12 @@ func load_and_activate_workspace(in_path: String) -> void:
 	# Needs to call_deferred to be executed after msep_editor_settings.changed is emitted
 	workspace_context.set_camera_orthogonal_size.call_deferred(workspace.camera_orthogonal_size)
 	var active_structure_id: int = workspace.active_structure_int_guid
+	if not workspace.has_structure_with_int_guid(active_structure_id):
+		push_error(
+			"Loading '%s' could not locate currently edited group with id %d. Will fallback to the Root group %d"
+			% [in_path, active_structure_id, workspace.main_structure_int_guid]
+		)
+		active_structure_id = workspace.main_structure_int_guid
 	var active_structure: NanoStructure = workspace.get_structure_by_int_guid(active_structure_id)
 	workspace_context.set_current_structure_context(workspace_context.get_nano_structure_context(active_structure))
 	if is_instance_valid(workspace):
