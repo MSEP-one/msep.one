@@ -8,6 +8,7 @@ extends Node3D
 @onready var _camera: Camera3D = get_viewport().get_camera_3d()
 @onready var _path_representation: Control = %PathRepresentation
 @onready var _tube: Node3D = $Tube
+@onready var _mesh: MeshInstance3D = $Tube/Cylinder
 
 
 var _workspace_context: WorkspaceContext
@@ -33,6 +34,10 @@ var _camera_last_transform: Transform3D
 var _camera_last_zoom: float
 var _camera_last_projection: Camera3D.ProjectionType
 
+# Track atomic Representation
+var _atomic_structure_renderer: AtomicStructureRenderer
+var _atomic_representation_highlighted: bool = false
+
 
 func _enter_tree() -> void:
 	var editor_viewport: WorkspaceEditorViewport = get_viewport() as WorkspaceEditorViewport
@@ -48,7 +53,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	_path_representation.draw.connect(_on_path_representation_drawn)
-	_tube.get_node("Cylinder").material_override = material
+	_mesh.material_override = material
 
 
 func build(in_workspace_context: WorkspaceContext, in_structure: CarbonNanotubeStructure) -> void:
@@ -69,6 +74,7 @@ func build(in_workspace_context: WorkspaceContext, in_structure: CarbonNanotubeS
 		.connect(_on_should_hide_virtual_object_during_simulation_changed)
 	_workspace_context.simulation_started.connect(_on_simulation_started_or_finished.bind(true))
 	_workspace_context.simulation_finished.connect(_on_simulation_started_or_finished.bind(false))
+	_refresh_atomic_preview_selection(true)
 
 
 func _ensure_structure_signal_connections(in_structure: CarbonNanotubeStructure) -> void:
@@ -76,6 +82,10 @@ func _ensure_structure_signal_connections(in_structure: CarbonNanotubeStructure)
 		in_structure.path_changed.connect(_on_tube_path_changed)
 		in_structure.chiral_indices_changed.connect(_on_tube_chiral_indices_changed.unbind(2))
 		in_structure.visibility_changed.connect(_on_object_visibility_changed)
+
+
+func set_atomic_renderer(in_renderer: AtomicStructureRenderer) -> void:
+	_atomic_structure_renderer = in_renderer
 
 
 func apply_theme(_in_theme: Theme3D) -> void:
@@ -197,6 +207,23 @@ func _update_simplified_representation_selection() -> void:
 	selection.append(_highlighted_control_points.get(0, 0.0))
 	selection.append(_highlighted_control_points.get(1, 0.0))
 	material.set_shader_parameter(&"selection", selection)
+	var has_selection: bool = _highlighted_control_points.size() > 0
+	_mesh.set_layer_mask_value(Rendering.SELECTION_PREVIEW_LAYER_BIT, has_selection)
+	_refresh_atomic_preview_selection()
+
+
+func _refresh_atomic_preview_selection(in_force_update: bool = false) -> void:
+	if _atomic_structure_renderer:
+		var has_selection: bool = _highlighted_control_points.size() > 0
+		if _atomic_representation_highlighted == has_selection and in_force_update == false: return
+		_atomic_representation_highlighted = has_selection
+		var nanotube: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
+		if has_selection:
+			_atomic_structure_renderer.highlight_atoms(nanotube.get_valid_atoms(), [], [])
+			_atomic_structure_renderer.highlight_bonds(nanotube.get_bonds_ids())
+		else:
+			_atomic_structure_renderer.lowlight_atoms(nanotube.get_valid_atoms(), [], [])
+			_atomic_structure_renderer.lowlight_bonds(nanotube.get_bonds_ids())
 
 
 #region: SignalHandlers
@@ -324,6 +351,7 @@ func _on_tube_chiral_indices_changed() -> void:
 func _on_nanotube_representation_changed(representation: RepresentationSettings.NanotubeRepresentation) -> void:
 	_simplified_representation_visible = representation == RepresentationSettings.NanotubeRepresentation.SIMPLIFIED
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
+	ScriptUtils.call_deferred_once(_refresh_atomic_preview_selection.bind(true))
 
 
 func _on_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
@@ -392,9 +420,12 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_tube_basis = in_state_snapshot["_tube_basis"]
 	_tube_radius = in_state_snapshot["_tube_radius"]
 	_highlighted_control_points = in_state_snapshot["_highlighted_control_points"].duplicate()
+	# force update highlight selection
+	_atomic_representation_highlighted = !_atomic_representation_highlighted
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 	ScriptUtils.call_deferred_once(_update_simplified_representation_colors)
 	ScriptUtils.call_deferred_once(_update_simplified_representation_selection)
+	ScriptUtils.call_deferred_once(_refresh_atomic_preview_selection.bind(true))
 	var nanotube: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
 	_ensure_structure_signal_connections(nanotube)
 #endregion: UndoRedo
