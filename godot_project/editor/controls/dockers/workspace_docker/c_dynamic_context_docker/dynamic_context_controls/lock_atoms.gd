@@ -27,6 +27,7 @@ func should_show(in_workspace_context: WorkspaceContext)-> bool:
 
 
 func _refresh_ui() -> void:
+	if not is_instance_valid(_workspace_context): return
 	var selected_atom_count: int = 0
 	for context: StructureContext in _workspace_context.get_structure_contexts_with_selection():
 		selected_atom_count += context.get_selected_atoms().size()

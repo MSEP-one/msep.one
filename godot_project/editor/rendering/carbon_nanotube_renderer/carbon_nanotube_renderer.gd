@@ -203,6 +203,8 @@ func _update_simplified_representation_selection() -> void:
 func _on_path_representation_drawn() -> void:
 	if is_queued_for_deletion() or not _visible or not _is_selectable:
 		return
+	if not is_instance_valid(_workspace_context):
+		return
 	if (_is_simulating and _should_hide_in_simulation):
 		return
 	var from_3d: Vector3 = _control_point_override.get(0, _tube_start)
