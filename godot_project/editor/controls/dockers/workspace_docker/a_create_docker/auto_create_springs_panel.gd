@@ -141,7 +141,7 @@ func _create_atom_to_anchor_springs() -> void:
 		if ctx.nano_structure is NanoVirtualAnchor:
 			anchors.append(ctx)
 		var selected_atoms: PackedInt32Array = ctx.get_selected_atoms()
-		if _ignore_hydrogens_check_button.button_pressed:
+		if _ignore_hydrogens_check_button.button_pressed and ctx.nano_structure is AtomicStructure:
 			_remove_hydrogens(ctx.nano_structure, selected_atoms)
 		if selected_atoms.size() > 0:
 			atoms[ctx] = selected_atoms
