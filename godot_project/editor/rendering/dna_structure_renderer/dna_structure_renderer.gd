@@ -86,12 +86,18 @@ var _camera_last_transform: Transform3D
 var _camera_last_zoom: float
 var _camera_last_projection: Camera3D.ProjectionType
 
+# Track atomic Representation
+var _atomic_structure_renderer: AtomicStructureRenderer
 
 func _ready() -> void:
 	_update_bases()
 	curve_changed.connect(_on_curve_changed)
 	_path_representation.draw.connect(_on_path_representation_drawn)
 	_camera = get_viewport().get_camera_3d()
+
+
+func set_atomic_renderer(in_renderer: AtomicStructureRenderer) -> void:
+	_atomic_structure_renderer = in_renderer
 
 
 func update(_delta: float) -> void:
@@ -134,6 +140,7 @@ func build(in_workspace_context: WorkspaceContext, in_structure: DnaStructure) -
 	_update_bases()
 	_ensure_structure_signal_connections(in_structure)
 	_update_visibility()
+	_refresh_atomic_preview_selection()
 
 
 func get_backbone_material(in_strand: Strand) -> ShaderMaterial:
@@ -245,6 +252,7 @@ func _on_dna_representation_changed(in_representation: DnaRepresentation) -> voi
 	if _current_representation == DnaRepresentation.SIMPLIFIED:
 		_update_bases()
 	_update_visibility()
+	_refresh_atomic_preview_selection()
 
 
 func _on_curve_changed() -> void:
@@ -281,6 +289,19 @@ func _refresh_selection_preview(in_is_selected: bool, in_starting_from_base: int
 	for base_idx: int in range(in_starting_from_base, _bases.size()):
 		_bases[base_idx].refresh_selection_preview(in_is_selected)
 	_set_shader_uniform(&"is_selected", 1.0 if in_is_selected else 0.0)
+	_refresh_atomic_preview_selection()
+
+
+func _refresh_atomic_preview_selection() -> void:
+	if _current_representation == DnaRepresentation.ATOMS_AND_BONDS and _atomic_structure_renderer:
+		var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
+		var has_selection: bool = _highlighted_control_points.size() > 0
+		if has_selection:
+			_atomic_structure_renderer.highlight_atoms(dna_structure.get_valid_atoms(), [], [])
+			_atomic_structure_renderer.highlight_bonds(dna_structure.get_bonds_ids())
+		else:
+			_atomic_structure_renderer.lowlight_atoms(dna_structure.get_valid_atoms(), [], [])
+			_atomic_structure_renderer.lowlight_bonds(dna_structure.get_bonds_ids())
 
 
 func set_control_point_selection_position_delta(in_selection_delta: Vector3) -> void:
