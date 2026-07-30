@@ -352,8 +352,12 @@ func _on_tube_chiral_indices_changed() -> void:
 
 func _on_nanotube_representation_changed(representation: RepresentationSettings.NanotubeRepresentation) -> void:
 	_simplified_representation_visible = representation == RepresentationSettings.NanotubeRepresentation.SIMPLIFIED
-	ScriptUtils.call_deferred_once(_update_simplified_representation)
 	ScriptUtils.call_deferred_once(_refresh_atomic_preview_selection.bind(true))
+	# Call deferred runs after _draw, this is too late, let's flush it now
+	if ScriptUtils.is_callable_queued(_update_simplified_representation):
+		ScriptUtils.flush_now(_update_simplified_representation)
+	else:
+		_update_simplified_representation
 
 
 func _on_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
