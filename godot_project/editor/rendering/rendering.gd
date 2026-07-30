@@ -468,6 +468,7 @@ func _get_renderer_for_nanotube_structure(in_structure_id: int) -> CarbonNanotub
 	if need_to_create_nanotube_renderer:
 		nanotube_renderer = CarbonNanotubeRendererScn.instantiate()
 		nanotube_renderer.set_name(nanotube_renderer_name)
+		nanotube_renderer.set_atomic_renderer(_get_renderer_for_atomic_structure_id(in_structure_id))
 		_nanotube_structure_renderers.add_child(nanotube_renderer)
 	else:
 		nanotube_renderer = _nanotube_structure_renderers.get_node(nanotube_renderer_name)
