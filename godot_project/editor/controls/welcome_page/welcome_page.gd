@@ -21,6 +21,13 @@ func _ready() -> void:
 	load_workspace_from_disk.pressed.connect(_on_load_workspace_from_disk_pressed)
 	visibility_changed.connect(_update_workspaces_list)
 
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		if is_visible_in_tree():
+			_update_workspaces_list()
+
+
 func _update_workspaces_list() -> void:
 	if !is_visible_in_tree():
 		return
