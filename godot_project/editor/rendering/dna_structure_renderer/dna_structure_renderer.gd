@@ -507,6 +507,8 @@ func _update_visibility() -> void:
 func _on_path_representation_drawn() -> void:
 	if is_queued_for_deletion() or not _is_selectable or Engine.is_editor_hint():
 		return
+	if not is_instance_valid(_workspace_context):
+		return
 	if (_is_simulating and _should_hide_in_simulation):
 		return
 	var dna_structure: DnaStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as DnaStructure
