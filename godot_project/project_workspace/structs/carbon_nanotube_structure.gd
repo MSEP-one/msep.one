@@ -409,16 +409,32 @@ func atom_get_position(in_atom_id: int) -> Vector3:
 
 
 func atom_get_bonds(in_atom_id: int) -> PackedInt32Array:
-	var unpacked_id: UnpackedAtomId = _unpack_atom_id(in_atom_id)
+	var unpacked_atom_id: UnpackedAtomId = _unpack_atom_id(in_atom_id)
 	var atom_bonds: PackedInt32Array = []
 	for i: int in _template.bonds.size():
 		var bond: CarbonTubuleBasis.Bond = _template.bonds[i]
-		if (bond.from_coordinate == unpacked_id.sub_atom_id or bond.to_coordinate == unpacked_id.sub_atom_id):
-			var repetition_idx: int = unpacked_id.repetition_idx
-			if bond.is_glue and bond.to_coordinate == unpacked_id.sub_atom_id:
-				repetition_idx += 1
-			if is_bond_valid(_get_bond_id(repetition_idx, i)):
-				atom_bonds.append(_get_bond_id(repetition_idx, i))
+		if unpacked_atom_id.sub_atom_id in [bond.from_coordinate, bond.to_coordinate]:
+			var bond_repetition_idx: int = unpacked_atom_id.repetition_idx
+			var other_atom_sub_id: int = INVALID_ATOM_ID
+			var other_atom_repetition_idx: int = bond_repetition_idx
+			if bond.from_coordinate == unpacked_atom_id.sub_atom_id:
+				other_atom_sub_id = bond.to_coordinate
+				if bond.is_glue: # bonded to the previous repetition
+					other_atom_repetition_idx -= 1
+			elif bond.to_coordinate == unpacked_atom_id.sub_atom_id:
+				other_atom_sub_id = bond.from_coordinate
+				if bond.is_glue: # bonded to the next repetition
+					if bond_repetition_idx == 0:
+						continue
+					other_atom_repetition_idx += 1
+					bond_repetition_idx += 1
+			else:
+				assert(false, "Bond id doesn't match atom id!")
+				continue
+			if not is_atom_valid(_get_atom_id(other_atom_repetition_idx, other_atom_sub_id)):
+				continue
+			if is_bond_valid(_get_bond_id(bond_repetition_idx, i)):
+				atom_bonds.append(_get_bond_id(bond_repetition_idx, i))
 	return atom_bonds
 
 
@@ -432,7 +448,7 @@ func atom_get_bond_target(in_atom_id: int, in_bond_id: int) -> int:
 		other_atom_sub_id = bond.to_coordinate
 		if bond.is_glue: # bonded to the previous repetition
 			other_atom_repetition_idx -= 1
-	elif bond.from_coordinate == unpacked_atom_id.sub_atom_id:
+	elif bond.to_coordinate == unpacked_atom_id.sub_atom_id:
 		other_atom_sub_id = bond.from_coordinate
 		if bond.is_glue: # bonded to the next repetition
 			other_atom_repetition_idx += 1
