@@ -734,7 +734,7 @@ func _calculate_partial_selection_translation(in_bond: Vector3i, in_delta_transl
 
 static func calculate_transform_for_bond(in_first_pos: Vector3, in_sec_pos: Vector3,
 			in_up_vector: Vector3) -> Transform3D:
-	if in_first_pos == in_sec_pos:
+	if in_first_pos.is_equal_approx(in_sec_pos):
 		return Transform3D().scaled(Vector3.ZERO)
 	var particle_position: Vector3 = (in_first_pos + in_sec_pos) / 2.0
 	# Zero length bonds cause rendering issues. A length 0.025 makes the
