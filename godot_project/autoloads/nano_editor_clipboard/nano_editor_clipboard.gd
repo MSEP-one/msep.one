@@ -753,10 +753,10 @@ func paste_object(
 		paste_position_offset *= carbon_atom_diameter
 		var new_transform: Transform3D = camera_transform * local_to_camera_transform
 		new_transform.origin += paste_position_offset
-		if new_structure is NanoVirtualAnchor:
-			new_structure.set_position(new_transform.origin)
-		else:
+		if new_structure.has_transform():
 			new_structure.set_transform(new_transform)
+		else:
+			new_structure.set_position(new_transform.origin)
 	if new_structure is DnaStructure or new_structure is CarbonNanotubeStructure:
 		var local_to_camera_control_points: PackedVector3Array = in_entity_data[&"local_to_camera_control_points"]
 		assert(new_structure.get_control_point_count() == local_to_camera_control_points.size())
