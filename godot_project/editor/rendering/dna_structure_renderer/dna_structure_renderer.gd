@@ -289,7 +289,7 @@ func _refresh_selection_preview(in_is_selected: bool, in_starting_from_base: int
 	for base_idx: int in range(in_starting_from_base, _bases.size()):
 		_bases[base_idx].refresh_selection_preview(in_is_selected)
 	_set_shader_uniform(&"is_selected", 1.0 if in_is_selected else 0.0)
-	_refresh_atomic_preview_selection()
+	_refresh_atomic_preview_selection.call_deferred()
 
 
 func _refresh_atomic_preview_selection() -> void:

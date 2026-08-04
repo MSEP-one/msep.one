@@ -337,6 +337,7 @@ func _on_tube_path_changed(from: Vector3, to: Vector3) -> void:
 		_tube_basis = nanotube.get_repetition_transform(0).basis
 	queue_redraw()
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
+	_refresh_atomic_preview_selection.bind(true).call_deferred()
 
 
 func _on_object_visibility_changed(in_is_visible: bool) -> void:
@@ -348,6 +349,7 @@ func _on_object_visibility_changed(in_is_visible: bool) -> void:
 func _on_tube_chiral_indices_changed() -> void:
 	queue_redraw()
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
+	_refresh_atomic_preview_selection.bind(true).call_deferred()
 
 
 func _on_nanotube_representation_changed(representation: RepresentationSettings.NanotubeRepresentation) -> void:
