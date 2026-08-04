@@ -3,6 +3,13 @@ extends Node
 const WorkspaceContextScn: PackedScene = preload("res://project_workspace/workspace_context/workspace_context.tscn")
 const DEFAULT_STRUCTURE_NAME = "Workspace"
 
+## Used to indicate ResourceSaver if DNA Objects should be exported to
+## third party formats (xyz, pdb)
+const CUSTOM_SAVE_FLAG_EXPORT_DNA: int = 1 << 8
+## Used to indicate ResourceSaver if Nanotube Objects should be exported to
+## third party formats (xyz, pdb)
+const CUSTOM_SAVE_FLAG_EXPORT_NANOTUBE: int = 1 << 9
+
 signal homepage_activated()
 signal workspace_loaded(workspace: Workspace)
 signal workspace_activated(workspace: Workspace)
@@ -248,12 +255,23 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	_update_window_title()
 
 
-func export_workspace(in_workspace: Workspace, in_path: String = "", _in_export_dna: bool = false) -> void:
+func export_workspace(
+		in_workspace: Workspace,
+		in_path: String = "",
+		in_export_dna := false,
+		in_export_nanotube := false
+	) -> void:
 	var path: String = in_path
 	if path.is_empty():
 		Editor_Utils.get_editor().show_export_workspace_dialog(in_workspace)
 		return
-	var err: Error = ResourceSaver.save(in_workspace, path)
+
+	var save_flags: int = 0
+	if in_export_dna:
+		save_flags = save_flags | CUSTOM_SAVE_FLAG_EXPORT_DNA
+	if in_export_nanotube:
+		save_flags = save_flags | CUSTOM_SAVE_FLAG_EXPORT_NANOTUBE
+	var err: Error = ResourceSaver.save(in_workspace, path, save_flags)
 	if err != OK:
 		Editor_Utils.get_editor().prompt_error_msg(tr(&"Failed to export to file {0} with error '{1}'").format([path, error_string(err)]))
 
@@ -482,8 +500,13 @@ func _on_molecular_editor_load_workspace_confirmed(in_path: String) -> void:
 	load_and_activate_workspace(in_path)
 
 
-func _on_molecular_editor_export_workspace_confirmed(in_workspace: Workspace, in_path: String, in_export_dna: bool) -> void:
-	export_workspace(in_workspace, in_path, in_export_dna)
+func _on_molecular_editor_export_workspace_confirmed(
+		in_workspace: Workspace,
+		in_path: String,
+		in_export_dna: bool,
+		in_export_nanotube: bool
+	) -> void:
+	export_workspace(in_workspace, in_path, in_export_dna, in_export_nanotube)
 
 
 func _on_about_msep_one_confirmed() -> void:

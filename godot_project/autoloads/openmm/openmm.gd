@@ -287,9 +287,14 @@ func request_import(file_path: String, in_generate_bonds: bool, in_add_hydrogens
 	return promise
 
 
-func request_export(file_path: String, in_workspace_context: WorkspaceContext) -> Promise:
+func request_export(
+		file_path: String,
+		in_workspace_context: WorkspaceContext,
+		in_export_dna: bool,
+		in_export_nanotube: bool
+	) -> Promise:
 	var promise := Promise.new()
-	_request_export(file_path, in_workspace_context, promise)
+	_request_export(file_path, in_workspace_context, promise, in_export_dna, in_export_nanotube)
 	return promise
 
 
@@ -415,20 +420,29 @@ func _request_import(
 
 
 func _request_export(
-	in_file_path: String,
-	in_workspace_context: WorkspaceContext,
-	out_promise: Promise) -> void:
+		in_file_path: String,
+		in_workspace_context: WorkspaceContext,
+		out_promise: Promise,
+		in_export_dna: bool,
+		in_export_nanotube: bool
+	) -> void:
 	
-	const SELECTION_ONLY: AtomicStructure.AtomSet = AtomicStructure.AtomSet.ALL
+	const EXPORT_ALL: AtomicStructure.AtomSet = AtomicStructure.AtomSet.ALL
 	const INCLUDE_VIRTUAL_OBJECTS: bool = false
 	const INCLUDE_SPRINGS: bool = false
 	const LOCK_ATOMS: bool = false
 	const PASSIVATE_MOLECULES: bool = false
 	const NUDGE_ATOMS_FIX: bool = false
-	const INCLUDE_DNA: bool = true
+	
+	var included_virtual_atomic: Array[StringName]
+	if in_export_dna:
+		included_virtual_atomic.append(&"DnaStructure")
+	if in_export_nanotube:
+		included_virtual_atomic.append(&"CarbonNanotubeStructure")
+	
 	var payload: OpenMMPayload = _create_payload(in_workspace_context,
-			SELECTION_ONLY, INCLUDE_VIRTUAL_OBJECTS, INCLUDE_SPRINGS,
-			LOCK_ATOMS, PASSIVATE_MOLECULES, NUDGE_ATOMS_FIX, INCLUDE_DNA)
+			EXPORT_ALL, INCLUDE_VIRTUAL_OBJECTS, INCLUDE_SPRINGS,
+			LOCK_ATOMS, PASSIVATE_MOLECULES, NUDGE_ATOMS_FIX, included_virtual_atomic)
 	
 	var thread := Thread.new()
 	_threads.push_back(thread)
@@ -890,7 +904,7 @@ func _create_payload(
 			in_lock_atoms: bool,
 			in_passivate_molecules: bool,
 			in_nudge_atoms_fix: bool = false,
-			in_include_virtual_atomic: bool = false) -> OpenMMPayload:
+			in_include_virtual_atomic: Array[StringName] = []) -> OpenMMPayload:
 	var structure_contexts: Array[StructureContext] = in_workspace_context.get_all_structure_contexts()
 	var virtual_object_contexts: Array[StructureContext] = structure_contexts.filter(_is_virtual_object_context)
 	match in_atom_set:
@@ -910,8 +924,8 @@ func _create_payload(
 	for context: StructureContext in structure_contexts:
 		var structure: NanoStructure = context.nano_structure
 		var should_include: bool = structure is AtomicStructure
-		if not in_include_virtual_atomic:
-			should_include = should_include and not structure is AtomicVirtualStructure
+		if structure is AtomicVirtualStructure:
+			should_include = structure.get_type() in in_include_virtual_atomic
 		
 		if should_include:
 			if structure is AtomicVirtualStructure:

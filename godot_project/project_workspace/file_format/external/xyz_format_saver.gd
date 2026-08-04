@@ -23,7 +23,7 @@ func _get_recognized_extensions(_resource: Resource) -> PackedStringArray:
 	return extensions
 
 
-func _save(resource: Resource, path: String, _flags: int) -> Error:
+func _save(resource: Resource, path: String, in_flags: int) -> Error:
 	var workspace: Workspace = resource as Workspace
 	if not workspace:
 		return ERR_INVALID_DATA
@@ -32,9 +32,22 @@ func _save(resource: Resource, path: String, _flags: int) -> Error:
 	if not file:
 		return ERR_FILE_CANT_WRITE
 	
+	var export_dna: bool = in_flags & MolecularEditorContext.CUSTOM_SAVE_FLAG_EXPORT_DNA
+	var export_nanotube: bool = in_flags & MolecularEditorContext.CUSTOM_SAVE_FLAG_EXPORT_NANOTUBE
+	
 	# First line - Atoms count
 	var total_atom_count: int = 0
 	for structure: NanoStructure in workspace.get_structures():
+		if structure is DnaStructure:
+			if not export_dna:
+				continue
+			structure.set_block_signals(true)
+			structure.set_force_track_atoms(true)
+		elif structure is CarbonNanotubeStructure:
+			if not export_nanotube:
+				continue
+			structure.set_block_signals(true)
+			structure.set_force_track_atoms(true)
 		if structure is AtomicStructure:
 			total_atom_count += structure.get_valid_atoms_count()
 	file.store_line(str(total_atom_count))
@@ -50,7 +63,10 @@ func _save(resource: Resource, path: String, _flags: int) -> Error:
 	for structure: NanoStructure in workspace.get_structures():
 		if not structure is AtomicStructure:
 			continue
-		
+		if structure is DnaStructure and not export_dna:
+			continue
+		if structure is CarbonNanotubeStructure and not export_nanotube:
+			continue
 		var atoms_count: int = structure.get_valid_atoms_count()
 		if atoms_count == 0:
 			continue
@@ -60,6 +76,8 @@ func _save(resource: Resource, path: String, _flags: int) -> Error:
 			var atomic_number: int = structure.atom_get_atomic_number(atom_id)
 			var element_data: ElementData = PeriodicTable.get_by_atomic_number(atomic_number)
 			file.store_line("%s %f %f %f" % [element_data.symbol, position.x, position.y, position.z])
-
+		if structure is DnaStructure or structure is CarbonNanotubeStructure:
+			structure.set_force_track_atoms(false)
+			structure.set_block_signals(false)
 	file.close()
 	return OK

@@ -31,8 +31,11 @@ func is_export_dna_enabled() -> bool:
 	return _export_settings.is_export_dna_enabled()
 
 
+func is_export_nanotube_enabled() -> bool:
+	return _export_settings.is_export_nanotube_enabled()
+
+
 func _on_about_to_popup() -> void:
-	_export_settings.set_export_dna_enabled(true)
 	_export_settings.visible = _export_settings.should_show()
 
 

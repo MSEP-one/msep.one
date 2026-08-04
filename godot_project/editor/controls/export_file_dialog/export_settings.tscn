@@ -30,3 +30,9 @@ unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
 text = "Include DNA Objects as Atoms and Bonds"
+
+[node name="CheckExportNanotube" type="CheckBox" parent="PanelContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Include Carbon Nanotubes as Atoms and Bonds"

@@ -15,12 +15,16 @@ func _get_recognized_extensions(_resource: Resource) -> PackedStringArray:
 	return extensions
 
 
-func _save(in_resource: Resource, in_path: String, _flags: int) -> Error:
+func _save(in_resource: Resource, in_path: String, in_flags: int) -> Error:
 	var workspace_context: WorkspaceContext = MolecularEditorContext.get_workspace_context(in_resource)
+	
 	if not is_instance_valid(workspace_context):
 		return ERR_INVALID_DATA
 	
-	var promise: Promise = OpenMM.request_export(in_path, workspace_context)
+	var export_dna: bool = in_flags & MolecularEditorContext.CUSTOM_SAVE_FLAG_EXPORT_DNA
+	var export_nanotube: bool = in_flags & MolecularEditorContext.CUSTOM_SAVE_FLAG_EXPORT_NANOTUBE
+	
+	var promise: Promise = OpenMM.request_export(in_path, workspace_context, export_dna, export_nanotube)
 	await promise.wait_for_fulfill()
 	
 	if promise.has_error():
