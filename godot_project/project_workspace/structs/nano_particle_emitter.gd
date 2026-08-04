@@ -9,7 +9,7 @@ class_name NanoParticleEmitter extends NanoStructure
 
 signal transform_changed(new_transform: Transform3D)
 signal parameters_changed(in_parameters: NanoParticleEmitterParameters)
-
+signal instances_updated()
 
 const DEFAULT_ROTATION = Quaternion(Vector3.RIGHT, deg_to_rad(90))
 const DEFAULT_TRANSFORM = Transform3D(Basis(DEFAULT_ROTATION))
@@ -124,6 +124,7 @@ func ensure_instances_exists() -> void:
 		_instances_atom_ids.resize(total_count)
 		_instances_bond_ids.resize(total_count)
 		_update_instances_original_positions() # Could be optimized
+		instances_updated.emit()
 		return
 	
 	var was_being_edited: bool = _instances_group.is_being_edited()
@@ -208,6 +209,7 @@ func revalidate_all_instances() -> void:
 		for bond_id: int in instance:
 			_instances_group.revalidate_bond(bond_id)
 	_instances_group.end_edit()
+	instances_updated.emit()
 
 
 func get_instance_atoms_ids() -> Array[PackedInt32Array]:
@@ -318,6 +320,8 @@ func set_transform(new_transform: Transform3D) -> void:
 	# If the emitter moved, the existing instances must be moved too or they will be emitted
 	# from the wrong place. 
 	if not _transform.is_equal_approx(_instances_reference_transform):
+		if _instances_group == null:
+			await instances_updated
 		_instances_original_positions.clear()
 		var reference_inverse: Transform3D = _instances_reference_transform.affine_inverse()
 		_instances_group.start_edit()
