@@ -711,17 +711,17 @@ func springs_get_all() -> PackedInt32Array:
 
 
 func springs_get_valid() -> PackedInt32Array:
-	assert(false, "Unsupported")
+	# Unsupported
 	return PackedInt32Array()
 
 
 func springs_count() -> int:
-	assert(false, "Unsupported")
+	# Unsupported
 	return 0
 
 
 func atom_get_springs(_in_atom_id: int) -> PackedInt32Array:
-	assert(false, "Unsupported")
+	# Unsupported
 	return PackedInt32Array()
 #endregion: Anchors and Springs
 
