@@ -382,6 +382,10 @@ class CrystalCell:
 		for coord: AtomCoordinate in basis:
 			if coord.position.distance_squared_to(pos) <= (search_radius**2):
 				return false
+		if is_equal_approx(pos.z, 1.0):
+			# atom is at the end of the cell, check if it overlaps with an atom at the start
+			pos.z = 0
+			return _position_is_unoccupied(pos, search_radius)
 		return true
 	
 	func _generate_cell_vectors() -> void:
