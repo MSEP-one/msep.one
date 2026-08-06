@@ -5,6 +5,7 @@ const NanotubeRepresentation = RepresentationSettings.NanotubeRepresentation
 
 signal path_changed(from: Vector3, to: Vector3)
 signal chiral_indices_changed(n: int, m: int)
+signal trim_invalid_atoms_policy_changed(trim_invalid_valence_carbons: bool)
 
 @export var _chiral_index_n: int
 @export var _chiral_index_m: int
@@ -253,6 +254,8 @@ func end_edit() -> void:
 			super.end_edit()
 		if _last_n != _chiral_index_n or _last_m != _chiral_index_m:
 			chiral_indices_changed.emit(_chiral_index_n, _chiral_index_m)
+		if _last_trim_invalid_valence_carbons != _trim_invalid_valence_carbons:
+			trim_invalid_atoms_policy_changed.emit(_trim_invalid_valence_carbons)
 		emit_changed()
 	else:
 		_is_being_edited = false

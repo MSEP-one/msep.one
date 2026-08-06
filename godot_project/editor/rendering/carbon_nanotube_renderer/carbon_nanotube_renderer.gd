@@ -81,6 +81,7 @@ func _ensure_structure_signal_connections(in_structure: CarbonNanotubeStructure)
 	if not in_structure.visibility_changed.is_connected(_on_object_visibility_changed):
 		in_structure.path_changed.connect(_on_tube_path_changed)
 		in_structure.chiral_indices_changed.connect(_on_tube_chiral_indices_changed.unbind(2))
+		in_structure.trim_invalid_atoms_policy_changed.connect(_on_trim_invalid_atoms_policy_changed.unbind(1))
 		in_structure.visibility_changed.connect(_on_object_visibility_changed)
 
 
@@ -350,6 +351,11 @@ func _on_tube_chiral_indices_changed() -> void:
 	queue_redraw()
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 	_refresh_atomic_preview_selection.bind(true).call_deferred()
+
+
+func _on_trim_invalid_atoms_policy_changed() -> void:
+	if _simplified_representation_visible == false:
+		_refresh_atomic_preview_selection.bind(true).call_deferred()
 
 
 func _on_nanotube_representation_changed(representation: RepresentationSettings.NanotubeRepresentation) -> void:
