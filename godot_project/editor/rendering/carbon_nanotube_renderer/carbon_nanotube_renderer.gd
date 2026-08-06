@@ -347,6 +347,8 @@ func _on_object_visibility_changed(in_is_visible: bool) -> void:
 
 
 func _on_tube_chiral_indices_changed() -> void:
+	var nanotube_structure: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
+	_tube_radius = nanotube_structure.get_estimated_diameter() / 2.0
 	queue_redraw()
 	ScriptUtils.call_deferred_once(_update_simplified_representation)
 	_refresh_atomic_preview_selection.bind(true).call_deferred()
