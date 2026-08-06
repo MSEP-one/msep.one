@@ -15,7 +15,11 @@ enum ClipboardContentType {
 }
 
 
-func copy(in_workspace_context: WorkspaceContext) -> void:
+func copy(
+		in_workspace_context: WorkspaceContext,
+		out_hidden_atoms_copied: Dictionary[int, PackedInt32Array] = {}, # {structure_id: int : atoms}
+		out_hidden_bonds_copied: Dictionary[int, PackedInt32Array] = {}  # {structure_id: int : bonds}
+	) -> void:
 	var could_copy_hidden_hydrogens: bool = _could_copy_hidden_hydrogens(in_workspace_context)
 	var copy_hidden_hydrogens: bool = false
 	if could_copy_hidden_hydrogens:
@@ -40,6 +44,8 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 		var nano_structure: NanoStructure = selection_data.nano_structure
 		var atom_selection: PackedInt32Array = selection_data.atom_selection
 		var bond_selection: PackedInt32Array = selection_data.bond_selection
+		var copied_hidden_atoms: PackedInt32Array = selection_data.copied_hidden_atoms
+		var copied_hidden_bonds: PackedInt32Array = selection_data.copied_hidden_bonds
 		var spring_selection: PackedInt32Array = selection_data.spring_selection
 	
 		if nano_structure == null or nano_structure.get_type() == StringName():
@@ -53,6 +59,8 @@ func copy(in_workspace_context: WorkspaceContext) -> void:
 				_copy_springs(
 					structure_context, nano_structure, spring_selection, atom_selection, new_content
 				)
+				out_hidden_atoms_copied[nano_structure.get_int_guid()] = copied_hidden_atoms
+				out_hidden_bonds_copied[nano_structure.get_int_guid()] = copied_hidden_bonds
 			&"Cylinder",&"Cone",&"Pyramid",&"Box",&"Capsule",&"Plane",&"Prism",&"Sphere",&"Torus":
 				_copy_reference_shape(structure_context, nano_structure, new_content)
 			&"RotaryMotor",&"LinearMotor":
@@ -97,6 +105,8 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 	var atom_selection: PackedInt32Array = []
 	var spring_selection: PackedInt32Array = []
 	var bond_selection: PackedInt32Array = []
+	var copied_hidden_atoms: PackedInt32Array = []
+	var copied_hidden_bonds: PackedInt32Array = []
 	var result: Array[Dictionary] = []
 	const SELECTION_WITH_EMPTY_GROUPS = true
 	const SELECTION_WITH_HIDDEN_OBJECTS = true
@@ -120,6 +130,8 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 						if structure.atom_is_hydrogen(other_atom_id):
 							atom_selection.append(other_atom_id)
 							bond_selection.append(bond_id)
+							copied_hidden_atoms.append(other_atom_id)
+							copied_hidden_bonds.append(bond_id)
 		elif nano_structure is AtomicStructure and not nano_structure is AtomicVirtualStructure:
 			atom_selection = (nano_structure as AtomicStructure).get_valid_atoms()
 			spring_selection = (nano_structure as AtomicStructure).springs_get_all()
@@ -128,7 +140,9 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 			atom_selection = atom_selection,
 			bond_selection = bond_selection,
 			spring_selection = spring_selection,
-			structure_context = structure_context
+			copied_hidden_atoms = copied_hidden_atoms,
+			copied_hidden_bonds = copied_hidden_bonds,
+			structure_context = structure_context,
 		}
 		result.push_back(context_selection)
 	return result
@@ -331,9 +345,11 @@ func _copy_nanotube_structure(in_structure_context: StructureContext,
 
 
 func cut(out_workspace_context: WorkspaceContext) -> void:
-	await copy(out_workspace_context)
+	var out_hidden_atoms_copied: Dictionary[int, PackedInt32Array] = {} # {structure_id: int : atoms}
+	var out_hidden_bonds_copied: Dictionary[int, PackedInt32Array] = {} # {structure_id: int : bonds}
+	await copy(out_workspace_context, out_hidden_atoms_copied, out_hidden_bonds_copied)
 	if out_workspace_context.has_selection():
-		out_workspace_context.action_delete.execute_from_cut_command()
+		out_workspace_context.action_delete.execute_from_cut_command(out_hidden_atoms_copied, out_hidden_bonds_copied)
 
 
 func has_content() -> bool:
