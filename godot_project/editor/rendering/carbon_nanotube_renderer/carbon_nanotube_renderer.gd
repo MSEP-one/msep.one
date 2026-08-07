@@ -235,17 +235,10 @@ func _on_path_representation_drawn() -> void:
 		return
 	if (_is_simulating and _should_hide_in_simulation):
 		return
+	if _simplified_representation_visible:
+		_draw_cylinder_caps()
 	var from_3d: Vector3 = _control_point_override.get(0, _tube_start)
 	var to_3d: Vector3 = _control_point_override.get(1, _tube_end)
-	if _simplified_representation_visible:
-		var atom_color: Color = material.get_shader_parameter(&"atom_color")
-		var highlight_color: Color = material.get_shader_parameter(&"highlight_color")
-		var col: Color = highlight_color if _highlighted_control_points.get(0, false) else atom_color
-		var width: int = 3 if _highlighted_control_points.get(0, false) else 2
-		_draw_cylinder_cap(from_3d, col, width)
-		col = highlight_color if _highlighted_control_points.get(1, false) else atom_color
-		width = 3 if _highlighted_control_points.get(1, false) else 2
-		_draw_cylinder_cap(to_3d, col, width)
 	var from: Vector2 = _camera.unproject_position(from_3d)
 	var to: Vector2 = _camera.unproject_position(to_3d)
 	var path_width: int = 2
@@ -268,14 +261,38 @@ func _on_path_representation_drawn() -> void:
 	_path_representation.draw_circle(to, CONTROL_POINT_RADIUS, _get_control_point_color(1))
 
 
-func _draw_cylinder_cap(in_position: Vector3, in_color: Color, in_width: int) -> void:
+func _draw_cylinder_caps() -> void:
+	var atom_color: Color = material.get_shader_parameter(&"atom_color")
+	var highlight_color: Color = material.get_shader_parameter(&"highlight_color")
+	var col_from: Color = highlight_color if _highlighted_control_points.get(0, false) else atom_color
+	var col_to: Color = highlight_color if _highlighted_control_points.get(1, false) else atom_color
+	var width_from: int = 3 if _highlighted_control_points.get(0, false) else 2
+	var width_to: int = 3 if _highlighted_control_points.get(1, false) else 2
+	_draw_cylinder_cap(_tube_start, _tube_basis.z, col_from, width_from)
+	_draw_cylinder_cap(_tube_end, _tube_basis.z, col_to, width_to)
+	if _control_point_override.size():
+		var from: Vector3 = _control_point_override.get(0, _tube_start)
+		var to: Vector3 = _control_point_override.get(1, _tube_end)
+		var axle_override: Vector3 = from.direction_to(to)
+		_draw_cylinder_cap(from, axle_override, highlight_color, 3)
+		_draw_cylinder_cap(to, axle_override, highlight_color, 3)
+		_draw_cylinder_edges(from, to, highlight_color, 3)
+
+
+func _draw_cylinder_cap(in_position: Vector3, in_axle: Vector3, in_color: Color, in_width: int) -> void:
 	const MIN_STEPS: float = 8
 	var step_size: float = (2.0 * PI) / MIN_STEPS
 	var angle: float = 0
 	var points: PackedVector2Array
 	var colors: PackedColorArray
+	var camera_to_point: Vector3 = (
+		-_camera.global_basis.z
+		if _camera.projection == Camera3D.PROJECTION_ORTHOGONAL
+		else _camera.global_position.direction_to(in_position)
+	)
+	var up: Vector3 = in_axle.cross(camera_to_point).normalized()
 	while angle < 2.0 * PI:
-		var offset: Vector3 = _tube_basis.y.rotated(_tube_basis.z, angle) * _tube_radius
+		var offset: Vector3 = up.rotated(in_axle, angle) * _tube_radius
 		var next_point: Vector2 = _camera.unproject_position(in_position + offset)
 		const MAX_BAKE_DISTANCE_IN_PIXELS_SQUARED = 6.0
 		while points.size() > 0 and points[-1].distance_squared_to(next_point) > MAX_BAKE_DISTANCE_IN_PIXELS_SQUARED:
@@ -283,12 +300,29 @@ func _draw_cylinder_cap(in_position: Vector3, in_color: Color, in_width: int) ->
 			# This should ensure smothness without sacrifice performance
 			step_size *= 0.5
 			angle -= step_size
-			offset = _tube_basis.y.rotated(_tube_basis.z, angle) * _tube_radius
+			offset = up.rotated(in_axle, angle) * _tube_radius
 			next_point = _camera.unproject_position(in_position + offset)
 		points.append(next_point)
 		colors.append(in_color)
 		angle += step_size
 	_path_representation.draw_polyline_colors(points, colors, in_width)
+
+
+func _draw_cylinder_edges(in_from: Vector3, in_to: Vector3, in_color: Color, in_width: int) -> void:
+	var top_points: PackedVector2Array = []
+	var bottom_points: PackedVector2Array = []
+	var axle: Vector3 = in_from.direction_to(in_to)
+	for point: Vector3 in [in_from, in_to]:
+		var camera_to_point: Vector3 = (
+			-_camera.global_basis.z
+			if _camera.projection == Camera3D.PROJECTION_ORTHOGONAL
+			else _camera.global_position.direction_to(point)
+		)
+		var up: Vector3 = axle.cross(camera_to_point).normalized()
+		top_points.append(_camera.unproject_position(point + up * _tube_radius))
+		bottom_points.append(_camera.unproject_position(point - up * _tube_radius))
+	_path_representation.draw_line(top_points[0], top_points[1], in_color, in_width)
+	_path_representation.draw_line(bottom_points[0], bottom_points[1], in_color, in_width)
 
 
 func _get_outline_color() -> Color:
