@@ -122,6 +122,7 @@ func _get_selected_structure_and_atoms(in_workspace_context: WorkspaceContext, i
 							bond_selection.append(bond_id)
 		elif nano_structure is AtomicStructure and not nano_structure is AtomicVirtualStructure:
 			atom_selection = (nano_structure as AtomicStructure).get_valid_atoms()
+			bond_selection = (nano_structure as AtomicStructure).get_valid_bonds()
 			spring_selection = (nano_structure as AtomicStructure).springs_get_all()
 		var context_selection: Dictionary = {
 			nano_structure = nano_structure,
