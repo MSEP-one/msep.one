@@ -368,6 +368,13 @@ func lowlight_atoms(in_atoms_ids: PackedInt32Array,
 		_refresh_atom(atom_id)
 
 
+func lowlight_all() -> void:
+	for atom_id: int in _highlighted_atoms.keys():
+		if _highlighted_atoms[atom_id] == false:
+			continue
+		_refresh_atom(atom_id)
+
+
 func _refresh_atom(in_atom_id: int, scale_factor: float = BASE_SCALE) -> void:
 	assert(_segmented_multimesh.is_external_id_known(in_atom_id), "Atempt to refresh non existing atom. Ensure
 		this operation is performed at right time in the context of NanoStructure.[start/end]_edit() call. ")

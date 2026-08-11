@@ -328,6 +328,16 @@ func lowlight_bonds(in_bonds_to_lowlight: PackedInt32Array) -> void:
 		segmented_multimesh.update_particle_color(particle_id.bond_id, first_color, second_color)
 
 
+func lowlight_all() -> void:
+	_refresh_bond_partial_influence_status([])
+	var highlighted_bonds := PackedInt32Array()
+	for bond_id: int in _highlighted_bonds.keys():
+		var is_highlighted: bool = _highlighted_bonds[bond_id]
+		if is_highlighted:
+			highlighted_bonds.append(bond_id)
+	lowlight_bonds(highlighted_bonds)
+
+
 func hide_bond_rendering() -> void:
 	return
 

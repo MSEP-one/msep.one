@@ -94,6 +94,11 @@ func lowlight_atoms(in_atoms_ids: PackedInt32Array,
 		_highlighted_atoms.erase(atom_id)
 
 
+func lowlight_all() -> void:
+	_highlighted_atoms.clear()
+	_spring_renderer.change_all_springs_color(COLOR_LOWLIGHT)
+
+
 func set_atom_selection_position_delta(in_movement_delta: Vector3) -> void:
 	_spring_renderer.handle_atom_delta_progress(in_movement_delta, _highlighted_atoms.keys())
 

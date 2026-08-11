@@ -317,6 +317,15 @@ func lowlight_atoms(in_atoms_ids: PackedInt32Array,
 		_refresh_atom(atom_id)
 
 
+func lowlight_all() -> void:
+	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
+	for atom_id: int in _highlighted_atoms.keys():
+		if _highlighted_atoms[atom_id] == false or _is_bonded_atom(atom_id, related_nanostructure):
+			continue
+		_highlighted_atoms[atom_id] = false
+		_refresh_atom(atom_id)
+
+
 func _refresh_atom(in_atom_id: int) -> void:
 	var related_nanostructure: NanoStructure = _get_related_atomic_structure()
 	if _is_bonded_atom(in_atom_id, related_nanostructure):

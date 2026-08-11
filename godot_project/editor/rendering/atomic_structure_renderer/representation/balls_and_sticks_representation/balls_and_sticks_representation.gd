@@ -42,6 +42,11 @@ func lowlight_atoms(in_atoms_ids: PackedInt32Array,
 			new_partially_influenced_bonds)
 
 
+func lowlight_all() -> void:
+	_sphere_representation.lowlight_all()
+	_stick_representation.lowlight_all()
+
+
 func add_atoms(in_atoms_ids: PackedInt32Array) -> void:
 	_sphere_representation.add_atoms(in_atoms_ids)
 	_stick_representation.add_atoms(in_atoms_ids)
