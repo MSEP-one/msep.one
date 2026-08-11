@@ -4,6 +4,8 @@ const RingMenuSpriteIconScn = preload("res://editor/controls/ring_menu/ring_menu
 
 var _workspace_context: WorkspaceContext = null
 var _ring_menu: NanoRingMenu = null
+var _hidden_atoms_cut: Dictionary[int, PackedInt32Array] # {structure_id: int : atoms}
+var _hidden_bonds_cut: Dictionary[int, PackedInt32Array] # {structure_id: int : bonds}
 var _did_create_undo_action: bool = false
 
 func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> void:
@@ -29,8 +31,15 @@ func can_delete() -> bool:
 	return not selected_structures_contexts.is_empty()
 
 
-func execute_from_cut_command() -> void:
+func execute_from_cut_command(
+		hidden_atoms_cut: Dictionary[int, PackedInt32Array], # {structure_id: int : atoms}
+		hidden_bonds_cut: Dictionary[int, PackedInt32Array]  # {structure_id: int : bonds}
+	) -> void:
+	_hidden_atoms_cut = hidden_atoms_cut
+	_hidden_bonds_cut = hidden_bonds_cut
 	_execute_action(true)
+	_hidden_atoms_cut = {}
+	_hidden_bonds_cut = {}
 
 
 func _execute_action(in_from_cut_command: bool = false) -> void:
@@ -64,7 +73,8 @@ func _execute_action(in_from_cut_command: bool = false) -> void:
 func _delete_selection_of_structure(
 		out_context: StructureContext,
 		out_already_deleted_contexts: Array[StructureContext],
-		in_from_cut_command: bool) -> void:
+		in_from_cut_command: bool
+	) -> void:
 	if _can_delete_objects(out_context, in_from_cut_command):
 		_action_delete_objects(out_context, out_already_deleted_contexts, in_from_cut_command)
 		return
@@ -83,7 +93,8 @@ func _action_delete_atoms_bonds_springs(context: StructureContext) -> void:
 func _action_delete_objects(
 		context: StructureContext,
 		out_already_deleted_contexts: Array[StructureContext],
-		in_from_cut_command: bool) -> void:
+		in_from_cut_command: bool
+	) -> void:
 	if out_already_deleted_contexts.has(context):
 		return
 	var workspace: Workspace = _workspace_context.workspace
@@ -230,7 +241,10 @@ func _delete_selection(out_context: StructureContext) -> void:
 			spring_dict[spring_id] = true
 	bonds = PackedInt32Array(bonds_dic.keys())
 	springs = PackedInt32Array(spring_dict.keys())
-
+	
+	atoms.append_array(_hidden_atoms_cut.get(out_context.get_int_guid(), []))
+	bonds.append_array(_hidden_bonds_cut.get(out_context.get_int_guid(), []))
+	
 	# Make all springs visible before deleting them, TODO: might not be necessary
 	var springs_hidden_snapshot: Dictionary = nano_struct.get_visibility_snapshot().hidden_springs
 	nano_struct.set_springs_visibility(springs_hidden_snapshot.keys(), true)
@@ -252,7 +266,10 @@ func _do_remove_atoms_bonds_springs(out_context: StructureContext, in_atoms: Pac
 	out_context.nano_structure.end_edit()
 
 
-func _can_delete_objects(in_context: StructureContext, in_from_cut_command: bool) -> bool:
+func _can_delete_objects(
+		in_context: StructureContext,
+		in_from_cut_command: bool
+	) -> bool:
 	if in_context.is_queued_for_deletion():
 		return false
 	
@@ -265,8 +282,12 @@ func _can_delete_objects(in_context: StructureContext, in_from_cut_command: bool
 			# When cutting a group, the entire group is deleted, even if has some hidden content
 			return in_context.has_selection()
 	
-	var all_atoms_selected: bool = (in_context.nano_structure is AtomicVirtualStructure) or (not in_context.nano_structure is AtomicStructure) or \
-			in_context.get_selected_atoms().size() == in_context.nano_structure.get_valid_atoms_count()
+	var hidden_count: int = _hidden_atoms_cut.get(in_context.get_int_guid(), []).size() if in_from_cut_command else 0
+	
+	var all_atoms_selected: bool = \
+			(in_context.nano_structure is AtomicVirtualStructure) \
+			or (not in_context.nano_structure is AtomicStructure) \
+			or (in_context.get_selected_atoms().size() + hidden_count) == in_context.nano_structure.get_valid_atoms_count()
 	var shape_selected: bool = true \
 			if not in_context.nano_structure is NanoShape else in_context.is_shape_selected()
 	var motor_selected: bool = true \
