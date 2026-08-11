@@ -447,6 +447,14 @@ func lowlight_atoms(in_atoms_ids: Array, in_bonds_released_from_partial_influenc
 				new_partially_influenced_bonds)
 
 
+func lowlight_all() -> void:
+	_current_representation.lowlight_all()
+	_springs_representation.lowlight_all()
+	_fixed_size_representation.lowlight_all()
+	if _are_labels_active():
+		_labels_representation.lowlight_all()
+
+
 func highlight_bonds(in_bonds_ids: PackedInt32Array) -> void:
 	_current_representation.highlight_bonds(in_bonds_ids)
 	if _are_labels_active():

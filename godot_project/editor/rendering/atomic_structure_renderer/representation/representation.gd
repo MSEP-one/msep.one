@@ -44,6 +44,11 @@ func lowlight_atoms(_in_atoms_ids: PackedInt32Array,
 	return
 
 
+func lowlight_all() -> void:
+	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
+	return
+
+
 func add_atoms(_in_atoms_ids: PackedInt32Array) -> void:
 	assert(false, ClassUtils.ABSTRACT_FUNCTION_MSG)
 	return

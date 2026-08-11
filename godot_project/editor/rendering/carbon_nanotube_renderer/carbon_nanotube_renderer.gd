@@ -219,12 +219,10 @@ func _refresh_atomic_preview_selection(in_force_update: bool = false) -> void:
 		if _atomic_representation_highlighted == has_selection and in_force_update == false: return
 		_atomic_representation_highlighted = has_selection
 		var nanotube: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
+		_atomic_structure_renderer.lowlight_all()
 		if has_selection:
 			_atomic_structure_renderer.highlight_atoms(nanotube.get_valid_atoms(), [], [])
 			_atomic_structure_renderer.highlight_bonds(nanotube.get_bonds_ids())
-		else:
-			_atomic_structure_renderer.lowlight_atoms(nanotube.get_valid_atoms(), [], [])
-			_atomic_structure_renderer.lowlight_bonds(nanotube.get_bonds_ids())
 
 
 #region: SignalHandlers
