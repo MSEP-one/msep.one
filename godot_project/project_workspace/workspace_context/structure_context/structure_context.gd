@@ -138,6 +138,8 @@ func is_editable() -> bool:
 		elif workspace_context.is_simulating() and nano_structure.get_representation_settings() \
 				.get_should_hide_virtual_object_during_simulation(nano_structure.get_script()):
 			_is_editable = false
+			if workspace_context.is_applying_simulation_state():
+				_is_editable = true
 		else:
 			_is_editable = is_active() or workspace_context.workspace.is_a_ancestor_of_b(
 					workspace_context.get_current_structure_context().nano_structure,
