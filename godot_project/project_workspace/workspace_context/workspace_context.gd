@@ -1596,6 +1596,10 @@ func snapshot_moment(in_operation_name: String) -> void:
 		_is_applying_simulation_state = true
 		
 		# apply overdue signals, ensure snapshots contain up to date state
+		for structure_context: StructureContext in _structure_contexts.values():
+			# This is to make invisible virtual objects visible for taking this snapshot
+			structure_context.mark_is_editable_dirty()
+		_queue_emit_new_editable_structures()
 		_emit_selection_in_structures_changed()
 		_emit_structure_content_changed()
 		

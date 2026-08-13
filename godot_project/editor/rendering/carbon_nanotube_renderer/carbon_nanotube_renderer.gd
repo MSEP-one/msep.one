@@ -191,6 +191,8 @@ func _update_simplified_representation() -> void:
 
 func _update_simplified_representation_colors() -> void:
 	var nanotube_structure: CarbonNanotubeStructure = _workspace_context.workspace.get_structure_by_int_guid(_structure_id) as CarbonNanotubeStructure
+	if nanotube_structure == null:
+		return
 	var representation_settings: RepresentationSettings = nanotube_structure.get_representation_settings()
 	var color_schema: PeriodicTable.ColorSchema = representation_settings.get_color_schema()
 	var color_palette: PeriodicTableColorPalette = PeriodicTable.PALETTES[color_schema]
@@ -214,7 +216,7 @@ func _update_simplified_representation_selection() -> void:
 
 
 func _refresh_atomic_preview_selection(in_force_update: bool = false) -> void:
-	if _atomic_structure_renderer:
+	if _atomic_structure_renderer and not _atomic_structure_renderer.is_queued_for_deletion():
 		var has_selection: bool = _highlighted_control_points.size() > 0
 		if _atomic_representation_highlighted == has_selection and in_force_update == false: return
 		_atomic_representation_highlighted = has_selection
