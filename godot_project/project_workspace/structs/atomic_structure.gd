@@ -730,8 +730,10 @@ func find_atoms_and_bonds_connected_to(in_atom_id: int) -> Dictionary[StringName
 			visited_atoms[atom_id] = true
 			var atom_bonds: PackedInt32Array = atom_get_bonds(atom_id)
 			for bond_id: int in atom_bonds:
-				visited_bonds[bond_id] = true
 				var other_atom_id: int = atom_get_bond_target(atom_id, bond_id)
+				if not is_atom_visible(other_atom_id):
+					continue
+				visited_bonds[bond_id] = true
 				if visited_atoms.get(other_atom_id, false) == true:
 					continue
 				new_findings[other_atom_id] = true
