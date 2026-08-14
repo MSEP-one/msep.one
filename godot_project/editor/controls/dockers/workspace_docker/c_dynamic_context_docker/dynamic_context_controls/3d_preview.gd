@@ -67,4 +67,6 @@ func _on_workspace_representation_settings_changed(_representation: Rendering.Re
 
 
 func _internal_update() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
 	three_d_preview_container.texture = _workspace_context.get_rendering().get_selection_preview_texture()

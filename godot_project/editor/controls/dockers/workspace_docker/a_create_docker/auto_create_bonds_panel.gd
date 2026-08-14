@@ -37,6 +37,8 @@ func _ensure_initialized(in_workspace_context: WorkspaceContext) -> void:
 
 
 func _update_panel_state() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
 	_no_selection_label.self_modulate.a = 0.0
 	_auto_create_bonds_button.disabled = false
 	var has_selected_atoms: bool = false

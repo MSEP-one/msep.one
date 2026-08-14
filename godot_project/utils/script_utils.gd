@@ -41,6 +41,8 @@ static func _flush_queue() -> void:
 	_is_flushing = true
 	for c: Callable in _callable_queue.keys():
 		if c.is_valid():
+			if c.get_object() is Node and c.get_object().is_queued_for_deletion():
+					continue
 			c.call()
 	_callable_queue.clear()
 	_callables_requested_during_flush.clear()

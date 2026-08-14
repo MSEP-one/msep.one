@@ -82,6 +82,8 @@ func _on_workspace_context_alerts_panel_visibility_changed(in_is_visible: bool) 
 
 
 func _update_button_run_relaxation_state() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
 	var can_relax: bool = WorkspaceUtils.can_relax(_workspace_context, _get_atom_set())
 	_button_run_relaxation.disabled = not can_relax
 

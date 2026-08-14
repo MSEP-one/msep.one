@@ -232,9 +232,9 @@ func save_workspace(in_workspace: Workspace, in_path: String = "") -> void:
 	if path.is_empty():
 		Editor_Utils.get_editor().show_save_workspace_dialog(in_workspace)
 		return
-	var currently_open_workspace: Workspace = _find_workspace_with_resource_path(in_path)
+	var currently_open_workspace: Workspace = _find_workspace_with_resource_path(path)
 	var there_is_another_open_workspace_from_that_file: bool = \
-		is_instance_valid(currently_open_workspace) and not in_workspace == currently_open_workspace
+		is_instance_valid(currently_open_workspace) and in_workspace != currently_open_workspace
 	if there_is_another_open_workspace_from_that_file:
 		# The path selected by the user points to a file that already exists
 		# and there is another open workspace that was loaded from that file
@@ -286,10 +286,40 @@ func _find_workspace_with_resource_path(in_resource_path: String) -> Workspace:
 func request_close_workspace(in_workspace: Workspace) -> void:
 	var context: WorkspaceContext = get_workspace_context(in_workspace)
 	if context.has_unsaved_changes():
+		var save_promise := Promise.new()
+		var on_discard_unsaved_changes: Callable = func() -> void:
+			# Accepted to not save changes, close workspace
+			save_promise.fulfill("close")
+		var on_saved: Callable = func(out_workspace: Workspace) -> void:
+			# Promise is fulfilled if workspace is saved, close workspace
+			if in_workspace == out_workspace:
+				save_promise.fulfill("close")
+		var on_save_dialog_canceled: Callable = func() -> void:
+			# Save dialog was canceled, cancel closing workspace
+			save_promise.fulfill("abort")
+		var on_abort: Callable = func() -> void:
+			save_promise.fulfill("abort")
+		var save_and_resume: Callable = func() -> void:
+			MolecularEditorContext.workspace_saved.connect(on_saved)
+			Editor_Utils.get_editor().save_file_dialog.canceled.connect(on_save_dialog_canceled)
+			MolecularEditorContext.save_workspace(in_workspace)
 		Editor_Utils.get_editor().show_close_workspace_confirmation_dialog(
 			in_workspace.get_user_friendly_name(),
-			close_workspace_no_prompt.bind(in_workspace),
-			save_workspace.bind(in_workspace))
+			on_discard_unsaved_changes, save_and_resume, on_abort)
+		await save_promise.wait_for_fulfill()
+		if MolecularEditorContext.workspace_saved.is_connected(on_saved):
+			MolecularEditorContext.workspace_saved.disconnect(on_saved)
+		if Editor_Utils.get_editor().save_file_dialog.canceled.is_connected(on_save_dialog_canceled):
+			Editor_Utils.get_editor().save_file_dialog.canceled.disconnect(on_save_dialog_canceled)
+		var result: String = save_promise.get_result()
+		match result:
+			"close":
+				close_workspace_no_prompt(in_workspace)
+			"abort":
+				# Cancel closing
+				return
+			_:
+				assert(false, "Unexpected save_promise result! " + result)
 	else:
 		close_workspace_no_prompt(in_workspace)
 
