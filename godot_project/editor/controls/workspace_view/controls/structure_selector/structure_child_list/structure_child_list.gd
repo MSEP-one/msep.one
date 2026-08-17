@@ -1,4 +1,4 @@
-class_name StructureChildList extends VBoxContainer
+class_name StructureChildList extends AutomaticScrollContainer
 ## This class is a container of buttons representing Structures
 ## Is a helper for the StructureSelectorBar
 
@@ -43,7 +43,7 @@ func get_parent_structure_context() -> StructureContext:
 
 func rebuild_list() -> void:
 	assert(_initialzed, "Cannot rebuild list when context is not initialized")
-	for child: Node in get_children():
+	for child: Node in _main_container.get_children():
 		child.queue_free()
 	_child_id_to_selector_button.clear()
 	var children_structures: Array[NanoStructure] = _get_child_structures()
@@ -58,19 +58,19 @@ func rebuild_list() -> void:
 			selector_button.structure_context_selected.connect(_on_selector_button_structure_context_selected)
 			selector_button.more_childs_requested.connect(_on_selector_button_more_childs_requested)
 			selector_button.initialize(_workspace_context, structure_context)
-			add_child(selector_button)
+			_main_container.add_child(selector_button)
 			selector_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		selector_button.visible = true if is_in_path or _what_to_show == WhatToShow.ALL else false
 		selector_button.update_controls()
 		if is_in_path:
 			# At the end of the frame make this button the first of the list
-			move_child.call_deferred(selector_button, 0)
+			_main_container.move_child.call_deferred(selector_button, 0)
 
 
 func set_what_to_show(in_what_to_show: WhatToShow) -> void:
 	_what_to_show = in_what_to_show
 	var path_to_active_structure: Array[NanoStructure] = _get_path_to_current_structure()
-	for child in get_children():
+	for child in _main_container.get_children():
 		if child.is_queued_for_deletion():
 			continue
 		if child is StructureSelectorButton:

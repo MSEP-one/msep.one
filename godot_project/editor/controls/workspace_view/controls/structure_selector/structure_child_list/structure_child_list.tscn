@@ -2,15 +2,18 @@
 
 [ext_resource type="Script" uid="uid://tlvdgkk7hwus" path="res://editor/controls/workspace_view/controls/structure_selector/structure_child_list/structure_child_list.gd" id="1_6hr6f"]
 
-[node name="StructureChildList" type="VBoxContainer"]
-offset_left = 178.0
-offset_top = 75.0
-offset_right = 332.0
-offset_bottom = 157.0
+[node name="ScrollContainer" type="ScrollContainer"]
+offset_top = 64.0
+offset_right = 143.0
+offset_bottom = 64.0
+horizontal_scroll_mode = 0
 script = ExtResource("1_6hr6f")
 
-[node name="StructureSelectorButton" parent="." instance_placeholder="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.tscn"]
+[node name="StructureChildList" type="VBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="StructureSelectorButton2" parent="." instance_placeholder="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.tscn"]
+[node name="StructureSelectorButton" parent="StructureChildList" instance_placeholder="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.tscn"]
+layout_mode = 2
+
+[node name="StructureSelectorButton2" parent="StructureChildList" instance_placeholder="res://editor/controls/workspace_view/controls/structure_selector/structure_button/structure_selector_button.tscn"]
 layout_mode = 2
