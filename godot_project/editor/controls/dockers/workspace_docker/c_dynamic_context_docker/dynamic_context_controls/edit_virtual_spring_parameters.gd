@@ -39,6 +39,8 @@ func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructur
 
 func _update_edited_springs() -> void:
 	var workspace_context: WorkspaceContext = _workspace_context_wref.get_ref() as WorkspaceContext
+	if not is_instance_valid(workspace_context):
+		return
 	var selected_contexts: Array[StructureContext] = workspace_context.get_structure_contexts_with_selection()
 	var selected_contexts_with_springs: Array[StructureContext] = []
 	for context: StructureContext in selected_contexts:

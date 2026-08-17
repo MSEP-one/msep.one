@@ -147,6 +147,8 @@ func _on_line_edit_new_structure_name_text_changed(_new_text: String) -> void:
 
 
 func _update_apply_button_state() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
 	var new_group_name_is_empty: bool = _line_edit_new_structure_name.text.is_empty()
 	var can_move_molecule: bool = WorkspaceUtils.can_move_selection_to_another_group(_workspace_context)
 	var active_picker: NanoGroupPicker = _get_active_group_picker()

@@ -60,6 +60,8 @@ func _on_rendering_representation_changed() -> void:
 
 
 func _update_availability() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
 	var representation: Rendering.Representation = _workspace_context.workspace.representation_settings.get_rendering_representation()
 	var representation_allows_editing: bool = representation != Rendering.Representation.STICKS
 	var selected_count: int = 0

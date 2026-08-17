@@ -402,6 +402,8 @@ func _on_workspace_context_selection_in_structures_changed(in_structure_contexts
 	_update_structure_selection.call_deferred(groups_to_update)
 
 func _update_structure_selection(in_groups_to_update: PackedInt32Array) -> void:
+	if not is_instance_valid(_workspace_context):
+		return
 	for group_id: int in in_groups_to_update:
 		if not _workspace_context.workspace.has_structure_with_int_guid(group_id):
 			# group has been removed

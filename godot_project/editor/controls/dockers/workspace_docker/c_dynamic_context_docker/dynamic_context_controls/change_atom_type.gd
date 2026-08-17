@@ -148,6 +148,8 @@ func _on_workspace_context_structure_about_to_remove(_in_structure: NanoStructur
 
 
 func _refresh_target_list() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
 	var total: int = 0
 	const MARGINS_OFFSET: float = 12
 	var per_element_count: Dictionary = {

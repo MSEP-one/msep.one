@@ -48,6 +48,8 @@ func _on_workspace_context_structure_about_to_remove(_in_structe: NanoStructure)
 
 func _update_selected_info() -> void:
 	_clear()
+	if not is_instance_valid(_workspace_context):
+		return
 	var contexts_with_selection: Array[StructureContext] = _workspace_context.get_structure_contexts_with_selection(false)
 	var root: TreeItem = _tree_info.create_item()
 	_tree_info.set_column_title(0, "Property")
