@@ -369,13 +369,23 @@ func _process_create_spring_result(in_camera: Camera3D, in_input_event: InputEve
 	match multi_structure_hit_result.hit_type:
 		MultiStructureHitResult.HitType.HIT_ATOM:
 			# Target is atom:
-			if _drag_state == _DRAG_FROM_ATOM:
-				# atom_id will be overridden latter with _drag_start_atom_id
-				atom_id2 = multi_structure_hit_result.closest_hit_atom_id
 			atomic_structure = hit_context.nano_structure as AtomicStructure
 			atomic_structure_context = hit_context
 			assert(is_instance_valid(atomic_structure))
 			atom_id = multi_structure_hit_result.closest_hit_atom_id
+			if _drag_state == _DRAG_FROM_ATOM:
+				if multi_structure_hit_result.closest_hit_structure_context.get_int_guid() != _drag_start_structure_id:
+					# Target atom belongs to another group, create a new anchor instead
+					created_anchor = true
+					anchor = NanoVirtualAnchor.new()
+					anchor.set_structure_name("AnchorPoint")
+					anchor.set_position(_get_rendering().virtual_anchor_preview_get_position())
+					workspace.add_structure(anchor, workspace_context.get_current_structure_context().nano_structure)
+					anchor_context = workspace_context.get_nano_structure_context(anchor)
+					anchor_context.select_all(true)
+				else:
+					# atom_id will be overridden latter with _drag_start_atom_id
+					atom_id2 = multi_structure_hit_result.closest_hit_atom_id
 		MultiStructureHitResult.HitType.HIT_ANCHOR:
 			if _drag_state != _DRAG_FROM_ATOM:
 				# Cannot create spring from anchor to anchor
@@ -494,6 +504,8 @@ func _create_spring(in_atomic_struct: NanoStructure, in_anchor_id: int, in_atom_
 
 
 func _can_create_bond_or_spring_between_atoms(in_atomic_struct: AtomicStructure, in_atom_id: int, in_atom_id2: int) -> bool:
+	if in_atomic_struct.int_guid != _drag_start_structure_id:
+		return false
 	if in_atom_id == in_atom_id2:
 		# Cannot create spring to itself
 		return false
