@@ -274,7 +274,12 @@ func _try_deselect_hidden_virtual_objects() -> bool:
 
 func _try_deselect_hidden_virtual_objects_of_type(object_type: StringName) -> bool:
 	var selection_changed: bool = false
-	var contexts_with_selection: Array[StructureContext] = get_structure_contexts_with_selection()
+	const WITH_EMPTY_GROUPS: bool = false
+	const WITH_HIDDEN_VIRTUAL_OBJECTS: bool = true
+	var contexts_with_selection: Array[StructureContext] = get_structure_contexts_with_selection(
+		WITH_EMPTY_GROUPS,
+		WITH_HIDDEN_VIRTUAL_OBJECTS
+	)
 	for ctx: StructureContext in contexts_with_selection:
 		if ctx.nano_structure is AtomicStructure:
 			if RepresentationSettings.script_to_virtual_object_key(ctx.nano_structure.get_script()) == object_type:
@@ -605,7 +610,6 @@ func start_simulating(in_simulation_data: SimulationData) -> void:
 	_simulation = in_simulation_data
 	if _try_deselect_hidden_virtual_objects():
 		snapshot_moment("Change Selection")
-	_queue_emit_new_editable_structures()
 	simulation_started.emit()
 
 
@@ -995,7 +999,10 @@ func get_editable_structure_contexts(in_include_hidden_virtual_objects: bool = f
 		ScriptUtils.flush_now(_emit_new_editable_structures)
 	var editable_structure_contexts: Array[StructureContext] = []
 	for editable_id: int in _editable_structure_contexts_ids:
-		editable_structure_contexts.append(_structure_contexts[editable_id])
+		var context: StructureContext = _structure_contexts[editable_id]
+		if is_simulating() and context.is_hidden_during_simulation() and not in_include_hidden_virtual_objects:
+			continue
+		editable_structure_contexts.append(context)
 		if in_include_hidden_virtual_objects and editable_id != _current_structure_context_id:
 			# hidden virtual objects are included as part of a subgroup
 			var childs: Array[NanoStructure] = workspace.get_child_structures(
@@ -1356,7 +1363,8 @@ func _emit_new_editable_structures() -> void:
 		context.mark_is_editable_dirty()
 		if context.is_editable():
 			_editable_structure_contexts_ids.push_back(context.get_int_guid())
-	editable_structure_context_list_changed.emit(get_editable_structure_contexts())
+	const INCLUDE_HIDDEN_VIRTUAL_OBJECTS: bool = true
+	editable_structure_context_list_changed.emit(get_editable_structure_contexts(INCLUDE_HIDDEN_VIRTUAL_OBJECTS))
 	refresh_group_saturation()
 
 
