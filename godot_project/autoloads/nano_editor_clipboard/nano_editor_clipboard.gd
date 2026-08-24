@@ -633,88 +633,98 @@ func _paste_springs(
 	var target_structure: AtomicStructure
 	for original_spring_id: int in clipboard_springs.keys():
 		var spring: ClipboardSpring = clipboard_springs[original_spring_id]
-		var target_atom_was_copied: bool = original_atom_ids.has(spring.target_atom)
+		var target_atom_was_copied: bool = spring.target_atom != AtomicStructure.INVALID_ATOM_ID \
+			and original_atom_ids.has(spring.target_atom)
 		var target_atom2_was_copied: bool = spring.target_atom2 != AtomicStructure.INVALID_ATOM_ID \
 			and original_atom_ids.has(spring.target_atom2)
 		var target_anchor_was_copied: bool = spring.target_anchor != Workspace.INVALID_OBJECT_INDEX \
 			and copied_anchor_ids.has(spring.target_anchor)
-		if target_atom_was_copied and target_anchor_was_copied:
-			# create new spring attached to new atom and new anchor
-			var new_anchor_id: int = in_original_to_new_structure_id[spring.target_anchor]
-			var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom]
-			var new_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
-			target_structure = \
-				out_workspace_context.workspace.get_structure_by_int_guid(new_structure_id) as AtomicStructure
-			assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
-			var new_spring: ClipboardSpring = \
-				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
-					spring.equilibrium_manual_length, new_atom_id, AtomicStructure.INVALID_ATOM_ID, new_anchor_id)
-			if not springs_pending_creation.has(new_structure_id):
-				springs_pending_creation[new_structure_id] = []
-			springs_pending_creation[new_structure_id].push_back(new_spring)
-		elif target_atom_was_copied and target_atom2_was_copied:
-			# create new spring attached to new atoms
-			var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom]
-			var new_atom2_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom2]
-			var new_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
-			target_structure = \
-				out_workspace_context.workspace.get_structure_by_int_guid(new_structure_id) as AtomicStructure
-			assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
-			var new_spring: ClipboardSpring = \
-				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
-					spring.equilibrium_manual_length, new_atom_id, new_atom2_id, Workspace.INVALID_OBJECT_INDEX)
-			if not springs_pending_creation.has(new_structure_id):
-				springs_pending_creation[new_structure_id] = []
-			springs_pending_creation[new_structure_id].push_back(new_spring)
-		elif target_atom_was_copied: # but target_anchor was not
-			# create new spring attached to new atom and original anchor
-			var original_anchor_structure: NanoStructure = \
-				out_workspace_context.workspace.get_structure_by_int_guid(spring.target_anchor)
-			if not is_instance_valid(original_anchor_structure):
+		var is_atom_to_atom: bool =  spring.target_atom != AtomicStructure.INVALID_ATOM_ID \
+			and spring.target_atom2 != AtomicStructure.INVALID_ATOM_ID
+		if is_atom_to_atom:
+			if target_atom_was_copied and target_atom2_was_copied:
+				# create new spring attached to new atoms
+				var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom]
+				var new_atom2_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom2]
+				var new_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
+				target_structure = \
+					out_workspace_context.workspace.get_structure_by_int_guid(new_structure_id) as AtomicStructure
+				assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
+				var new_spring: ClipboardSpring = \
+					ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
+						spring.equilibrium_manual_length, new_atom_id, new_atom2_id, Workspace.INVALID_OBJECT_INDEX)
+				if not springs_pending_creation.has(new_structure_id):
+					springs_pending_creation[new_structure_id] = []
+				springs_pending_creation[new_structure_id].push_back(new_spring)
+			else: # only one of the atoms was copied
+				var copied_atom_id: int = spring.target_atom if target_atom_was_copied else spring.target_atom2
+				# create new spring attached to new atom and copied atom
+				var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][copied_atom_id]
+				var new_target_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
+				if new_target_structure_id != clipboard_data.group_id:
+					# Atom to atom springs can only copypasted within the same group, skip
+					continue
+				target_structure = \
+					out_workspace_context.workspace.get_structure_by_int_guid(new_target_structure_id) as AtomicStructure
+				assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
+				var new_spring: ClipboardSpring = \
+					ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
+						spring.equilibrium_manual_length, spring.target_atom, new_atom_id, spring.target_anchor)
+				if not springs_pending_creation.has(new_target_structure_id):
+					springs_pending_creation[new_target_structure_id] = []
+				springs_pending_creation[new_target_structure_id].push_back(new_spring)
 				continue
-			var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom]
-			var new_target_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
-			target_structure = \
-				out_workspace_context.workspace.get_structure_by_int_guid(new_target_structure_id) as AtomicStructure
-			assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
-			var new_spring: ClipboardSpring = \
-				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
-					spring.equilibrium_manual_length, new_atom_id, spring.target_atom2, spring.target_anchor)
-			if not springs_pending_creation.has(new_target_structure_id):
-				springs_pending_creation[new_target_structure_id] = []
-			springs_pending_creation[new_target_structure_id].push_back(new_spring)
-		elif target_atom2_was_copied: # but target_anchor was not
-			# create new spring attached to new atom and original anchor
-			var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom2]
-			var new_target_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
-			target_structure = \
-				out_workspace_context.workspace.get_structure_by_int_guid(new_target_structure_id) as AtomicStructure
-			assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
-			var new_spring: ClipboardSpring = \
-				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
-					spring.equilibrium_manual_length, spring.target_atom, new_atom_id, spring.target_anchor)
-			if not springs_pending_creation.has(new_target_structure_id):
-				springs_pending_creation[new_target_structure_id] = []
-			springs_pending_creation[new_target_structure_id].push_back(new_spring)
-		elif target_anchor_was_copied: # but target_atom was not
-			# create new spring attached to new anchor and original atom
-			target_structure = \
-				out_workspace_context.workspace.get_structure_by_int_guid(clipboard_data.group_id) as AtomicStructure
-			if not is_instance_valid(target_structure):
+		else: # is atom to anchor
+			if target_atom_was_copied and target_anchor_was_copied:
+				# create new spring attached to new atom and new anchor
+				var new_anchor_id: int = in_original_to_new_structure_id[spring.target_anchor]
+				var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom]
+				var new_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
+				target_structure = \
+					out_workspace_context.workspace.get_structure_by_int_guid(new_structure_id) as AtomicStructure
+				assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
+				var new_spring: ClipboardSpring = \
+					ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
+						spring.equilibrium_manual_length, new_atom_id, AtomicStructure.INVALID_ATOM_ID, new_anchor_id)
+				if not springs_pending_creation.has(new_structure_id):
+					springs_pending_creation[new_structure_id] = []
+				springs_pending_creation[new_structure_id].push_back(new_spring)
+			elif target_atom_was_copied: # but target_anchor was not
+				# create new spring attached to new atom and original anchor
+				var original_anchor_structure: NanoStructure = \
+					out_workspace_context.workspace.get_structure_by_int_guid(spring.target_anchor)
+				if not is_instance_valid(original_anchor_structure):
+					continue
+				var new_atom_id: int = in_pasted_atoms[clipboard_data.group_id][spring.target_atom]
+				var new_target_structure_id: int = in_original_to_new_structure_id[clipboard_data.group_id]
+				target_structure = \
+					out_workspace_context.workspace.get_structure_by_int_guid(new_target_structure_id) as AtomicStructure
+				assert(is_instance_valid(target_structure), "New MolecularNanoStructure does not exists!")
+				var new_spring: ClipboardSpring = \
+					ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
+						spring.equilibrium_manual_length, new_atom_id, spring.target_atom2, spring.target_anchor)
+				if not springs_pending_creation.has(new_target_structure_id):
+					springs_pending_creation[new_target_structure_id] = []
+				springs_pending_creation[new_target_structure_id].push_back(new_spring)
+			elif target_anchor_was_copied: # but target_atom was not
+				# create new spring attached to new anchor and original atom
+				target_structure = \
+					out_workspace_context.workspace.get_structure_by_int_guid(clipboard_data.group_id) as AtomicStructure
+				if not is_instance_valid(target_structure):
+					continue
+				if not target_structure.is_atom_valid(spring.target_atom):
+					continue
+				var new_anchor_id: int = in_original_to_new_structure_id[spring.target_anchor]
+				var new_spring: ClipboardSpring = \
+					ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
+						spring.equilibrium_manual_length, spring.target_atom, spring.target_atom2, new_anchor_id)
+				if not springs_pending_creation.has(clipboard_data.group_id):
+					springs_pending_creation[clipboard_data.group_id] = []
+				springs_pending_creation[clipboard_data.group_id].push_back(new_spring)
+			else:
+				assert(true, "This should never happen. Springs without atom or anchor selected should not"
+					+ " have been copied in the first place")
 				continue
-			if not target_structure.is_atom_valid(spring.target_atom):
-				continue
-			var new_anchor_id: int = in_original_to_new_structure_id[spring.target_anchor]
-			var new_spring: ClipboardSpring = \
-				ClipboardSpring.new(spring.constant_force, spring.equilibrium_length_is_auto,
-					spring.equilibrium_manual_length, spring.target_atom, spring.target_atom2, new_anchor_id)
-			if not springs_pending_creation.has(clipboard_data.group_id):
-				springs_pending_creation[clipboard_data.group_id] = []
-			springs_pending_creation[clipboard_data.group_id].push_back(new_spring)
-		else:
-			assert(true, "This should never happen. Springs without atom or anchor selected should not"
-				+ " have been copied in the first place")
-			continue
 	var target_structure_context: StructureContext
 	var new_spring_ids: PackedInt32Array = []
 	for structure_id: int in springs_pending_creation.keys():
