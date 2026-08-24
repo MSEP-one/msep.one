@@ -232,11 +232,9 @@ func _create_atom_to_atom_springs_in_thread(
 					and _are_atoms_within_same_molecule(atom1, atom2, structure, out_molecule_map):
 						continue
 				else:
-					var atom1_bonds: PackedInt32Array = structure.atom_get_bonds(atom1)
-					for bond_id: int in atom1_bonds:
-						if structure.atom_get_bond_target(atom1, bond_id) == atom2:
-							# Bond exists
-							continue
+					var bond_between_atoms_exists: bool = structure.atom_find_bond_between(atom1, atom2) != AtomicStructure.INVALID_BOND_ID
+					if bond_between_atoms_exists:
+						continue
 				var spring_id: int = structure.spring_create_between_atoms(
 					atom1, atom2, constant_force,
 					EQUILIBRIUM_LENGTH_IS_AUTO, MANUAL_EQUILIBRIUM_LENGTH
