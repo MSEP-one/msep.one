@@ -6,6 +6,7 @@ const _DEFAULT_BOND_WIDTH: float = 1.0
 var _workspace_context: WorkspaceContext
 var _related_structure_id: int
 var _bond_id_to_particle_id: Dictionary[int, ParticleID] = {}
+var _current_bonds_with_full_influence: Dictionary[int, bool] = {}
 var _current_bond_partial_selection: Dictionary[int, bool] = {}
 var _bond_id_to_bond_order: Dictionary[int, int] = {}
 
@@ -236,8 +237,10 @@ func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: Pack
 		var is_under_full_influence := bond_state.is_first_atom_selected and bond_state.is_second_atom_selected
 		var is_under_no_influence := not bond_state.is_first_atom_selected and not bond_state.is_second_atom_selected
 		var is_under_partial_influence := bond_state.is_first_atom_selected != bond_state.is_second_atom_selected
-		if is_under_full_influence or is_under_no_influence:
-			_current_bond_partial_selection.erase(bond_id)
+		_current_bonds_with_full_influence.erase(bond_id)
+		_current_bond_partial_selection.erase(bond_id)
+		if is_under_full_influence:
+			_current_bonds_with_full_influence[bond_id] = true
 		elif is_under_partial_influence:
 			_current_bond_partial_selection[bond_id] = true
 		var particle_id: ParticleID = _bond_id_to_particle_id[bond_id]
@@ -653,6 +656,8 @@ func refresh_bond_influence(in_partially_selected_bonds: PackedInt32Array) -> vo
 		bonds_to_refresh[bond_id] = true
 	for bond_id: int in _current_bond_partial_selection:
 		bonds_to_refresh[bond_id] = true
+	for bond_id: int in _current_bonds_with_full_influence:
+		bonds_to_refresh[bond_id] = true
 	_refresh_bond_partial_influence_status(bonds_to_refresh.keys())
 
 
@@ -814,6 +819,7 @@ func create_state_snapshot() -> Dictionary:
 	var snapshot: Dictionary = {}
 	snapshot["_related_structure_id"] = _related_structure_id
 	snapshot["_bond_id_to_particle_id"] = _bond_id_to_particle_id.duplicate(true)
+	snapshot["_current_bonds_with_full_influence"] = _current_bonds_with_full_influence.duplicate()
 	snapshot["_current_bond_partial_selection"] = _current_bond_partial_selection.duplicate()
 	snapshot["_bond_id_to_bond_order"] = _bond_id_to_bond_order.duplicate()
 	snapshot["_shader_scale_factor"] = _shader_scale_factor
@@ -836,6 +842,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_workspace_context = in_snapshot["_workspace_context"]
 	_related_structure_id = in_snapshot["_related_structure_id"]
 	_bond_id_to_particle_id = in_snapshot["_bond_id_to_particle_id"].duplicate(true)
+	_current_bonds_with_full_influence = in_snapshot["_current_bonds_with_full_influence"].duplicate()
 	_current_bond_partial_selection = in_snapshot["_current_bond_partial_selection"].duplicate()
 	_bond_id_to_bond_order = in_snapshot["_bond_id_to_bond_order"].duplicate()
 	_shader_scale_factor = in_snapshot["_shader_scale_factor"]
