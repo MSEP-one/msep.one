@@ -22,8 +22,6 @@ uniform vec4 metallic_texture_channel;
 uniform sampler2D texture_roughness : hint_roughness_r,filter_linear_mipmap,repeat_enable;
 uniform float specular;
 uniform float metallic;
-uniform vec3 uv1_scale;
-uniform vec3 uv1_offset;
 varying float percent;
 varying vec3 custom_color;
 
@@ -47,7 +45,6 @@ vec3 _apply_bond_highlight_factor(vec3 color, float is_selected) {
 void vertex() {
 	// Common
 	ROUGHNESS=roughness;
-	UV=UV*uv1_scale.xy+uv1_offset.xy;
 	percent = VERTEX.z;
 
 	// Make the capsule match the bond length.
