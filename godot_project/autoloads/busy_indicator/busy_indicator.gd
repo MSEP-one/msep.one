@@ -20,6 +20,7 @@ var _center_container: CenterContainer
 var _gears_anim: Control
 var _info_container: VBoxContainer
 var _message: Label
+var _substate: Label
 var _steps_container: HBoxContainer
 var _progress_bar: ProgressBar
 var _button_work_in_background: Button
@@ -40,6 +41,7 @@ func _notification(what: int) -> void:
 		_gears_anim = %GearsAnim
 		_info_container = %InfoContainer
 		_message = %Message
+		_substate = %SubState
 		_steps_container = %StepsContainer
 		_progress_bar = %ProgressBar
 		_button_work_in_background = %ButtonWorkInBackground
@@ -55,6 +57,7 @@ func _notification(what: int) -> void:
 		_button_cancel.pressed.connect(_on_button_cancel_pressed)
 		_spin_factor = 0.0
 		_blur_factor = 0.0
+		_substate.hide()
 		hide()
 		set_process(false)
 
@@ -87,6 +90,7 @@ func activate(in_with_message: String = "",
 	else:
 		_message.text = in_with_message
 		_message.show()
+	set_substate("")
 	_elapsed = 0.0
 	_minutes = 0
 	# in_cancel_callback
@@ -117,7 +121,12 @@ func activate(in_with_message: String = "",
 		if control.visible:
 			control.grab_focus()
 			break
-	
+
+
+func set_substate(in_msg: String) -> void:
+	_substate.text = in_msg
+	_substate.visible = not in_msg.is_empty()
+
 
 func deactivate() -> void:
 	_active = false

@@ -67,6 +67,7 @@ var _threads: Array[Thread] = []
 var _running_simulations: Dictionary = {
 	# subscription_id:int = data:SimulationData
 }
+var _pending_sim_starts: int = 0
 var _tmp_dir: String = _find_tmp_dir()
 var extract_thread: Thread = null
 var _is_windows: bool = OS.get_name().to_lower() == "windows"
@@ -602,6 +603,13 @@ func _process_relax_request_on_thread(out_relax_request: RelaxRequest,
 	other_objects_to_send.assign(out_relax_request.original_payload.other_objects_data.values())
 	assert(other_objects_to_send.size() == out_relax_request.original_payload.other_objects_count)
 	_bus_lock.lock(mutex_context)
+	if _pending_sim_starts:
+		_set_busy_indicator_substate(&"Waiting pending simulation to start.")
+	while _pending_sim_starts > 0:
+		_bus_lock.unlock(mutex_context)
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
+	_set_busy_indicator_substate("")
 	_bus.send_string(ServerCommands.RELAX, ZMQSocket.SEND_FLAG_SNDMORE)
 	var temperature_bytes := PackedByteArray()
 	temperature_bytes.resize(8)
@@ -676,6 +684,13 @@ func _start_simulation_on_thread(in_simulation_data: SimulationData) -> void:
 	other_objects_to_send.assign(in_simulation_data.original_payload.other_objects_data.values())
 	assert(other_objects_to_send.size() == in_simulation_data.original_payload.other_objects_count)
 	_bus_lock.lock(mutex_context)
+	if _pending_sim_starts:
+		_set_busy_indicator_substate(&"Waiting pending simulation to start.")
+	while _pending_sim_starts > 0:
+		_bus_lock.unlock(mutex_context)
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
+	_set_busy_indicator_substate("")
 	_bus.send_string(ServerCommands.SIMULATE, ZMQSocket.SEND_FLAG_SNDMORE)
 	var id_bytes := PackedByteArray()
 	id_bytes.resize(8)
@@ -696,12 +711,14 @@ func _start_simulation_on_thread(in_simulation_data: SimulationData) -> void:
 		_bus.send_string(motor_data_buffer, send_flags)
 	
 	var response: PackedByteArray = []
+	_pending_sim_starts += 1
 	while response.is_empty() and initial_server_pid == _server_pid and not _was_simulation_aborted(simulation_id):
 		response = _bus.receive_buffer(ZMQSocket.RECEIVE_FLAG_DONT_WAIT)
 		_bus_lock.unlock(mutex_context)
 		# This makes the query non blocking
 		OS.delay_msec(100)
 		_bus_lock.lock(mutex_context)
+	_pending_sim_starts -= 1
 	_bus_lock.unlock(mutex_context)
 	
 	var did_server_crash: bool = initial_server_pid != _server_pid
@@ -752,6 +769,13 @@ func _abort_simulation_on_thread(in_simulation_id: int, out_abort_promise: Promi
 		OS.delay_msec(100)
 		initial_server_pid = _server_pid
 	_bus_lock.lock(mutex_context)
+	if _pending_sim_starts:
+		_set_busy_indicator_substate(&"Waiting pending simulation to start.")
+	while _pending_sim_starts > 0:
+		_bus_lock.unlock(mutex_context)
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
+	_set_busy_indicator_substate("")
 	_bus.send_string(ServerCommands.ABORT_SIMULATION, ZMQSocket.SEND_FLAG_SNDMORE)
 	var id_bytes := PackedByteArray()
 	id_bytes.resize(8)
@@ -787,6 +811,13 @@ func _process_import_file_request_on_thread(out_payload: ImportFilePayload, out_
 	var messages: PackedStringArray = out_payload.to_multipart_message()
 	var last: int = messages.size() - 1
 	_bus_lock.lock(mutex_context)
+	if _pending_sim_starts:
+		_set_busy_indicator_substate(&"Waiting pending simulation to start.")
+	while _pending_sim_starts > 0:
+		_bus_lock.unlock(mutex_context)
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
+	_set_busy_indicator_substate("")
 	for i in range(messages.size()):
 		var flag := ZMQSocket.SEND_FLAG_SNDMORE
 		if i == last:
@@ -838,9 +869,24 @@ func _process_import_file_request_on_thread(out_payload: ImportFilePayload, out_
 	out_promise.fulfill.call_deferred(result)
 
 
+func _set_busy_indicator_substate(in_translatable_msg: String) -> void:
+	if OS.get_thread_caller_id() != OS.get_main_thread_id():
+		# Only run in the main thread
+		_set_busy_indicator_substate.call_deferred(in_translatable_msg)
+		return
+	BusyIndicator.set_substate(tr(in_translatable_msg))
+
+
 func _process_export_file_request_on_thread(in_file_path: String, out_payload: OpenMMPayload, out_promise: Promise) -> void:
 	const mutex_context: String = "OpenMM::_process_export_file_request_on_thread"
 	_bus_lock.lock(mutex_context)
+	if _pending_sim_starts:
+		_set_busy_indicator_substate(&"Waiting pending simulation to start.")
+	while _pending_sim_starts > 0:
+		_bus_lock.unlock(mutex_context)
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
+	_set_busy_indicator_substate("")
 	_bus.send_string(ServerCommands.EXPORT, ZMQSocket.SEND_FLAG_SNDMORE)
 	_bus.send_string(in_file_path, ZMQSocket.SEND_FLAG_SNDMORE)
 	var forcefield_list: String = ";".join(out_payload.forcefield_files)
