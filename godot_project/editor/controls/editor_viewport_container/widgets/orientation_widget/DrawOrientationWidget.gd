@@ -10,12 +10,14 @@ const DEPTH_2DPOSITION_ID = 1
 const DEPTH_COLOR_ID = 2
 const DEPTH_CHAR_ID = 3
 const DEPTH_INVERSION_ID = 4
+const DEPTH_INVERTED = 5
 const VIEWPORT_SIZE_RELATIVE_AXIS_GOAL_OFFSET = 1250.0
 const FULL_CIRCLE = 2.0 * PI
 const DISTANCE_RATIO = 1.5
 const EPSILON = .001
 const DIM_PADDING = .35
 const CIRCLE_RADIUS = 10.0
+const COLLISION_RADIUS = CIRCLE_RADIUS + 3.0
 const LINE_THICKNESS = 1.0
 const RIGHT_PANEL_ADJUSTMENT: float = 15.0
 # This isn't adjusted automatically with widget size, you can choose the size.
@@ -28,11 +30,9 @@ const INVERTED_AXIS_COLOR_DIM_COEFFICIENT = .75
 @export var active_axis_color := Color(1.0, 1.0, 1.0, 1.0)
 @export var font_color := Color(.1, .1, .1, 1.0)
 var container_offset := Vector2.ZERO
-var widget_circle_color := Color(.0, .0, .0, .0)
 var font_offset := Vector2(-5.0, 6.0)
 var axis_depths : Array = []
 var widget_alpha := 1.0
-var mouse_position := Vector2.ZERO
 var mouse_drag_in_widget_is_active := false
 var workspace_tools_container : Control = null
 var colliding_axis_index : int = -1
@@ -71,7 +71,7 @@ func set_workspace_tools_reference(in_workspace_tools_container: Control) -> voi
 func _draw_single_axis(in_index : int) -> void:
 	var axis_color : Color = axis_depths[in_index][DEPTH_COLOR_ID]
 	
-	if _detect_colliding_index() == in_index:
+	if colliding_axis_index == in_index:
 		axis_color = active_axis_color
 	
 	if axis_depths[in_index][DEPTH_INVERSION_ID]:
@@ -98,19 +98,24 @@ func _draw_single_axis(in_index : int) -> void:
 
 
 func _detect_colliding_index() -> int:
+	# The mouse_position is off by a few pixels, the source is unknown, but it's not affected
+	# by the widget scale property.
+	const MOUSE_OFFSET := Vector2(2, 3) 
+	var mouse_position: Vector2 = (_editor_viewport.get_mouse_position() - position) / scale
+	mouse_position += MOUSE_OFFSET
 	colliding_axis_index = -1
-	for index in range(0, axis_depths.size()):
-		if (axis_depths[index][1] * _resolution_factor).distance_to(mouse_position \
-				- position) < CIRCLE_RADIUS * _resolution_factor:
+	for index in axis_depths.size():
+		if axis_depths[index][DEPTH_INVERTED]:
+			continue
+		if axis_depths[index][DEPTH_2DPOSITION_ID].distance_to(mouse_position) < COLLISION_RADIUS:
 			colliding_axis_index = index
-			if !axis_depths[index][5]:
-				break
+			break
 	
 	return colliding_axis_index
 
 
 func _has_point(_point: Vector2) -> bool:
-	return _detect_colliding_index() != -1
+	return colliding_axis_index != -1
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -123,7 +128,6 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, WIDGET_RADIUS, widget_circle_color)
 	for index in range(0, axis_depths.size()):
 		_draw_single_axis(index)
 
@@ -141,9 +145,8 @@ func _process(_in_delta: float, in_force: bool = false, in_finish: bool = false)
 	if !in_force && (InitialInfoScreen.visible || BusyIndicator.visible || UIBlocker.is_blocking()):
 		return
 	
+	_detect_colliding_index()
 	_resolution_factor = _calculate_resolution_factor()
-	
-	mouse_position = _editor_viewport.get_mouse_position()
 	
 	var widget_position_unprojected : Vector2 = \
 	_camera.unproject_position(orientation_widget.global_position)
