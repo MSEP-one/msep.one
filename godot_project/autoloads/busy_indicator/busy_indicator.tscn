@@ -138,6 +138,21 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
+[node name="SubState" type="Label" parent="CenterContainer/InfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("9_b0qj8")
+theme_type_variation = &"HeaderLarge"
+theme_override_colors/font_shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 9
+theme_override_font_sizes/font_size = 20
+text = "Substate"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
 [node name="StepsContainer" type="HBoxContainer" parent="CenterContainer/InfoContainer"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -172,16 +187,19 @@ alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 6
+theme_type_variation = &"CrystalButton"
 text = "Cancel"
 
 [node name="ButtonStop" type="Button" parent="CenterContainer/InfoContainer/ButtonsContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 6
+theme_type_variation = &"CrystalButton"
 text = "Stop"
 
 [node name="ButtonWorkInBackground" type="Button" parent="CenterContainer/InfoContainer/ButtonsContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 6
+theme_type_variation = &"CrystalButton"
 text = "Work on Background"
