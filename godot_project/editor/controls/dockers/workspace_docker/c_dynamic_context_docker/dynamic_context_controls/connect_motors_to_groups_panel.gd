@@ -6,6 +6,7 @@ const _TREE_COLUMN_0: int = 0
 
 var _select_one_info_label: InfoLabel
 var _structures_tree: Tree
+var _structure_count: int = 0
 
 var _workspace_context: WorkspaceContext
 var _tracked_motor_wref: WeakRef = weakref(null) # WeakRef<NanoVirtualMotor>
@@ -53,6 +54,7 @@ func _initialize_structures_list(in_workspace_context: WorkspaceContext) -> void
 	var childs_of_root: Array[NanoStructure] = workspace.get_root_child_structures()
 	_structures_tree.clear()
 	_structures_tree.hide_root = true
+	_structure_count = 0
 	var root: TreeItem = _structures_tree.create_item()
 	for child: NanoStructure in childs_of_root:
 		if not _can_appear_in_tree(child):
@@ -75,6 +77,8 @@ func _add_structure_to_tree(
 	if is_instance_valid(in_tracked_motor):
 		structure_item.set_checked(_TREE_COLUMN_0, in_tracked_motor.is_structure_connected(in_structure))
 	_tree_items[in_structure.int_guid] = structure_item
+	_structure_count += 1
+	ScriptUtils.call_deferred_once(_update_minsize)
 	return structure_item
 
 
@@ -116,6 +120,15 @@ func _can_appear_in_tree(in_structure: NanoStructure) -> bool:
 	return true
 
 
+func _update_minsize() -> void:
+	if _structure_count > 5:
+		_structures_tree.custom_minimum_size.y = 200
+		_structures_tree.scroll_vertical_enabled = true
+	else:
+		_structures_tree.custom_minimum_size.y = 0
+		_structures_tree.scroll_vertical_enabled = false
+
+
 func _on_workspace_context_structure_about_to_remove(in_structure: NanoStructure) -> void:
 	var structure_item: TreeItem = _tree_items.get(in_structure.int_guid, null)
 	if structure_item != null:
@@ -134,6 +147,7 @@ func _free_tree_item_and_all_dependencies(in_item: TreeItem) -> void:
 	var related_nano_structure_guid: int = _tree_items.find_key(in_item)
 	_tree_items.erase(related_nano_structure_guid)
 	in_item.free()
+	_structure_count -= 1
  
 
 func _on_workspace_structure_reparented(in_structure: NanoStructure, in_new_parent: NanoStructure) -> void:
