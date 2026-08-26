@@ -130,12 +130,33 @@ func validate_atomic_model(atom_set: AtomicStructure.AtomSet) -> void:
 
 ## Returns true if there's at least one valid overlap data
 func has_overlapping_atoms() -> bool:
+	var has_overlaps: bool = false
 	for overlap_data: OverlapData in _overlaps:
 		if overlap_data.is_fixed:
 			continue
-		if not overlap_data.has_invalid_atoms():
-			return true
-	return false
+		# Revalidate
+		var alert_id: int = _overlaps[overlap_data]
+		var nano_structure: NanoMolecularStructure = overlap_data.structure_context.nano_structure
+		overlap_data.is_fixed = true
+		if overlap_data.has_invalid_atoms():
+			_workspace_context.mark_alert_as_invalid(alert_id)
+			continue
+		for i: int in range(0, overlap_data.atoms_id.size() - 1):
+			for j: int in range(1, overlap_data.atoms_id.size()):
+				var atom_a: int = overlap_data.atoms_id[i]
+				var atom_b: int = overlap_data.atoms_id[j]
+				var type_a: ElementData = PeriodicTable.get_by_atomic_number(nano_structure.atom_get_atomic_number(atom_a))
+				var type_b: ElementData = PeriodicTable.get_by_atomic_number(nano_structure.atom_get_atomic_number(atom_a))
+				var min_distance: float = (type_a.covalent_radius[1] + type_b.covalent_radius[1]) * 0.5
+				var distance_sqrd: float = nano_structure.atom_get_position(atom_a).distance_squared_to(nano_structure.atom_get_position(atom_b))
+				if distance_sqrd < pow(min_distance, 2.0):
+					overlap_data.is_fixed = false
+					break
+		if overlap_data.is_fixed:
+			_workspace_context.mark_alert_as_fixed(alert_id)
+			continue
+		has_overlaps = true
+	return has_overlaps
 
 
 func fix_overlapping_atoms() -> void:
