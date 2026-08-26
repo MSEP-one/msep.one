@@ -43,6 +43,9 @@ func get_cover_atoms_positions(in_minimum_distance_between_atoms: float, in_fill
 			NanoMeshUtils.get_inter_atom_distance_in_length(in_minimum_distance_between_atoms, current_max_radius) \
 			if in_fill_whole_shape else in_minimum_distance_between_atoms
 		var atoms_in_current_max_radius: int = floori(current_max_radius / radius_distance_between_atoms) + 1
+		if atoms_in_current_max_radius > 1:
+			# redistribute distance between atoms
+			radius_distance_between_atoms = current_max_radius / (atoms_in_current_max_radius - 1)
 		for radius_atom_idx: int in atoms_in_current_max_radius:
 			var radius: float = radius_distance_between_atoms * radius_atom_idx
 			var atoms_in_circle_perimeter: int = \
@@ -91,6 +94,9 @@ func get_fill_atoms_positions(in_minimum_distance_between_atoms: float, in_fill_
 			NanoMeshUtils.get_inter_atom_distance_in_length(in_minimum_distance_between_atoms, current_max_radius) \
 			if in_fill_whole_shape else in_minimum_distance_between_atoms
 		var atoms_in_current_max_radius: int = floori(current_max_radius / radius_distance_between_atoms) + 1
+		if atoms_in_current_max_radius > 1:
+			# redistribute distance between atoms
+			radius_distance_between_atoms = current_max_radius / (atoms_in_current_max_radius - 1)
 		for radius_atom_idx: int in atoms_in_current_max_radius:
 			var radius: float = radius_distance_between_atoms * radius_atom_idx
 			var atoms_in_circle_perimeter: int = \
