@@ -338,20 +338,23 @@ class SetNanostructureAtomPositionHelper:
 class SetObjectControlPointPositionHelper:
 	var _structure_context: StructureContext = null
 	var _control_point: int = DnaStructure.INVALID_CONTROL_POINT_IDX
+	var _tmp_position: Vector3
 	
 	
 	func _init(in_structure_context: StructureContext, in_control_point: int) -> void:
 		_structure_context = in_structure_context
 		_control_point = in_control_point
+		_tmp_position = in_structure_context.nano_structure.get_control_point_position(_control_point)
 	
 	
 	func set_position(in_new_position: Vector3) -> void:
-		_structure_context.nano_structure.start_edit()
-		_structure_context.nano_structure.set_control_point_position(_control_point, in_new_position)
-		_structure_context.nano_structure.end_edit()
+		_tmp_position = in_new_position
 	
 	
 	func store_undo_snapshot() -> void:
+		_structure_context.nano_structure.start_edit()
+		_structure_context.nano_structure.set_control_point_position(_control_point, _tmp_position)
+		_structure_context.nano_structure.end_edit()
 		var snapshot_name: String = "Set Control Point %d Pos" % (_control_point)
 		_structure_context.workspace_context.snapshot_moment(snapshot_name)
 
