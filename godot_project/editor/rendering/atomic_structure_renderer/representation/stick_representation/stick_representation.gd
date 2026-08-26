@@ -235,7 +235,6 @@ func _refresh_bond_partial_influence_status(new_partially_influenced_bonds: Pack
 		var smaller_atom_radius: float = min(first_atom_radius, second_atom_radius)
 		second_highlight_color.a = smaller_atom_radius
 		var is_under_full_influence := bond_state.is_first_atom_selected and bond_state.is_second_atom_selected
-		var is_under_no_influence := not bond_state.is_first_atom_selected and not bond_state.is_second_atom_selected
 		var is_under_partial_influence := bond_state.is_first_atom_selected != bond_state.is_second_atom_selected
 		_current_bonds_with_full_influence.erase(bond_id)
 		_current_bond_partial_selection.erase(bond_id)
