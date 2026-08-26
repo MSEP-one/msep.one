@@ -86,7 +86,6 @@ func _on_about_to_popup() -> void:
 	_setup_quality_preset_option_button()
 	_update_time_label_layout()
 	_update_time_label_text()
-	_update_time_color()
 	_update_progress()
 
 
@@ -133,12 +132,6 @@ func _on_stop_button_pressed() -> void:
 	_stopped = true
 	_stop_button.disabled = true
 	_abort_button.disabled = true
-
-
-# OVERRIDE
-func _on_color_picker_button_background_color_color_changed(in_color: Color) -> void:
-	super._on_color_picker_button_background_color_color_changed(in_color)
-	_update_time_color()
 
 
 func _abort_button_pressed() -> void:
@@ -213,15 +206,6 @@ func _update_time_label_layout() -> void:
 	else:
 		# align bottom
 		_time_label.size_flags_vertical = Control.SIZE_SHRINK_END
-
-
-func _update_time_color() -> void:
-	if _workspace_context != null:
-		var background: Color = _color_picker_button_background_color.color
-		if _radio_background_environment.button_pressed:
-			var settings: RepresentationSettings = _workspace_context.workspace.representation_settings
-			background = settings.get_final_background_color()
-		_time_label.self_modulate.v = 0.1 if (background.v > 0.4 and background.s < 0.6) else 1.0
 
 
 func _update_time_label_text() -> void:

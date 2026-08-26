@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dmiufmrvro7me"]
+[gd_scene load_steps=11 format=3 uid="uid://dmiufmrvro7me"]
 
 [ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="1_fq33m"]
 [ext_resource type="Script" uid="uid://clhsgmheddras" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.gd" id="2_vnntt"]
@@ -6,6 +6,12 @@
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_3apb5"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_fxhsi"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_0eixy"]
+font_size = 48
+shadow_size = 16
+shadow_color = Color(0.176876, 0.0964739, 0.336584, 1)
+shadow_offset = Vector2(0, 0)
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_vnntt"]
 
@@ -195,8 +201,8 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
-theme_override_font_sizes/font_size = 24
 text = "0.25 fs"
+label_settings = SubResource("LabelSettings_0eixy")
 
 [node name="ButtonFit" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer" index="1"]
 button_group = SubResource("ButtonGroup_vnntt")
