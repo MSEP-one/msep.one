@@ -66,6 +66,7 @@ func build(in_workspace_context: WorkspaceContext, in_shape: NanoShape) -> void:
 	_is_simulating = workspace_context.is_simulating()
 	_should_hide_in_simulation = workspace_context.workspace.representation_settings \
 			.get_should_hide_virtual_object_during_simulation(NanoShape)
+	_update_selectable_state(workspace_context.get_editable_structure_contexts(true))
 	_update_visibility()
 
 
@@ -227,14 +228,23 @@ func _on_hovered_structure_context_changed(toplevel_hovered_structure_context: S
 
 
 func _on_workspace_context_editable_structure_context_list_changed(in_new_editable_structure_contexts: Array[StructureContext]) -> void:
-	var this_emitter_found: bool = false
-	for context: StructureContext in in_new_editable_structure_contexts:
-		if context.nano_structure.int_guid == _shape_id:
-			this_emitter_found = true
-			break
-	if not this_emitter_found:
+	var this_shape_found: bool = _update_selectable_state(in_new_editable_structure_contexts)
+	if not this_shape_found:
 		const NOT_HOVERED = 0
 		shape.set_instance_shader_parameter(&"hovered", NOT_HOVERED)
+
+
+func _update_selectable_state(in_editable_structure_contexts: Array[StructureContext]) -> bool:
+	var this_shape_found: bool = false
+	for context: StructureContext in in_editable_structure_contexts:
+		if context.nano_structure.int_guid == _shape_id:
+			this_shape_found = true
+			break
+	pivot.visible = this_shape_found
+	const SELECTABLE = 1.0
+	const UNSELECTABLE = 0.0
+	shape.set_instance_shader_parameter(&"selectable", SELECTABLE if this_shape_found else UNSELECTABLE)
+	return this_shape_found
 
 
 func create_state_snapshot() -> Dictionary:
@@ -250,6 +260,8 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_hover_enabled"] = _hover_enabled
 	snapshot["_object_visible"] = _object_visible
 	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
+	snapshot["pivot.visible"] = pivot.visible
+	snapshot["material_selectable"] = shape.get_instance_shader_parameter(&"selectable")
 	snapshot["material_selected"] = shape.get_instance_shader_parameter(&"selected")
 	
 	snapshot["nano_shape.transform_changed"] = History.pack_signal(nano_shape.transform_changed, self)
@@ -271,6 +283,8 @@ func apply_state_snapshot(in_state_snapshot: Dictionary) -> void:
 	_should_hide_in_simulation = in_state_snapshot["_should_hide_in_simulation"]
 	# assume _is_simulating is up to date since this is not changed by undo history
 	_update_visibility()
+	pivot.visible = in_state_snapshot["pivot.visible"]
+	shape.set_instance_shader_parameter(&"selectable", in_state_snapshot["material_selectable"])
 	shape.set_instance_shader_parameter(&"selected", in_state_snapshot["material_selected"])
 	
 	var shape_context: StructureContext = _workspace_context.get_structure_context(_shape_id)

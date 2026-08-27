@@ -12,10 +12,11 @@ render_mode cull_back, unshaded;
 //
 // Modified from https://godotshaders.com/shader/wireframe-shader-godot-4-0/
 
+instance uniform float selectable :hint_range(0.0, 1.0) = 1.0;
 instance uniform float selected : hint_range(0.0, 1.0) = 0.0;
 instance uniform float hovered : hint_range(0.0, 1.0) = 0.0;
 
-uniform float default_wire_width : hint_range(0.0, 10.0) = 0.8;
+uniform float default_wire_width : hint_range(0.0, 10.0) = 1.2;
 uniform float hovered_wire_width : hint_range(0.0, 10.0) = 2.4;
 
 global uniform vec4 reference_shape_wireframe_color;
@@ -38,7 +39,8 @@ void vertex() {
 
 
 void fragment() {
-	vec4 color = mix(reference_shape_wireframe_color, reference_shape_selected_wireframe_color, selected);
+	vec4 color = mix(reference_shape_wireframe_color * 0.5, reference_shape_wireframe_color, selectable);
+	color = mix(color, reference_shape_selected_wireframe_color, selected);
 	float use_hover_color = float_and(hovered, float_not(is_preview));
 	color = mix(color, reference_shape_hovered_wireframe_color, use_hover_color);
 	ALBEDO = color.rgb;
