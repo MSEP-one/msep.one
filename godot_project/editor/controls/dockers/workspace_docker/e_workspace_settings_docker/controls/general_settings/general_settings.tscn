@@ -22,6 +22,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 placeholder_text = "Project description here..."
+wrap_mode = 1
 
 [node name="Label2" type="Label" parent="."]
 layout_mode = 2
