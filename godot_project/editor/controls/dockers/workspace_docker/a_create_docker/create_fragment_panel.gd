@@ -15,6 +15,8 @@ var _fragment_map: Dictionary = {
 @onready var _no_search_result_found: Label = %NoSearchResultFound
 
 var _workspace_context: WorkspaceContext = null
+var _selected_fragment_path: String
+var _button_group := ButtonGroup.new()
 
 func should_show(in_workspace_context: WorkspaceContext) -> bool:
 	_workspace_context = in_workspace_context
@@ -35,6 +37,7 @@ func should_show(in_workspace_context: WorkspaceContext) -> bool:
 func _ready() -> void:
 	_init_fragments_ui()
 	_search.text_changed.connect(_on_search_text_changed)
+	_button_group.pressed.connect(_on_fragment_selected)
 
 
 ## Creates the UI controls for each fragment found in the fragments folder.
@@ -67,15 +70,20 @@ func _init_fragments_ui() -> void:
 			var picker_button := FragmentPickerButton.instantiate()
 			category.add_control(picker_button)
 			picker_button.set_text(base_name.capitalize())
+			picker_button.set_path(file_path)
 			picker_button.set_thumbnail(thumbnail_path)
-			picker_button.selected.connect(_on_fragment_selected.bind(file_path))
+			picker_button.set_group(_button_group)
 			var search_formatted_name: String = base_name.capitalize().to_lower()
 			_fragment_map[search_formatted_name] = picker_button
 			# Create up to 1 item per frame
 			await get_tree().process_frame
 
 
-func _on_fragment_selected(fragment_path: String) -> void:
+func _on_fragment_selected(fragment_button: Button) -> void:
+	var fragment_path: String = fragment_button.get_meta(&"fragment_path")
+	if fragment_path == _selected_fragment_path:
+		return
+	_selected_fragment_path = fragment_path
 	var unpacked_mol_path: String = WorkspaceUtils.unpack_mol_file_and_get_path(fragment_path)
 	var absolute_path: String = ProjectSettings.globalize_path(unpacked_mol_path)
 	assert(is_instance_valid(_workspace_context))
