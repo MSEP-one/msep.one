@@ -10,6 +10,7 @@ const MAX_KNOWN_WORKSPACES_SHOWN: int = 4
 @onready var new_workspace: Button = %NewWorkspace
 @onready var load_workspace_from_disk: Button = %LoadWorkspaceFromDisk
 @onready var known_workspaces_box: HFlowContainer = %KnownWorkspacesBox
+@onready var _contextual_popup_menu: PopupMenu = $ContextualPopupMenu
 
 var _settings: MsepHomeSettings
 var _first_run: bool = true
@@ -19,12 +20,17 @@ func _ready() -> void:
 	_update_workspaces_list()
 	new_workspace.pressed.connect(_on_new_workspace_pressed)
 	load_workspace_from_disk.pressed.connect(_on_load_workspace_from_disk_pressed)
+	_contextual_popup_menu.index_pressed.connect(_on_contextual_popup_menu_index_pressed)
+	_contextual_popup_menu.visibility_changed.connect(_on_contextual_popup_menu_visibility_changed_deferred, CONNECT_DEFERRED)
 	visibility_changed.connect(_update_workspaces_list)
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
 		if is_visible_in_tree():
+			if _contextual_popup_menu.has_meta(&"button"):
+				# Ignore when focus comes back from contextual menu
+				return
 			_update_workspaces_list()
 
 
@@ -44,6 +50,7 @@ func _update_workspaces_list() -> void:
 		var btn: Button = LoadRecentBtnScene.instantiate()
 		btn.set_workspace_path(workspace)
 		btn.pressed.connect(_on_open_workspace_by_path.bind(workspace))
+		btn.context_menu_requested.connect(_on_recent_project_button_context_menu_requested)
 		known_workspaces_box.add_child(btn)
 		var should_open: bool = _settings.autoload_open_workspaces and _settings.open_workspaces.find(workspace) != -1
 		if should_open:
@@ -89,6 +96,32 @@ func _load_settings() -> void:
 
 func _save_settings() -> void:
 	ResourceSaver.save(_settings, SETTINGS_FOLDER.path_join(SETTINGS_FILE))
+
+func _on_recent_project_button_context_menu_requested(button: Button, filepath: String) -> void:
+	_contextual_popup_menu.set_meta(&"button", button)
+	_contextual_popup_menu.set_meta(&"filepath", filepath)
+	_contextual_popup_menu.position = get_viewport().get_mouse_position()
+	_contextual_popup_menu.popup()
+
+func _on_contextual_popup_menu_visibility_changed_deferred() -> void:
+	# This is connect deferred to ensure it runs after _notification(NOTIFICATION_WM_WINDOW_FOCUS_IN)
+	# and _on_contextual_popup_menu_index_pressed(index)
+	if !_contextual_popup_menu.visible:
+		_contextual_popup_menu.remove_meta(&"button")
+		_contextual_popup_menu.remove_meta(&"filepathon")
+
+func _on_contextual_popup_menu_index_pressed(index: int) -> void:
+	const INDEX_FORGET_RECENT_PROJECT = 0
+	match index:
+		INDEX_FORGET_RECENT_PROJECT:
+			var button: Button = _contextual_popup_menu.get_meta(&"button") as Button
+			var filepath: String = _contextual_popup_menu.get_meta(&"filepath")
+			_settings.remove_known_workspace(filepath)
+			if is_instance_valid(button):
+				button.queue_free.call_deferred()
+		_:
+			assert(false, "Unknown index option %d" % index)
+			return
 
 func _on_open_workspace_by_path(path: String) -> void:
 	MolecularEditorContext.load_and_activate_workspace(path)

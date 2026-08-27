@@ -1,5 +1,6 @@
 extends Button
 
+signal context_menu_requested(button: Button, filepath: String)
 
 var _thumbnail_texture_rect: TextureRect
 var _workspace_name_label: Label
@@ -14,6 +15,12 @@ func _notification(what: int) -> void:
 		_thumbnail_texture_rect = %ThumbnailTextureRect as TextureRect
 		_workspace_name_label = %WorkspaceNameLabel as Label
 		_animation_player = %AnimationPlayer as AnimationPlayer
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.is_pressed():
+		get_viewport().set_input_as_handled()
+		context_menu_requested.emit(self, _filepath)
 
 
 func set_workspace_path(in_filepath: String) -> void:

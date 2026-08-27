@@ -18,6 +18,11 @@ func _init() -> void:
 	MolecularEditorContext.workspace_saved.connect(_on_workspace_saved)
 	MolecularEditorContext.workspace_closed.connect(_on_workspace_closed)
 
+func remove_known_workspace(in_path: String) -> void:
+	if in_path in known_workspaces:
+		known_workspaces.erase(in_path)
+		emit_changed()
+
 func _on_workspace_loaded(in_workspace: Workspace) -> void:
 	if in_workspace.resource_path.is_empty():
 		# workspace is unsaved, skip
