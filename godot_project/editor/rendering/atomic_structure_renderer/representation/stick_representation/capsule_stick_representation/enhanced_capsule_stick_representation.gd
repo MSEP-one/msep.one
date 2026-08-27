@@ -42,3 +42,16 @@ func apply_theme(in_theme: Theme3D) -> void:
 	var is_built: bool = _workspace_context != null
 	if is_built:
 		_update_is_selectable_uniform()
+
+func hydrogens_rendering_off() -> void:
+	_material_bond_1.disable_hydrogen_rendering()
+	_material_bond_2.disable_hydrogen_rendering()
+	_material_bond_3.disable_hydrogen_rendering()
+	_init_material_uniforms()
+
+
+func hydrogens_rendering_on() -> void:
+	_material_bond_1.enable_hydrogen_rendering()
+	_material_bond_2.enable_hydrogen_rendering()
+	_material_bond_2.enable_hydrogen_rendering()
+	_init_material_uniforms()

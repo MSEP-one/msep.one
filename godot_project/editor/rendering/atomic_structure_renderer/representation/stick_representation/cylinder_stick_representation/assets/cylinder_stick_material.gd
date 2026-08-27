@@ -70,7 +70,7 @@ func saturate() -> void:
 
 func copy_state_from(in_from_material: ShaderMaterial) -> void:
 	RenderingUtils.copy_selected_uniforms_from(in_from_material, self, [UNIFORM_ATOM_SCALE,
-			UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA,
+			UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA, UNIFORM_SHOW_HYDROGENS,
 			UNIFORM_OUTLINE_THICKNESS])
 
 

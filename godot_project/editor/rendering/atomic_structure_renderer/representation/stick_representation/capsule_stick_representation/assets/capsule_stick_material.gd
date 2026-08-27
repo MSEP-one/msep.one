@@ -78,8 +78,11 @@ func saturate() -> void:
 	set_shader_parameter(UNIFORM_VALUE, NORMAL_VALUE)
 
 
-func copy_state_from(_in_from_material: ShaderMaterial) -> void:
-	return # no need in this case
+func copy_state_from(in_from_material: ShaderMaterial) -> void:
+	RenderingUtils.copy_selected_uniforms_from(in_from_material, self, [
+			INSTANCE_UNIFORM_BASE_SCALE, UNIFORM_CAPS_STARTS_AT_LOCAL_Z, UNIFORM_OUTLINE_THICKNESS,
+			UNIFORM_GIZMO_ORIGIN, UNIFORM_GIZMO_ROTATION, UNIFORM_SELECTION_DELTA, UNIFORM_SHOW_HYDROGENS,
+			UNIFORM_OUTLINE_THICKNESS])
 
 
 func create_state_snapshot() -> Dictionary:
