@@ -198,6 +198,8 @@ func post_load() -> void:
 		var structure: NanoStructure = _structures[structure_id]
 		if structure.int_parent_guid == INVALID_STRUCTURE_ID:
 			_main_structure_int_guid = structure_id
+		if not structure.renamed.is_connected(_on_nano_structure_renamed):
+			structure.renamed.connect(_on_nano_structure_renamed.bind(structure))
 
 
 func has_thumbnail() -> bool:
