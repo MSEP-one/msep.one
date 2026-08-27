@@ -474,7 +474,9 @@ func deselect_dna_control_points(in_control_points: PackedInt32Array) -> void:
 
 
 func get_selected_dna_spline_control_points() -> PackedInt32Array:
-	return _control_point_selection.keys()
+	var control_points: PackedInt32Array = _control_point_selection.keys()
+	control_points.sort()
+	return control_points
 
 
 func select_nanotube_control_points(in_control_points: PackedInt32Array) -> void:
@@ -510,7 +512,9 @@ func deselect_nanotube_control_points(in_control_points: PackedInt32Array) -> vo
 
 
 func get_selected_nanotube_control_points() -> PackedInt32Array:
-	return _control_point_selection.keys()
+	var control_points: PackedInt32Array = _control_point_selection.keys()
+	control_points.sort()
+	return control_points
 
 
 func set_spring_selection(in_springs_to_select: PackedInt32Array) -> void:
