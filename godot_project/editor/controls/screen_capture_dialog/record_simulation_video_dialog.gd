@@ -5,12 +5,14 @@ var _time_scale_picker: TimeSpanPicker
 var _time_visible_button: CheckButton
 var _time_position_option_button: OptionButton
 var _time_label_font_size_spinbox: SpinBoxSlider
+var _time_background_visible_button: CheckButton
 
 var _framerate_spin_box: SpinBoxSlider
 var _quality_preset_option_button: OptionButton
 var _crf_spin_box: SpinBoxSlider
 
-var _crop_rect_control: MarginContainer
+var _crop_rect_control: Control
+var _time_container: MarginContainer
 var _time_label: Label
 var _video_time_elapsed_label: Label
 var _time_slider: HSlider
@@ -40,12 +42,14 @@ func _notification(what: int) -> void:
 		_time_visible_button = %TimeVisibleButton as CheckButton
 		_time_position_option_button = %TimePositionOptionButton as OptionButton
 		_time_label_font_size_spinbox = %TimeLabelFontSizeSpinbox as SpinBoxSlider
+		_time_background_visible_button = %TimeBackgroundVisibleButton as CheckButton
 		
 		_framerate_spin_box = %FramerateSpinBox as SpinBoxSlider
 		_quality_preset_option_button = %QualityPresetOptionButton as  OptionButton
 		_crf_spin_box = %CrfSpinBox as  SpinBoxSlider
 		
-		_crop_rect_control = %CropRectControl as MarginContainer
+		_crop_rect_control = %CropRectControl as Control
+		_time_container = %TimeContainer as MarginContainer
 		_time_label = %TimeLabel as Label
 		_video_time_elapsed_label = %VideoTimeElapsedLabel as Label
 		_time_slider = %TimeSlider as HSlider
@@ -59,6 +63,7 @@ func _notification(what: int) -> void:
 		crop_settings_changed.connect(_on_crop_settings_changed)
 		_time_scale_picker.time_span_changed.connect(_on_time_scale_picker_time_span_changed.unbind(2))
 		_time_visible_button.toggled.connect(_update_time_label_layout.unbind(1))
+		_time_background_visible_button.toggled.connect(_update_time_color.unbind(1))
 		_time_position_option_button.item_selected.connect(_update_time_label_layout.unbind(1))
 		_time_label_font_size_spinbox.value_changed.connect(_on_time_label_font_size_spinbox_value_changed)
 		_time_slider.value_changed.connect(_on_time_slider_value_changed)
@@ -122,6 +127,8 @@ func _on_time_scale_picker_time_span_changed() -> void:
 
 func _on_time_label_font_size_spinbox_value_changed(in_value: float) -> void:
 	_time_label.add_theme_font_size_override(&"font_size", int(in_value))
+	# Changing the font size is not instant, so the layout update has to be deferred
+	_update_time_label_layout.call_deferred()
 
 
 func _on_time_slider_value_changed(in_frame: float) -> void:
@@ -179,10 +186,13 @@ func _setup_quality_preset_option_button() -> void:
 
 
 func _update_time_label_layout() -> void:
-	if _time_label.visible != _time_visible_button.button_pressed:
-		_time_label.visible = _time_visible_button.button_pressed
+	if _crop_rect_control.visible != _time_visible_button.button_pressed:
+		_crop_rect_control.visible = _time_visible_button.button_pressed
 		# This ensures text is updated when visibility changes
 		_update_time_label_text()
+	
+	_crop_rect_control.set_anchors_and_offsets_preset(Control.LayoutPreset.PRESET_FULL_RECT)
+
 	if _check_button_crop.button_pressed:
 		var crop_rect := Rect2i(
 			int(_spin_box_slider_h_offset.value),
@@ -190,33 +200,25 @@ func _update_time_label_layout() -> void:
 			int(_spin_box_slider_crop_width.value),
 			int(_spin_box_slider_crop_height.value)
 		)
-		_crop_rect_control.set_anchor_and_offset(SIDE_LEFT, 0, crop_rect.position.x)
-		_crop_rect_control.set_anchor_and_offset(SIDE_TOP, 0, crop_rect.position.y)
-		var offset := Vector2i(_crop_rect_control.get_viewport_rect().size) - crop_rect.end
-		_crop_rect_control.set_anchor_and_offset(SIDE_RIGHT, 1, -offset.x)
-		_crop_rect_control.set_anchor_and_offset(SIDE_BOTTOM, 1, -offset.y)
-	else:
-		_crop_rect_control.set_anchor_and_offset(SIDE_LEFT, 0, 0)
-		_crop_rect_control.set_anchor_and_offset(SIDE_TOP, 0, 0)
-		_crop_rect_control.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
-		_crop_rect_control.set_anchor_and_offset(SIDE_BOTTOM, 1, 0)
+		_crop_rect_control.offset_left = crop_rect.position.x
+		_crop_rect_control.offset_top = crop_rect.position.y
+		var offset := _sub_viewport_preview.size - crop_rect.end
+		_crop_rect_control.offset_right = -offset.x
+		_crop_rect_control.offset_bottom = -offset.y
+
 	var alignment: Control.LayoutPreset = _time_position_option_button.get_selected_id() as Control.LayoutPreset
-	if alignment in [Control.LayoutPreset.PRESET_TOP_LEFT, Control.LayoutPreset.PRESET_BOTTOM_LEFT]:
-		# align left
-		_time_label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	else:
-		# align right
-		_time_label.size_flags_horizontal = Control.SIZE_SHRINK_END
-	if alignment in [Control.LayoutPreset.PRESET_TOP_LEFT, Control.LayoutPreset.PRESET_TOP_RIGHT]:
-		# align top
-		_time_label.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	else:
-		# align bottom
-		_time_label.size_flags_vertical = Control.SIZE_SHRINK_END
+	_time_container.set_anchors_and_offsets_preset(alignment)
 
 
 func _update_time_color() -> void:
-	if _workspace_context != null:
+	if _workspace_context == null:
+		return
+	var style_box: StyleBoxFlat = _time_label[&"theme_override_styles/normal"]
+	if _time_background_visible_button.button_pressed:
+		style_box.draw_center = true
+		_time_label.self_modulate = Color.WHITE
+	else:
+		style_box.draw_center = false
 		var background: Color = _color_picker_button_background_color.color
 		if _radio_background_environment.button_pressed:
 			var settings: RepresentationSettings = _workspace_context.workspace.representation_settings

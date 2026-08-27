@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dmiufmrvro7me"]
+[gd_scene load_steps=11 format=3 uid="uid://dmiufmrvro7me"]
 
 [ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="1_fq33m"]
 [ext_resource type="Script" uid="uid://clhsgmheddras" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.gd" id="2_vnntt"]
@@ -6,6 +6,17 @@
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_3apb5"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_fxhsi"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0eixy"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.184314, 0.101961, 0.34902, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_vnntt"]
 
@@ -122,6 +133,15 @@ value = 24.0
 allow_greater = true
 suffix = " px"
 
+[node name="TimeBackgroundVisibleLabel" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="8"]
+layout_mode = 2
+text = "Background"
+
+[node name="TimeBackgroundVisibleButton" type="CheckButton" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="9"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+
 [node name="LabelAdvanced" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls" index="8"]
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
@@ -178,25 +198,36 @@ value = 17.0
 [node name="SubViewportPreview" parent="VBoxContainer/HBoxContainer/PreviewControls" index="0"]
 render_target_update_mode = 4
 
-[node name="CropRectControl" type="MarginContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview" index="3"]
+[node name="CropRectControl" type="Control" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview" index="3"]
 unique_name_in_owner = true
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+size_flags_horizontal = 4
+size_flags_vertical = 4
 
-[node name="TimeLabel" type="Label" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview/CropRectControl" index="0"]
+[node name="TimeContainer" type="MarginContainer" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview/CropRectControl" index="0"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -37.5
+offset_right = 77.0
+grow_vertical = 0
+
+[node name="TimeLabel" type="Label" parent="VBoxContainer/HBoxContainer/PreviewControls/SubViewportPreview/CropRectControl/TimeContainer" index="0"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 8
+size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_0eixy")
 text = "0.25 fs"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="ButtonFit" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer" index="1"]
 button_group = SubResource("ButtonGroup_vnntt")
