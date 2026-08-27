@@ -7,7 +7,7 @@ const _RESERVED_TITLE_SPACE: float = 36
 @onready var _tree_info: Tree = %TreeInfo
 var _custom_editors: Dictionary = Dictionary()#[TreeItem,Control]
 var _workspace_context: WorkspaceContext = null
-
+var _last_change_from_info_tree: bool = false
 
 func _ready() -> void:
 	_tree_info.item_collapsed.connect(_on_tree_item_collapsed)
@@ -47,6 +47,10 @@ func _on_workspace_context_structure_about_to_remove(_in_structe: NanoStructure)
 
 
 func _update_selected_info() -> void:
+	if _last_change_from_info_tree:
+		# Dont refresh UI when last change comes from here
+		_last_change_from_info_tree = false
+		return
 	_clear()
 	if not is_instance_valid(_workspace_context):
 		return
@@ -200,6 +204,8 @@ func _create_value_cell(value: Variant, in_item: TreeItem) -> void:
 
 
 func _configure_tree_item(in_item: TreeItem, in_editor_widget: InspectorControl) -> void:
+	if not in_editor_widget.about_to_submit_value.is_connected(_on_custom_widget_about_to_submit_value):
+		in_editor_widget.about_to_submit_value.connect(_on_custom_widget_about_to_submit_value)
 	in_item.set_cell_mode(1, TreeItem.CELL_MODE_CUSTOM)
 	in_item.set_custom_as_button(1, true)
 	_tree_info.add_child(in_editor_widget)
@@ -220,6 +226,9 @@ func _configure_trim_label(in_item: TreeItem, in_label: TrimLabel) -> void:
 	in_item.custom_minimum_height = int(min_size.y)
 	_custom_editors[in_item] = in_label
 	in_item.set_custom_draw_callback(1, _fit_editor_in_cell)
+
+func _on_custom_widget_about_to_submit_value() -> void:
+	_last_change_from_info_tree = true
 
 func _on_tree_item_collapsed(_in_item: TreeItem) -> void:
 	_hide_all_editors()

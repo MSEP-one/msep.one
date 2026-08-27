@@ -39,6 +39,7 @@ func _notification(in_what: int) -> void:
 
 func _on_value_confirmed(_ignored_arg: float) -> void:
 	if _setter.is_valid():
+		notify_about_to_submit_value()
 		_setter.get_object().store_undo_snapshot()
 
 

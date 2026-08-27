@@ -66,3 +66,4 @@ script = ExtResource("3_awwg8")
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+focus_mode = 0
