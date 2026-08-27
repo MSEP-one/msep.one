@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://dnppynbygr3na"]
+[gd_scene load_steps=7 format=3 uid="uid://dnppynbygr3na"]
 
 [ext_resource type="Script" uid="uid://brc5dgewcso0y" path="res://editor/controls/welcome_page/welcome_page.gd" id="1_h6th3"]
 [ext_resource type="PackedScene" uid="uid://dcasl2w72vcie" path="res://editor/controls/welcome_page/controls/load_recent_button.tscn" id="2_b1dtx"]
 [ext_resource type="Texture2D" uid="uid://bjnbq8rtp2gy5" path="res://editor/controls/menu_bar/menu_file/icons/icon_new_workspace.svg" id="3_f3hfv"]
 [ext_resource type="Texture2D" uid="uid://c3cwjs4djvms5" path="res://editor/controls/menu_bar/menu_file/icons/icon_load_workspace.svg" id="3_id6tf"]
+[ext_resource type="Texture2D" uid="uid://jam6o276yr51" path="res://editor/controls/menu_bar/menu_file/icons/icon_close_workspace_16px.svg" id="5_8wk80"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i26yn"]
 bg_color = Color(0.333333, 0.203922, 0.596078, 1)
@@ -96,3 +97,10 @@ layout_mode = 2
 
 [node name="LoadRecentButton4" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer/KnownWorkspacesBox" instance=ExtResource("2_b1dtx")]
 layout_mode = 2
+
+[node name="ContextualPopupMenu" type="PopupMenu" parent="."]
+size = Vector2i(203, 43)
+item_count = 1
+item_0/text = "Remove from recent list"
+item_0/icon = ExtResource("5_8wk80")
+item_0/id = 0
