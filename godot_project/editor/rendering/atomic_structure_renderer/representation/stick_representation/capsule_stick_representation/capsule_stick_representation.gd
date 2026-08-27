@@ -97,13 +97,12 @@ static func calc_bond_width_factor(_in_bond_order: int, in_smaller_atom_radius: 
 
 
 func apply_theme(in_theme: Theme3D) -> void:
-	var old_order_1_material: ShaderMaterial = _material_bond_1
-	var old_order_2_material: ShaderMaterial = _material_bond_2
-	var old_order_3_material: ShaderMaterial = _material_bond_3
+	var old_capsule_material: ShaderMaterial = _capsule_material
 	
-	_material_bond_1 = in_theme.create_stick_order_1_material()
-	_material_bond_2 = in_theme.create_stick_order_2_material()
-	_material_bond_3 = in_theme.create_stick_order_3_material()
+	_capsule_material = in_theme.create_stick_order_1_material()
+	_material_bond_1 = _capsule_material
+	_material_bond_2 = _capsule_material
+	_material_bond_3 = _capsule_material
 	
 	assert(_material_bond_1 is CapsuleStickMaterial)
 	assert(_material_bond_2 is CapsuleStickMaterial)
@@ -116,9 +115,9 @@ func apply_theme(in_theme: Theme3D) -> void:
 	_tripple_stick_multimesh.set_mesh_override(in_theme.create_stick_mesh_order_3())
 	_tripple_stick_multimesh.set_material_override(_material_bond_3)
 	
-	_material_bond_1.copy_state_from(old_order_1_material)
-	_material_bond_2.copy_state_from(old_order_2_material)
-	_material_bond_3.copy_state_from(old_order_3_material)
+	if old_capsule_material:
+		# Old material could be null if theme is set before initialization
+		_capsule_material.copy_state_from(old_capsule_material)
 	
 	var is_built: bool = _workspace_context != null
 	if is_built:
