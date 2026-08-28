@@ -51,5 +51,3 @@ size_flags_vertical = 2
 focus_mode = 0
 hide_root = true
 select_mode = 1
-scroll_horizontal_enabled = false
-scroll_vertical_enabled = false

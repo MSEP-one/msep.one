@@ -449,6 +449,7 @@ func _create_structure_tree_item(in_structure_id: int) -> TreeItem:
 	if structure_context == get_workspace_context().get_current_structure_context():
 		_edited_structure_tree_item = tree_item
 	tree_item.set_text(_TREE_COLUMN_0, nano_structure.get_structure_name())
+	tree_item.set_text_overrun_behavior(_TREE_COLUMN_0, TextServer.OVERRUN_NO_TRIMMING)
 	tree_item.add_button(_TREE_COLUMN_0, _BUTTON_ICONS[_TREE_BUTTON_ID_RENAME],
 			_TREE_BUTTON_ID_RENAME, false, tr(&"Edit the name of this structure"))
 	if nano_structure != get_workspace_context().workspace.get_main_structure():
