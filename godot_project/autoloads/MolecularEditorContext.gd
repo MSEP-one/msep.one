@@ -474,6 +474,7 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	get_window().files_dropped.connect(_on_window_files_dropped)
 	workspace_activated.connect(_on_workspace_activated)
 	_ready_deferred.call_deferred()
 	_update_window_title()
@@ -520,6 +521,52 @@ func _ready_deferred() -> void:
 	molecular_editor.export_workspace_confirmed.connect(_on_molecular_editor_export_workspace_confirmed)
 	if _current_workspace == null:
 		homepage_activated.emit()
+
+
+func _on_window_files_dropped(files: PackedStringArray) -> void:
+	if BusyIndicator.is_active():
+		return
+	if InitialInfoScreen.visible:
+		return
+	if AboutMsepOne.visible:
+		return
+	var msep1_files: PackedStringArray = []
+	var importable: PackedStringArray = []
+	var unrecognized: PackedStringArray = []
+	const IMPORTABLE_EXTENSIONS = ["pdb", "sdf", "mol", "xyz"]
+	for file: String in files:
+		# Normalize windows path
+		file = file.replace("\\", "/")
+		if file.get_extension().to_lower() == "msep1":
+			msep1_files.append(file)
+		elif file.get_extension().to_lower() in IMPORTABLE_EXTENSIONS:
+			importable.append(file)
+		else:
+			unrecognized.append(file)
+	
+	if unrecognized.size() > 0:
+		Editor_Utils.get_editor().prompt_error_msg(
+			tr("Some of the dropped files can not be recognized.")
+		)
+		return
+	elif msep1_files.size() > 0 and importable.size() > 0:
+		Editor_Utils.get_editor().prompt_error_msg(
+			tr("Some of the dropped files are projects, while others are importable protein files.\nOnly one operation can be done at a time.")
+		)
+		return
+	elif msep1_files.size() > 0:
+		for file in msep1_files:
+			if file.get_extension().to_lower() == "msep1":
+				load_and_activate_workspace(file)
+				await get_tree().process_frame
+	elif importable.size() > 0:
+		var current: WorkspaceContext = get_current_workspace_context()
+		if current == null:
+			current = get_workspace_context(create_workspace())
+		for file in importable:
+			if file.get_extension().to_lower() in IMPORTABLE_EXTENSIONS:
+				WorkspaceUtils.import_file(current, file, false, false, false, ImportFileDialog.Placement.KEEP_ORIGINAL)
+				await get_tree().process_frame
 
 
 func _on_molecular_editor_save_workspace_confirmed(in_workspace: Workspace, in_path: String) -> void:
