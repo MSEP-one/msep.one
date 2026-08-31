@@ -117,10 +117,12 @@ func _on_spin_box_value_changed(_in_value: float) -> void:
 				var azimuth_quat := Quaternion(Vector3.UP, -deg_to_rad(_azimuth_spin_box.value))
 				var altitude_quat := Quaternion(Vector3.RIGHT, deg_to_rad(_altitude_spin_box.value))
 				var tilt_quat := Quaternion(Vector3.FORWARD, deg_to_rad(_tilt_spin_box.value))
+				notify_about_to_submit_value()
 				_setter.call(azimuth_quat * altitude_quat * tilt_quat)
 			Mode.NORMAL:
 				var azimuth_dir := Vector3.FORWARD.rotated(Vector3.UP, deg_to_rad(_azimuth_spin_box.value))
 				var normal := azimuth_dir.rotated(azimuth_dir.cross(Vector3.UP), deg_to_rad(_altitude_spin_box.value))
+				notify_about_to_submit_value()
 				_setter.call(normal)
 
 

@@ -62,6 +62,7 @@ func _on_option_button_item_selected(in_index: int) -> void:
 	var old_order: int = _structure_context.nano_structure.get_bond(_bond_id).z
 	if bond_order == old_order:
 		return
+	notify_about_to_submit_value()
 	# Note: this process does not modify selection, but we want to make sure
 	#+the selection is "reverted" on undo/redo operations
 	_structure_context.nano_structure.start_edit()

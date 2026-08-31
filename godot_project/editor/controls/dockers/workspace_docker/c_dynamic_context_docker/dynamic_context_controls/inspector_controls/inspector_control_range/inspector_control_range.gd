@@ -15,6 +15,7 @@ func _notification(in_what: int) -> void:
 
 func _on_range_control_value_changed(in_value: float) -> void:
 	if _setter.is_valid():
+		notify_about_to_submit_value()
 		_setter.call(in_value)
 
 
