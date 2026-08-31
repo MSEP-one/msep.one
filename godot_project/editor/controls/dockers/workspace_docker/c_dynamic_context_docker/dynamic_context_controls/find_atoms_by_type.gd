@@ -6,6 +6,7 @@ const DELETE_ICON: Texture2D = preload("res://editor/controls/menu_bar/menu_edit
 
 var _workspace_context: WorkspaceContext
 var _selected_types: Dictionary = {}
+var _structure_count: int = 0
 
 @onready var _elements_tree: Tree = %ElementsTree as Tree
 @onready var _element_picker: ElementPickerBase = %ElementPicker as ElementPickerBase
@@ -54,6 +55,7 @@ func _refresh_groups_tree() -> void:
 	_groups_tree.clear()
 	var root: TreeItem = _groups_tree.create_item()
 	_groups_tree.hide_root = true
+	_structure_count = 0
 	for structure: NanoStructure in _workspace_context.workspace.get_root_child_structures():
 		if not structure is AtomicStructure or structure is AtomicVirtualStructure:
 			# DNA is intentionally ignored because their atoms are not interactible
@@ -62,9 +64,11 @@ func _refresh_groups_tree() -> void:
 
 
 func _add_groups_recursively(in_structure: AtomicStructure, in_parent_item: TreeItem) -> void:
+	_structure_count += 1
 	var group_item: TreeItem = _groups_tree.create_item(in_parent_item)
 	var count: int = _count_found_atoms(in_structure)
 	const COL_0 := 0
+	group_item.set_text_overrun_behavior(COL_0, TextServer.OVERRUN_NO_TRIMMING)
 	group_item.set_text(COL_0, "%s (%d)" % [in_structure.get_structure_name(), count])
 	group_item.set_meta(&"group_id", in_structure.int_guid)
 	group_item.set_meta(&"count", count)
@@ -74,6 +78,16 @@ func _add_groups_recursively(in_structure: AtomicStructure, in_parent_item: Tree
 			# DNA is intentionally ignored because their atoms are not interactible
 			continue
 		_add_groups_recursively(structure, group_item)
+	ScriptUtils.call_deferred_once(_update_minsize)
+
+
+func _update_minsize() -> void:
+	if _structure_count > 5:
+		_groups_tree.custom_minimum_size.y = 200
+		_groups_tree.scroll_vertical_enabled = true
+	else:
+		_groups_tree.custom_minimum_size.y = 0
+		_groups_tree.scroll_vertical_enabled = false
 
 
 func _count_found_atoms(in_structure: AtomicStructure) -> int:

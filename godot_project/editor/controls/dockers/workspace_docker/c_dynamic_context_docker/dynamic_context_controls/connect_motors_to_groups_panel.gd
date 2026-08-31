@@ -70,6 +70,7 @@ func _add_structure_to_tree(
 	var structure_item: TreeItem = _tree_items.get(in_structure.int_guid, null) as TreeItem
 	if structure_item == null:
 		structure_item = _structures_tree.create_item(in_parent_tree_item, in_structure.int_guid)
+		structure_item.set_text_overrun_behavior(_TREE_COLUMN_0, TextServer.OVERRUN_NO_TRIMMING)
 	var is_checkable: bool = not in_structure is NanoVirtualMotor
 	structure_item.set_cell_mode(_TREE_COLUMN_0, TreeItem.CELL_MODE_CHECK if is_checkable else TreeItem.CELL_MODE_STRING)
 	structure_item.set_editable(_TREE_COLUMN_0, is_checkable)

@@ -193,6 +193,7 @@ func _create_structure_tree_item(in_structure_id: int) -> TreeItem:
 	var tree_item: TreeItem = _tree.create_item(parent_item, in_structure_id)
 	_structure_id_to_tree_item[in_structure_id] = tree_item
 	tree_item.set_text(_TREE_COLUMN_0, nano_structure.get_structure_name())
+	tree_item.set_text_overrun_behavior(_TREE_COLUMN_0, TextServer.OVERRUN_NO_TRIMMING)
 	return tree_item
 
 
