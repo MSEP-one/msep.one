@@ -175,6 +175,7 @@ func set_global_color(in_color: Color) -> void:
 
 
 func change_look(in_mesh: Mesh, in_material: Material) -> void:
+	_material = in_material
 	_multimesh.set_mesh_override(in_mesh).set_material_override(in_material)
 
 
@@ -185,6 +186,7 @@ func create_state_snapshot() -> Dictionary:
 	snapshot["_should_hide_in_simulation"] = _should_hide_in_simulation
 	snapshot["_transform_handler.snapshot"] = _transform_handler.create_state_snapshot()
 	snapshot["_multimesh.snapshot"] = _multimesh.create_state_snapshot()
+	snapshot["_material"] = _material.create_state_snapshot()
 	return snapshot
 
 
@@ -194,6 +196,7 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 	_multimesh.apply_state_snapshot(in_snapshot["_multimesh.snapshot"])
 	# Override visibility of multimesh if needed
 	_should_hide_in_simulation = in_snapshot["_should_hide_in_simulation"]
+	_material.apply_state_snapshot(in_snapshot["_material"])
 	# assume _is_simulating is up to date since this is not changed by undo history
 	_update_visibility()
 	_transform_handler.apply_state_snapshot(in_snapshot["_transform_handler.snapshot"])

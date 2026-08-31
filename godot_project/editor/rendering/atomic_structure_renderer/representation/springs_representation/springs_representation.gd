@@ -273,7 +273,7 @@ func handle_editable_structures_changed(in_new_editable_structure_contexts: Arra
 		assert(ScriptUtils.is_queued_for_deletion_recursive(self), "structure deleted, this rendering instance is about to be deleted")
 		return
 	var structure_context: StructureContext = _workspace_context.get_structure_context(_structure_id)
-	var is_editable: bool = in_new_editable_structure_contexts.find(structure_context)
+	var is_editable: bool = in_new_editable_structure_contexts.has(structure_context)
 	var global_color: Color = Color(COLOR_EDITABLE, 1.0) if is_editable else Color(COLOR_NON_EDITABLE, 1.0)
 	_spring_renderer.set_global_color(global_color)
 
