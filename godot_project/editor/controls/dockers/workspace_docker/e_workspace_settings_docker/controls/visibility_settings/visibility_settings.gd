@@ -84,6 +84,7 @@ func _on_workspace_representation_settings_changed() -> void:
 			Rendering.Representation.MECHANICAL_SIMULATION, Rendering.Representation.BALLS_AND_STICKS,
 			Rendering.Representation.ENHANCED_STICKS_AND_BALLS]
 	_bonds_toggle.disabled = not is_bond_toggle_enabled
+	_labels_toggle.disabled = current_representation in [Rendering.Representation.STICKS, Rendering.Representation.ENHANCED_STICKS]
 	_bonds_toggle.set_pressed_no_signal(settings.get_display_bonds())
 	_hydrogens_toggle.set_pressed_no_signal(settings.get_hydrogens_visible())
 	_labels_toggle.set_pressed_no_signal(settings.get_display_atom_labels())
