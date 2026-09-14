@@ -14,6 +14,7 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 			_execute_action,
 			tr("Show or hide the bonds in the 3D view")
 	)
+	with_validation(_can_activate)
 	var settings: RepresentationSettings = in_workspace_context.workspace.representation_settings
 	settings.bond_visibility_changed.connect(_on_bond_visibility_changed)
 	_on_bond_visibility_changed(settings.get_display_bonds())
@@ -26,6 +27,15 @@ func get_icon() -> RingMenuIcon:
 func _can_focus() -> bool:
 	return _workspace_context != null and \
 			_workspace_context.get_visible_structure_contexts().size() > 0
+
+
+func _can_activate() -> bool:
+	if _workspace_context == null:
+		return false
+	const uncompatible_representations := [Rendering.Representation.STICKS, Rendering.Representation.ENHANCED_STICKS]
+	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
+	var current_rendering_representation: Rendering.Representation = representation_settings.get_rendering_representation()
+	return not current_rendering_representation in uncompatible_representations
 
 
 func _execute_action() -> void:
