@@ -199,6 +199,12 @@ func apply_next_snapshot() -> void:
 	next_snapshot_applied.emit(snapshot_name)
 
 
+func apply_current_snapshot() -> void:
+	_apply_snapshot_from_stack(_stack_pointer)
+	changed.emit()
+	snapshot_applied.emit()
+
+
 func _apply_snapshot_from_stack(in_stack_index: int) -> void:
 	apply_snapshot(_snapshot_stack[in_stack_index])
 	_last_snapshot_name = _name_stack[in_stack_index]
