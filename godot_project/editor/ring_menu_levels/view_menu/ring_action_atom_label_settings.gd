@@ -27,10 +27,10 @@ func get_icon() -> RingMenuIcon:
 func _can_activate() -> bool:
 	if _workspace_context == null:
 		return false
-	var uncompatible_representations := [Rendering.Representation.STICKS, Rendering.Representation.ENHANCED_STICKS]
+	const INCOMPATIBLE_REPRESENTATIONS := [Rendering.Representation.STICKS, Rendering.Representation.ENHANCED_STICKS]
 	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
 	var current_rendering_representation: Rendering.Representation = representation_settings.get_rendering_representation()
-	var can_representation_use_3d_labels: bool = not current_rendering_representation in uncompatible_representations
+	var can_representation_use_3d_labels: bool = not current_rendering_representation in INCOMPATIBLE_REPRESENTATIONS
 	return can_representation_use_3d_labels
 
 

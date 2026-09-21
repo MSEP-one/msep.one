@@ -32,10 +32,10 @@ func _can_focus() -> bool:
 func _can_activate() -> bool:
 	if _workspace_context == null:
 		return false
-	const uncompatible_representations := [Rendering.Representation.STICKS, Rendering.Representation.ENHANCED_STICKS]
+	const INCOMPATIBLE_REPRESENTATIONS := [Rendering.Representation.STICKS, Rendering.Representation.ENHANCED_STICKS]
 	var representation_settings: RepresentationSettings = _workspace_context.workspace.representation_settings
 	var current_rendering_representation: Rendering.Representation = representation_settings.get_rendering_representation()
-	return not current_rendering_representation in uncompatible_representations
+	return not current_rendering_representation in INCOMPATIBLE_REPRESENTATIONS
 
 
 func _execute_action() -> void:
