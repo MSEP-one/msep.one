@@ -195,11 +195,11 @@ func _refresh_distance_value() -> void:
 func _refresh_warning_message(in_distance_value: float) -> void:
 	var msg: String = ""
 	var atom_diameter: float = _current_atom_radius * 2.0
-	var max_bond_stretch_factor: float = 1.5
+	const MAX_BOND_STRETCH_FACTOR: float = 1.5
 	if _applying_what == ApplyingWhat.ATOMS:
 		if _selected_type == NO_ATOM_TYPE_SELECTED:
 			msg = _atom_warning_messages[_warning_message_keys.NO_CONTENT_SELECTED]
-		elif in_distance_value >= atom_diameter * max_bond_stretch_factor:
+		elif in_distance_value >= atom_diameter * MAX_BOND_STRETCH_FACTOR:
 			msg = _atom_warning_messages[_warning_message_keys.NO_WARNING]
 		elif in_distance_value >= atom_diameter:
 			msg = _atom_warning_messages[_warning_message_keys.SHORTER_THAN_EQUILIBRIUM_DISTANCE]
