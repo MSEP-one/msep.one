@@ -586,8 +586,11 @@ func get_selection_aabb() -> AABB:
 		selections_aabbs.push_back(object_aabb)
 	
 	if nano_structure is DnaStructure:
-		if not _control_point_selection.is_empty():
-			var dna_structure := _structure_context.nano_structure as DnaStructure
+		var dna_structure := _structure_context.nano_structure as DnaStructure
+		if _control_point_selection.size() == dna_structure.get_control_point_count():
+			# The whole object is selected
+			selections_aabbs.push_back(dna_structure.get_aabb())
+		elif not _control_point_selection.is_empty():
 			var points := PackedInt32Array(_control_point_selection.keys())
 			var aabb := AABB(dna_structure.get_control_point_position(points[0]), Vector3.ZERO)
 			for i in range(1, points.size()):
