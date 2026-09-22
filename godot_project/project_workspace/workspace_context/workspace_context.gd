@@ -608,8 +608,7 @@ func start_simulating(in_simulation_data: SimulationData) -> void:
 	assert(not is_simulating(), "I'm already being simulated, make sure to call " +
 			"abort_simulation_if_running() when you are done with it")
 	_simulation = in_simulation_data
-	if _try_deselect_hidden_virtual_objects():
-		snapshot_moment("Change Selection")
+	_try_deselect_hidden_virtual_objects()
 	simulation_started.emit()
 
 
@@ -685,6 +684,7 @@ func abort_simulation_if_running() -> void:
 	_is_simulation_playback_running = false
 	_queue_emit_new_editable_structures()
 	simulation_finished.emit()
+	revert_pending_changes()
 
 
 ## Stops and discard the simulation on OpenMM's side, but keep the existing
@@ -1701,6 +1701,13 @@ func apply_next_snapshot() -> void:
 	if is_simulating():
 		var current_simulation_time: float = _simulation.get_last_seeked_time()
 		seek_simulation(current_simulation_time)
+
+
+## Cancels any changes to the workspace since the last snapshot.
+func revert_pending_changes() -> void:
+	if is_simulating():
+		return
+	_history.apply_current_snapshot()
 
 
 func get_version() -> int:
