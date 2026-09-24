@@ -15,7 +15,7 @@ var _crop_rect_control: Control
 var _time_container: MarginContainer
 var _time_label: Label
 var _video_time_elapsed_label: Label
-var _time_slider: HSlider
+var _time_slider: RangeSlider
 
 var _recording_overlay: CanvasLayer
 var _stop_button: Button
@@ -31,7 +31,6 @@ var _is_baking: bool:
 	get(): return _recorder != null
 var _stopped: bool = false
 var _aborted: bool = false
-var _simulation_elapsed_time_femtoseconds: float = 0.0
 var _recorder: VideoRecorder = null
 
 
@@ -52,7 +51,7 @@ func _notification(what: int) -> void:
 		_time_container = %TimeContainer as MarginContainer
 		_time_label = %TimeLabel as Label
 		_video_time_elapsed_label = %VideoTimeElapsedLabel as Label
-		_time_slider = %TimeSlider as HSlider
+		_time_slider = %TimeSlider as RangeSlider
 		
 		_recording_overlay = %RecordingOverlay as CanvasLayer
 		_stop_button = %StopButton as Button
@@ -132,6 +131,8 @@ func _on_time_label_font_size_spinbox_value_changed(in_value: float) -> void:
 
 
 func _on_time_slider_value_changed(in_frame: float) -> void:
+	if not _workspace_context:
+		return
 	_workspace_context.seek_simulation(in_frame)
 	_update_time_label_text()
 
@@ -165,10 +166,13 @@ func _setup_time_slider() -> void:
 	_time_slider.set_block_signals(true)
 	_time_slider.min_value = 0.0
 	_time_slider.max_value = simulation_frame_count - 1 # last index is size-1
+	_time_slider.range_start = _time_slider.min_value
+	_time_slider.range_end = _time_slider.max_value
 	_time_slider.step = 1.0
 	_time_slider.value = _workspace_context.get_simulation_current_frame()
 	_time_slider.share(_progress_bar)
 	_time_slider.set_block_signals(false)
+	_time_slider.refresh_ui()
 
 
 func _setup_quality_preset_option_button() -> void:
@@ -236,9 +240,9 @@ func _update_time_label_text() -> void:
 	var elapsed: float = TimeSpanPicker.femtoseconds_to_unit(elapsed_femtoseconds, _label_unit)
 	_time_label.text = "%.02f %s" % [elapsed, TimeSpanPicker.UNIT_SYMBOL[_label_unit]]
 	
-	var last_simulation_drame: float = _time_slider.max_value
+	var last_simulation_frame: float = _time_slider.max_value
 	var femtoseconds_per_video_second: float = _time_scale_picker.time_span_femtoseconds
-	var simulation_length_femtoseconds: float = last_simulation_drame * femtoseconds_per_simulation_frame
+	var simulation_length_femtoseconds: float = last_simulation_frame * femtoseconds_per_simulation_frame
 	var video_length: float = simulation_length_femtoseconds / femtoseconds_per_video_second
 	var elapsed_video_time: float = elapsed_femtoseconds / femtoseconds_per_video_second
 	_video_time_elapsed_label.text = "%s / %s" % [_format_time(elapsed_video_time), _format_time(video_length)]
@@ -282,18 +286,11 @@ func _bake_video(in_filepath: String) -> void:
 	_recorder = VideoRecorderFFMPEG.new(in_filepath, resolution, int(_framerate_spin_box.value),
 		quality_preset, constant_rate_factor)
 	
-	var femtoseconds_per_video_second: float = _time_scale_picker.time_span_femtoseconds
-	var femtoseconds_per_video_frame: float = femtoseconds_per_video_second / _framerate_spin_box.value
-	var sim_params: SimulationParameters = _workspace_context.workspace.simulation_parameters
-	var femtoseconds_per_simulation_frame: float = sim_params.step_size_in_femtoseconds * sim_params.steps_per_report
-	assert(femtoseconds_per_video_frame > 0.0, "Invalid delta time")
-	var simulation_frame_count := int(_time_slider.max_value)
-	_simulation_elapsed_time_femtoseconds = 0.0
-	var length_in_femtoseconds: float = simulation_frame_count * femtoseconds_per_simulation_frame
-	while _simulation_elapsed_time_femtoseconds <= length_in_femtoseconds and not (_stopped or _aborted):
-		var simulation_frame: int = int(_simulation_elapsed_time_femtoseconds / femtoseconds_per_simulation_frame)
+	var last_frame_to_record := int(_time_slider.range_end)
+	var current_frame: int = int(_time_slider.range_start)
+	while current_frame <= last_frame_to_record and not (_stopped or _aborted):
 		# This will in cause the simulation to be updated
-		_time_slider.value = simulation_frame
+		_time_slider.value = current_frame
 		# HACK: Label.queue_redraw() waits until the end of the frame, so RenderingServer.force_redraw
 		# will still show the old text unless we ensure it's execution
 		await get_tree().process_frame
@@ -309,7 +306,7 @@ func _bake_video(in_filepath: String) -> void:
 			))
 		_recorder.add_frame(capture_image)
 		_update_progress()
-		_simulation_elapsed_time_femtoseconds += femtoseconds_per_video_frame
+		current_frame += 1
 	if _aborted:
 		_recorder = null
 		_recording_overlay.hide()

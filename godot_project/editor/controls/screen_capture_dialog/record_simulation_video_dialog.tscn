@@ -1,9 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://dmiufmrvro7me"]
+[gd_scene load_steps=12 format=3 uid="uid://dmiufmrvro7me"]
 
 [ext_resource type="PackedScene" uid="uid://blxop3sf64kc3" path="res://editor/controls/screen_capture_dialog/screen_capture_dialog.tscn" id="1_fq33m"]
 [ext_resource type="Script" uid="uid://clhsgmheddras" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.gd" id="2_vnntt"]
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="3_fxhsi"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_3apb5"]
+[ext_resource type="PackedScene" uid="uid://ssby5d731axd" path="res://editor/controls/general/range_slider.tscn" id="5_fxhsi"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_fxhsi"]
 
@@ -248,16 +249,18 @@ layout_mode = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
+size_flags_vertical = 0
 text = "00:00 / 00:00"
 horizontal_alignment = 2
 
-[node name="TimeSlider" type="HSlider" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer2" index="1"]
+[node name="TimeSlider" parent="VBoxContainer/HBoxContainer/PreviewControls/PanelContainer/VBoxContainer/HBoxContainer2" index="1" instance=ExtResource("5_fxhsi")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="RecordingOverlay" type="CanvasLayer" parent="." index="6"]
 unique_name_in_owner = true
+visible = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="RecordingOverlay" index="0"]
 anchors_preset = 15
