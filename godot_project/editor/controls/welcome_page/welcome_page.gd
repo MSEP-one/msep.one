@@ -10,16 +10,19 @@ const MAX_KNOWN_WORKSPACES_SHOWN: int = 4
 @onready var new_workspace: Button = %NewWorkspace
 @onready var load_workspace_from_disk: Button = %LoadWorkspaceFromDisk
 @onready var known_workspaces_box: HFlowContainer = %KnownWorkspacesBox
+@onready var forget_selected_button: Button = %ForgetSelected
 @onready var _contextual_popup_menu: PopupMenu = $ContextualPopupMenu
 
 var _settings: MsepHomeSettings
 var _first_run: bool = true
+var _selected_workspaces: Dictionary = {} # filepath: String -> button: Button
 
 func _ready() -> void:
 	_ensure_settings_exists()
 	_update_workspaces_list()
 	new_workspace.pressed.connect(_on_new_workspace_pressed)
 	load_workspace_from_disk.pressed.connect(_on_load_workspace_from_disk_pressed)
+	forget_selected_button.pressed.connect(_on_forget_selected_pressed)
 	_contextual_popup_menu.index_pressed.connect(_on_contextual_popup_menu_index_pressed)
 	_contextual_popup_menu.visibility_changed.connect(_on_contextual_popup_menu_visibility_changed_deferred, CONNECT_DEFERRED)
 	visibility_changed.connect(_update_workspaces_list)
@@ -39,6 +42,8 @@ func _update_workspaces_list() -> void:
 		return
 	for child in known_workspaces_box.get_children():
 		child.queue_free()
+	_selected_workspaces.clear()
+	_update_forget_selected_button()
 	var d: DirAccess = DirAccess.open("user://")
 	var workspace_to_activate: Workspace = null
 	var link_count: int = 0
@@ -51,6 +56,7 @@ func _update_workspaces_list() -> void:
 		btn.set_workspace_path(workspace)
 		btn.pressed.connect(_on_open_workspace_by_path.bind(workspace))
 		btn.context_menu_requested.connect(_on_recent_project_button_context_menu_requested)
+		btn.selection_toggled.connect(_on_recent_project_selection_toggled)
 		known_workspaces_box.add_child(btn)
 		var should_open: bool = _settings.autoload_open_workspaces and _settings.open_workspaces.find(workspace) != -1
 		if should_open:
@@ -117,11 +123,37 @@ func _on_contextual_popup_menu_index_pressed(index: int) -> void:
 			var button: Button = _contextual_popup_menu.get_meta(&"button") as Button
 			var filepath: String = _contextual_popup_menu.get_meta(&"filepath")
 			_settings.remove_known_workspace(filepath)
+			_selected_workspaces.erase(filepath)
+			_update_forget_selected_button()
 			if is_instance_valid(button):
 				button.queue_free.call_deferred()
 		_:
 			assert(false, "Unknown index option %d" % index)
 			return
+
+func _on_recent_project_selection_toggled(button: Button, filepath: String, selected: bool) -> void:
+	if selected:
+		_selected_workspaces[filepath] = button
+	else:
+		_selected_workspaces.erase(filepath)
+	_update_forget_selected_button()
+
+func _update_forget_selected_button() -> void:
+	var count: int = _selected_workspaces.size()
+	forget_selected_button.disabled = count == 0
+	forget_selected_button.text = "Forget selected projects (%d)" % count if count > 0 else "Forget selected projects"
+
+func _on_forget_selected_pressed() -> void:
+	var filepaths: Array[String] = []
+	filepaths.assign(_selected_workspaces.keys())
+	var buttons: Array[Button] = []
+	buttons.assign(_selected_workspaces.values())
+	_settings.remove_known_workspaces(filepaths)
+	for button: Button in buttons:
+		if is_instance_valid(button):
+			button.queue_free()
+	_selected_workspaces.clear()
+	_update_forget_selected_button()
 
 func _on_open_workspace_by_path(path: String) -> void:
 	MolecularEditorContext.load_and_activate_workspace(path)
