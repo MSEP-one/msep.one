@@ -1,10 +1,12 @@
 extends Button
 
 signal context_menu_requested(button: Button, filepath: String)
+signal selection_toggled(button: Button, filepath: String, selected: bool)
 
 var _thumbnail_texture_rect: TextureRect
 var _workspace_name_label: Label
 var _animation_player: AnimationPlayer
+var _select_check_box: CheckBox
 
 
 var _filepath: String
@@ -15,6 +17,8 @@ func _notification(what: int) -> void:
 		_thumbnail_texture_rect = %ThumbnailTextureRect as TextureRect
 		_workspace_name_label = %WorkspaceNameLabel as Label
 		_animation_player = %AnimationPlayer as AnimationPlayer
+		_select_check_box = %SelectCheckBox as CheckBox
+		_select_check_box.toggled.connect(_on_select_check_box_toggled)
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -31,6 +35,18 @@ func set_workspace_path(in_filepath: String) -> void:
 	var workspace_name: String = _filepath.get_file().get_basename().capitalize()
 	_workspace_name_label.text = workspace_name
 	tooltip_text = _filepath
+
+
+func is_selected() -> bool:
+	return _select_check_box.button_pressed
+
+
+func set_selected(in_selected: bool) -> void:
+	_select_check_box.button_pressed = in_selected
+
+
+func _on_select_check_box_toggled(in_toggled_on: bool) -> void:
+	selection_toggled.emit(self, _filepath, in_toggled_on)
 
 
 func setup_for_activation() -> void:
