@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://clhsgmheddras" path="res://editor/controls/screen_capture_dialog/record_simulation_video_dialog.gd" id="2_vnntt"]
 [ext_resource type="PackedScene" uid="uid://m1q18cpkrt8n" path="res://editor/controls/dockers/workspace_docker/simulations_docker/simulations_docker_controls/time_span_picker.tscn" id="3_fxhsi"]
 [ext_resource type="PackedScene" uid="uid://b15453vqjum8" path="res://editor/controls/general/spin_box_slider.tscn" id="4_3apb5"]
-[ext_resource type="PackedScene" path="res://editor/controls/general/range_slider.tscn" id="5_fxhsi"]
+[ext_resource type="PackedScene" uid="uid://ssby5d731axd" path="res://editor/controls/general/range_slider.tscn" id="5_fxhsi"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_fxhsi"]
 
@@ -142,6 +142,21 @@ text = "Background"
 unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
+
+[node name="TimeRelativeToClipLabel" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="10"]
+layout_mode = 2
+tooltip_text = "If enabled, the displayed timer will start where the recorded clip starts.
+
+If not, the timer starts at the begining of the simulation."
+mouse_filter = 1
+text = "Relative to clip"
+
+[node name="TimeRelativeToClipButton" type="CheckButton" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls/PanelContainerTimeStamp/HBoxContainer" index="11"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "If enabled, the displayed timer will start where the recorded clip starts.
+
+If not, the timer starts at the begining of the simulation."
 
 [node name="LabelAdvanced" type="Label" parent="VBoxContainer/HBoxContainer/ScrollContainer/SettingsControls" index="8"]
 layout_mode = 2

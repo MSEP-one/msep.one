@@ -6,6 +6,7 @@ var _time_visible_button: CheckButton
 var _time_position_option_button: OptionButton
 var _time_label_font_size_spinbox: SpinBoxSlider
 var _time_background_visible_button: CheckButton
+var _time_relative_to_clip_button: CheckButton
 
 var _framerate_spin_box: SpinBoxSlider
 var _quality_preset_option_button: OptionButton
@@ -42,6 +43,7 @@ func _notification(what: int) -> void:
 		_time_position_option_button = %TimePositionOptionButton as OptionButton
 		_time_label_font_size_spinbox = %TimeLabelFontSizeSpinbox as SpinBoxSlider
 		_time_background_visible_button = %TimeBackgroundVisibleButton as CheckButton
+		_time_relative_to_clip_button = %TimeRelativeToClipButton as CheckButton
 		
 		_framerate_spin_box = %FramerateSpinBox as SpinBoxSlider
 		_quality_preset_option_button = %QualityPresetOptionButton as  OptionButton
@@ -65,6 +67,7 @@ func _notification(what: int) -> void:
 		_time_background_visible_button.toggled.connect(_update_time_color.unbind(1))
 		_time_position_option_button.item_selected.connect(_update_time_label_layout.unbind(1))
 		_time_label_font_size_spinbox.value_changed.connect(_on_time_label_font_size_spinbox_value_changed)
+		_time_relative_to_clip_button.toggled.connect(_update_time_label_text.unbind(1))
 		_time_slider.value_changed.connect(_on_time_slider_value_changed)
 		_stop_button.pressed.connect(_on_stop_button_pressed)
 		_abort_button.pressed.connect(_abort_button_pressed)
@@ -234,6 +237,8 @@ func _update_time_label_text() -> void:
 	if _time_visible_button.button_pressed == false:
 		return
 	var current_simulation_frame: float = _time_slider.value
+	if _time_relative_to_clip_button.button_pressed:
+		current_simulation_frame -= _time_slider.range_start
 	var sim_params: SimulationParameters = _workspace_context.workspace.simulation_parameters
 	var femtoseconds_per_simulation_frame: float = sim_params.step_size_in_femtoseconds * sim_params.steps_per_report
 	var elapsed_femtoseconds: float = current_simulation_frame * femtoseconds_per_simulation_frame
