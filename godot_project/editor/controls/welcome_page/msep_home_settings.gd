@@ -23,6 +23,15 @@ func remove_known_workspace(in_path: String) -> void:
 		known_workspaces.erase(in_path)
 		emit_changed()
 
+func remove_known_workspaces(in_paths: Array[String]) -> void:
+	var dirty: bool = false
+	for path: String in in_paths:
+		if path in known_workspaces:
+			known_workspaces.erase(path)
+			dirty = true
+	if dirty:
+		emit_changed()
+
 func _on_workspace_loaded(in_workspace: Workspace) -> void:
 	if in_workspace.resource_path.is_empty():
 		# workspace is unsaved, skip
