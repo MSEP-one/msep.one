@@ -1,0 +1,151 @@
+[gd_scene load_steps=7 format=3 uid="uid://ssby5d731axd"]
+
+[ext_resource type="Script" uid="uid://cgxc67xhqnkk6" path="res://editor/controls/general/range_slider.gd" id="1_j454x"]
+[ext_resource type="Texture2D" uid="uid://ckp3narsn8evl" path="res://editor/icons/icon_arrows_left_right.svg" id="2_327jr"]
+[ext_resource type="Texture2D" uid="uid://dmxt5xhy1kjij" path="res://editor/controls/dockers/workspace_docker/a_create_docker/controls/icons/stripes_48px.svg" id="2_cnckx"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_327jr"]
+content_margin_right = 14.0
+color = Color(0.941176, 0.941176, 0.941176, 1)
+grow_begin = 24.0
+grow_end = -4.0
+thickness = 6
+vertical = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gqw5b"]
+content_margin_left = 1.0
+content_margin_top = 0.0
+content_margin_right = 1.0
+content_margin_bottom = 0.0
+bg_color = Color(0.94, 0.94, 0.94, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+anti_aliasing = false
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_frb4q"]
+content_margin_left = 0.0
+color = Color(0.941176, 0.941176, 0.941176, 1)
+grow_begin = 24.0
+grow_end = -4.0
+thickness = 6
+vertical = true
+
+[node name="RangeSlider" type="MarginContainer"]
+offset_right = 386.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 4
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 2
+script = ExtResource("1_j454x")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SliderContainer" type="HBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="SpacerStart" type="TextureRect" parent="VBoxContainer/SliderContainer"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.627451)
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+texture = ExtResource("2_cnckx")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="HSlider" type="HSlider" parent="VBoxContainer/SliderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+
+[node name="SpacerEnd" type="TextureRect" parent="VBoxContainer/SliderContainer"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.627451)
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+texture = ExtResource("2_cnckx")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="RangeControls" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarkerStart" type="VSeparator" parent="VBoxContainer/RangeControls"]
+unique_name_in_owner = true
+layout_mode = 1
+offset_right = 4.0
+offset_bottom = 24.0
+size_flags_horizontal = 8
+mouse_filter = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_327jr")
+
+[node name="GrabberStart" type="PanelContainer" parent="VBoxContainer/RangeControls/MarkerStart"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_right = -4.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 1
+mouse_default_cursor_shape = 10
+theme_override_styles/panel = SubResource("StyleBoxFlat_gqw5b")
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/RangeControls/MarkerStart/GrabberStart"]
+modulate = Color(0.219608, 0.219608, 0.219608, 1)
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("2_327jr")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MarkerEnd" type="VSeparator" parent="VBoxContainer/RangeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+offset_left = 323.0
+offset_right = 327.0
+offset_bottom = 24.0
+size_flags_horizontal = 0
+mouse_filter = 1
+theme_override_styles/separator = SubResource("StyleBoxLine_frb4q")
+
+[node name="GrabberEnd" type="PanelContainer" parent="VBoxContainer/RangeControls/MarkerEnd"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_bottom = 0.5
+grow_vertical = 2
+mouse_filter = 1
+mouse_default_cursor_shape = 10
+theme_override_styles/panel = SubResource("StyleBoxFlat_gqw5b")
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/RangeControls/MarkerEnd/GrabberEnd"]
+modulate = Color(0.219608, 0.219608, 0.219608, 1)
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("2_327jr")
+expand_mode = 1
+stretch_mode = 5
