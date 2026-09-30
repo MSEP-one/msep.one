@@ -86,12 +86,11 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 			info["Element"] = "%s (%s)" % [data.symbol, data.name]
 			info["Count"] = selection.size()
 			if selection.size() == 1:
-				info["Mass" + mass_unit] = data.mass
+				info["Mass Total" + mass_unit] = data.mass
 				info["Position" + distance_unit] = {"": _create_position_property(in_info_type, structure_context, selection[0])}
 			else:
-				info["Mass (Total)" + mass_unit] = "%.3f %.3f" % \
-					[data.mass * Units.get_mass_conversion_factor(),
-					data.mass * selection.size() * Units.get_mass_conversion_factor()]
+				info["Mass Total" + mass_unit] = "%.3f" % \
+					(data.mass * selection.size() * Units.get_mass_conversion_factor())
 				if selection.size() > MAX_VISIBLE_ATOM_POSITIONS:
 					info["Positions"] = "Number of elements exceeds display maximum."
 				else:
@@ -116,12 +115,11 @@ static func create_selection_info(structure_context: StructureContext, in_info_t
 				element_info["Count"] = instances.size()
 				
 				if instances.size() == 1:
-					element_info["Mass" + mass_unit] = data.mass * Units.get_mass_conversion_factor()
+					element_info["Mass Total" + mass_unit] = data.mass * Units.get_mass_conversion_factor()
 					element_info["Position"] = {"": _create_position_property(in_info_type, structure_context, instances[0])}
 				else:
-					element_info["Mass (Total)" + mass_unit] = ("%.3f %.3f" %
-						[data.mass * Units.get_mass_conversion_factor(),
-						data.mass * instances.size() * Units.get_mass_conversion_factor()])
+					element_info["Mass Total" + mass_unit] = ("%.3f" %
+						(data.mass * instances.size() * Units.get_mass_conversion_factor()))
 					if selection.size() > MAX_VISIBLE_ATOM_POSITIONS:
 						info["Positions"] = "Number of elements exceeds display maximum."
 					else:
