@@ -333,7 +333,26 @@ func append_workspace(in_workspace: Workspace, in_xform: Transform3D = Transform
 	
 	# Notify MSEP about the new structures.
 	# Parent structures MUST be emitted before their children.
-	new_structures.sort_custom(is_a_ancestor_of_b)
+	#
+	# array.sort_custom() does not work here because of Godot internal optimisations, so the
+	# structures are manually sorted so the parents are first and leaf groups are last.
+	var structures_by_depth: Dictionary[int, Array] = {} #  depth_level : Array[NanoStructures]
+	for structure: NanoStructure in new_structures:
+		var depth: int = 0
+		var parent: NanoStructure = get_parent_structure(structure)
+		while parent != null:
+			depth += 1
+			parent = get_parent_structure(parent)
+		if not depth in structures_by_depth:
+			structures_by_depth[depth] = []
+		structures_by_depth[depth].push_back(structure)
+	
+	new_structures.clear()
+	var keys: Array = structures_by_depth.keys()
+	keys.sort()
+	for depth_level: int in keys:
+		new_structures.append_array(structures_by_depth[depth_level])
+	
 	for structure: NanoStructure in new_structures:
 		structure_added.emit(structure)
 	
