@@ -314,6 +314,7 @@ func append_workspace(in_workspace: Workspace, in_xform: Transform3D = Transform
 	# Add structures copies to the workspace
 	var new_structures: Array[NanoStructure] = []
 	var structures_map: Dictionary = {} # old_int_guid<int> : new_structure<NanoStructure>
+	var main_structure: NanoStructure
 	for structure: NanoStructure in in_workspace.get_structures():
 		var copy: NanoStructure = structure.safe_duplicate()
 		new_structures.push_back(copy)
@@ -322,13 +323,15 @@ func append_workspace(in_workspace: Workspace, in_xform: Transform3D = Transform
 		if not in_workspace.get_parent_structure(structure):
 			# Structure is the imported main structure, add it under the current active group.
 			copy.int_parent_guid = active_structure_int_guid
+			main_structure = copy
 		_internal_add_structure(copy, null) # Don't override the old parent yet
 	
 	# Update references to other structures with their new GUIDs
 	for structure: NanoStructure in new_structures:
-		var parent: NanoStructure = structures_map.get(structure.int_parent_guid)
-		if parent:
-			structure.int_parent_guid = parent.int_guid
+		if structure != main_structure:
+			var parent: NanoStructure = structures_map.get(structure.int_parent_guid)
+			if parent:
+				structure.int_parent_guid = parent.int_guid
 		structure.init_remap_structure_ids(structures_map)
 	
 	# Notify MSEP about the new structures.
