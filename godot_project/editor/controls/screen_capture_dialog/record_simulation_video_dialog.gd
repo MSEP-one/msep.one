@@ -291,7 +291,6 @@ func _bake_video(in_filepath: String) -> void:
 	var sim_params: SimulationParameters = _workspace_context.workspace.simulation_parameters
 	var femtoseconds_per_simulation_frame: float = sim_params.step_size_in_femtoseconds * sim_params.steps_per_report
 	assert(femtoseconds_per_video_frame > 0.0, "Invalid delta time")
-	var simulation_frame_count := int(_time_slider.max_value)
 	var simulation_start_time: float = _time_slider.range_start * femtoseconds_per_simulation_frame
 	var simulation_end_time: float = _time_slider.range_end * femtoseconds_per_simulation_frame
 	var simulation_elapsed_time_femtoseconds: float = simulation_start_time
