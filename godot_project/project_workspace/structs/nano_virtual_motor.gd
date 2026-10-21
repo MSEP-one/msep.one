@@ -157,6 +157,30 @@ func disconnect_structure_by_id(in_structure_id: int) -> void:
 	structure_disconnected.emit(in_structure_id)
 
 
+## Called after a copy paste.
+## Updates the existing connections to point to the new copy pasted structures.
+## Removes the references to structures that don't exist if the motor comes
+## from a different workspace.
+func revalidate_connections(structures_id_map: Dictionary[int, int]) -> void:
+	var workspace_context: Workspace = MolecularEditorContext.get_current_workspace()
+	assert(workspace_context != null)
+	for original_id: int in structures_id_map:
+		if not is_structure_id_connected(original_id):
+			continue
+		var original_structure: NanoStructure = workspace_context.get_structure_by_int_guid(original_id)
+		if not original_structure:
+			# Motor comes from a different workspace
+			_connected_structures.erase(original_id)
+		else:
+			disconnect_structure_by_id(original_id)
+		var new_structure_id: int = structures_id_map[original_id]
+		connect_structure_by_id(new_structure_id)
+	# Clean up connected external structures that were not copied into this workspace 
+	for connected_structure_id: int in _connected_structures.keys().duplicate():
+		if not workspace_context.get_structure_by_int_guid(connected_structure_id):
+			_connected_structures.erase(connected_structure_id)
+
+
 ## Returns true if motor is within the Rect2i, or false otherwise
 func is_motor_within_screen_rect(in_camera: Camera3D, screen_rect: Rect2i) -> bool:
 	var motor_screen_position: Vector2 = in_camera.unproject_position(_transform.origin)

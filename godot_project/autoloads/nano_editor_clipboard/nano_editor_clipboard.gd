@@ -473,10 +473,8 @@ func paste(out_workspace_context: WorkspaceContext, in_auto_bond_order: int) -> 
 		if original_id == new_id:
 			# no need to retarget
 			continue
-		for new_motor: NanoVirtualMotor in pasted_motors:
-			if new_motor.is_structure_id_connected(original_id):
-				new_motor.disconnect_structure_by_id(original_id)
-				new_motor.connect_structure_by_id(new_id)
+	for new_motor: NanoVirtualMotor in pasted_motors:
+		new_motor.revalidate_connections(original_to_new_structure_id)
 	if did_create_undo_action:
 		for structure_context: StructureContext in selection_per_structure.keys():
 			structure_context.clear_selection()
