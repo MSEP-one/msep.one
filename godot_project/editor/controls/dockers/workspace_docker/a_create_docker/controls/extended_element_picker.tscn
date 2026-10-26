@@ -15,8 +15,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
 offset_top = 10.0
-offset_right = 962.0
-offset_bottom = 581.0
+offset_right = -10.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 10
@@ -547,112 +547,96 @@ layout_mode = 2
 element = 88
 
 [node name="103_Lawrencium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 103
 
 [node name="104_Rutherfordium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 104
 
 [node name="105_Dubnium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 105
 
 [node name="106_Seaborgium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 106
 
 [node name="107_Bohrium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 107
 
 [node name="108_Hassium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 108
 
 [node name="109_Meitnerium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 109
 
 [node name="110_Darmstadtium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 110
 
 [node name="111_Roentgenium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 111
 
 [node name="112_Copernicium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 112
 
 [node name="113_Nihonium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 113
 
 [node name="114_Flerovium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 114
 
 [node name="115_Moscovium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 115
 
 [node name="116_Livermorium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 116
 
 [node name="117_Tenessine" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 117
 
 [node name="118_Oganesson" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
@@ -860,49 +844,42 @@ layout_mode = 2
 element = 95
 
 [node name="96_Curium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 96
 
 [node name="97_Berkelium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 97
 
 [node name="98_Californium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 98
 
 [node name="99_Einsteinium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 99
 
 [node name="100_Fermium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 100
 
 [node name="101_Mendelevium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true
 element = 101
 
 [node name="102_Nobelium" parent="MarginContainer/VBoxContainer/ButtonsContainer" instance=ExtResource("1_lmx8q")]
-modulate = Color(0.4, 0.4, 0.4, 1)
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 disabled = true

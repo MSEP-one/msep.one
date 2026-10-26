@@ -21,7 +21,7 @@ _data = {
 2: {
 "bond_color": Color(0.85098, 1, 1, 1),
 "color": Color(0.85098, 1, 1, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.595686, 0.7, 0.7, 1),
 "set": true
 },
@@ -35,14 +35,14 @@ _data = {
 4: {
 "bond_color": Color(0.760784, 1, 0, 1),
 "color": Color(0.760784, 1, 0, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.532549, 0.7, 0, 1),
 "set": true
 },
 5: {
 "bond_color": Color(1, 0.709804, 0.709804, 1),
 "color": Color(1, 0.709804, 0.709804, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.7, 0.496863, 0.496863, 1),
 "set": true
 },
@@ -70,14 +70,14 @@ _data = {
 9: {
 "bond_color": Color(0.564706, 0.878431, 0.313726, 1),
 "color": Color(0.564706, 0.878431, 0.313726, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.395294, 0.614902, 0.219608, 1),
 "set": true
 },
 10: {
 "bond_color": Color(0.701961, 0.890196, 0.960784, 1),
 "color": Color(0.701961, 0.890196, 0.960784, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.491373, 0.623137, 0.672549, 1),
 "set": true
 },
@@ -91,21 +91,21 @@ _data = {
 12: {
 "bond_color": Color(0.541176, 1, 0, 1),
 "color": Color(0.541176, 1, 0, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.378824, 0.7, 0, 1),
 "set": true
 },
 13: {
 "bond_color": Color(0.74902, 0.65098, 0.65098, 1),
 "color": Color(0.74902, 0.65098, 0.65098, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.524314, 0.455686, 0.455686, 1),
 "set": true
 },
 14: {
 "bond_color": Color(0.941176, 0.784314, 0.627451, 1),
 "color": Color(0.941176, 0.784314, 0.627451, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.658824, 0.54902, 0.439216, 1),
 "set": true
 },
@@ -119,21 +119,21 @@ _data = {
 16: {
 "bond_color": Color(1, 1, 0.188235, 1),
 "color": Color(1, 1, 0.188235, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.7, 0.7, 0.131765, 1),
 "set": true
 },
 17: {
 "bond_color": Color(0.121569, 0.941176, 0.121569, 1),
 "color": Color(0.121569, 0.941176, 0.121569, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.085098, 0.658824, 0.085098, 1),
 "set": true
 },
 18: {
 "bond_color": Color(0.501961, 0.819608, 0.890196, 1),
 "color": Color(0.501961, 0.819608, 0.890196, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.351373, 0.573725, 0.623137, 1),
 "set": true
 },
@@ -147,21 +147,21 @@ _data = {
 20: {
 "bond_color": Color(0.239216, 1, 0, 1),
 "color": Color(0.239216, 1, 0, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.167451, 0.7, 0, 1),
 "set": true
 },
 21: {
 "bond_color": Color(0.901961, 0.901961, 0.901961, 1),
 "color": Color(0.901961, 0.901961, 0.901961, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.631373, 0.631373, 0.631373, 1),
 "set": true
 },
 22: {
 "bond_color": Color(0.74902, 0.760784, 0.780392, 1),
 "color": Color(0.74902, 0.760784, 0.780392, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0.524314, 0.532549, 0.546274, 1),
 "set": true
 },
