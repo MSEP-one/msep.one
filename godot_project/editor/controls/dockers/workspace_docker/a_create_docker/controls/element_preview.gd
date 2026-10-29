@@ -1,6 +1,9 @@
 @tool
 extends Control
 
+const COLOR_DISABLED_FACTOR: float = 0.6
+const FONT_COLOR_VALUE_THRESHOLD: float = 0.62
+
 @export_category("Theme")
 @export var background_stylebox: StyleBoxFlat
 @export var general_label_settings: LabelSettings
@@ -37,6 +40,10 @@ extends Control
 			await ready
 		_update_unknown_vdw_radii_notice()
 @export var visible_allow_unknown_element: bool = false
+@export var disabled: bool = false:
+	set(v):
+		disabled = v
+		_update_colors()
 @export_subgroup("")
 
 @onready var number: Label = %Number
@@ -52,6 +59,8 @@ var _atomic_number: int:
 var _is_render_radii_known: bool = true
 var _is_vdw_radii_known: bool = true
 var _current_color_schema: PeriodicTable.ColorSchema = PeriodicTable.get_current_color_schema()
+var _element_data: ElementData
+
 
 func set_element_number(in_atomic_number: int) -> void:
 	_atomic_number = in_atomic_number
@@ -79,13 +88,12 @@ func set_element_data(in_data: ElementData) -> void:
 		symbol_label_settings.font_color = Color.WHITE
 		_is_vdw_radii_known = false
 	else:
+		_element_data = in_data
 		symbol.text = in_data.symbol
 		element_name.text = in_data.name
 		tooltip_text = "%s: %s" % [in_data.symbol, in_data.name]
 		mass.text = str(in_data.mass)
-		background_stylebox.bg_color = in_data.color
-		general_label_settings.font_color = in_data.font_color
-		symbol_label_settings.font_color = in_data.font_color
+		_update_colors()
 		_is_vdw_radii_known = in_data.is_contact_radius_known
 		_is_render_radii_known = in_data.is_render_radius_known
 		if _is_vdw_radii_known or _is_render_radii_known:
@@ -129,3 +137,17 @@ func _update_unknown_vdw_radii_notice() -> void:
 		)
 	else:
 		label_render_warning.visible = false
+
+
+func _update_colors() -> void:
+	if not _element_data:
+		return
+	var background_color: Color = _element_data.color
+	var font_color: Color = _element_data.font_color
+	if disabled:
+		background_color = _element_data.color.darkened(COLOR_DISABLED_FACTOR)
+		font_color = Color.BLACK if background_color.v > FONT_COLOR_VALUE_THRESHOLD else Color.GRAY
+	
+	background_stylebox.bg_color = background_color
+	general_label_settings.font_color = font_color
+	symbol_label_settings.font_color = font_color

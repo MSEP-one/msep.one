@@ -54,7 +54,7 @@ _data = {
 9: {
 "bond_color": Color(0, 1, 0, 1),
 "color": Color(0, 1, 0, 1),
-"font_color": Color(1, 1, 1, 1),
+"font_color": Color(0, 0, 0, 1),
 "noise_color": Color(0, 1, 0, 1),
 "set": true
 },

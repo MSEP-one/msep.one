@@ -1,8 +1,6 @@
 @tool
 class_name ElementPickerButton extends Button
 
-const COLOR_DISABLE: Color = Color(0.4,0.4,0.4, 1.0)
-const COLOR_ENABLE: Color = Color(1.0, 1.0, 1.0, 1.0)
 
 @export var element: int:
 	set(v):
@@ -21,12 +19,12 @@ const COLOR_ENABLE: Color = Color(1.0, 1.0, 1.0, 1.0)
 
 func disable() -> void:
 	disabled = true
-	modulate = COLOR_DISABLE
+	_element_preview.disabled = true
 
 
 func enable() -> void:
 	disabled = false
-	modulate = COLOR_ENABLE
+	_element_preview.disabled = false
 
 
 func highlight() -> void:
