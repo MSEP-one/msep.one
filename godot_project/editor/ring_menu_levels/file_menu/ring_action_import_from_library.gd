@@ -1,7 +1,10 @@
 class_name RingActionImportFromLibrary extends RingMenuAction
 
 const RingMenuSpriteIconScn = preload("res://editor/controls/ring_menu/ring_menu_icon/ring_menu_sprite_icon/ring_menu_sprite_icon.tscn")
-
+const DISABLE_RELAX_BEFORE_SIMULATION: PackedStringArray = [
+	"rockets.msep1",
+	"propulsion.msep1",
+]
 
 var _workspace_context: WorkspaceContext = null
 var _ring_menu: NanoRingMenu = null
@@ -41,6 +44,23 @@ func _on_library_dialog_file_selected(path: String,
 	var is_part_of_active_workspace: bool = _workspace_context == active_workspace
 	if not is_part_of_active_workspace:
 		return
+	
+	if active_workspace.workspace.simulation_parameters.relax_before_start_simulation:
+		for filename in DISABLE_RELAX_BEFORE_SIMULATION:
+			if not path.ends_with(filename):
+				continue
+			var warning_promise: Promise = _workspace_context.show_warning_dialog(
+				tr("To simulate this model, you must avoid relaxing the structure and\n" +
+				"the ‘Relax model before running simulation’ checkbox should be unchecked.\n" + 
+				"Uncheck now?"),
+				tr("Uncheck"), tr("Ignore")
+			)
+			await warning_promise.wait_for_fulfill()
+			if warning_promise.get_result():
+				# "Uncheck" button pressed
+				active_workspace.workspace.simulation_parameters.relax_before_start_simulation = false
+			break
+	
 	var snapshot_name: String = "Import from Library"
 	# Forward the event to the import file action
 	WorkspaceUtils.import_file(_workspace_context, path, autogenerate_bonds,
