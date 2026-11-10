@@ -891,7 +891,7 @@ static func _focus_camera_on_aabb(out_workspace_context: WorkspaceContext, in_fo
 			+ in_focus_aabb.get_longest_axis_size() / 2
 	var look_at: Vector3 = in_focus_aabb.get_center()
 	var camera_aabb: AABB = Transform3D(camera.basis) * in_focus_aabb
-	var look_distance: float = max(camera_aabb.size.x, in_focus_aabb.size.y) / (2.0 * tan(deg_to_rad(camera.fov) / 2.0))
+	var look_distance: float = max(camera_aabb.size.x, camera_aabb.size.y) / (2.0 * tan(deg_to_rad(camera.fov) / 2.0))
 	look_distance /= min(focus_rect.size.x / viewport.size.x, focus_rect.size.y / viewport.size.y)
 	look_distance = max(look_distance, min_look_distance)
 	var look_from: Vector3 = look_at + camera_backward * look_distance
