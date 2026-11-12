@@ -141,7 +141,7 @@ func _on_recent_project_selection_toggled(button: Button, filepath: String, sele
 func _update_forget_selected_button() -> void:
 	var count: int = _selected_workspaces.size()
 	forget_selected_button.disabled = count == 0
-	forget_selected_button.text = "Remove from\nwelcome screen (%d)" % count if count > 0 else "Remove from\nwelcome screen"
+	forget_selected_button.text = "Remove from\nWelcome Screen (%d)" % count if count > 0 else "Remove from\nWelcome Screen"
 
 func _on_forget_selected_pressed() -> void:
 	var filepaths: Array[String] = []

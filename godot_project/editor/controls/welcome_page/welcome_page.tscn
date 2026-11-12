@@ -99,7 +99,7 @@ theme_override_styles/disabled_mirrored = SubResource("StyleBoxFlat_forget_disab
 theme_override_styles/disabled = SubResource("StyleBoxFlat_forget_disabled")
 disabled = true
 text = "Remove from
- welcome screen"
+ Welcome Screen"
 icon = ExtResource("4_fgo3r")
 
 [node name="KnownWorkspacesBox" type="HFlowContainer" parent="ScrollContainer/HBoxContainer/MainContainer/LinksContainer/VBoxContainer"]
