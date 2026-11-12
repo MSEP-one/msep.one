@@ -134,7 +134,6 @@ func _on_workspace_context_structure_about_to_remove(in_structure: NanoStructure
 	var structure_item: TreeItem = _tree_items.get(in_structure.int_guid, null)
 	if structure_item != null:
 		_free_tree_item_and_all_dependencies(structure_item)
-		_removed_items_this_frame.append(in_structure.int_guid)
 		ScriptUtils.call_deferred_once(_clear_removed_items_this_frame)
 
 
@@ -147,6 +146,7 @@ func _free_tree_item_and_all_dependencies(in_item: TreeItem) -> void:
 		_free_tree_item_and_all_dependencies(child_item)
 	var related_nano_structure_guid: int = _tree_items.find_key(in_item)
 	_tree_items.erase(related_nano_structure_guid)
+	_removed_items_this_frame.append(related_nano_structure_guid)
 	in_item.free()
 	_structure_count -= 1
  
