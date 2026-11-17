@@ -18,6 +18,8 @@ const _BUTTON_ICONS: Dictionary = {
 	_TREE_BUTTON_ID_DISSOLVE: preload("res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/icons/icon_dissolve.svg"),
 	_TREE_BUTTON_ID_DELETE: preload("res://editor/controls/dockers/workspace_docker/groups_docker/groups_docker_controls/icons/icon_delete.svg")
 }
+const SCROLL_ON_DRAG_THRESHOLD_PX: int = 32
+const SCROLL_ON_DRAG_DELAY_S: float = 0.1
 
 var _workspace_context: WorkspaceContext = null
 var _structures_tree: Tree
@@ -26,6 +28,14 @@ var _structure_id_to_tree_item: Dictionary = {
 }
 var _edited_structure_tree_item: TreeItem = null: set = _set_edited_structure_tree_item
 var _changing_selection: bool = false
+var _drag_scroll_delay: SceneTreeTimer
+var _drag_position: Vector2
+var _is_dragging: bool = false: set = _set_is_dragging
+
+
+func _ready() -> void:
+	_set_is_dragging(false)
+
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -43,6 +53,25 @@ func _notification(what: int) -> void:
 		var groups_docker: GroupsDocker = _find_docker()
 		assert(groups_docker, "Could not find GroupsDocker")
 		groups_docker.resized.connect(_on_groups_docker_resized.bind(groups_docker))
+	if what == NOTIFICATION_DRAG_END:
+		_is_dragging = false
+
+
+func _process(_delta: float) -> void:
+	if is_instance_valid(_drag_scroll_delay) && _drag_scroll_delay.time_left > 0:
+		return
+	# Scroll while dragging
+	var hovered_item: TreeItem = _structures_tree.get_item_at_position(_drag_position)
+	if not hovered_item:
+		return
+	var scroll_item: TreeItem
+	if _drag_position.y < SCROLL_ON_DRAG_THRESHOLD_PX:
+		scroll_item = hovered_item.get_prev_in_tree()
+	elif _drag_position.y > _structures_tree.size.y - SCROLL_ON_DRAG_THRESHOLD_PX:
+		scroll_item = hovered_item.get_next_in_tree()
+	if scroll_item != null:
+		_structures_tree.scroll_to_item(scroll_item)
+		_drag_scroll_delay = get_tree().create_timer(SCROLL_ON_DRAG_DELAY_S)
 
 
 func should_show(out_workspace_context: WorkspaceContext)-> bool:
@@ -65,7 +94,7 @@ func _on_structures_tree_get_drag_data(at_position: Vector2) -> Variant:
 	var item: TreeItem = _structures_tree.get_item_at_position(at_position)
 	if item == null:
 		return null
-	#item.get_parent().remove_child(item)
+	_is_dragging = true
 	return {
 		type = &"NanoStructure reparent",
 		structure_id = _structure_id_to_tree_item.find_key(item)
@@ -73,6 +102,7 @@ func _on_structures_tree_get_drag_data(at_position: Vector2) -> Variant:
 
 
 func _on_structures_tree_can_drop_data(at_position: Vector2, data: Variant) -> bool:
+	_drag_position = at_position
 	if typeof(data) != TYPE_DICTIONARY or data.get(&"type", StringName()) != &"NanoStructure reparent":
 		return false
 	var drop_on_item: TreeItem = _structures_tree.get_item_at_position(at_position)
@@ -472,3 +502,8 @@ func _set_edited_structure_tree_item(out_tree_item: TreeItem) -> void:
 	if is_instance_valid(out_tree_item):
 		# Set highlight
 		out_tree_item.set_custom_color(_TREE_COLUMN_0, Color.YELLOW)
+
+
+func _set_is_dragging(val: bool) -> void:
+	_is_dragging = val
+	set_process(_is_dragging)
