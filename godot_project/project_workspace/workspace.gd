@@ -383,6 +383,12 @@ func append_workspace(in_workspace: Workspace, in_xform: Transform3D = Transform
 			structure.set_position(in_xform * structure.get_position())
 		elif structure.has_transform():
 			structure.set_transform(in_xform * structure.get_transform())
+		elif structure is DnaStructure or structure is CarbonNanotubeStructure:
+			structure.start_edit()
+			for point_idx: int in structure.get_control_point_count():
+				var point_position: Vector3 = structure.get_control_point_position(point_idx)
+				structure.set_control_point_position(point_idx, in_xform * point_position)
+			structure.end_edit()
 		elif structure is AtomicStructure:
 			structure.start_edit()
 			for atom_id: int in structure.get_valid_atoms():
