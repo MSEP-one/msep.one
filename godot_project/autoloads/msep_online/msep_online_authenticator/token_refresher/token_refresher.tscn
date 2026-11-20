@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://55wln58y55uh"]
+
+[ext_resource type="Script" uid="uid://d0lhqkkhfe7ii" path="res://autoloads/msep_online/msep_online_authenticator/token_refresher/token_refresher.gd" id="1_tr"]
+
+[node name="TokenRefresher" type="Node"]
+script = ExtResource("1_tr")

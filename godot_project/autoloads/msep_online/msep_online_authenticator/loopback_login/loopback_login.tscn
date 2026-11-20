@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://djwcu8b3vcrvn"]
+
+[ext_resource type="Script" uid="uid://b1miwr3j06uix" path="res://autoloads/msep_online/msep_online_authenticator/loopback_login/loopback_login.gd" id="1_lb3wp"]
+
+[node name="LoopbackLogin" type="Node"]
+script = ExtResource("1_lb3wp")

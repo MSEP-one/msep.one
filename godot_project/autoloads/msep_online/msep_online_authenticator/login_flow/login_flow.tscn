@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://boqwtr8v4rysi"]
+
+[ext_resource type="Script" uid="uid://d4fo3ndyabr86" path="res://autoloads/msep_online/msep_online_authenticator/login_flow/login_flow.gd" id="1_lf"]
+[ext_resource type="PackedScene" uid="uid://djwcu8b3vcrvn" path="res://autoloads/msep_online/msep_online_authenticator/loopback_login/loopback_login.tscn" id="2_lb"]
+[ext_resource type="PackedScene" uid="uid://cecm5mkwy6aam" path="res://autoloads/msep_online/msep_online_authenticator/device_code_login/device_code_login.tscn" id="3_dc"]
+
+[node name="LoginFlow" type="Node"]
+script = ExtResource("1_lf")
+
+[node name="LoopbackLogin" parent="." instance=ExtResource("2_lb")]
+unique_name_in_owner = true
+
+[node name="DeviceCodeLogin" parent="." instance=ExtResource("3_dc")]
+unique_name_in_owner = true
+
+[connection signal="device_code_issued" from="DeviceCodeLogin" to="." method="_on_device_code_login_device_code_issued"]
