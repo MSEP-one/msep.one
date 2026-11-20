@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cjyp562lsmlke"]
+[gd_scene load_steps=5 format=3 uid="uid://cjyp562lsmlke"]
 
 [ext_resource type="Script" uid="uid://dfmmxybvibl0r" path="res://autoloads/msep_online/msep_online.gd" id="1_mo4br"]
 [ext_resource type="PackedScene" uid="uid://ck1wtu17kypvi" path="res://autoloads/msep_online/msep_online_authenticator/msep_online_authenticator.tscn" id="2_au6tn"]
 [ext_resource type="PackedScene" uid="uid://bd4bceholcns1" path="res://autoloads/msep_online/msep_online_service/msep_online_service.tscn" id="3_sv3nd"]
+[ext_resource type="PackedScene" uid="uid://bothjitsfpnu7" path="res://autoloads/msep_online/msep_online_profile_loader/msep_online_profile_loader.tscn" id="4_pl6xd"]
 
 [node name="MsepOnline" type="Node"]
 script = ExtResource("1_mo4br")
@@ -14,9 +15,13 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 authenticator = NodePath("../MsepOnlineAuthenticator")
 
+[node name="MsepOnlineProfileLoader" parent="." instance=ExtResource("4_pl6xd")]
+unique_name_in_owner = true
+
 [connection signal="logged_in" from="MsepOnlineAuthenticator" to="." method="_on_msep_online_authenticator_logged_in"]
 [connection signal="avatar_loaded" from="MsepOnlineAuthenticator" to="." method="_on_msep_online_authenticator_avatar_loaded"]
 [connection signal="authentication_failed" from="MsepOnlineAuthenticator" to="." method="_on_msep_online_authenticator_authentication_failed"]
 [connection signal="device_code_issued" from="MsepOnlineAuthenticator" to="." method="_on_msep_online_authenticator_device_code_issued"]
 [connection signal="logged_out" from="MsepOnlineAuthenticator" to="." method="_on_msep_online_authenticator_logged_out"]
 [connection signal="profile_reloaded" from="MsepOnlineAuthenticator" to="." method="_on_msep_online_authenticator_profile_reloaded"]
+[connection signal="session_opened" from="MsepOnlineAuthenticator" to="." method="_on_msep_online_authenticator_session_opened"]

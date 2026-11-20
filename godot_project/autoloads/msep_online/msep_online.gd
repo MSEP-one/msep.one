@@ -20,6 +20,7 @@ const SORT_TYPE_STRING: Dictionary[SortType, String] = {
 
 @onready var _msep_online_authenticator: MsepOnlineAuthenticator = %MsepOnlineAuthenticator
 @onready var _msep_online_service: MsepOnlineService = %MsepOnlineService
+@onready var _msep_online_profile_loader: MsepOnlineProfileLoader = %MsepOnlineProfileLoader
 
 
 ## Returns an empty string when the request succeeded, otherwise the reason it failed or was rejected.
@@ -80,6 +81,12 @@ func logout() -> void:
 	_msep_online_authenticator.logout()
 
 
+## Fetches the profile from the server again. Returns false if it could not be loaded.
+func reload_profile() -> bool:
+	return await _msep_online_profile_loader.reload_profile(_msep_online_authenticator,
+			_msep_online_service)
+
+
 func _on_msep_online_authenticator_logged_in() -> void:
 	logged_in.emit()
 
@@ -94,6 +101,10 @@ func _on_msep_online_authenticator_authentication_failed(in_error: String) -> vo
 
 func _on_msep_online_authenticator_device_code_issued(in_user_code: String, in_verification_uri: String) -> void:
 	device_code_issued.emit(in_user_code, in_verification_uri)
+
+
+func _on_msep_online_authenticator_session_opened() -> void:
+	_msep_online_profile_loader.load_login_profile(_msep_online_authenticator, _msep_online_service)
 
 
 func _on_msep_online_authenticator_logged_out() -> void:
