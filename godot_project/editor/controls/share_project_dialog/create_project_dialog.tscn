@@ -14,3 +14,5 @@ offset_bottom = 393.0
 
 [node name="VersionsContainer" parent="VBoxContainer/HBoxContainer" index="1"]
 visible = false
+
+[connection signal="closed" from="." to="." method="_on_closed"]

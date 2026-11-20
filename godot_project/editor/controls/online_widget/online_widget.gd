@@ -146,6 +146,8 @@ func _on_user_menu_button_popup_id_pressed(in_id: int) -> void:
 			MolecularEditorContext.msep_online.logout()
 		MenuID.USER_PROFILE:
 			open_user_profile()
+		MenuID.PROJECTS:
+			_open_my_projects()
 		MenuID.CREDITS:
 			_credits_dialog.open()
 		_:
@@ -154,3 +156,7 @@ func _on_user_menu_button_popup_id_pressed(in_id: int) -> void:
 				"Unimplemented option: " + MenuID.find_key(in_id),
 				["OK"], Callable())
 
+
+func _open_my_projects() -> void:
+	var workspace_context: WorkspaceContext = MolecularEditorContext.get_current_workspace_context()
+	WorkspaceUtils.open_my_online_projects_dialog(workspace_context)

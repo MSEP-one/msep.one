@@ -2,10 +2,18 @@ class_name EditProjectDialog
 extends "project_base_dialog.gd"
 
 
+signal finished()
+
+
 const _FALLBACK_THUMBNAIL: Texture2D = preload("uid://bpkx70rl1xv4t")
+const _DELETE_REASON_PROMPT: String = (
+	"(Optional) Because people may have downloaded and used this project, they may want to know "
+	+ "why you have chosen to remove it. Please explain why you have decided to remove this project."
+)
 
 
 var _confirm_retract_dialog: NanoAcceptDialog
+var _delete_project_dialog: DestructiveConfirmDialog
 var _retract_reason_text_edit: TextEdit
 
 
@@ -26,6 +34,7 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		_confirm_retract_dialog = %ConfirmRetractDialog as NanoAcceptDialog
+		_delete_project_dialog = %DeleteProjectDialog as DestructiveConfirmDialog
 		_retract_reason_text_edit = %RetractReasonTextEdit as TextEdit
 		_confirm_retract_dialog.hide()
 
@@ -160,6 +169,41 @@ func _version_data_changed() -> bool:
 	return changed
 
 
+func _on_closed(in_pressed_ok: bool) -> void:
+	if not in_pressed_ok:
+		finished.emit()
+
+
+func _on_delete_project_button_pressed() -> void:
+	var project_namespace: String = _project_data.namespace
+	var project_name: String = _project_data.name
+	_delete_project_dialog.ask(
+		tr(&"Delete project"),
+		tr(&"This deletes %s/%s. Its versions will no longer be available.") % [
+				project_namespace, project_name],
+		tr(&"Delete project"),
+		project_name,
+		_DELETE_REASON_PROMPT
+	)
+
+
+func _on_delete_project_dialog_confirmed_with_reason(in_reason: String) -> void:
+	gui_disable_input = true
+	var promise: DownloadPromise = MolecularEditorContext.msep_online.delete_namespace_project(
+			_project_data.namespace, _project_data.name, in_reason)
+	await promise.wait_for_fulfill()
+	gui_disable_input = false
+	var error: String = MsepOnline.get_response_error(promise)
+	var delete_failed: bool = not error.is_empty()
+	if delete_failed:
+		MolecularEditorContext.get_current_workspace_context().show_warning_dialog(
+			error, tr(&"OK")
+		)
+		return
+	hide()
+	finished.emit()
+
+
 func _on_retract_version_button_pressed() -> void:
 	_retract_reason_text_edit.text = ""
 	_on_retract_reason_text_edit_text_changed()
@@ -207,8 +251,7 @@ func _on_ok_pressed() -> void:
 	var project_changed: bool = false
 	var new_owner := OptionalString.empty()
 	var new_description := OptionalString.empty()
-	var new_tags := OptionalPackedStringArray.empty()
-	var new_collaborators := OptionalArrayOfDictionaries.empty()
+	var msep_online: MsepOnline = MolecularEditorContext.msep_online
 	
 	if not _owner_option_button.text.is_empty() and _owner_option_button.text != _project_data.namespace:
 		project_changed = true
@@ -219,20 +262,21 @@ func _on_ok_pressed() -> void:
 		new_description = OptionalString.new(_description_text_edit.text)
 	
 	if _tags_changed:
-		project_changed = true
 		var tags: PackedStringArray = []
 		for tag_label: TagLabel in _tag_labels.values():
 			tags.append(tag_label.text)
-		new_tags = OptionalPackedStringArray.new(tags)
+		promises.append(msep_online.put_namespace_replace_project_tags(_project_data.namespace,
+				_project_data.name, tags))
 	if _collaborators_changed:
-		project_changed = true
 		var collaborators: Array[Dictionary] = []
 		for collaborator_label: CollaboratorLabel in _collaborator_labels.values():
 			collaborators.append({
 				"name" : collaborator_label.collaborator_name,
 				"email" : collaborator_label.email,
 			})
-		new_collaborators = OptionalArrayOfDictionaries.new(collaborators)
+		promises.append(
+				msep_online.put_namespace_project_replace_collaborators(_project_data.namespace,
+				_project_data.name, collaborators))
 	
 	if _version_data_changed():
 		promises.append(
@@ -245,8 +289,6 @@ func _on_ok_pressed() -> void:
 			MolecularEditorContext.msep_online.put_namespace_project(
 				_project_data.namespace, _project_data.name,
 				new_description,
-				new_collaborators,
-				new_tags,
 				new_owner
 			)
 		)
@@ -255,9 +297,11 @@ func _on_ok_pressed() -> void:
 	var errors: PackedStringArray
 	for p: Promise in promises:
 		await p.wait_for_fulfill()
-		if p.has_error():
+		var error: String = MsepOnline.get_response_error(p)
+		var request_failed: bool = not error.is_empty()
+		if request_failed:
 			has_error = true
-			errors.append(p.get_error())
+			errors.append(error)
 
 	ok_button.disabled = false
 	cancel_button.disabled = false
@@ -268,3 +312,4 @@ func _on_ok_pressed() -> void:
 		)
 	else:
 		hide()
+		finished.emit()

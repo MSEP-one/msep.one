@@ -132,8 +132,17 @@ static func open_share_project_dialog(in_workspace_context: WorkspaceContext) ->
 	_open_share_project_dialog(in_workspace_context)
 
 
+## Opens the share dialog, asking to save the project first
+static func share_project(in_workspace_context: WorkspaceContext) -> void:
+	_share_project(in_workspace_context)
+
+
 static func open_browse_online_projects_dialog(in_workspace_context: WorkspaceContext) -> void:
 	_open_browse_online_projects_dialog(in_workspace_context)
+
+
+static func open_my_online_projects_dialog(in_workspace_context: WorkspaceContext) -> void:
+	_open_my_online_projects_dialog(in_workspace_context)
 
 
 static func open_user_profile_dialog(in_workspace_context: WorkspaceContext) -> void:
@@ -1326,13 +1335,36 @@ static func _open_quick_search_dialog(in_workspace_context: WorkspaceContext) ->
 static func _open_share_project_dialog(in_workspace_context: WorkspaceContext) -> void:
 	assert(in_workspace_context)
 	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
-	workspace_main_view.share_project_dialog.popup_centered_ratio(0.4)
+	workspace_main_view.share_project_dialog.popup_centered_clamped(Vector2i(700, 900), 0.9)
+
+
+static func _share_project(in_workspace_context: WorkspaceContext) -> void:
+	var workspace: Workspace = in_workspace_context.workspace
+	var is_saved_to_file: bool = not workspace.resource_path.is_empty() and workspace.suggested_path.is_empty()
+	if is_saved_to_file:
+		_open_share_project_dialog(in_workspace_context)
+		return
+	var promise: Promise = in_workspace_context.show_warning_dialog(
+		in_workspace_context.tr(&"Project needs to be saved before it can be shared"),
+		in_workspace_context.tr(&"Save"),
+		in_workspace_context.tr(&"Cancel")
+	)
+	await promise.wait_for_fulfill()
+	var should_save: bool = promise.get_result()
+	if should_save:
+		Editor_Utils.get_editor().show_save_workspace_dialog(workspace)
 
 
 static  func _open_browse_online_projects_dialog(in_workspace_context: WorkspaceContext) -> void:
 	assert(in_workspace_context)
 	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
-	workspace_main_view.browse_online_projects_dialog.popup_centered_ratio(0.6)
+	workspace_main_view.browse_online_projects_dialog.popup_centered_ratio(0.85)
+
+
+static func _open_my_online_projects_dialog(in_workspace_context: WorkspaceContext) -> void:
+	assert(in_workspace_context)
+	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	workspace_main_view.browse_online_projects_dialog.open_my_projects()
 
 
 static func _open_user_profile_dialog(in_workspace_context: WorkspaceContext) -> void:

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://drit7j2nvmji3"]
+
+[ext_resource type="Script" uid="uid://hqhc2nbath7c" path="res://editor/controls/share_project_dialog/project_manage_dialog/project_manage_requests/project_manage_requests.gd" id="1_pmr"]
+
+[node name="ProjectManageRequests" type="Node"]
+script = ExtResource("1_pmr")

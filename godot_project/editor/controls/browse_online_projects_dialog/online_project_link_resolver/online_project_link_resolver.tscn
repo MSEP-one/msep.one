@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d01g8i5ed7hcm"]
+
+[ext_resource type="Script" uid="uid://bqx37wjyfhb4u" path="res://editor/controls/browse_online_projects_dialog/online_project_link_resolver/online_project_link_resolver.gd" id="1_oplr"]
+
+[node name="OnlineProjectLinkResolver" type="Node"]
+script = ExtResource("1_oplr")

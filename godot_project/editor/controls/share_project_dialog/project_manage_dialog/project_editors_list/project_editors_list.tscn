@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://mk027urp2tqa"]
+
+[ext_resource type="Script" uid="uid://br1em3p7iy8uc" path="res://editor/controls/share_project_dialog/project_manage_dialog/project_editors_list/project_editors_list.gd" id="1_pel"]
+
+[node name="ProjectEditorsList" type="VBoxContainer"]
+visible = false
+script = ExtResource("1_pel")
+
+[node name="EditorsLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Editors (users who can change this project)"
+
+[node name="EditorsListContainer" type="HFlowContainer" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+
+[node name="NewEditorContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="NewEditorLineEdit" type="LineEdit" parent="NewEditorContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "username"
+
+[node name="AddEditorButton" type="Button" parent="NewEditorContainer"]
+layout_mode = 2
+text = "Add editor"
+
+[connection signal="text_submitted" from="NewEditorContainer/NewEditorLineEdit" to="." method="_on_new_editor_line_edit_text_submitted"]
+[connection signal="pressed" from="NewEditorContainer/AddEditorButton" to="." method="_on_add_editor_button_pressed"]
