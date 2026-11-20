@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dl2fwjd0muax8"]
+
+[ext_resource type="Script" uid="uid://bmgeueclrja5d" path="res://editor/controls/workspace_provenance_editor/provenance_record_opener/provenance_record_opener.gd" id="1_opener"]
+
+[node name="ProvenanceRecordOpener" type="Node"]
+script = ExtResource("1_opener")
+
+[node name="MessageDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Provenance"
