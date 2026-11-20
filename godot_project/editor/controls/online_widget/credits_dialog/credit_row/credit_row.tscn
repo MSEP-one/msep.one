@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://3ru5qs4mm4k7"]
+
+[ext_resource type="Script" uid="uid://bfkjlvsbh0otd" path="res://editor/controls/online_widget/credits_dialog/credit_row/credit_row.gd" id="1_cr"]
+
+[node name="CreditRow" type="HBoxContainer"]
+theme_override_constants/separation = 12
+script = ExtResource("1_cr")
+
+[node name="ProjectLabel" type="Label" parent="."]
+unique_name_in_owner = true
+mouse_filter = 0
+layout_mode = 2
+size_flags_horizontal = 3
+text = "namespace/project"
+text_overrun_behavior = 3
+
+[node name="DetailLabel" type="Label" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.6)
+layout_mode = 2
+text = "collaborator"
+
+[node name="ActionButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Opt out"
+
+[connection signal="pressed" from="ActionButton" to="." method="_on_action_button_pressed"]

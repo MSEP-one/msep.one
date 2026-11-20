@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://bqksw5oedcj5c"]
+
+[ext_resource type="Script" uid="uid://ddqp6jtuyj7jb" path="res://editor/controls/destructive_confirm_dialog/destructive_confirm_dialog.gd" id="1_dcd"]
+
+[node name="DestructiveConfirmDialog" type="ConfirmationDialog"]
+title = "Are you sure?"
+size = Vector2i(500, 300)
+script = ExtResource("1_dcd")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 492.0
+offset_bottom = 251.0
+
+[node name="MessageLabel" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="PhraseContainer" type="VBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PhraseLabel" type="Label" parent="VBoxContainer/PhraseContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PhraseLineEdit" type="LineEdit" parent="VBoxContainer/PhraseContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ReasonLabel" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+text = "Reason (optional)"
+autowrap_mode = 3
+
+[node name="ReasonTextEdit" type="TextEdit" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+wrap_mode = 1
+
+[connection signal="confirmed" from="." to="." method="_on_confirmed"]
+[connection signal="text_changed" from="VBoxContainer/PhraseContainer/PhraseLineEdit" to="." method="_on_phrase_line_edit_text_changed"]

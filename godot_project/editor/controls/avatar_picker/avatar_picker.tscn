@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://ww33hcxd6qfr"]
+
+[ext_resource type="Script" uid="uid://gonjsvdv3may" path="res://editor/controls/avatar_picker/avatar_picker.gd" id="1_ap"]
+
+[node name="AvatarPicker" type="HBoxContainer"]
+script = ExtResource("1_ap")
+
+[node name="ChooseButton" type="Button" parent="."]
+layout_mode = 2
+text = "Choose avatar…"
+
+[node name="PathLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No new avatar selected"
+
+[node name="FileDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Open a File"
+size = Vector2i(700, 500)
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png, *.jpg, *.jpeg ; Images")
+use_native_dialog = false
+
+[connection signal="pressed" from="ChooseButton" to="." method="_on_choose_button_pressed"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]

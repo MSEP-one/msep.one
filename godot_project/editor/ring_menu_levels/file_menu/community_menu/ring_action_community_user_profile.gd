@@ -27,7 +27,4 @@ func _is_authenticated() -> bool:
 
 func _execute_action() -> void:
 	_ring_menu.close()
-	DisplayServer.dialog_show.call_deferred(
-		"Unimplemented",
-		"Unimplemented option: USER PROFILE",
-		["OK"], Callable())
+	WorkspaceUtils.open_user_profile_dialog(_workspace_context)

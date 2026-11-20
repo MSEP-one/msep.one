@@ -136,6 +136,10 @@ static func open_browse_online_projects_dialog(in_workspace_context: WorkspaceCo
 	_open_browse_online_projects_dialog(in_workspace_context)
 
 
+static func open_user_profile_dialog(in_workspace_context: WorkspaceContext) -> void:
+	_open_user_profile_dialog(in_workspace_context)
+
+
 static func apply_simulation_state(
 		out_workspace_context: WorkspaceContext,
 		in_payload: OpenMMPayload,
@@ -1330,6 +1334,11 @@ static  func _open_browse_online_projects_dialog(in_workspace_context: Workspace
 	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
 	workspace_main_view.browse_online_projects_dialog.popup_centered_ratio(0.6)
 
+
+static func _open_user_profile_dialog(in_workspace_context: WorkspaceContext) -> void:
+	assert(in_workspace_context)
+	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	workspace_main_view.online_widget.open_user_profile()
 
 
 static func _apply_simulation_state(

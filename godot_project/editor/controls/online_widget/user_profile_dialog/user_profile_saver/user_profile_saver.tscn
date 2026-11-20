@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1h1w2vf6elxa"]
+
+[ext_resource type="Script" uid="uid://cm33va06w7p6o" path="res://editor/controls/online_widget/user_profile_dialog/user_profile_saver/user_profile_saver.gd" id="1_ups"]
+
+[node name="UserProfileSaver" type="Node"]
+script = ExtResource("1_ups")

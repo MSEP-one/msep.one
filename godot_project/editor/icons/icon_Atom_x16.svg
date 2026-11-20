@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="64mm"
+   height="64mm"
+   viewBox="0 0 64 64"
+   version="1.1"
+   id="svg6751"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   sodipodi:docname="icon_Atom.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs6745" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#303030"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.9030426"
+     inkscape:cx="120.85909"
+     inkscape:cy="204.93498"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <metadata
+     id="metadata6748">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path8088"
+       style="display:inline;opacity:1;mix-blend-mode:normal;fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:6.6358;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 30.466357 -10.00249 A 20.6565 20.6565 0 0 1 10.148218 -30.042611 A 20.6565 20.6565 0 0 1 30.165601 -51.303328 A 20.6565 20.6565 0 0 1 51.441821 -31.302482 L 51.443888 -31.237887 A 20.6565 20.6565 0 0 1 31.392916 -10.008691 A 20.6565 20.6565 0 0 1 30.466357 -10.00249 z M 21.543388 -30.46119 A 6.1633448 8.0902853 37.224469 0 0 28.44891 -34.35811 L 28.463896 -34.37878 A 6.1633448 8.0902853 37.224469 0 0 28.147636 -44.456201 A 6.1633448 8.0902853 37.224469 0 0 18.354435 -41.439331 A 6.1633448 8.0902853 37.224469 0 0 18.655709 -31.356226 A 6.1633448 8.0902853 37.224469 0 0 21.543388 -30.46119 z "
+       transform="scale(1,-1)" />
+  </g>
+</svg>
