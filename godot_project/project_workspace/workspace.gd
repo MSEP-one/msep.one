@@ -7,6 +7,7 @@ signal structure_reparented(struct: NanoStructure, new_parent: NanoStructure)
 signal structure_renamed(struct: NanoStructure, new_name: String)
 signal representation_settings_changed()
 signal bond_settings_changed(representation_settings: RepresentationSettings)
+signal provenance_changed()
 
 const INVALID_STRUCTURE_ID := 0
 const INVALID_OBJECT_INDEX = -1
@@ -15,6 +16,7 @@ const MAX_SIGNED_32_BIT_INT = 2147483647
 enum FileFormatVersion {
 	FORMAT_UNDEFINED = 0,
 	FORMAT_1,
+	FORMAT_2,
 }
 
 static var instance_counter: int = 0
@@ -25,6 +27,7 @@ static var instance_counter: int = 0
 static func get_most_recent_file_format_version() -> FileFormatVersion:
 	return FileFormatVersion.values().back()
 
+@export_storage var provenance: Array[ProvenanceRecord] = []
 @export_storage var _thumbnail: PackedByteArray = []
 @export_storage var is_last_thumbnail_user_generated: bool = false
 
@@ -202,8 +205,40 @@ func post_load() -> void:
 			structure.renamed.connect(_on_nano_structure_renamed.bind(structure))
 
 
+func get_provenance() -> Array[ProvenanceRecord]:
+	return provenance
+
+
+func add_provenance(in_record: ProvenanceRecord) -> void:
+	provenance.push_back(in_record)
+	provenance_changed.emit()
+
+
+## Removes the record together with its descendants. Returns false when the record is not in the tree.
+func remove_provenance(in_record: ProvenanceRecord) -> bool:
+	var was_removed: bool = _remove_provenance_from(provenance, in_record)
+	if was_removed:
+		provenance_changed.emit()
+	return was_removed
+
+
+func _remove_provenance_from(out_records: Array[ProvenanceRecord], in_record: ProvenanceRecord) -> bool:
+	var index: int = out_records.find(in_record)
+	if index != -1:
+		out_records.remove_at(index)
+		return true
+	for record: ProvenanceRecord in out_records:
+		if _remove_provenance_from(record.children, in_record):
+			return true
+	return false
+
+
 func has_thumbnail() -> bool:
 	return not _thumbnail.is_empty()
+
+
+func get_thumbnail_png() -> PackedByteArray:
+	return _thumbnail
 
 
 func get_thumbnail() -> Texture2D:
@@ -508,6 +543,7 @@ func create_state_snapshot() -> Dictionary:
 		structures_snapshot[structure_id] = structure_snapshot
 	
 	var snapshot: Dictionary = {
+		"provenance" : _duplicate_provenance(provenance),
 		"_thumbnail" : _thumbnail.duplicate(),
 		"is_last_thumbnail_user_generated" : is_last_thumbnail_user_generated,
 		"_thumbnail_cache" : _thumbnail_cache,
@@ -524,6 +560,13 @@ func create_state_snapshot() -> Dictionary:
 		"_id" : _id
 	}
 	return snapshot
+
+
+func _duplicate_provenance(in_records: Array[ProvenanceRecord]) -> Array[ProvenanceRecord]:
+	var copies: Array[ProvenanceRecord] = []
+	for record: ProvenanceRecord in in_records:
+		copies.push_back(record.duplicate_tree())
+	return copies
 
 
 func apply_state_snapshot(in_snapshot: Dictionary) -> void:
@@ -562,6 +605,8 @@ func apply_state_snapshot(in_snapshot: Dictionary) -> void:
 		MolecularEditorContext.get_workspace_context(self).get_rendering().remove(structure)
 		_structures.erase(structure_id)
 	
+	provenance = _duplicate_provenance(in_snapshot["provenance"])
+	provenance_changed.emit()
 	_thumbnail = in_snapshot["_thumbnail"] 
 	is_last_thumbnail_user_generated = in_snapshot["is_last_thumbnail_user_generated"]
 	_thumbnail_cache = in_snapshot["_thumbnail_cache"]
