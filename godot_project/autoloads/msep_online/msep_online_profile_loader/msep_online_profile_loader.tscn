@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bothjitsfpnu7"]
+
+[ext_resource type="Script" uid="uid://v7urb0p3wsde" path="res://autoloads/msep_online/msep_online_profile_loader/msep_online_profile_loader.gd" id="1_pl6xd"]
+
+[node name="MsepOnlineProfileLoader" type="Node"]
+script = ExtResource("1_pl6xd")

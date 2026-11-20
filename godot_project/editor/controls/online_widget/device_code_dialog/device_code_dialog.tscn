@@ -1,0 +1,64 @@
+[gd_scene load_steps=2 format=3 uid="uid://bb44usumuhhv3"]
+
+[ext_resource type="Script" uid="uid://clat5ki8aioa2" path="res://editor/controls/online_widget/device_code_dialog/device_code_dialog.gd" id="1_dcd"]
+
+[node name="DeviceCodeDialog" type="AcceptDialog"]
+title = "Sign In with Code"
+size = Vector2i(520, 300)
+ok_button_text = "Close"
+script = ExtResource("1_dcd")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 510.0
+offset_bottom = 253.0
+alignment = 1
+
+[node name="InstructionLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "On any device with a browser, open:"
+horizontal_alignment = 1
+
+[node name="UriLabel" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.75, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "https://"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="EnterCodeLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "and enter the code:"
+horizontal_alignment = 1
+
+[node name="CodeLabel" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "XXXX-XXXX"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="CopyUrlButton" type="Button" parent="VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(100, 75)
+layout_mode = 2
+text = "Copy URL"
+
+[node name="CopyCodeButton" type="Button" parent="VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(100, 75)
+layout_mode = 2
+text = "Copy code"
+
+[connection signal="pressed" from="VBoxContainer/ButtonsContainer/CopyUrlButton" to="." method="_on_copy_url_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/ButtonsContainer/CopyCodeButton" to="." method="_on_copy_code_button_pressed"]

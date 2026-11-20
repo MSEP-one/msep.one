@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://b46u7e5e4fvaa"]
+
+[ext_resource type="Script" uid="uid://cghfvsb3uh6xb" path="res://autoloads/msep_online/msep_online_authenticator/keycloak_client/keycloak_client.gd" id="1_kc8vq"]
+
+[node name="KeycloakClient" type="Node"]
+script = ExtResource("1_kc8vq")
+
+[node name="RequestTemplate" type="HTTPRequest" parent="."]
+unique_name_in_owner = true

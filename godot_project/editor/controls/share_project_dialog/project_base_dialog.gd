@@ -65,7 +65,7 @@ func _on_about_to_popup() -> void:
 # OVERRIDABLE
 func _update_owners_list() -> void:
 	_owner_option_button.clear()
-	_owner_option_button.text = MolecularEditorContext.authenticator.get_username()
+	_owner_option_button.text = MolecularEditorContext.msep_online.get_username()
 	# TODO fill with list of namespaces with edit permisions
 
 

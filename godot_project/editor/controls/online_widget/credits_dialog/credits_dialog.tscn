@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6lxo3kfd2j1u"]
+
+[ext_resource type="Script" uid="uid://lgejbhboal1i" path="res://editor/controls/online_widget/credits_dialog/credits_dialog.gd" id="1_cd"]
+
+[node name="CreditsDialog" type="AcceptDialog"]
+title = "Credits"
+size = Vector2i(560, 480)
+ok_button_text = "Close"
+script = ExtResource("1_cd")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 552.0
+offset_bottom = 431.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="ErrorLabel" type="Label" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+modulate = Color(1, 0.45, 0.45, 1)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="CreditedHeader" type="Label" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "Projects crediting you"
+
+[node name="CreditedEmptyLabel" type="Label" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.6)
+layout_mode = 2
+text = "No project credits you as a collaborator."
+
+[node name="CreditedList" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="OptedOutHeader" type="Label" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "Projects you opted out of"
+
+[node name="OptedOutEmptyLabel" type="Label" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.6)
+layout_mode = 2
+text = "You have not opted out of any project."
+
+[node name="OptedOutList" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2

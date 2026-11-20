@@ -22,12 +22,9 @@ func get_icon() -> RingMenuIcon:
 
 
 func _is_authenticated() -> bool:
-	return MolecularEditorContext.authenticator.is_authenticated()
+	return MolecularEditorContext.msep_online.is_authenticated()
 
 
 func _execute_action() -> void:
 	_ring_menu.close()
-	DisplayServer.dialog_show.call_deferred(
-		"Unimplemented",
-		"Unimplemented option: USER PROFILE",
-		["OK"], Callable())
+	WorkspaceUtils.open_user_profile_dialog(_workspace_context)

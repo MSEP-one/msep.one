@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cecm5mkwy6aam"]
+
+[ext_resource type="Script" uid="uid://dlcletxhfqrcb" path="res://autoloads/msep_online/msep_online_authenticator/device_code_login/device_code_login.gd" id="1_dc4lg"]
+
+[node name="DeviceCodeLogin" type="Node"]
+script = ExtResource("1_dc4lg")

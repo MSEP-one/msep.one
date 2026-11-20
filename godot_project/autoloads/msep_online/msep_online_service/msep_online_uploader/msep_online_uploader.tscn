@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bfsdfsa8aa68b"]
+
+[ext_resource type="Script" uid="uid://bb7dcf4oxq1kd" path="res://autoloads/msep_online/msep_online_service/msep_online_uploader/msep_online_uploader.gd" id="1_up7nz"]
+
+[node name="MsepOnlineUploader" type="Node"]
+script = ExtResource("1_up7nz")
