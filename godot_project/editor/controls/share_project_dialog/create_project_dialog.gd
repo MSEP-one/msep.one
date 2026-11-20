@@ -34,7 +34,7 @@ func _on_ok_pressed() -> void:
 	var tags: PackedStringArray = []
 	for tag_label: TagLabel in _tag_labels.values():
 		tags.append(tag_label.text)
-	var promise: Promise = MolecularEditorContext.msep_online_service.post_namespace_projects(
+	var promise: Promise = MolecularEditorContext.msep_online.post_namespace_projects(
 		_owner_option_button.text,
 		_formated_name_label.text,
 		_description_text_edit.text,

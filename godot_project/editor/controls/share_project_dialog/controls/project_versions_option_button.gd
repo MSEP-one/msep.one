@@ -31,7 +31,7 @@ func retract_selected_version(reason: String) -> void:
 	if get_version_data(version_number).get("is_retracted", false) == true:
 		assert(false, "Requested to retract an already retracted version, UX shouldn't allow this")
 		return
-	var promise: Promise = MolecularEditorContext.msep_online_service.delete_namespace_project_version(
+	var promise: Promise = MolecularEditorContext.msep_online.delete_namespace_project_version(
 		_project_data.namespace, _project_data.name, version_number, reason
 	)
 	await promise.wait_for_fulfill()
@@ -49,7 +49,7 @@ func update_versions_list() -> void:
 	version_changed.emit(-1)
 	var proj_namespace: String = _project_data.namespace
 	var proj_name: String = _project_data.name
-	var promise: Promise = MolecularEditorContext.msep_online_service.get_namespace_project_versions(
+	var promise: Promise = MolecularEditorContext.msep_online.get_namespace_project_versions(
 		proj_namespace, proj_name
 	)
 	await promise.wait_for_fulfill()

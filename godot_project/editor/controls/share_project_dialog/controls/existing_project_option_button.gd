@@ -36,8 +36,8 @@ func _on_item_selected(in_index: int) -> void:
 func _update() -> void:
 	clear()
 	var previous_selection: String = "" if selected == -1 else text
-	var service: MsepOnlineService = MolecularEditorContext.msep_online_service
-	var authenticator: MsepOnlineAuthenticator = MolecularEditorContext.authenticator
+	var service: MsepOnline = MolecularEditorContext.msep_online
+	var authenticator: MsepOnline = MolecularEditorContext.msep_online
 	if not authenticator.is_authenticated():
 		return
 	fetch_started.emit()

@@ -97,7 +97,7 @@ func _update_owners_list() -> void:
 	# TODO delete when we have a way to fill with list of namespaces with edit permisions
 	_owner_option_button.clear()
 	var owners: Dictionary[String, bool] = {}
-	owners[MolecularEditorContext.authenticator.get_username()] = true
+	owners[MolecularEditorContext.msep_online.get_username()] = true
 	var project_namespace: String = _project_data.get("namespace", "")
 	if not project_namespace.is_empty():
 		owners[project_namespace] = true
@@ -236,13 +236,13 @@ func _on_ok_pressed() -> void:
 	
 	if _version_data_changed():
 		promises.append(
-			MolecularEditorContext.msep_online_service.put_namespace_project_version(
+			MolecularEditorContext.msep_online.put_namespace_project_version(
 				_project_data.namespace, _project_data.name, loaded_version, _version_description_text_edit.text
 			)
 		)
 	if project_changed:
 		promises.append(
-			MolecularEditorContext.msep_online_service.put_namespace_project(
+			MolecularEditorContext.msep_online.put_namespace_project(
 				_project_data.namespace, _project_data.name,
 				new_description,
 				new_collaborators,

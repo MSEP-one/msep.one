@@ -22,7 +22,7 @@ func get_icon() -> RingMenuIcon:
 
 
 func _is_authenticated() -> bool:
-	return MolecularEditorContext.authenticator.is_authenticated()
+	return MolecularEditorContext.msep_online.is_authenticated()
 
 
 func _execute_action() -> void:

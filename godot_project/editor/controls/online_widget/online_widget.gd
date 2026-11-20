@@ -40,22 +40,22 @@ func _on_feature_flag_toggled(in_path: String, in_value: bool) -> void:
 
 func _initialize() -> void:
 	show()
-	if MolecularEditorContext.authenticator.is_authenticated():
+	if MolecularEditorContext.msep_online.is_authenticated():
 		_setup_authenticated()
 	else:
 		_setup_unauthenticated()
 	if _sign_in_button.pressed.is_connected(_on_sign_in_button_pressed):
 		return
-	MolecularEditorContext.authenticator.logged_in.connect(_setup_authenticated)
-	MolecularEditorContext.authenticator.logged_out.connect(_setup_unauthenticated)
-	MolecularEditorContext.authenticator.avatar_loaded.connect(_update_avatar)
-	MolecularEditorContext.authenticator.authentication_failed.connect(_on_authentication_failed)
+	MolecularEditorContext.msep_online.logged_in.connect(_setup_authenticated)
+	MolecularEditorContext.msep_online.logged_out.connect(_setup_unauthenticated)
+	MolecularEditorContext.msep_online.avatar_loaded.connect(_update_avatar)
+	MolecularEditorContext.msep_online.authentication_failed.connect(_on_authentication_failed)
 	_sign_in_button.pressed.connect(_on_sign_in_button_pressed)
 	_user_menu_button.get_popup().id_pressed.connect(_on_user_menu_button_popup_id_pressed)
 
 
 func _setup_authenticated() -> void:
-	var auth: MsepOnlineAuthenticator = MolecularEditorContext.authenticator
+	var auth: MsepOnline = MolecularEditorContext.msep_online
 	assert(auth.is_authenticated(), "Function _setup_authenticated was triggered when user is not authenticated")
 	_sign_in_container.hide()
 	_signed_in_container.show()
@@ -71,7 +71,7 @@ func _setup_unauthenticated() -> void:
 
 
 func _update_avatar() -> void:
-	var auth: MsepOnlineAuthenticator = MolecularEditorContext.authenticator
+	var auth: MsepOnline = MolecularEditorContext.msep_online
 	assert(auth.is_authenticated(), "Function _setup_authenticated was triggered when user is not authenticated")
 	_avatar_mask_texture_rect.self_modulate = auth.get_avatar_background_color()
 	var avatar: Texture2D = auth.get_avatar()
@@ -92,7 +92,7 @@ func _update_avatar() -> void:
 
 
 func _on_sign_in_button_pressed() -> void:
-	MolecularEditorContext.authenticator.login()
+	MolecularEditorContext.msep_online.login()
 
 
 func _on_authentication_failed(in_error: String) -> void:
@@ -102,7 +102,7 @@ func _on_authentication_failed(in_error: String) -> void:
 func _on_user_menu_button_popup_id_pressed(in_id: int) -> void:
 	match in_id:
 		MenuID.SIGN_OFF:
-			MolecularEditorContext.authenticator.logout()
+			MolecularEditorContext.msep_online.logout()
 		_:
 			DisplayServer.dialog_show(
 				"Unimplemented",

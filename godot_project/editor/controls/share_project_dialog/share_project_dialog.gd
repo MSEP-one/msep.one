@@ -225,7 +225,7 @@ func _on_ok_button_pressed() -> void:
 		file_path
 	)
 	var file := FileAccess.open(file_path, FileAccess.READ)
-	var promise: Promise = MolecularEditorContext.msep_online_service.post_namespace_project_version(
+	var promise: Promise = MolecularEditorContext.msep_online.post_namespace_project_version(
 		_selected_project_data.namespace,
 		_selected_project_data.name,
 		_version_description_text_edit.text,

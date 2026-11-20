@@ -1,10 +1,10 @@
 class_name DownloadPromise
 extends Promise
 
-var _request: MsepOnlineHTTPRequest
+var _request: HTTPRequest
 
 
-func _init(http_request: MsepOnlineHTTPRequest) -> void:
+func _init(http_request: HTTPRequest) -> void:
 	_request = http_request
 
 

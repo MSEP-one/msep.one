@@ -21,13 +21,13 @@ enum State {
 
 
 var _search_promise: Promise
-var _sort_type := MsepOnlineService.SortType.UPDATED
+var _sort_type := MsepOnline.SortType.UPDATED
 var _selected_tags: Dictionary[String, TagLabel]
 var _download_promise: DownloadPromise
 
 var _last_search: Dictionary = {
 	search_text = "",
-	sort_type = MsepOnlineService.SortType.UPDATED,
+	sort_type = MsepOnline.SortType.UPDATED,
 	tags = PackedStringArray(),
 	page = 1,
 }
@@ -78,7 +78,7 @@ func _update_tags_menu() -> void:
 	for child: Node in _filter_tags_container.get_children():
 		child.queue_free()
 	_selected_tags.clear()
-	var promise: Promise = MolecularEditorContext.msep_online_service.get_explore_tags()
+	var promise: Promise = MolecularEditorContext.msep_online.get_explore_tags()
 	await promise.wait_for_fulfill()
 	if promise.has_error():
 		var err_label := Label.new()
@@ -111,9 +111,9 @@ func _on_search_line_edit_text_submitted(search_text: String) -> void:
 func _search(
 		search_text: String,
 		tags: PackedStringArray,
-		sort_type: MsepOnlineService.SortType,
+		sort_type: MsepOnline.SortType,
 		in_page: int) -> void:
-	var promise: Promise = MolecularEditorContext.msep_online_service.get_explore_projects(
+	var promise: Promise = MolecularEditorContext.msep_online.get_explore_projects(
 		search_text,
 		tags,
 		sort_type,
@@ -163,7 +163,7 @@ func _on_import_button_pressed(project_data: Dictionary, version_uuid: String) -
 	get_ok_button().disabled = true
 	for child: Node in _project_list_container.get_children():
 		child.notify_download_started()
-	var promise: DownloadPromise = MolecularEditorContext.msep_online_service.download_project_version(version_uuid)
+	var promise: DownloadPromise = MolecularEditorContext.msep_online.download_project_version(version_uuid)
 	_download_promise = promise
 	await promise.wait_for_fulfill()
 	await get_tree().process_frame # show the progress bar completed by one frame
@@ -244,8 +244,8 @@ func _update_pagination_label(pagination_data: Dictionary) -> void:
 
 
 func _on_sort_menu_button_id_pressed(id: int) -> void:
-	_sort_type = id as MsepOnlineService.SortType
-	_sort_menu_button.text = MsepOnlineService.SORT_TYPE_STRING[_sort_type].capitalize()
+	_sort_type = id as MsepOnline.SortType
+	_sort_menu_button.text = MsepOnline.SORT_TYPE_STRING[_sort_type].capitalize()
 
 
 func _on_tags_menu_button_index_pressed(index: int) -> void:

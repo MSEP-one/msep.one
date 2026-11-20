@@ -17,21 +17,21 @@ func _init(in_workspace_context: WorkspaceContext, in_menu: NanoRingMenu) -> voi
 
 
 func get_icon() -> RingMenuIcon:
-	if MolecularEditorContext.authenticator.is_authenticated():
+	if MolecularEditorContext.msep_online.is_authenticated():
 		return RingMenuSpriteIconScn.instantiate().init(preload("uid://drrewdy8nf4vu"))
 	else:
 		return RingMenuSpriteIconScn.instantiate().init(preload("uid://cnudgevu20a6g"))
 
 
 func get_title() -> String:
-	if MolecularEditorContext.authenticator.is_authenticated():
+	if MolecularEditorContext.msep_online.is_authenticated():
 		return tr(&"Sign Off")
 	else:
 		return tr(&"Sign In")
 
 
 func get_description() -> String:
-	if MolecularEditorContext.authenticator.is_authenticated():
+	if MolecularEditorContext.msep_online.is_authenticated():
 		return tr(&"Close session of your MSEP Community user account.")
 	else:
 		return tr(&"Open session of your MSEP Community user account.")
@@ -39,9 +39,9 @@ func get_description() -> String:
 
 func _execute_action() -> void:
 	_ring_menu.close()
-	var authenticator: MsepOnlineAuthenticator = MolecularEditorContext.authenticator
-	var is_signed_in: bool = authenticator.is_authenticated()
+	var msep_online: MsepOnline = MolecularEditorContext.msep_online
+	var is_signed_in: bool = msep_online.is_authenticated()
 	if is_signed_in:
-		authenticator.logout()
+		msep_online.logout()
 	else:
-		authenticator.login()
+		msep_online.login()
