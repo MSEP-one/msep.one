@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://bonww8imkbnn5"]
+[gd_scene load_steps=4 format=3 uid="uid://bonww8imkbnn5"]
 
 [ext_resource type="Script" uid="uid://ddc2o6mvadvud" path="res://editor/controls/dockers/workspace_docker/e_workspace_settings_docker/controls/general_settings/general_settings.gd" id="1_pbl7g"]
 [ext_resource type="Texture2D" uid="uid://bpkx70rl1xv4t" path="res://editor/controls/welcome_page/controls/default_background.png" id="2_8gbo1"]
+
+[ext_resource type="PackedScene" uid="uid://cdfc2pbl8jql6" path="res://editor/controls/workspace_provenance_editor/workspace_provenance_editor.tscn" id="3_prov"]
 
 [node name="general_settings" type="VBoxContainer"]
 offset_right = 484.0
@@ -86,3 +88,18 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"CrystalButton"
 text = "Create from Viewport"
+
+[node name="Label4" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Provenance:"
+
+[node name="PanelContainer4" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SubcategoryPanel"
+
+[node name="WorkspaceProvenanceEditor" parent="PanelContainer4" instance=ExtResource("3_prov")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[connection signal="remove_confirmed" from="PanelContainer4/WorkspaceProvenanceEditor" to="." method="_on_workspace_provenance_editor_remove_confirmed"]

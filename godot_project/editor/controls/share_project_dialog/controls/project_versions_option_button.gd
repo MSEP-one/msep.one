@@ -6,6 +6,7 @@ signal version_changed(number_or_minus_one: int)
 var _project_data: Dictionary
 var _versions_data: Dictionary
 var _has_downloadable_version: bool = false
+var _preferred_version_number: int = -1
 
 
 func _ready() -> void:
@@ -25,13 +26,17 @@ func set_project_data(in_data: Dictionary) -> void:
 	update_versions_list()
 
 
+func set_preferred_version(in_version_number: int) -> void:
+	_preferred_version_number = in_version_number
+
+
 func retract_selected_version(reason: String) -> void:
 	var version_number: int = get_selected_id()
 	assert(version_number >= 0)
 	if get_version_data(version_number).get("is_retracted", false) == true:
 		assert(false, "Requested to retract an already retracted version, UX shouldn't allow this")
 		return
-	var promise: Promise = MolecularEditorContext.msep_online_service.delete_namespace_project_version(
+	var promise: Promise = MolecularEditorContext.msep_online.delete_namespace_project_version(
 		_project_data.namespace, _project_data.name, version_number, reason
 	)
 	await promise.wait_for_fulfill()
@@ -44,12 +49,12 @@ func retract_selected_version(reason: String) -> void:
 
 
 func update_versions_list() -> void:
-	var prev_version: int = -1 if selected == -1 else get_selected_id()
+	var prev_version: int = _preferred_version_number if selected == -1 else get_selected_id()
 	clear()
 	version_changed.emit(-1)
 	var proj_namespace: String = _project_data.namespace
 	var proj_name: String = _project_data.name
-	var promise: Promise = MolecularEditorContext.msep_online_service.get_namespace_project_versions(
+	var promise: Promise = MolecularEditorContext.msep_online.get_namespace_project_versions(
 		proj_namespace, proj_name
 	)
 	await promise.wait_for_fulfill()
@@ -76,10 +81,12 @@ func update_versions_list() -> void:
 			var index: int = item_count -1
 			select(index)
 			selected_something = true
-	if selected_something == false and biggest_version > 0:
+	if selected_something:
+		version_changed.emit(prev_version)
+	elif biggest_version > 0:
 		select(get_item_index(biggest_version))
 		version_changed.emit(biggest_version)
-	elif selected_something == false and item_count > 0:
+	elif item_count > 0:
 		# All versions are retracted, let's select last one
 		select(item_count-1)
 		version_changed.emit(get_item_id(item_count-1))

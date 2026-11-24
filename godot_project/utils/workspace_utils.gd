@@ -71,9 +71,11 @@ static func unpack_mol_file_and_get_path(fragment_path: String) -> String:
 static func import_file(out_workspace_context: WorkspaceContext, path: String,
 						generate_bonds: bool, add_hydrogens: bool, remove_waters: bool,
 						placement: ImportFileDialog.Placement, create_new_group: bool = true,
-						snapshot_name: String = "Import File") -> void:
+						snapshot_name: String = "Import File", in_structure_name: String = "",
+						in_provenance_record: ProvenanceRecord = null) -> void:
 	if _is_msep_workspace(path):
-		_import_msep_workspace(out_workspace_context, path, placement, snapshot_name)
+		_import_msep_workspace(out_workspace_context, path, placement, snapshot_name,
+				in_structure_name, in_provenance_record)
 		return
 	if _is_xyz_file(path):
 		_import_xyz_file(out_workspace_context, path, placement, create_new_group, generate_bonds, snapshot_name)
@@ -130,8 +132,21 @@ static func open_share_project_dialog(in_workspace_context: WorkspaceContext) ->
 	_open_share_project_dialog(in_workspace_context)
 
 
+## Opens the share dialog, asking to save the project first
+static func share_project(in_workspace_context: WorkspaceContext) -> void:
+	_share_project(in_workspace_context)
+
+
 static func open_browse_online_projects_dialog(in_workspace_context: WorkspaceContext) -> void:
 	_open_browse_online_projects_dialog(in_workspace_context)
+
+
+static func open_my_online_projects_dialog(in_workspace_context: WorkspaceContext) -> void:
+	_open_my_online_projects_dialog(in_workspace_context)
+
+
+static func open_user_profile_dialog(in_workspace_context: WorkspaceContext) -> void:
+	_open_user_profile_dialog(in_workspace_context)
 
 
 static func apply_simulation_state(
@@ -942,7 +957,8 @@ static func _is_msep_workspace(in_path: String) -> bool:
 ## The structure hierarchy from the imported file is preserved and added under
 ## the current active group.
 static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path: String,
-						placement: ImportFileDialog.Placement, snapshot_name: String) -> void:
+						placement: ImportFileDialog.Placement, snapshot_name: String,
+						in_structure_name: String, in_provenance_record: ProvenanceRecord) -> void:
 	var imported_workspace: Workspace = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
 	if not imported_workspace:
 		Editor_Utils.get_editor().prompt_error_msg("Cannot load file: " + path)
@@ -953,7 +969,9 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 	
 	# Rename the imported main structure for better clarity.
 	var imported_main_structure: NanoStructure = imported_workspace.get_main_structure()
-	if imported_main_structure.get_structure_name() == "Workspace":
+	if not in_structure_name.is_empty():
+		imported_main_structure.set_structure_name(in_structure_name)
+	elif imported_main_structure.get_structure_name() == "Workspace":
 		imported_main_structure.set_structure_name(path.get_file().get_basename().capitalize())
 	
 	# Add all structures to the workspace based on the placement options
@@ -963,6 +981,9 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 	var placement_xform: Transform3D = _get_placement_transform(out_workspace_context, aabb, placement)
 	var new_structures: Array[NanoStructure]
 	new_structures = out_workspace_context.workspace.append_workspace(imported_workspace, placement_xform)
+	
+	if in_provenance_record != null:
+		_add_imported_provenance(out_workspace_context.workspace, imported_workspace, in_provenance_record)
 	
 	# Select newly added
 	for structure: NanoStructure in new_structures:
@@ -975,6 +996,13 @@ static func _import_msep_workspace(out_workspace_context: WorkspaceContext, path
 	
 	# Undo redo
 	out_workspace_context.snapshot_moment(snapshot_name)
+
+
+static func _add_imported_provenance(out_workspace: Workspace, in_imported_workspace: Workspace,
+		out_record: ProvenanceRecord) -> void:
+	out_record.set_image_from_png(in_imported_workspace.get_thumbnail_png())
+	out_record.children.assign(in_imported_workspace.get_provenance())
+	out_workspace.add_provenance(out_record)
 
 
 static func _import_xyz_file(out_workspace_context: WorkspaceContext, path: String,
@@ -1307,13 +1335,42 @@ static func _open_quick_search_dialog(in_workspace_context: WorkspaceContext) ->
 static func _open_share_project_dialog(in_workspace_context: WorkspaceContext) -> void:
 	assert(in_workspace_context)
 	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
-	workspace_main_view.share_project_dialog.popup_centered_ratio(0.4)
+	workspace_main_view.share_project_dialog.popup_centered_clamped(Vector2i(700, 900), 0.9)
+
+
+static func _share_project(in_workspace_context: WorkspaceContext) -> void:
+	var workspace: Workspace = in_workspace_context.workspace
+	var is_saved_to_file: bool = not workspace.resource_path.is_empty() and workspace.suggested_path.is_empty()
+	if is_saved_to_file:
+		_open_share_project_dialog(in_workspace_context)
+		return
+	var promise: Promise = in_workspace_context.show_warning_dialog(
+		in_workspace_context.tr(&"Project needs to be saved before it can be shared"),
+		in_workspace_context.tr(&"Save"),
+		in_workspace_context.tr(&"Cancel")
+	)
+	await promise.wait_for_fulfill()
+	var should_save: bool = promise.get_result()
+	if should_save:
+		Editor_Utils.get_editor().show_save_workspace_dialog(workspace)
 
 
 static  func _open_browse_online_projects_dialog(in_workspace_context: WorkspaceContext) -> void:
 	assert(in_workspace_context)
 	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
-	workspace_main_view.browse_online_projects_dialog.popup_centered_ratio(0.6)
+	workspace_main_view.browse_online_projects_dialog.popup_centered_ratio(0.85)
+
+
+static func _open_my_online_projects_dialog(in_workspace_context: WorkspaceContext) -> void:
+	assert(in_workspace_context)
+	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	workspace_main_view.browse_online_projects_dialog.open_my_projects()
+
+
+static func _open_user_profile_dialog(in_workspace_context: WorkspaceContext) -> void:
+	assert(in_workspace_context)
+	var workspace_main_view: WorkspaceMainView = in_workspace_context.workspace_main_view
+	workspace_main_view.online_widget.open_user_profile()
 
 
 static func _apply_simulation_state(

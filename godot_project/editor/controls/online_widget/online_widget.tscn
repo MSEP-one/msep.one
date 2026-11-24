@@ -1,6 +1,13 @@
-[gd_scene load_steps=10 format=3 uid="uid://chpep07gpvb5s"]
+[gd_scene load_steps=15 format=3 uid="uid://chpep07gpvb5s"]
 
 [ext_resource type="Texture2D" uid="uid://bkyecov3vw7t6" path="res://editor/icons/sign_in_x32.svg" id="1_7xxye"]
+[ext_resource type="Texture2D" uid="uid://btx0a2jx2juc3" path="res://editor/icons/icon_msep_user_account_x16.svg" id="11_user"]
+[ext_resource type="Texture2D" uid="uid://doi5fguj073j" path="res://editor/icons/icon_Atom_x16.svg" id="12_projects"]
+[ext_resource type="Texture2D" uid="uid://drrewdy8nf4vu" path="res://editor/icons/sign_out_x64.svg" id="14_signout"]
+[ext_resource type="PackedScene" uid="uid://bb44usumuhhv3" path="res://editor/controls/online_widget/device_code_dialog/device_code_dialog.tscn" id="9_dcd"]
+[ext_resource type="PackedScene" uid="uid://cxc16767wl2wd" path="res://editor/controls/online_widget/user_profile_dialog/user_profile_dialog.tscn" id="10_epd"]
+[ext_resource type="PackedScene" uid="uid://b6lxo3kfd2j1u" path="res://editor/controls/online_widget/credits_dialog/credits_dialog.tscn" id="15_cd"]
+[ext_resource type="Script" uid="uid://bedfpdhraymiu" path="res://editor/controls/general/nano_accept_dialog.gd" id="16_nad"]
 [ext_resource type="Script" uid="uid://wcpawkkl8am1" path="res://editor/controls/online_widget/online_widget.gd" id="1_o6xol"]
 [ext_resource type="Texture2D" uid="uid://dxwe1l16msnkc" path="res://icon.png" id="2_ohamc"]
 [ext_resource type="FontFile" uid="uid://mw18m2voq6sc" path="res://theme/noto_sans/NotoSansNagMundari-Bold.ttf" id="3_o6xol"]
@@ -61,6 +68,31 @@ layout_mode = 2
 focus_mode = 0
 flat = true
 
+[node name="DeviceCodeDialog" parent="." instance=ExtResource("9_dcd")]
+unique_name_in_owner = true
+
+[node name="UserProfileDialog" parent="." instance=ExtResource("10_epd")]
+unique_name_in_owner = true
+
+[node name="CreditsDialog" parent="." instance=ExtResource("15_cd")]
+unique_name_in_owner = true
+
+[node name="ErrorDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Failed"
+min_size = Vector2i(480, 0)
+ok_button_text = "OK"
+dialog_autowrap = true
+script = ExtResource("16_nad")
+
+[node name="SignInWithCodeButton" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+focus_mode = 0
+text = "Use code"
+flat = true
+
 [node name="SignedInContainer" type="PanelContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
@@ -116,10 +148,16 @@ unique_name_in_owner = true
 layout_mode = 2
 item_count = 4
 popup/item_0/text = "[Username]"
+popup/item_0/icon = ExtResource("11_user")
 popup/item_0/id = 0
 popup/item_1/text = "Projects"
+popup/item_1/icon = ExtResource("12_projects")
 popup/item_1/id = 1
-popup/item_2/text = "⚙️ Edit Profile"
-popup/item_2/id = 2
+popup/item_2/text = "Credits"
+popup/item_2/icon = ExtResource("12_projects")
+popup/item_2/id = 3
 popup/item_3/text = "Sign out"
-popup/item_3/id = 3
+popup/item_3/icon = ExtResource("14_signout")
+popup/item_3/id = 2
+
+[connection signal="pressed" from="SignInWithCodeButton" to="." method="_on_sign_in_with_code_button_pressed"]

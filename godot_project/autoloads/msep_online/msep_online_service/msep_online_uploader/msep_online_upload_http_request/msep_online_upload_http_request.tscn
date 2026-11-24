@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2b85m7tsmiom"]
+
+[ext_resource type="Script" uid="uid://urch6oneabg5" path="res://autoloads/msep_online/msep_online_service/msep_online_uploader/msep_online_upload_http_request/msep_online_upload_http_request.gd" id="1_uh5rt"]
+
+[node name="MsepOnlineUploadHTTPRequest" type="HTTPRequest"]
+script = ExtResource("1_uh5rt")
+
+[connection signal="request_completed" from="." to="." method="_on_request_completed"]

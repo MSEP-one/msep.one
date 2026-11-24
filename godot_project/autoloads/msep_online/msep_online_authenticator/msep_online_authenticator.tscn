@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://ck1wtu17kypvi"]
+
+[ext_resource type="Script" uid="uid://d30g4nmhwsurt" path="res://autoloads/msep_online/msep_online_authenticator/msep_online_authenticator.gd" id="1_1yiov"]
+[ext_resource type="PackedScene" uid="uid://b46u7e5e4fvaa" path="res://autoloads/msep_online/msep_online_authenticator/keycloak_client/keycloak_client.tscn" id="2_kc8vq"]
+[ext_resource type="PackedScene" uid="uid://55wln58y55uh" path="res://autoloads/msep_online/msep_online_authenticator/token_refresher/token_refresher.tscn" id="3_tr"]
+[ext_resource type="PackedScene" uid="uid://boqwtr8v4rysi" path="res://autoloads/msep_online/msep_online_authenticator/login_flow/login_flow.tscn" id="4_lf"]
+
+[node name="MsepOnlineAuthenticator" type="Node"]
+script = ExtResource("1_1yiov")
+
+[node name="KeycloakClient" parent="." instance=ExtResource("2_kc8vq")]
+unique_name_in_owner = true
+
+[node name="TokenRefresher" parent="." node_paths=PackedStringArray("keycloak_client") instance=ExtResource("3_tr")]
+unique_name_in_owner = true
+keycloak_client = NodePath("../KeycloakClient")
+
+[node name="LoginFlow" parent="." node_paths=PackedStringArray("keycloak_client") instance=ExtResource("4_lf")]
+unique_name_in_owner = true
+keycloak_client = NodePath("../KeycloakClient")
+
+[connection signal="tokens_refreshed" from="TokenRefresher" to="." method="_on_token_refresher_tokens_refreshed"]
+[connection signal="device_code_issued" from="LoginFlow" to="." method="_on_login_flow_device_code_issued"]

@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bd4bceholcns1"]
+
+[ext_resource type="Script" uid="uid://dtllt4kurcoh3" path="res://autoloads/msep_online/msep_online_service/msep_online_service.gd" id="1_sv3nd"]
+[ext_resource type="PackedScene" uid="uid://bfsdfsa8aa68b" path="res://autoloads/msep_online/msep_online_service/msep_online_uploader/msep_online_uploader.tscn" id="2_up7nz"]
+
+[node name="MsepOnlineService" type="Node"]
+script = ExtResource("1_sv3nd")
+
+[node name="Requests" type="Node" parent="."]
+unique_name_in_owner = true
+
+[node name="MsepOnlineUploader" parent="." instance=ExtResource("2_up7nz")]
+unique_name_in_owner = true

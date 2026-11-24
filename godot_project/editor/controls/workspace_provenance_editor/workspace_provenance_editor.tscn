@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cdfc2pbl8jql6"]
+[gd_scene load_steps=3 format=3 uid="uid://cdfc2pbl8jql6"]
 
 [ext_resource type="Script" uid="uid://ciw8elr5oc23h" path="res://editor/controls/workspace_provenance_editor/workspace_provenance_editor.gd" id="1_olnkw"]
+[ext_resource type="PackedScene" uid="uid://dl2fwjd0muax8" path="res://editor/controls/workspace_provenance_editor/provenance_record_opener/provenance_record_opener.tscn" id="2_opener"]
 
 [node name="WorkspaceProvenanceEditor" type="VBoxContainer"]
 script = ExtResource("1_olnkw")
@@ -8,38 +9,49 @@ script = ExtResource("1_olnkw")
 [node name="Label" type="Label" parent="."]
 self_modulate = Color(0.676692, 0.676692, 0.676692, 1)
 layout_mode = 2
-text = "Provenance lists other projects included in this file"
+text = "Projects this file was built from. Double-click a title or creator to open it."
+autowrap_mode = 3
 
 [node name="ProvenanceTree" type="Tree" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 70)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 size_flags_vertical = 3
-columns = 3
+columns = 5
 column_titles_visible = true
 hide_root = true
-select_mode = 1
+select_mode = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 1
-tooltip_text = "Enter the Url to the specific project and version to be referenced. If a project url is entered, it will be assumed the most recent version should be referenced."
-mouse_filter = 0
-text = "ℹ️"
-vertical_alignment = 1
-
-[node name="NewProvenanceUrlLineEdit" type="LineEdit" parent="HBoxContainer"]
+[node name="ImagePreviewTextureRect" type="TextureRect" parent="."]
 unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "url to external project version"
+expand_mode = 1
+stretch_mode = 5
 
-[node name="AddProvenanceButton" type="Button" parent="HBoxContainer"]
+[node name="ActionsContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+alignment = 2
+
+[node name="RemoveButton" type="Button" parent="ActionsContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_type_variation = &"CrystalButton"
-text = "Add"
+disabled = true
+text = "Remove"
+
+[node name="RemoveConfirmationDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Remove provenance record"
+ok_button_text = "Remove"
+
+[node name="ProvenanceRecordOpener" parent="." instance=ExtResource("2_opener")]
+unique_name_in_owner = true
+
+[connection signal="item_activated" from="ProvenanceTree" to="." method="_on_provenance_tree_item_activated"]
+[connection signal="item_selected" from="ProvenanceTree" to="." method="_on_provenance_tree_item_selected"]
+[connection signal="nothing_selected" from="ProvenanceTree" to="." method="_on_provenance_tree_nothing_selected"]
+[connection signal="pressed" from="ActionsContainer/RemoveButton" to="." method="_on_remove_button_pressed"]
+[connection signal="confirmed" from="RemoveConfirmationDialog" to="." method="_on_remove_confirmation_dialog_confirmed"]

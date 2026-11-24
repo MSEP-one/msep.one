@@ -1,10 +1,12 @@
 extends VBoxContainer
 
 
-signal import_button_pressed(project_data: Dictionary, version_uuid: String)
+signal import_button_pressed(project_data: Dictionary, version_uuid: String, version_number: int)
+signal edit_button_pressed(project_data: Dictionary)
 
 
 const _FALLBACK_THUMBNAIL: Texture2D = preload("uid://bpkx70rl1xv4t")
+const _COPIED_FEEDBACK_SECONDS: float = 1.5
 
 
 var _thumbnail_texture_rect: TextureRect
@@ -17,7 +19,16 @@ var _project_versions_option_button: OptionButton
 var _version_description_label: Label
 var _see_more_button: RichTextLabel
 var _import_button: Button
+var _edit_button: Button
 var _animation_player: AnimationPlayer
+var _downloads_title_label: Label
+var _downloads_label: Label
+var _creator_title_label: Label
+var _creator_label: Label
+var _editors_title_label: Label
+var _editors_label: Label
+var _share_id_title_label: Label
+var _copy_share_id_button: Button
 
 
 var _project_data: Dictionary
@@ -33,9 +44,7 @@ func set_project_data(in_data: Dictionary) -> void:
 	# Name
 	_name_label.text = _project_data.get("name", "")
 	# Thumbnail
-	var latest_version: Dictionary = {}
-	if _project_data.get("latest_version_info") != null:
-		latest_version = _project_data.get("latest_version_info")
+	var latest_version: Dictionary = _get_latest_version()
 	var thumbnail_uuid: String = latest_version.get("uuid", "")
 	if thumbnail_uuid.is_empty():
 		_thumbnail_texture_rect.texture = _FALLBACK_THUMBNAIL
@@ -57,12 +66,38 @@ func set_project_data(in_data: Dictionary) -> void:
 			_owner_label.pop_all()
 	# Description
 	_description_label.text = _project_data.get("description", "")
+	# Downloads
+	_update_download_count(_project_data.get("download_count"))
 	# Tags
 	_update_tags(_project_data.get("tags", []))
 	# Collaborators
 	_update_collaborators(_project_data.get("collaborators", []))
+	# Creator and editors
+	var editors: Array[Dictionary] = []
+	editors.assign(_project_data.get("editors", []))
+	_update_people(_project_data.get("creator", {}), editors)
 	# Versions
 	_update_versions()
+
+
+## Returns the newest version of the project, which holds a uuid and a version_number,
+## or an empty dictionary when the project has none.
+func _get_latest_version() -> Dictionary:
+	var version_info: Variant = _project_data.get("latest_version_info")
+	var api_spec_version_info: Variant = _project_data.get("latest_version")
+	if version_info is Dictionary:
+		return version_info
+	if api_spec_version_info is Dictionary:
+		return api_spec_version_info
+	return {}
+
+
+func _update_download_count(in_download_count: Variant) -> void:
+	var has_download_count: bool = in_download_count is int or in_download_count is float
+	_downloads_title_label.visible = has_download_count
+	_downloads_label.visible = has_download_count
+	if has_download_count:
+		_downloads_label.text = str(int(in_download_count))
 
 
 func _notification(what: int) -> void:
@@ -77,7 +112,24 @@ func _notification(what: int) -> void:
 		_version_description_label = %VersionDescriptionLabel as Label
 		_see_more_button = %SeeMoreButton as RichTextLabel
 		_import_button = %ImportButton as Button
+		_edit_button = %EditButton as Button
 		_animation_player = %AnimationPlayer as AnimationPlayer
+		_downloads_title_label = %DownloadsTitleLabel as Label
+		_downloads_label = %DownloadsLabel as Label
+		_creator_title_label = %CreatorTitleLabel as Label
+		_creator_label = %CreatorLabel as Label
+		_editors_title_label = %EditorsTitleLabel as Label
+		_editors_label = %EditorsLabel as Label
+		_share_id_title_label = %ShareIdTitleLabel as Label
+		_copy_share_id_button = %CopyShareIdButton as Button
+
+
+func set_preferred_version(in_version_number: int) -> void:
+	_project_versions_option_button.set_preferred_version(in_version_number)
+
+
+func set_edit_button_visible(in_visible: bool) -> void:
+	_edit_button.visible = in_visible
 
 
 func notify_download_started() -> void:
@@ -142,6 +194,39 @@ func _update_collaborators_visibility() -> void:
 		%CollaboratorsTitleLabel.show()
 
 
+func _update_people(in_creator: Dictionary, in_editors: Array[Dictionary]) -> void:
+	var editor_names: PackedStringArray = []
+	for editor_data: Dictionary in in_editors:
+		editor_names.append(editor_data.get("username", ""))
+	_creator_label.text = in_creator.get("username", "")
+	_editors_label.text = ", ".join(editor_names)
+	_update_people_visibility()
+
+
+func _update_people_visibility() -> void:
+	var show_creator: bool = _showing_more and not _creator_label.text.is_empty()
+	var show_editors: bool = _showing_more and not _editors_label.text.is_empty()
+	_creator_title_label.visible = show_creator
+	_creator_label.visible = show_creator
+	_editors_title_label.visible = show_editors
+	_editors_label.visible = show_editors
+
+
+func _update_version_link_visibility() -> void:
+	var has_version_uuid: bool = not _get_selected_version_uuid().is_empty()
+	var show_link: bool = _showing_more and has_version_uuid
+	_share_id_title_label.visible = show_link
+	_copy_share_id_button.visible = show_link
+
+
+func _get_selected_version_uuid() -> String:
+	var version_number: int = _project_versions_option_button.get_selected_id()
+	var has_selected_version: bool = version_number != -1
+	if not has_selected_version:
+		return ""
+	return _project_versions_option_button.get_version_data(version_number).get("uuid", "")
+
+
 func _update_versions() -> void:
 	_import_button.disabled = true
 	_project_versions_option_button.set_project_data(_project_data)
@@ -149,6 +234,7 @@ func _update_versions() -> void:
 
 
 func _update_versions_visibility() -> void:
+	_update_version_link_visibility()
 	var nothing_selected: bool = _project_versions_option_button.get_selected_id() == -1
 	if _project_versions_option_button.item_count == 0 or _showing_more == false or nothing_selected:
 		_project_versions_option_button.hide()
@@ -176,7 +262,20 @@ func _on_import_button_pressed() -> void:
 	var version_number: int = _project_versions_option_button.get_selected_id()
 	var version_data: Dictionary = _project_versions_option_button.get_version_data(version_number)
 	var version_uuid: String = version_data.get("uuid", "")
-	import_button_pressed.emit(_project_data, version_uuid)
+	import_button_pressed.emit(_project_data, version_uuid, version_number)
+
+
+func _on_copy_share_id_button_pressed() -> void:
+	var version_uuid: String = _get_selected_version_uuid()
+	DisplayServer.clipboard_set(version_uuid)
+	var original_text: String = _copy_share_id_button.text
+	_copy_share_id_button.text = tr("Copied!")
+	await get_tree().create_timer(_COPIED_FEEDBACK_SECONDS).timeout
+	_copy_share_id_button.text = original_text
+
+
+func _on_edit_button_pressed() -> void:
+	edit_button_pressed.emit(_project_data)
 
 
 func _update_separator() -> void:
@@ -206,4 +305,6 @@ func _on_see_more_button_pressed() -> void:
 		_animation_player.play(&"see_less")
 		_animation_player.seek(0, true)
 		_animation_player.stop()
+	_update_people_visibility()
+	_update_version_link_visibility()
 

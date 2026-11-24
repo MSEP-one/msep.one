@@ -216,7 +216,7 @@ metadata/_custom_type_script = "uid://3hjuxktmfb16"
 
 [node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
-text = "Description"
+text = "Version description"
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
@@ -226,7 +226,7 @@ theme_type_variation = &"SubcategoryPanel"
 [node name="VersionDescriptionTextEdit" type="TextEdit" parent="VBoxContainer/HBoxContainer/VersionsContainer/PanelContainer/VBoxContainer/PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-placeholder_text = "Project description here"
+placeholder_text = "Describe changes in this version..."
 wrap_mode = 1
 scroll_fit_content_height = true
 
