@@ -1280,15 +1280,19 @@ def minimize_energy(header:PayloadHeaderReader, topology_payload: PayloadTopolog
 	return minimized_positions
 
 
-running_simulations: dict = {
+simulations: dict = {
+#	id<int> = simulation<Simulation>
+}
+stop_triggers: dict = {
 #	id<int> = stop_trigger<threading.Event>
+# 	Stop triggers are stored separatly from the simulation objects since they can happen before the simulation starts
 }
 def start_simulation(socket, socket_lock, simulation_id: int, parameters: PayloadSimulationParameters, topology_payload: PayloadTopologyReader, state_payload: PayloadStateReader):
 	try:
-		stop_trigger: threading.Event = running_simulations.get(simulation_id, None)
+		stop_trigger: threading.Event = stop_triggers.get(simulation_id, None)
 		stop_exists: bool = stop_trigger != None
 		if stop_exists and stop_trigger.is_set():
-			if running_simulations.pop(simulation_id, None) != None:
+			if stop_triggers.pop(simulation_id, None) != None:
 				logging.info(f"Aborted simulation while starting, step #1")
 			return
 		molecules: list[Molecule] = topology_payload.to_openff_molecules()
@@ -1297,12 +1301,12 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 		forcefield = create_forcefield_for_topology(topology_payload, remove_constraints=has_emitters)
 		interchange = Interchange.from_smirnoff(forcefield, topology, charge_from_molecules=molecules)
 		if stop_exists and stop_trigger.is_set():
-			if running_simulations.pop(simulation_id, None) != None:
+			if stop_triggers.pop(simulation_id, None) != None:
 				logging.info(f"Aborted simulation while starting, step #2")
 			return
 		openmm_system: System =interchange.to_openmm(combine_nonbonded_forces=True, add_constrained_forces=False)
 		if stop_exists and stop_trigger.is_set():
-			if running_simulations.pop(simulation_id, None) != None:
+			if stop_triggers.pop(simulation_id, None) != None:
 				logging.info(f"Aborted simulation while starting, step #3")
 			return
 		openff_initial_positions: list[Vec3] = []
@@ -1376,7 +1380,7 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 			motor.initialize_force(openmm_system)
 		
 		if stop_exists and stop_trigger.is_set():
-			if running_simulations.pop(simulation.simulation_id, None) != None:
+			if stop_triggers.pop(simulation.simulation_id, None) != None:
 				logging.info(f"Aborted simulation while starting, step #4")
 			return
 		# Propagate the System with Langevin dynamics.
@@ -1422,6 +1426,8 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 			simulation.anchors_count = len(topology_payload.anchors)
 			simulation.payload_to_openff_atom = topology_payload.payload_to_openff_atom
 			simulation.openff_atom_to_payload = topology_payload.openff_atom_to_payload
+			simulation.emitters = topology_payload.emitters
+			simulation.motors_forces = topology_payload.motors_forces
 			simulation.time_step_in_nanoseconds = time_step_in_nanoseconds
 			simulation.frame = 0
 
@@ -1475,13 +1481,13 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 						step=True, time=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=False, density=False,
 						progress=True, remainingTime=True, speed=True, elapsedTime=False, separator=',', systemMass=None, totalSteps=num_steps)
 				simulation.reporters.append(sd_reporter)
-		
+		simulations[simulation_id] = simulation
 		if stop_exists and stop_trigger.is_set():
-			if running_simulations.pop(simulation.simulation_id, None) != None:
+			if stop_triggers.pop(simulation.simulation_id, None) != None:
 				logging.info(f"Aborted simulation while starting, step #5")
 			return
 		with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
-			executor.submit(thread_simulate, simulation, num_steps, topology_payload.motors_forces, topology_payload.emitters, time_step_in_nanoseconds)
+			executor.submit(thread_simulate, simulation, num_steps)
 	except Exception as inst:
 			with socket_lock:
 				socket.send_string("err:" + str(simulation_id), zmq.SNDMORE)
@@ -1518,18 +1524,26 @@ def start_simulation(socket, socket_lock, simulation_id: int, parameters: Payloa
 				# raise inst
 
 
-def thread_simulate(simulation: Simulation, num_steps, motors_forces, emitters, time_step_in_nanoseconds):
-	stop_trigger: threading.Event = running_simulations.get(simulation.simulation_id, None)
+def extend_simulation(socket, socket_lock, simulation_id: int, extend_steps_count: int):
+	simulation = simulations.get(simulation_id, None)
+	if simulation == None:
+		return
+	with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+		executor.submit(thread_simulate, simulation, extend_steps_count)
+
+
+def thread_simulate(simulation: Simulation, num_steps):
+	stop_trigger: threading.Event = stop_triggers.get(simulation.simulation_id, None)
 	stop_exists: bool = stop_trigger != None
 	for step in range(num_steps):
 		try:
 			if stop_exists and stop_trigger.is_set():
-				if running_simulations.pop(simulation.simulation_id, None) != None:
+				if stop_triggers.pop(simulation.simulation_id, None) != None:
 					logging.info(f"Aborted simulation on thread while running step #{step}")
 				return
-			for emitter in emitters:
+			for emitter in simulation.emitters:
 				emitter.advance(simulation)
-			for motor in motors_forces:
+			for motor in simulation.motors_forces:
 				motor.advance(simulation)
 				
 			simulation.step(1)
@@ -1550,9 +1564,11 @@ def thread_simulate(simulation: Simulation, num_steps, motors_forces, emitters, 
 				traceback_str += trace_line
 			logging.error(inst)
 			logging.error(traceback_str)
-			running_simulations.pop(simulation.simulation_id, None)
+			stop_triggers.pop(simulation.simulation_id, None)
+			simulations.pop(simulation.simulation_id, None)
 			return
-	running_simulations.pop(simulation.simulation_id, None)
+	stop_triggers.pop(simulation.simulation_id, None)
+
 
 def import_file(payload: ImportFileRequest) -> ImportFileResponse:
 	molecules: list[Molecule] = []
@@ -1775,16 +1791,31 @@ if __name__ == '__main__':
 						json_object: dict = json.loads(json_string)
 						topology.add_virtual_object(json_object)
 					socket.send(b'Running')
-					running_simulations[simulation_id] = threading.Event()
+					stop_triggers[simulation_id] = threading.Event()
 					threading.Thread(target=start_simulation, args=(socket_publish_simulation, socket_publick_lock, simulation_id, parameters, topology, state)).start()
 				case b'AbortSimulation':
 					id_bytes: bytes = socket.recv()
-					simulation_id: int = struct.unpack('<q', id_bytes)[0]
-					stop_trigger: threading.Event = running_simulations.get(simulation_id, None)
+					simulation_id: int = struct.unpack_from('<q', id_bytes, 0)[0]
+					allow_resume: int = struct.unpack_from('<q', id_bytes, 8)[0]
+					stop_trigger: threading.Event = stop_triggers.get(simulation_id, None)
 					if stop_trigger != None and not stop_trigger.is_set():
 						logging.info(f"Server received an Abort Simulation request")
 						stop_trigger.set()
+					if allow_resume == 0:
+						simulations.pop(simulation_id, None)
 					socket.send(b'ack')
+				case b'ExtendSimulation':
+					id_bytes: bytes = socket.recv()
+					simulation_id: int = struct.unpack_from('<q', id_bytes, 0)[0]
+					extend_steps_count: int = struct.unpack_from('<q', id_bytes, 8)[0]
+					simulation_exists: bool = simulations.get(simulation_id, None) != None
+					if simulation_exists:
+						logging.info(f"Server received an Extend Simulation request for: {simulation_id}")
+						stop_triggers[simulation_id] = threading.Event()
+						threading.Thread(target=extend_simulation, args=(socket_publish_simulation, socket_publick_lock, simulation_id, extend_steps_count)).start()
+						socket.send(b'ack')
+					else:
+						socket.send(b'error')
 				case b'Import File':
 					path = socket.recv_string()
 					payload = ImportFileRequest(path)
@@ -1839,10 +1870,11 @@ if __name__ == '__main__':
 					pid_buffer += struct.pack("<Q", pid)
 					socket.send(pid_buffer)
 				case b"Quit":
-					for simulation_id in running_simulations.keys():
-						stop_trigger: threading.Event = running_simulations.get(simulation_id, None)
+					for simulation_id in stop_triggers.keys():
+						stop_trigger: threading.Event = stop_triggers.get(simulation_id, None)
 						if stop_trigger != None and not stop_trigger.isSet():
 							stop_trigger.set()
+					simulations.clear()
 					socket.send_string("ack")
 					sys.exit(0)
 				case _:

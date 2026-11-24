@@ -11,6 +11,7 @@ const ServerCommands: Dictionary = {
 	RELAX    = "Relax",
 	SIMULATE = "Simulate",
 	ABORT_SIMULATION = "AbortSimulation",
+	EXTEND_SIMULATION = "ExtendSimulation",
 	EXPORT   = "Export File",
 	GET_PID  = "GetProcessID",
 	QUIT     = "Quit",
@@ -278,8 +279,14 @@ func request_start_simulation(
 	return data
 
 
-func request_abort_simulation(in_simulation: SimulationData) -> void:
-	_request_abort_simulation(in_simulation)
+func request_extend_simulation(simulation_id: int, extend_step_count: int) -> Promise:
+	var promise := Promise.new()
+	_request_extend_simulation(simulation_id, extend_step_count, promise)
+	return promise
+
+
+func request_abort_simulation(in_simulation: SimulationData, in_allow_resume: bool = false) -> void:
+	_request_abort_simulation(in_simulation, in_allow_resume)
 
 
 func request_import(file_path: String, in_generate_bonds: bool, in_add_hydrogens: bool, in_remove_waters: bool) -> Promise:
@@ -347,6 +354,7 @@ func _request_relax(
 	_dispose_thread_when_done.call_deferred(relax_request.promise, thread)
 	return relax_request
 
+
 func _request_start_simulation(
 		in_workspace_context: WorkspaceContext,
 		out_simulation_data: SimulationData
@@ -386,7 +394,18 @@ func _request_start_simulation(
 	_dispose_thread_when_done.call_deferred(out_simulation_data.start_promise, thread)
 
 
-func _request_abort_simulation(in_simulation: SimulationData) -> void:
+func _request_extend_simulation(simulation_id: int, extend_step_count: int, out_promise: Promise) -> void:
+	if !_CONNECT_TO_DEBUG_SOCKET and _bus_thread == null:
+		# There's no simulation to extend if the bus doesn't exists
+		out_promise.fulfill(false)
+		return
+	var thread := Thread.new()
+	_threads.push_back(thread)
+	thread.start(_extend_simulation_on_thread.bind(simulation_id, extend_step_count, out_promise))
+	_dispose_thread_when_done.call_deferred(out_promise, thread)
+
+
+func _request_abort_simulation(in_simulation: SimulationData, in_allow_resume: bool) -> void:
 	if !_CONNECT_TO_DEBUG_SOCKET and _bus_thread == null:
 		# bus not running there should not be any simulation to abort
 		return
@@ -395,7 +414,7 @@ func _request_abort_simulation(in_simulation: SimulationData) -> void:
 	var thread := Thread.new()
 	_threads.push_back(thread)
 	var abort_promise := Promise.new()
-	thread.start(_abort_simulation_on_thread.bind(in_simulation.id, abort_promise))
+	thread.start(_abort_simulation_on_thread.bind(in_simulation.id, in_allow_resume, abort_promise))
 	_dispose_thread_when_done.call_deferred(abort_promise, thread)
 
 
@@ -762,7 +781,7 @@ func _was_simulation_aborted(in_simulation_id: int) -> bool:
 	return aborted
 
 
-func _abort_simulation_on_thread(in_simulation_id: int, out_abort_promise: Promise) -> void:
+func _abort_simulation_on_thread(in_simulation_id: int, in_allow_resume: bool, out_abort_promise: Promise) -> void:
 	const mutex_context: String = "OpenMM::_abort_simulation_on_thread"
 	var initial_server_pid: int = 0
 	while initial_server_pid <= 0:
@@ -778,8 +797,9 @@ func _abort_simulation_on_thread(in_simulation_id: int, out_abort_promise: Promi
 	_set_busy_indicator_substate("")
 	_bus.send_string(ServerCommands.ABORT_SIMULATION, ZMQSocket.SEND_FLAG_SNDMORE)
 	var id_bytes := PackedByteArray()
-	id_bytes.resize(8)
+	id_bytes.resize(16)
 	id_bytes.encode_s64(0, in_simulation_id)
+	id_bytes.encode_s64(8, int(in_allow_resume))
 	_bus.send_buffer(id_bytes)
 	
 	var response: PackedByteArray = []
@@ -804,6 +824,40 @@ func _abort_simulation_on_thread(in_simulation_id: int, out_abort_promise: Promi
 		_handle_request_error(out_abort_promise, false)
 		return
 	out_abort_promise.fulfill.call_deferred(true)
+
+
+func _extend_simulation_on_thread(in_simulation_id: int, in_extend_step_count: int, out_promise: Promise) -> void:
+	const mutex_context: String = "OpenMM::_extend_simulation_on_thread"
+	var initial_server_pid: int = _server_pid
+	if initial_server_pid == 0:
+		# Invalid server pid
+		out_promise.fulfill.call_deferred(false)
+		return
+	_bus_lock.lock(mutex_context)
+	_bus.send_string(ServerCommands.EXTEND_SIMULATION, ZMQSocket.SEND_FLAG_SNDMORE)
+	var id_bytes := PackedByteArray()
+	id_bytes.resize(16)
+	id_bytes.encode_s64(0, in_simulation_id)
+	id_bytes.encode_s64(8, in_extend_step_count)
+	_bus.send_buffer(id_bytes)
+	
+	var response: PackedByteArray = []
+	while response.is_empty() and initial_server_pid == _server_pid:
+		response = _bus.receive_buffer(ZMQSocket.RECEIVE_FLAG_DONT_WAIT)
+		_bus_lock.unlock(mutex_context)
+		# This makes the query non blocking
+		OS.delay_msec(100)
+		_bus_lock.lock(mutex_context)
+	_bus_lock.unlock(mutex_context)
+	
+	var did_server_crash: bool = initial_server_pid != _server_pid
+	if did_server_crash:
+		out_promise.fulfill.call_deferred(false)
+		return
+	if response != "ack".to_utf8_buffer():
+		_handle_request_error(out_promise, false)
+		return
+	out_promise.fulfill.call_deferred(true)
 
 
 func _process_import_file_request_on_thread(out_payload: ImportFilePayload, out_promise: Promise) -> void:
