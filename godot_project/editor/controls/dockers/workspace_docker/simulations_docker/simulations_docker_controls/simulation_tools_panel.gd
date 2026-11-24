@@ -40,14 +40,19 @@ var _label_error_notice: Label = null
 var _label_empty_notice: Label = null
 var _button_revert: Button = null
 var _button_end: Button = null
+var _button_extend: Button = null
 var _button_apply: Button = null
 var _button_view_alerts: Button = null
 var _open_mm_failure_tracker: OpenMMFailureTracker = null
+var _extend_simulation_dialog: ConfirmationDialog = null
+var _spinbox_extend_frames_count: SpinBox = null
 
 var _workspace_context: WorkspaceContext = null
 var _status: Status = Status.INACTIVE: set = _set_status
-var _total_simulation_len_nanoseconds: float = 0.0
+## Total length as defined in the simulation panel -> frames * steps per report
+var _expected_simulation_len_nanoseconds: float = 0.0
 var _finish_prewarming_time: float = 0.0
+## The length of all the frames that were actually simulated so far
 var _simulation_length_nanoseconds: float = 0.0: set = _set_simulation_length_nanoseconds
 var _edit_notice_dimmed: bool = true
 var _playback_delta: float = 0.0
@@ -113,8 +118,11 @@ func _notification(in_what: int) -> void:
 		_label_empty_notice = %LabelEmptyNotice as Label
 		_button_revert = %ButtonRevert as Button
 		_button_end = %ButtonEnd as Button
+		_button_extend = %ButtonExtend as Button
 		_button_apply = %ButtonApply as Button
 		_button_view_alerts = %ButtonViewAlerts as Button
+		_extend_simulation_dialog = %ExtendSimulationDialog as ConfirmationDialog
+		_spinbox_extend_frames_count = %SpinBoxExtend as SpinBox
 		_open_mm_failure_tracker = %OpenMMFailureTracker as OpenMMFailureTracker
 		_status = Status.INACTIVE
 		_spin_box_timeline.share(_slider_timeline)
@@ -137,9 +145,13 @@ func _notification(in_what: int) -> void:
 		_option_button_timeline_unit.item_selected.connect(_on_option_button_timeline_unit_item_selected)
 		_button_revert.pressed.connect(_on_button_revert_pressed)
 		_button_end.pressed.connect(_on_button_end_pressed)
+		_button_extend.pressed.connect(_on_button_extend_pressed)
 		_button_apply.pressed.connect(_on_button_apply_pressed)
 		_button_view_alerts.pressed.connect(_on_button_view_alerts_pressed)
+		_extend_simulation_dialog.confirmed.connect(_on_extend_simulation_confirmed)
 		_open_mm_failure_tracker.results_collected.connect(_on_open_mm_failure_tracker_results_collected)
+		
+		_extend_simulation_dialog.hide()
 
 
 func _on_workspace_context_about_to_apply_simulation() -> void:
@@ -226,7 +238,7 @@ func _update_controls() -> void:
 			_status_icon.texture = _ICONS.paused
 			_status_label.text = tr("Stopped")
 			_simulation_length_nanoseconds = 0
-			_total_simulation_len_nanoseconds = 0.0
+			_expected_simulation_len_nanoseconds = 0.0
 			_error_playback_active = false
 			_spin_box_timeline.value = 0
 			_spin_box_timeline.max_value = _spin_box_timeline.step
@@ -234,6 +246,7 @@ func _update_controls() -> void:
 			_slider_timeline.editable = false
 			_button_revert.disabled = true
 			_button_end.disabled = true
+			_button_extend.disabled = true
 			_button_apply.disabled = true
 		Status.PREWARMING:
 			_temperature_picker.editable = false
@@ -305,6 +318,7 @@ func _update_controls() -> void:
 			_spin_box_timeline.editable = true
 			_button_revert.disabled = false
 			_button_end.disabled = true
+			_button_extend.disabled = true
 			_button_apply.disabled = false
 
 
@@ -318,13 +332,13 @@ func _has_valid_atoms() -> bool:
 func _is_simulation_complete() -> bool:
 	# make a string comparison to prevent rounding presition errors
 	# comparing floats was causing false negatives
-	var complete: bool = ("%.15f" % _simulation_length_nanoseconds) == ("%.15f" % _total_simulation_len_nanoseconds)
+	var complete: bool = ("%.15f" % _simulation_length_nanoseconds) == ("%.15f" % _expected_simulation_len_nanoseconds)
 	return complete
 
 
 func _is_playback_complete() -> bool:
 	var seek: float = _playback_unit_to_nanoseconds(_spin_box_timeline.value)
-	return absf(seek - _total_simulation_len_nanoseconds) < _SIMULATION_TIME_THRESHOLD or seek >= _total_simulation_len_nanoseconds
+	return absf(seek - _expected_simulation_len_nanoseconds) < _SIMULATION_TIME_THRESHOLD or seek >= _expected_simulation_len_nanoseconds
 
 
 func _set_error_playback_active(in_enabled: bool) -> void:
@@ -351,6 +365,7 @@ func _on_simulation_frame_received(in_frame: float, _in_state: Variant) -> void:
 	_simulation_length_nanoseconds = max(time_nanoseconds, _simulation_length_nanoseconds)
 	if _is_simulation_complete():
 		_button_end.disabled = true
+		_button_extend.disabled = false
 		_workspace_context.simulation_background_processing_completed.emit()
 
 
@@ -365,7 +380,7 @@ func _on_simulation_invalid_state_received() -> void:
 			 _time_span_picker.time_span_femtoseconds * steps, TimeSpanPicker.Unit.NANOSECOND)
 	_simulation_length_nanoseconds -= report_duration * _REPORTS_DROP_ON_ERROR
 	_simulation_length_nanoseconds = max(_simulation_length_nanoseconds, 0.0)
-	_total_simulation_len_nanoseconds = _simulation_length_nanoseconds
+	_expected_simulation_len_nanoseconds = _simulation_length_nanoseconds
 	_spin_box_timeline.set_value_no_signal(_simulation_length_nanoseconds)
 
 
@@ -437,7 +452,12 @@ func _update_estimated_length() -> void:
 	var report_count: float = _spin_box_report_count.value
 	var unit: int = _option_button_timeline_unit.selected
 	var playback_unit_is_time: bool = TimeSpanPicker.Unit.find_key(unit) != null
-	
+	var report_time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
+						_time_span_picker.time_span_femtoseconds,
+						TimeSpanPicker.Unit.NANOSECOND
+					) * _spin_box_steps_per_report.value
+	_expected_simulation_len_nanoseconds = report_time_in_nanoseconds * _spin_box_report_count.value
+
 	if playback_unit_is_time:
 		var report_time_in_femtoseconds: float = \
 				step_size_in_femtoseconds * steps_per_report
@@ -557,9 +577,9 @@ func _on_button_start_pause_pressed() -> void:
 						params.step_size_in_femtoseconds,
 						TimeSpanPicker.Unit.NANOSECOND
 					) * params.steps_per_report
-				_total_simulation_len_nanoseconds = report_time_in_nanoseconds * _spin_box_report_count.value
+				_expected_simulation_len_nanoseconds = report_time_in_nanoseconds * _spin_box_report_count.value
 				_finish_prewarming_time = report_time_in_nanoseconds * _PREWARM_TIME_IN_FRAME_COUNTS
-				_finish_prewarming_time = min(_total_simulation_len_nanoseconds, _finish_prewarming_time)
+				_finish_prewarming_time = min(_expected_simulation_len_nanoseconds, _finish_prewarming_time)
 				_spin_box_timeline.step = _nanoseconds_to_playback_unit(report_time_in_nanoseconds)
 				_slider_timeline.step = _nanoseconds_to_playback_unit(report_time_in_nanoseconds)
 				_button_end.disabled = false
@@ -636,7 +656,7 @@ func _on_spin_box_timeline_value_changed(in_value: float) -> void:
 	if not is_instance_valid(_workspace_context) or not _workspace_context.is_simulating():
 		_status = Status.INACTIVE
 		return
-	var has_started_recording: bool = _total_simulation_len_nanoseconds > 0.0
+	var has_started_recording: bool = _expected_simulation_len_nanoseconds > 0.0
 	if has_started_recording and _is_playback_complete():
 		if _error_playback_active:
 			_error_playback_active = false
@@ -764,10 +784,17 @@ func _on_button_end_pressed() -> void:
 	
 	_workspace_context.end_simulation_if_running()
 	_button_end.disabled = true
-	_total_simulation_len_nanoseconds = _simulation_length_nanoseconds
+	_button_extend.disabled = false
+	_expected_simulation_len_nanoseconds = _simulation_length_nanoseconds
 	
 	if _status == Status.PLAYING:
 		_status = Status.PAUSED
+
+
+func _on_button_extend_pressed() -> void:
+	if not is_instance_valid(_workspace_context):
+		return
+	_extend_simulation_dialog.popup_centered()
 
 
 func _on_button_apply_pressed() -> void:
@@ -781,6 +808,37 @@ func _on_button_apply_pressed() -> void:
 func _on_button_view_alerts_pressed() -> void:
 	if _workspace_context.has_alerts():
 		_workspace_context.show_alerts_panel()
+
+
+func _on_extend_simulation_confirmed() -> void:
+	if not _workspace_context.is_simulating():
+		# Should not happen
+		return
+	# Simulation can be extended after the user manually stopped the background processing
+	# before the end. In that case the amount of steps to run will be higher that just
+	# new_frames * steps
+	var step_time_in_nanoseconds: float = TimeSpanPicker.femtoseconds_to_unit(
+			_time_span_picker.time_span_femtoseconds,
+			TimeSpanPicker.Unit.NANOSECOND)
+	var already_simulated_steps: int = roundi(_simulation_length_nanoseconds / step_time_in_nanoseconds)
+	var requested_frames: int = int(_spinbox_extend_frames_count.value)
+	var total_frames: int = int(_spin_box_report_count.value + requested_frames)
+	var extra_steps_to_run: int = int((total_frames * _spin_box_steps_per_report.value) - already_simulated_steps)
+	_button_extend.disabled = true
+	_spin_box_report_count.set_value_no_signal(total_frames)
+	_update_estimated_length()
+	var promise: Promise = OpenMM.request_extend_simulation(_workspace_context.get_simulation_id(), extra_steps_to_run)
+	await promise.wait_for_fulfill()
+	if not promise.get_result():
+		# Error when extending the simulation
+		_workspace_context.show_warning_dialog(
+			tr("An error occured when extending the simulation range.\n" +
+				"Abort the current simulation and increase the frame count before trying again."),
+			tr("Continue"))
+		return
+	if not _is_simulation_complete():
+		_workspace_context.notify_simulation_extended()
+		_status = Status.PLAYING
 
 
 func _update_view_alerts_button() -> void:
@@ -807,6 +865,3 @@ func _physics_process(_delta: float) -> void:
 	if _playback_delta >= _spin_box_timeline.step:
 		_spin_box_timeline.set_value(min(_spin_box_timeline.value + _playback_delta, _spin_box_timeline.max_value))
 		_playback_delta = 0.0
-
-
-

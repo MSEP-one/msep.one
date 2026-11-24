@@ -101,8 +101,7 @@ custom_arrow_step = 100.0
 [node name="Label5" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_stretch_ratio = 0.5
-text = "Frame Count
-"
+text = "Frame Count"
 vertical_alignment = 1
 
 [node name="SpinBoxReportCount" parent="PanelContainer/VBoxContainer/GridContainer" instance=ExtResource("4_oqut5")]
@@ -224,31 +223,40 @@ autowrap_mode = 2
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer"]
 layout_mode = 2
+columns = 2
 
-[node name="ButtonRevert" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="ButtonRevert" type="Button" parent="VBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 disabled = true
 text = "Abort Simulation
 "
 icon = ExtResource("4_xo5op")
 
-[node name="ButtonEnd" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="ButtonEnd" type="Button" parent="VBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 disabled = true
 text = "End Simulation
 "
 icon = ExtResource("9_1gfm6")
 
-[node name="ButtonApply" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="ButtonExtend" type="Button" parent="VBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
+disabled = true
+text = "Extend Simulation"
+icon = ExtResource("2_t66qa")
+
+[node name="ButtonApply" type="Button" parent="VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 disabled = true
 text = "Apply Simulation
 "
@@ -284,5 +292,34 @@ text = "Manage Visibility of Virtual Objects"
 
 [node name="OpenMMFailureTracker" parent="." instance=ExtResource("9_6sv07")]
 unique_name_in_owner = true
+
+[node name="ExtendSimulationDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Extend Simulation"
+initial_position = 2
+size = Vector2i(200, 106)
+visible = true
+ok_button_text = "Extend"
+
+[node name="BoxContainer" type="BoxContainer" parent="ExtendSimulationDialog"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 190.0
+offset_bottom = 59.0
+vertical = true
+
+[node name="Label" type="Label" parent="ExtendSimulationDialog/BoxContainer"]
+layout_mode = 2
+text = "Frames to add:"
+
+[node name="SpinBoxExtend" type="SpinBox" parent="ExtendSimulationDialog/BoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 10000.0
+value = 100.0
+rounded = true
+allow_greater = true
+alignment = 1
 
 [connection signal="pressed" from="VBoxContainer/ManageHiddenButton" to="." method="_on_manage_hidden_button_pressed"]

@@ -23,6 +23,8 @@ signal atoms_relaxation_finished(error_description_or_empty: String)
 signal simulation_started()
 # When last frame of simulation is received, or user stops simulation without aborting it
 signal simulation_background_processing_completed()
+# When the user extends the already complete simulation
+signal simulation_background_processing_resumed()
 # When user discards simulation
 signal simulation_finished()
 signal about_to_apply_simulation()
@@ -688,12 +690,16 @@ func abort_simulation_if_running() -> void:
 	revert_pending_changes()
 
 
+func notify_simulation_extended() -> void:
+	simulation_background_processing_resumed.emit()
+
+
 ## Stops and discard the simulation on OpenMM's side, but keep the existing
 ## frames in memory on MSEP so they can be displayed and manipulated.
 func end_simulation_if_running() -> void:
 	if !is_simulating():
 		return
-	OpenMM.request_abort_simulation(_simulation)
+	OpenMM.request_abort_simulation(_simulation, true)
 	simulation_background_processing_completed.emit()
 
 

@@ -30,6 +30,7 @@ func _ensure_workspace_initialized(out_workspace_context: WorkspaceContext) -> v
 	if _workspace_context != out_workspace_context:
 		_workspace_context = out_workspace_context
 		out_workspace_context.simulation_started.connect(_on_simulation_started)
+		out_workspace_context.simulation_background_processing_resumed.connect(_on_simulation_started)
 		out_workspace_context.simulation_background_processing_completed.connect(_on_simulation_background_processing_completed)
 		out_workspace_context.simulation_finished.connect(_on_simution_finished)
 
